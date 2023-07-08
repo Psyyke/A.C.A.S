@@ -117,7 +117,7 @@ const instanceVars = {
     fen: createInstanceVariable('fen')
 };
 
-if(window.location.href == backendURL) {
+if(window?.location?.href?.includes(backendURL)) {
     // expose variables and functions
     unsafeWindow.USERSCRIPT = {
         'GM_info': GM_info,
