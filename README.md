@@ -55,7 +55,7 @@ Before making an issue, please read these,
 
 - Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.
 
-Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/Userscripts/issues).
+Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/A.C.A.S/issues/new).
 
 ## Used Libraries
 
