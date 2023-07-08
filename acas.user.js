@@ -59,8 +59,8 @@
 // @version     2.0
 // @namespace   HKR
 // @author      HKR
-// @require     https://raw.githubusercontent.com/AugmentedWeb/CommLink/main/CommLink.js
-// @require     https://raw.githubusercontent.com/Hakorr/UniversalBoardDrawer/main/UniversalBoardDrawer.js
+// @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
+// @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // ==/UserScript==
 
 /*
