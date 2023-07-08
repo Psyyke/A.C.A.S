@@ -23,7 +23,9 @@ Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/ma
 
 ### Why doesn't it work?
 
-It could be a bug, please make an issue [here](https://github.com/Hakorr/Userscripts/issues).
+Do you not see any moves displayed on the chess site? Are you sure you have enabled "Display Moves On External Site" box on the A.C.A.S GUI settings? After enabling that setting, please refresh the chess site to see changes.
+
+Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/Userscripts/issues).
 
 ## Used Libraries
 
