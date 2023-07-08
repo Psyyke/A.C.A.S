@@ -9,7 +9,7 @@ A.C.A.S is an **advanced chess assistance system** system which enhances your ch
 
 ## Getting Started
 
-Simply install the A.C.A.S userscript, open the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) and a supported chess game site. 
+Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/main/acas.user.js), open the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) and a supported chess game site. 
 
 > **Warning**
 > You need to keep the A.C.A.S tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
