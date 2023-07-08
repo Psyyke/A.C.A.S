@@ -39,7 +39,7 @@
 // @description:ru     Слава Украине
 // @homepageURL https://hakorr.github.io/A.C.A.S
 // @supportURL  https://github.com/Hakorr/A.C.A.S/issues/new
-// @downloadURL https://github.com/Hakorr/A.C.A.S/acas.user.js
+// @downloadURL https://github.com/Hakorr/A.C.A.S/raw/main/acas.user.js
 // @match       https://www.chess.com/*
 // @match       https://lichess.org/*
 // @match       https://chess.org/*
@@ -83,7 +83,7 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 //////////////////////////////////////////////////////////////////////
 // DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING //
 
-const backendURL = 'https://hakorr.github.io/A.C.A.S'; //'http://localhost/';
+const backendURL = 'https://hakorr.github.io/A.C.A.S/'; //'http://localhost/';
 const tempValueIndicator = '-temp-value-';
 const domain = window.location.hostname.replace('www.', '');
 
@@ -147,7 +147,16 @@ function getUniqueID() {
 
 const commLinkInstanceID = getUniqueID();
 
-const blacklistedURLs = ['https://www.chess.com/play', 'https://lichess.org/', 'https://chess.org/', 'https://papergames.io/en/chess', 'https://playstrategy.org/'];
+const blacklistedURLs = [
+    'https://www.chess.com/play',
+    'https://lichess.org/',
+    'https://chess.org/',
+    'https://papergames.io/en/chess',
+    'https://playstrategy.org/',
+    'https://hakorr.github.io/A.C.A.S/',
+    'https://hakorr.github.io/A.C.A.S/why/',
+    'https://hakorr.github.io/A.C.A.S/tos/'
+];
 
 const configKeys = {
     'engineElo': 'engineElo',
