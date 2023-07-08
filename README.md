@@ -31,9 +31,13 @@ Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/ma
 
 ### Why doesn't it work?
 
-Do you not see any moves displayed on the chess site? Are you sure you have enabled "Display Moves On External Site" box on the A.C.A.S GUI settings? After enabling that setting, please refresh the chess site to see changes.
+Before making an issue, please read these,
 
-Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Please don't make an issue about it, I know.
+- Make sure the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) is active. Do not close the tab.
+
+- Do you not see any moves displayed on the chess site? Are you sure you have enabled "Display Moves On External Site" box on the A.C.A.S GUI settings? After enabling that setting, please refresh the chess site to see changes.
+
+- Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.
 
 Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/Userscripts/issues).
 
