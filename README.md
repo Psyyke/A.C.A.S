@@ -6,10 +6,14 @@ A.C.A.S is an **advanced chess assistance system** (some might even call it a "*
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
 * Impossible to detect (well, you can never be sure, so let's say it's *almost* impossible)
-
+  
 > **Warning**
 > A.C.A.S is currently in development. Expect bugs, especially on variants.
-> 
+
+## Example Gameplay
+
+![example-game](https://github.com/Hakorr/A.C.A.S/assets/76921756/9a6dcab4-04db-4409-8f9f-3d871120746c)
+
 ## Getting Started
 
 Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/main/acas.user.js), open the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) and a supported chess game site. Then, just start playing!
