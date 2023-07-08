@@ -12,7 +12,7 @@ A.C.A.S is an **advanced chess assistance system** (some might even call it a "*
 
 ## Example Gameplay
 
-![example-game](https://github.com/Hakorr/A.C.A.S/assets/76921756/9a6dcab4-04db-4409-8f9f-3d871120746c)
+<img src="https://github.com/Hakorr/A.C.A.S/assets/76921756/9a6dcab4-04db-4409-8f9f-3d871120746c" alt="drawing" style="width:85%;"/>
 
 ## Getting Started
 
