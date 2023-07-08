@@ -55,7 +55,7 @@ Before making an issue, please read these,
 
 - Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.
 
-Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/A.C.A.S/issues/new).
+Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/A.C.A.S/issues/new). Please be descriptive! Mention what site the problem occurs on and browser & userscript manager you're using. What did you do for the bug to happen, does it happen often? How could I reproduce it?
 
 ## Used Libraries
 
