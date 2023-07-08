@@ -1,0 +1,58 @@
+{
+  "name": "chessgroundx",
+  "version": "10.5.0",
+  "description": "Extended lichess.org Chess UI",
+  "type": "module",
+  "module": "chessground.js",
+  "typings": "chessground.d.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8",
+    "@typescript-eslint/eslint-plugin": "^5",
+    "@typescript-eslint/parser": "^5",
+    "chai": "^4.2.0",
+    "eslint": "^8",
+    "jsdom": "^17.0.0",
+    "jsdom-global": "^3.0.2",
+    "mocha": "^8.4.0",
+    "prettier": "^2",
+    "rollup": "^2",
+    "rollup-plugin-terser": "^7",
+    "tslib": "^2",
+    "typescript": "^4"
+  },
+  "scripts": {
+    "pretest": "npm run compile",
+    "test": "mocha --require jsdom-global/register 'tests/**/*.spec.js'",
+    "prepublish": "npm run compile",
+    "prepare": "npm run compile",
+    "compile": "tsc --outDir . --sourceMap --declaration",
+    "lint": "eslint src/*.ts",
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "dist": "rollup --config"
+  },
+  "files": [
+    "/*.js",
+    "/*.d.ts",
+    "/*.js.map",
+    "/assets/*.css",
+    "/src/*.ts",
+    "!/rollup.config.js"
+  ],
+  "repository": "https://github.com/gbtami/chessgroundx",
+  "keywords": [
+    "chess",
+    "lichess",
+    "lichess.org",
+    "chessboard",
+    "ui",
+    "typescript"
+  ],
+  "author": "Bajusz Tamás (https://github.com/gbtami)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/gbtami/chessgroundx/issues"
+  },
+  "funding": "https://pychess.org/patron"
+}

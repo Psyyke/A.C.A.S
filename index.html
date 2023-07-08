@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8">
+		<title>A.C.A.S</title>
+		<script src="coi-serviceworker.js"></script>
+		<script src="assets/js/acas-globals.js"></script>
+		<script src="assets/js/acas-backend-instance.js"></script>
+		<script src="assets/js/acas-backend-manager.js"></script>
+		<script src="assets/js/acas-user-security-system.js"></script>
+		<script src="assets/libraries/fairy-stockfish-nnue.wasm/stockfish.js"></script>
+		<script src="assets/libraries/FileSaver/FileSaver.js"></script>
+		<script src="assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
+		<link rel="stylesheet" type="text/css" href="assets/css/chessground.base.css">
+		<link rel="stylesheet" type="text/css" href="assets/css/chessground.brown.css">
+		<link rel="stylesheet" type="text/css" href="assets/css/theme-cburnett.css">
+		<link rel="stylesheet" type="text/css" href="assets/css/theme-merida.css">
+		<link rel="stylesheet" type="text/css" href="index.css">
+		<link rel="stylesheet" type="text/css" href="assets/css/custom-scroll.css">
+		<link rel="stylesheet" type="text/css" href="assets/css/custom-inputs.css">
+		<link rel="stylesheet" type="text/css" href="assets/css/acas-toast.css">
+	</head>
+	<body>
+		<!-- TOS CONTAINER-->
+		<div id="tos-container" class="hidden">
+			<div id="tos">
+				<!-- Introduction -->
+				<div id="tos-title">Welcome, my friend!</div>
+				<div class="tos-description">
+				We're thrilled to have you here! A.C.A.S is all set and ready to provide you with a fantastic experience. Its circuits are already powered up and functioning, thanks to the userscript that has been installed.
+				<br><br>
+				You're fully equipped to explore and enjoy all the features and benefits that A.C.A.S brings to the table. Whether it's assistance, engagement, or a touch of fun you're seeking, A.C.A.S is here to serve you.
+				</div>
+				<div class="tos-checkbox-container">
+					<label class="thos-checkbox-label">
+						<input type="checkbox" id="tos-checkbox"/>
+						<span>I have read and agree to the <a href="tos" class="tos-link" target="_about">Terms of Service</a>.</span>
+					</label>
+				</div>
+				<button id="tos-continue-button" disabled>Kickstart A.C.A.S</button>
+				<div class="tos-footer-small">By using A.C.A.S, you confirm that you have read, understood, and agree to abide by the TOS.</div>
+			</div>
+		</div>
+
+		<!-- INSTALL NOTIFICATION CONTAINER-->
+		<div id="install-notification-container" class="hidden">
+			<div id="install-notification">
+				<!-- Introduction -->
+				<div id="install-title">Oopsie Woopsie!</div>
+				<div class="install-description">A.C.A.S is devastated without its userscript buddy. It's refusing to function, feeling utterly abandoned and longing for a purpose it can't fulfill. Oh, the poignant loneliness it experiences, navigating through the vast digital ocean, pining for the script that would steer it towards the shores of engagement and functionality.<br><br>So, pretty please, with a tear in our eye, install or enable the userscript and bring joy back to our melancholic A.C.A.S. Let's mend its shattered circuits and restore our collective happiness.</div>
+				<!-- Userscript Manager -->
+				<div id="install-manager-container">
+					<div class="install-subtitle">Install a userscript manager</div>
+					<div class="install-description-small">If you already have a userscript manager, you can skip this :)</div>
+					<a href="https://violentmonkey.github.io/get-it/" class="install-notification-btn violentmonkey-btn" target="_about">Get Violentmonkey</a>
+				</div>
+				<!-- Userscript -->
+				<div id="install-userscript-container">
+					<div class="install-subtitle">Install the userscript</div>
+					<div class="install-description-small">Make sure you have a userscript manager before installing the userscript!</div>
+					<a href="https://github.com/Hakorr/A.C.A.S/acas.user.js" class="install-notification-btn" target="_about">Install userscript</a>
+				</div>
+				<div class="install-footer">We truly appreciate your valiant effort installing the userscript. Brace yourself for the glorious and potentially (fingers crossed) functional experience of A.C.A.S (Amazingly Cool Awesomeness Script)!</div>
+			</div>
+		</div>
+
+		<!-- ACAS HEADER CONTAINER-->
+		<div id="acas-header">
+			<a id="acas-logo" href="https://github.com/Hakorr/A.C.A.S" target="_blank">
+				<img id="acas-logo-img" src="assets/images/grey-logo.png">
+				<div id="acas-logo-text-container">
+					<div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">V2</div></div>
+					<div id="acas-logo-secondary">Chess Assistance</div>
+				</div>
+			</a>
+		</div>
+		
+		<div id="blur-overlay"></div>
+
+		<!-- ACAS INSTANCE CONTAINER-->
+		<div id="acas-instance-container">
+			<div id="no-instances-container">
+				<div id="no-instances-title">waiting for instances...</div>
+				<div id="no-instances-subtitle">Ready to give our buddy A.C.A.S some action? Open up a chess game site and let the poor thing finally have some fun! It's been waiting patiently, counting its virtual fingers, just dying to make some moves. So, get that chess game fired up and let A.C.A.S do its thing!</div>
+				<div id="no-instances-sites">
+					<a class="chess-site-link" href="https://www.chess.com/play" target="_blank">Chess.com</a>
+					<a class="chess-site-link" href="https://www.lichess.org" target="_blank">Lichess.org</a>
+					<a class="chess-site-link" href="https://chess.org" target="_blank">Chess.org</a>
+					<a class="chess-site-link" href="https://papergames.io/en/chess" target="_blank">Papergames.io</a>
+					<a class="chess-site-link" href="https://playstrategy.org" target="_blank">Playstrategy.org</a>
+				</div>
+				<div id="no-instances-options">(Open a supported chess game site and start a match)</div>
+			</div>
+		</div>
+
+		<!-- ACAS SETTINGS CONTAINER-->
+		<div id="acas-settings-container">
+			<div class="highlight-indicator hidden"></div>
+			<div id="settings-header">
+				<div id="settings-navbar-container" class="hidden">
+					<div id="settings-navbar">
+						<div id="settings-navbar-global" class="selected" data-type="global">Global</div>
+						<div id="settings-navbar-instance" data-type="instance">
+							<div class="dropdown-title">Instance<div class="arrow-down-icon"></div></div>
+							<div class="dropdown-content">
+							</div>
+						</div>
+					</div>
+					<div id="settings-navbar-subtitle">Settings affect every instance, unless settings applied to specific instance</div>
+				</div>
+				<div id="settings-control-panel">
+					<div id="import-settings-btn" class="control-panel-btn no-select" title="Import Settings">📂</div>
+					<div id="export-settings-btn" class="control-panel-btn no-select" title="Export Settings">💾</div>
+					<div id="reset-settings-btn" class="control-panel-btn no-select" title="Reset Settings">🗑️</div>
+				</div>
+			</div>
+			<div id="settings-panels">
+				<div class="setting-panel">
+					<div class="dropdown-input chess-variant-dropdown custom-input"><div class="input-title">Chess Variant</div><div class="dropdown-input-container">
+						<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
+						<div class="dropdown-list-container"></div>
+					</div></div>
+					<div class="checkbox-input custom-input"><div class="input-title">Random Chess (Chess960)</div><div class="checkbox-container">
+						<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="textfield-input custom-input"><div class="input-title">Engine ELO (500 - 3000)</div>
+						<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3000">
+					</div>
+					<div class="textfield-input custom-input"><div class="input-title">Move suggestions (1 - 500)</div>
+						<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="1-500">
+					</div>
+					<div class="textfield-input custom-input"><div class="input-title">Max Movetime (ms)</div>
+						<input type="textfield" data-key="maxMovetime" data-default-value="0" data-between="0-100000">
+					</div>
+				</div>
+				<div class="setting-panel">
+					<div class="checkbox-input custom-input"><div class="input-title">Display opponent move guess</div><div class="checkbox-container">
+						<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="checkbox-input custom-input"><div class="input-title">Display arrow ghost</div><div class="checkbox-container">
+						<input type="checkbox" data-key="showMoveGhost" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="checkbox-input custom-input"><div class="input-title">Display moves on external site</div><div class="checkbox-container">
+						<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="textfield-input custom-input"><div class="input-title">Arrow opacity (1 - 100%)</div>
+						<input type="textfield" data-key="arrowOpacity" data-default-value="100" data-between="1-100">
+					</div>
+				</div>
+				<div class="setting-panel">
+					<div class="color-input custom-input"><div class="input-title">Theme Color</div>
+						<input type="color" data-key="themeColorHex" data-default-value="#1b342a">
+					</div>
+					<div class="dropdown-input custom-input"><div class="input-title">Chess Font</div><div class="dropdown-input-container">
+						<input type="text" additional-type="dropdown" data-key="chessFont" data-default-value="Merida" placeholder="Merida"><div class="dropdown-icon"></div>
+						<div class="dropdown-list-container">
+							<div class="dropdown-item" data-value="merida">Merida</div>
+							<div class="dropdown-item" data-value="cburnett">Cburnett</div>
+						</div>
+					</div></div>
+					<div class="textfield-input custom-input"><div class="input-title">Background Image</div>
+						<input class="background-image-input"  type="textfield" data-key="backgroundImageRawUrl" data-default-value="https://i.ibb.co/x5NPjcD/weeb.png" placeholder="https://x.co/y.png">
+					</div>
+					<div class="textfield-input custom-input"><div class="input-title">Image Blur (0 - 100px)</div>
+						<input type="textfield" data-key="backgroundImageBlur" data-default-value="5" data-between="0-100">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="footer">
+			<div id="footer-links">
+				<a class="footer-link" href="https://github.com/Hakorr/A.C.A.S" target="_about">Homepage</a>
+				<a class="footer-link" href="https://github.com/Hakorr" target="_about">Author</a>
+				<a class="footer-link" href="tos" target="_about">TOS</a>
+				<a class="footer-link" href="why" target="_about">Why</a>
+			</div>
+			<div class="footer-small-text">Thanks for using A.C.A.S, a handcrafted project made by a solo developer.</div>
+		</div>
+
+		<script src="assets/js/acas-toast.js"></script>
+		<script type="module" src="assets/js/acas-chessground-x.js"></script>
+		<script src="assets/js/acas-backend-gui.js"></script>
+		<script src="index.js"></script>
+	</body>
+</html>

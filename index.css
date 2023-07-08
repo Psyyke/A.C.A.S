@@ -1,0 +1,733 @@
+@font-face {
+	font-family: 'Mona Sans';
+	src:
+		url('assets/fonts/Mona-Sans.woff2') format('woff2 supports variations'),
+		url('assets/fonts/Mona-Sans.woff2') format('woff2-variations');
+	font-weight: 200 900;
+	font-stretch: 75% 125%;
+}
+body {
+	font-family: Mona-Sans;
+	margin: 0;
+	background-color: #1b342a;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+#blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+cg-board {
+	background-color: rgb(255 255 255 / 70%);
+    cursor: inherit;
+}
+cg-container {
+    width: 100% !important;
+    height: 100% !important;
+}
+#footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5vh 2vh 2vh;
+    background-color: rgb(0 0 0 / 70%);
+    height: fit-content;
+    z-index: 10;
+}
+.footer-small-text {
+    color: rgb(255 255 255 / 10%);
+    font-size: 1.4vh;
+    font-weight: 300;
+    text-align: center;
+}
+.chessground-x {
+    width: 100%;
+}
+.cg-wrap coords {
+	color: silver;
+	font-size: 1vh;
+}
+.cg-wrap coords.side {
+	right: -20px;
+}
+.cg-wrap coords.bottom {
+	bottom: -20px;
+}
+#acas-header {
+    padding: 1.5vh 2vh 2vh;
+    background-color: rgb(0 0 0 / 70%);
+    height: 5vh;
+    display: flex;
+    justify-content: space-between;
+    z-index: 5;
+}
+#acas-logo {
+    font-size: 3vh;
+    font-weight: 600;
+    color: white;
+    display: flex;
+    transition: all 150ms ease;
+    width: fit-content;
+    text-decoration: none;
+    padding-left: -5vh;
+    align-content: center;
+    align-items: center;
+    flex-direction: row;
+    position: relative;
+    margin-left: -2vh;
+    user-select: none;
+}
+#acas-logo:hover {
+	transform: scale(1.1);
+	cursor: pointer;
+}
+#acas-logo-img {
+    width: 10vh;
+    position: absolute;
+    opacity: 0.2;
+}
+#acas-logo-text-container {
+    z-index: 1;
+    margin-left: 4vh;
+}
+#acas-version-tag {
+	font-size: 1.5vh;
+	font-weight: 300;
+}
+#acas-logo-main {
+	display: flex;
+    align-items: flex-start;
+	font-stretch: ultra-expanded;
+}
+#acas-logo-secondary {
+    font-size: 1.5vh;
+    font-weight: 100;
+}
+.acas-instance {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    width: 550px;
+    max-width: 90vw;
+    height: fit-content;
+    position: relative;
+    flex-direction: column;
+	border: 0.3vh solid rgb(255 255 255 / 5%);
+	border-radius: 0.5vh;
+    transition: all 150ms ease;
+    z-index: 10;
+}
+#acas-instance-container {
+    padding: 1vh;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    height: fit-content;
+    background-blend-mode: overlay;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+.chessboard-components {
+	position: relative;
+    height: fit-content;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgb(0 0 0 / 56%);
+	padding: 1vh 2vh 2vh 2vh;
+	border-radius: 0 0 0.5vh 0.5vh;
+}
+.eval-bar {
+    background-color: rgb(255 255 255 / 10%);
+    width: 1vh;
+    position: absolute;
+    bottom: 2vh;
+    left: 0.45vh;
+    top: 1vh;
+}
+.eval-bar.reversed {
+    transform: rotate(180deg);
+}
+.eval-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    transition: height 0.5s ease;
+}
+.instance-header {
+	padding: 1vh;
+	color: white;
+	height: fit-content;
+	background-color: rgb(0 0 0 / 73%);
+	display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+	border-radius: 0.5vh 0.5vh 0 0;
+}
+.instance-basic-info {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: flex-start;
+	width: fit-content;
+}
+.instance-misc {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 0.2vh;
+}
+.instance-fen {
+	font-size: 1vh;
+    font-weight: 100;
+    color: rgb(255 255 255 / 30%);
+    word-break: break-word;
+}
+.instance-variant {
+    font-stretch: semi-expanded;
+    text-transform: capitalize;
+    font-size: 1.5vh;
+}
+.variant-not-supported-text {
+    color: rgb(255 255 255 / 50%);
+    font-size: 0.8em;
+}
+.instance-domain {
+    font-size: 1.35vh;
+    font-weight: 300;
+    color: rgb(255 255 255 / 70%);
+}
+.instance-settings-btn {
+    width: 4vh;
+    height: 4vh;
+    border-radius: 0.5vh;
+    background-color: rgb(255 255 255 / 10%);
+    font-size: 2.6vh;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+.instance-settings-btn:hover {
+	transform: scale(1.1);
+	background-color: rgb(255 255 255 / 20%);
+}
+.instance-settings-btn:active {
+	transform: scale(0.9);
+	background-color: rgb(255 255 255 / 30%);
+}
+.instance-info-text {
+    font-size: 1.2vh;
+    margin-top: 0.5vh;
+    color: rgb(255 255 255 / 50%);
+    font-weight: 300;
+    text-align: center;
+}
+.on-top-center-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+
+
+#install-notification-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    position: absolute;
+    z-index: 99999;
+    backdrop-filter: blur(0.4vh);
+    -webkit-backdrop-filter: blur(0.4vh);
+}
+#install-notification {
+    width: 100%;
+    height: fit-content;
+    max-width: 50vh;
+    background-color: black;
+    color: white;
+    padding: 2vh;
+}
+.install-description {
+    color: rgb(159 159 159);
+    font-size: 1.5vh;
+    font-weight: 400;
+    margin-bottom: 2vh;
+}
+.install-description-small {
+    color: rgb(255 255 255 / 50%);
+    font-size: 1.5vh;
+}
+#install-title {
+    font-size: 3vh;
+    font-weight: 700;
+    font-stretch: ultra-expanded;
+    margin-bottom: 1vh;
+}
+.install-subtitle {
+    font-size: 2vh;
+    margin: 3vh 0 1vh;
+}
+.install-notification-btn {
+    display: inline-block;
+    padding: 1vh 2vh;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5vh;
+    font-size: 1.5vh;
+    border: none;
+    margin: 1vh 0 2vh;
+    background-color: #3b6238;
+}
+.install-footer {
+    font-size: 1vh;
+    color: rgb(255 255 255 / 20%);
+    margin-top: 2vh;
+}
+#install-userscript-container {
+    background-color: rgb(0 255 0 / 10%);
+    border: 0.3vh solid green;
+    padding-left: 2vh;
+}
+#install-manager-container {
+    background-color: rgb(209 255 0 / 10%);
+    border: 0.3vh solid #cdb476;
+    padding-left: 2vh;
+    margin: 1vh 0 1vh;
+}
+
+
+#tos-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    position: absolute;
+    z-index: 9999999999;
+    backdrop-filter: blur(0.4vh);
+    -webkit-backdrop-filter: blur(0.4vh);
+}
+#tos {
+    width: 100%;
+    height: fit-content;
+    max-width: 50vh;
+    background-color: black;
+    color: white;
+    padding: 2vh;
+}
+#tos-title {
+    font-size: 3vh;
+    font-weight: 700;
+    font-stretch: ultra-expanded;
+    margin-bottom: 1vh;
+}
+.tos-subtitle {
+    font-size: 2vh;
+    margin: 3vh 0 1vh;
+}
+.tos-description {
+    color: rgb(159 159 159);
+    font-size: 1.5vh;
+    font-weight: 400;
+    margin-bottom: 2vh;
+}
+.tos-description-small {
+    color: rgb(255 255 255 / 50%);
+    font-size: 1.5vh;
+}
+.tos-footer-small {
+    font-size: 1vh;
+    color: rgb(255 255 255 / 20%);
+    margin-top: 2vh;
+}
+.tos-link {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    background-color: #3b6238;
+}
+#tos-continue-button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(255 255 255 / 20%);
+    border-radius: 3px;
+    color: #999;
+    cursor: not-allowed;
+    font-family: inherit;
+}
+#tos-continue-button:active {
+    transform: scale(0.9);
+}
+#tos-continue-button.active {
+    background-color: #38723e;
+    border-color: #67d372;
+    color: #fff;
+    cursor: pointer;
+}
+
+.violentmonkey-btn {
+    background-color: #625638;
+}
+.hidden {
+    display: none !important;
+}
+#no-instances-container {
+    background-color: rgb(0 0 0 / 20%);
+    color: rgb(255 255 255 / 75%);
+    padding: 4vh 1vh 4vh 1vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0.5vh;
+    width: 50vh;
+    text-align: center;
+    z-index: 5;
+}
+#no-instances-title {
+    font-size: 2.5vh;
+    font-weight: 500;
+    font-stretch: expanded;
+    text-transform: uppercase;
+    animation: pulsate 2s infinite;
+}
+#no-instances-subtitle {
+    margin: 2vh;
+    font-weight: 300;
+    font-size: 1.7vh;
+    color: rgb(255 255 255 / 50%);
+}
+#no-instances-options {
+    font-size: 1.4vh;
+    font-weight: 100;
+    color: rgb(255 255 255 / 10%);
+}
+.connection-warning {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0 0 0 / 80%);
+    border-radius: inherit;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+.connection-warning-title {
+    animation: pulsate 0.5s infinite;
+    font-size: 3vh;
+    font-weight: 600;
+    color: rgb(255 255 255 / 75%);
+}
+.connection-warning-subtitle {
+    font-size: 1.3vh;
+    font-weight: 400;
+    color: rgb(195 195 195 / 70%);
+}
+.highlight-indicator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255 255 255 / 30%);
+    border-radius: inherit;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+@keyframes pulsate {
+    25% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
+    75% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.no-select {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+#acas-settings-container {
+    display: flex;
+    height: fit-content;
+    background-color: rgb(0 0 0 / 50%);
+    color: white;
+    flex-direction: column;
+    align-items: flex-start;
+    backdrop-filter: blur(0.2vh);
+    flex-grow: 1;
+    z-index: 10;
+}
+#settings-navbar {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 0.5vh;
+    color: white;
+    font-size: 1.7vh;
+    text-align: center;
+    border: 0.25vh solid rgb(255 255 255 / 15%);
+    padding: 0.1vh;
+}
+#settings-navbar-subtitle {
+    margin-top: 0.5vh;
+    font-size: 1.3vh;
+    color: rgb(255 255 255 / 20%);
+}
+#settings-header {
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    transition: all 0.1s ease;
+    padding: 1vh;
+    opacity: 0.4;
+    justify-content: space-between;
+    flex-direction: row;
+    box-sizing: border-box;
+}
+#settings-control-panel {
+    display: flex;
+    flex-direction: row;
+}
+#settings-control-panel > *:not(:last-child) {
+    margin-right: 0.5vh;
+}
+#settings-control-panel .control-panel-btn {
+    width: 4vh;
+    height: 4vh;
+    border-radius: 0.5vh;
+    background-color: rgb(255 255 255 / 10%);
+    font-size: 2.6vh;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+#settings-control-panel .control-panel-btn:hover {
+	transform: scale(1.1);
+	background-color: rgb(255 255 255 / 20%);
+}
+#settings-control-panel .control-panel-btn:active {
+	transform: scale(0.9);
+	background-color: rgb(255 255 255 / 30%);
+}
+.horizontal-strip {
+    width: 100%;
+    height: 0.3vh;
+    background-color: rgb(255 255 255 / 3%);
+    margin: 0.5vh 0 1.5vh 0;
+}
+#settings-panels {
+    display: flex;
+    justify-content: flex-start;
+    transition: all 0.1s ease;
+    background-color: rgb(255 255 255 / 2%);
+    padding: 1vh 2vh;
+    opacity: 0.4;
+    box-sizing: border-box;
+    width: 100%;
+    flex-wrap: wrap;
+    grid-gap: 1vh;
+}
+.setting-panel {
+    background-color: rgb(0 0 0 / 20%);
+    border-radius: 0.5vh;
+    padding: 1vh;
+}
+.setting-panel > *:not(:last-child) {
+    margin-bottom: 1vh;
+    padding-bottom: 1vh;
+    border-bottom: 0.2vh solid rgba(255, 255, 255, 0.05);
+}
+#acas-settings-container:hover #settings-header,
+#acas-settings-container:hover #settings-panels {
+  opacity: 1;
+}
+
+#settings-header #settings-navbar-global, #settings-navbar-instance {
+    height: 4vh;
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-color: rgb(0 0 0 / 25%);
+}
+#settings-navbar #settings-navbar-global:hover, #settings-navbar-instance:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+#settings-navbar .selected {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    color: rgba(0, 0, 0, 0.8) !important;
+}
+#settings-navbar-global {
+    padding: 0 2vh 0 2vh;
+    border-radius: 0.25vh 0 0 0.25vh;
+    border-right: 0.2vh solid rgb(255 255 255 / 10%);
+}
+.settings-navbar-smooth-right {
+    border-radius: 0 0.25vh 0.25vh 0 !important;
+    border-right: 0 solid !important;
+}
+#settings-navbar-instance {
+    padding: 0 2vh 0 2vh;
+    border-radius: 0 0.25vh 0.25vh 0;
+    position: relative;
+}
+#settings-navbar .dropdown-title {
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+    border: none;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+#settings-navbar .dropdown-title .arrow-down-icon {
+    margin-left: 1vh;
+    margin-bottom: 0.5vh;
+}
+#settings-navbar .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgb(255 255 255 / 95%);
+    min-width: 16vh;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    top: 100%;
+    left: 0;
+}
+#settings-navbar .dropdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1vh;
+    color: rgb(0 0 0 / 80%);
+    text-align: left;
+    width: 20vh;
+}
+#settings-navbar .dropdown-content .dropdown-item:hover {
+    background-color: rgba(204, 204, 204, 0.852);
+}
+.arrow-down-icon {
+    width: 1vh;
+    height: 1vh;
+    border: solid rgb(255 255 255 / 80%);
+    border-width: 0 0.1vh 0.1vh 0;
+    transform: rotate(45deg);
+    transition: transform 0.2s;
+}
+.selected .arrow-down-icon {
+    border-color: rgb(0 0 0 / 80%);
+}
+#settings-navbar-instance:hover .dropdown-content {
+    display: block !important;
+}
+#settings-navbar .dropdown-item-title {
+    font-size: 1.5vh;
+    font-weight: 700;
+    font-stretch: expanded;
+}
+#settings-navbar .dropdown-item-subtitle {
+    font-size: 1.25vh;
+    word-break: break-all;
+    font-weight: 300;
+}
+.dropdown-item:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);;
+}
+.background-image-input {
+    font-size: 1.5vh !important;
+    width: 12vh !important;
+}
+#no-instances-sites {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    grid-gap: 0.5vh;
+    margin-bottom: 1vh;
+}
+.chess-site-link {
+    width: fit-content;
+    height: fit-content;
+    padding: 1vh;
+    background-color: rgb(255 255 255 / 10%);
+    border-radius: 1vh;
+    font-size: 1.5vh;
+    text-decoration: none;
+    color: white;
+}
+.chess-site-link:hover {
+    background-color: rgb(255 255 255 / 20%);
+    transform: scale(1.05);
+}
+
+#footer-links {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    grid-gap: 1vh;
+    font-size: 1.6vh;
+    margin-bottom: 0.5vh;
+    font-weight: 200;
+}
+.footer-link {
+    text-decoration: none;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 10%);
+}
+.footer-link:hover {
+    text-decoration: underline;
+    color: rgb(255 255 255 / 35%);
+}
+@media (max-width: 1000px) {
+    #settings-panels {
+      flex-direction: column !important;
+    }
+    .custom-input {
+        justify-content: space-between !important;
+    }
+}

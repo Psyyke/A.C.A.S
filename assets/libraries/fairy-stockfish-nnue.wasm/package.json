@@ -1,0 +1,16 @@
+{
+  "name": "fairy-stockfish-nnue.wasm",
+  "version": "1.1.2",
+  "description": "WebAssembly port of Fairy-Stockfish with NNUE support, optimized via WASM SIMD",
+  "author": "Fabian Fichter",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/ianfab/fairy-stockfish.wasm",
+  "files": [
+    "AUTHORS",
+    "Copying.txt",
+    "stockfish.js",
+    "stockfish.wasm",
+    "stockfish.worker.js",
+    "uci.js"
+  ]
+}
