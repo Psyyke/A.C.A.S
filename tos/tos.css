@@ -1,60 +1,59 @@
 @font-face {
-	font-family: 'Mona Sans';
-	src:
-		url('assets/fonts/Mona-Sans.woff2') format('woff2 supports variations'),
-		url('assets/fonts/Mona-Sans.woff2') format('woff2-variations');
-	font-weight: 200 900;
-	font-stretch: 75% 125%;
+    font-family: "Mona Sans";
+    src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"),
+         url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
 }
 body {
-	font-family: Mona-Sans;
-	margin: 0;
-	background: linear-gradient(to right, #0b190e, #1d3812);
-	color: white;
-	display: flex;
+    font-family: "Mona Sans";
+    margin: 0;
+    background: linear-gradient(to right, #0b190e, #1d3812);
+    color: white;
+    display: flex;
     align-content: center;
     justify-content: center;
     align-items: center;
 }
 #wrapper {
-	margin: 10vh;
+    margin: 10vh;
     display: flex;
     flex-direction: column;
-	width: 50vh;
+    width: 50vh;
 }
 .big-title {
     font-size: 3vh;
     font-weight: 800;
     font-stretch: ultra-expanded;
-	align-self: center;
+    align-self: center;
 }
 .title {
-	font-size: 2vh;
+    font-size: 2vh;
     font-weight: 900;
     font-stretch: ultra-expanded;
-	margin: 2vh 0 0 0;
+    margin: 2vh 0 0 0;
 }
 .small-paragraph {
-	font-size: 1.5vh;
+    font-size: 1.5vh;
     font-weight: 400;
-	margin: 1vh 0 1vh 0;
+    margin: 1vh 0 1vh 0;
 }
 .paragraph {
-	font-size: 1.7vh;
+    font-size: 1.7vh;
     font-weight: 400;
-	margin: 1vh 0 1vh 0;
+    margin: 1vh 0 1vh 0;
 }
 .center-text {
-	text-align: center;
+    text-align: center;
 }
 .greyed {
-	color: #7c7c7c;
+    color: #7c7c7c;
 }
 .slim {
-	font-weight: 300;
+    font-weight: 300;
 }
 .extra-slim {
-	font-weight: 200;
+    font-weight: 200;
 }
 .gradient-text {
     background: linear-gradient(to right, #53af8a, #51cb51);
