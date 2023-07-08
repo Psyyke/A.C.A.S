@@ -34,6 +34,9 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/Hak
 * [Fairy Stockfish WASM](https://github.com/fairy-stockfish/fairy-stockfish.wasm) (*the chess engine of A.C.A.S*)
 * [COI-Serviceworker](https://github.com/gzuidhof/coi-serviceworker) (*allowing WASM on GitHub pages, extremely important library!!!*)
 * [Chessground X](https://github.com/gbtami/chessgroundx) (*for displaying a board on the GUI. Modified the library a bit*)
-* [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [FileSaver](http://purl.eligrey.com/github/FileSaver.js) (*for saving the config file*)
+
+## Used Libraries (Made for A.C.A.S)
+
+* [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
