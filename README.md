@@ -16,7 +16,7 @@ A.C.A.S is an **advanced chess assistance system** (some might even call it a "*
 
 ## Example Gameplay
 
-<img src="https://github.com/Hakorr/A.C.A.S/assets/76921756/9a6dcab4-04db-4409-8f9f-3d871120746c" alt="drawing" style="width:85%;"/>
+<img src="https://github.com/Hakorr/A.C.A.S/assets/76921756/9a6dcab4-04db-4409-8f9f-3d871120746c" alt="example-gameplay" style="width:85%;"/>
 
 ## Getting Started
 
@@ -29,6 +29,11 @@ Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/ma
 |----------------------|----------------------|
 | ![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/750998aa-061e-478a-a2c2-5e7c5b341775) | ![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/ad87db6b-4dc5-4443-8405-29ad140d5894) |
 | The engine runs on a completely different tab than the chess game page, completely isolated from it. The site cannot block the usage of A.C.A.S. | A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink) and the userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If "Display Moves On External Site" setting is activated!*) |
+
+| Arrow Color    | Meaning  |
+|----------------------|----------------------|
+| 🟩 | Best Move |
+| 🟦 | Secondary Move |
 
 ## Q&A
 
