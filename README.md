@@ -45,6 +45,12 @@ Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/ma
 
 ## Q&A
 
+### Why did I get banned, wasn't this impossible to detect?
+
+Chess engines simply play differently than humans. It's fairly easy to detect by pure statistics. For example, chess.com bans about 16 000 players for fair play abuse each month.
+
+Your ban most likely wasn't because of the site detecting A.C.A.S, it was because of your suspicious behaviour patterns. A.C.A.S cannot fix this, it's your responsiblity to play as a human.
+
 ### Why doesn't it work?
 
 Before making an issue, please read these,
