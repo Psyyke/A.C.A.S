@@ -38,7 +38,7 @@
 // @description:uk     Покращуйте свою шахову гру з використанням передової системи аналізу ходів в режимі реального часу та стратегічної підтримки
 // @description:ru     Слава Украине
 // @homepageURL https://hakorr.github.io/A.C.A.S
-// @supportURL  https://github.com/Hakorr/A.C.A.S/issues/new
+// @supportURL  https://github.com/Hakorr/A.C.A.S/tree/main#why-doesnt-it-work
 // @downloadURL https://github.com/Hakorr/A.C.A.S/raw/main/acas.user.js
 // @match       https://www.chess.com/*
 // @match       https://lichess.org/*
