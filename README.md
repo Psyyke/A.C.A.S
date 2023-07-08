@@ -59,3 +59,5 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/Hak
 ## Other
 
 You can find the userscript on [GreasyFork](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) as well.
+
+You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S). It is no longer updated.
