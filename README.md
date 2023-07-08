@@ -9,7 +9,7 @@ A.C.A.S is an **advanced chess assistance system** (some might even call it a "*
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
 * Impossible to detect (well, you can never be sure, so let's say it's *almost* impossible)
 
-> **Note** If you're seriously planning on using A.C.A.S to cheat, you will eventually be caught.
+> **Note** Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
 ## Example Gameplay
 
@@ -48,7 +48,7 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/Hak
 
 * [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
-  
+
 ## Other
 
 You can find the userscript on [GreasyFork](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) as well.
