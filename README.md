@@ -11,6 +11,9 @@ A.C.A.S is an **advanced chess assistance system** (some might even call it a "*
 
 > **Note** Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
+| [Install (Direct)](https://github.com/Hakorr/A.C.A.S/raw/main/acas.user.js)   | [Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  |
+|----------------------|----------------------|
+
 ## Example Gameplay
 
 <img src="https://github.com/Hakorr/A.C.A.S/assets/76921756/9a6dcab4-04db-4409-8f9f-3d871120746c" alt="drawing" style="width:85%;"/>
