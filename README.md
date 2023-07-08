@@ -1,14 +1,15 @@
 # A.C.A.S (Advanced Chess Assistance System)
 
+> **Warning** A.C.A.S is currently in development. Expect bugs, especially on variants.
+
 A.C.A.S is an **advanced chess assistance system** (some might even call it a "*cheat*") which enhances your chess performance with cutting-edge real-time move analysis. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
 * No anti-features (*e.g. ads, tracking*)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
 * Impossible to detect (well, you can never be sure, so let's say it's *almost* impossible)
-  
-> **Warning**
-> A.C.A.S is currently in development. Expect bugs, especially on variants.
+
+> **Note** If you're seriously planning on using A.C.A.S to cheat, you will eventually be caught.
 
 ## Example Gameplay
 
