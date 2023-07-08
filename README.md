@@ -25,6 +25,8 @@ Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/ma
 
 Do you not see any moves displayed on the chess site? Are you sure you have enabled "Display Moves On External Site" box on the A.C.A.S GUI settings? After enabling that setting, please refresh the chess site to see changes.
 
+Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Please don't make an issue about it, I know.
+
 Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/Userscripts/issues).
 
 ## Used Libraries
