@@ -1,13 +1,12 @@
 @font-face {
-	font-family: 'Mona Sans';
-	src:
-		url('A.C.A.S/assets/fonts/Mona-Sans.woff2') format('woff2 supports variations'),
-		url('A.C.A.S/assets/fonts/Mona-Sans.woff2') format('woff2-variations');
-	font-weight: 200 900;
-	font-stretch: 75% 125%;
+    font-family: "Mona Sans";
+    src: url("assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"),
+        url("assets/fonts/Mona-Sans.woff2") format("woff2-variations");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
 }
 body {
-    font-family: 'Mona Sans';
+    font-family: "Mona Sans";
     margin: 0;
     background-color: #1b342a;
     height: 100vh;
@@ -23,7 +22,7 @@ body {
     z-index: 0;
 }
 cg-board {
-	background-color: rgb(255 255 255 / 70%);
+    background-color: rgb(255 255 255 / 70%);
     cursor: inherit;
 }
 cg-container {
@@ -49,14 +48,14 @@ cg-container {
     width: 100%;
 }
 .cg-wrap coords {
-	color: silver;
-	font-size: 1vh;
+    color: silver;
+    font-size: 1vh;
 }
 .cg-wrap coords.side {
-	right: -20px;
+    right: -20px;
 }
 .cg-wrap coords.bottom {
-	bottom: -20px;
+    bottom: -20px;
 }
 #acas-header {
     padding: 1.5vh 2vh 2vh;
@@ -83,8 +82,8 @@ cg-container {
     user-select: none;
 }
 #acas-logo:hover {
-	transform: scale(1.1);
-	cursor: pointer;
+    transform: scale(1.1);
+    cursor: pointer;
 }
 #acas-logo-img {
     width: 10vh;
@@ -96,13 +95,13 @@ cg-container {
     margin-left: 4vh;
 }
 #acas-version-tag {
-	font-size: 1.5vh;
-	font-weight: 300;
+    font-size: 1.5vh;
+    font-weight: 300;
 }
 #acas-logo-main {
-	display: flex;
+    display: flex;
     align-items: flex-start;
-	font-stretch: ultra-expanded;
+    font-stretch: ultra-expanded;
 }
 #acas-logo-secondary {
     font-size: 1.5vh;
@@ -117,8 +116,8 @@ cg-container {
     height: fit-content;
     position: relative;
     flex-direction: column;
-	border: 0.3vh solid rgb(255 255 255 / 5%);
-	border-radius: 0.5vh;
+    border: 0.3vh solid rgb(255 255 255 / 5%);
+    border-radius: 0.5vh;
     transition: all 150ms ease;
     z-index: 10;
 }
@@ -135,14 +134,14 @@ cg-container {
     background-color: rgba(0, 0, 0, 0.3);
 }
 .chessboard-components {
-	position: relative;
+    position: relative;
     height: fit-content;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	background-color: rgb(0 0 0 / 56%);
-	padding: 1vh 2vh 2vh 2vh;
-	border-radius: 0 0 0.5vh 0.5vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0 0 0 / 56%);
+    padding: 1vh 2vh 2vh 2vh;
+    border-radius: 0 0 0.5vh 0.5vh;
 }
 .eval-bar {
     background-color: rgb(255 255 255 / 10%);
@@ -164,14 +163,14 @@ cg-container {
     transition: height 0.5s ease;
 }
 .instance-header {
-	padding: 1vh;
-	color: white;
-	height: fit-content;
-	background-color: rgb(0 0 0 / 73%);
-	display: flex;
+    padding: 1vh;
+    color: white;
+    height: fit-content;
+    background-color: rgb(0 0 0 / 73%);
+    display: flex;
     flex-direction: row;
     justify-content: space-between;
-	border-radius: 0.5vh 0.5vh 0 0;
+    border-radius: 0.5vh 0.5vh 0 0;
 }
 .instance-basic-info {
     display: flex;
@@ -179,7 +178,7 @@ cg-container {
     flex-direction: column;
     align-content: flex-start;
     align-items: flex-start;
-	width: fit-content;
+    width: fit-content;
 }
 .instance-misc {
     width: fit-content;
@@ -189,7 +188,7 @@ cg-container {
     margin-right: 0.2vh;
 }
 .instance-fen {
-	font-size: 1vh;
+    font-size: 1vh;
     font-weight: 100;
     color: rgb(255 255 255 / 30%);
     word-break: break-word;
@@ -220,12 +219,12 @@ cg-container {
     align-items: center;
 }
 .instance-settings-btn:hover {
-	transform: scale(1.1);
-	background-color: rgb(255 255 255 / 20%);
+    transform: scale(1.1);
+    background-color: rgb(255 255 255 / 20%);
 }
 .instance-settings-btn:active {
-	transform: scale(0.9);
-	background-color: rgb(255 255 255 / 30%);
+    transform: scale(0.9);
+    background-color: rgb(255 255 255 / 30%);
 }
 .instance-info-text {
     font-size: 1.2vh;
@@ -241,9 +240,6 @@ cg-container {
     transform: translate(-50%, -50%);
     z-index: 10;
 }
-
-
-
 #install-notification-container {
     width: 100%;
     height: 100%;
@@ -311,8 +307,6 @@ cg-container {
     padding-left: 2vh;
     margin: 1vh 0 1vh;
 }
-
-
 #tos-container {
     width: 100%;
     height: 100%;
@@ -384,7 +378,6 @@ cg-container {
     color: #fff;
     cursor: pointer;
 }
-
 .violentmonkey-btn {
     background-color: #625638;
 }
@@ -474,7 +467,6 @@ cg-container {
         transform: scale(1);
     }
 }
-
 .no-select {
     user-select: none;
     -moz-user-select: none;
@@ -540,12 +532,12 @@ cg-container {
     align-items: center;
 }
 #settings-control-panel .control-panel-btn:hover {
-	transform: scale(1.1);
-	background-color: rgb(255 255 255 / 20%);
+    transform: scale(1.1);
+    background-color: rgb(255 255 255 / 20%);
 }
 #settings-control-panel .control-panel-btn:active {
-	transform: scale(0.9);
-	background-color: rgb(255 255 255 / 30%);
+    transform: scale(0.9);
+    background-color: rgb(255 255 255 / 30%);
 }
 .horizontal-strip {
     width: 100%;
@@ -577,10 +569,10 @@ cg-container {
 }
 #acas-settings-container:hover #settings-header,
 #acas-settings-container:hover #settings-panels {
-  opacity: 1;
+    opacity: 1;
 }
-
-#settings-header #settings-navbar-global, #settings-navbar-instance {
+#settings-header #settings-navbar-global,
+#settings-navbar-instance {
     height: 4vh;
     width: fit-content;
     display: flex;
@@ -589,7 +581,8 @@ cg-container {
     cursor: pointer;
     background-color: rgb(0 0 0 / 25%);
 }
-#settings-navbar #settings-navbar-global:hover, #settings-navbar-instance:hover {
+#settings-navbar #settings-navbar-global:hover,
+#settings-navbar-instance:hover {
     background-color: rgba(255, 255, 255, 0.5);
 }
 #settings-navbar .selected {
@@ -630,7 +623,7 @@ cg-container {
     position: absolute;
     background-color: rgb(255 255 255 / 95%);
     min-width: 16vh;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     top: 100%;
     left: 0;
@@ -672,7 +665,7 @@ cg-container {
     font-weight: 300;
 }
 .dropdown-item:not(:last-child) {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 .background-image-input {
     font-size: 1.5vh !important;
@@ -701,7 +694,6 @@ cg-container {
     background-color: rgb(255 255 255 / 20%);
     transform: scale(1.05);
 }
-
 #footer-links {
     display: flex;
     flex-direction: row;
@@ -725,7 +717,7 @@ cg-container {
 }
 @media (max-width: 1000px) {
     #settings-panels {
-      flex-direction: column !important;
+        flex-direction: column !important;
     }
     .custom-input {
         justify-content: space-between !important;
