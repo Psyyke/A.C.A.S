@@ -49,7 +49,7 @@ Simply [install the A.C.A.S userscript](https://github.com/Hakorr/A.C.A.S/raw/ma
 
 Before making an issue, please read these,
 
-- Make sure the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) is active. Do not close the tab.
+- Make sure the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) is active. Do not close the tab. Browsers freeze code execution on inactive pages, you need to visit the A.C.A.S GUI tab from time to time or keep it open on a separate window. This prevents A.C.A.S from freezing and not giving any move suggestions, for example.
 
 - Do you not see any moves displayed on the chess site? Are you sure you have enabled "Display Moves On External Site" box on the A.C.A.S GUI settings? After enabling that setting, please refresh the chess site to see changes.
 
