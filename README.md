@@ -5,7 +5,7 @@ A.C.A.S is an **advanced chess assistance system** (some might even call it a "*
 * No anti-features (*e.g. ads, tracking*)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
-* Almost impossible to detect
+* Impossible to detect (well, you can never be sure, so let's say it's *almost* impossible)
 
 ## Getting Started
 
