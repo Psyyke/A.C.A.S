@@ -159,7 +159,8 @@ const blacklistedURLs = [
     'https://www.pychess.org/',
     'https://hakorr.github.io/A.C.A.S/',
     'https://hakorr.github.io/A.C.A.S/why/',
-    'https://hakorr.github.io/A.C.A.S/tos/'
+    'https://hakorr.github.io/A.C.A.S/tos/',
+    'http://localhost/A.C.A.S/'
 ];
 
 const configKeys = {
