@@ -156,6 +156,7 @@ const blacklistedURLs = [
     'https://chess.org/',
     'https://papergames.io/en/chess',
     'https://playstrategy.org/',
+    'https://www.pychess.org/',
     'https://hakorr.github.io/A.C.A.S/',
     'https://hakorr.github.io/A.C.A.S/why/',
     'https://hakorr.github.io/A.C.A.S/tos/'
