@@ -1464,7 +1464,7 @@ function initializeIfSiteReady() {
 if(typeof GM_registerMenuCommand == 'function') {
     GM_registerMenuCommand('Open A.C.A.S', e => {
         if(chessBoardElem) {
-            startWhenBackendIsReady();
+            startWhenBackendReady();
         }
     }, 's');
 }
