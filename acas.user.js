@@ -56,7 +56,7 @@
 // @grant       GM_addStyle
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0
+// @version     2.0.1
 // @namespace   HKR
 // @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
@@ -439,7 +439,7 @@ function getBoardElem() {
 
     switch(domain) {
         case 'chess.com': {
-            if(pathname?.includes('/variants/')) {
+            if(pathname?.includes('/variants')) {
                 return document.querySelector('#board');
             }
 
@@ -474,7 +474,7 @@ function getChessPieceElem(getAll) {
 
     switch(domain) {
         case 'chess.com': {
-            if(pathname?.includes('/variants/')) {
+            if(pathname?.includes('/variants')) {
                 const filteredPieceElems = filterInvisibleElems(document.querySelectorAll('#board *[data-piece]'))
                     .filter(elem => Number(elem?.dataset?.player) <= 2);
 
@@ -535,21 +535,35 @@ function isMutationNewMove(mutationArr) {
                 return mutationArr.find(m => m.attributeName == 'class') ? true : false;
             }
 
-            return mutationArr.length >= 7 && mutationArr.find(m => m.attributeName == 'class');
+            if(mutationArr.length == 1)
+                return false;
+
+            const modifiedHoverSquare = mutationArr.find(m => m?.target?.classList?.contains('hover-square')) ? true : false;
+            const modifiedHighlight = mutationArr.find(m => m?.target?.classList?.contains('highlight')) ? true : false;
+            const modifiedElemPool = mutationArr.find(m => m?.target?.classList?.contains('element-pool')) ? true : false;
+
+            return (mutationArr.length >= 4 && !modifiedHoverSquare)
+                || mutationArr.length >= 7
+                || modifiedHighlight
+                || modifiedElemPool;
         }
 
         case 'lichess.org': {
-            return mutationArr.length >= 2 && mutationArr.find(m => m.target?.classList?.contains('last-move'));
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
         }
 
         case 'playstrategy.org': {
-            return mutationArr.length >= 2 && mutationArr.find(m => m.target?.classList?.contains('last-move'));
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
         }
 
         case 'chess.org': {
-            const isNewMove = mutationArr.length >= 2 && mutationArr.find(m => m.target?.classList?.contains('last-move'));
-
-            return isNewMove;
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
         }
 
         case 'papergames.io': {
@@ -565,7 +579,7 @@ function getChessVariant() {
 
     switch(domain) {
         case 'chess.com': {
-            if(pathname?.includes('/variants/')) {
+            if(pathname?.includes('/variants')) {
                 const variant = pathname.match(/variants\/([^\/]*)/)?.[1]
                     .replaceAll('-chess', '')
                     .replaceAll('-', '');
@@ -647,7 +661,7 @@ function getBoardOrientation() {
 
     switch(domain) {
         case 'chess.com': {
-            if(pathname?.includes('/variants/')) {
+            if(pathname?.includes('/variants')) {
                 const playerNumberStr = document.querySelector('.playerbox-bottom [data-player]')?.dataset?.player;
 
                 return playerNumberStr == '0' ? 'w' : 'b';
@@ -707,7 +721,7 @@ function getPieceElemFen(pieceElem) {
             let pieceColor = null;
             let pieceName = null;
 
-            if(pathname?.includes('/variants/')) {
+            if(pathname?.includes('/variants')) {
                 pieceColor = pieceElem?.dataset?.player == '0' ? 'w' : 'b';
                 pieceName = pieceElem?.dataset?.piece;
             } else {
@@ -783,7 +797,7 @@ function getPieceElemCoords(pieceElem) {
 
     switch(domain) {
         case 'chess.com': {
-            if(pathname?.includes('/variants/')) {
+            if(pathname?.includes('/variants')) {
                 const squareElem = pieceElem.parentElement;
                 const squareId = squareElem.id;
 
@@ -837,7 +851,7 @@ function getBoardDimensions() {
 
     switch(domain) {
         case 'chess.com': {
-            if(pathname?.includes('/variants/')) {
+            if(pathname?.includes('/variants')) {
                 const rankElems = chessBoardElem?.querySelectorAll('.rank');
                 const visibleRankElems = filterInvisibleElems(rankElems)
                     .filter(rankElem => [...rankElem.childNodes]
@@ -1209,6 +1223,8 @@ function observeNewMoves() {
     let lastProcessedFen = null;
 
     const boardObserver = new MutationObserver(mutationArr => {
+        if(debugModeActivated) console.log(mutationArr);
+
         if(isMutationNewMove(mutationArr))
         {
             if(debugModeActivated) console.warn('Mutation is a new move:', mutationArr);
@@ -1255,7 +1271,7 @@ async function start() {
     await CommLink.commands.createInstance(commLinkInstanceID);
 
     const pathname = window.location.pathname;
-    const adjustSizeByDimensions = domain === 'chess.com' && pathname?.includes('/variants/');
+    const adjustSizeByDimensions = domain === 'chess.com' && pathname?.includes('/variants');
 
     const boardOrientation = getBoardOrientation();
 
