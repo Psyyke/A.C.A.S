@@ -524,11 +524,14 @@ class BackendInstance {
 
         this.engineStopCalculating();
 
+        // Not sure if 'ucinewgame' resets variants or other settings, so disabling this for now.
+        // Missing the 'ucinewgame' after each match shouldn't have any negative effects.
+        /*
         const isStartPos = getBasicFenLowerCased(this.variantStartPosFen) == getBasicFenLowerCased(fen);
 
         if(isStartPos) {
             this.engine.postMessage('ucinewgame');
-        }
+        }*/
     }
 
     updateSettings() {
