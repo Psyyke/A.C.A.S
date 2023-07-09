@@ -491,7 +491,7 @@ function getChessPieceElem(getAll) {
     const pathname = window.location.pathname;
     const boardElem = getBoardElem();
 
-    const querySelector = (getAll ? query => [...boardElem.querySelectorAll(query)] : boardElem.querySelector.bind(boardElem));
+    const querySelector = (getAll ? query => [...boardElem?.querySelectorAll(query)] : boardElem?.querySelector?.bind(boardElem));
 
     switch(domain) {
         case 'chess.com': {
