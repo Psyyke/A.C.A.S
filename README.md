@@ -65,11 +65,31 @@ Before making an issue, please read these,
 
 Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/A.C.A.S/issues/new). Please be descriptive! Mention what site the problem occurs on and browser & userscript manager you're using. What did you do for the bug to happen, does it happen often? How could I reproduce it?
 
+## Development
+
+### A.C.A.S GUI
+
+#### Hosting on localhost
+
+1) Install the A.C.A.S userscript and modify the `backendURL` constant variable at the very start of the userscript to `http://localhost/A.C.A.S/`.
+2) Create a folder named `A.C.A.S` to the root folder of your webserver. (e.g. `www/A.C.A.S`)
+3) Clone the repository and put the files inside the folder you just created.
+4) You should now see A.C.A.S running on `http://localhost/A.C.A.S/`.
+5) Make sure the A.C.A.S userscript is on and you should be good to go!
+
+> **Warning** Make sure there are no additional folders which would make the URL like `http://localhost/A.C.A.S/A.C.A.S/`.
+
+### A.C.A.S Userscript
+
+Developing the userscript is easy, simply develop it as you'd any other userscripts.
+
+> **Note** Browsers might cache userscripts after you've refreshed the site enough times. If you notice your userscript being cached, disable the userscript, refresh the page, then enable the userscript and refresh the page again.
+
 ## Used Libraries
 
 * [Fairy Stockfish WASM](https://github.com/fairy-stockfish/fairy-stockfish.wasm) (*the chess engine of A.C.A.S*)
 * [COI-Serviceworker](https://github.com/gzuidhof/coi-serviceworker) (*allowing WASM on GitHub pages, extremely important library!!!*)
-* [Chessground X](https://github.com/gbtami/chessgroundx) (*for displaying a board on the GUI. Modified the library a bit*)
+* [ChessgroundX](https://github.com/gbtami/chessgroundx) (*for displaying a board on the GUI. Modified the library a bit*)
 * [FileSaver](http://purl.eligrey.com/github/FileSaver.js) (*for saving the config file*)
 
 ## Used Libraries (Made for A.C.A.S)
