@@ -83,7 +83,7 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 //////////////////////////////////////////////////////////////////////
 // DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING //
 
-const backendURL = 'https://hakorr.github.io/A.C.A.S/'; //'http://localhost/';
+const backendURL = 'https://hakorr.github.io/A.C.A.S/'; // FOR DEVELOPMENT USE: 'http://localhost/A.C.A.S/';
 const tempValueIndicator = '-temp-value-';
 const domain = window.location.hostname.replace('www.', '');
 
