@@ -1463,12 +1463,18 @@ function initializeIfSiteReady() {
     }
 }
 
-if(typeof GM_registerMenuCommand == 'function') {
-    GM_registerMenuCommand('Open A.C.A.S', e => {
+if(typeof GM_registerMenuCommand === 'function') {
+    GM_registerMenuCommand('Start A.C.A.S Manually', e => {
         if(chessBoardElem) {
             startWhenBackendReady();
         }
     }, 's');
+
+    GM_registerMenuCommand('Get Moves Manually', e => {
+        if(chessBoardElem) {
+            onNewMove();
+        }
+    }, 'g');
 }
 
 setInterval(initializeIfSiteReady, 1000);
