@@ -64,7 +64,13 @@ Before making an issue, please read these,
 
 - Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.
 
-Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/A.C.A.S/issues/new). Please be descriptive! Mention what site the problem occurs on and browser & userscript manager you're using. What did you do for the bug to happen, does it happen often? How could I reproduce it?
+Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/A.C.A.S/issues/new). 
+
+> **Note** When making an issue, please be descriptive! Mention,
+> - The chess site and the variant you were playing.
+> - The browser and the userscript manager were using.
+> - What did you do for the bug to happen, does it happen often? How could I reproduce it?
+> - You can also include a screenshot of the browser console (e.g. `CTRL + SHIFT + I` or right click, inspect, and go to the console tab), look for **grey underlined text** at the beginning of a red background area, on the right side of the screen, which has the word 'A.C.A.S'. That's an error from the userscript.
 
 ## Development
 
