@@ -631,7 +631,7 @@ class BackendInstance {
 
             this.pastMoveObjects.push(moveObj);
 
-            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves);
+            const onlyShowTopMoves = this.searchDepth && this.getConfigValue(this.configKeys.onlyShowTopMoves);
             const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
 
             if(!onlyShowTopMoves) { // this.isPlayerTurn()
@@ -646,7 +646,7 @@ class BackendInstance {
         if(data?.bestmove) {
             this.engineFinishedCalculation = true;
 
-            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves);
+            const onlyShowTopMoves = this.searchDepth && this.getConfigValue(this.configKeys.onlyShowTopMoves);
 
             if(onlyShowTopMoves) {
                 const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
