@@ -39,7 +39,6 @@
 // @description:ru     Слава Украине
 // @homepageURL https://hakorr.github.io/A.C.A.S
 // @supportURL  https://github.com/Hakorr/A.C.A.S/tree/main#why-doesnt-it-work
-// @downloadURL https://github.com/Hakorr/A.C.A.S/raw/main/acas.user.js
 // @match       https://www.chess.com/*
 // @match       https://lichess.org/*
 // @match       https://playstrategy.org/*
@@ -58,7 +57,7 @@
 // @grant       GM_addStyle
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0.2
+// @version     2.0.3
 // @namespace   HKR
 // @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
