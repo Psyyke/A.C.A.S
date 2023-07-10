@@ -416,7 +416,7 @@ class BackendInstance {
 
     setEngineElo(elo) {
         if(typeof elo == 'number') {
-            const limitStrength = 0 < elo && elo <= 2850;
+            const limitStrength = 0 < elo && elo <= 2500;
 
             this.engine.postMessage(`setoption name UCI_Elo value ${elo}`);
 
@@ -435,7 +435,7 @@ class BackendInstance {
 
                 this.setEngineSkillLevel(20);
 
-                if(2850 < elo && elo < 3000) {
+                if(elo !== 3000) {
                     const depth = getDepthFromElo(elo);
                     this.searchDepth = depth;
 
