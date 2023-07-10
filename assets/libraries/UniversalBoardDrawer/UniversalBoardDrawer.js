@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.3.0
+ - Version: 1.3.2
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -13,11 +13,13 @@ class UniversalBoardDrawer {
         this.document = this.window?.document;
         this.parentElem = config?.parentElem || this.document.body;
 
-        this.boardDimensions = { 
+        this.boardDimensions = {
             'width': config?.boardDimensions?.[0] || 8,
             'height': config?.boardDimensions?.[1] || 8
         };
 
+        this.adjustSizeByDimensions = config?.adjustSizeByDimensions || false;
+        this.adjustSizeConfig = config?.adjustSizeConfig;
         this.orientation = config?.orientation || 'w';
         this.zIndex = config?.zIndex || 1000; // container z-index
         this.usePrepend = config?.prepend || false;
@@ -93,7 +95,7 @@ class UniversalBoardDrawer {
 
             this.isInputDown = false;
         };
-            
+
         this.document.addEventListener('mousemove', handleMouseMove);
         this.document.addEventListener('touchstart', handleTouchStart);
         this.document.addEventListener('mousedown', handleMouseDown);
@@ -103,7 +105,7 @@ class UniversalBoardDrawer {
     setOrientation(orientation) {
         this.orientation = orientation;
 
-        this.updateSVGDimensions();
+        this.updateDimensions();
     }
 
     setBoardDimensions(dimensionArr) {
@@ -111,7 +113,13 @@ class UniversalBoardDrawer {
 
         this.boardDimensions = { width, height };
 
-        this.updateSVGDimensions();
+        this.updateDimensions();
+    }
+
+    setAdjustSizeByDimensions(boolean) {
+        this.adjustSizeByDimensions = boolean;
+
+        this.updateDimensions();
     }
 
     createArrowBetweenPositions(from, to, config) {
@@ -154,7 +162,7 @@ class UniversalBoardDrawer {
             arrowElem.setAttribute('points', pointsString);
             arrowElem.style.fill = this.defaultFillColor;
             arrowElem.style.opacity = this.defaultOpacity;
-            
+
         const style = config?.style;
 
         if(style) arrowElem.setAttribute('style', style);
@@ -235,8 +243,10 @@ class UniversalBoardDrawer {
     }
 
     transferAttributes(fromElem, toElem) {
-        [...fromElem.attributes].forEach(attr =>
-            toElem.setAttribute(attr.name, attr.value));
+        if(fromElem && fromElem?.attributes && toElem) {
+            [...fromElem.attributes].forEach(attr =>
+                toElem.setAttribute(attr.name, attr.value));
+        }
     }
 
     createShape(type, positions, config) {
@@ -274,17 +284,50 @@ class UniversalBoardDrawer {
         return null;
     }
 
-    updateSVGDimensions() {
-        const boardRect = this.boardElem.getBoundingClientRect();
-        const bodyRect = this.document.body.getBoundingClientRect(); // https://stackoverflow.com/a/62106310
+    updateDimensions() {
+        const boardRect = this.boardElem.getBoundingClientRect(),
+              bodyRect = this.document.body.getBoundingClientRect(); // https://stackoverflow.com/a/62106310
 
-        this.boardContainerElem.style.width = boardRect.width + 'px';
-        this.boardContainerElem.style.height = boardRect.height + 'px';
-        this.boardContainerElem.style.left = boardRect.left - bodyRect.left + 'px';
-        this.boardContainerElem.style.top = boardRect.top - bodyRect.top + 'px';
+        let boardWidth = boardRect.width,
+            boardHeight = boardRect.height;
 
-        const squareWidth = boardRect.width / this.boardDimensions.width;
-        const squareHeight = boardRect.height / this.boardDimensions.height;
+        let boardPositionTop = boardRect.top - bodyRect.top,
+            boardPositionLeft = boardRect.left - bodyRect.left;
+
+        if(this.adjustSizeByDimensions) {
+
+            if(this.boardDimensions.width > this.boardDimensions.height) {
+                const multiplier = this.boardDimensions.height / this.boardDimensions.width,
+                      newHeight = boardWidth * multiplier;
+
+                if(boardHeight !== newHeight) {
+                    if(!this.adjustSizeConfig?.noTopAdjustment)
+                        boardPositionTop += (boardHeight - newHeight) / 2;
+
+                    boardHeight = newHeight;
+                }
+            }
+            else {
+                const multiplier = this.boardDimensions.width / this.boardDimensions.height,
+                      newWidth = boardWidth * multiplier;
+
+                if(boardWidth !== newWidth) {
+                    if(!this.adjustSizeConfig?.noLeftAdjustment)
+                        boardPositionLeft += (boardWidth - newWidth) / 2;
+
+                    boardWidth = newWidth;
+                }
+            }
+
+        }
+
+        this.boardContainerElem.style.width = boardWidth + 'px';
+        this.boardContainerElem.style.height = boardHeight + 'px';
+        this.boardContainerElem.style.left = boardPositionLeft + 'px';
+        this.boardContainerElem.style.top = boardPositionTop + 'px';
+
+        const squareWidth = boardWidth / this.boardDimensions.width;
+        const squareHeight = boardHeight / this.boardDimensions.height;
 
         this.singleSquareSize = squareWidth;
         this.squareWidth = squareWidth;
@@ -302,11 +345,11 @@ class UniversalBoardDrawer {
 
         this.boardContainerElem = svg;
 
-        this.updateSVGDimensions();
+        this.updateDimensions();
 
         this.parentElem.appendChild(this.boardContainerElem);
 
-        const rObs = new ResizeObserver(this.updateSVGDimensions.bind(this));
+        const rObs = new ResizeObserver(this.updateDimensions.bind(this));
             rObs.observe(this.boardElem);
             rObs.observe(this.document.body);
 
@@ -326,20 +369,20 @@ class UniversalBoardDrawer {
             if(boardRect !== oldBoardRect) {
                 oldBoardRect = boardRect;
 
-                this.updateSVGDimensions();
+                this.updateDimensions();
             }
         }, this.updateInterval);
     }
 
     getCoordinatesFromInputPosition(e) {
         const boardRect = this.boardElem.getBoundingClientRect();
-        
+
         const { clientX, clientY } = e.touches ? e.touches[0] : e;
         const isOutOfBounds = clientX < boardRect.left || clientX > boardRect.right || clientY < boardRect.top || clientY > boardRect.bottom;
 
         const relativeX = clientX - boardRect.left;
         const relativeY = clientY - boardRect.top;
-        
+
         return isOutOfBounds
             ? [null, null]
             : [Math.floor(relativeX / this.squareWidth) + 1, Math.floor(relativeY / this.squareHeight) + 1];
@@ -347,10 +390,10 @@ class UniversalBoardDrawer {
 
     handleMouseEvent(e) {
         if(this.isInputDown) return;
-        
+
         const position = this.getCoordinatesFromInputPosition(e),
                 positionStr = position?.toString();
-        
+
         if(positionStr != this.lastInputPositionStr) {
             const enteredSquareListeners = this.customActivityListeners.filter(obj => obj.square == this.coordinateToFen(position));
 
