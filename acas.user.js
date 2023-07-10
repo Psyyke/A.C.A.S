@@ -1318,6 +1318,12 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
     const fenChanged = currentFullFen !== lastFullFen;
 
+    setTimeout(() => {
+        if(getFen() !== instanceVars.fen.get(commLinkInstanceID)) {
+            onNewMove(null, true);
+        }
+    }, 500);
+    
     if(fenChanged || bypassFenChangeDetection) {
         boardUtils.removeBestMarkings();
 
