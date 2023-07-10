@@ -57,7 +57,7 @@
 // @grant       GM_addStyle
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0.3
+// @version     2.0.4
 // @namespace   HKR
 // @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
@@ -84,7 +84,9 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 //////////////////////////////////////////////////////////////////////
 // DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING //
 
-const backendURL = 'https://hakorr.github.io/A.C.A.S/'; // FOR DEVELOPMENT USE: 'http://localhost/A.C.A.S/';
+// PRODUCTION: 'https://hakorr.github.io/A.C.A.S/';
+// DEVELOPMENT: 'http://localhost/A.C.A.S/';
+const backendURL = 'https://hakorr.github.io/A.C.A.S/';
 
 const domain = window.location.hostname.replace('www.', '');
 const tempValueIndicator = '-temp-value-';
