@@ -57,7 +57,7 @@
 // @grant       GM_addStyle
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0.5
+// @version     2.0.6
 // @namespace   HKR
 // @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
