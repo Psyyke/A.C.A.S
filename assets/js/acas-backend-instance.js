@@ -349,6 +349,8 @@ class BackendInstance {
                 this.activeGuiMoveMarkings = [];
             },
             updateBoardFen: fen => {
+                USERSCRIPT.instanceVars.fen.set(this.instanceID, fen);
+
                 this.chessground.set({ fen });
                 this.instanceElem.querySelector('.instance-fen').innerText = fen;
 
@@ -427,15 +429,22 @@ class BackendInstance {
                 const depth = getDepthFromElo(elo);
                 this.searchDepth = depth;
 
-                console.log(`Engine skill limited (UCI_Elo: ${elo} | Skill Level: ${skillLevel} | Search Depth: ${depth})`);
+                console.warn(`Engine skill limited (UCI_Elo: ${elo} | Skill Level: ${skillLevel} | Search Depth: ${depth})`);
             } else {
                 this.setEngineLimitStrength(false);
 
                 this.setEngineSkillLevel(20);
 
-                this.searchDepth = null;
+                if(2850 < elo && elo < 3000) {
+                    const depth = getDepthFromElo(elo);
+                    this.searchDepth = depth;
 
-                console.log(`Engine has no skill limitation!`);
+                    console.warn(`Engine skill limited to search depth (UCI_Elo: ${elo} | Search Depth: ${depth})`);
+                } else {
+                    this.searchDepth = null;
+
+                    console.warn(`Engine has no skill limitation! Running full power.`);
+                }
             }
         }
     }

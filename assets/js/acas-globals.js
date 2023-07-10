@@ -41,13 +41,19 @@ function getSkillLevelFromElo(elo) {
     }
 }
 
+// maybe should start using math to calculate it... oh well
 function getDepthFromElo(elo) {
-    return elo >= 2850 ? 10
+    return elo >= 2999 ? 22
+    : elo >= 2970 ? 18
+    : elo >= 2950 ? 15
+    : elo >= 2900 ? 14
+    : elo >= 2800 ? 11
+    : elo >= 2700 ? 9
     : elo >= 2600 ? 8
     : elo >= 2400 ? 7
     : elo >= 2200 ? 6
     : elo >= 2000 ? 5
-    : elo >= 1700 ? 4
+    : elo >= 1800 ? 4
     : elo >= 1600 ? 3
     : elo >= 1400 ? 2
     : elo >= 1200 ? 1

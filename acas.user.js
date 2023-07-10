@@ -57,7 +57,7 @@
 // @grant       GM_addStyle
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0.4
+// @version     2.0.5
 // @namespace   HKR
 // @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
@@ -87,6 +87,7 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 // PRODUCTION: 'https://hakorr.github.io/A.C.A.S/';
 // DEVELOPMENT: 'http://localhost/A.C.A.S/';
 const backendURL = 'https://hakorr.github.io/A.C.A.S/';
+const debugModeActivated = false;
 
 const domain = window.location.hostname.replace('www.', '');
 const tempValueIndicator = '-temp-value-';
@@ -187,11 +188,8 @@ Object.values(configKeys).forEach(key => {
     };
 });
 
-const debugModeActivated = false;
-
 let BoardDrawer = null;
 let chessBoardElem = null;
-let lastBasicFen = null;
 let chesscomVariantBoardCoordsTable = null;
 let activeSiteMoveHighlights = [];
 let inactiveGuiMoveMarkings = [];
@@ -273,6 +271,204 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
         return null;
     }
 });
+
+const boardUtils = {
+    markMove: moveObj => {
+        if(!getConfigValue(configKeys.displayMovesOnExternalSite)) return;
+
+        const [from, to] = moveObj.player;
+        const [opponentFrom, opponentTo] = moveObj.opponent;
+        const ranking = moveObj.ranking;
+
+        const existingExactSameMoveObj = activeSiteMoveHighlights.find(obj => {
+            const [activeFrom, activeTo] = obj.player;
+            const [activeOpponentFrom, activeOpponentTo] = obj.opponent;
+
+            return from == activeFrom
+                && to == activeTo
+                && opponentFrom == activeOpponentFrom
+                && opponentTo == activeOpponentTo;
+        });
+
+        activeSiteMoveHighlights.map(obj => {
+            const [activeFrom, activeTo] = obj.player;
+
+            const existingSameMoveObj = from == activeFrom && to == activeTo;
+
+            if(existingSameMoveObj) {
+                obj.promotedRanking = 1;
+            }
+
+            return obj;
+        });
+
+        const exactSameMoveDoesNotExist = typeof existingExactSameMoveObj !== 'object';
+
+        if(exactSameMoveDoesNotExist) {
+
+            const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess);
+
+            const opponentMoveGuessExists = typeof opponentFrom == 'string';
+
+            const arrowStyle = ranking == 1 ? arrowStyles.best : arrowStyles.secondary;
+
+            let opponentArrowElem = null;
+
+            // create player move arrow element
+            const arrowElem = BoardDrawer.createShape('arrow', [from, to],
+                { style: arrowStyle }
+            );
+
+            // create opponent move arrow element
+            if(opponentMoveGuessExists && showOpponentMoveGuess) {
+                opponentArrowElem = BoardDrawer.createShape('arrow', [opponentFrom, opponentTo],
+                    { style: arrowStyles.opponent }
+                );
+
+                const squareListener = BoardDrawer.addSquareListener(from, type => {
+                    if(!opponentArrowElem) {
+                        squareListener.remove();
+                    }
+
+                    switch(type) {
+                        case 'enter':
+                            opponentArrowElem.style.display = 'inherit';
+                            break;
+                        case 'leave':
+                            opponentArrowElem.style.display = 'none';
+                            break;
+                    }
+                });
+            }
+
+            activeSiteMoveHighlights.push({
+                ...moveObj,
+                'opponentArrowElem': opponentArrowElem,
+                'playerArrowElem': arrowElem
+            });
+        }
+
+        boardUtils.removeOldMarkings();
+        boardUtils.paintMarkings();
+    },
+    removeOldMarkings: () => {
+        const markingLimit = getConfigValue(configKeys.moveSuggestionAmount);
+        const showGhost = getConfigValue(configKeys.showMoveGhost);
+
+        const exceededMarkingLimit = activeSiteMoveHighlights.length > markingLimit;
+
+        if(exceededMarkingLimit) {
+            const amountToRemove = activeSiteMoveHighlights.length - markingLimit;
+
+            for(let i = 0; i < amountToRemove; i++) {
+                const oldestMarkingObj = activeSiteMoveHighlights[0];
+
+                activeSiteMoveHighlights = activeSiteMoveHighlights.slice(1);
+
+                if(oldestMarkingObj?.playerArrowElem?.style) {
+                    oldestMarkingObj.playerArrowElem.style.fill = 'grey';
+                    oldestMarkingObj.playerArrowElem.style.opacity = '0';
+                    oldestMarkingObj.playerArrowElem.style.transition = 'opacity 2.5s ease-in-out';
+                }
+
+                if(oldestMarkingObj?.opponentArrowElem?.style) {
+                    oldestMarkingObj.opponentArrowElem.style.fill = 'grey';
+                    oldestMarkingObj.opponentArrowElem.style.opacity = '0';
+                    oldestMarkingObj.opponentArrowElem.style.transition = 'opacity 2.5s ease-in-out';
+                }
+
+                if(showGhost) {
+                    inactiveGuiMoveMarkings.push(oldestMarkingObj);
+                } else {
+                    oldestMarkingObj.playerArrowElem?.remove();
+                    oldestMarkingObj.opponentArrowElem?.remove();
+                }
+            }
+        }
+
+        if(showGhost) {
+            inactiveGuiMoveMarkings.forEach(markingObj => {
+                const activeDuplicateArrow = activeSiteMoveHighlights.find(x => {
+                    const samePlayerArrow = x.player?.toString() == markingObj.player?.toString();
+                    const sameOpponentArrow = x.opponent?.toString() == markingObj.opponent?.toString();
+
+                    return samePlayerArrow && sameOpponentArrow;
+                });
+
+                const duplicateExists = activeDuplicateArrow ? true : false;
+
+                const removeArrows = () => {
+                    inactiveGuiMoveMarkings = inactiveGuiMoveMarkings.filter(x => x.playerArrowElem != markingObj.playerArrowElem);
+
+                    markingObj.playerArrowElem?.remove();
+                    markingObj.opponentArrowElem?.remove();
+                }
+
+                if(duplicateExists) {
+                    removeArrows();
+                } else {
+                    setTimeout(removeArrows, 2500);
+                }
+            });
+        }
+    },
+    paintMarkings: () => {
+        const newestBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj.ranking == 1);
+        const newestPromotedBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj?.promotedRanking == 1);
+        const lastMarkingIndex = activeSiteMoveHighlights.length - 1;
+
+        const isLastMarkingBest = newestBestMarkingIndex == -1 && newestPromotedBestMarkingIndex == -1;
+        const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
+
+        let bestMoveMarked = false;
+
+        activeSiteMoveHighlights.forEach((markingObj, idx) => {
+            const isBestMarking = idx == bestIndex;
+
+            if(isBestMarking) {
+                markingObj.playerArrowElem.style.cssText = arrowStyles.best;
+
+                const playerArrowElem = markingObj.playerArrowElem
+                const opponentArrowElem = markingObj.opponentArrowElem;
+
+                // move best arrow element on top (multiple same moves can hide the best move)
+                const parentElem = markingObj.playerArrowElem.parentElement;
+
+                parentElem.appendChild(playerArrowElem);
+
+                if(opponentArrowElem) {
+                    parentElem.appendChild(opponentArrowElem);
+                }
+
+                bestMoveMarked = true;
+            } else {
+                markingObj.playerArrowElem.style.cssText = arrowStyles.secondary;
+            }
+        });
+    },
+    removeBestMarkings: () => {
+        activeSiteMoveHighlights.forEach(markingObj => {
+            markingObj.opponentArrowElem?.remove();
+            markingObj.playerArrowElem?.remove();
+        });
+
+        activeSiteMoveHighlights = [];
+    },
+    setBoardOrientation: orientation => {
+        if(BoardDrawer) {
+            if(debugModeActivated) console.warn('setBoardOrientation', orientation);
+
+            BoardDrawer.setOrientation(orientation);
+        }
+    },
+    setBoardDimensions: dimensionArr => {
+        if(BoardDrawer) {
+            if(debugModeActivated) console.warn('setBoardDimensions', dimensionArr);
+
+            BoardDrawer.setBoardDimensions(dimensionArr);
+        }
+    }
+};
 
 function filterInvisibleElems(elementArr, inverse) {
     return [...elementArr].filter(elem => {
@@ -494,6 +690,10 @@ function getChessPieceElem(getAll) {
     const boardElem = getBoardElem();
 
     const querySelector = (getAll ? query => [...boardElem?.querySelectorAll(query)] : boardElem?.querySelector?.bind(boardElem));
+
+    if(typeof querySelector !== 'function') {
+        return null;
+    }
 
     switch(domain) {
         case 'chess.com': {
@@ -1080,6 +1280,8 @@ function getFen(onlyBasic) {
 
     const basicFen = getBasicFen();
 
+    if(debugModeActivated) console.warn('basicFen', basicFen);
+
     if(onlyBasic) {
         return basicFen;
     }
@@ -1087,205 +1289,7 @@ function getFen(onlyBasic) {
     return `${basicFen} ${getPlayerColorVariable()} - - - -`;
 }
 
-const boardUtils = {
-    markMove: moveObj => {
-        if(!getConfigValue(configKeys.displayMovesOnExternalSite)) return;
-
-        const [from, to] = moveObj.player;
-        const [opponentFrom, opponentTo] = moveObj.opponent;
-        const ranking = moveObj.ranking;
-
-        const existingExactSameMoveObj = activeSiteMoveHighlights.find(obj => {
-            const [activeFrom, activeTo] = obj.player;
-            const [activeOpponentFrom, activeOpponentTo] = obj.opponent;
-
-            return from == activeFrom
-                && to == activeTo
-                && opponentFrom == activeOpponentFrom
-                && opponentTo == activeOpponentTo;
-        });
-
-        activeSiteMoveHighlights.map(obj => {
-            const [activeFrom, activeTo] = obj.player;
-
-            const existingSameMoveObj = from == activeFrom && to == activeTo;
-
-            if(existingSameMoveObj) {
-                obj.promotedRanking = 1;
-            }
-
-            return obj;
-        });
-
-        const exactSameMoveDoesNotExist = typeof existingExactSameMoveObj !== 'object';
-
-        if(exactSameMoveDoesNotExist) {
-
-            const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess);
-
-            const opponentMoveGuessExists = typeof opponentFrom == 'string';
-
-            const arrowStyle = ranking == 1 ? arrowStyles.best : arrowStyles.secondary;
-
-            let opponentArrowElem = null;
-
-            // create player move arrow element
-            const arrowElem = BoardDrawer.createShape('arrow', [from, to],
-                { style: arrowStyle }
-            );
-
-            // create opponent move arrow element
-            if(opponentMoveGuessExists && showOpponentMoveGuess) {
-                opponentArrowElem = BoardDrawer.createShape('arrow', [opponentFrom, opponentTo],
-                    { style: arrowStyles.opponent }
-                );
-
-                const squareListener = BoardDrawer.addSquareListener(from, type => {
-                    if(!opponentArrowElem) {
-                        squareListener.remove();
-                    }
-
-                    switch(type) {
-                        case 'enter':
-                            opponentArrowElem.style.display = 'inherit';
-                            break;
-                        case 'leave':
-                            opponentArrowElem.style.display = 'none';
-                            break;
-                    }
-                });
-            }
-
-            activeSiteMoveHighlights.push({
-                ...moveObj,
-                'opponentArrowElem': opponentArrowElem,
-                'playerArrowElem': arrowElem
-            });
-        }
-
-        boardUtils.removeOldMarkings();
-        boardUtils.paintMarkings();
-    },
-    removeOldMarkings: () => {
-        const markingLimit = getConfigValue(configKeys.moveSuggestionAmount);
-        const showGhost = getConfigValue(configKeys.showMoveGhost);
-
-        const exceededMarkingLimit = activeSiteMoveHighlights.length > markingLimit;
-
-        if(exceededMarkingLimit) {
-            const amountToRemove = activeSiteMoveHighlights.length - markingLimit;
-
-            for(let i = 0; i < amountToRemove; i++) {
-                const oldestMarkingObj = activeSiteMoveHighlights[0];
-
-                activeSiteMoveHighlights = activeSiteMoveHighlights.slice(1);
-
-                if(oldestMarkingObj?.playerArrowElem?.style) {
-                    oldestMarkingObj.playerArrowElem.style.fill = 'grey';
-                    oldestMarkingObj.playerArrowElem.style.opacity = '0';
-                    oldestMarkingObj.playerArrowElem.style.transition = 'opacity 2.5s ease-in-out';
-                }
-
-                if(oldestMarkingObj?.opponentArrowElem?.style) {
-                    oldestMarkingObj.opponentArrowElem.style.fill = 'grey';
-                    oldestMarkingObj.opponentArrowElem.style.opacity = '0';
-                    oldestMarkingObj.opponentArrowElem.style.transition = 'opacity 2.5s ease-in-out';
-                }
-
-                if(showGhost) {
-                    inactiveGuiMoveMarkings.push(oldestMarkingObj);
-                } else {
-                    oldestMarkingObj.playerArrowElem?.remove();
-                    oldestMarkingObj.opponentArrowElem?.remove();
-                }
-            }
-        }
-
-        if(showGhost) {
-            inactiveGuiMoveMarkings.forEach(markingObj => {
-                const activeDuplicateArrow = activeSiteMoveHighlights.find(x => {
-                    const samePlayerArrow = x.player?.toString() == markingObj.player?.toString();
-                    const sameOpponentArrow = x.opponent?.toString() == markingObj.opponent?.toString();
-
-                    return samePlayerArrow && sameOpponentArrow;
-                });
-
-                const duplicateExists = activeDuplicateArrow ? true : false;
-
-                const removeArrows = () => {
-                    inactiveGuiMoveMarkings = inactiveGuiMoveMarkings.filter(x => x.playerArrowElem != markingObj.playerArrowElem);
-
-                    markingObj.playerArrowElem?.remove();
-                    markingObj.opponentArrowElem?.remove();
-                }
-
-                if(duplicateExists) {
-                    removeArrows();
-                } else {
-                    setTimeout(removeArrows, 2500);
-                }
-            });
-        }
-    },
-    paintMarkings: () => {
-        const newestBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj.ranking == 1);
-        const newestPromotedBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj?.promotedRanking == 1);
-        const lastMarkingIndex = activeSiteMoveHighlights.length - 1;
-
-        const isLastMarkingBest = newestBestMarkingIndex == -1 && newestPromotedBestMarkingIndex == -1;
-        const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
-
-        let bestMoveMarked = false;
-
-        activeSiteMoveHighlights.forEach((markingObj, idx) => {
-            const isBestMarking = idx == bestIndex;
-
-            if(isBestMarking) {
-                markingObj.playerArrowElem.style.cssText = arrowStyles.best;
-
-                const playerArrowElem = markingObj.playerArrowElem
-                const opponentArrowElem = markingObj.opponentArrowElem;
-
-                // move best arrow element on top (multiple same moves can hide the best move)
-                const parentElem = markingObj.playerArrowElem.parentElement;
-
-                parentElem.appendChild(playerArrowElem);
-
-                if(opponentArrowElem) {
-                    parentElem.appendChild(opponentArrowElem);
-                }
-
-                bestMoveMarked = true;
-            } else {
-                markingObj.playerArrowElem.style.cssText = arrowStyles.secondary;
-            }
-        });
-    },
-    removeBestMarkings: () => {
-        activeSiteMoveHighlights.forEach(markingObj => {
-            markingObj.opponentArrowElem?.remove();
-            markingObj.playerArrowElem?.remove();
-        });
-
-        activeSiteMoveHighlights = [];
-    },
-    setBoardOrientation: orientation => {
-        if(BoardDrawer) {
-            if(debugModeActivated) console.warn('setBoardOrientation', orientation);
-
-            BoardDrawer.setOrientation(orientation);
-        }
-    },
-    setBoardDimensions: dimensionArr => {
-        if(BoardDrawer) {
-            if(debugModeActivated) console.warn('setBoardDimensions', dimensionArr);
-
-            BoardDrawer.setBoardDimensions(dimensionArr);
-        }
-    }
-};
-
-function onNewMove(mutationArr) {
+function onNewMove(mutationArr, bypassFenChangeDetection) {
     if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
 
     chesscomVariantBoardCoordsTable = null;
@@ -1310,13 +1314,11 @@ function onNewMove(mutationArr) {
     }
 
     const currentFullFen = getFen();
-    const currentBasicFen = currentFullFen?.split(' ')?.[0];
+    const lastFullFen = instanceVars.fen.get(commLinkInstanceID);
 
-    const fenChanged = currentBasicFen != lastBasicFen;
+    const fenChanged = currentFullFen !== lastFullFen;
 
-    if(fenChanged) {
-        lastBasicFen = currentBasicFen;
-
+    if(fenChanged || bypassFenChangeDetection) {
         boardUtils.removeBestMarkings();
 
         /*
@@ -1337,8 +1339,6 @@ function onNewMove(mutationArr) {
             }
         }
         */
-
-        instanceVars.fen.set(commLinkInstanceID, currentFullFen);
 
         CommLink.commands.updateBoardFen(currentFullFen);
         CommLink.commands.calculateBestMoves(currentFullFen);
@@ -1472,7 +1472,7 @@ if(typeof GM_registerMenuCommand === 'function') {
 
     GM_registerMenuCommand('Get Moves Manually', e => {
         if(chessBoardElem) {
-            onNewMove();
+            onNewMove(null, true);
         }
     }, 'g');
 }
