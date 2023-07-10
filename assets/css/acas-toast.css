@@ -8,6 +8,7 @@
     align-items: center;
     justify-content: center;
     z-index: 9999999999;
+    pointer-events: none;
 }
 .acas-toast {
     min-width: 25vh;
@@ -26,6 +27,7 @@
     background: linear-gradient(to bottom right, rgb(255 255 255 / 90%), rgb(211 211 211 / 70%));
     backdrop-filter: blur(0.3vh);
     -webkit-backdrop-filter: blur(0.3vh);
+    pointer-events: all;
 }
 .acas-toast-close-btn {
     width: 1vh;

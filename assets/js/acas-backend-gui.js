@@ -122,7 +122,7 @@ function getInputValue(elem) {
         value = doesDropdownItemExist(elem, elem.value) ? elem.value : elem.dataset.defaultValue;
     }
 
-    return value ? value : elem.dataset.defaultValue;
+    return (value !== undefined && value !== null) ? value : elem.dataset.defaultValue;
 }
 
 function setInputValue(elem, val) {
@@ -198,7 +198,7 @@ function saveSetting(settingElem) {
     }
 
     USERSCRIPT.GM_setValue(configDatabaseKey, config);
-
+    
     makeSettingChanges(settingElem);
 
     guiBroadcastChannel.postMessage({ 'type': 'settingSave', 'data' : { 'key': settingObj.key, 'value': settingObj.value }});
@@ -428,6 +428,10 @@ function initGUI() {
 
                 if(e.target.value || e.target.checked) {
                     saveSetting(elem);
+
+                    if(e?.target?.dataset?.key === 'displayMovesOnExternalSite') {
+                        toast.create('message', '👁‍🗨', `Refresh the external site to see changes!`, 2000);
+                    }
                 } else {
                     removeSetting(elem);
                 }

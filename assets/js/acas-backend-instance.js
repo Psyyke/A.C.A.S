@@ -7,6 +7,7 @@ class BackendInstance {
             'displayMovesOnExternalSite': 'displayMovesOnExternalSite',
             'showMoveGhost': 'showMoveGhost',
             'showOpponentMoveGuess': 'showOpponentMoveGuess',
+            'onlyShowTopMoves': 'onlyShowTopMoves',
             'maxMovetime': 'maxMovetime',
             'chessVariant': 'chessVariant',
             'chessFont': 'chessFont',
@@ -54,6 +55,7 @@ class BackendInstance {
         
         this.engineFinishedCalculation = false;
 
+        this.pastMoveObjects = [];
         this.bestMoveMarkingElem = null;
         this.activeGuiMoveMarkings = [];
         this.inactiveGuiMoveMarkings = [];
@@ -620,24 +622,48 @@ class BackendInstance {
             const ranking = convertToCorrectType(data?.multipv);
             let moves = data.pv.split(' ').map(move => move.match(moveRegex));
 
-            if(moves?.length == 1) // if no opponent move guesses yet
+            if(moves?.length === 1) // if no opponent move guesses yet
                 moves = [...moves, [null, null]];
 
             const [[from, to], [opponentFrom, opponentTo]] = moves;
 
             const moveObj = { 'player': [from, to], 'opponent': [opponentFrom, opponentTo], ranking };
 
-            //if(this.isPlayerTurn()) {
+            this.pastMoveObjects.push(moveObj);
+
+            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves);
+            const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+
+            if(!onlyShowTopMoves) { // this.isPlayerTurn()
                 this.Interface.boardUtils.markMove(moveObj);
 
-                if(this.getConfigValue(this.configKeys.displayMovesOnExternalSite)) {
+                if(displayMovesExternally) {
                     this.CommLink.commands.markMoveToSite(moveObj);
                 }
-            //}
+            }
         }
 
         if(data?.bestmove) {
             this.engineFinishedCalculation = true;
+
+            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves);
+
+            if(onlyShowTopMoves) {
+                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
+
+                const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
+
+                topMoveObjects.forEach(moveObj => {
+                        this.Interface.boardUtils.markMove(moveObj);
+    
+                        if(displayMovesExternally) {
+                            this.CommLink.commands.markMoveToSite(moveObj);
+                        }
+                });
+            }
+
+            this.pastMoveObjects = [];
         }
 
         const variantStartposFen = data['Fen:'];

@@ -169,6 +169,7 @@ const configKeys = {
     'displayMovesOnExternalSite': 'displayMovesOnExternalSite',
     'showMoveGhost': 'showMoveGhost',
     'showOpponentMoveGuess': 'showOpponentMoveGuess',
+    'onlyShowTopMoves': 'onlyShowTopMoves',
     'maxMovetime': 'maxMovetime',
     'chessVariant': 'chessVariant',
     'chessFont': 'chessFont',
