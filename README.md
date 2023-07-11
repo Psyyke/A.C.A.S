@@ -4,6 +4,8 @@
 
 A.C.A.S is an **advanced chess assistance system** (some might even call it a "*cheat*") which enhances your chess performance with cutting-edge real-time move analysis. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
+![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/750998aa-061e-478a-a2c2-5e7c5b341775)
+
 * No anti-features (*e.g. ads, tracking*)
 * WebAssembly chess engine (faster than regular JavaScript engines)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
