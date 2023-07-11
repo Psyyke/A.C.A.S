@@ -5,6 +5,14 @@
     font-weight: 200 900;
     font-stretch: 75% 125%;
 }
+@media (max-width: 1000px) {
+    #settings-panels {
+        flex-direction: column !important;
+    }
+    .custom-input {
+        justify-content: space-between !important;
+    }
+}
 body {
     font-family: "Mona Sans";
     margin: 0;
@@ -715,11 +723,40 @@ cg-container {
     text-decoration: underline;
     color: rgb(255 255 255 / 35%);
 }
-@media (max-width: 1000px) {
-    #settings-panels {
-        flex-direction: column !important;
-    }
-    .custom-input {
-        justify-content: space-between !important;
-    }
+#acas-is-free-reminder {
+    display: flex;
+    flex-direction: column;
+    grid-gap: 0.5vh;
+    font-size: 1.5vh;
+    color: grey;
+    align-items: flex-end;
+}
+.github-button {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    align-items: center;
+    grid-gap: 0.5vh;
+    padding: 0.5vh 1vh 0.5vh 1vh;
+    font-size: 1.4vh;
+    font-weight: 400;
+    color: #C9D1D9;
+    background-color: #21262D;
+    border: 1px solid #3b434f;
+    border-radius: 0.6vh;
+    cursor: pointer;
+    text-decoration: none;
+}
+.github-button:hover {
+    background-color: #373f4b;
+    border: 1px solid #545f70;
+}
+.github-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.3);
+}
+.github-button svg {
+    width: 2vh;
+    height: 2vh;
+    fill: rgba(255, 255, 255, 0.3);
 }
