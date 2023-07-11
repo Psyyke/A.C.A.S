@@ -742,18 +742,18 @@ cg-container {
     font-weight: 400;
     color: #C9D1D9;
     background-color: #21262D;
-    border: 1px solid #3b434f;
+    border: 0.1vh solid #3b434f;
     border-radius: 0.6vh;
     cursor: pointer;
     text-decoration: none;
 }
 .github-button:hover {
     background-color: #373f4b;
-    border: 1px solid #545f70;
+    border: 0.1vh solid #545f70;
 }
 .github-button:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.3);
+    box-shadow: 0 0 0 0.3vh rgba(3, 102, 214, 0.3);
 }
 .github-button svg {
     width: 2vh;
