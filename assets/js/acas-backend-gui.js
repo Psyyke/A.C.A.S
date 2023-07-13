@@ -26,6 +26,7 @@ const resetSettingsBtn = document.querySelector('#reset-settings-btn');
 const bodyBlurOverlayElem = document.querySelector('#blur-overlay');
 
 const themeColorInput = document.querySelector('input[data-key="themeColorHex"]');
+const boardColorInput = document.querySelector('input[data-key="boardColorHex"]');
 
 const options = [settingsNavbarGlobalElem, settingsInstanceDropdownElem];
 
@@ -150,6 +151,12 @@ function makeSettingChanges(inputElem) {
             console.log('[Setting Handler] Set theme color to', value || 'nothing');
 
             break;
+        case 'boardColorHex':
+            addStyles(`cg-board {
+                background-color: ${value} !important;
+            }`, 'boardColorHexCss');
+
+            console.log('[Setting Handler] Set board bg color to', value || 'nothing');
         case 'backgroundImageRawUrl':
             acasInstanceContainer.style['background-image'] = value ? `url(${value})` : null;
 

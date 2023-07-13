@@ -1,23 +1,23 @@
 // ==UserScript==
-// @name        A.C.A.S (Advanced Chess Assistance System)
-// @name:en     A.C.A.S (Advanced Chess Assistance System)
-// @name:fi     A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
-// @name:zh-CN  A.C.A.S（高级国际象棋辅助系统）
-// @name:es     A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
-// @name:hi     A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
-// @name:ar     A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
-// @name:pt     A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
-// @name:ja     A.C.A.S（先進的なチェス支援システム）
-// @name:de     A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
-// @name:fr     A.C.A.S (Système Avancé d'Assistance aux Échecs)
-// @name:it     A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
-// @name:ko     A.C.A.S (고급 체스 보조 시스템)
-// @name:nl     A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
-// @name:pl     A.C.A.S (Zaawansowany System Pomocy Szachowej)
-// @name:tr     A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
-// @name:vi     A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
-// @name:uk     A.C.A.S (Система передової допомоги в шахах)
-// @name:ru     A.C.A.S (Система расширенной помощи в шахматах)
+// @name        [CHEAT] A.C.A.S (Advanced Chess Assistance System)
+// @name:en     [CHEAT] A.C.A.S (Advanced Chess Assistance System)
+// @name:fi     [CHEAT] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
+// @name:zh-CN  [CHEAT] A.C.A.S（高级国际象棋辅助系统）
+// @name:es     [CHEAT] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
+// @name:hi     [CHEAT] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
+// @name:ar     [CHEAT] A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
+// @name:pt     [CHEAT] A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
+// @name:ja     [CHEAT] A.C.A.S（先進的なチェス支援システム）
+// @name:de     [CHEAT] A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
+// @name:fr     [CHEAT] A.C.A.S (Système Avancé d'Assistance aux Échecs)
+// @name:it     [CHEAT] A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
+// @name:ko     [CHEAT] A.C.A.S (고급 체스 보조 시스템)
+// @name:nl     [CHEAT] A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
+// @name:pl     [CHEAT] A.C.A.S (Zaawansowany System Pomocy Szachowej)
+// @name:tr     [CHEAT] A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
+// @name:vi     [CHEAT] A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
+// @name:uk     [CHEAT] A.C.A.S (Система передової допомоги в шахах)
+// @name:ru     [CHEAT] A.C.A.S (Система расширенной помощи в шахматах)
 // @description        Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:en     Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:fi     Paranna shakkipelisi suorituskykyä huippuluokan reaaliaikaisen siirtoanalyysin ja strategisen avustusjärjestelmän avulla
@@ -46,6 +46,8 @@
 // @match       https://chess.org/*
 // @match       https://papergames.io/*
 // @match       https://vole.wtf/kilobytes-gambit/
+// @match       https://chess.coolmath-games.com/*
+// @match       https://www.coolmathgames.com/0-chess/*
 // @match       https://hakorr.github.io/A.C.A.S/*
 // @match       http://localhost/*
 // @grant       GM_getValue
@@ -55,13 +57,16 @@
 // @grant       GM_registerMenuCommand
 // @grant       GM_openInTab
 // @grant       GM_addStyle
+// @grant       GM_setClipboard
+// @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0.6
+// @version     2.0.7
 // @namespace   HKR
 // @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
+// @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
 // ==/UserScript==
 
 /*
@@ -87,6 +92,7 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 // PRODUCTION: 'https://hakorr.github.io/A.C.A.S/';
 // DEVELOPMENT: 'http://localhost/A.C.A.S/';
 const backendURL = 'https://hakorr.github.io/A.C.A.S/';
+const greasyforkURL = 'https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system';
 const debugModeActivated = false;
 
 const domain = window.location.hostname.replace('www.', '');
@@ -159,6 +165,7 @@ const blacklistedURLs = [
     'https://papergames.io/en/chess',
     'https://playstrategy.org/',
     'https://www.pychess.org/',
+    'https://www.coolmathgames.com/0-chess',
     'https://hakorr.github.io/A.C.A.S/',
     'https://hakorr.github.io/A.C.A.S/why/',
     'https://hakorr.github.io/A.C.A.S/tos/',
@@ -176,7 +183,8 @@ const configKeys = {
     'maxMovetime': 'maxMovetime',
     'chessVariant': 'chessVariant',
     'chessFont': 'chessFont',
-    'useChess960': 'useChess960'
+    'useChess960': 'useChess960',
+    'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn'
 };
 
 const config = {};
@@ -202,7 +210,7 @@ let lastPieceSize = null;
 
 let lastBoardOrientation = null;
 
-const domainsWithoutDifferentBoardDimensionsArr = ['chess.org', 'lichess.org', 'papergames.io', 'vole.wtf'];
+const domainsWithoutDifferentBoardDimensionsArr = ['chess.org', 'lichess.org', 'papergames.io', 'vole.wtf', 'chess.coolmath-games.com'];
 
 const arrowStyles = {
     'best': `
@@ -511,11 +519,11 @@ function extractElemTransformData(elem) {
 }
 
 function getElemCoordinatesFromTransform(elem) {
-    if (!lastBoardSize) {
+    if(!lastBoardSize) {
         lastBoardSize = getElementSize(chessBoardElem);
     }
 
-    if (!lastBoardRanks) {
+    if(!lastBoardRanks || !lastBoardFiles) {
         const [files, ranks] = getBoardDimensions();
 
         lastBoardRanks = ranks;
@@ -543,6 +551,31 @@ function getElemCoordinatesFromTransform(elem) {
     }
 }
 
+function getElemCoordinatesFromLeftBottomPercentages(elem) {
+    if(!lastBoardRanks || !lastBoardFiles) {
+        const [files, ranks] = getBoardDimensions();
+
+        lastBoardRanks = ranks;
+        lastBoardFiles = files;
+    }
+
+    const boardOrientation = getPlayerColorVariable();
+
+    const leftPercentage = parseFloat(elem.style.left?.replace('%', ''));
+    const bottomPercentage = parseFloat(elem.style.bottom?.replace('%', ''));
+
+    const x = Math.max(Math.round(leftPercentage / (100 / lastBoardRanks)), 0);
+    const y = Math.max(Math.round(bottomPercentage / (100 / lastBoardFiles)), 0);
+
+    if (boardOrientation === 'w') {
+        return [x, y];
+    } else {
+        const flippedX = lastBoardRanks - (x + 1);
+        const flippedY = lastBoardFiles - (y + 1);
+
+        return [flippedX, flippedY];
+    }
+}
 
 function createChesscomVariantBoardCoordsTable() {
     chesscomVariantBoardCoordsTable = {};
@@ -673,6 +706,10 @@ function getBoardElem() {
             return document.querySelector('.cg-board');
         }
 
+        case 'chess.coolmath-games.com': {
+            return document.querySelector('.cg-board');
+        }
+
         case 'papergames.io': {
             return document.querySelector('#chessboard');
         }
@@ -723,6 +760,10 @@ function getChessPieceElem(getAll) {
             return querySelector('piece:not(.ghost)');
         }
 
+        case 'chess.coolmath-games.com': {
+            return querySelector('piece:not(.ghost)');
+        }
+
         case 'papergames.io': {
             return querySelector('*[data-piece][data-square]');
         }
@@ -755,64 +796,6 @@ function getSquareElems(element) {
     }
 
     return null;
-}
-
-function isMutationNewMove(mutationArr) {
-    const pathname = window.location.pathname;
-
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                return mutationArr.find(m => m.attributeName == 'class') ? true : false;
-            }
-
-            if(mutationArr.length == 1)
-                return false;
-
-            const modifiedHoverSquare = mutationArr.find(m => m?.target?.classList?.contains('hover-square')) ? true : false;
-            const modifiedHighlight = mutationArr.find(m => m?.target?.classList?.contains('highlight')) ? true : false;
-            const modifiedElemPool = mutationArr.find(m => m?.target?.classList?.contains('element-pool')) ? true : false;
-
-            return (mutationArr.length >= 4 && !modifiedHoverSquare)
-                || mutationArr.length >= 7
-                || modifiedHighlight
-                || modifiedElemPool;
-        }
-
-        case 'lichess.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'playstrategy.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'pychess.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'chess.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'papergames.io': {
-            return mutationArr.length >= 12;
-        }
-
-        case 'vole.wtf': {
-            return mutationArr.length >= 12;
-        }
-    }
-
-    return false;
 }
 
 function getChessVariant() {
@@ -914,6 +897,10 @@ function getChessVariant() {
             break;
         }
 
+        case 'chess.coolmath-games.com': {
+            return 'chess';
+        }
+
         case 'papergames.io': {
             return 'chess';
         }
@@ -964,6 +951,12 @@ function getBoardOrientation() {
             const filesElem = document.querySelector('coords.files');
 
             return filesElem?.classList?.contains('black') ? 'b' : 'w';
+        }
+
+        case 'chess.coolmath-games.com': {
+            const boardElem = getBoardElem();
+
+            return boardElem.classList?.contains('orientation-black') ? 'b' : 'w';
         }
 
         case 'papergames.io': {
@@ -1085,6 +1078,19 @@ function getPieceElemFen(pieceElem) {
             break;
         }
 
+        case 'chess.coolmath-games.com': {
+            const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+            const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+            if(pieceColor && elemPieceName) {
+                const pieceName = pieceNameToFen[elemPieceName];
+
+                return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+            }
+
+            break;
+        }
+
         case 'papergames.io': {
             return convertPieceStrToFen(pieceElem?.dataset?.piece);
         }
@@ -1154,6 +1160,10 @@ function getPieceElemCoords(pieceElem) {
 
         case 'chess.org': {
             return getElemCoordinatesFromTransform(pieceElem);
+        }
+
+        case 'chess.coolmath-games.com': {
+            return getElemCoordinatesFromLeftBottomPercentages(pieceElem?.parentElement);
         }
 
         case 'papergames.io': {
@@ -1247,6 +1257,97 @@ function getBoardDimensions() {
     return [8, 8];
 }
 
+function isMutationNewMove(mutationArr) {
+    const pathname = window.location.pathname;
+
+    switch(domain) {
+        case 'chess.com': {
+            if(pathname?.includes('/variants')) {
+                return mutationArr.find(m => m.attributeName == 'class') ? true : false;
+            }
+
+            if(mutationArr.length == 1)
+                return false;
+
+            const modifiedHoverSquare = mutationArr.find(m => m?.target?.classList?.contains('hover-square')) ? true : false;
+            const modifiedHighlight = mutationArr.find(m => m?.target?.classList?.contains('highlight')) ? true : false;
+            const modifiedElemPool = mutationArr.find(m => m?.target?.classList?.contains('element-pool')) ? true : false;
+
+            return (mutationArr.length >= 4 && !modifiedHoverSquare)
+                || mutationArr.length >= 7
+                || modifiedHighlight
+                || modifiedElemPool;
+        }
+
+        case 'lichess.org': {
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        }
+
+        case 'playstrategy.org': {
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        }
+
+        case 'pychess.org': {
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        }
+
+        case 'chess.org': {
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        }
+
+        case 'chess.coolmath-games.com': {
+            return mutationArr.length >= 4
+                || mutationArr.find(m => m.type === 'childList') ? true : false
+                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        }
+
+        case 'papergames.io': {
+            return mutationArr.length >= 12;
+        }
+
+        case 'vole.wtf': {
+            return mutationArr.length >= 12;
+        }
+    }
+
+    return false;
+}
+
+function getMutationTurn(mutationArr) {
+    const pathname = window.location.pathname;
+
+    switch(domain) {
+        default: {
+            const allChessPieceElems = getChessPieceElem(true);
+
+            const attributeMutationArr = mutationArr.filter(m => allChessPieceElems.includes(m.target));
+            const movedChessPieceElem = attributeMutationArr?.[0]?.target;
+
+            if(movedChessPieceElem) {
+                const newTurn = getFenPieceOppositeColor(getPieceElemFen(movedChessPieceElem));
+
+                if(newTurn?.length === 1) {
+                    instanceVars.turn.set(commLinkInstanceID, newTurn);
+
+                    return newTurn;
+                }
+            }
+
+            break;
+        }
+    }
+
+    return getPlayerColorVariable();
+}
+
 function getFen(onlyBasic) {
     const [boardRanks, boardFiles] = getBoardDimensions();
 
@@ -1323,31 +1424,20 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
             onNewMove(null, true);
         }
     }, 500);
-    
+
     if(fenChanged || bypassFenChangeDetection) {
         boardUtils.removeBestMarkings();
 
-        /*
-        if(!orientationChanged) {
-            const allChessPieceElems = getChessPieceElem(true);
-
-            const attributeMutationArr = mutationArr.filter(m => allChessPieceElems.includes(m.target));
-            const movedChessPieceElem = attributeMutationArr?.[0]?.target; // doesn't work for chess.com variants
-
-            if(movedChessPieceElem) {
-                const newTurn = getFenPieceOppositeColor(getPieceElemFen(movedChessPieceElem));
-
-                if(newTurn?.length === 1) {
-                    instanceVars.turn.set(commLinkInstanceID, newTurn);
-
-                    CommLink.commands.log(`Turn updated to ${newTurn}!`);
-                }
-            }
-        }
-        */
-
         CommLink.commands.updateBoardFen(currentFullFen);
-        CommLink.commands.calculateBestMoves(currentFullFen);
+
+        const turn = mutationArr ? getMutationTurn(mutationArr) : playerColor;
+        const onlyCalculateOwnTurn = getConfigValue(configKeys.onlyCalculateOwnTurn);
+
+        if(debugModeActivated) console.warn('TURN:', turn, '| PLAYERCOLOR:', playerColor, '| ORIENTATION_CHANGED:', orientationChanged, '| ONLY_CALC_OWN_TURN:', onlyCalculateOwnTurn);
+
+        if(orientationChanged || !onlyCalculateOwnTurn || turn === playerColor) {
+            CommLink.commands.calculateBestMoves(currentFullFen);
+        }
     }
 }
 
@@ -1469,18 +1559,56 @@ function initializeIfSiteReady() {
     }
 }
 
+function sendImportantNotification(title, text) {
+    if(typeof GM_notification === 'function') {
+        GM_notification({ title: title, text: text });
+    } else {
+        alert(`[${title}]` + '\n\n' + text);
+    }
+}
+
 if(typeof GM_registerMenuCommand === 'function') {
-    GM_registerMenuCommand('Start A.C.A.S Manually', e => {
+    GM_registerMenuCommand('[u] Open GreasyFork Page', e => {
+        GM_openInTab(greasyforkURL, true);
+    }, 'u');
+
+    GM_registerMenuCommand('[o] Open GUI Manually', e => {
+        GM_openInTab(backendURL, true);
+    }, 'o');
+
+    GM_registerMenuCommand('[s] Start Manually', e => {
         if(chessBoardElem) {
-            startWhenBackendReady();
+            start();
+        } else {
+            sendImportantNotification('Failed to start manually', 'No chessboard element found!');
         }
     }, 's');
 
-    GM_registerMenuCommand('Get Moves Manually', e => {
+    GM_registerMenuCommand('[g] Get Moves Manually', e => {
         if(chessBoardElem) {
             onNewMove(null, true);
+        } else {
+            sendImportantNotification('Failed to get moves', 'No chessboard element found!');
         }
     }, 'g');
+
+    GM_registerMenuCommand('[r] Render BoardDrawer Manually', e => {
+        if(typeof BoardDrawer?.updateDimensions === 'function') {
+            BoardDrawer.updateDimensions();
+        } else {
+            sendImportantNotification('Failed to render BoardDrawer', 'BoardDrawer not initialized or something else went wrong!');
+        }
+    }, 'r');
+
+    if(typeof GM_setClipboard === 'function') {
+        GM_registerMenuCommand('[c] Copy FEN to Clipboard', e => {
+            if(chessBoardElem) {
+                GM_setClipboard(getFen());
+            } else {
+                sendImportantNotification('Failed to get FEN', 'No chessboard element found!');
+            }
+        }, 'c');
+    }
 }
 
 setInterval(initializeIfSiteReady, 1000);

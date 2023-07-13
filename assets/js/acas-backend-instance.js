@@ -11,7 +11,8 @@ class BackendInstance {
             'maxMovetime': 'maxMovetime',
             'chessVariant': 'chessVariant',
             'chessFont': 'chessFont',
-            'useChess960': 'useChess960'
+            'useChess960': 'useChess960',
+            'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn'
         };
 
         this.config = {};

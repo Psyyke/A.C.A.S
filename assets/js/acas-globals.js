@@ -1,5 +1,5 @@
-const repositoryURL = 'https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S';
-const repositoryRawURL = 'https://raw.githubusercontent.com/Hakorr/Userscripts/main/Other/A.C.A.S';
+const repositoryURL = 'https://github.com/Hakorr/A.C.A.S'; // old relics, not in use
+const repositoryRawURL = null; // old relics, not in use
 
 const log = {
     info: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67a9ef;'),
@@ -129,7 +129,6 @@ function eloToTitle(elo) {
     : elo >= 2200 ? "National Master"
     : elo >= 2000 ? "Expert"
     : elo >= 1800 ? "Tournament Player"
-    : elo >= 1700 ? "Experienced"
     : elo >= 1600 ? "Experienced"
     : elo >= 1400 ? "Intermediate"
     : elo >= 1200 ? "Average"
@@ -162,17 +161,23 @@ function removeUciPrefix(str) {
     return str.substring(index + 2);
 }
 
-function addStyles(styles) {
-    var css = document.createElement('style');
+function addStyles(styles, id) {
+    const cssById = document.querySelector(`#${id}`);
+
+    const css = cssById ? cssById : document.createElement('style');
     css.type = 'text/css';
 
-    if (css.styleSheet) {
+    if(id && !css?.id) css.id = id;
+
+    if(css.styleSheet) {
         css.styleSheet.cssText = styles;
     } else {
+        css.innerHTML = '';
+
         css.appendChild(document.createTextNode(styles));
     }
 
-    document.getElementsByTagName('head')[0].appendChild(css);
+    document.querySelector('head')?.appendChild(css);
 }
 
 function parseUCIResponse(response) {
