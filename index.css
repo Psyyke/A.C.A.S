@@ -565,6 +565,15 @@ cg-container {
     flex-wrap: wrap;
     grid-gap: 1vh;
 }
+.unstable-setting-panel {
+    background-color: rgba(50, 0, 0, 0.2) !important;
+    border: 0.2vh solid rgba(150, 0, 0, 0.4) !important;
+}
+.setting-panel-title {
+    font-size: 1.8vh;
+    font-weight: 600;
+    color: rgb(255, 255, 255, 0.75);
+}
 .setting-panel {
     background-color: rgb(0 0 0 / 20%);
     border-radius: 0.5vh;

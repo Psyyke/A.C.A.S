@@ -128,26 +128,7 @@
 			</div>
 			<div id="settings-panels">
 				<div class="setting-panel">
-					<div class="checkbox-input custom-input"><div class="input-title">Only Calculate Own Turn</div><div class="checkbox-container">
-						<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div class="checkbox-input custom-input"><div class="input-title">Only display top moves</div><div class="checkbox-container">
-						<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div class="checkbox-input custom-input"><div class="input-title">Display opponent move guess</div><div class="checkbox-container">
-						<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div class="checkbox-input custom-input"><div class="input-title">Display arrow ghost</div><div class="checkbox-container">
-						<input type="checkbox" data-key="showMoveGhost" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div class="checkbox-input custom-input"><div class="input-title">Display moves on external site</div><div class="checkbox-container">
-						<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div class="textfield-input custom-input"><div class="input-title">Arrow opacity (1 - 100%)</div>
-						<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
-					</div>
-				</div>
-				<div class="setting-panel">
+					<div class="setting-panel-title">Engine ⚙️</div>
 					<div class="dropdown-input chess-variant-dropdown custom-input"><div class="input-title">Chess Variant</div><div class="dropdown-input-container">
 						<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container"></div>
@@ -166,6 +147,25 @@
 					</div>
 				</div>
 				<div class="setting-panel">
+					<div class="setting-panel-title">Visual 👁️‍🗨️</div>
+					<div class="checkbox-input custom-input"><div class="input-title">Only display top moves</div><div class="checkbox-container">
+						<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="checkbox-input custom-input"><div class="input-title">Display opponent move guess</div><div class="checkbox-container">
+						<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="checkbox-input custom-input"><div class="input-title">Display arrow ghost</div><div class="checkbox-container">
+						<input type="checkbox" data-key="showMoveGhost" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="checkbox-input custom-input"><div class="input-title">Display moves on external site</div><div class="checkbox-container">
+						<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+					</div>
+					<div class="textfield-input custom-input"><div class="input-title">Arrow opacity (1 - 100%)</div>
+						<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
+					</div>
+				</div>
+				<div class="setting-panel">
+					<div class="setting-panel-title">Miscellaneous ❔</div>
 					<div class="color-input custom-input"><div class="input-title">Theme Color</div>
 						<input type="color" data-key="themeColorHex" data-default-value="#1b342a">
 					</div>
@@ -184,6 +184,12 @@
 					</div>
 					<div class="textfield-input custom-input"><div class="input-title">Image Blur (0 - 100px)</div>
 						<input type="textfield" data-key="backgroundImageBlur" data-default-value="5" data-between="0-100">
+					</div>
+				</div>
+				<div class="unstable-setting-panel setting-panel">
+					<div class="setting-panel-title">Unstable ⛔</div>
+					<div class="checkbox-input custom-input"><div class="input-title">Only Calculate Own Turn</div><div class="checkbox-container">
+						<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 					</div>
 				</div>
 			</div>
