@@ -1,23 +1,23 @@
 // ==UserScript==
-// @name        [CHEAT] A.C.A.S (Advanced Chess Assistance System)
-// @name:en     [CHEAT] A.C.A.S (Advanced Chess Assistance System)
-// @name:fi     [CHEAT] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
-// @name:zh-CN  [CHEAT] A.C.A.S（高级国际象棋辅助系统）
-// @name:es     [CHEAT] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
-// @name:hi     [CHEAT] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
-// @name:ar     [CHEAT] A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
-// @name:pt     [CHEAT] A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
-// @name:ja     [CHEAT] A.C.A.S（先進的なチェス支援システム）
-// @name:de     [CHEAT] A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
-// @name:fr     [CHEAT] A.C.A.S (Système Avancé d'Assistance aux Échecs)
-// @name:it     [CHEAT] A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
-// @name:ko     [CHEAT] A.C.A.S (고급 체스 보조 시스템)
-// @name:nl     [CHEAT] A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
-// @name:pl     [CHEAT] A.C.A.S (Zaawansowany System Pomocy Szachowej)
-// @name:tr     [CHEAT] A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
-// @name:vi     [CHEAT] A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
-// @name:uk     [CHEAT] A.C.A.S (Система передової допомоги в шахах)
-// @name:ru     [CHEAT] A.C.A.S (Система расширенной помощи в шахматах)
+// @name        [CHESS CHEAT] A.C.A.S (Advanced Chess Assistance System)
+// @name:en     [CHESS CHEAT] A.C.A.S (Advanced Chess Assistance System)
+// @name:fi     [CHESS CHEAT] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
+// @name:zh-CN  [CHESS CHEAT] A.C.A.S（高级国际象棋辅助系统）
+// @name:es     [CHESS CHEAT] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
+// @name:hi     [CHESS CHEAT] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
+// @name:ar     [CHESS CHEAT] A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
+// @name:pt     [CHESS CHEAT] A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
+// @name:ja     [CHESS CHEAT] A.C.A.S（先進的なチェス支援システム）
+// @name:de     [CHESS CHEAT] A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
+// @name:fr     [CHESS CHEAT] A.C.A.S (Système Avancé d'Assistance aux Échecs)
+// @name:it     [CHESS CHEAT] A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
+// @name:ko     [CHESS CHEAT] A.C.A.S (고급 체스 보조 시스템)
+// @name:nl     [CHESS CHEAT] A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
+// @name:pl     [CHESS CHEAT] A.C.A.S (Zaawansowany System Pomocy Szachowej)
+// @name:tr     [CHESS CHEAT] A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
+// @name:vi     [CHESS CHEAT] A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
+// @name:uk     [CHESS CHEAT] A.C.A.S (Система передової допомоги в шахах)
+// @name:ru     [CHESS CHEAT] A.C.A.S (Система расширенной помощи в шахматах)
 // @description        Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:en     Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:fi     Paranna shakkipelisi suorituskykyä huippuluokan reaaliaikaisen siirtoanalyysin ja strategisen avustusjärjestelmän avulla
@@ -82,28 +82,38 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 [WARNING]
 - Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms.
 - The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use.
-- We strongly advise to use A.C.A.S only in a controlled environment ethically.*/
+- We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
-// DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING //
-/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
-//////////////////////////////////////////////////////////////////////
-// DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING //
+[ADDITIONAL]
+- Big fonts created with: https://www.patorjk.com/software/taag/
+- Fonts used: ANSI Regular
+*/
+
+
+
+/*
+ ██████  ██       ██████  ██████   █████  ██
+██       ██      ██    ██ ██   ██ ██   ██ ██
+██   ███ ██      ██    ██ ██████  ███████ ██
+██    ██ ██      ██    ██ ██   ██ ██   ██ ██
+ ██████  ███████  ██████  ██████  ██   ██ ███████
+
+Code below this point runs on any site, including the GUI.
+
+DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+////////////////////////////////////////////////////////////////
+DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
+*/
 
 // PRODUCTION: 'https://hakorr.github.io/A.C.A.S/';
 // DEVELOPMENT: 'http://localhost/A.C.A.S/';
 const backendURL = 'https://hakorr.github.io/A.C.A.S/';
 const greasyforkURL = 'https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system';
+
 const debugModeActivated = false;
 
 const domain = window.location.hostname.replace('www.', '');
-const tempValueIndicator = '-temp-value-';
-
-const dbValues = {
-    AcasConfig: 'AcasConfig',
-    playerColor: instanceID => 'playerColor' + tempValueIndicator + instanceID,
-    turn: instanceID => 'turn' + tempValueIndicator + instanceID,
-    fen: instanceID => 'fen' + tempValueIndicator + instanceID
-};
 
 function createInstanceVariable(dbValue) {
     return {
@@ -121,6 +131,14 @@ function createInstanceVariable(dbValue) {
         }
     }
 }
+
+const tempValueIndicator = '-temp-value-';
+const dbValues = {
+    AcasConfig: 'AcasConfig',
+    playerColor: instanceID => 'playerColor' + tempValueIndicator + instanceID,
+    turn: instanceID => 'turn' + tempValueIndicator + instanceID,
+    fen: instanceID => 'fen' + tempValueIndicator + instanceID
+};
 
 const instanceVars = {
     playerColor: createInstanceVariable('playerColor'),
@@ -145,10 +163,20 @@ if(window?.location?.href?.includes(backendURL)) {
     return;
 }
 
-// DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING //
-/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
-//////////////////////////////////////////////////////////////////////
-// DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING //
+/*
+ ██████ ██   ██ ███████ ███████ ███████     ███████ ██ ████████ ███████ ███████
+██      ██   ██ ██      ██      ██          ██      ██    ██    ██      ██
+██      ███████ █████   ███████ ███████     ███████ ██    ██    █████   ███████
+██      ██   ██ ██           ██      ██          ██ ██    ██    ██           ██
+ ██████ ██   ██ ███████ ███████ ███████     ███████ ██    ██    ███████ ███████
+
+Code below this point only runs on chess sites, not on the GUI itself.
+
+DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+////////////////////////////////////////////////////////////////
+DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
+*/
 
 function getUniqueID() {
     return ([1e7]+-1e3+4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -210,7 +238,16 @@ let lastPieceSize = null;
 
 let lastBoardOrientation = null;
 
-const domainsWithoutDifferentBoardDimensionsArr = ['chess.org', 'lichess.org', 'papergames.io', 'vole.wtf', 'chess.coolmath-games.com'];
+const supportedSites = {};
+
+const pieceNameToFen = {
+    'pawn': 'p',
+    'knight': 'n',
+    'bishop': 'b',
+    'rook': 'r',
+    'queen': 'q',
+    'king': 'k'
+};
 
 const arrowStyles = {
     'best': `
@@ -478,6 +515,14 @@ const boardUtils = {
     }
 };
 
+function displayImportantNotification(title, text) {
+    if(typeof GM_notification === 'function') {
+        GM_notification({ title: title, text: text });
+    } else {
+        alert(`[${title}]` + '\n\n' + text);
+    }
+}
+
 function filterInvisibleElems(elementArr, inverse) {
     return [...elementArr].filter(elem => {
         const style = getComputedStyle(elem);
@@ -605,6 +650,53 @@ function createChesscomVariantBoardCoordsTable() {
     }
 }
 
+function getBoardDimensionsFromSize() {
+    const boardDimensions = getElementSize(chessBoardElem);
+
+    lastBoardSize = getElementSize(chessBoardElem);
+
+    const boardWidth = boardDimensions?.width;
+    const boardHeight = boardDimensions.height;
+
+    const boardPiece = getPieceElem();
+
+    if(boardPiece) {
+        const pieceDimensions = getElementSize(boardPiece);
+
+        lastPieceSize = getElementSize(boardPiece);
+
+        const boardPieceWidth = pieceDimensions?.width;
+        const boardPieceHeight = pieceDimensions?.height;
+
+        const boardRanks = Math.floor(boardWidth / boardPieceWidth);
+        const boardFiles = Math.floor(boardHeight / boardPieceHeight);
+
+        const ranksInAllowedRange = 0 < boardRanks && boardRanks <= 69;
+        const filesInAllowedRange = 0 < boardFiles && boardFiles <= 69;
+
+        if(ranksInAllowedRange && filesInAllowedRange) {
+            return [boardRanks, boardFiles];
+        }
+    }
+}
+
+function defaultTurnFromMutation(mutationArr) {
+    const allChessPieceElems = getPieceElem(true);
+
+    const attributeMutationArr = mutationArr.filter(m => allChessPieceElems.includes(m.target));
+    const movedChessPieceElem = attributeMutationArr?.[0]?.target;
+
+    if(movedChessPieceElem) {
+        const newTurn = getFenPieceOppositeColor(getPieceElemFen(movedChessPieceElem));
+
+        if(newTurn?.length === 1) {
+            instanceVars.turn.set(commLinkInstanceID, newTurn);
+
+            return newTurn;
+        }
+    }
+}
+
 function chessCoordinatesToIndex(coord) {
     const x = coord.charCodeAt(0) - 97;
     let y = null;
@@ -678,674 +770,108 @@ function convertPieceStrToFen(str) {
     return null;
 }
 
-function getBoardElem() {
+function getSiteData(dataType, obj) {
     const pathname = window.location.pathname;
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                return document.querySelector('#board');
-            }
+    let dataObj = { pathname };
 
-            return document.querySelector('chess-board');
-        }
-
-        case 'lichess.org': {
-            return document.querySelector('cg-board');
-        }
-
-        case 'playstrategy.org': {
-            return document.querySelector('cg-board');
-        }
-
-        case 'pychess.org': {
-            return document.querySelector('cg-board');
-        }
-
-        case 'chess.org': {
-            return document.querySelector('.cg-board');
-        }
-
-        case 'chess.coolmath-games.com': {
-            return document.querySelector('.cg-board');
-        }
-
-        case 'papergames.io': {
-            return document.querySelector('#chessboard');
-        }
-
-        case 'vole.wtf': {
-            return document.querySelector('#board');
-        }
+    if(obj && typeof obj === 'object') {
+        dataObj = { ...dataObj, ...obj };
     }
 
-    return null;
-}
+    const dataHandlerFunction = supportedSites[domain]?.[dataType];
 
-function getChessPieceElem(getAll) {
-    const pathname = window.location.pathname;
-    const boardElem = getBoardElem();
-
-    const querySelector = (getAll ? query => [...boardElem?.querySelectorAll(query)] : boardElem?.querySelector?.bind(boardElem));
-
-    if(typeof querySelector !== 'function') {
+    if(typeof dataHandlerFunction !== 'function') {
         return null;
     }
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                const filteredPieceElems = filterInvisibleElems(document.querySelectorAll('#board *[data-piece]'))
-                    .filter(elem => Number(elem?.dataset?.player) <= 2);
+    const result = dataHandlerFunction(dataObj);
 
-                return getAll ? filteredPieceElems : filteredPieceElems[0];
-            }
+    //if(debugModeActivated) console.warn('GET_SITE_DATA', '| DATA_TYPE:', dataType, '| INPUT_OBJ:', obj, '| DATA_OBJ:', dataObj, '| RESULT:', result);
 
-            return querySelector('.piece');
-        }
+    return result;
+}
 
-        case 'lichess.org': {
-            return querySelector('piece:not(.ghost)');
-        }
+function addSupportedChessSite(domain, typeHandlerObj) {
+    supportedSites[domain] = typeHandlerObj;
+}
 
-        case 'playstrategy.org': {
-            return querySelector('piece[class*="-piece"]:not(.ghost)');
-        }
+function getBoardElem() {
+    const boardElem = getSiteData('boardElem');
 
-        case 'pychess.org': {
-            return querySelector('piece[class*="-piece"]:not(.ghost)');
-        }
+    return boardElem || null;
+}
 
-        case 'chess.org': {
-            return querySelector('piece:not(.ghost)');
-        }
+function getPieceElem(getAll) {
+    const boardElem = getBoardElem();
 
-        case 'chess.coolmath-games.com': {
-            return querySelector('piece:not(.ghost)');
-        }
+    const boardQuerySelector = (getAll ? query => [...boardElem?.querySelectorAll(query)] : boardElem?.querySelector?.bind(boardElem));
 
-        case 'papergames.io': {
-            return querySelector('*[data-piece][data-square]');
-        }
+    if(typeof boardQuerySelector !== 'function')
+        return null;
 
-        case 'vole.wtf': {
-            return querySelector('*[data-t][data-l][data-p]:not([data-p="0"]');
-        }
-    }
+    const pieceElem = getSiteData('pieceElem', { boardQuerySelector, getAll });
 
-    return null;
+    return pieceElem || null;
 }
 
 function getSquareElems(element) {
-    const pathname = window.location.pathname;
+    const squareElems = getSiteData('squareElems', { element });
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                return [...element.querySelectorAll('.square-4pc.ui-droppable')]
-                    .filter(elem => {
-                        const pieceElem = elem.querySelector('[data-player]');
-                        const playerNum = Number(pieceElem?.dataset?.player);
-
-                        return (!playerNum || playerNum <= 2);
-                    });
-            }
-
-            break;
-        }
-    }
-
-    return null;
+    return squareElems || null;
 }
 
 function getChessVariant() {
-    const pathname = window.location.pathname;
+    const chessVariant = getSiteData('chessVariant');
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                const variant = pathname.match(/variants\/([^\/]*)/)?.[1]
-                    .replaceAll('-chess', '')
-                    .replaceAll('-', '');
-
-                const replacementTable = {
-                    'doubles-bughouse': 'bughouse',
-                    'paradigm-chess30': 'paradigm'
-                };
-
-                return replacementTable[variant] || variant;
-            }
-
-            break;
-        }
-
-        case 'lichess.org': {
-            const variantLinkElem = document.querySelector('.variant-link');
-
-            if(variantLinkElem) {
-                let variant = variantLinkElem?.innerText?.toLowerCase()?.replaceAll(' ', '-');
-
-                const replacementTable = {
-                    'correspondence': 'chess',
-                    'koth': 'kingofthehill',
-                    'three-check': '3check'
-                };
-
-                return replacementTable[variant] || variant;
-            }
-
-            break;
-        }
-
-        case 'playstrategy.org': {
-            const variantLinkElem = document.querySelector('.variant-link');
-
-            if(variantLinkElem) {
-                let variant = variantLinkElem?.innerText
-                    ?.toLowerCase()
-                    ?.replaceAll(' ', '-');
-
-                const replacementTable = {
-                    'correspondence': 'chess',
-                    'koth': 'kingofthehill',
-                    'three-check': '3check',
-                    'five-check': '5check',
-                    'no-castling': 'nocastle'
-                };
-
-                return replacementTable[variant] || variant;
-            }
-
-            break;
-        }
-
-        case 'pychess.org': {
-            const variantLinkElem = document.querySelector('#main-wrap .tc .user-link');
-
-            if(variantLinkElem) {
-                let variant = variantLinkElem?.innerText
-                    ?.toLowerCase()
-                    ?.replaceAll(' ', '')
-                    ?.replaceAll('-', '');
-
-                const replacementTable = {
-                    'correspondence': 'chess',
-                    'koth': 'kingofthehill',
-                    'nocastling': 'nocastle',
-                    'gorogoro+': 'gorogoro',
-                    'oukchaktrang': 'cambodian'
-                };
-
-                return replacementTable[variant] || variant;
-            }
-
-            break;
-        }
-
-        case 'chess.org': {
-            const variantNum = unsafeWindow?.GameConfig?.instance?.variant;
-            let variant = GameConfig?.VARIANT_NAMES?.[variantNum]?.toLowerCase();
-
-            if(variant) {
-                const replacementTable = {
-                    'standard': 'chess'
-                };
-
-                return replacementTable[variant] || variant;
-            }
-
-            break;
-        }
-
-        case 'chess.coolmath-games.com': {
-            return 'chess';
-        }
-
-        case 'papergames.io': {
-            return 'chess';
-        }
-
-        case 'vole.wtf': {
-            return 'chess';
-        }
-    }
-
-    return 'chess';
+    return chessVariant || 'chess';
 }
 
 function getBoardOrientation() {
-    const pathname = window.location.pathname;
+    const boardOrientation = getSiteData('boardOrientation');
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                const playerNumberStr = document.querySelector('.playerbox-bottom [data-player]')?.dataset?.player;
-
-                return playerNumberStr == '0' ? 'w' : 'b';
-            }
-
-            const boardElem = getBoardElem();
-
-            return boardElem?.classList.contains('flipped') ? 'b' : 'w';
-        }
-
-        case 'lichess.org': {
-            const filesElem = document.querySelector('coords.files');
-
-            return filesElem?.classList?.contains('black') ? 'b' : 'w';
-        }
-
-        case 'playstrategy.org': {
-            const cgWrapElem = document.querySelector('.cg-wrap');
-
-            return cgWrapElem.classList?.contains('orientation-p1') ? 'w' : 'b';
-        }
-
-        case 'pychess.org': {
-            const cgWrapElem = document.querySelector('.cg-wrap');
-
-            return cgWrapElem.classList?.contains('orientation-black') ? 'b' : 'w';
-        }
-
-        case 'chess.org': {
-            const filesElem = document.querySelector('coords.files');
-
-            return filesElem?.classList?.contains('black') ? 'b' : 'w';
-        }
-
-        case 'chess.coolmath-games.com': {
-            const boardElem = getBoardElem();
-
-            return boardElem.classList?.contains('orientation-black') ? 'b' : 'w';
-        }
-
-        case 'papergames.io': {
-            const boardElem = getBoardElem();
-
-            if(boardElem) {
-                const firstRankText = [...boardElem.querySelector('.coordinates').childNodes]?.[0].textContent;
-
-                return firstRankText == 'h' ? 'b' : 'w';
-            }
-        }
-
-        case 'vole.wtf': {
-            return 'w';
-        }
-    }
-
-    return null;
+    return boardOrientation || null;
 }
 
 function getPieceElemFen(pieceElem) {
-    const pathname = window.location.pathname;
+    const pieceFen = getSiteData('pieceElemFen', { pieceElem });
 
-    const pieceNameToFen = {
-        'pawn': 'p',
-        'knight': 'n',
-        'bishop': 'b',
-        'rook': 'r',
-        'queen': 'q',
-        'king': 'k'
-    };
-
-    switch(domain) {
-        case 'chess.com': {
-            let pieceColor = null;
-            let pieceName = null;
-
-            if(pathname?.includes('/variants')) {
-                pieceColor = pieceElem?.dataset?.player == '0' ? 'w' : 'b';
-                pieceName = pieceElem?.dataset?.piece;
-            } else {
-                const pieceStr = [...pieceElem.classList].find(x => x.match(/^(b|w)[prnbqk]{1}$/));
-
-                [pieceColor, pieceName] = pieceStr.split('');
-            }
-
-            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-        }
-
-        case 'lichess.org': {
-            const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
-            const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
-
-            if(pieceColor && elemPieceName) {
-                const pieceName = pieceNameToFen[elemPieceName];
-
-                return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-            }
-
-            break;
-        }
-
-        case 'playstrategy.org': {
-            const playerColor = getPlayerColorVariable();
-            const pieceColor = pieceElem?.classList?.contains('ally') ? playerColor : (playerColor == 'w' ? 'b' : 'w');
-
-            let pieceName = null;
-
-            [...pieceElem?.classList]?.forEach(className => {
-                if(className?.includes('-piece')) {
-                    const elemPieceName = className?.split('-piece')?.[0];
-
-                    if(elemPieceName && elemPieceName?.length === 1) {
-                        pieceName = elemPieceName;
-                    }
-                }
-            });
-
-            if(pieceColor && pieceName) {
-                return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-            }
-
-            break;
-        }
-
-        case 'pychess.org': {
-            const playerColor = getPlayerColorVariable();
-            const pieceColor = pieceElem?.classList?.contains('ally') ? playerColor : (playerColor == 'w' ? 'b' : 'w');
-
-            let pieceName = null;
-
-            [...pieceElem?.classList]?.forEach(className => {
-                if(className?.includes('-piece')) {
-                    const elemPieceName = className?.split('-piece')?.[0];
-
-                    if(elemPieceName && elemPieceName?.length === 1) {
-                        pieceName = elemPieceName;
-                    }
-                }
-            });
-
-            if(pieceColor && pieceName) {
-                return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-            }
-
-            break;
-        }
-
-        case 'chess.org': {
-            const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
-            const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
-
-            if(pieceColor && elemPieceName) {
-                const pieceName = pieceNameToFen[elemPieceName];
-
-                return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-            }
-
-            break;
-        }
-
-        case 'chess.coolmath-games.com': {
-            const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
-            const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
-
-            if(pieceColor && elemPieceName) {
-                const pieceName = pieceNameToFen[elemPieceName];
-
-                return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-            }
-
-            break;
-        }
-
-        case 'papergames.io': {
-            return convertPieceStrToFen(pieceElem?.dataset?.piece);
-        }
-
-        case 'vole.wtf': {
-            const pieceNum = Number(pieceElem?.dataset?.p);
-            const pieceFenStr = 'pknbrq';
-
-            if(pieceNum > 8) {
-                return pieceFenStr[pieceNum - 9].toUpperCase();
-            } else {
-                return pieceFenStr[pieceNum - 1];
-            }
-        }
-    }
-
-    return null;
+    return pieceFen || null;
 }
-
 
 // this function gets called a lot, needs to be optimized
 function getPieceElemCoords(pieceElem) {
-    const pathname = window.location.pathname;
+    const pieceCoords = getSiteData('pieceElemCoords', { pieceElem });
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                const squareElem = pieceElem.parentElement;
-                const squareId = squareElem.id;
-
-                if(!chesscomVariantBoardCoordsTable) {
-                    createChesscomVariantBoardCoordsTable();
-                }
-
-                return chesscomVariantBoardCoordsTable[squareId];
-            }
-
-            return pieceElem.classList.toString()
-                ?.match(/square-(\d)(\d)/)
-                ?.slice(1)
-                ?.map(x => Number(x) - 1);
-        }
-
-        case 'lichess.org': {
-            const key = pieceElem?.cgKey;
-
-            if(!key) break;
-
-            return chessCoordinatesToIndex(key);
-        }
-
-        case 'playstrategy.org': {
-            const key = pieceElem?.cgKey;
-
-            if(!key) break;
-
-            return chessCoordinatesToIndex(key);
-        }
-
-        case 'pychess.org': {
-            const key = pieceElem?.cgKey;
-
-            if(!key) break;
-
-            return chessCoordinatesToIndex(key);
-        }
-
-        case 'chess.org': {
-            return getElemCoordinatesFromTransform(pieceElem);
-        }
-
-        case 'chess.coolmath-games.com': {
-            return getElemCoordinatesFromLeftBottomPercentages(pieceElem?.parentElement);
-        }
-
-        case 'papergames.io': {
-            const key = pieceElem?.dataset?.square;
-
-            if(!key) break;
-
-            return chessCoordinatesToIndex(key);
-        }
-
-        case 'vole.wtf': {
-            return [Number(pieceElem?.dataset?.l), 7 - Number(pieceElem?.dataset?.t)];
-        }
-    }
-
-    return null;
+    return pieceCoords || null;
 }
 
 function getBoardDimensions() {
-    const pathname = window.location.pathname;
+    const boardDimensionArr = getSiteData('boardDimensions');
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                const rankElems = chessBoardElem?.querySelectorAll('.rank');
-                const visibleRankElems = filterInvisibleElems(rankElems)
-                    .filter(rankElem => [...rankElem.childNodes]
-                        .find(elem => {
-                            const pieceElem = elem.querySelector('[data-player]');
-                            const playerNum = Number(pieceElem?.dataset?.player);
+    if(boardDimensionArr) {
+        lastBoardRanks = boardDimensionArr[0];
+        lastBoardFiles = boardDimensionArr[1];
 
-                            return playerNum <= 2;
-                        }));
+        return boardDimensionArr;
+    } else {
+        lastBoardRanks = 8;
+        lastBoardFiles = 8;
 
-
-                if(visibleRankElems.length) {
-                    const rankElem = visibleRankElems[0];
-                    const squareElems = getSquareElems(rankElem);
-
-                    const ranks = visibleRankElems?.length;
-                    const files = squareElems?.length;
-
-                    return [ranks, files];
-                }
-            }
-
-            break;
-        }
-
-        default: {
-            if(domainsWithoutDifferentBoardDimensionsArr?.includes(domain)) break;
-
-            const boardDimensions = getElementSize(chessBoardElem);
-
-            lastBoardSize = getElementSize(chessBoardElem);
-
-            const boardWidth = boardDimensions?.width;
-            const boardHeight = boardDimensions.height;
-
-            const boardPiece = getChessPieceElem();
-
-            if(boardPiece) {
-                const pieceDimensions = getElementSize(boardPiece);
-
-                lastPieceSize = getElementSize(boardPiece);
-
-                const boardPieceWidth = pieceDimensions?.width;
-                const boardPieceHeight = pieceDimensions?.height;
-
-                const boardRanks = Math.floor(boardWidth / boardPieceWidth);
-                const boardFiles = Math.floor(boardHeight / boardPieceHeight);
-
-                const ranksInAllowedRange = 0 < boardRanks && boardRanks <= 69;
-                const filesInAllowedRange = 0 < boardFiles && boardFiles <= 69;
-
-                if(ranksInAllowedRange && filesInAllowedRange) {
-                    lastBoardRanks = boardRanks;
-                    lastBoardFiles = boardFiles;
-
-                    return [boardRanks, boardFiles];
-                }
-            }
-
-            break;
-        }
+        return [8, 8];
     }
-
-    lastBoardRanks = 8;
-    lastBoardFiles = 8;
-
-    return [8, 8];
 }
 
 function isMutationNewMove(mutationArr) {
-    const pathname = window.location.pathname;
+    const isNewMove = getSiteData('isMutationNewMove', { mutationArr });
 
-    switch(domain) {
-        case 'chess.com': {
-            if(pathname?.includes('/variants')) {
-                return mutationArr.find(m => m.attributeName == 'class') ? true : false;
-            }
-
-            if(mutationArr.length == 1)
-                return false;
-
-            const modifiedHoverSquare = mutationArr.find(m => m?.target?.classList?.contains('hover-square')) ? true : false;
-            const modifiedHighlight = mutationArr.find(m => m?.target?.classList?.contains('highlight')) ? true : false;
-            const modifiedElemPool = mutationArr.find(m => m?.target?.classList?.contains('element-pool')) ? true : false;
-
-            return (mutationArr.length >= 4 && !modifiedHoverSquare)
-                || mutationArr.length >= 7
-                || modifiedHighlight
-                || modifiedElemPool;
-        }
-
-        case 'lichess.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'playstrategy.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'pychess.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'chess.org': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'chess.coolmath-games.com': {
-            return mutationArr.length >= 4
-                || mutationArr.find(m => m.type === 'childList') ? true : false
-                || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-        }
-
-        case 'papergames.io': {
-            return mutationArr.length >= 12;
-        }
-
-        case 'vole.wtf': {
-            return mutationArr.length >= 12;
-        }
-    }
-
-    return false;
+    return isNewMove || false;
 }
 
 function getMutationTurn(mutationArr) {
-    const pathname = window.location.pathname;
+    const turn = getSiteData('turnFromMutation', { mutationArr });
 
-    switch(domain) {
-        default: {
-            const allChessPieceElems = getChessPieceElem(true);
-
-            const attributeMutationArr = mutationArr.filter(m => allChessPieceElems.includes(m.target));
-            const movedChessPieceElem = attributeMutationArr?.[0]?.target;
-
-            if(movedChessPieceElem) {
-                const newTurn = getFenPieceOppositeColor(getPieceElemFen(movedChessPieceElem));
-
-                if(newTurn?.length === 1) {
-                    instanceVars.turn.set(commLinkInstanceID, newTurn);
-
-                    return newTurn;
-                }
-            }
-
-            break;
-        }
-    }
-
-    return getPlayerColorVariable();
+    return turn || getPlayerColorVariable();
 }
 
 function getFen(onlyBasic) {
@@ -1356,7 +882,7 @@ function getFen(onlyBasic) {
     const board = Array.from({ length: boardFiles }, () => Array(boardRanks).fill(1));
 
     function getBasicFen() {
-        const pieceElems = getChessPieceElem(true);
+        const pieceElems = getPieceElem(true);
         const isValidPieceElemsArray = Array.isArray(pieceElems) || pieceElems instanceof NodeList;
 
         if(isValidPieceElemsArray) {
@@ -1483,6 +1009,741 @@ async function updatePlayerColor() {
     }
 }
 
+
+
+
+
+/*
+ ██████ ██   ██ ███████ ███████ ███████     ██████  ██████  ███    ███
+██      ██   ██ ██      ██      ██         ██      ██    ██ ████  ████
+██      ███████ █████   ███████ ███████    ██      ██    ██ ██ ████ ██
+██      ██   ██ ██           ██      ██    ██      ██    ██ ██  ██  ██
+ ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██████  ██      ██
+*/
+
+addSupportedChessSite('chess.com', {
+    'boardElem': obj => {
+        const pathname = obj.pathname;
+
+        if(pathname?.includes('/variants')) {
+            return document.querySelector('#board');
+        }
+
+        return document.querySelector('chess-board');
+    },
+
+    'pieceElem': obj => {
+        const pathname = obj.pathname;
+        const getAll = obj.getAll;
+
+        if(pathname?.includes('/variants')) {
+            const filteredPieceElems = filterInvisibleElems(document.querySelectorAll('#board *[data-piece]'))
+                .filter(elem => Number(elem?.dataset?.player) <= 2);
+
+            return getAll ? filteredPieceElems : filteredPieceElems[0];
+        }
+
+        return obj.boardQuerySelector('.piece');
+    },
+
+    'squareElems': obj => {
+        const pathname = obj.pathname;
+        const element = obj.element;
+
+        if(pathname?.includes('/variants')) {
+            return [...element.querySelectorAll('.square-4pc.ui-droppable')]
+                .filter(elem => {
+                    const pieceElem = elem.querySelector('[data-player]');
+                    const playerNum = Number(pieceElem?.dataset?.player);
+
+                    return (!playerNum || playerNum <= 2);
+                });
+        }
+    },
+
+    'chessVariant': obj => {
+        const pathname = obj.pathname;
+
+        if(pathname?.includes('/variants')) {
+            const variant = pathname.match(/variants\/([^\/]*)/)?.[1]
+                .replaceAll('-chess', '')
+                .replaceAll('-', '');
+
+            const replacementTable = {
+                'doubles-bughouse': 'bughouse',
+                'paradigm-chess30': 'paradigm'
+            };
+
+            return replacementTable[variant] || variant;
+        }
+    },
+
+    'boardOrientation': obj => {
+        const pathname = obj.pathname;
+
+        if(pathname?.includes('/variants')) {
+            const playerNumberStr = document.querySelector('.playerbox-bottom [data-player]')?.dataset?.player;
+
+            return playerNumberStr === '0' ? 'w' : 'b';
+        }
+
+        const boardElem = getBoardElem();
+
+        return boardElem?.classList.contains('flipped') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pathname = obj.pathname;
+        const pieceElem = obj.pieceElem;
+
+        let pieceColor = null;
+        let pieceName = null;
+
+        if(pathname?.includes('/variants')) {
+            pieceColor = pieceElem?.dataset?.player == '0' ? 'w' : 'b';
+            pieceName = pieceElem?.dataset?.piece;
+        } else {
+            const pieceStr = [...pieceElem.classList].find(x => x.match(/^(b|w)[prnbqk]{1}$/));
+
+            [pieceColor, pieceName] = pieceStr.split('');
+        }
+
+        return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+    },
+
+    'pieceElemCoords': obj => {
+        const pathname = obj.pathname;
+        const pieceElem = obj.pieceElem;
+
+        if(pathname?.includes('/variants')) {
+            const squareElem = pieceElem.parentElement;
+            const squareId = squareElem.id;
+
+            if(!chesscomVariantBoardCoordsTable) {
+                createChesscomVariantBoardCoordsTable();
+            }
+
+            return chesscomVariantBoardCoordsTable[squareId];
+        }
+
+        return pieceElem.classList.toString()
+            ?.match(/square-(\d)(\d)/)
+            ?.slice(1)
+            ?.map(x => Number(x) - 1);
+    },
+
+    'boardDimensions': obj => {
+        const pathname = obj.pathname;
+
+        if(pathname?.includes('/variants')) {
+            const rankElems = chessBoardElem?.querySelectorAll('.rank');
+            const visibleRankElems = filterInvisibleElems(rankElems)
+                .filter(rankElem => [...rankElem.childNodes]
+                    .find(elem => {
+                        const pieceElem = elem.querySelector('[data-player]');
+                        const playerNum = Number(pieceElem?.dataset?.player);
+
+                        return playerNum <= 2;
+                    }));
+
+
+            if(visibleRankElems.length) {
+                const rankElem = visibleRankElems[0];
+                const squareElems = getSquareElems(rankElem);
+
+                const ranks = visibleRankElems?.length;
+                const files = squareElems?.length;
+
+                return [ranks, files];
+            }
+        } else {
+            return [8, 8];
+        }
+    },
+
+    'isMutationNewMove': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        if(pathname?.includes('/variants')) {
+            return mutationArr.find(m => m.attributeName == 'class') ? true : false;
+        }
+
+        if(mutationArr.length == 1)
+            return false;
+
+        const modifiedHoverSquare = mutationArr.find(m => m?.target?.classList?.contains('hover-square')) ? true : false;
+        const modifiedHighlight = mutationArr.find(m => m?.target?.classList?.contains('highlight')) ? true : false;
+        const modifiedElemPool = mutationArr.find(m => m?.target?.classList?.contains('element-pool')) ? true : false;
+
+        return (mutationArr.length >= 4 && !modifiedHoverSquare)
+            || mutationArr.length >= 7
+            || modifiedHighlight
+            || modifiedElemPool;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/*
+██      ██  ██████ ██   ██ ███████ ███████ ███████     ██████  ██████   ██████
+██      ██ ██      ██   ██ ██      ██      ██         ██    ██ ██   ██ ██
+██      ██ ██      ███████ █████   ███████ ███████    ██    ██ ██████  ██   ███
+██      ██ ██      ██   ██ ██           ██      ██    ██    ██ ██   ██ ██    ██
+███████ ██  ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██   ██  ██████
+*/
+
+addSupportedChessSite('lichess.org', {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        const variantLinkElem = document.querySelector('.variant-link');
+
+        if(variantLinkElem) {
+            let variant = variantLinkElem?.innerText?.toLowerCase()?.replaceAll(' ', '-');
+
+            const replacementTable = {
+                'correspondence': 'chess',
+                'koth': 'kingofthehill',
+                'three-check': '3check'
+            };
+
+            return replacementTable[variant] || variant;
+        }
+    },
+
+    'boardOrientation': obj => {
+        const filesElem = document.querySelector('coords.files');
+
+        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/*
+██████  ██       █████  ██    ██ ███████ ████████ ██████   █████  ████████ ███████  ██████  ██    ██     ██████  ██████   ██████
+██   ██ ██      ██   ██  ██  ██  ██         ██    ██   ██ ██   ██    ██    ██      ██        ██  ██     ██    ██ ██   ██ ██
+██████  ██      ███████   ████   ███████    ██    ██████  ███████    ██    █████   ██   ███   ████      ██    ██ ██████  ██   ███
+██      ██      ██   ██    ██         ██    ██    ██   ██ ██   ██    ██    ██      ██    ██    ██       ██    ██ ██   ██ ██    ██
+██      ███████ ██   ██    ██    ███████    ██    ██   ██ ██   ██    ██    ███████  ██████     ██    ██  ██████  ██   ██  ██████
+*/
+
+addSupportedChessSite('playstrategy.org', {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece[class*="-piece"]:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        const variantLinkElem = document.querySelector('.variant-link');
+
+        if(variantLinkElem) {
+            let variant = variantLinkElem?.innerText
+                ?.toLowerCase()
+                ?.replaceAll(' ', '-');
+
+            const replacementTable = {
+                'correspondence': 'chess',
+                'koth': 'kingofthehill',
+                'three-check': '3check',
+                'five-check': '5check',
+                'no-castling': 'nocastle'
+            };
+
+            return replacementTable[variant] || variant;
+        }
+    },
+
+    'boardOrientation': obj => {
+        const cgWrapElem = document.querySelector('.cg-wrap');
+
+        return cgWrapElem.classList?.contains('orientation-p1') ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const playerColor = getPlayerColorVariable();
+        const pieceColor = pieceElem?.classList?.contains('ally') ? playerColor : (playerColor == 'w' ? 'b' : 'w');
+
+        let pieceName = null;
+
+        [...pieceElem?.classList]?.forEach(className => {
+            if(className?.includes('-piece')) {
+                const elemPieceName = className?.split('-piece')?.[0];
+
+                if(elemPieceName && elemPieceName?.length === 1) {
+                    pieceName = elemPieceName;
+                }
+            }
+        });
+
+        if(pieceColor && pieceName) {
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return getBoardDimensionsFromSize();
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/*
+██████  ██    ██  ██████ ██   ██ ███████ ███████ ███████     ██████  ██████   ██████
+██   ██  ██  ██  ██      ██   ██ ██      ██      ██         ██    ██ ██   ██ ██
+██████    ████   ██      ███████ █████   ███████ ███████    ██    ██ ██████  ██   ███
+██         ██    ██      ██   ██ ██           ██      ██    ██    ██ ██   ██ ██    ██
+██         ██     ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██   ██  ██████
+*/
+
+addSupportedChessSite('pychess.org', {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece[class*="-piece"]:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        const variantLinkElem = document.querySelector('#main-wrap .tc .user-link');
+
+        if(variantLinkElem) {
+            let variant = variantLinkElem?.innerText
+                ?.toLowerCase()
+                ?.replaceAll(' ', '')
+                ?.replaceAll('-', '');
+
+            const replacementTable = {
+                'correspondence': 'chess',
+                'koth': 'kingofthehill',
+                'nocastling': 'nocastle',
+                'gorogoro+': 'gorogoro',
+                'oukchaktrang': 'cambodian'
+            };
+
+            return replacementTable[variant] || variant;
+        }
+    },
+
+    'boardOrientation': obj => {
+        const cgWrapElem = document.querySelector('.cg-wrap');
+
+        return cgWrapElem.classList?.contains('orientation-black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const playerColor = getPlayerColorVariable();
+        const pieceColor = pieceElem?.classList?.contains('ally') ? playerColor : (playerColor == 'w' ? 'b' : 'w');
+
+        let pieceName = null;
+
+        [...pieceElem?.classList]?.forEach(className => {
+            if(className?.includes('-piece')) {
+                const elemPieceName = className?.split('-piece')?.[0];
+
+                if(elemPieceName && elemPieceName?.length === 1) {
+                    pieceName = elemPieceName;
+                }
+            }
+        });
+
+        if(pieceColor && pieceName) {
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return getBoardDimensionsFromSize();
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/*
+ ██████ ██   ██ ███████ ███████ ███████     ██████  ██████   ██████
+██      ██   ██ ██      ██      ██         ██    ██ ██   ██ ██
+██      ███████ █████   ███████ ███████    ██    ██ ██████  ██   ███
+██      ██   ██ ██           ██      ██    ██    ██ ██   ██ ██    ██
+ ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██   ██  ██████
+*/
+
+addSupportedChessSite('chess.org', {
+    'boardElem': obj => {
+        return document.querySelector('.cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        const variantNum = unsafeWindow?.GameConfig?.instance?.variant;
+        const variant = GameConfig?.VARIANT_NAMES?.[variantNum]?.toLowerCase();
+
+        if(variant) {
+            const replacementTable = {
+                'standard': 'chess'
+            };
+
+            return replacementTable[variant] || variant;
+        }
+    },
+
+    'boardOrientation': obj => {
+        const filesElem = document.querySelector('coords.files');
+
+        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return getElemCoordinatesFromTransform(pieceElem);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/*
+ ██████  ██████   ██████  ██      ███    ███  █████  ████████ ██   ██  ██████   █████  ███    ███ ███████ ███████     ██████  ██████  ███    ███
+██      ██    ██ ██    ██ ██      ████  ████ ██   ██    ██    ██   ██ ██       ██   ██ ████  ████ ██      ██         ██      ██    ██ ████  ████
+██      ██    ██ ██    ██ ██      ██ ████ ██ ███████    ██    ███████ ██   ███ ███████ ██ ████ ██ █████   ███████    ██      ██    ██ ██ ████ ██
+██      ██    ██ ██    ██ ██      ██  ██  ██ ██   ██    ██    ██   ██ ██    ██ ██   ██ ██  ██  ██ ██           ██    ██      ██    ██ ██  ██  ██
+ ██████  ██████   ██████  ███████ ██      ██ ██   ██    ██    ██   ██  ██████  ██   ██ ██      ██ ███████ ███████ ██  ██████  ██████  ██      ██
+*/
+
+addSupportedChessSite('chess.coolmath-games.com', {
+    'boardElem': obj => {
+        return document.querySelector('.cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const boardElem = getBoardElem();
+
+        return boardElem.classList?.contains('orientation-black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return getElemCoordinatesFromLeftBottomPercentages(pieceElem?.parentElement);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/*
+██████   █████  ██████  ███████ ██████   ██████   █████  ███    ███ ███████ ███████    ██  ██████
+██   ██ ██   ██ ██   ██ ██      ██   ██ ██       ██   ██ ████  ████ ██      ██         ██ ██    ██
+██████  ███████ ██████  █████   ██████  ██   ███ ███████ ██ ████ ██ █████   ███████    ██ ██    ██
+██      ██   ██ ██      ██      ██   ██ ██    ██ ██   ██ ██  ██  ██ ██           ██    ██ ██    ██
+██      ██   ██ ██      ███████ ██   ██  ██████  ██   ██ ██      ██ ███████ ███████ ██ ██  ██████
+*/
+
+addSupportedChessSite('papergames.io', {
+    'boardElem': obj => {
+        return document.querySelector('#chessboard');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('*[data-piece][data-square]');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const boardElem = getBoardElem();
+
+        if(boardElem) {
+            const firstRankText = [...boardElem.querySelector('.coordinates').childNodes]?.[0].textContent;
+
+            return firstRankText == 'h' ? 'b' : 'w';
+        }
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return convertPieceStrToFen(pieceElem?.dataset?.piece);
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.dataset?.square;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 12;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/*
+██    ██  ██████  ██      ███████    ██     ██ ████████ ███████
+██    ██ ██    ██ ██      ██         ██     ██    ██    ██
+██    ██ ██    ██ ██      █████      ██  █  ██    ██    █████
+ ██  ██  ██    ██ ██      ██         ██ ███ ██    ██    ██
+  ████    ██████  ███████ ███████ ██  ███ ███     ██    ██
+*/
+
+addSupportedChessSite('vole.wtf', {
+    'boardElem': obj => {
+        return document.querySelector('#board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('*[data-t][data-l][data-p]:not([data-p="0"]');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        return 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceNum = Number(pieceElem?.dataset?.p);
+        const pieceFenStr = 'pknbrq';
+
+        if(pieceNum > 8) {
+            return pieceFenStr[pieceNum - 9].toUpperCase();
+        } else {
+            return pieceFenStr[pieceNum - 1];
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return [Number(pieceElem?.dataset?.l), 7 - Number(pieceElem?.dataset?.t)];
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 12;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+
+
+
+/*
+██ ███    ██ ██ ████████
+██ ████   ██ ██    ██
+██ ██ ██  ██ ██    ██
+██ ██  ██ ██ ██    ██
+██ ██   ████ ██    ██
+*/
+
 async function isAcasBackendReady() {
     const res = await CommLink.commands.ping();
 
@@ -1545,7 +1806,7 @@ function startWhenBackendReady() {
 
 function initializeIfSiteReady() {
     const boardElem = getBoardElem();
-    const firstPieceElem = getChessPieceElem();
+    const firstPieceElem = getPieceElem();
 
     const bothElemsExist = boardElem && firstPieceElem;
     const boardElemChanged = chessBoardElem != boardElem;
@@ -1556,14 +1817,6 @@ function initializeIfSiteReady() {
         if(!blacklistedURLs.includes(window.location.href)) {
             startWhenBackendReady();
         }
-    }
-}
-
-function sendImportantNotification(title, text) {
-    if(typeof GM_notification === 'function') {
-        GM_notification({ title: title, text: text });
-    } else {
-        alert(`[${title}]` + '\n\n' + text);
     }
 }
 
@@ -1580,7 +1833,7 @@ if(typeof GM_registerMenuCommand === 'function') {
         if(chessBoardElem) {
             start();
         } else {
-            sendImportantNotification('Failed to start manually', 'No chessboard element found!');
+            displayImportantNotification('Failed to start manually', 'No chessboard element found!');
         }
     }, 's');
 
@@ -1588,7 +1841,7 @@ if(typeof GM_registerMenuCommand === 'function') {
         if(chessBoardElem) {
             onNewMove(null, true);
         } else {
-            sendImportantNotification('Failed to get moves', 'No chessboard element found!');
+            displayImportantNotification('Failed to get moves', 'No chessboard element found!');
         }
     }, 'g');
 
@@ -1596,7 +1849,7 @@ if(typeof GM_registerMenuCommand === 'function') {
         if(typeof BoardDrawer?.updateDimensions === 'function') {
             BoardDrawer.updateDimensions();
         } else {
-            sendImportantNotification('Failed to render BoardDrawer', 'BoardDrawer not initialized or something else went wrong!');
+            displayImportantNotification('Failed to render BoardDrawer', 'BoardDrawer not initialized or something else went wrong!');
         }
     }, 'r');
 
@@ -1605,7 +1858,7 @@ if(typeof GM_registerMenuCommand === 'function') {
             if(chessBoardElem) {
                 GM_setClipboard(getFen());
             } else {
-                sendImportantNotification('Failed to get FEN', 'No chessboard element found!');
+                displayImportantNotification('Failed to get FEN', 'No chessboard element found!');
             }
         }, 'c');
     }
