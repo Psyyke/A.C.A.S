@@ -28,6 +28,13 @@ const bodyBlurOverlayElem = document.querySelector('#blur-overlay');
 const themeColorInput = document.querySelector('input[data-key="themeColorHex"]');
 const boardColorInput = document.querySelector('input[data-key="boardColorHex"]');
 
+const noInstancesSitesElem = document.querySelector('#no-instances-sites');
+const seeSupportedSitesBtn = document.querySelector('#see-supported-sites-btn');
+
+seeSupportedSitesBtn.onclick = () => {
+    noInstancesSitesElem.classList.toggle('hidden');
+}
+
 const options = [settingsNavbarGlobalElem, settingsInstanceDropdownElem];
 
 const settingFilterObj = { 'type': 'global', 'instanceID': null };

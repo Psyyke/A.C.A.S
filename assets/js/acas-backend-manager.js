@@ -35,7 +35,7 @@ function prelongInstanceLife(domain, instanceID, chessVariant) {
 
         const currentActiveVariant = instanceObj.instance.chessVariant;
 
-        if(formatVariant(chessVariant) !== formatVariant(currentActiveVariant)) {
+        if(chessVariant && formatVariant(chessVariant) !== formatVariant(currentActiveVariant)) {
             instanceObj.instance.engineStartNewGame(chessVariant);
         }
     }

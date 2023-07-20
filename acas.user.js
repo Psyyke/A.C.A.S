@@ -1,23 +1,23 @@
 // ==UserScript==
-// @name        [CHESS CHEAT] A.C.A.S (Advanced Chess Assistance System)
-// @name:en     [CHESS CHEAT] A.C.A.S (Advanced Chess Assistance System)
-// @name:fi     [CHESS CHEAT] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
-// @name:zh-CN  [CHESS CHEAT] A.C.A.S（高级国际象棋辅助系统）
-// @name:es     [CHESS CHEAT] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
-// @name:hi     [CHESS CHEAT] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
-// @name:ar     [CHESS CHEAT] A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
-// @name:pt     [CHESS CHEAT] A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
-// @name:ja     [CHESS CHEAT] A.C.A.S（先進的なチェス支援システム）
-// @name:de     [CHESS CHEAT] A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
-// @name:fr     [CHESS CHEAT] A.C.A.S (Système Avancé d'Assistance aux Échecs)
-// @name:it     [CHESS CHEAT] A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
-// @name:ko     [CHESS CHEAT] A.C.A.S (고급 체스 보조 시스템)
-// @name:nl     [CHESS CHEAT] A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
-// @name:pl     [CHESS CHEAT] A.C.A.S (Zaawansowany System Pomocy Szachowej)
-// @name:tr     [CHESS CHEAT] A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
-// @name:vi     [CHESS CHEAT] A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
-// @name:uk     [CHESS CHEAT] A.C.A.S (Система передової допомоги в шахах)
-// @name:ru     [CHESS CHEAT] A.C.A.S (Система расширенной помощи в шахматах)
+// @name        🏆 [#1 Chess Cheat] A.C.A.S (Advanced Chess Assistance System)
+// @name:en     🏆 [#1 Chess Cheat] A.C.A.S (Advanced Chess Assistance System)
+// @name:fi     🏆 [#1 Chess Cheat] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
+// @name:zh-CN  🏆 [#1 Chess Cheat] A.C.A.S（高级国际象棋辅助系统）
+// @name:es     🏆 [#1 Chess Cheat] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
+// @name:hi     🏆 [#1 Chess Cheat] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
+// @name:ar     🏆 [#1 Chess Cheat] A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
+// @name:pt     🏆 [#1 Chess Cheat] A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
+// @name:ja     🏆 [#1 Chess Cheat] A.C.A.S（先進的なチェス支援システム）
+// @name:de     🏆 [#1 Chess Cheat] A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
+// @name:fr     🏆 [#1 Chess Cheat] A.C.A.S (Système Avancé d'Assistance aux Échecs)
+// @name:it     🏆 [#1 Chess Cheat] A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
+// @name:ko     🏆 [#1 Chess Cheat] A.C.A.S (고급 체스 보조 시스템)
+// @name:nl     🏆 [#1 Chess Cheat] A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
+// @name:pl     🏆 [#1 Chess Cheat] A.C.A.S (Zaawansowany System Pomocy Szachowej)
+// @name:tr     🏆 [#1 Chess Cheat] A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
+// @name:vi     🏆 [#1 Chess Cheat] A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
+// @name:uk     🏆 [#1 Chess Cheat] A.C.A.S (Система передової допомоги в шахах)
+// @name:ru     🏆 [#1 Chess Cheat] A.C.A.S (Система расширенной помощи в шахматах)
 // @description        Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:en     Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:fi     Paranna shakkipelisi suorituskykyä huippuluokan reaaliaikaisen siirtoanalyysin ja strategisen avustusjärjestelmän avulla
@@ -39,6 +39,8 @@
 // @description:ru     Слава Украине
 // @homepageURL https://hakorr.github.io/A.C.A.S
 // @supportURL  https://github.com/Hakorr/A.C.A.S/tree/main#why-doesnt-it-work
+// @match       https://hakorr.github.io/A.C.A.S/*
+// @match       http://localhost/*
 // @match       https://www.chess.com/*
 // @match       https://lichess.org/*
 // @match       https://playstrategy.org/*
@@ -48,8 +50,17 @@
 // @match       https://vole.wtf/kilobytes-gambit/
 // @match       https://chess.coolmath-games.com/*
 // @match       https://www.coolmathgames.com/0-chess/*
-// @match       https://hakorr.github.io/A.C.A.S/*
-// @match       http://localhost/*
+// @match       https://immortal.game/*
+// @match       https://chessarena.com/*
+// @match       http://chess.net/*
+// @match       https://www.freechess.club/*
+// @match       https://*chessclub.com/*
+// @match       https://www.chessfriends.com/*
+// @match       https://gameknot.com/*
+// @match       https://chesstempo.com/*
+// @match       https://www.redhotpawn.com/*
+// @match       https://www.chessanytime.com/*
+// @match       https://chessworld.net/*
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -61,7 +72,7 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0.7
+// @version     2.0.8
 // @namespace   HKR
 // @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
@@ -85,25 +96,25 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 - We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
 [ADDITIONAL]
-- Big fonts created with: https://www.patorjk.com/software/taag/
-- Fonts used: ANSI Regular
-*/
+- Big fonts created with: https://www.patorjk.com/software/taag/ (Cyberlarge)
+
+DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////////////////////////
+DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
+
+
+
 
 
 
 /*
- ██████  ██       ██████  ██████   █████  ██
-██       ██      ██    ██ ██   ██ ██   ██ ██
-██   ███ ██      ██    ██ ██████  ███████ ██
-██    ██ ██      ██    ██ ██   ██ ██   ██ ██
- ██████  ███████  ██████  ██████  ██   ██ ███████
+  ______         _____  ______  _______
+ |  ____ |      |     | |_____] |_____| |
+ |_____| |_____ |_____| |_____] |     | |_____
+
 
 Code below this point runs on any site, including the GUI.
-
-DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-////////////////////////////////////////////////////////////////
-DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
 */
 
 // PRODUCTION: 'https://hakorr.github.io/A.C.A.S/';
@@ -163,19 +174,18 @@ if(window?.location?.href?.includes(backendURL)) {
     return;
 }
 
+
+
+
+
+
 /*
- ██████ ██   ██ ███████ ███████ ███████     ███████ ██ ████████ ███████ ███████
-██      ██   ██ ██      ██      ██          ██      ██    ██    ██      ██
-██      ███████ █████   ███████ ███████     ███████ ██    ██    █████   ███████
-██      ██   ██ ██           ██      ██          ██ ██    ██    ██           ██
- ██████ ██   ██ ███████ ███████ ███████     ███████ ██    ██    ███████ ███████
+ _______ _     _ _______ _______ _______      _______ _____ _______ _______ _______
+ |       |_____| |______ |______ |______      |______   |      |    |______ |______
+ |_____  |     | |______ ______| ______|      ______| __|__    |    |______ ______|
+
 
 Code below this point only runs on chess sites, not on the GUI itself.
-
-DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-////////////////////////////////////////////////////////////////
-DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING
 */
 
 function getUniqueID() {
@@ -187,6 +197,10 @@ function getUniqueID() {
 const commLinkInstanceID = getUniqueID();
 
 const blacklistedURLs = [
+    'https://hakorr.github.io/A.C.A.S/',
+    'https://hakorr.github.io/A.C.A.S/why/',
+    'https://hakorr.github.io/A.C.A.S/tos/',
+    'http://localhost/A.C.A.S/',
     'https://www.chess.com/play',
     'https://lichess.org/',
     'https://chess.org/',
@@ -194,10 +208,7 @@ const blacklistedURLs = [
     'https://playstrategy.org/',
     'https://www.pychess.org/',
     'https://www.coolmathgames.com/0-chess',
-    'https://hakorr.github.io/A.C.A.S/',
-    'https://hakorr.github.io/A.C.A.S/why/',
-    'https://hakorr.github.io/A.C.A.S/tos/',
-    'http://localhost/A.C.A.S/'
+    'https://chess.net/'
 ];
 
 const configKeys = {
@@ -563,29 +574,28 @@ function extractElemTransformData(elem) {
     return [x, y];
 }
 
-function getElemCoordinatesFromTransform(elem) {
-    if(!lastBoardSize) {
-        lastBoardSize = getElementSize(chessBoardElem);
-    }
+function getElemCoordinatesFromTransform(elem, config) {
+    const onlyFlipX = config?.onlyFlipX;
+    const onlyFlipY = config?.onlyFlipY;
 
-    if(!lastBoardRanks || !lastBoardFiles) {
-        const [files, ranks] = getBoardDimensions();
+    lastBoardSize = getElementSize(chessBoardElem);
 
-        lastBoardRanks = ranks;
-        lastBoardFiles = files;
-    }
+    const [files, ranks] = getBoardDimensions();
+
+    lastBoardRanks = ranks;
+    lastBoardFiles = files;
 
     const boardOrientation = getPlayerColorVariable();
 
-    const [x, y] = extractElemTransformData(elem);
+    let [x, y] = extractElemTransformData(elem);
 
     const boardDimensions = lastBoardSize;
-    const squareDimensions = boardDimensions.width / lastBoardRanks;
+    let squareDimensions = boardDimensions.width / lastBoardRanks;
 
     const normalizedX = Math.round(x / squareDimensions);
     const normalizedY = Math.round(y / squareDimensions);
 
-    if (boardOrientation === 'w') {
+    if(onlyFlipY || boardOrientation === 'w') {
         const flippedY = lastBoardFiles - normalizedY - 1;
 
         return [normalizedX, flippedY];
@@ -619,6 +629,28 @@ function getElemCoordinatesFromLeftBottomPercentages(elem) {
         const flippedY = lastBoardFiles - (y + 1);
 
         return [flippedX, flippedY];
+    }
+}
+
+function getElemCoordinatesFromLeftTopPixels(elem) {
+    const pieceSize = getElementSize(elem);
+
+    const leftPixels = parseFloat(elem.style.left?.replace('px', ''));
+    const topPixels = parseFloat(elem.style.top?.replace('px', ''));
+
+    const x = Math.max(Math.round(leftPixels / pieceSize.width), 0);
+    const y = Math.max(Math.round(topPixels / pieceSize.width), 0);
+
+    const boardOrientation = getPlayerColorVariable();
+
+    if (boardOrientation === 'w') {
+        const flippedY = lastBoardFiles - (y + 1);
+
+        return [x, flippedY];
+    } else {
+        const flippedX = lastBoardRanks - (x + 1);
+
+        return [flippedX, y];
     }
 }
 
@@ -687,12 +719,16 @@ function defaultTurnFromMutation(mutationArr) {
     const movedChessPieceElem = attributeMutationArr?.[0]?.target;
 
     if(movedChessPieceElem) {
-        const newTurn = getFenPieceOppositeColor(getPieceElemFen(movedChessPieceElem));
+        const pieceFen = getPieceElemFen(movedChessPieceElem);
 
-        if(newTurn?.length === 1) {
-            instanceVars.turn.set(commLinkInstanceID, newTurn);
+        if(pieceFen) {
+            const newTurn = getFenPieceOppositeColor(pieceFen);
 
-            return newTurn;
+            if(newTurn?.length === 1) {
+                instanceVars.turn.set(commLinkInstanceID, newTurn);
+
+                return newTurn;
+            }
         }
     }
 }
@@ -770,6 +806,69 @@ function convertPieceStrToFen(str) {
     return null;
 }
 
+function getCanvasPixelColor(canvas, [xPercentage, yPercentage], debug) {
+    const ctx = canvas.getContext('2d');
+
+    const x = xPercentage * canvas.width;
+    const y = yPercentage * canvas.height;
+
+    const imageData = ctx.getImageData(x, y, 1, 1);
+    const pixel = imageData.data;
+    const brightness = (pixel[0] + pixel[1] + pixel[2]) / 3;
+
+    if(debug) {
+        const clonedCanvas = document.createElement('canvas');
+              clonedCanvas.width = canvas.width;
+              clonedCanvas.height = canvas.height;
+
+        const clonedCtx = clonedCanvas.getContext('2d');
+              clonedCtx.drawImage(canvas, 0, 0);
+
+        clonedCtx.fillStyle = 'red';
+        clonedCtx.beginPath();
+        clonedCtx.arc(x, y, 1, 0, Math.PI * 2);
+        clonedCtx.fill();
+
+        const dataURL = clonedCanvas.toDataURL();
+
+        console.log(canvas, pixel, dataURL);
+    }
+
+    return brightness < 128 ? 'b' : 'w';
+}
+
+function canvasHasPixelAt(canvas, [xPercentage, yPercentage], debug) {
+    xPercentage = Math.min(Math.max(xPercentage, 0), 100);
+    yPercentage = Math.min(Math.max(yPercentage, 0), 100);
+
+    const ctx = canvas.getContext('2d');
+    const x = xPercentage * canvas.width;
+    const y = yPercentage * canvas.height;
+
+    const imageData = ctx.getImageData(x, y, 1, 1);
+    const pixel = imageData.data;
+
+    if(debug) {
+        const clonedCanvas = document.createElement('canvas');
+              clonedCanvas.width = canvas.width;
+              clonedCanvas.height = canvas.height;
+
+        const clonedCtx = clonedCanvas.getContext('2d');
+              clonedCtx.drawImage(canvas, 0, 0);
+
+        clonedCtx.fillStyle = 'red';
+        clonedCtx.beginPath();
+        clonedCtx.arc(x, y, 1, 0, Math.PI * 2);
+        clonedCtx.fill();
+
+        const dataURL = clonedCanvas.toDataURL();
+
+        console.log(canvas, pixel, dataURL);
+    }
+
+    return pixel[3] !== 0;
+}
+
 function getSiteData(dataType, obj) {
     const pathname = window.location.pathname;
 
@@ -824,7 +923,7 @@ function getSquareElems(element) {
 function getChessVariant() {
     const chessVariant = getSiteData('chessVariant');
 
-    return chessVariant || 'chess';
+    return chessVariant || null;
 }
 
 function getBoardOrientation() {
@@ -917,29 +1016,6 @@ function getFen(onlyBasic) {
 }
 
 function onNewMove(mutationArr, bypassFenChangeDetection) {
-    if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
-
-    chesscomVariantBoardCoordsTable = null;
-
-    boardUtils.setBoardDimensions(getBoardDimensions());
-
-    const lastPlayerColor = getPlayerColorVariable();
-
-    updatePlayerColor();
-
-    const playerColor = getPlayerColorVariable();
-    const orientationChanged = playerColor != lastPlayerColor;
-
-    if(orientationChanged) {
-        CommLink.commands.log(`Player color (e.g. board orientation) changed from ${lastPlayerColor} to ${playerColor}!`);
-
-        chesscomVariantBoardCoordsTable = null;
-
-        instanceVars.turn.set(commLinkInstanceID, playerColor);
-
-        CommLink.commands.log(`Turn updated to ${playerColor}!`);
-    }
-
     const currentFullFen = getFen();
     const lastFullFen = instanceVars.fen.get(commLinkInstanceID);
 
@@ -952,6 +1028,29 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
     }, 500);
 
     if(fenChanged || bypassFenChangeDetection) {
+        if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
+
+        chesscomVariantBoardCoordsTable = null;
+
+        boardUtils.setBoardDimensions(getBoardDimensions());
+
+        const lastPlayerColor = getPlayerColorVariable();
+
+        updatePlayerColor();
+
+        const playerColor = getPlayerColorVariable();
+        const orientationChanged = playerColor != lastPlayerColor;
+
+        if(orientationChanged) {
+            CommLink.commands.log(`Player color (e.g. board orientation) changed from ${lastPlayerColor} to ${playerColor}!`);
+
+            chesscomVariantBoardCoordsTable = null;
+
+            instanceVars.turn.set(commLinkInstanceID, playerColor);
+
+            CommLink.commands.log(`Turn updated to ${playerColor}!`);
+        }
+
         boardUtils.removeBestMarkings();
 
         CommLink.commands.updateBoardFen(currentFullFen);
@@ -1013,12 +1112,13 @@ async function updatePlayerColor() {
 
 
 
+
 /*
- ██████ ██   ██ ███████ ███████ ███████     ██████  ██████  ███    ███
-██      ██   ██ ██      ██      ██         ██      ██    ██ ████  ████
-██      ███████ █████   ███████ ███████    ██      ██    ██ ██ ████ ██
-██      ██   ██ ██           ██      ██    ██      ██    ██ ██  ██  ██
- ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██████  ██      ██
+ _______ _____ _______ _______      _______  _____  _______ _______ _____ _______ _____ _______
+ |______   |      |    |______      |______ |_____] |______ |         |   |______   |   |
+ ______| __|__    |    |______      ______| |       |______ |_____  __|__ |       __|__ |_____
+
+Code below this point handles chess site specific things. (e.g. which element is the board or the pieces)
 */
 
 addSupportedChessSite('chess.com', {
@@ -1190,14 +1290,6 @@ addSupportedChessSite('chess.com', {
     }
 });
 
-/*
-██      ██  ██████ ██   ██ ███████ ███████ ███████     ██████  ██████   ██████
-██      ██ ██      ██   ██ ██      ██      ██         ██    ██ ██   ██ ██
-██      ██ ██      ███████ █████   ███████ ███████    ██    ██ ██████  ██   ███
-██      ██ ██      ██   ██ ██           ██      ██    ██    ██ ██   ██ ██    ██
-███████ ██  ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██   ██  ██████
-*/
-
 addSupportedChessSite('lichess.org', {
     'boardElem': obj => {
         return document.querySelector('cg-board');
@@ -1271,14 +1363,6 @@ addSupportedChessSite('lichess.org', {
         return defaultTurnFromMutation(mutationArr);
     }
 });
-
-/*
-██████  ██       █████  ██    ██ ███████ ████████ ██████   █████  ████████ ███████  ██████  ██    ██     ██████  ██████   ██████
-██   ██ ██      ██   ██  ██  ██  ██         ██    ██   ██ ██   ██    ██    ██      ██        ██  ██     ██    ██ ██   ██ ██
-██████  ██      ███████   ████   ███████    ██    ██████  ███████    ██    █████   ██   ███   ████      ██    ██ ██████  ██   ███
-██      ██      ██   ██    ██         ██    ██    ██   ██ ██   ██    ██    ██      ██    ██    ██       ██    ██ ██   ██ ██    ██
-██      ███████ ██   ██    ██    ███████    ██    ██   ██ ██   ██    ██    ███████  ██████     ██    ██  ██████  ██   ██  ██████
-*/
 
 addSupportedChessSite('playstrategy.org', {
     'boardElem': obj => {
@@ -1367,14 +1451,6 @@ addSupportedChessSite('playstrategy.org', {
         return defaultTurnFromMutation(mutationArr);
     }
 });
-
-/*
-██████  ██    ██  ██████ ██   ██ ███████ ███████ ███████     ██████  ██████   ██████
-██   ██  ██  ██  ██      ██   ██ ██      ██      ██         ██    ██ ██   ██ ██
-██████    ████   ██      ███████ █████   ███████ ███████    ██    ██ ██████  ██   ███
-██         ██    ██      ██   ██ ██           ██      ██    ██    ██ ██   ██ ██    ██
-██         ██     ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██   ██  ██████
-*/
 
 addSupportedChessSite('pychess.org', {
     'boardElem': obj => {
@@ -1465,14 +1541,6 @@ addSupportedChessSite('pychess.org', {
     }
 });
 
-/*
- ██████ ██   ██ ███████ ███████ ███████     ██████  ██████   ██████
-██      ██   ██ ██      ██      ██         ██    ██ ██   ██ ██
-██      ███████ █████   ███████ ███████    ██    ██ ██████  ██   ███
-██      ██   ██ ██           ██      ██    ██    ██ ██   ██ ██    ██
- ██████ ██   ██ ███████ ███████ ███████ ██  ██████  ██   ██  ██████
-*/
-
 addSupportedChessSite('chess.org', {
     'boardElem': obj => {
         return document.querySelector('.cg-board');
@@ -1540,14 +1608,6 @@ addSupportedChessSite('chess.org', {
     }
 });
 
-/*
- ██████  ██████   ██████  ██      ███    ███  █████  ████████ ██   ██  ██████   █████  ███    ███ ███████ ███████     ██████  ██████  ███    ███
-██      ██    ██ ██    ██ ██      ████  ████ ██   ██    ██    ██   ██ ██       ██   ██ ████  ████ ██      ██         ██      ██    ██ ████  ████
-██      ██    ██ ██    ██ ██      ██ ████ ██ ███████    ██    ███████ ██   ███ ███████ ██ ████ ██ █████   ███████    ██      ██    ██ ██ ████ ██
-██      ██    ██ ██    ██ ██      ██  ██  ██ ██   ██    ██    ██   ██ ██    ██ ██   ██ ██  ██  ██ ██           ██    ██      ██    ██ ██  ██  ██
- ██████  ██████   ██████  ███████ ██      ██ ██   ██    ██    ██   ██  ██████  ██   ██ ██      ██ ███████ ███████ ██  ██████  ██████  ██      ██
-*/
-
 addSupportedChessSite('chess.coolmath-games.com', {
     'boardElem': obj => {
         return document.querySelector('.cg-board');
@@ -1606,14 +1666,6 @@ addSupportedChessSite('chess.coolmath-games.com', {
     }
 });
 
-/*
-██████   █████  ██████  ███████ ██████   ██████   █████  ███    ███ ███████ ███████    ██  ██████
-██   ██ ██   ██ ██   ██ ██      ██   ██ ██       ██   ██ ████  ████ ██      ██         ██ ██    ██
-██████  ███████ ██████  █████   ██████  ██   ███ ███████ ██ ████ ██ █████   ███████    ██ ██    ██
-██      ██   ██ ██      ██      ██   ██ ██    ██ ██   ██ ██  ██  ██ ██           ██    ██ ██    ██
-██      ██   ██ ██      ███████ ██   ██  ██████  ██   ██ ██      ██ ███████ ███████ ██ ██  ██████
-*/
-
 addSupportedChessSite('papergames.io', {
     'boardElem': obj => {
         return document.querySelector('#chessboard');
@@ -1671,14 +1723,6 @@ addSupportedChessSite('papergames.io', {
     }
 });
 
-/*
-██    ██  ██████  ██      ███████    ██     ██ ████████ ███████
-██    ██ ██    ██ ██      ██         ██     ██    ██    ██
-██    ██ ██    ██ ██      █████      ██  █  ██    ██    █████
- ██  ██  ██    ██ ██      ██         ██ ███ ██    ██    ██
-  ████    ██████  ███████ ███████ ██  ███ ███     ██    ██
-*/
-
 addSupportedChessSite('vole.wtf', {
     'boardElem': obj => {
         return document.querySelector('#board');
@@ -1733,15 +1777,693 @@ addSupportedChessSite('vole.wtf', {
     }
 });
 
+addSupportedChessSite('immortal.game', {
+    'boardElem': obj => {
+        return document.querySelector('div.pawn.relative, div.knight.relative, div.bishop.relative, div.rook.relative, div.queen.relative, div.king.relative')?.parentElement?.parentElement;
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('div.pawn.relative, div.knight.relative, div.bishop.relative, div.rook.relative, div.queen.relative, div.king.relative');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const coordA = [...document.querySelectorAll('svg text[x]')]
+            .find(elem => elem?.textContent == 'a');
+
+        const coordAX = Number(coordA?.getAttribute('x')) || 10;
+
+        return coordAX < 15 ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return getElemCoordinatesFromTransform(pieceElem?.parentElement);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 5;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('chessarena.com', {
+    'boardElem': obj => {
+        return document.querySelector('cb-view');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('figure-view:not(.dead)');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const boardElem = getBoardElem();
+
+        return boardElem?.classList?.contains('rotated') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.values(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            return pieceColor === 'w' ? elemPieceName.toUpperCase() : elemPieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return getElemCoordinatesFromTransform(pieceElem, { 'onlyFlipY': true });
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 5;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+
+addSupportedChessSite('chess.net', {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        const variantLinkElem = document.querySelector('.variant-link');
+
+        if(variantLinkElem) {
+            let variant = variantLinkElem?.innerText?.toLowerCase()?.replaceAll(' ', '-');
+
+            const replacementTable = {
+                'correspondence': 'chess',
+                'koth': 'kingofthehill',
+                'three-check': '3check'
+            };
+
+            return replacementTable[variant] || variant;
+        }
+    },
+
+    'boardOrientation': obj => {
+        const filesElem = document.querySelector('coords.files');
+
+        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('freechess.club', {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const filesElem = document.querySelector('coords.files');
+
+        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('play.chessclub.com', {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const filesElem = document.querySelector('coords.files');
+
+        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('gameknot.com', {
+    'boardElem': obj => {
+        return document.querySelector('#chess-board-acboard');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('*[class*="square_"] > img[src*="chess36."][style*="visible"]');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        return document.querySelector('#chess-board-my-side-color .player_white') ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const left = Number(pieceElem.style.left.replace('px', ''));
+        const top = Number(pieceElem.style.top.replace('px', ''));
+
+        const pieceColor = left >= 0 ? 'w' : 'b';
+        const pieceName = 'kqrnbp'[(top * -1) / 60];
+
+        return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return getElemCoordinatesFromLeftTopPixels(pieceElem.parentElement);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('chesstempo.com', {
+    'boardElem': obj => {
+        return document.querySelector('.ct-board-squares');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('*[class*="ct-pieceClass"][class*="ct-piece-"]');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        return document.querySelector('.ct-coord-column').innerText === 'a' ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceNameClass = [...pieceElem.classList].find(x => x?.includes('ct-piece-'));
+        const colorNameCombo = pieceNameClass?.split('ct-piece-')?.pop();
+
+        const elemPieceColor = colorNameCombo.startsWith('white') ? 'w' : 'b';
+        const elemPieceName = colorNameCombo.substring(5);
+
+        const pieceName = pieceNameToFen[elemPieceName];
+
+        return elemPieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return [pieceElem?.ct?.piece?.piece?.column, pieceElem?.ct?.piece?.piece?.row];
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('redhotpawn.com', {
+    'boardElem': obj => {
+        return document.querySelector('#board-0_1');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('li.piece[id*="-pc-"]');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const aCoordLeftStyleNum = Number([...document.querySelectorAll('.boardCoordinate')]
+            .find(elem => elem?.innerText === 'a')
+            ?.style?.left?.replace('px', ''));
+
+        return aCoordLeftStyleNum < 200 ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return (pieceElem?.id?.match(/-pc-(.*?)-/) || [])[1];
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return getElemCoordinatesFromLeftTopPixels(pieceElem);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('chessanytime.com', {
+    'boardElem': obj => {
+        return document.querySelector('#play');
+    },
+
+    'pieceElem': obj => {
+        const getAll = obj.getAll;
+
+        const pieceElems = [...document.querySelectorAll('canvas.canvas_piece')].filter(elem => canvasHasPixelAt(elem, [0.5, 0.5]));
+
+        return getAll ? pieceElems : pieceElems[0];
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        return document.querySelector('#play_coordy0')?.innerText === '8' ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceTypeCoordPercentages = [
+            { 'name' : 'k', 'coords': [52/60, 26/60] },
+            { 'name' : 'q', 'coords': [8/60, 16/60] },
+            { 'name' : 'n', 'coords': [51/60, 42/60] },
+            { 'name' : 'b', 'coords': [9/60, 50/60] },
+            { 'name' : 'r', 'coords': [45/60, 15/60] },
+            { 'name' : 'p', 'coords': [0.5, 0.5] }
+        ];
+
+        const pieceColorCoordPercentages = {
+            'k': [42/60, 27/60],
+            'q': [30/60, 50/60],
+            'n': [38/60, 41/60],
+            'b': [30/60, 20/60]
+        };
+
+        let pieceName = null;
+
+        for(obj of pieceTypeCoordPercentages) {
+            const isThisPiece = canvasHasPixelAt(pieceElem, obj.coords);
+
+            if(isThisPiece) {
+                pieceName = obj.name;
+
+                break;
+            }
+        }
+
+        if(pieceName) {
+            const colorCoords = pieceColorCoordPercentages[pieceName] || [0.5, 0.5];
+
+            const pieceColor = getCanvasPixelColor(pieceElem, colorCoords);
+
+            //console.log(pieceElem, pieceName, colorCoords, pieceColor);
+
+            return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return getElemCoordinatesFromLeftTopPixels(pieceElem);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 7;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+addSupportedChessSite('chessworld.net', {
+    'boardElem': obj => {
+        return document.querySelector('#ChessWorldChessBoard');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('img[src*="merida"');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        return document.querySelector('div[style*="boardb.jpg"]') ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const [elemPieceColor, elemPieceName] = pieceElem
+            ?.src
+            ?.split('/')
+            ?.pop()
+            ?.replace('.png', '')
+            ?.split('_');
+
+        const pieceColor = elemPieceColor === 'white' ? 'w' : 'b';
+        const pieceName = pieceNameToFen[elemPieceName];
+
+        return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        return chessCoordinatesToIndex(pieceElem?.id);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 2;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});
+
+/* The site is very shitty I don't feel like finishing this
+addSupportedChessSite('chessfriends.com', {
+    'boardElem': obj => {
+        return document.querySelector('div[id*="id_board_"');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('img[name][id*="id_piece_"][src*="/pieces/"]');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const firstSquareTop = document.querySelector('*[id*="id_square_00_"]')?.style?.top;
+
+        return firstSquareTop === '0px' ? 'w' : 'b';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const dataStr = pieceElem.getAttribute('name');
+
+        if(dataStr?.length === 2) {
+            const pieceColor = dataStr[0];
+            const elemPieceName = dataStr[1];
+
+            return pieceColor == 'w' ? elemPieceName.toUpperCase() : elemPieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        //console.log(getElemCoordinatesFromLeftTopPixels(pieceElem));
+
+        return getElemCoordinatesFromLeftTopPixels(pieceElem);
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return mutationArr.length >= 4
+            || mutationArr.find(m => m.type === 'childList') ? true : false
+            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+    },
+
+    'turnFromMutation': obj => {
+        const pathname = obj.pathname;
+        const mutationArr = obj.mutationArr;
+
+        return defaultTurnFromMutation(mutationArr);
+    }
+});*/
+
 
 
 
 /*
-██ ███    ██ ██ ████████
-██ ████   ██ ██    ██
-██ ██ ██  ██ ██    ██
-██ ██  ██ ██ ██    ██
-██ ██   ████ ██    ██
+ _____ __   _ _____ _______ _____ _______        _____ ______ _______ _______ _____  _____  __   _
+   |   | \  |   |      |      |   |_____| |        |    ____/ |_____|    |      |   |     | | \  |
+ __|__ |  \_| __|__    |    __|__ |     | |_____ __|__ /_____ |     |    |    __|__ |_____| |  \_|
+
+Code below this point is related to initialization. (e.g. wait for chess board and create the instance)
 */
 
 async function isAcasBackendReady() {
@@ -1767,7 +2489,7 @@ async function start() {
             'window': window,
             'boardDimensions': getBoardDimensions(),
             'playerColor': getPlayerColorVariable(),
-            'zIndex': 500,
+            'zIndex': domain === 'chessarena.com' ? 9999 : 500,
             'prepend': true,
             'debugMode': debugModeActivated,
             'adjustSizeByDimensions': adjustSizeByDimensions ? true : false,

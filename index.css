@@ -688,14 +688,53 @@ cg-container {
     font-size: 1.5vh !important;
     width: 12vh !important;
 }
-#no-instances-sites {
+#no-instances-sites .sites-header {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    padding-bottom: 0.5vh;
+    margin-bottom: 1vh;
+    grid-gap: 1vh;
+    align-items: center;
+}
+#no-instances-sites .sites-title {
+    font-size: 2vh;
+    color: white;
+    font-weight: 600;
+    text-align: left;
+}
+#no-instances-sites .sites-subtitle {
+    font-size: 1.4vh;
+    color: rgb(255 255 255 / 50%);
+    font-weight: 300;
+    text-align: left;
+}
+#no-instances-sites .sites-list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
-    align-content: center;
+    justify-content: flex-start;
+    align-content: flex-start;
     grid-gap: 0.5vh;
     margin-bottom: 1vh;
+}
+#see-supported-sites-btn {
+    width: fit-content;
+    height: fit-content;
+    padding: 1vh;
+    background-color: rgb(255 255 255 / 10%);
+    border-radius: 1vh;
+    font-size: 1.5vh;
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+    margin-bottom: 1vh;
+    user-select: none;
+}
+#see-supported-sites-btn:hover {
+    background-color: rgb(255 255 255 / 20%);
+    transform: scale(1.05);
 }
 .chess-site-link {
     width: fit-content;
@@ -740,10 +779,15 @@ cg-container {
     color: grey;
     align-items: flex-end;
 }
+#acas-is-free-reminder .acas-social-actions {
+    display: flex;
+    flex-direction: row;
+    grid-gap: 0.5vh;
+}
 .github-button {
     display: flex;
     width: fit-content;
-    height: fit-content;
+    height: 2vh;
     align-items: center;
     grid-gap: 0.5vh;
     padding: 0.5vh 1vh 0.5vh 1vh;
@@ -755,6 +799,7 @@ cg-container {
     border-radius: 0.6vh;
     cursor: pointer;
     text-decoration: none;
+    text-align: center;
 }
 .github-button:hover {
     background-color: #373f4b;
@@ -768,4 +813,25 @@ cg-container {
     width: 2vh;
     height: 2vh;
     fill: rgba(255, 255, 255, 0.3);
+}
+.greasyfork-button {
+    display: flex;
+    width: fit-content;
+    height: 2vh;
+    align-items: center;
+    grid-gap: 0.5vh;
+    padding: 0.5vh 1vh 0.5vh 1vh;
+    font-size: 1.4vh;
+    font-weight: 400;
+    color: #6DFC64;
+    background-color: #1F3119;
+    border: 0.1vh solid #3A7C3A;
+    border-radius: 0.6vh;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+.greasyfork-button:hover {
+    background-color: #294121;
+    border: 0.1vh solid #499d49;
 }

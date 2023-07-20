@@ -77,10 +77,15 @@
 			</a>
 			<div id="acas-is-free-reminder">
 				<span>Want more features and updates?</span>
-				<a class="github-button" href="https://github.com/Hakorr/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
-					<svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path></svg>
-					<span>Star A.C.A.S</span>
-				</a>
+				<div class="acas-social-actions">
+					<a class="github-button" href="https://github.com/Hakorr/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
+						<svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path></svg>
+						<span>Star A.C.A.S</span>
+					</a>
+					<a class="greasyfork-button" href="https://greasyfork.org/en/scripts/459137-cheat-a-c-a-s-advanced-chess-assistance-system/feedback" target="_blank" title="Give A.C.A.S positive feedback on Greasyfork">
+						<span>GreasyFork Feedback</span>
+					</a>
+				</div>
 			</div>
 		</div>
 		
@@ -91,15 +96,50 @@
 			<div id="no-instances-container">
 				<div id="no-instances-title">waiting for instances...</div>
 				<div id="no-instances-subtitle">Ready to give our buddy A.C.A.S some action? Open up a chess game site and let the poor thing finally have some fun! It's been waiting patiently, counting its virtual fingers, just dying to make some moves. So, get that chess game fired up and let A.C.A.S do its thing!</div>
-				<div id="no-instances-sites">
-					<a class="chess-site-link" href="https://www.chess.com/play" target="_blank">Chess.com</a>
-					<a class="chess-site-link" href="https://www.lichess.org" target="_blank">Lichess.org</a>
-					<a class="chess-site-link" href="https://playstrategy.org" target="_blank">Playstrategy.org</a>
-					<a class="chess-site-link" href="https://www.pychess.org/" target="_blank">Pychess.org</a>
-					<a class="chess-site-link" href="https://chess.org" target="_blank">Chess.org</a>
-					<a class="chess-site-link" href="https://papergames.io/en/chess" target="_blank">Papergames.io</a>
-					<a class="chess-site-link" href="https://vole.wtf/kilobytes-gambit/" target="_blank">Vole.wtf</a>
-					<a class="chess-site-link" href="https://www.coolmathgames.com/0-chess" target="_blank">Coolmathgames.com</a>
+				<div id="see-supported-sites-btn">See all supported sites</div>
+				<div id="no-instances-sites" class="hidden">
+					<div class="battletested-sites">
+						<div class="sites-header">
+							<div class="sites-title">Battletested</div>
+							<div class="sites-subtitle">(Should work flawlessly)</div>
+						</div>
+						<div class="sites-list">
+							<a class="chess-site-link" href="https://www.chess.com/play" target="_blank">Chess.com</a>
+							<a class="chess-site-link" href="https://www.lichess.org" target="_blank">Lichess.org</a>
+							<a class="chess-site-link" href="https://playstrategy.org" target="_blank">Playstrategy.org</a>
+							<a class="chess-site-link" href="https://www.pychess.org/" target="_blank">Pychess.org</a>
+							<a class="chess-site-link" href="http://chess.net/" target="_blank">Chess.net</a>
+						</div>
+					</div>
+					<div class="stable-sites">
+						<div class="sites-header">
+							<div class="sites-title">Stable</div>
+							<div class="sites-subtitle">(Works fine, but might have some minor bugs)</div>
+						</div>
+						<div class="sites-list">
+							<a class="chess-site-link" href="https://chess.org" target="_blank">Chess.org</a>
+							<a class="chess-site-link" href="https://papergames.io/en/chess" target="_blank">Papergames.io</a>
+							<a class="chess-site-link" href="https://vole.wtf/kilobytes-gambit/" target="_blank">Vole.wtf</a>
+							<a class="chess-site-link" href="https://www.coolmathgames.com/0-chess" target="_blank">Coolmathgames.com</a>
+						</div>
+					</div>
+					<div class="unstable-sites">
+						<div class="sites-header">
+							<div class="sites-title">Uncertain</div>
+							<div class="sites-subtitle">(Might work fine, be buggy or not work at all)</div>
+						</div>
+						<div class="sites-list">
+							<a class="chess-site-link" href="https://chessarena.com/lobby" target="_blank">Chessarena.com</a>
+							<a class="chess-site-link" href="https://gameknot.com" target="_blank">Gameknot.com</a>
+							<a class="chess-site-link" href="https://redhotpawn.com" target="_blank">Redhotpawn.com</a>
+							<a class="chess-site-link" href="https://chessworld.net" target="_blank">Chessworld.net</a>
+							<a class="chess-site-link" href="https://chessanytime.com" target="_blank">Chessanytime.com</a>
+							<a class="chess-site-link" href="https://immortal.game/" target="_blank">Immortal.game</a>
+							<a class="chess-site-link" href="https://www.freechess.club/" target="_blank">Freechess.club</a>
+							<a class="chess-site-link" href="https://www.chessclub.com" target="_blank">Chessclub.com</a>
+							<a class="chess-site-link" href="https://www.chesstempo.com" target="_blank">Chesstempo.com</a>
+						</div>
+					</div>
 				</div>
 				<div id="no-instances-options">(Open a supported chess game site and start a match)</div>
 			</div>
