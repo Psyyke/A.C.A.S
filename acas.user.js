@@ -78,7 +78,7 @@
 // @version     2.0.8
 // @namespace   HKR
 // @author      HKR
-// @license     MIT
+// @license     GPL-3.0
 // ==/UserScript==
 
 /*
