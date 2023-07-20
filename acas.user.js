@@ -72,12 +72,13 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.0.8
-// @namespace   HKR
-// @author      HKR
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
+// @version     2.0.8
+// @namespace   HKR
+// @author      HKR
+// @license     MIT
 // ==/UserScript==
 
 /*
