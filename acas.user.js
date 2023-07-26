@@ -55,7 +55,6 @@
 // @match       http://chess.net/*
 // @match       https://www.freechess.club/*
 // @match       https://*chessclub.com/*
-// @match       https://www.chessfriends.com/*
 // @match       https://gameknot.com/*
 // @match       https://chesstempo.com/*
 // @match       https://www.redhotpawn.com/*
