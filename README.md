@@ -80,13 +80,16 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/Hak
 
 #### Hosting on localhost
 
-1) Install the A.C.A.S userscript and modify the `backendURL` constant variable at the very start of the userscript to `http://localhost/A.C.A.S/`.
-2) Create a folder named `A.C.A.S` to the root folder of your webserver. (e.g. `www/A.C.A.S`)
-3) Clone the repository and put the files inside the folder you just created.
-4) You should now see A.C.A.S running on `http://localhost/A.C.A.S/`.
-5) Make sure the A.C.A.S userscript is on and you should be good to go!
+1) Install the A.C.A.S userscript.
+2) Select a webserver of your choosing, e.g. [UwAmp](https://www.uwamp.com/en/).
+3) Create a folder named `A.C.A.S` to the root folder of your webserver. (e.g. `www/A.C.A.S`)
+4) Clone the repository and put the files inside the folder you just created.
+6) You should now see A.C.A.S running on `http://localhost/A.C.A.S/`.
+7) Make sure the A.C.A.S userscript is on and you should be good to go!
 
 > **Warning** Make sure there are no additional folders which would make the URL like `http://localhost/A.C.A.S/A.C.A.S/`.
+
+> **Note** You can use [GitHub Desktop](https://desktop.github.com/) to make Git actions such as cloning easy.
 
 ### A.C.A.S Userscript
 
