@@ -98,6 +98,8 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 [ADDITIONAL]
 - Big fonts created with: https://www.patorjk.com/software/taag/ (Cyberlarge)
 
+JOIN THE DISCUSSION @ https://discord.gg/xkYydUyaem ("Userscript Hub")
+
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 //////////////////////////////////////////////////////////////////
@@ -117,14 +119,46 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
 Code below this point runs on any site, including the GUI.
 */
 
-// PRODUCTION: 'https://hakorr.github.io/A.C.A.S/';
-// DEVELOPMENT: 'http://localhost/A.C.A.S/';
-const backendURL = 'https://hakorr.github.io/A.C.A.S/';
-const greasyforkURL = 'https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system';
-
+// KEEP THESE AS FALSE ON PRODUCTION
 const debugModeActivated = false;
+const onlyUseDevelopmentBackend = false;
+
+const backendURLs = {
+    'production': 'https://hakorr.github.io/A.C.A.S/',
+    'development': 'http://localhost/A.C.A.S/'
+};
+
+const greasyforkURL = 'https://greasyfork.org/en/scripts/459137';
 
 const domain = window.location.hostname.replace('www.', '');
+
+const isBackendUrlUpToDate = Object.values(backendURLs).includes(GM_getValue('currentBackendURL'));
+
+function isRunningOnBackend() {
+    const foundBackendURL = Object.values(backendURLs).find(url => window?.location?.href.includes(url));
+
+    if(foundBackendURL) {
+        GM_setValue('currentBackendURL', foundBackendURL);
+
+        return true;
+    }
+
+    return false;
+}
+
+function getCurrentBackendURL(skipGmStorage) {
+    const backendURL = skipGmStorage
+        ? (backendURLs?.production || backendURLs?.development)
+        : (GM_getValue('currentBackendURL') || backendURLs?.production || backendURLs?.development);
+
+    return onlyUseDevelopmentBackend 
+        ? backendURLs?.development
+        : backendURL;
+}
+
+if(!isBackendUrlUpToDate) {
+    GM_setValue('currentBackendURL', getCurrentBackendURL(true));
+}
 
 function createInstanceVariable(dbValue) {
     return {
@@ -157,7 +191,7 @@ const instanceVars = {
     fen: createInstanceVariable('fen')
 };
 
-if(window?.location?.href?.includes(backendURL)) {
+if(isRunningOnBackend()) {
     // expose variables and functions
     unsafeWindow.USERSCRIPT = {
         'GM_info': GM_info,
@@ -2515,7 +2549,7 @@ function startWhenBackendReady() {
 
             interval.stop();
         } else {
-            GM_openInTab(backendURL, true);
+            GM_openInTab(getCurrentBackendURL(), true);
 
             if(await isAcasBackendReady()) {
                 start();
@@ -2548,7 +2582,7 @@ if(typeof GM_registerMenuCommand === 'function') {
     }, 'u');
 
     GM_registerMenuCommand('[o] Open GUI Manually', e => {
-        GM_openInTab(backendURL, true);
+        GM_openInTab(getCurrentBackendURL(), true);
     }, 'o');
 
     GM_registerMenuCommand('[s] Start Manually', e => {

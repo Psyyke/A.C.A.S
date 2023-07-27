@@ -784,22 +784,24 @@ cg-container {
     flex-direction: row;
     grid-gap: 0.5vh;
 }
-.github-button {
+.header-social-button {
     display: flex;
     width: fit-content;
     height: 2vh;
     align-items: center;
     grid-gap: 0.5vh;
     padding: 0.5vh 1vh 0.5vh 1vh;
-    font-size: 1.4vh;
+    font-size: 1.8vh;
     font-weight: 400;
-    color: #C9D1D9;
-    background-color: #21262D;
-    border: 0.1vh solid #3b434f;
     border-radius: 0.6vh;
     cursor: pointer;
     text-decoration: none;
     text-align: center;
+}
+.github-button {
+    color: #C9D1D9;
+    background-color: #21262D;
+    border: 0.1vh solid #3b434f;
 }
 .github-button:hover {
     background-color: #373f4b;
@@ -815,23 +817,20 @@ cg-container {
     fill: rgba(255, 255, 255, 0.3);
 }
 .greasyfork-button {
-    display: flex;
-    width: fit-content;
-    height: 2vh;
-    align-items: center;
-    grid-gap: 0.5vh;
-    padding: 0.5vh 1vh 0.5vh 1vh;
-    font-size: 1.4vh;
-    font-weight: 400;
-    color: #6DFC64;
-    background-color: #1F3119;
-    border: 0.1vh solid #3A7C3A;
-    border-radius: 0.6vh;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
+    color: #bebebe;
+    background-color: #313131;
+    border: 0.1vh solid #626262;
 }
 .greasyfork-button:hover {
-    background-color: #294121;
-    border: 0.1vh solid #499d49;
+    background-color: #505050;
+    border: 0.1vh solid #898989;
+}
+.discord-button {
+    color: #C9D1D9;
+    background-color: #2c338e;
+    border: 0.1vh solid #5965F1;
+}
+.discord-button:hover {
+    background-color: #434bc4;
+    border: 0.1vh solid rgb(110, 122, 255);
 }
