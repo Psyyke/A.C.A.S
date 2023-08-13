@@ -2,6 +2,7 @@
 // @name        🏆 [#1 Chess Cheat] A.C.A.S (Advanced Chess Assistance System)
 // @name:en     🏆 [#1 Chess Cheat] A.C.A.S (Advanced Chess Assistance System)
 // @name:fi     🏆 [#1 Chess Cheat] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
+// @name:sw     🏆 [#1 Chess Cheat] A.C.A.S (Advanserad Schack Assitant System)
 // @name:zh-CN  🏆 [#1 Chess Cheat] A.C.A.S（高级国际象棋辅助系统）
 // @name:es     🏆 [#1 Chess Cheat] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
 // @name:hi     🏆 [#1 Chess Cheat] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
@@ -21,6 +22,7 @@
 // @description        Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:en     Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:fi     Paranna shakkipelisi suorituskykyä huippuluokan reaaliaikaisen siirtoanalyysin ja strategisen avustusjärjestelmän avulla
+// @description:sw     Förbättra dina schackprestationer med ett banbrytande rörelseanalys i realtid och strategiassistans
 // @description:zh-CN  利用尖端实时走法分析和策略辅助系统，提升您的国际象棋水平
 // @description:es     Mejora tu rendimiento en ajedrez con un sistema de análisis de movimientos en tiempo real y asistencia estratégica de vanguardia
 // @description:hi     अपने शतरंज प्रदर्शन को उन्नत करें, एक कटिंग-एज रियल-टाइम मूव विश्लेषण और रणनीति सहायता प्रणाली के साथ
