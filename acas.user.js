@@ -100,7 +100,7 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 [ADDITIONAL]
 - Big fonts created with: https://www.patorjk.com/software/taag/ (Cyberlarge)
 
-JOIN THE DISCUSSION @ https://discord.gg/xkYydUyaem ("Userscript Hub")
+JOIN THE DISCUSSION ABOUT USERSCRIPTS IN GENERAL @ https://hakorr.github.io/Userscripts/community/invite ("Userscript Hub")
 
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
