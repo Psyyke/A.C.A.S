@@ -14,7 +14,7 @@ A.C.A.S is an **advanced chess assistance system** (a chess cheat) which helps y
 
 > **Note** Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
-| [▶️ Open A.C.A.S](https://hakorr.github.io/A.C.A.S/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://discord.gg/xkYydUyaem)
+| [▶️ Open A.C.A.S](https://hakorr.github.io/A.C.A.S/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|
 
 ## Example Gameplay
@@ -58,7 +58,7 @@ Don't want to get banned again? Don't use A.C.A.S against other humans.
 
 ### Why doesn't it work?
 
-Before making an issue, please read these and also join the [Userscript Hub](https://discord.gg/xkYydUyaem) Discord server for assistance,
+Before making an issue, please read these and also join the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server for assistance,
 
 - Make sure the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) is active. Do not close the tab. Browsers freeze code execution on inactive pages, you need to visit the A.C.A.S GUI tab from time to time or keep it open on a separate window. This prevents A.C.A.S from freezing and not giving any move suggestions, for example.
 
@@ -112,7 +112,7 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 
 ## Contact
 
-Discussion about A.C.A.S can be had on the [Userscript Hub](https://discord.gg/xkYydUyaem) Discord server.
+Discussion about A.C.A.S can be had on the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server.
 
 ## Other
 
