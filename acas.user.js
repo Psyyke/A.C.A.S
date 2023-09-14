@@ -153,7 +153,7 @@ function getCurrentBackendURL(skipGmStorage) {
         ? (backendURLs?.production || backendURLs?.development)
         : (GM_getValue('currentBackendURL') || backendURLs?.production || backendURLs?.development);
 
-    return onlyUseDevelopmentBackend 
+    return onlyUseDevelopmentBackend
         ? backendURLs?.development
         : backendURL;
 }
@@ -1165,7 +1165,7 @@ addSupportedChessSite('chess.com', {
             return document.querySelector('#board');
         }
 
-        return document.querySelector('chess-board');
+        return document.querySelector('#board-layout-chessboard > .board');
     },
 
     'pieceElem': obj => {
