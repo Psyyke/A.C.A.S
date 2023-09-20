@@ -70,7 +70,7 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/Hak
 
 > **Note** When making an issue, please be descriptive! Mention,
 > - The chess site and the variant you were playing.
-> - The browser and the userscript manager were using.
+> - The browser and the userscript manager you were using.
 > - What did you do for the bug to happen, does it happen often? How could I reproduce it?
 > - You can also include a screenshot of the browser console (e.g. `CTRL + SHIFT + I` or right click, inspect, and go to the console tab), look for **grey underlined text** at the beginning of a red background area, on the right side of the screen, which has the word 'A.C.A.S'. That's an error from the userscript.
 
