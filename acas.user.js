@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.0.9
+// @version     2.1.0
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -274,6 +274,7 @@ Object.values(configKeys).forEach(key => {
 let BoardDrawer = null;
 let chessBoardElem = null;
 let chesscomVariantBoardCoordsTable = null;
+let chesscomVariantPlayerColorsTable = null;
 let activeSiteMoveHighlights = [];
 let inactiveGuiMoveMarkings = [];
 
@@ -690,7 +691,7 @@ function getElemCoordinatesFromLeftTopPixels(elem) {
     }
 }
 
-function createChesscomVariantBoardCoordsTable() {
+function updateChesscomVariantBoardCoordsTable() {
     chesscomVariantBoardCoordsTable = {};
 
     const boardElem = getBoardElem();
@@ -704,17 +705,36 @@ function createChesscomVariantBoardCoordsTable() {
     for(let x = 0; x < boardWidth; x++) {
         for(let y = boardHeight; y > 0; y--) {
             const squareElem = squareElems[squareIndex];
-            const id = squareElem?.id;
-
-            const xIdx = x;
-            const yIdx = y - 1;
+            const id = squareElem?.dataset?.theme;
 
             if(id) {
-                chesscomVariantBoardCoordsTable[id] = [xIdx, yIdx];
+                if(boardOrientation === 'b') {
+                    chesscomVariantBoardCoordsTable[id] = [boardWidth - (x + 1), boardHeight - y];
+                } else {
+                    chesscomVariantBoardCoordsTable[id] = [x, y - 1];
+                }
             }
 
             squareIndex++;
         }
+    }
+}
+
+function updateChesscomVariantPlayerColorsTable() {
+    let colors = [];
+
+    document.querySelectorAll('*[data-color]').forEach(pieceElem => {
+        const colorCode = Number(pieceElem?.dataset?.color);
+
+        if(!colors?.includes(colorCode)) {
+            colors.push(colorCode);
+        }
+    });
+
+    if(colors?.length > 1) {
+        colors = colors.sort((a, b) => a - b);
+
+        chesscomVariantPlayerColorsTable = { [colors[0]]: 'w', [colors[1]]: 'b' };
     }
 }
 
@@ -1051,6 +1071,11 @@ function getFen(onlyBasic) {
     return `${basicFen} ${getPlayerColorVariable()} - - - -`;
 }
 
+function resetCachedValues() {
+    chesscomVariantBoardCoordsTable = null;
+    chesscomVariantPlayerColorsTable = null;
+}
+
 function onNewMove(mutationArr, bypassFenChangeDetection) {
     const currentFullFen = getFen();
     const lastFullFen = instanceVars.fen.get(commLinkInstanceID);
@@ -1066,7 +1091,7 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
     if(fenChanged || bypassFenChangeDetection) {
         if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
 
-        chesscomVariantBoardCoordsTable = null;
+        resetCachedValues();
 
         boardUtils.setBoardDimensions(getBoardDimensions());
 
@@ -1080,7 +1105,7 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
         if(orientationChanged) {
             CommLink.commands.log(`Player color (e.g. board orientation) changed from ${lastPlayerColor} to ${playerColor}!`);
 
-            chesscomVariantBoardCoordsTable = null;
+            resetCachedValues();
 
             instanceVars.turn.set(commLinkInstanceID, playerColor);
 
@@ -1162,7 +1187,7 @@ addSupportedChessSite('chess.com', {
         const pathname = obj.pathname;
 
         if(pathname?.includes('/variants')) {
-            return document.querySelector('#board');
+            return document.querySelector('.TheBoard-layers');
         }
 
         return document.querySelector('#board-layout-chessboard > .board');
@@ -1173,8 +1198,8 @@ addSupportedChessSite('chess.com', {
         const getAll = obj.getAll;
 
         if(pathname?.includes('/variants')) {
-            const filteredPieceElems = filterInvisibleElems(document.querySelectorAll('#board *[data-piece]'))
-                .filter(elem => Number(elem?.dataset?.player) <= 2);
+            const filteredPieceElems = filterInvisibleElems(document.querySelectorAll('.TheBoard-layers *[data-piece]'))
+                .filter(elem => elem?.dataset?.piece?.toLowerCase() !== 'x');
 
             return getAll ? filteredPieceElems : filteredPieceElems[0];
         }
@@ -1187,13 +1212,7 @@ addSupportedChessSite('chess.com', {
         const element = obj.element;
 
         if(pathname?.includes('/variants')) {
-            return [...element.querySelectorAll('.square-4pc.ui-droppable')]
-                .filter(elem => {
-                    const pieceElem = elem.querySelector('[data-player]');
-                    const playerNum = Number(pieceElem?.dataset?.player);
-
-                    return (!playerNum || playerNum <= 2);
-                });
+            return [...element.querySelectorAll('.square')];
         }
     },
 
@@ -1220,6 +1239,9 @@ addSupportedChessSite('chess.com', {
         if(pathname?.includes('/variants')) {
             const playerNumberStr = document.querySelector('.playerbox-bottom [data-player]')?.dataset?.player;
 
+            if(!playerNumberStr)
+                return 'w';
+
             return playerNumberStr === '0' ? 'w' : 'b';
         }
 
@@ -1236,7 +1258,13 @@ addSupportedChessSite('chess.com', {
         let pieceName = null;
 
         if(pathname?.includes('/variants')) {
-            pieceColor = pieceElem?.dataset?.player == '0' ? 'w' : 'b';
+            if(!chesscomVariantPlayerColorsTable) {
+                updateChesscomVariantPlayerColorsTable();
+            }
+
+            const pieceFenStr = pieceElem?.dataset?.piece;
+
+            pieceColor = chesscomVariantPlayerColorsTable[pieceElem?.dataset?.color];
             pieceName = pieceElem?.dataset?.piece;
         } else {
             const pieceStr = [...pieceElem.classList].find(x => x.match(/^(b|w)[prnbqk]{1}$/));
@@ -1252,14 +1280,20 @@ addSupportedChessSite('chess.com', {
         const pieceElem = obj.pieceElem;
 
         if(pathname?.includes('/variants')) {
-            const squareElem = pieceElem.parentElement;
-            const squareId = squareElem.id;
-
             if(!chesscomVariantBoardCoordsTable) {
-                createChesscomVariantBoardCoordsTable();
+                updateChesscomVariantBoardCoordsTable();
             }
 
-            return chesscomVariantBoardCoordsTable[squareId];
+            const pieceBoundary = pieceElem.getBoundingClientRect();
+            const elementsBehindPieceElem = document.elementsFromPoint(pieceBoundary.x, pieceBoundary.y);
+
+            const squareElem = elementsBehindPieceElem?.find(x => x?.classList?.contains('square'));
+
+            //console.log(squareElem?.dataset?.theme, chesscomVariantBoardCoordsTable[squareElem?.dataset?.theme]);
+
+            const coords = chesscomVariantBoardCoordsTable[squareElem?.dataset?.theme];
+
+            return coords;
         }
 
         return pieceElem.classList.toString()
@@ -1272,26 +1306,26 @@ addSupportedChessSite('chess.com', {
         const pathname = obj.pathname;
 
         if(pathname?.includes('/variants')) {
-            const rankElems = chessBoardElem?.querySelectorAll('.rank');
-            const visibleRankElems = filterInvisibleElems(rankElems)
-                .filter(rankElem => [...rankElem.childNodes]
-                    .find(elem => {
-                        const pieceElem = elem.querySelector('[data-player]');
-                        const playerNum = Number(pieceElem?.dataset?.player);
+            const squaresContainerElem = document.querySelector('.TheBoard-squares');
 
-                        return playerNum <= 2;
-                    }));
+            let ranks = 0;
+            let files = 0;
 
+            [...squaresContainerElem.childNodes].forEach((x, i) => {
+                const visibleChildElems = filterInvisibleElems([...x.childNodes]);
 
-            if(visibleRankElems.length) {
-                const rankElem = visibleRankElems[0];
-                const squareElems = getSquareElems(rankElem);
+                if(visibleChildElems?.length > 0) {
+                    ranks = ranks + 1;
 
-                const ranks = visibleRankElems?.length;
-                const files = squareElems?.length;
+                    if(visibleChildElems.length > files) {
+                        files = visibleChildElems.length;
+                    }
+                }
+            });
 
-                return [ranks, files];
-            }
+            //console.log([ranks, files]);
+
+            return [ranks, files];
         } else {
             return [8, 8];
         }
@@ -1302,7 +1336,7 @@ addSupportedChessSite('chess.com', {
         const mutationArr = obj.mutationArr;
 
         if(pathname?.includes('/variants')) {
-            return mutationArr.find(m => m.attributeName == 'class') ? true : false;
+            return mutationArr.find(m => m.type === 'childList') ? true : false;
         }
 
         if(mutationArr.length == 1)
@@ -2342,8 +2376,6 @@ addSupportedChessSite('chessanytime.com', {
             const colorCoords = pieceColorCoordPercentages[pieceName] || [0.5, 0.5];
 
             const pieceColor = getCanvasPixelColor(pieceElem, colorCoords);
-
-            //console.log(pieceElem, pieceName, colorCoords, pieceColor);
 
             return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
         }
