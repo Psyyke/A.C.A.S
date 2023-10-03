@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.0
+// @version     2.1.1
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -1060,6 +1060,35 @@ function getFen(onlyBasic) {
         return squeezeEmptySquares(board.map(x => x.join('')).join('/'));
     }
 
+    function getBoardPiece(fenCoord) {
+        const indexArr = chessCoordinatesToIndex(fenCoord);
+    
+        return board?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
+    }
+
+    // Works on 8x8 boards only
+    function getRights() {
+        let rights = '';
+
+        // check for white
+        const e1 = getBoardPiece('e1'),
+              h1 = getBoardPiece('h1'),
+              a1 = getBoardPiece('a1');
+
+        if(e1 == 'K' && h1 == 'R') rights += 'K';
+        if(e1 == 'K' && a1 == 'R') rights += 'Q';
+
+        //check for black
+        const e8 = getBoardPiece('e8'),
+              h8 = getBoardPiece('h8'),
+              a8 = getBoardPiece('a8');
+
+        if(e8 == 'k' && h8 == 'r') rights += 'k';
+        if(e8 == 'k' && a8 == 'r') rights += 'q';
+
+        return rights ? rights : '-';
+    }
+
     const basicFen = getBasicFen();
 
     if(debugModeActivated) console.warn('basicFen', basicFen);
@@ -1068,7 +1097,10 @@ function getFen(onlyBasic) {
         return basicFen;
     }
 
-    return `${basicFen} ${getPlayerColorVariable()} - - - -`;
+    // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
+    const fullFen = `${basicFen} ${getPlayerColorVariable()} ${getRights()} - - -`;
+
+    return fullFen;
 }
 
 function resetCachedValues() {

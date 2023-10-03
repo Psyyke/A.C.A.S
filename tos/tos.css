@@ -19,27 +19,28 @@ body {
     margin: 10vh;
     display: flex;
     flex-direction: column;
-    width: 50vh;
+    width: 75vh;
 }
 .big-title {
-    font-size: 3vh;
+    font-size: 4vh;
     font-weight: 800;
     font-stretch: ultra-expanded;
     align-self: center;
+    text-align: center;
 }
 .title {
-    font-size: 2vh;
+    font-size: 3.5vh;
     font-weight: 900;
     font-stretch: ultra-expanded;
     margin: 2vh 0 0 0;
 }
 .small-paragraph {
-    font-size: 1.5vh;
+    font-size: 2vh;
     font-weight: 400;
     margin: 1vh 0 1vh 0;
 }
 .paragraph {
-    font-size: 1.7vh;
+    font-size: 2.5vh;
     font-weight: 400;
     margin: 1vh 0 1vh 0;
 }

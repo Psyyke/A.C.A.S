@@ -196,7 +196,7 @@ cg-container {
     margin-right: 0.2vh;
 }
 .instance-fen {
-    font-size: 1.35vh;
+    font-size: 1.2vh;
     font-weight: 100;
     color: rgb(255 255 255 / 30%);
     word-break: break-word;
@@ -263,29 +263,29 @@ cg-container {
 #install-notification {
     width: 100%;
     height: fit-content;
-    max-width: 50vh;
+    max-width: 75vh;
     background-color: black;
     color: white;
     padding: 2vh;
 }
 .install-description {
     color: rgb(159 159 159);
-    font-size: 1.5vh;
+    font-size: 2vh;
     font-weight: 400;
     margin-bottom: 2vh;
 }
 .install-description-small {
     color: rgb(255 255 255 / 50%);
-    font-size: 1.5vh;
+    font-size: 1.6vh;
 }
 #install-title {
-    font-size: 3vh;
+    font-size: 4vh;
     font-weight: 700;
     font-stretch: ultra-expanded;
     margin-bottom: 1vh;
 }
 .install-subtitle {
-    font-size: 2vh;
+    font-size: 3vh;
     margin: 3vh 0 1vh;
 }
 .install-notification-btn {
@@ -294,13 +294,13 @@ cg-container {
     color: white;
     text-decoration: none;
     border-radius: 0.5vh;
-    font-size: 1.5vh;
+    font-size: 2vh;
     border: none;
     margin: 1vh 0 2vh;
     background-color: #3b6238;
 }
 .install-footer {
-    font-size: 1vh;
+    font-size: 1.5vh;
     color: rgb(255 255 255 / 20%);
     margin-top: 2vh;
 }
@@ -336,7 +336,7 @@ cg-container {
     padding: 2vh;
 }
 #tos-title {
-    font-size: 3vh;
+    font-size: 4vh;
     font-weight: 700;
     font-stretch: ultra-expanded;
     margin-bottom: 1vh;
@@ -347,7 +347,7 @@ cg-container {
 }
 .tos-description {
     color: rgb(159 159 159);
-    font-size: 1.5vh;
+    font-size: 2vh;
     font-weight: 400;
     margin-bottom: 2vh;
 }
@@ -356,15 +356,19 @@ cg-container {
     font-size: 1.5vh;
 }
 .tos-footer-small {
-    font-size: 1vh;
+    font-size: 1.5vh;
     color: rgb(255 255 255 / 20%);
     margin-top: 2vh;
+    font-weight: 300;
 }
 .tos-link {
     display: inline-block;
     color: white;
     text-decoration: none;
     background-color: #3b6238;
+}
+.tos-checkbox-container {
+    font-size: 2vh;
 }
 #tos-continue-button {
     display: inline-block;
@@ -376,6 +380,7 @@ cg-container {
     color: #999;
     cursor: not-allowed;
     font-family: inherit;
+    font-size: 1.7vh;
 }
 #tos-continue-button:active {
     transform: scale(0.9);
