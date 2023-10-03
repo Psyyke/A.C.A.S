@@ -1,8 +1,12 @@
 :root {
-    --settings-input-main-bg-color: rgb(10 10 10 / 50%);
-    --settings-input-main-border-color: rgb(255 255 255 / 15%);
-    --settings-input-border-radius: 0.3vh;
+    --settings-input-main-bg-color: rgb(255 255 255 / 5%);
+    --settings-input-border-width: 0 0 0.4vh 0;
+    --settings-input-border-style: solid;
+    --settings-input-border-color: rgb(255 255 255 / 5%);
+    --settings-input-border-radius: 0.5vh;
+    --settings-input-font-size: 1.8vh;
 }
+
 
 input:focus { outline:none!important; }
 
@@ -15,7 +19,7 @@ input:focus { outline:none!important; }
 }
 .input-title {
     color: rgb(255 255 255 / 50%);
-    font-size: 1.5vh;
+    font-size: 1.7vh;
     pointer-events: none;
     text-transform: capitalize;
     font-weight: 300;
@@ -30,10 +34,12 @@ input:focus { outline:none!important; }
     border-radius: var(--settings-input-border-radius);
     background-color: var(--settings-input-main-bg-color);
     color: rgb(255 255 255 / 75%);
-    font-size: 1.6vh;
-    border: 0.20vh solid var(--settings-input-main-border-color);
+    font-size: var(--settings-input-font-size);
     font-weight: 500;
     font-family: unset;
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
 }
 
 /* Checkbox */
@@ -42,14 +48,15 @@ input:focus { outline:none!important; }
     justify-content: center;
     align-items: center;
     position: relative;
-    width: 3vh;
-    height: 3vh;
-    border: 0.20vh solid var(--settings-input-main-border-color);
+    width: 4vh;
+    height: 4vh;
     border-radius: var(--settings-input-border-radius);
     background-color: var(--settings-input-main-bg-color);
     cursor: pointer;
     color: transparent;
-    padding: 0.1vh;
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
 }
 .checkbox-container input[type="checkbox"] {
     position: absolute;
@@ -85,7 +92,6 @@ input:focus { outline:none!important; }
     width: 3.4vh;
     height: 3.4vh;
     border-radius: 50%;
-    border: 0.20vh solid var(--settings-input-main-border-color);
     background-color: var(--settings-input-main-bg-color);
     padding: 0;
     appearance: none;
@@ -94,6 +100,9 @@ input:focus { outline:none!important; }
     appearance: none;
     font-weight: 500;
     font-family: unset;
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
 }
 .color-input input::-moz-color-swatch {
     border: none;
@@ -116,7 +125,7 @@ input:focus { outline:none!important; }
     border-radius: var(--settings-input-border-radius);
     background-color: rgb(0 0 0 / 0%);
     color: rgb(255 255 255 / 75%);
-    font-size: 1.6vh;
+    font-size: var(--settings-input-font-size);
     border: none;
     padding: 1vh;
     text-transform: capitalize;
@@ -131,9 +140,11 @@ input:focus { outline:none!important; }
     border-radius: var(--settings-input-border-radius);
     background-color: var(--settings-input-main-bg-color);
     color: rgb(255 255 255 / 75%);
-    font-size: 1.6vh;
-    border: 0.2vh solid var(--settings-input-main-border-color);
+    font-size: var(--settings-input-font-size);
     position: relative;
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
 }
 .dropdown-input .dropdown-icon {
     width: 2vh;

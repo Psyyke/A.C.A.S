@@ -196,7 +196,7 @@ cg-container {
     margin-right: 0.2vh;
 }
 .instance-fen {
-    font-size: 1vh;
+    font-size: 1.35vh;
     font-weight: 100;
     color: rgb(255 255 255 / 30%);
     word-break: break-word;
@@ -204,14 +204,14 @@ cg-container {
 .instance-variant {
     font-stretch: semi-expanded;
     text-transform: capitalize;
-    font-size: 1.5vh;
+    font-size: 1.7vh;
 }
 .variant-not-supported-text {
     color: rgb(255 255 255 / 50%);
     font-size: 0.8em;
 }
 .instance-domain {
-    font-size: 1.35vh;
+    font-size: 1.5vh;
     font-weight: 300;
     color: rgb(255 255 255 / 70%);
 }
@@ -235,7 +235,7 @@ cg-container {
     background-color: rgb(255 255 255 / 30%);
 }
 .instance-info-text {
-    font-size: 1.2vh;
+    font-size: 1.35vh;
     margin-top: 0.5vh;
     color: rgb(255 255 255 / 50%);
     font-weight: 300;
@@ -395,7 +395,7 @@ cg-container {
 #no-instances-container {
     background-color: rgb(0 0 0 / 20%);
     color: rgb(255 255 255 / 75%);
-    padding: 4vh 1vh 4vh 1vh;
+    padding: 3vh 1vh 1vh 1vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -403,24 +403,27 @@ cg-container {
     width: 50vh;
     text-align: center;
     z-index: 5;
+    backdrop-filter: blur(2vh);
 }
 #no-instances-title {
-    font-size: 2.5vh;
-    font-weight: 500;
+    font-size: 2.8vh;
+    font-weight: 600;
     font-stretch: expanded;
     text-transform: uppercase;
-    animation: pulsate 2s infinite;
+    animation: pulsate 4s infinite;
+    color: rgb(255 255 255 / 90%);
 }
 #no-instances-subtitle {
     margin: 2vh;
     font-weight: 300;
-    font-size: 1.7vh;
+    font-size: 2vh;
     color: rgb(255 255 255 / 50%);
 }
-#no-instances-options {
-    font-size: 1.4vh;
-    font-weight: 100;
-    color: rgb(255 255 255 / 10%);
+#no-instances-sites {
+    margin: 1vh;
+    padding: 2vh;
+    border-radius: inherit;
+    background-color: rgb(0 0 0 / 10%);
 }
 .connection-warning {
     position: absolute;
@@ -435,15 +438,16 @@ cg-container {
     align-content: center;
     flex-direction: column;
     text-align: center;
+    backdrop-filter: blur(0.1vh);
 }
 .connection-warning-title {
     animation: pulsate 0.5s infinite;
-    font-size: 3vh;
+    font-size: 3.5vh;
     font-weight: 600;
     color: rgb(255 255 255 / 75%);
 }
 .connection-warning-subtitle {
-    font-size: 1.3vh;
+    font-size: 1.5vh;
     font-weight: 400;
     color: rgb(195 195 195 / 70%);
 }
@@ -506,9 +510,10 @@ cg-container {
     padding: 0.1vh;
 }
 #settings-navbar-subtitle {
-    margin-top: 0.5vh;
-    font-size: 1.3vh;
-    color: rgb(255 255 255 / 20%);
+    margin-top: 1vh;
+    font-size: 1.5vh;
+    color: rgb(111 111 111);
+    font-weight: 600;
 }
 #settings-header {
     height: fit-content;
@@ -520,6 +525,7 @@ cg-container {
     justify-content: space-between;
     flex-direction: row;
     box-sizing: border-box;
+    background-color: rgb(0 0 0 / 20%);
 }
 #settings-control-panel {
     display: flex;
@@ -557,7 +563,6 @@ cg-container {
     display: flex;
     justify-content: flex-start;
     transition: all 0.1s ease;
-    background-color: rgb(255 255 255 / 2%);
     padding: 1vh 2vh;
     opacity: 0.4;
     box-sizing: border-box;
@@ -699,13 +704,13 @@ cg-container {
     align-items: center;
 }
 #no-instances-sites .sites-title {
-    font-size: 2vh;
+    font-size: 2.5vh;
     color: white;
     font-weight: 600;
     text-align: left;
 }
 #no-instances-sites .sites-subtitle {
-    font-size: 1.4vh;
+    font-size: 1.6vh;
     color: rgb(255 255 255 / 50%);
     font-weight: 300;
     text-align: left;
@@ -723,18 +728,17 @@ cg-container {
     width: fit-content;
     height: fit-content;
     padding: 1vh;
-    background-color: rgb(255 255 255 / 10%);
     border-radius: 1vh;
-    font-size: 1.5vh;
+    font-size: 1.8vh;
     text-decoration: none;
-    color: white;
+    color: rgb(255 255 255 / 75%);
     cursor: pointer;
-    margin-bottom: 1vh;
     user-select: none;
+    margin-bottom: 3vh;
 }
 #see-supported-sites-btn:hover {
     background-color: rgb(255 255 255 / 20%);
-    transform: scale(1.05);
+    color: white;
 }
 .chess-site-link {
     width: fit-content;
@@ -742,9 +746,12 @@ cg-container {
     padding: 1vh;
     background-color: rgb(255 255 255 / 10%);
     border-radius: 1vh;
-    font-size: 1.5vh;
+    font-size: 1.8vh;
     text-decoration: none;
     color: white;
+}
+.popular-chess-site-link {
+    border: 0.3vh solid rgb(255 255 255 / 20%);
 }
 .chess-site-link:hover {
     background-color: rgb(255 255 255 / 20%);
@@ -758,7 +765,7 @@ cg-container {
     align-items: center;
     align-content: center;
     grid-gap: 1vh;
-    font-size: 1.6vh;
+    font-size: 1.8vh;
     margin-bottom: 0.5vh;
     font-weight: 200;
 }

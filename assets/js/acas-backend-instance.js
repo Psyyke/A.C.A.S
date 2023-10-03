@@ -747,7 +747,7 @@ class BackendInstance {
                 acasInstanceElem.innerHTML = `
                 <div class="highlight-indicator hidden"></div>
                 <div class="connection-warning hidden">
-                    <div class="connection-warning-title">Losing connection...</div>
+                    <div class="connection-warning-title">Losing connection</div>
                     <div class="connection-warning-subtitle">No messages from this instance for a while</div>
                 </div>
                 <div class="instance-header">
@@ -765,7 +765,7 @@ class BackendInstance {
                     }
                     </style>
                     <div class="instance-basic-info">
-                        <div class="instance-variant title="Instance Chess Variant">${variantText}</div>
+                        <div class="instance-variant" title="Instance Chess Variant">${variantText}</div>
                         <div class="instance-domain" title="Instance Domain">${this.domain}</div>
                         <div class="instance-fen" title="Instance Fen">${fen}</div>
                     </div>

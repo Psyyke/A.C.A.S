@@ -430,7 +430,7 @@ function initGUI() {
 
                 elem.onkeypress = event => allowOnlyNumbers(event);
 
-                elem.style.width = `${String(max).length - 0.2}vh`;
+                elem.style.width = `${String(max).length + 0.3}vh`;
             }
 
             elem.oninput = e => makeSettingChanges(e.target);
