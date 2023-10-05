@@ -31,6 +31,20 @@ const boardColorInput = document.querySelector('input[data-key="boardColorHex"]'
 const noInstancesSitesElem = document.querySelector('#no-instances-sites');
 const seeSupportedSitesBtn = document.querySelector('#see-supported-sites-btn');
 
+const userscriptInfoElem = document.querySelector('#userscript-info-small');
+
+if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
+    const GM_info = USERSCRIPT?.GM_info;
+
+    const platformData = Object.values(GM_info?.platform)?.join(' ');
+    const userscriptManagerData = [GM_info?.scriptHandler, GM_info?.version]?.join(' ');
+    const userscriptData = [GM_info?.script?.author, GM_info?.script?.version]?.join(' ');
+    
+    userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
+} else {
+    userscriptInfoElem?.remove();
+}
+
 seeSupportedSitesBtn.onclick = () => {
     noInstancesSitesElem.classList.toggle('hidden');
 }

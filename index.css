@@ -846,3 +846,11 @@ cg-container {
     background-color: #434bc4;
     border: 0.1vh solid rgb(110, 122, 255);
 }
+#userscript-info-small {
+    text-transform: capitalize;
+    text-align: center;
+    color: rgb(255 255 255 / 15%);
+    font-size: 1.25vh;
+    font-weight: 100;
+    margin: 1vh 1vh 0 1vh;
+}
