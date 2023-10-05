@@ -37,7 +37,7 @@ if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) 
     const GM_info = USERSCRIPT?.GM_info;
     const platform = GM_info?.platform || GM_info?.userAgentData || { 'platform': 'Unknown' };
 
-    const platformData = Object.values(platform)?.join(' ');
+    const platformData = objectToString(platform);
     const userscriptManagerData = [GM_info?.scriptHandler, GM_info?.version]?.join(' ');
     const userscriptData = [GM_info?.script?.author, GM_info?.script?.version]?.join(' ');
     

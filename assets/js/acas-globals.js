@@ -6,6 +6,28 @@ const log = {
     success: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67f08a;')
 };
 
+function objectToString(obj) {
+    const parts = [];
+
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            const value = obj[key];
+
+            if (Array.isArray(value)) {
+                const innerValues = value.map(item => objectToString(item)).join(', ');
+                parts.push(`${key}: ${innerValues}`);
+            } else if (typeof value === 'object' && value !== null) {
+                const innerObject = objectToString(value);
+                parts.push(`${key}: { ${innerObject} }`);
+            } else {
+                parts.push(`${key}: ${value}`);
+            }
+        }
+    }
+
+    return parts.join(', ');
+}
+
 const UciUtils = {
     separateMoveCodes: moveCode => {
         moveCode = moveCode.trim();
