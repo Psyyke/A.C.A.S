@@ -2642,8 +2642,6 @@ async function start() {
     CommLink.setIntervalAsync(async () => {
         await CommLink.commands.createInstance(commLinkInstanceID);
     }, 1000);
-
-    setInterval(() => console.log(isUserMouseDown), 500);
 }
 
 function startWhenBackendReady() {
