@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.1
+// @version     2.1.2
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -1062,7 +1062,7 @@ function getFen(onlyBasic) {
 
     function getBoardPiece(fenCoord) {
         const indexArr = chessCoordinatesToIndex(fenCoord);
-    
+
         return board?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
     }
 
@@ -1938,13 +1938,15 @@ addSupportedChessSite('immortal.game', {
     }
 });
 
+let chessarenacomLastProcessedFen = null;
+
 addSupportedChessSite('chessarena.com', {
     'boardElem': obj => {
-        return document.querySelector('cb-view');
+        return document.querySelector('cg-board');
     },
 
     'pieceElem': obj => {
-        return obj.boardQuerySelector('figure-view:not(.dead)');
+        return obj.boardQuerySelector('cg-piece:not(*[style*="visibility: hidden;"])');
     },
 
     'chessVariant': obj => {
@@ -1952,26 +1954,28 @@ addSupportedChessSite('chessarena.com', {
     },
 
     'boardOrientation': obj => {
-        const boardElem = getBoardElem();
+        const titlesElem = document.querySelector('cg-titles');
 
-        return boardElem?.classList?.contains('rotated') ? 'b' : 'w';
+        return titlesElem?.classList?.contains('rotated') ? 'b' : 'w';
     },
 
     'pieceElemFen': obj => {
         const pieceElem = obj.pieceElem;
 
-        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
-        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.values(pieceNameToFen).includes(className));
+        const pieceColor = pieceElem?.className?.[0];
+        const elemPieceName = pieceElem?.className?.[1];
 
         if(pieceColor && elemPieceName) {
-            return pieceColor === 'w' ? elemPieceName.toUpperCase() : elemPieceName.toLowerCase();
+            const pieceName = elemPieceName; // pieceNameToFen[elemPieceName]
+
+            return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
         }
     },
 
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        return getElemCoordinatesFromTransform(pieceElem, { 'onlyFlipY': true });
+        return getElemCoordinatesFromTransform(pieceElem);
     },
 
     'boardDimensions': obj => {
@@ -1979,9 +1983,17 @@ addSupportedChessSite('chessarena.com', {
     },
 
     'isMutationNewMove': obj => {
-        const mutationArr = obj.mutationArr;
+        const currentFen = instanceVars.fen.get(commLinkInstanceID);
 
-        return mutationArr.length >= 5;
+        if(currentFen !== chessarenacomLastProcessedFen) {
+            chessarenacomLastProcessedFen = currentFen;
+
+            const mutationArr = obj.mutationArr;
+
+            return mutationArr.length >= 2;
+        }
+
+        return false;
     },
 
     'turnFromMutation': obj => {
