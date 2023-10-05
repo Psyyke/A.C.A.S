@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.2
+// @version     2.1.3
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -285,6 +285,8 @@ let lastBoardSize = null;
 let lastPieceSize = null;
 
 let lastBoardOrientation = null;
+
+let isUserMouseDown = false;
 
 const supportedSites = {};
 
@@ -1697,6 +1699,10 @@ addSupportedChessSite('chess.org', {
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
+        if(isUserMouseDown) {
+            return false;
+        }
+
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
@@ -1754,6 +1760,10 @@ addSupportedChessSite('chess.coolmath-games.com', {
 
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
+
+        if(isUserMouseDown) {
+            return false;
+        }
 
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
@@ -1927,6 +1937,10 @@ addSupportedChessSite('immortal.game', {
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
+        if(isUserMouseDown) {
+            return false;
+        }
+
         return mutationArr.length >= 5;
     },
 
@@ -1937,8 +1951,6 @@ addSupportedChessSite('immortal.game', {
         return defaultTurnFromMutation(mutationArr);
     }
 });
-
-let chessarenacomLastProcessedFen = null;
 
 addSupportedChessSite('chessarena.com', {
     'boardElem': obj => {
@@ -1975,7 +1987,7 @@ addSupportedChessSite('chessarena.com', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        return getElemCoordinatesFromTransform(pieceElem);
+        return getElemCoordinatesFromTransform(pieceElem, { 'onlyFlipY': true });
     },
 
     'boardDimensions': obj => {
@@ -1983,17 +1995,13 @@ addSupportedChessSite('chessarena.com', {
     },
 
     'isMutationNewMove': obj => {
-        const currentFen = instanceVars.fen.get(commLinkInstanceID);
+        const mutationArr = obj.mutationArr;
 
-        if(currentFen !== chessarenacomLastProcessedFen) {
-            chessarenacomLastProcessedFen = currentFen;
-
-            const mutationArr = obj.mutationArr;
-
-            return mutationArr.length >= 2;
+        if(isUserMouseDown) {
+            return false;
         }
 
-        return false;
+        return mutationArr.find(m => m?.attributeName === 'style') ? true : false;
     },
 
     'turnFromMutation': obj => {
@@ -2245,6 +2253,10 @@ addSupportedChessSite('gameknot.com', {
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
+        if(isUserMouseDown) {
+            return false;
+        }
+
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
@@ -2353,6 +2365,10 @@ addSupportedChessSite('redhotpawn.com', {
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
+        if(isUserMouseDown) {
+            return false;
+        }
+
         return mutationArr.length >= 4;
     },
 
@@ -2437,6 +2453,10 @@ addSupportedChessSite('chessanytime.com', {
 
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
+
+        if(isUserMouseDown) {
+            return false;
+        }
 
         return mutationArr.length >= 7;
     },
@@ -2554,6 +2574,10 @@ addSupportedChessSite('chessfriends.com', {
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
+        if(isUserMouseDown) {
+            return false;
+        }
+
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
@@ -2618,6 +2642,8 @@ async function start() {
     CommLink.setIntervalAsync(async () => {
         await CommLink.commands.createInstance(commLinkInstanceID);
     }, 1000);
+
+    setInterval(() => console.log(isUserMouseDown), 500);
 }
 
 function startWhenBackendReady() {
@@ -2647,6 +2673,9 @@ function initializeIfSiteReady() {
 
     if(bothElemsExist && boardElemChanged) {
         chessBoardElem = boardElem;
+
+        chessBoardElem.addEventListener('mousedown', () => isUserMouseDown = true);
+        chessBoardElem.addEventListener('mouseup', () => isUserMouseDown = false);
 
         if(!blacklistedURLs.includes(window.location.href)) {
             startWhenBackendReady();
