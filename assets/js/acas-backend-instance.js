@@ -182,7 +182,6 @@ class BackendInstance {
 
                 const exactSameMoveDoesNotExist = typeof existingExactSameMoveObj !== 'object';
 
-
                 if(exactSameMoveDoesNotExist) {
                     const showOpponentMoveGuess = this.getConfigValue(this.configKeys.showOpponentMoveGuess);
                     const opponentMoveGuessExists = typeof opponentFrom == 'string';
@@ -741,6 +740,8 @@ class BackendInstance {
 
             const oldInstanceElem = this.instanceElem ? this.instanceElem : null;
 
+            // To avoid XSS do not put data from external sites directly inside the innerHTML string using templates!
+            // InstanceIdQuery, boardPieceDimensions and such are safe since they don't contain external data.
             const acasInstanceElem = document.createElement('div');
                 acasInstanceElem.classList.add('acas-instance');
                 acasInstanceElem.dataset.instanceId = this.instanceID;
@@ -765,22 +766,33 @@ class BackendInstance {
                     }
                     </style>
                     <div class="instance-basic-info">
-                        <div class="instance-variant" title="Instance Chess Variant">${variantText}</div>
-                        <div class="instance-domain" title="Instance Domain">${this.domain}</div>
-                        <div class="instance-fen" title="Instance Fen">${fen}</div>
+                        <div class="instance-variant" title="Instance Chess Variant"></div>
+                        <div class="instance-domain" title="Instance Domain"></div>
+                        <div class="instance-fen" title="Instance Fen"></div>
                     </div>
                     <div class="instance-misc">
                         <div class="instance-settings-btn no-select" title="Open Instance Settings">⚙️</div>
                         <div class="instance-info-text"></div>
                     </div>
                 </div>
-                <div class="chessboard-components ${chessFont}">
+                <div class="chessboard-components">
                     <div class="eval-bar">
                         <div class="eval-fill"></div>
                     </div>
                     <div class="chessground-x"></div>
                 </div>
                 `;
+
+            const instanceChessVariantElem = acasInstanceElem.querySelector('.instance-variant');
+            const instanceDomainElem = acasInstanceElem.querySelector('.instance-domain');
+            const instanceFenElem = acasInstanceElem.querySelector('.instance-fen');
+            const chessboardComponentsElem = acasInstanceElem.querySelector('.chessboard-components');
+
+            instanceChessVariantElem.innerText = variantText;
+            instanceDomainElem.innerText = this.domain;
+            instanceFenElem.innerText = fen;
+
+            chessboardComponentsElem.classList.add(chessFont);
 
             this.instanceElem = acasInstanceElem;
 
