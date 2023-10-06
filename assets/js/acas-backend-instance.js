@@ -54,7 +54,9 @@ class BackendInstance {
 
         this.searchDepth = null;
         
-        this.engineFinishedCalculation = false;
+        this.engineFinishedCalculation = null;
+        this.currentMovetimeTimeout = null;
+        this.newCalculationRequestBeforeLastEnded = false;
 
         this.pastMoveObjects = [];
         this.bestMoveMarkingElem = null;
@@ -334,7 +336,7 @@ class BackendInstance {
 
                         bestMoveMarked = true;
                     } else {
-                        console.log('Seconday move', markingObj);
+                        console.log('Secondary move', markingObj);
 
                         markingObj.playerArrowElem.style.cssText = this.arrowStyles.secondary;
                     }
@@ -562,6 +564,14 @@ class BackendInstance {
     }
 
     async calculateBestMoves(currentFen) {
+        if(this.engineFinishedCalculation === false) {
+            console.warn(`Engine didn't finish before the next best move request came, won't show the cancelled calculation results!`);
+            
+            this.newCalculationRequestBeforeLastEnded = true;
+
+            clearTimeout(this.currentMovetimeTimeout);
+        }
+
         this.engineFinishedCalculation = false;
 
         log.info(`Fen: "${currentFen}"`);
@@ -583,7 +593,7 @@ class BackendInstance {
             const movetime = this.getConfigValue(this.configKeys.maxMovetime);
 
             if(typeof movetime == 'number') {
-                setTimeout(() => {
+                this.currentMovetimeTimeout = setTimeout(() => {
                     if(movetime != 0 && !this.engineFinishedCalculation) {
                         console.log('Stopped');
 
@@ -653,26 +663,30 @@ class BackendInstance {
         }
 
         if(data?.bestmove) {
-            this.engineFinishedCalculation = true;
-
-            const onlyShowTopMoves = this.searchDepth && this.getConfigValue(this.configKeys.onlyShowTopMoves);
-
-            if(onlyShowTopMoves) {
-                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
-                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
-
-                const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
-
-                topMoveObjects.forEach(moveObj => {
+            if(!this.newCalculationRequestBeforeLastEnded) {
+                this.engineFinishedCalculation = true;
+    
+                const onlyShowTopMoves = this.searchDepth && this.getConfigValue(this.configKeys.onlyShowTopMoves);
+    
+                if(onlyShowTopMoves) {
+                    const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+                    const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
+    
+                    const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
+    
+                    topMoveObjects.forEach(moveObj => {
                         this.Interface.boardUtils.markMove(moveObj);
     
                         if(displayMovesExternally) {
                             this.CommLink.commands.markMoveToSite(moveObj);
                         }
-                });
+                    });
+                }
+    
+                this.pastMoveObjects = [];
+            } else {
+                this.newCalculationRequestBeforeLastEnded = false;
             }
-
-            this.pastMoveObjects = [];
         }
 
         const variantStartposFen = data['Fen:'];
