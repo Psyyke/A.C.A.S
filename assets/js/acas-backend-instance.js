@@ -650,10 +650,13 @@ class BackendInstance {
 
             this.pastMoveObjects.push(moveObj);
 
-            const onlyShowTopMoves = this.searchDepth && this.getConfigValue(this.configKeys.onlyShowTopMoves);
+            const isMovetimeLimited = this.getConfigValue(this.configKeys.maxMovetime) ? true : false;
+            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves);
             const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+            
+            const isSearchInfinite = this.searchDepth ? false : true;
 
-            if(!onlyShowTopMoves) { // this.isPlayerTurn()
+            if(!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited)) {
                 this.Interface.boardUtils.markMove(moveObj);
 
                 if(displayMovesExternally) {
@@ -666,22 +669,18 @@ class BackendInstance {
             if(!this.newCalculationRequestBeforeLastEnded) {
                 this.engineFinishedCalculation = true;
     
-                const onlyShowTopMoves = this.searchDepth && this.getConfigValue(this.configKeys.onlyShowTopMoves);
-    
-                if(onlyShowTopMoves) {
-                    const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
-                    const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
-    
-                    const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
-    
-                    topMoveObjects.forEach(moveObj => {
-                        this.Interface.boardUtils.markMove(moveObj);
-    
-                        if(displayMovesExternally) {
-                            this.CommLink.commands.markMoveToSite(moveObj);
-                        }
-                    });
-                }
+                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
+
+                const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
+
+                topMoveObjects.forEach(moveObj => {
+                    this.Interface.boardUtils.markMove(moveObj);
+
+                    if(displayMovesExternally) {
+                        this.CommLink.commands.markMoveToSite(moveObj);
+                    }
+                });
     
                 this.pastMoveObjects = [];
             } else {
