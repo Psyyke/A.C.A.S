@@ -19,15 +19,31 @@
     width: fit-content;
     margin-bottom: 0.5vh;
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
     position: relative;
-    padding: 1vh 1vh 1vh 0;
     overflow: hidden;
-    background: linear-gradient(to bottom right, rgb(255 255 255 / 90%), rgb(211 211 211 / 70%));
     backdrop-filter: blur(0.3vh);
     -webkit-backdrop-filter: blur(0.3vh);
     pointer-events: all;
+    box-shadow: 0.5vh 0.5vh 0.5vh 0.5vh rgb(0 0 0 / 20%);
+}
+.acas-toast-top-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1vh 1vh 1vh 0;
+    background: linear-gradient(to bottom right, rgb(255 255 255), rgb(255 255 255 / 50%));
+}
+.acas-toast-bottom-container {
+    height: 0.5vh;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.35);
+}
+.acas-toast-progress-bar {
+    width: 0;
+    height: inherit;
+    background-color: rgb(255 255 255 / 75%);
+    transition: width 0.5s ease;
 }
 .acas-toast-close-btn {
     width: 1vh;
@@ -39,7 +55,7 @@
     cursor: pointer;
     position: absolute;
     top: 0;
-    bottom: 0;
+    bottom: 0.5vh;
     font-size: 2.5vh;
     font-stretch: semi-expanded;
     font-weight: 600;
@@ -56,8 +72,8 @@
     align-items: center;
 }
 .acas-toast-content {
-    text-align: center;
-    font-size: 1.8vh;
+    text-align: left;
+    font-size: 1.7vh;
 }
 .acas-toast:hover .acas-toast-close-btn {
     color: white;
