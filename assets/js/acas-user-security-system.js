@@ -1,32 +1,34 @@
 // DETECT EXCESSIVE TAB SWITCHING
 (() => {
-    let tabSwitchCount = 0;
-    const tabSwitchThreshold = 5;
+    const tabSwitchThreshold = 4;
     const tabSwitchTimeout = 10000;
 
+    let tabSwitchCount = 0;
     let lastSwitchTime = Date.now();
 
-    if (typeof document.hidden !== "undefined") {
-          const handleVisibilityChange = function () {
-              if (document.hidden) {
-                  const currentTime = Date.now();
+    if(typeof document.hidden !== "undefined") {
+        function handleVisibilityChange() {
+            if(document.hidden) {
+                const currentTime = Date.now();
 
-                  const timeElapsed = currentTime - lastSwitchTime;
+                const timeElapsed = currentTime - lastSwitchTime;
 
-                  if (timeElapsed >= tabSwitchTimeout) {
-                      tabSwitchCount = 0;
-                  }
+                if (timeElapsed >= tabSwitchTimeout) {
+                    tabSwitchCount = 0;
+                }
 
-                  tabSwitchCount++;
+                tabSwitchCount++;
 
-                  if (tabSwitchCount >= tabSwitchThreshold) {
-                      toast.warning("Warning: Excessive tab switching detected.\n\nSwitching tabs constantly flags you as suspicious. Continued switching may and will result in a ban."
-                      + "\n\nPlease make two separate windows and set them up side by side, OR display moves on the page (however it is detectable).", 15000);
-                  }
+                if (tabSwitchCount >= tabSwitchThreshold) {
+                    tabSwitchCount = 0;
 
-                  lastSwitchTime = currentTime;
-              }
-        };
+                    toast.warning("Warning: Excessive tab switching detected. Continued switching may result in a ban."
+                    + "\n\nTo avoid needing to switch between tabs, do one of the following,\n- Make two separate windows side by side\n- Display moves on the page (this is easily detectable)", 25000);
+                }
+
+                lastSwitchTime = currentTime;
+            }
+        }
 
         document.addEventListener("visibilitychange", handleVisibilityChange, false);
     }
