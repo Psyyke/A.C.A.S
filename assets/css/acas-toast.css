@@ -35,15 +35,18 @@
     background: linear-gradient(to bottom right, rgb(255 255 255), rgb(255 255 255 / 50%));
 }
 .acas-toast-bottom-container {
-    height: 0.5vh;
+    height: 0.6vh;
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.35);
+    display: flex;
+    align-items: center;
 }
 .acas-toast-progress-bar {
-    width: 0;
-    height: inherit;
+    height: 0.4vh;
     background-color: rgb(255 255 255 / 75%);
     transition: width 0.5s ease;
+    border-radius: 1vh;
+    margin-top: 0.2vh;
+    margin-bottom: 0.2vh;
 }
 .acas-toast-close-btn {
     width: 1vh;
@@ -55,7 +58,7 @@
     cursor: pointer;
     position: absolute;
     top: 0;
-    bottom: 0.5vh;
+    bottom: 0.6vh;
     font-size: 2.5vh;
     font-stretch: semi-expanded;
     font-weight: 600;

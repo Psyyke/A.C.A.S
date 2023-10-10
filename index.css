@@ -72,6 +72,7 @@ cg-container {
     display: flex;
     justify-content: space-between;
     z-index: 5;
+    border-bottom: 0.2vh solid rgb(255 255 255 / 30%);
 }
 #acas-logo {
     font-size: 3vh;
@@ -124,13 +125,12 @@ cg-container {
     height: fit-content;
     position: relative;
     flex-direction: column;
-    border: 0.3vh solid rgb(255 255 255 / 5%);
     border-radius: 0.5vh;
     transition: all 150ms ease;
     z-index: 10;
+    border: 0.2vh solid rgb(255 255 255 / 25%);
 }
 #acas-instance-container {
-    padding: 1vh;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -140,6 +140,8 @@ cg-container {
     background-repeat: no-repeat;
     background-position: bottom;
     background-color: rgba(0, 0, 0, 0.3);
+    padding: 1vh;
+    grid-gap: 1vh;
 }
 .chessboard-components {
     position: relative;
@@ -225,6 +227,7 @@ cg-container {
     align-content: center;
     justify-content: center;
     align-items: center;
+    border: 0.2vh solid rgb(255 255 255 / 15%);
 }
 .instance-settings-btn:hover {
     transform: scale(1.1);
@@ -500,6 +503,8 @@ cg-container {
     backdrop-filter: blur(0.2vh);
     flex-grow: 1;
     z-index: 10;
+    border-bottom: 0.2vh solid rgb(255 255 255 / 4%);
+    border-top: 0.2vh solid rgb(255 255 255 / 25%);
 }
 #settings-navbar {
     width: fit-content;
@@ -511,7 +516,7 @@ cg-container {
     color: white;
     font-size: 1.7vh;
     text-align: center;
-    border: 0.25vh solid rgb(255 255 255 / 15%);
+    border: 0.2vh solid rgb(255 255 255 / 15%);
     padding: 0.1vh;
 }
 #settings-navbar-subtitle {
@@ -535,6 +540,7 @@ cg-container {
 #settings-control-panel {
     display: flex;
     flex-direction: row;
+    
 }
 #settings-control-panel > *:not(:last-child) {
     margin-right: 0.5vh;
@@ -549,6 +555,7 @@ cg-container {
     align-content: center;
     justify-content: center;
     align-items: center;
+    border: 0.2vh solid rgb(255 255 255 / 15%);
 }
 #settings-control-panel .control-panel-btn:hover {
     transform: scale(1.1);
@@ -588,6 +595,7 @@ cg-container {
     background-color: rgb(0 0 0 / 20%);
     border-radius: 0.5vh;
     padding: 1vh;
+    border: 0.2vh solid rgb(255 255 255 / 10%);
 }
 .setting-panel > *:not(:last-child) {
     margin-bottom: 1vh;
@@ -740,6 +748,7 @@ cg-container {
     cursor: pointer;
     user-select: none;
     margin-bottom: 3vh;
+    border: 0.2vh solid rgb(255 255 255 / 15%);
 }
 #see-supported-sites-btn:hover {
     background-color: rgb(255 255 255 / 20%);
@@ -756,7 +765,7 @@ cg-container {
     color: white;
 }
 .popular-chess-site-link {
-    border: 0.3vh solid rgb(255 255 255 / 20%);
+    border: 0.2vh solid rgb(255 255 255 / 15%);
 }
 .chess-site-link:hover {
     background-color: rgb(255 255 255 / 20%);
@@ -777,7 +786,8 @@ cg-container {
 .footer-link {
     text-decoration: none;
     text-transform: uppercase;
-    color: rgb(255 255 255 / 10%);
+    color: rgb(255 255 255 / 20%);
+    text-decoration: underline;
 }
 .footer-link:hover {
     text-decoration: underline;

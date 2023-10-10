@@ -21,7 +21,7 @@ const toast = {
         function triggerFadeOut() {
             toastElem.style.animation = `fadeout ${fadeTime / 1000}s forwards`;
 
-            setTimeout(toastElem.remove, fadeTime);
+            setTimeout(() => toastElem.remove(), fadeTime);
         }
 
         const toastTopContainer = document.createElement('div');
@@ -91,14 +91,14 @@ const toast = {
             if(isHovered)
                 return;
 
-            if(toastTotalDuration <= elapsedTime) {
+            if(toastTotalDuration + fadeTime <= elapsedTime) {
                 clearInterval(customTimeout);
 
                 triggerFadeOut();
             } else {
                 elapsedTime = elapsedTime + intervalRate;
 
-                const progressPercent = `${Math.ceil((elapsedTime + (fadeTime * 2))/toastTotalDuration * 100)}%`;
+                const progressPercent = `${Math.ceil(elapsedTime/toastTotalDuration * 100)}%`;
 
                 progressBarElem.style.width = progressPercent;
             }
