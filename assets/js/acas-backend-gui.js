@@ -40,6 +40,8 @@ if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) 
     const platformData = objectToString(platform);
     const userscriptManagerData = [GM_info?.scriptHandler, GM_info?.version]?.join(' ');
     const userscriptData = [GM_info?.script?.author, GM_info?.script?.version]?.join(' ');
+
+    document.title = `A.C.A.S (Using ${userscriptData})`;
     
     userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
 } else {
