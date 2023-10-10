@@ -101,7 +101,7 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 
 * [Fairy Stockfish WASM](https://github.com/fairy-stockfish/fairy-stockfish.wasm) (*the chess engine of A.C.A.S*)
 * [COI-Serviceworker](https://github.com/gzuidhof/coi-serviceworker) (*allowing WASM on GitHub pages, extremely important library*)
-* [HackTimer](https://github.com/turuslan/HackTimer) (*bypasses browser timer throttling, making the GUI work on background much better, often without freezing*)
+* [HackTimer](https://github.com/turuslan/HackTimer) (*bypasses browser timer throttling, it's questionable if this does anything, but it doesn't hurt to have it for now*)
 * [ChessgroundX](https://github.com/gbtami/chessgroundx) (*for displaying a board on the GUI. Modified the library a bit*)
 * [FileSaver](http://purl.eligrey.com/github/FileSaver.js) (*for saving the config file*)
 
