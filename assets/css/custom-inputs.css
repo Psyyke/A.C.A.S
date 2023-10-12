@@ -25,6 +25,14 @@ input:focus { outline:none!important; }
     font-weight: 300;
     margin-bottom: 0.25vh;
 }
+.input-subtitle {
+    font-size: 1.2vh;
+    color: rgb(255 255 255 / 25%);
+    font-weight: 300;
+}
+.input-subtitle a {
+    color: rgb(255 255 255 / 30%);
+}
 
 /* Textarea */
 .textfield-input input {

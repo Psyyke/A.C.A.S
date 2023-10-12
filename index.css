@@ -9,8 +9,8 @@
     #settings-panels {
         flex-direction: column !important;
     }
-    .custom-input {
-        justify-content: space-between !important;
+    .setting-panel {
+        max-width: none !important;
     }
 }
 body {
@@ -598,6 +598,7 @@ cg-container {
     border-radius: 0.5vh;
     padding: 1vh;
     border: 0.3vh solid rgb(255 255 255 / 10%);
+    max-width: 30vh;
 }
 .setting-panel > *:not(:last-child) {
     margin-bottom: 1vh;
