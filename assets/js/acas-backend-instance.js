@@ -562,13 +562,15 @@ class BackendInstance {
 
             const speechConfig = {
                 pitch: 1,
-                rate: 1.25,
+                rate: 1.5,
                 volume: 1
             };
 
             if(ttsVoiceName?.toLowerCase() != 'default') {
                 speechConfig.voiceName = ttsVoiceName;
             }
+
+            console.log(`Speaking: ${spokenText} (Instance "${this.instanceID}")`);
 
             this.currentSpeeches.push(speakText(spokenText, speechConfig));
         }
@@ -707,9 +709,9 @@ class BackendInstance {
                 topMoveObjects.forEach(moveObj => {
                     this.Interface.boardUtils.markMove(moveObj);
 
-                    const [from, to] = moveObj.player;
-
-                    const spokenText = from + to;
+                    const spokenText = moveObj.player?.map(x =>
+                        x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
+                    ).join(', ');
 
                     this.speak(spokenText);
 
