@@ -28,26 +28,53 @@ function objectToString(obj) {
     return parts.join(', ');
 }
 
-const UciUtils = {
-    separateMoveCodes: moveCode => {
-        moveCode = moveCode.trim();
+function speakText(text, config = {}) {
+    const speechConfig = {
+        pitch: config.pitch || 1, // [0, 2]
+        rate: config.rate || 1, // [0.1, 10]
+        volume: config.volume || 1, // [0, 1]
+        voiceName: config.voiceName || undefined,
+    };
+  
+    if('speechSynthesis' in window) {
+        const synthesis = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(text);
 
-        let move = moveCode.split(' ').pop();
+        utterance.pitch = speechConfig.pitch;
+        utterance.rate = speechConfig.rate;
+        utterance.volume = speechConfig.volume;
 
-        return [move.slice(0,2), move.slice(2,4)];
-    },
-    extractInfo: str => {
-        const keys = ['time', 'nps', 'depth'];
+        if(speechConfig.voiceName) {
+            const voices = synthesis.getVoices();
+            const selectedVoice = voices.find(voice => voice.name === speechConfig.voiceName);
 
-        return keys.reduce((acc, key) => {
-            const match = str.match(`${key} (\\d+)`);
+            if(selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                toast.error('TTS voice not found!');
 
-            if (match) {
-                acc[key] = Number(match[1]);
+                return;
             }
+        }
 
-            return acc;
-        }, {});
+        synthesis.speak(utterance);
+
+        return synthesis;
+    } else {
+        toast.error('Web Speech API is not supported in this browser!');
+    }
+}
+
+function getAvailableTTSVoices() {
+    if ('speechSynthesis' in window) {
+        const synthesis = window.speechSynthesis;
+        const voices = synthesis.getVoices();
+
+        const voiceNames = voices.map(voice => voice.name);
+
+        return voiceNames;
+    } else {
+        return ['Default'];
     }
 }
 

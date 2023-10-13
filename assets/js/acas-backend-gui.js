@@ -31,6 +31,8 @@ const boardColorInput = document.querySelector('input[data-key="boardColorHex"]'
 const noInstancesSitesElem = document.querySelector('#no-instances-sites');
 const seeSupportedSitesBtn = document.querySelector('#see-supported-sites-btn');
 
+const ttsNameDropdownElem = document.querySelector('#tts-name-dropdown');
+
 const userscriptInfoElem = document.querySelector('#userscript-info-small');
 
 if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
@@ -138,6 +140,26 @@ function fillChessVariantDropdowns(arr) {
         });
 }
 
+function fillTTSVoiceNameDropdown() {
+    const ttsVoices = getAvailableTTSVoices();
+
+    if(ttsVoices?.length === 0) {
+        return false;
+    }
+
+    ttsVoices.forEach(x => addDropdownItem(ttsNameDropdownElem, x));
+
+    return true;
+}
+
+const waitForTTSVoices = setInterval(() => {
+    const res = fillTTSVoiceNameDropdown();
+
+    if(res) {
+        clearInterval(waitForTTSVoices);
+    }
+}, 100);
+
 function getInputValue(elem) {
     let value = elem.value;
 
@@ -192,6 +214,13 @@ function makeSettingChanges(inputElem) {
 
             console.log('[Setting Handler] Set background image blur to', value || 'nothing');
 
+            break;
+        case 'ttsVoiceEnabled':
+            if(value) {
+                ttsNameDropdownElem.classList.remove('disabled-input');
+            } else {
+                ttsNameDropdownElem.classList.add('disabled-input');
+            }
             break;
     }
 }

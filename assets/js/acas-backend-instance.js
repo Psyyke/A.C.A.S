@@ -12,7 +12,9 @@ class BackendInstance {
             'chessVariant': 'chessVariant',
             'chessFont': 'chessFont',
             'useChess960': 'useChess960',
-            'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn'
+            'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
+            'ttsVoiceEnabled': 'ttsVoiceEnabled',
+            'ttsVoiceName': 'ttsVoiceName'
         };
 
         this.config = {};
@@ -63,6 +65,8 @@ class BackendInstance {
         this.activeGuiMoveMarkings = [];
         this.inactiveGuiMoveMarkings = [];
         this.unprocessedPackets = [];
+
+        this.currentSpeeches = [];
 
         this.arrowStyles = {
             'best': `
@@ -537,6 +541,9 @@ class BackendInstance {
 
         this.engineStopCalculating();
 
+        this.currentSpeeches.forEach(synthesis => synthesis.cancel());
+        this.currentSpeeches = [];
+
         // Not sure if 'ucinewgame' resets variants or other settings, so disabling this for now.
         // Missing the 'ucinewgame' after each match shouldn't have any negative effects.
         /*
@@ -546,6 +553,26 @@ class BackendInstance {
             this.engine.postMessage('ucinewgame');
         }*/
     }
+
+    speak(spokenText, speechConfig) {
+        const isTTSEnabled = this.getConfigValue(this.configKeys.ttsVoiceEnabled);
+
+        if(isTTSEnabled) {
+            const ttsVoiceName = this.getConfigValue(this.configKeys.ttsVoiceName);
+
+            const speechConfig = {
+                pitch: 1,
+                rate: 1.25,
+                volume: 1
+            };
+
+            if(ttsVoiceName?.toLowerCase() != 'default') {
+                speechConfig.voiceName = ttsVoiceName;
+            }
+
+            this.currentSpeeches.push(speakText(spokenText, speechConfig));
+        }
+    } 
 
     updateSettings() {
         const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant));
@@ -622,10 +649,13 @@ class BackendInstance {
         if(msg.includes('info')) {
             if(data?.multipv == 1) {
                 if(data?.depth) {
-                    if(data?.mate)
-                        this.Interface.updateMoveProgress(`${data.mate > 0 ? 'Win' : 'Lose'} in ${Math.abs(data.mate)} | Depth ${data.depth}`);
-                    else
+                    if(data?.mate) {
+                        const mateText = `${data.mate > 0 ? 'Win' : 'Lose'} in ${Math.abs(data.mate)}`;
+
+                        this.Interface.updateMoveProgress(`${mateText} | Depth ${data.depth}`);
+                    } else {
                         this.Interface.updateMoveProgress(`Depth ${data.depth}`);
+                    }
                 }
     
                 if(data?.cp)
@@ -676,6 +706,12 @@ class BackendInstance {
 
                 topMoveObjects.forEach(moveObj => {
                     this.Interface.boardUtils.markMove(moveObj);
+
+                    const [from, to] = moveObj.player;
+
+                    const spokenText = from + to;
+
+                    this.speak(spokenText);
 
                     if(displayMovesExternally) {
                         this.CommLink.commands.markMoveToSite(moveObj);
