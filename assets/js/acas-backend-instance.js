@@ -14,7 +14,8 @@ class BackendInstance {
             'useChess960': 'useChess960',
             'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
             'ttsVoiceEnabled': 'ttsVoiceEnabled',
-            'ttsVoiceName': 'ttsVoiceName'
+            'ttsVoiceName': 'ttsVoiceName',
+            'ttsVoiceSpeed': 'ttsVoiceSpeed'
         };
 
         this.config = {};
@@ -559,10 +560,11 @@ class BackendInstance {
 
         if(isTTSEnabled) {
             const ttsVoiceName = this.getConfigValue(this.configKeys.ttsVoiceName);
+            const ttsVoiceSpeed = this.getConfigValue(this.configKeys.ttsVoiceSpeed);
 
             const speechConfig = {
+                rate: ttsVoiceSpeed / 10,
                 pitch: 1,
-                rate: 1.5,
                 volume: 1
             };
 
