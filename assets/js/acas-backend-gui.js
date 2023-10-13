@@ -32,6 +32,7 @@ const noInstancesSitesElem = document.querySelector('#no-instances-sites');
 const seeSupportedSitesBtn = document.querySelector('#see-supported-sites-btn');
 
 const ttsNameDropdownElem = document.querySelector('#tts-name-dropdown');
+const ttsSpeedRangeElem = document.querySelector('#tts-speed-range');
 
 const userscriptInfoElem = document.querySelector('#userscript-info-small');
 
@@ -218,8 +219,10 @@ function makeSettingChanges(inputElem) {
         case 'ttsVoiceEnabled':
             if(value) {
                 ttsNameDropdownElem.classList.remove('disabled-input');
+                ttsSpeedRangeElem.classList.remove('disabled-input');
             } else {
                 ttsNameDropdownElem.classList.add('disabled-input');
+                ttsSpeedRangeElem.classList.add('disabled-input');
             }
             break;
     }
