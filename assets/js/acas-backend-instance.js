@@ -128,7 +128,7 @@ class BackendInstance {
 
             switch(msg.type) {
                 case 'settingSave':
-                    this.updateSettings();
+                    this.updateSettings(msg);
                     break;
             }
         };
@@ -421,9 +421,9 @@ class BackendInstance {
         },
     };
 
-    setEngineElo(elo) {
+    setEngineElo(elo, didUserUpdateSetting) {
         if(typeof elo == 'number') {
-            const limitStrength = 0 < elo && elo <= 2500;
+            const limitStrength = 0 < elo && elo <= 2600;
 
             this.engine.postMessage(`setoption name UCI_Elo value ${elo}`);
 
@@ -436,21 +436,24 @@ class BackendInstance {
                 const depth = getDepthFromElo(elo);
                 this.searchDepth = depth;
 
-                console.warn(`Engine skill limited (UCI_Elo: ${elo} | Skill Level: ${skillLevel} | Search Depth: ${depth})`);
+                if(didUserUpdateSetting)
+                    toast.message(`Engine skill level ${skillLevel}, search depth ${depth}`, 8000);
             } else {
                 this.setEngineLimitStrength(false);
 
                 this.setEngineSkillLevel(20);
 
-                if(elo !== 3000) {
+                if(elo !== 3200) {
                     const depth = getDepthFromElo(elo);
                     this.searchDepth = depth;
 
-                    console.warn(`Engine skill limited to search depth (UCI_Elo: ${elo} | Search Depth: ${depth})`);
+                    if(didUserUpdateSetting)
+                        toast.message(`Engine not limited in strength, search depth ${depth}`, 8000);
                 } else {
                     this.searchDepth = null;
 
-                    console.warn(`Engine has no skill limitation! Running full power.`);
+                    if(didUserUpdateSetting)
+                        toast.message(`Engine has no strength limitations, running infinite depth!`, 8000);
                 }
             }
         }
@@ -578,19 +581,36 @@ class BackendInstance {
         }
     } 
 
-    updateSettings() {
+    updateSettings(updateObj) {
+        function findSettingKeyFromData(key) {
+            return Object.values(updateObj?.data)?.includes(key);
+        }
+
+        const didUpdateVariant = findSettingKeyFromData(this.configKeys.chessVariant);
+        const didUpdateElo = findSettingKeyFromData(this.configKeys.engineElo);
+        const didUpdateChessFont = findSettingKeyFromData(this.configKeys.chessFont);
+        const didUpdateMultiPV = findSettingKeyFromData(this.configKeys.moveSuggestionAmount);
+        const didUpdate960Mode = findSettingKeyFromData(this.configKeys.useChess960);
+
         const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant));
         const useChess960 = this.getConfigValue(this.configKeys.useChess960);
 
-        if(chessVariant != this.chessVariant || useChess960 != this.useChess960) {
+        if(didUpdateVariant || didUpdate960Mode) {
             this.set960Mode(useChess960);
 
-            this.engineStartNewGame(chessVariant);
+            this.engineStartNewGame(didUpdateVariant ? chessVariant : this.chessVariant);
         } else {
-            this.setChessFont(this.getConfigValue(this.configKeys.chessFont));
-            this.setEngineElo(this.getConfigValue(this.configKeys.engineElo));
-            this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount));
-            this.set960Mode(useChess960);
+            if(didUpdateChessFont)
+                this.setChessFont(this.getConfigValue(this.configKeys.chessFont));
+
+            if(didUpdateElo)
+                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo), true);
+
+            if(didUpdateMultiPV)
+                this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount));
+
+            if(didUpdate960Mode)
+                this.set960Mode(useChess960);
         }
     }
 

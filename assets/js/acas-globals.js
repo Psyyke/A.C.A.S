@@ -83,6 +83,8 @@ function getSkillLevelFromElo(elo) {
         return -20;
     } else if (elo >= 2850) {
         return 19;
+    } else if (elo >= 2900) {
+        return 20;
     } else {
         const range = (elo - 500) / (2850 - 500);
 
@@ -92,11 +94,11 @@ function getSkillLevelFromElo(elo) {
 
 // maybe should start using math to calculate it... oh well
 function getDepthFromElo(elo) {
-    return elo >= 2970 ? 18
-    : elo >= 2950 ? 15
+    return elo >= 3100 ? 18
+    : elo >= 3000 ? 16
     : elo >= 2900 ? 14
-    : elo >= 2800 ? 11
-    : elo >= 2700 ? 9
+    : elo >= 2800 ? 12
+    : elo >= 2700 ? 10
     : elo >= 2600 ? 8
     : elo >= 2400 ? 7
     : elo >= 2200 ? 6
