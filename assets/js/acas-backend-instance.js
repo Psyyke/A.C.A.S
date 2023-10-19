@@ -844,7 +844,7 @@ class BackendInstance {
                         <div class="instance-fen" title="Instance Fen"></div>
                     </div>
                     <div class="instance-misc">
-                        <div class="instance-settings-btn no-select" title="Open Instance Settings">⚙️</div>
+                        <div class="instance-settings-btn acas-fancy-button" title="Open Instance Settings">⚙️</div>
                         <div class="instance-info-text"></div>
                     </div>
                 </div>
@@ -855,6 +855,8 @@ class BackendInstance {
                     <div class="chessground-x"></div>
                 </div>
                 `;
+
+            acasInstanceElem.style.width = `${Number(localStorage.getItem('instanceSize')) * Number(localStorage.getItem('boardSizeModifier'))}px`;
 
             const instanceChessVariantElem = acasInstanceElem.querySelector('.instance-variant');
             const instanceDomainElem = acasInstanceElem.querySelector('.instance-domain');

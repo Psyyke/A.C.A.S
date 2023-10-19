@@ -11,45 +11,45 @@
     pointer-events: none;
 }
 .acas-toast {
-    min-width: 25vh;
+    min-width: 250px;
     max-width: 50%;
     color: #000;
-    border-radius: 0.5vh;
+    border-radius: 5px;
     z-index: 9999999999;
     width: fit-content;
-    margin-bottom: 0.5vh;
+    margin-bottom: 5px;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(0.3vh);
-    -webkit-backdrop-filter: blur(0.3vh);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     pointer-events: all;
-    box-shadow: 0.5vh 0.5vh 0.5vh 0.5vh rgb(0 0 0 / 20%);
+    box-shadow: 5px 5px 5px 5px rgb(0 0 0 / 20%);
 }
 .acas-toast-top-container {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 1vh 1vh 1vh 0;
+    padding: 10px 10px 10px 0;
     background: linear-gradient(to bottom right, rgb(255 255 255), rgb(255 255 255 / 50%));
 }
 .acas-toast-bottom-container {
-    height: 0.6vh;
+    height: 6px;
     width: 100%;
     display: flex;
     align-items: center;
 }
 .acas-toast-progress-bar {
-    height: 0.4vh;
+    height: 4px;
     background-color: rgb(255 255 255 / 75%);
     transition: width 0.5s ease;
-    border-radius: 1vh;
-    margin-top: 0.2vh;
-    margin-bottom: 0.2vh;
+    border-radius: 10px;
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
 .acas-toast-close-btn {
-    width: 1vh;
+    width: 10px;
     background-color: grey;
     transition: all 0.25s;
     display: flex;
@@ -58,29 +58,29 @@
     cursor: pointer;
     position: absolute;
     top: 0;
-    bottom: 0.6vh;
-    font-size: 2.5vh;
+    bottom: 6px;
+    font-size: 25px;
     font-stretch: semi-expanded;
     font-weight: 600;
     color: transparent;
 }
 .acas-toast-icon {
-    font-size: 2.5vh;
-    margin-left: 1.8vh;
-    margin-right: 1vh;
-    width: 3vh;
-    height: 3vh;
+    font-size: 25px;
+    margin-left: 18px;
+    margin-right: 10px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-content: center;
     align-items: center;
 }
 .acas-toast-content {
     text-align: left;
-    font-size: 1.7vh;
+    font-size: 17px;
 }
 .acas-toast:hover .acas-toast-close-btn {
     color: white;
-    width: 5vh;
+    width: 50px;
 }
 .acas-toast-success {
     background-color: #35b334;
@@ -98,39 +98,39 @@
     from {
         margin-bottom: -50px;
         opacity: 0;
-    }
+   }
     to {
         margin-bottom: 5px;
         opacity: 1;
-    }
+   }
 }
 @keyframes fadein {
     from {
         margin-bottom: -50px;
         opacity: 0;
-    }
+   }
     to {
         margin-bottom: 5px;
         opacity: 1;
-    }
+   }
 }
 @-webkit-keyframes fadeout {
     from {
         margin-bottom: 5px;
         opacity: 1;
-    }
+   }
     to {
         margin-bottom: -50px;
         opacity: 0;
-    }
+   }
 }
 @keyframes fadeout {
     from {
         margin-bottom: 5px;
         opacity: 1;
-    }
+   }
     to {
         margin-bottom: -50px;
         opacity: 0;
-    }
+   }
 }

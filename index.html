@@ -7,6 +7,7 @@
 		<meta name="keywords" content="chess cheat, chess engine, chess assistance, online chess tools, chess.com cheat, lichess.org cheat, pychess.org cheat">
 		<meta property="og:title" content="A.C.A.S - Advanced Chess Assistance System">
 		<meta property="og:description" content="Advanced Chess Assistance System (Chess Cheat) for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported.">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="coi-serviceworker.js"></script>
 		<script src="assets/libraries/HackTimer/HackTimer.js"></script>
 		<script src="assets/js/acas-globals.js"></script>
@@ -39,35 +40,22 @@
 				You're fully equipped to explore and enjoy all the features and benefits that A.C.A.S brings to the table. Whether it's assistance, engagement, or a touch of fun you're seeking, A.C.A.S is here to serve you.
 				</div>
 				<div class="tos-checkbox-container">
-					<label class="thos-checkbox-label">
+					<label class="tos-checkbox-label">
 						<input type="checkbox" id="tos-checkbox"/>
 						<span>I have read and agree to the <a href="tos" class="tos-link" target="_about">Terms of Service</a>.</span>
 					</label>
 				</div>
-				<button id="tos-continue-button" disabled>Kickstart A.C.A.S</button>
+				<button id="tos-continue-button" class="acas-fancy-button" disabled>Kickstart A.C.A.S</button>
 				<div class="tos-footer-small">By using A.C.A.S, you confirm that you have read, understood, and agree to abide by the TOS.</div>
 			</div>
 		</div>
 
-		<!-- INSTALL NOTIFICATION CONTAINER-->
-		<div id="install-notification-container" class="hidden">
-			<div id="install-notification">
-				<!-- Introduction -->
-				<div id="install-title">NO USERSCRIPT DETECTED (╥﹏╥)</div>
-				<div class="install-description">A.C.A.S is devastated without its userscript buddy. It's refusing to function, feeling utterly abandoned and longing for a purpose it can't fulfill. Oh, the poignant loneliness it experiences, navigating through the vast digital ocean, pining for the script that would steer it towards the shores of engagement and functionality.<br><br>So, pretty please, with a tear in our eye, install or enable the userscript and bring joy back to our melancholic A.C.A.S. Let's mend its shattered circuits and restore our collective happiness.</div>
-				<!-- Userscript Manager -->
-				<div id="install-manager-container">
-					<div class="install-subtitle">#1 Install a userscript manager</div>
-					<div class="install-description-small">If you already have a userscript manager, you can skip this :)</div>
-					<a href="https://violentmonkey.github.io/get-it/" class="install-notification-btn violentmonkey-btn" target="_about">Get Violentmonkey</a>
-				</div>
-				<!-- Userscript -->
-				<div id="install-userscript-container">
-					<div class="install-subtitle">#2 Install the userscript</div>
-					<div class="install-description-small">Make sure you have a userscript manager before installing the userscript!</div>
-					<a href="https://github.com/Hakorr/A.C.A.S/raw/main/acas.user.js" class="install-notification-btn" target="_about">Install userscript</a>
-				</div>
-				<div class="install-footer">We truly appreciate your valiant effort installing the userscript. Brace yourself for the glorious and potentially (fingers crossed) functional experience of A.C.A.S (Amazingly Cool Awesomeness Script)!</div>
+		<!-- INSTALL NOTIFICATION -->
+		<div id="install-notification" class="hidden">
+			<div id="install-title">NO USERSCRIPT DETECTED</div>
+			<div id="install-buttons">
+				<a href="https://violentmonkey.github.io/get-it/" class="install-notification-btn violentmonkey-btn" target="_about">Get Violentmonkey</a>
+				<a href="https://greasyfork.org/en/scripts/459137" class="install-notification-btn install-userscript-btn" target="_about">Install Userscript</a>
 			</div>
 		</div>
 
@@ -83,13 +71,13 @@
 			<div id="acas-is-free-reminder">
 				<span>Support us by giving feedback!</span>
 				<div class="acas-social-actions">
-					<a class="header-social-button greasyfork-button" href="https://greasyfork.org/en/scripts/459137-cheat-a-c-a-s-advanced-chess-assistance-system/feedback" target="_blank" title="Give A.C.A.S positive feedback on Greasyfork">
+					<a class="header-social-button greasyfork-button acas-fancy-button" href="https://greasyfork.org/en/scripts/459137-cheat-a-c-a-s-advanced-chess-assistance-system/feedback" target="_blank" title="Give A.C.A.S positive feedback on Greasyfork">
 						<i class="bi bi-chat-text"></i>
 					</a>
-					<a class="header-social-button github-button" href="https://github.com/Hakorr/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
+					<a class="header-social-button github-button acas-fancy-button" href="https://github.com/Hakorr/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
 						<i class="bi bi-github"></i>
 					</a>
-					<a class="header-social-button discord-button" href="https://hakorr.github.io/Userscripts/community/invite" target="_blank" title="Join 'Userscript Hub' on Discord">
+					<a class="header-social-button discord-button acas-fancy-button" href="https://hakorr.github.io/Userscripts/community/invite" target="_blank" title="Join 'Userscript Hub' on Discord">
 						<i class="bi bi-discord"></i>
 					</a>
 				</div>
@@ -98,12 +86,19 @@
 		
 		<div id="blur-overlay"></div>
 
+		<div id="instance-size-change-container" class="hidden">
+			<div id="instance-size-change-modal">
+				<div id="decrease-instance-size-btn" class="instance-size-change-btn acas-fancy-button">-</div>
+				<div id="increase-instance-size-btn" class="instance-size-change-btn acas-fancy-button">+</div>
+			</div>
+		</div>
+
 		<!-- ACAS INSTANCE CONTAINER-->
 		<div id="acas-instance-container">
 			<div id="no-instances-container">
 				<div id="no-instances-title">waiting for instances...</div>
 				<div id="no-instances-subtitle">Ready to give me some action? Open up a chess game site and let me finally have some fun! I've been waiting patiently, counting my virtual fingers, just dying to make some moves!</div>
-				<div id="see-supported-sites-btn">See all supported sites</div>
+				<div id="see-supported-sites-btn" class="acas-fancy-button">See all supported sites</div>
 				<div id="no-instances-sites" class="hidden">
 					<div class="battletested-sites">
 						<div class="sites-header">
@@ -111,11 +106,11 @@
 							<div class="sites-subtitle">(Should work flawlessly)</div>
 						</div>
 						<div class="sites-list">
-							<a class="chess-site-link popular-chess-site-link" href="https://www.chess.com/play" target="_blank">Chess.com</a>
-							<a class="chess-site-link popular-chess-site-link" href="https://www.lichess.org" target="_blank">Lichess.org</a>
-							<a class="chess-site-link" href="https://playstrategy.org" target="_blank">Playstrategy.org</a>
-							<a class="chess-site-link" href="https://www.pychess.org/" target="_blank">Pychess.org</a>
-							<a class="chess-site-link" href="http://chess.net/" target="_blank">Chess.net</a>
+							<a class="chess-site-link popular-chess-site-link acas-fancy-button" href="https://www.chess.com/play" target="_blank">Chess.com</a>
+							<a class="chess-site-link popular-chess-site-link acas-fancy-button" href="https://www.lichess.org" target="_blank">Lichess.org</a>
+							<a class="chess-site-link acas-fancy-button" href="https://playstrategy.org" target="_blank">Playstrategy.org</a>
+							<a class="chess-site-link acas-fancy-button" href="https://www.pychess.org/" target="_blank">Pychess.org</a>
+							<a class="chess-site-link acas-fancy-button" href="http://chess.net/" target="_blank">Chess.net</a>
 						</div>
 					</div>
 					<div class="stable-sites">
@@ -124,10 +119,10 @@
 							<div class="sites-subtitle">(Works fine, but might have some minor bugs)</div>
 						</div>
 						<div class="sites-list">
-							<a class="chess-site-link" href="https://chess.org" target="_blank">Chess.org</a>
-							<a class="chess-site-link" href="https://papergames.io/en/chess" target="_blank">Papergames.io</a>
-							<a class="chess-site-link" href="https://vole.wtf/kilobytes-gambit/" target="_blank">Vole.wtf</a>
-							<a class="chess-site-link" href="https://www.coolmathgames.com/0-chess" target="_blank">Coolmathgames.com</a>
+							<a class="chess-site-link acas-fancy-button" href="https://chess.org" target="_blank">Chess.org</a>
+							<a class="chess-site-link acas-fancy-button" href="https://papergames.io/en/chess" target="_blank">Papergames.io</a>
+							<a class="chess-site-link acas-fancy-button" href="https://vole.wtf/kilobytes-gambit/" target="_blank">Vole.wtf</a>
+							<a class="chess-site-link acas-fancy-button" href="https://www.coolmathgames.com/0-chess" target="_blank">Coolmathgames.com</a>
 						</div>
 					</div>
 					<div class="unstable-sites">
@@ -136,15 +131,15 @@
 							<div class="sites-subtitle">(Might work fine, be buggy or not work at all)</div>
 						</div>
 						<div class="sites-list">
-							<a class="chess-site-link" href="https://chessarena.com/lobby" target="_blank">Chessarena.com</a>
-							<a class="chess-site-link" href="https://gameknot.com" target="_blank">Gameknot.com</a>
-							<a class="chess-site-link" href="https://redhotpawn.com" target="_blank">Redhotpawn.com</a>
-							<a class="chess-site-link" href="https://chessworld.net" target="_blank">Chessworld.net</a>
-							<a class="chess-site-link" href="https://chessanytime.com" target="_blank">Chessanytime.com</a>
-							<a class="chess-site-link" href="https://immortal.game/" target="_blank">Immortal.game</a>
-							<a class="chess-site-link" href="https://www.freechess.club/" target="_blank">Freechess.club</a>
-							<a class="chess-site-link" href="https://www.chessclub.com" target="_blank">Chessclub.com</a>
-							<a class="chess-site-link" href="https://www.chesstempo.com" target="_blank">Chesstempo.com</a>
+							<a class="chess-site-link acas-fancy-button" href="https://chessarena.com/lobby" target="_blank">Chessarena.com</a>
+							<a class="chess-site-link acas-fancy-button" href="https://gameknot.com" target="_blank">Gameknot.com</a>
+							<a class="chess-site-link acas-fancy-button" href="https://redhotpawn.com" target="_blank">Redhotpawn.com</a>
+							<a class="chess-site-link acas-fancy-button" href="https://chessworld.net" target="_blank">Chessworld.net</a>
+							<a class="chess-site-link acas-fancy-button" href="https://chessanytime.com" target="_blank">Chessanytime.com</a>
+							<a class="chess-site-link acas-fancy-button" href="https://immortal.game/" target="_blank">Immortal.game</a>
+							<a class="chess-site-link acas-fancy-button" href="https://www.freechess.club/" target="_blank">Freechess.club</a>
+							<a class="chess-site-link acas-fancy-button" href="https://www.chessclub.com" target="_blank">Chessclub.com</a>
+							<a class="chess-site-link acas-fancy-button" href="https://www.chesstempo.com" target="_blank">Chesstempo.com</a>
 						</div>
 					</div>
 				</div>
@@ -167,9 +162,9 @@
 					<div id="settings-navbar-subtitle">Settings affect every instance, unless settings applied to specific instance</div>
 				</div>
 				<div id="settings-control-panel">
-					<div id="import-settings-btn" class="control-panel-btn no-select" title="Import Settings">📂</div>
-					<div id="export-settings-btn" class="control-panel-btn no-select" title="Export Settings">💾</div>
-					<div id="reset-settings-btn" class="control-panel-btn no-select" title="Reset Settings">🗑️</div>
+					<div id="import-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Import Settings">📂</div>
+					<div id="export-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Export Settings">💾</div>
+					<div id="reset-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Reset Settings">🗑️</div>
 				</div>
 			</div>
 			<div id="userscript-info-small"></div>

@@ -13,7 +13,7 @@ const settingsNavbarGlobalElem = document.querySelector('#settings-navbar-global
 const settingsInstanceDropdownElem = document.querySelector('#settings-navbar-instance');
 const settingsInstanceDropdownContentElem = document.querySelector('#settings-navbar-instance .dropdown-content');
 
-const installNotificationContainerElem = document.querySelector('#install-notification-container');
+const installNotificationElem = document.querySelector('#install-notification');
 
 const tosContainerElem = document.querySelector('#tos-container');
 const tosCheckboxElem = document.querySelector('#tos-checkbox');
@@ -36,6 +36,10 @@ const ttsSpeedRangeElem = document.querySelector('#tts-speed-range');
 
 const userscriptInfoElem = document.querySelector('#userscript-info-small');
 
+const instanceSizeChangeContainerElem = document.querySelector('#instance-size-change-container');
+const decreaseInstanceSizeBtn = document.querySelector('#decrease-instance-size-btn');
+const increaseInstanceSizeBtn = document.querySelector('#increase-instance-size-btn');
+
 if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
     const GM_info = USERSCRIPT?.GM_info;
     const platform = GM_info?.platform || GM_info?.userAgentData || { 'platform': 'Unknown' };
@@ -49,6 +53,38 @@ if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) 
     userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
 } else {
     userscriptInfoElem?.remove();
+}
+
+const boardSizeModifierKey = 'boardSizeModifier';
+const instanceSizeKey = 'instanceSize';
+const defaultInstanceSize = 500;
+
+if(!localStorage.getItem(boardSizeModifierKey)) {
+    localStorage.setItem(boardSizeModifierKey, 1);
+}
+
+if(!localStorage.getItem(instanceSizeKey)) {
+    localStorage.setItem(instanceSizeKey, defaultInstanceSize);
+}
+
+function changeBoardSizeModifier(change) {
+    const instanceSize = Number(localStorage.getItem(instanceSizeKey));
+    const boardSizeModifier = Number(localStorage.getItem(boardSizeModifierKey));
+    const newBoardSizeModifier = boardSizeModifier + change;
+
+    localStorage.setItem(boardSizeModifierKey, newBoardSizeModifier);
+
+    const instanceElems = [...document.querySelectorAll('.acas-instance')];
+
+    instanceElems.forEach(elem => elem.style.width = `${instanceSize * newBoardSizeModifier}px`);
+}
+
+decreaseInstanceSizeBtn.onclick = () => {
+    changeBoardSizeModifier(-0.1);
+}
+
+increaseInstanceSizeBtn.onclick = () => {
+    changeBoardSizeModifier(0.1);
 }
 
 seeSupportedSitesBtn.onclick = () => {
@@ -75,7 +111,7 @@ guiBroadcastChannel.onmessage = e => {
 };
 
 function displayNoUserscriptNotification() {
-    installNotificationContainerElem.classList.remove('hidden');
+    installNotificationElem.classList.remove('hidden');
 }
 
 function displayTOS() {
@@ -211,7 +247,7 @@ function makeSettingChanges(inputElem) {
 
             break;
         case 'backgroundImageBlur':
-            bodyBlurOverlayElem.style['backdrop-filter'] = value ? `blur(${inputElem.value/10}vh)` : null;
+            bodyBlurOverlayElem.style['backdrop-filter'] = value ? `blur(${inputElem.value}px)` : null;
 
             console.log('[Setting Handler] Set background image blur to', value || 'nothing');
 
@@ -479,7 +515,7 @@ function initGUI() {
 
                 elem.onkeypress = event => allowOnlyNumbers(event);
 
-                elem.style.width = `${String(max).length + 0.3}vh`;
+                elem.style.width = `${(String(max).length + 0.3) * 10}px`;
             }
 
             elem.oninput = e => makeSettingChanges(e.target);
@@ -504,11 +540,15 @@ function initGUI() {
     settingsNavbarGlobalElem.onclick = () => toggleSelected(settingsNavbarGlobalElem);
 
     new MutationObserver(() => {
-        if(acasInstanceContainer.children.length > 1) {
+        if([...acasInstanceContainer.querySelectorAll('.acas-instance')]?.length > 0) {
             noInstancesContainer.classList.add('hidden');
+
+            instanceSizeChangeContainerElem.classList.remove('hidden');
             settingsNavbarContainerElem.classList.remove('hidden');
         } else {
             noInstancesContainer.classList.remove('hidden');
+
+            instanceSizeChangeContainerElem.classList.add('hidden');
             settingsNavbarContainerElem.classList.add('hidden');
         }
 

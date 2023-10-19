@@ -1,58 +1,46 @@
 :root {
-    --scrollbar-width: 1vh;
-    --scrollbar-thumb-radius: 0.5vh;
+    --scrollbar-width: 10px;
+    --scrollbar-thumb-radius: 5px;
     --scrollbar-track-background: #ffffff2b;
     --scrollbar-thumb-background: #ffffff79;
     --scrollbar-thumb-hover-background: #ffffffbc;
 }
-
 ::-webkit-scrollbar {
     width: var(--scrollbar-width);
 }
-
 ::-moz-scrollbar {
     width: var(--scrollbar-width);
 }
-
 ::-ms-scrollbar {
     width: var(--scrollbar-width);
 }
-
 ::-webkit-scrollbar-track {
     background: var(--scrollbar-track-background);
 }
-
 ::-moz-scrollbar-track {
     background: var(--scrollbar-track-background);
 }
-
 ::-ms-scrollbar-track {
     background: var(--scrollbar-track-background);
 }
-
 ::-webkit-scrollbar-thumb {
     background: var(--scrollbar-thumb-background);
     border-radius: var(--scrollbar-thumb-radius);
 }
-
 ::-moz-scrollbar-thumb {
     background: var(--scrollbar-thumb-background);
     border-radius: var(--scrollbar-thumb-radius);
 }
-
 ::-ms-scrollbar-thumb {
     background: var(--scrollbar-thumb-background);
     border-radius: var(--scrollbar-thumb-radius);
 }
-
 ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover-background);
 }
-
 ::-moz-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover-background);
 }
-
 ::-ms-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover-background);
 }

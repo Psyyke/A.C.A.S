@@ -1,251 +1,242 @@
-/*
- * Chessground base css properties.
- *
- * You need to include the css files in themes folder in order to have the
- * board and pieces displayed!
- */
-
-.cg-wrap {
-  width: 640px;
-  height: 640px;
-  position: relative;
-  display: block;
+/* * Chessground base css properties. * * You need to include the css files in themes folder in order to have the * board and pieces displayed! */
+ .cg-wrap {
+     width: 640px;
+     height: 640px;
+     position: relative;
+     display: block;
 }
-
-cg-helper {
-  position: absolute;
-  width: 12.5%;
-  padding-bottom: 12.5%;
-  display: table; /* hack: round to full pixel size in chrome */
-  bottom: 0;
+ cg-helper {
+     position: absolute;
+     width: 12.5%;
+     padding-bottom: 12.5%;
+     display: table;
+    /* hack: round to full pixel size in chrome */
+     bottom: 0;
 }
-
-cg-container {
-  position: absolute;
-  width: 800%;
-  height: 800%;
-  display: block;
-  bottom: 0;
+ cg-container {
+     position: absolute;
+     width: 800%;
+     height: 800%;
+     display: block;
+     bottom: 0;
 }
-
-cg-board {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  line-height: 0;
-  background-size: cover;
-  cursor: pointer;
+ cg-board {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+     user-select: none;
+     line-height: 0;
+     background-size: cover;
+     cursor: pointer;
 }
-cg-board square {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 12.5%;
-  height: 12.5%;
-  pointer-events: none;
+ cg-board square {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 12.5%;
+     height: 12.5%;
+     pointer-events: none;
 }
-cg-board square.move-dest {
-  background: radial-gradient(rgba(20, 85, 30, 0.5) 22%, #208530 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
-  pointer-events: auto;
+ cg-board square.move-dest {
+     background: radial-gradient(rgba(20, 85, 30, 0.5) 22%, #208530 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
+     pointer-events: auto;
 }
-cg-board square.premove-dest {
-  background: radial-gradient(rgba(20, 30, 85, 0.5) 22%, #203085 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
+ cg-board square.premove-dest {
+     background: radial-gradient(rgba(20, 30, 85, 0.5) 22%, #203085 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
 }
-cg-board square.oc.move-dest {
-  background: radial-gradient(transparent 0%, transparent 80%, rgba(20, 85, 0, 0.3) 80%);
+ cg-board square.oc.move-dest {
+     background: radial-gradient(transparent 0%, transparent 80%, rgba(20, 85, 0, 0.3) 80%);
 }
-cg-board square.oc.premove-dest {
-  background: radial-gradient(transparent 0%, transparent 80%, rgba(20, 30, 85, 0.2) 80%);
+ cg-board square.oc.premove-dest {
+     background: radial-gradient(transparent 0%, transparent 80%, rgba(20, 30, 85, 0.2) 80%);
 }
-cg-board square.move-dest:hover {
-  background: rgba(20, 85, 30, 0.3);
+ cg-board square.move-dest:hover {
+     background: rgba(20, 85, 30, 0.3);
 }
-cg-board square.premove-dest:hover {
-  background: rgba(20, 30, 85, 0.2);
+ cg-board square.premove-dest:hover {
+     background: rgba(20, 30, 85, 0.2);
 }
-cg-board square.last-move {
-  will-change: transform;
-  background-color: rgba(155, 199, 0, 0.41);
+ cg-board square.last-move {
+     will-change: transform;
+     background-color: rgba(155, 199, 0, 0.41);
 }
-cg-board square.selected {
-  background-color: rgba(20, 85, 30, 0.5);
+ cg-board square.selected {
+     background-color: rgba(20, 85, 30, 0.5);
 }
-cg-board square.check {
-  background: radial-gradient(ellipse at center, rgba(255, 0, 0, 1) 0%, rgba(231, 0, 0, 1) 25%, rgba(169, 0, 0, 0) 89%, rgba(158, 0, 0, 0) 100%);
+ cg-board square.check {
+     background: radial-gradient(ellipse at center, rgba(255, 0, 0, 1) 0%, rgba(231, 0, 0, 1) 25%, rgba(169, 0, 0, 0) 89%, rgba(158, 0, 0, 0) 100%);
 }
-cg-board square.current-premove {
-  background-color: rgba(20, 30, 85, 0.5);
+ cg-board square.current-premove {
+     background-color: rgba(20, 30, 85, 0.5);
 }
-.cg-wrap piece {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 12.5%;
-  height: 12.5%;
-  background-size: cover;
-  z-index: 2;
-  will-change: transform;
-  pointer-events: none;
+ .cg-wrap piece {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 12.5%;
+     height: 12.5%;
+     background-size: cover;
+     z-index: 2;
+     will-change: transform;
+     pointer-events: none;
 }
-cg-board piece.dragging {
-  cursor: move;
-  z-index: 10;
+ cg-board piece.dragging {
+     cursor: move;
+     z-index: 10;
 }
-cg-board piece.anim {
-  z-index: 8;
+ cg-board piece.anim {
+     z-index: 8;
 }
-cg-board piece.fading {
-  z-index: 1;
-  opacity: 0.5;
+ cg-board piece.fading {
+     z-index: 1;
+     opacity: 0.5;
 }
-.cg-wrap square.move-dest:hover {
-  background-color: rgba(20, 85, 30, 0.3);
+ .cg-wrap square.move-dest:hover {
+     background-color: rgba(20, 85, 30, 0.3);
 }
-.cg-wrap piece.ghost {
-  opacity: 0.3;
+ .cg-wrap piece.ghost {
+     opacity: 0.3;
 }
-.cg-wrap .cg-shapes, .cg-wrap .cg-custom-svgs {
-  overflow: hidden;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+ .cg-wrap .cg-shapes, .cg-wrap .cg-custom-svgs {
+     overflow: hidden;
+     position: absolute;
+     top: 0px;
+     left: 0px;
+     width: 100%;
+     height: 100%;
+     pointer-events: none;
 }
-.cg-wrap .cg-shapes {
-  opacity: 0.6;
-  z-index: 2;
+ .cg-wrap .cg-shapes {
+     opacity: 0.6;
+     z-index: 2;
 }
-.cg-wrap .cg-custom-svgs {
-  /* over piece.anim = 8, but under piece.dragging = 10 */
-  z-index: 9;
+ .cg-wrap .cg-custom-svgs {
+    /* over piece.anim = 8, but under piece.dragging = 10 */
+     z-index: 9;
 }
-.cg-wrap svg {
-  overflow: hidden;
-  position: relative;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-  opacity: 0.6;
+ .cg-wrap svg {
+     overflow: hidden;
+     position: relative;
+     top: 0px;
+     left: 0px;
+     width: 100%;
+     height: 100%;
+     pointer-events: none;
+     z-index: 2;
+     opacity: 0.6;
 }
-.cg-wrap coords {
-  position: absolute;
-  display: flex;
-  pointer-events: none;
-  opacity: 0.8;
-  font-size: 9px;
+ .cg-wrap coords {
+     position: absolute;
+     display: flex;
+     pointer-events: none;
+     opacity: 0.8;
+     font-size: 9px;
 }
-.cg-wrap coords.side {
-  right: -15px;
-  top: 0;
-  flex-flow: column-reverse;
-  height: 100%;
-  width: 12px;
+ .cg-wrap coords.side {
+     right: -15px;
+     top: 0;
+     flex-flow: column-reverse;
+     height: 100%;
+     width: 12px;
 }
-.cg-wrap coords.side.black {
-  flex-flow: column;
+ .cg-wrap coords.side.black {
+     flex-flow: column;
 }
-.cg-wrap coords.bottom {
-  bottom: -16px;
-  left: 0;
-  flex-flow: row;
-  width: 100%;
-  height: 16px;
-  text-transform: uppercase;
-  text-align: center;
+ .cg-wrap coords.bottom {
+     bottom: -16px;
+     left: 0;
+     flex-flow: row;
+     width: 100%;
+     height: 16px;
+     text-transform: uppercase;
+     text-align: center;
 }
-.cg-wrap coords.bottom.black {
-  flex-flow: row-reverse;
+ .cg-wrap coords.bottom.black {
+     flex-flow: row-reverse;
 }
-.cg-wrap coords coord {
-  flex: 1 1 auto;
+ .cg-wrap coords coord {
+     flex: 1 1 auto;
 }
-.cg-wrap coords.side coord {
-  transform: translateY(39%);
+ .cg-wrap coords.side coord {
+     transform: translateY(39%);
 }
-
 /* Drop variants */
-.cg-wrap.pocket {
-  display: inline;
+ .cg-wrap.pocket {
+     display: inline;
 }
-.pocket {
-  width: calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
-  height: calc(var(--cg-height) / var(--ranks));
-  border-radius: 3px;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.3) inset;
-  background: #888;
-  white-space: nowrap;
-  display: flex;
-  --fs: calc(var(--cg-height) / var(--ranks));
-  font-size: var(--fs);
-  padding-bottom: 1px;
+ .pocket {
+     width: calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
+     height: calc(var(--cg-height) / var(--ranks));
+     border-radius: 3px;
+     box-shadow: 0 2px 3px rgba(0,0,0,0.3) inset;
+     background: #888;
+     white-space: nowrap;
+     display: flex;
+     --fs: calc(var(--cg-height) / var(--ranks));
+     font-size: var(--fs);
+     padding-bottom: 1px;
 }
-.pocket.top {
-  margin-bottom: var(--pocketMargin);
+ .pocket.top {
+     margin-bottom: var(--pocketMargin);
 }
-.pocket.bottom {
-  margin-top: var(--pocketMargin);
+ .pocket.bottom {
+     margin-top: var(--pocketMargin);
 }
-.pocket square, .pocket nosquare {
-  flex: 0 0 calc(100% / var(--pocketLength));
-  position: relative !important;
-  pointer-events: none;
+ .pocket square, .pocket nosquare {
+     flex: 0 0 calc(100% / var(--pocketLength));
+     position: relative !important;
+     pointer-events: none;
 }
-.pocket piece {
-  height: 100% !important;
-  width: 100% !important;
-  background-position: center;
-  pointer-events: auto;
+ .pocket piece {
+     height: 100% !important;
+     width: 100% !important;
+     background-position: center;
+     pointer-events: auto;
 }
-.pocket square.selected-square{
-  background-color: #14551e80 !important;
+ .pocket square.selected-square{
+     background-color: #14551e80 !important;
 }
-.pocket.usable square:first-child:hover {
-  border-radius: 3px 0 0 3px;
+ .pocket.usable square:first-child:hover {
+     border-radius: 3px 0 0 3px;
 }
-.pocket.usable square {
-  cursor: pointer;
+ .pocket.usable square {
+     cursor: pointer;
 }
-.pocket.usable square:hover {
-  background-color: #999;
-  transition: background-color 0.13s;
+ .pocket.usable square:hover {
+     background-color: #999;
+     transition: background-color 0.13s;
 }
-.pocket.usable square.premove {
-  background-color: #555;
+ .pocket.usable square.premove {
+     background-color: #555;
 }
-.pocket.usable square.premove:hover {
-  background-color: #666;
+ .pocket.usable square.premove:hover {
+     background-color: #666;
 }
-.pocket square.last-move {
-  will-change: transform;
-  background-color: rgba(155, 199, 0, 0.41);
+ .pocket square.last-move {
+     will-change: transform;
+     background-color: rgba(155, 199, 0, 0.41);
 }
-.pocket piece[data-nb='0'] {
-  cursor: auto;
-  opacity: 0.1;
+ .pocket piece[data-nb='0'] {
+     cursor: auto;
+     opacity: 0.1;
 }
-.pocket piece::after {
-  content: attr(data-nb);
-  bottom: 0;
-  right: 0;
-  position: absolute;
-  line-height: 0.9em;
-  padding: 2px 0.2em;
-  font-weight: bold;
-  border-radius: 2px;
-  font-size: 0.3em;
-  color: #fff !important;
-  text-shadow: 0 1px 0 #000 !important;
-  background: #d85000 !important;
-  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
+ .pocket piece::after {
+     content: attr(data-nb);
+     bottom: 0;
+     right: 0;
+     position: absolute;
+     line-height: 0.9em;
+     padding: 2px 0.2em;
+     font-weight: bold;
+     border-radius: 2px;
+     font-size: 0.3em;
+     color: #fff !important;
+     text-shadow: 0 1px 0 #000 !important;
+     background: #d85000 !important;
+     box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
 }
