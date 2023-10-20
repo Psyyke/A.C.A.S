@@ -649,6 +649,7 @@ cg-container {
 .unstable-setting-panel {
 	background-color: rgba(50, 0, 0, 0.2) !important;
 	border: 2px solid rgba(150, 0, 0, 0.4) !important;
+	border-bottom-width: 5px !important;
 }
 .setting-panel-title {
 	font-size: 18px;
@@ -661,6 +662,7 @@ cg-container {
 	padding: 10px;
 	border: 2px solid rgb(255 255 255 / 10%);
 	max-width: 300px;
+	border-bottom-width: 5px;
 }
 .setting-panel>*:not(:last-child) {
 	margin-bottom: 10px;
