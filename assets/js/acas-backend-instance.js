@@ -377,12 +377,22 @@ class BackendInstance {
                 this.BoardDrawer.setOrientation(orientation);
             }
         },
-        updateMoveProgress: text => {
-            const progressBarElem = this.instanceElem.querySelector('.instance-info-text');
+        updateMoveProgress: (text, status) => {
+            const infoTextElem = this.instanceElem.querySelector('.instance-info-text');
     
-            progressBarElem.innerText = text;
-    
-            progressBarElem.classList.remove('hidden');
+            infoTextElem.innerText = text;
+
+            const statusArr = ['info-text-winning', 'info-text-losing'];
+
+            if(typeof status === 'number' && status !== 0) {
+                infoTextElem.classList.add(statusArr[status === 1 ? 0 : 1]);
+                infoTextElem.classList.remove(statusArr[status === 1 ? 1 : 0]);
+            } else {
+                infoTextElem.classList.remove(statusArr[0]);
+                infoTextElem.classList.remove(statusArr[1]);
+            }
+
+            infoTextElem.classList.remove('hidden');
         },
         updateEval: (centipawnEval, mate) => {
             const evalFill = this.instanceElem.querySelector('.eval-fill');
@@ -674,11 +684,12 @@ class BackendInstance {
             if(data?.multipv == 1) {
                 if(data?.depth) {
                     if(data?.mate) {
-                        const mateText = `${data.mate > 0 ? 'Win' : 'Lose'} in ${Math.abs(data.mate)}`;
+                        const isWinning = data.mate > 0;
+                        const mateText = `${isWinning ? 'Win' : 'Lose'} in ${Math.abs(data.mate)}`;
 
-                        this.Interface.updateMoveProgress(`${mateText} | Depth ${data.depth}`);
+                        this.Interface.updateMoveProgress(`${mateText} | Depth ${data.depth}`, isWinning ? 1 : 2);
                     } else {
-                        this.Interface.updateMoveProgress(`Depth ${data.depth}`);
+                        this.Interface.updateMoveProgress(`Depth ${data.depth}`, 0);
                     }
                 }
     
@@ -841,7 +852,10 @@ class BackendInstance {
                     <div class="instance-basic-info">
                         <div class="instance-variant" title="Instance Chess Variant"></div>
                         <div class="instance-domain" title="Instance Domain"></div>
-                        <div class="instance-fen" title="Instance Fen"></div>
+                        <div class="instance-fen-container">
+                            <div class="instance-fen-btn acas-fancy-button">Show Fen</div>
+                            <div class="instance-fen hidden" title="Instance Fen"></div>
+                        </div>
                     </div>
                     <div class="instance-misc">
                         <div class="instance-settings-btn acas-fancy-button" title="Open Instance Settings">⚙️</div>
@@ -861,7 +875,20 @@ class BackendInstance {
             const instanceChessVariantElem = acasInstanceElem.querySelector('.instance-variant');
             const instanceDomainElem = acasInstanceElem.querySelector('.instance-domain');
             const instanceFenElem = acasInstanceElem.querySelector('.instance-fen');
+            const showFenBtn = acasInstanceElem.querySelector('.instance-fen-btn');
             const chessboardComponentsElem = acasInstanceElem.querySelector('.chessboard-components');
+
+            showFenBtn.onclick = function() {
+                instanceFenElem.classList.toggle('hidden');
+
+                const didHide = showFenBtn.innerText.includes('Show');
+
+                if(didHide) {
+                    showFenBtn.innerText = showFenBtn.innerText.replace('Show', 'Hide');
+                } else {
+                    showFenBtn.innerText = showFenBtn.innerText.replace('Hide', 'Show');
+                }
+            }
 
             instanceChessVariantElem.innerText = variantText;
             instanceDomainElem.innerText = this.domain;
