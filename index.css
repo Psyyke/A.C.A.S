@@ -260,8 +260,9 @@ cg-container {
 }
 #install-notification {
 	height: fit-content;
-    background-color: rgb(227 0 0);
-    background-image: linear-gradient(rgb(154 0 0), rgb(255 0 0));
+	background: #df0000;
+	background: linear-gradient(45deg,#7b0000 25%, #3e0000 25%, #3e0000 50%, #7b0000 50%, #7b0000 75%, #3e0000 75%, #3e0000);
+    background-size: 20px 20px;
 	color: white;
 	padding: 10px;
 	display: flex;
@@ -284,7 +285,8 @@ cg-container {
 	left: 0;
 	width: 999vh;
 	height: 999vh;
-	background-color: rgba(0, 0, 0, 0.5);
+    background: linear-gradient(45deg, rgb(255 0 0 / 7%) 25%, rgb(129 0 0 / 7%) 25%, rgb(129 0 0 / 7%) 50%, rgb(255 0 0 / 7%) 50%, rgb(255 0 0 / 7%) 75%, rgb(129 0 0 / 7%) 75%, rgb(129 0 0 / 7%));
+    background-size: 20px 20px;
 	/* Semi-transparent background to cover the content */
 	z-index: -1;
 	/* A high z-index to place it on top of everything */
@@ -296,8 +298,8 @@ cg-container {
 	margin-bottom: 20px;
 }
 #install-buttons {
-	display: flex;
-	grid-gap: 10px;
+    display: flex;
+    grid-gap: 5px;
 }
 .install-description-small {
 	color: rgb(255 255 255 / 50%);
@@ -315,18 +317,18 @@ cg-container {
 	margin: 30px 0 10px;
 }
 .install-notification-btn {
-	display: inline-block;
-	padding: 10px 20px;
-	color: white;
-	text-decoration: none;
-	border-radius: 5px;
-	font-size: 20px;
-	border: 2px solid black;
-	border-bottom: 5px solid black;
-	transition: all ease 0.1s;
+    display: inline-block;
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 18px;
+    border: 2px solid black;
+    border-bottom: 5px solid black;
+    transition: all ease 0.1s;
     font-weight: 600;
     font-stretch: ultra-expanded;
-    text-shadow: 0px 3px 0px #000;
+    text-shadow: 0px 2px 0px #000;
     margin: 10px 0 10px;
 }
 .install-notification-btn:active {
@@ -436,17 +438,17 @@ cg-container {
 }
 .install-userscript-btn {
     background-color: rgb(64 116 63);
-    background-image: linear-gradient(rgb(50 92 49), rgb(81 145 80));
+    background-image: linear-gradient(rgb(70, 182, 68), rgb(65 121 64));
 }
 .install-userscript-btn:hover {
-    background-image: linear-gradient(rgb(50 92 49), rgb(105, 185, 104));
+    background-image: linear-gradient(rgb(79 205 76),rgb(80, 138, 79));
 }
 .violentmonkey-btn {
     background-color: #625638;
-    background-image: linear-gradient(#4e452d, #88774d);
+    background-image: linear-gradient(#efbe3c, #79632c);
 }
 .violentmonkey-btn:hover {
-    background-image: linear-gradient(#4e452d, #a18e5c);
+	background-image: linear-gradient(#fac840, #8b7233);
 }
 .hidden {
 	display: none !important;
