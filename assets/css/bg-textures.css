@@ -2,8 +2,8 @@
     background-color: #eee;
     background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02)),
     linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02));
-    background-size: 120px 120px;
-    background-position: 0 0, 60px 60px;
+    background-size: 122.4px 122.4px;
+    background-position: 0 0, 61.2px 61.2px;
 }
 .paper-texture {
     background-image:  linear-gradient(rgba(255,255,255,0.05) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.05) 2px, transparent 2px), linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, rgba(230,230,247,0.05) 1px);
