@@ -184,6 +184,7 @@ input:focus {
     z-index: 3;
     top: 100%;
     display: none;
+    max-height: 150px;
 }
 .dropdown-input .dropdown-item {
     padding: 10px;

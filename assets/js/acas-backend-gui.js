@@ -240,16 +240,12 @@ function makeSettingChanges(inputElem) {
             }`, 'boardColorHexCss');
 
             console.log('[Setting Handler] Set board bg color to', value || 'nothing');
-        case 'backgroundImageRawUrl':
-            acasInstanceContainer.style['background-image'] = value ? `url(${value})` : null;
-
-            console.log('[Setting Handler] Set background image to', value || 'nothing');
 
             break;
-        case 'backgroundImageBlur':
-            bodyBlurOverlayElem.style['backdrop-filter'] = value ? `blur(${inputElem.value}px)` : null;
+        case 'backgroundTextureClass':
+            acasInstanceContainer.className = value;
 
-            console.log('[Setting Handler] Set background image blur to', value || 'nothing');
+            console.log('[Setting Handler] Set background texture to', value || 'nothing');
 
             break;
         case 'ttsVoiceEnabled':
@@ -260,6 +256,7 @@ function makeSettingChanges(inputElem) {
                 ttsNameDropdownElem.classList.add('disabled-input');
                 ttsSpeedRangeElem.classList.add('disabled-input');
             }
+
             break;
     }
 }

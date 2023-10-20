@@ -26,6 +26,7 @@
 		<link rel="stylesheet" type="text/css" href="assets/css/custom-scroll.css"/>
 		<link rel="stylesheet" type="text/css" href="assets/css/custom-inputs.css"/>
 		<link rel="stylesheet" type="text/css" href="assets/css/acas-toast.css"/>
+		<link rel="stylesheet" type="text/css" href="assets/css/bg-textures.css"/>
 		<link rel="icon" type="image/x-icon" href="favicon.ico"/>
 	</head>
 	<body>
@@ -83,8 +84,6 @@
 				</div>
 			</div>
 		</div>
-		
-		<div id="blur-overlay"></div>
 
 		<div id="instance-size-change-container" class="hidden">
 			<div id="instance-size-change-modal">
@@ -244,13 +243,22 @@
 							<div class="dropdown-item" data-value="cburnett">Cburnett</div>
 						</div>
 					</div></div>
-					<div class="textfield-input custom-input"><div class="input-title">Background Image</div>
-						<input class="background-image-input"  type="textfield" data-key="backgroundImageRawUrl" data-default-value="assets/images/backgrounds/default.png" placeholder="https://x.co/y.png">
-					</div>
-					<div class="textfield-input custom-input"><div><div class="input-title">Image Blur (0 - 100px)</div>
-						<div class="input-subtitle">Changes the background image blur, assuming the background image is set</div></div>
-						<input type="textfield" data-key="backgroundImageBlur" data-default-value="5" data-between="0-100">
-					</div>
+					<div class="dropdown-input custom-input"><div class="input-title">Bg Texture</div><div class="dropdown-input-container">
+						<input type="text" additional-type="dropdown" data-key="backgroundTextureClass" data-default-value="chess-texture" placeholder="Chess"><div class="dropdown-icon"></div>
+						<div class="dropdown-list-container">
+							<div class="dropdown-item" data-value="chess-texture">Chess</div>
+							<div class="dropdown-item" data-value="paper-texture">Paper</div>
+							<div class="dropdown-item" data-value="tartan-texture">Tartan</div>
+							<div class="dropdown-item" data-value="boxes-texture">Boxes</div>
+							<div class="dropdown-item" data-value="dotted-texture">Dotted</div>
+							<div class="dropdown-item" data-value="striped-texture">Striped</div>
+							<div class="dropdown-item" data-value="circles-texture">Circles</div>
+							<div class="dropdown-item" data-value="isometric-texture">Isometric</div>
+							<div class="dropdown-item" data-value="abstract-texture">Abstract</div>
+							<div class="dropdown-item" data-value="watercolor-texture">Watercolor</div>
+							<div class="dropdown-item" data-value="rainbow-texture">Rainbow</div> 
+						</div>
+					</div></div>
 				</div>
 				<div class="unstable-setting-panel setting-panel">
 					<div class="setting-panel-title">Unstable ⛔</div>
