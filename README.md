@@ -4,7 +4,8 @@
 
 A.C.A.S is an **advanced chess assistance system** (a chess cheat) which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
-![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/5ca22ab5-37ff-4102-9100-cfefc623eee9)
+![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/791ad4ef-96c8-4679-ad78-e1188c73d5e4)
+
 
 
 
