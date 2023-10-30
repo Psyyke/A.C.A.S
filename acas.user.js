@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.3
+// @version     2.1.4
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -125,22 +125,35 @@ Code below this point runs on any site, including the GUI.
 const debugModeActivated = false;
 const onlyUseDevelopmentBackend = false;
 
-const backendURLs = {
-    'production': 'https://hakorr.github.io/A.C.A.S/',
-    'development': 'http://localhost/A.C.A.S/'
-};
-
+const domain = window.location.hostname.replace('www.', '');
 const greasyforkURL = 'https://greasyfork.org/en/scripts/459137';
 
-const domain = window.location.hostname.replace('www.', '');
+const backendConfig = {
+    'hosts': { 'prod': 'hakorr.github.io', 'dev': 'localhost' },
+    'path': '/A.C.A.S/'
+};
 
-const isBackendUrlUpToDate = Object.values(backendURLs).includes(GM_getValue('currentBackendURL'));
+const currentBackendUrlKey = 'currentBackendURL';
+
+const isBackendUrlUpToDate = Object.values(backendConfig.hosts).some(x => GM_getValue(currentBackendUrlKey)?.includes(x));
+
+function constructBackendURL(host) {
+    const protocol = window.location.protocol + '//';
+    const hosts = backendConfig.hosts;
+
+    return protocol + (host || (hosts?.prod || hosts?.path)) + backendConfig.path;
+}
 
 function isRunningOnBackend() {
-    const foundBackendURL = Object.values(backendURLs).find(url => window?.location?.href.includes(url));
+    const hostsArr = Object.values(backendConfig.hosts);
 
-    if(foundBackendURL) {
-        GM_setValue('currentBackendURL', foundBackendURL);
+    const foundHost = hostsArr.find(host => host === window?.location?.host);
+    const isCorrectPath = window?.location?.pathname?.includes(backendConfig.path);
+
+    const isBackend = typeof foundHost === 'string' && isCorrectPath;
+
+    if(isBackend) {
+        GM_setValue(currentBackendUrlKey, constructBackendURL(foundHost));
 
         return true;
     }
@@ -148,18 +161,30 @@ function isRunningOnBackend() {
     return false;
 }
 
-function getCurrentBackendURL(skipGmStorage) {
-    const backendURL = skipGmStorage
-        ? (backendURLs?.production || backendURLs?.development)
-        : (GM_getValue('currentBackendURL') || backendURLs?.production || backendURLs?.development);
+function prependProtocolWhenNeeded(url) {
+    if(!url.startsWith('http://') && !url.startsWith('https://')) {
+        return 'http://' + url;
+    }
 
-    return onlyUseDevelopmentBackend
-        ? backendURLs?.development
-        : backendURL;
+    return url;
+}
+
+function getCurrentBackendURL(skipGmStorage) {
+    if(onlyUseDevelopmentBackend) {
+        return constructBackendURL(backendConfig.hosts?.dev);
+    }
+
+    const gmStorageUrl = GM_getValue(currentBackendUrlKey);
+
+    if(skipGmStorage || !gmStorageUrl) {
+        return constructBackendURL();
+    }
+
+    return prependProtocolWhenNeeded(gmStorageUrl);
 }
 
 if(!isBackendUrlUpToDate) {
-    GM_setValue('currentBackendURL', getCurrentBackendURL(true));
+    GM_setValue(currentBackendUrlKey, getCurrentBackendURL(true));
 }
 
 function createInstanceVariable(dbValue) {
@@ -233,10 +258,8 @@ function getUniqueID() {
 const commLinkInstanceID = getUniqueID();
 
 const blacklistedURLs = [
-    'https://hakorr.github.io/A.C.A.S/',
-    'https://hakorr.github.io/A.C.A.S/why/',
-    'https://hakorr.github.io/A.C.A.S/tos/',
-    'http://localhost/A.C.A.S/',
+    constructBackendURL(backendConfig?.hosts?.prod),
+    constructBackendURL(backendConfig?.hosts?.dev),
     'https://www.chess.com/play',
     'https://lichess.org/',
     'https://chess.org/',
@@ -2645,19 +2668,17 @@ async function start() {
 }
 
 function startWhenBackendReady() {
+    let timesUrlForceOpened = 0;
+
     const interval = CommLink.setIntervalAsync(async () => {
         if(await isAcasBackendReady()) {
             start();
 
             interval.stop();
-        } else {
+        } else if(timesUrlForceOpened < 1) {
+            timesUrlForceOpened++;
+
             GM_openInTab(getCurrentBackendURL(), true);
-
-            if(await isAcasBackendReady()) {
-                start();
-
-                interval.stop();
-            }
         }
     }, 1000);
 }
@@ -2672,8 +2693,8 @@ function initializeIfSiteReady() {
     if(bothElemsExist && boardElemChanged) {
         chessBoardElem = boardElem;
 
-        chessBoardElem.addEventListener('mousedown', () => isUserMouseDown = true);
-        chessBoardElem.addEventListener('mouseup', () => isUserMouseDown = false);
+        chessBoardElem.addEventListener('mousedown', () => { isUserMouseDown = true; });
+        chessBoardElem.addEventListener('mouseup', () => { isUserMouseDown = false; });
 
         if(!blacklistedURLs.includes(window.location.href)) {
             startWhenBackendReady();
