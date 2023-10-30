@@ -225,6 +225,7 @@ function activateInputDefaultValue(elem) {
 
 function makeSettingChanges(inputElem) {
     const value = getInputValue(inputElem);
+    const valueExists = typeof value === 'boolean' || value;
 
     switch(inputElem.dataset.key) {
         case 'themeColorHex':
@@ -249,7 +250,7 @@ function makeSettingChanges(inputElem) {
 
             break;
         case 'ttsVoiceEnabled':
-            if(value) {
+            if(valueExists) {
                 ttsNameDropdownElem.classList.remove('disabled-input');
                 ttsSpeedRangeElem.classList.remove('disabled-input');
             } else {
@@ -266,7 +267,7 @@ function updateSettingsValues() {
         const key = inputElem.dataset.key;
         const value = getGmConfigValue(key, settingFilterObj.instanceID);
 
-        if(value) {
+        if(typeof value === 'boolean' || value) {
             setInputValue(inputElem, value);
 
             makeSettingChanges(inputElem);
