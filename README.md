@@ -4,7 +4,7 @@
 
 A.C.A.S is an **advanced chess assistance system** (a chess cheat) which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
-![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/791ad4ef-96c8-4679-ad78-e1188c73d5e4)
+![277160104-791ad4ef-96c8-4679-ad78-e1188c73d5e4](https://github.com/Psyyke/A.C.A.S/assets/76921756/406c49ec-24dd-4b96-9fc4-4db1cc1fe205)
 
 
 * No anti-features (*e.g. ads, tracking*)
@@ -20,7 +20,8 @@ A.C.A.S is an **advanced chess assistance system** (a chess cheat) which helps y
 
 ## Example Gameplay
 
-<img src="https://github.com/Hakorr/A.C.A.S/assets/76921756/9a6dcab4-04db-4409-8f9f-3d871120746c" alt="example-gameplay" style="width:85%;"/>
+<img src="https://github.com/Psyyke/A.C.A.S/assets/76921756/af4af26b-d5e9-4502-ac6a-8921d34c3cfa" alt="example-gameplay" style="width:85%;"/>
+
 
 ## Getting Started
 
@@ -34,7 +35,7 @@ Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137
 
 | A.C.A.S (Tab #1)    | Chess Website (Tab #2)  |
 |----------------------|----------------------|
-| ![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/750998aa-061e-478a-a2c2-5e7c5b341775) | ![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/ad87db6b-4dc5-4443-8405-29ad140d5894) |
+| ![image](https://github.com/Psyyke/A.C.A.S/assets/76921756/787740d5-b6a2-4ff1-8e8b-b96699a526e7) | ![image](https://github.com/Psyyke/A.C.A.S/assets/76921756/44c9e498-42fd-4d3f-92ea-91371e9732b5) |
 | The engine runs on a completely different tab than the chess game page, completely isolated from it. The site cannot block the usage of A.C.A.S. | A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink) and the userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If "Display Moves On External Site" setting is activated!*) |
 
 ### Arrow Meaning
