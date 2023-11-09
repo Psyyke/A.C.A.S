@@ -7,8 +7,6 @@ A.C.A.S is an **advanced chess assistance system** (a chess cheat) which helps y
 ![image](https://github.com/Hakorr/A.C.A.S/assets/76921756/791ad4ef-96c8-4679-ad78-e1188c73d5e4)
 
 
-
-
 * No anti-features (*e.g. ads, tracking*)
 * WebAssembly chess engine (faster than regular JavaScript engines)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
@@ -17,7 +15,7 @@ A.C.A.S is an **advanced chess assistance system** (a chess cheat) which helps y
 
 > **Note** Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
-| [▶️ Open A.C.A.S](https://hakorr.github.io/A.C.A.S/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
+| [▶️ Open A.C.A.S](https://psyyke.github.io/A.C.A.S/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|
 
 ## Example Gameplay
@@ -26,7 +24,7 @@ A.C.A.S is an **advanced chess assistance system** (a chess cheat) which helps y
 
 ## Getting Started
 
-Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system), open the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) and a supported chess game site. Then, just start playing!
+Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system), open the [A.C.A.S GUI](https://psyyke.github.io/A.C.A.S/) and a supported chess game site. Then, just start playing!
 
 > **Note**
 > You need to keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
@@ -63,13 +61,13 @@ Don't want to get banned again? Don't use A.C.A.S against other humans.
 
 Before making an issue, please read these and also join the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server for assistance,
 
-- Make sure the [A.C.A.S GUI](https://hakorr.github.io/A.C.A.S/) is active. Do not close the tab. Browsers freeze code execution on inactive pages, you need to visit the A.C.A.S GUI tab from time to time or keep it open on a separate window. This prevents A.C.A.S from freezing and not giving any move suggestions, for example.
+- Make sure the [A.C.A.S GUI](https://psyyke.github.io/A.C.A.S/) is active. Do not close the tab. Browsers freeze code execution on inactive pages, you need to visit the A.C.A.S GUI tab from time to time or keep it open on a separate window. This prevents A.C.A.S from freezing and not giving any move suggestions, for example.
 
 - Do you not see any moves displayed on the chess site? Are you sure you have enabled "Display Moves On External Site" box on the A.C.A.S GUI settings? After enabling that setting, please refresh the chess site to see changes.
 
 - Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.
 
-Otherwise, it could be a bug, please make an issue [here](https://github.com/Hakorr/A.C.A.S/issues/new). 
+Otherwise, it could be a bug, please make an issue [here](https://github.com/psyyke/A.C.A.S/issues/new). 
 
 > **Note** When making an issue, please be descriptive! Mention,
 > - The chess site and the variant you were playing.

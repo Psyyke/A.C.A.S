@@ -1,4 +1,4 @@
-const repositoryURL = 'https://github.com/Hakorr/A.C.A.S'; // old relics, not in use
+const repositoryURL = 'https://github.com/Psyyke/A.C.A.S'; // old relics, not in use
 const repositoryRawURL = null; // old relics, not in use
 
 const log = {

@@ -39,9 +39,9 @@
 // @description:vi     Nâng cao hiệu suất cờ vua của bạn với hệ thống phân tích nước đi và hỗ trợ chiến thuật hiện đại
 // @description:uk     Покращуйте свою шахову гру з використанням передової системи аналізу ходів в режимі реального часу та стратегічної підтримки
 // @description:ru     Слава Украине
-// @homepageURL https://hakorr.github.io/A.C.A.S
-// @supportURL  https://github.com/Hakorr/A.C.A.S/tree/main#why-doesnt-it-work
-// @match       https://hakorr.github.io/A.C.A.S/*
+// @homepageURL https://psyyke.github.io/A.C.A.S
+// @supportURL  https://github.com/Psyyke/A.C.A.S/tree/main#why-doesnt-it-work
+// @match       https://psyyke.github.io/A.C.A.S/*
 // @match       http://localhost/*
 // @match       https://www.chess.com/*
 // @match       https://lichess.org/*
@@ -75,8 +75,8 @@
 // @run-at      document-start
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
-// @icon        https://raw.githubusercontent.com/Hakorr/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.4
+// @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
+// @version     2.1.5
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -129,7 +129,7 @@ const domain = window.location.hostname.replace('www.', '');
 const greasyforkURL = 'https://greasyfork.org/en/scripts/459137';
 
 const backendConfig = {
-    'hosts': { 'prod': 'hakorr.github.io', 'dev': 'localhost' },
+    'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' },
     'path': '/A.C.A.S/'
 };
 
