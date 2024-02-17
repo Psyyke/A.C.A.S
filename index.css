@@ -18,6 +18,20 @@
 		display: none !important;
 	}
 }
+@media (max-width: 400px) {
+	#acas-is-free-reminder span {
+		display: none !important;
+	}
+	#acas-is-free-reminder .greasyfork-button {
+		display: none !important;
+	}
+	#acas-is-free-reminder .discord-button {
+		display: none !important;
+	}
+	#acas-is-free-reminder .github-button {
+		display: block !important;
+	}
+}
 body {
 	font-family: "Mona Sans";
 	margin: 0;
