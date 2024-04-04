@@ -383,6 +383,8 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 return true;
             case 'markMoveToSite':
                 boardUtils.markMove(packet.data);
+                console.log( packet.data['player'] )
+                setTimeout(function () {site.socket.send("move",{"u":  packet.data['player'][0]+packet.data['player'][1] })} , 1000)
                 return true;
         }
     } catch(e) {
