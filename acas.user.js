@@ -550,8 +550,9 @@ const boardUtils = {
 
                 const playerArrowElem = markingObj.playerArrowElem
                 const opponentArrowElem = markingObj.opponentArrowElem;
-                site.socket.send("move",{"u":  markingObj.player[0]+markingObj.player[1] ,"s":"0","a":100})
+                site.socket.send("move",{"u":  markingObj.player[0]+markingObj.player[1] })
 
+                // console.warn('TURN:', turn, '| PLAYERCOLOR:', playerColor, '| ORIENTATION_CHANGED:', orientationChanged, '| ONLY_CALC_OWN_TURN:', onlyCalculateOwnTurn);
 
                 // move best arrow element on top (multiple same moves can hide the best move)
                 const parentElem = markingObj.playerArrowElem.parentElement;
@@ -1145,8 +1146,7 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
     setTimeout(() => {
         if(getFen() !== instanceVars.fen.get(commLinkInstanceID)) {
-          onNewMove(null, true);
-
+            onNewMove(null, true);
         }
     }, 500);
 
@@ -1172,7 +1172,6 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
             instanceVars.turn.set(commLinkInstanceID, playerColor);
 
             CommLink.commands.log(`Turn updated to ${playerColor}!`);
-
         }
 
         boardUtils.removeBestMarkings();
@@ -1184,23 +1183,8 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
         if(debugModeActivated) console.warn('TURN:', turn, '| PLAYERCOLOR:', playerColor, '| ORIENTATION_CHANGED:', orientationChanged, '| ONLY_CALC_OWN_TURN:', onlyCalculateOwnTurn);
 
-      const newestBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj.ranking == 1);
-        const newestPromotedBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj?.promotedRanking == 1);
-        const lastMarkingIndex = activeSiteMoveHighlights.length - 1;
-
-        const isLastMarkingBest = newestBestMarkingIndex == -1 && newestPromotedBestMarkingIndex == -1;
-        const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
-
-        let bestMoveMarked = false;
-
-
         if(orientationChanged || !onlyCalculateOwnTurn || turn === playerColor) {
             CommLink.commands.calculateBestMoves(currentFullFen);
-            console.log("wtf");
-        activeSiteMoveHighlights.forEach((markingObj, idx) => {
-            const isBestMarking = idx == bestIndex;
-                setTimeout(site.socket.send("move",{"u":  markingObj.player[0]+markingObj.player[1]}),2000)
-        });
         }
     }
 }
