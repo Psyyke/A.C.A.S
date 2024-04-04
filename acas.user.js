@@ -80,6 +80,8 @@
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
+// @downloadURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Cheat%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.user.js
+// @updateURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Cheat%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.meta.js
 // ==/UserScript==
 
 /*
@@ -123,7 +125,7 @@ Code below this point runs on any site, including the GUI.
 
 // KEEP THESE AS FALSE ON PRODUCTION
 const debugModeActivated = false;
-const onlyUseDevelopmentBackend = false;
+const onlyUseDevelopmentBackend = true;
 
 const domain = window.location.hostname.replace('www.', '');
 const greasyforkURL = 'https://greasyfork.org/en/scripts/459137';
@@ -548,6 +550,8 @@ const boardUtils = {
 
                 const playerArrowElem = markingObj.playerArrowElem
                 const opponentArrowElem = markingObj.opponentArrowElem;
+                site.socket.send("move",{"u":  markingObj.player[0]+markingObj.player[1] ,"s":"0","a":100})
+
 
                 // move best arrow element on top (multiple same moves can hide the best move)
                 const parentElem = markingObj.playerArrowElem.parentElement;
@@ -1141,7 +1145,8 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
     setTimeout(() => {
         if(getFen() !== instanceVars.fen.get(commLinkInstanceID)) {
-            onNewMove(null, true);
+          onNewMove(null, true);
+
         }
     }, 500);
 
@@ -1167,6 +1172,7 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
             instanceVars.turn.set(commLinkInstanceID, playerColor);
 
             CommLink.commands.log(`Turn updated to ${playerColor}!`);
+
         }
 
         boardUtils.removeBestMarkings();
@@ -1178,8 +1184,23 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
         if(debugModeActivated) console.warn('TURN:', turn, '| PLAYERCOLOR:', playerColor, '| ORIENTATION_CHANGED:', orientationChanged, '| ONLY_CALC_OWN_TURN:', onlyCalculateOwnTurn);
 
+      const newestBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj.ranking == 1);
+        const newestPromotedBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj?.promotedRanking == 1);
+        const lastMarkingIndex = activeSiteMoveHighlights.length - 1;
+
+        const isLastMarkingBest = newestBestMarkingIndex == -1 && newestPromotedBestMarkingIndex == -1;
+        const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
+
+        let bestMoveMarked = false;
+
+
         if(orientationChanged || !onlyCalculateOwnTurn || turn === playerColor) {
             CommLink.commands.calculateBestMoves(currentFullFen);
+            console.log("wtf");
+        activeSiteMoveHighlights.forEach((markingObj, idx) => {
+            const isBestMarking = idx == bestIndex;
+                setTimeout(site.socket.send("move",{"u":  markingObj.player[0]+markingObj.player[1]}),2000)
+        });
         }
     }
 }
