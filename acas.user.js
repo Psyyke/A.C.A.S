@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.6
+// @version     2.1.7
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
