@@ -296,7 +296,6 @@ Object.values(configKeys).forEach(key => {
 
 let BoardDrawer = null;
 let chessBoardElem = null;
-let chesscomVariantBoardCoordsTable = null;
 let chesscomVariantPlayerColorsTable = null;
 let activeSiteMoveHighlights = [];
 let inactiveGuiMoveMarkings = [];
@@ -713,35 +712,6 @@ function getElemCoordinatesFromLeftTopPixels(elem) {
         const flippedX = lastBoardRanks - (x + 1);
 
         return [flippedX, y];
-    }
-}
-
-function updateChesscomVariantBoardCoordsTable() {
-    chesscomVariantBoardCoordsTable = {};
-
-    const boardElem = getBoardElem();
-    const [boardWidth, boardHeight] = getBoardDimensions();
-    const boardOrientation = getBoardOrientation();
-
-    const squareElems = getSquareElems(boardElem);
-
-    let squareIndex = 0;
-
-    for(let x = 0; x < boardWidth; x++) {
-        for(let y = boardHeight; y > 0; y--) {
-            const squareElem = squareElems[squareIndex];
-            const id = squareElem?.dataset?.theme;
-
-            if(id) {
-                if(boardOrientation === 'b') {
-                    chesscomVariantBoardCoordsTable[id] = [boardWidth - (x + 1), boardHeight - y];
-                } else {
-                    chesscomVariantBoardCoordsTable[id] = [x, y - 1];
-                }
-            }
-
-            squareIndex++;
-        }
     }
 }
 
@@ -1323,6 +1293,10 @@ addSupportedChessSite('chess.com', {
 
             pieceColor = chesscomVariantPlayerColorsTable[pieceElem?.dataset?.color];
             pieceName = pieceElem?.dataset?.piece;
+
+            if(pieceName?.length > 1) {
+                pieceName = pieceName[0];
+            }
         } else {
             const pieceStr = [...pieceElem.classList].find(x => x.match(/^(b|w)[prnbqk]{1}$/));
 
@@ -1337,18 +1311,7 @@ addSupportedChessSite('chess.com', {
         const pieceElem = obj.pieceElem;
 
         if(pathname?.includes('/variants')) {
-            if(!chesscomVariantBoardCoordsTable) {
-                updateChesscomVariantBoardCoordsTable();
-            }
-
-            const pieceBoundary = pieceElem.getBoundingClientRect();
-            const elementsBehindPieceElem = document.elementsFromPoint(pieceBoundary.x, pieceBoundary.y);
-
-            const squareElem = elementsBehindPieceElem?.find(x => x?.classList?.contains('square'));
-
-            //console.log(squareElem?.dataset?.theme, chesscomVariantBoardCoordsTable[squareElem?.dataset?.theme]);
-
-            const coords = chesscomVariantBoardCoordsTable[squareElem?.dataset?.theme];
+            const coords = getElemCoordinatesFromTransform(pieceElem);
 
             return coords;
         }
@@ -1379,8 +1342,6 @@ addSupportedChessSite('chess.com', {
                     }
                 }
             });
-
-            //console.log([ranks, files]);
 
             return [ranks, files];
         } else {
@@ -2584,8 +2545,6 @@ addSupportedChessSite('chessfriends.com', {
 
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
-
-        //console.log(getElemCoordinatesFromLeftTopPixels(pieceElem));
 
         return getElemCoordinatesFromLeftTopPixels(pieceElem);
     },
