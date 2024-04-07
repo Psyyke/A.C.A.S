@@ -802,7 +802,7 @@ class BackendInstance {
             }
 
             if(!variantExists && this.chessVariant != 'chess960') {
-                variantText += ` <span class="variant-not-supported-text">(${this.chessVariant} not supported)</span>`;
+                variantText += ` (${this.chessVariant} not supported)`;
             }
 
             const chessFont = formatChessFont(this.getConfigValue(this.configKeys.chessFont));
