@@ -36,9 +36,15 @@ const ttsSpeedRangeElem = document.querySelector('#tts-speed-range');
 
 const userscriptInfoElem = document.querySelector('#userscript-info-small');
 
+const updateYourUserscriptElem = document.querySelector('#update-your-userscript-notification');
+
 const instanceSizeChangeContainerElem = document.querySelector('#instance-size-change-container');
 const decreaseInstanceSizeBtn = document.querySelector('#decrease-instance-size-btn');
 const increaseInstanceSizeBtn = document.querySelector('#increase-instance-size-btn');
+
+const chessVariantDropdown = document.querySelector('#chess-variant-dropdown');
+const engineEloInput = document.querySelector('#engine-elo-input');
+const lc0WeightDropdown = document.querySelector('#lc0-weight-dropdown');
 
 if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
     const GM_info = USERSCRIPT?.GM_info;
@@ -49,6 +55,10 @@ if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) 
     const userscriptData = [GM_info?.script?.author, GM_info?.script?.version]?.join(' ');
 
     document.title = `A.C.A.S (Using ${userscriptData})`;
+
+    if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.1.9')) {
+        updateYourUserscriptElem.classList.remove('hidden');
+    }
     
     userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
 } else {
@@ -166,7 +176,7 @@ function removeInstanceFromSettingsDropdown(instanceID) {
 function fillChessVariantDropdowns(arr) {
     const chessVariantsArr = arr.sort((a, b) => a.localeCompare(b));
 
-    const chessVariantDropdownElems = [...document.querySelectorAll('.chess-variant-dropdown')];
+    const chessVariantDropdownElems = [...document.querySelectorAll('#chess-variant-dropdown')];
 
     chessVariantDropdownElems
         .filter(elem => !elem.getAttribute('filled-successfully'))
@@ -257,7 +267,19 @@ function makeSettingChanges(inputElem) {
                 ttsNameDropdownElem.classList.add('disabled-input');
                 ttsSpeedRangeElem.classList.add('disabled-input');
             }
+            break;
+        case 'chessEngine':
+            if(value === 'lc0') {
+                chessVariantDropdown.classList.add('hidden');
+                engineEloInput.classList.add('hidden');
 
+                lc0WeightDropdown.classList.remove('hidden');
+            } else {
+                chessVariantDropdown.classList.remove('hidden');
+                engineEloInput.classList.remove('hidden');
+
+                lc0WeightDropdown.classList.add('hidden');
+            }
             break;
     }
 }

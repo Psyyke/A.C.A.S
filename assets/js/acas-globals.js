@@ -352,3 +352,18 @@ function setIntervalAsync(callback, interval) {
 
     return { stop: () => running = false };
 }
+
+async function loadFileAsUint8Array(url) {
+    try {
+        const response = await fetch(url);
+        const buffer = await response.arrayBuffer();
+        return new Uint8Array(buffer);
+    } catch (error) {
+        console.error("Error loading file:", error);
+        return null;
+    }
+}
+
+function isBelowVersion(versionStr, targetVersion) {
+    return versionStr.localeCompare(targetVersion, undefined, {numeric: true}) === -1;
+}

@@ -69,6 +69,7 @@
 					<div id="acas-logo-secondary">Chess Assistance</div>
 				</div>
 			</a>
+			<a id="update-your-userscript-notification" class="hidden" href="https://greasyfork.org/en/scripts/459137-1-chess-cheat-a-c-a-s-advanced-chess-assistance-system">UPDATE YOUR USERSCRIPT, NEW FEATURES MIGHT NOT WORK ON YOUR VERSION</a>
 			<div id="acas-is-free-reminder">
 				<span>Support us by giving feedback!</span>
 				<div class="acas-social-actions">
@@ -170,7 +171,30 @@
 			<div id="settings-panels">
 				<div class="setting-panel">
 					<div class="setting-panel-title">Engine ⚙️</div>
-					<div class="dropdown-input chess-variant-dropdown custom-input"><div><div class="input-title">Chess Variant</div>
+					<div id="chess-engine-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Engine</div>
+						<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_engine" target="_blank">here</a></div></div><div class="dropdown-input-container">
+						<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="fairy-stockfish-nnue-wasm" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
+						<div class="dropdown-list-container">
+							<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish NNUE WASM</div>
+							<div class="dropdown-item" data-value="lc0">Lc0 (Maia weights 1100-1900)</div>
+						</div>
+					</div></div>
+					<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weight</div>
+						<div class="input-subtitle">Read more <a href="https://github.com/CSSLab/maia-chess" target="_blank">here</a></div></div><div class="dropdown-input-container">
+						<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="1100" placeholder="1100 elo"><div class="dropdown-icon"></div>
+						<div class="dropdown-list-container">
+							<div class="dropdown-item" data-value="1100">1100 elo</div>
+							<div class="dropdown-item" data-value="1200">1200 elo</div>
+							<div class="dropdown-item" data-value="1300">1300 elo</div>
+							<div class="dropdown-item" data-value="1400">1400 elo</div>
+							<div class="dropdown-item" data-value="1500">1500 elo</div>
+							<div class="dropdown-item" data-value="1600">1600 elo</div>
+							<div class="dropdown-item" data-value="1700">1700 elo</div>
+							<div class="dropdown-item" data-value="1800">1800 elo</div>
+							<div class="dropdown-item" data-value="1900">1900 elo</div>
+						</div>
+					</div></div>
+					<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
 						<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_variant" target="_blank">here</a></div></div><div class="dropdown-input-container">
 						<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container"></div>
@@ -179,7 +203,7 @@
 						<div class="input-subtitle">Make engine use Chess960 chess variant</div></div><div class="checkbox-container">
 						<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 					</div>
-					<div class="textfield-input custom-input"><div><div class="input-title">Engine ELO (500 - 3200)</div>
+					<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO (500 - 3200)</div>
 						<div class="input-subtitle">Higher number, stronger engine</div></div>
 						<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
 					</div>
@@ -231,7 +255,7 @@
 				<div class="setting-panel">
 					<div class="setting-panel-title">Miscellaneous ❔</div>
 					<div class="color-input custom-input"><div class="input-title">Theme Color</div>
-						<input type="color" data-key="themeColorHex" data-default-value="#2E483D">
+						<input type="color" data-key="themeColorHex" data-default-value="#3D574C">
 					</div>
 					<div class="color-input custom-input"><div class="input-title">Board Color</div>
 						<input type="color" data-key="boardColorHex" data-default-value="#B5B5B5">
@@ -286,7 +310,7 @@
 		</div>
 
 		<script src="assets/js/acas-toast.js"></script>
-		<script type="module" src="assets/js/acas-chessground-x.js"></script>
+		<script type="module" src="assets/js/acas-load-modules.js"></script>
 		<script src="assets/js/acas-backend-gui.js"></script>
 		<script src="index.js"></script>
 	</body>

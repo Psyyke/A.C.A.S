@@ -10,6 +10,8 @@ class BackendInstance {
             'onlyShowTopMoves': 'onlyShowTopMoves',
             'maxMovetime': 'maxMovetime',
             'chessVariant': 'chessVariant',
+            'chessEngine': 'chessEngine',
+            'lc0Weight': 'lc0Weight',
             'chessFont': 'chessFont',
             'useChess960': 'useChess960',
             'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
@@ -44,11 +46,13 @@ class BackendInstance {
         this.chessVariant = isVariant960(chessVariant) ? formatVariant('chess') : formatVariant(chessVariant || this.getConfigValue(this.configKeys.chessVariant) || 'chess');
         this.useChess960 =  isVariant960(chessVariant) ? true : this.getConfigValue(this.configKeys.useChess960);
 
-        this.chessVariants = [];
+        this.chessVariants = ['chess'];
 
         this.onLoadCallbackFunction = onLoadCallbackFunction;
 
         this.engine = null;
+        this.chessEngineType = this.getConfigValue(this.configKeys.chessEngine);
+        this.engineWeight = this.getConfigValue(this.configKeys.lc0Weight);
         this.chessground = null;
         this.instanceElem = null;
         this.BoardDrawer = null;
@@ -68,6 +72,8 @@ class BackendInstance {
         this.unprocessedPackets = [];
 
         this.currentSpeeches = [];
+
+        this.defaultStartpos = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
         this.arrowStyles = {
             'best': `
@@ -435,7 +441,7 @@ class BackendInstance {
         if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2600;
 
-            this.engine.postMessage(`setoption name UCI_Elo value ${elo}`);
+            this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`);
 
             if(limitStrength) {
                 this.setEngineLimitStrength(true);
@@ -469,39 +475,43 @@ class BackendInstance {
         }
     }
 
+    async setEngineWeight(weight) {
+        this.engine.setZeroWeights(await loadFileAsUint8Array(`/A.C.A.S/assets/libraries/maia-chess/maia-${weight}.pb`));
+    }
+
     disableEngineElo() {
-        this.engine.postMessage(`setoption name UCI_LimitStrength value false`);
+        this.sendMsgToEngine(`setoption name UCI_LimitStrength value false`);
     }
 
     setEngineMultiPV(amount) {
         if(typeof amount == 'number') {
-            this.engine.postMessage(`setoption name MultiPV value ${amount}`);
+            this.sendMsgToEngine(`setoption name MultiPV value ${amount}`);
         }
     }
 
     setEngineSkillLevel(amount) {
         if(typeof amount == 'number' && -20 <= amount && amount <= 20) {
-            this.engine.postMessage(`setoption name UCI_LimitStrength value ${amount}`);
+            this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${amount}`);
         }
     }
 
     setEngineLimitStrength(bool) {
         if(typeof bool == 'boolean') {
-            this.engine.postMessage(`setoption name UCI_LimitStrength value ${bool}`);
+            this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${bool}`);
         }
     }
 
     set960Mode(val) {
         const bool = val ? true : false;
 
-        this.engine.postMessage(`setoption name UCI_Chess960 value ${bool}`);
+        this.sendMsgToEngine(`setoption name UCI_Chess960 value ${bool}`);
 
         this.useChess960 = bool;
     }
 
     setEngineVariant(variant) {
         if(typeof variant == 'string') {
-            this.engine.postMessage(`setoption name UCI_Variant value ${variant}`);
+            this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`);
 
             this.chessVariant = formatVariant(variant);
             this.useChess960 = isVariant960(variant) ? true : this.getConfigValue(this.configKeys.useChess960);
@@ -528,19 +538,28 @@ class BackendInstance {
 
         this.engineStopCalculating();
 
-        this.engine.postMessage('ucinewgame'); // very important to be before setting variant and so forth
-        this.engine.postMessage('uci'); // to display variants
+        this.sendMsgToEngine('ucinewgame'); // very important to be before setting variant and so forth
+        this.sendMsgToEngine('uci'); // to display variants
 
-        this.setEngineVariant(chessVariant);
-        this.setEngineElo(this.getConfigValue(this.configKeys.engineElo));
         this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount));
 
-        this.engine.postMessage('position startpos');
-        this.engine.postMessage('d');
+        switch(this.chessEngineType) {
+            case 'lc0':
+                this.sendMsgToEngine('position startpos');
+
+                break;
+            default:
+                this.setEngineVariant(chessVariant);
+                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo));    
+
+                this.sendMsgToEngine('position startpos');
+                this.sendMsgToEngine('d');
+                break;
+        }
     }
 
     engineStopCalculating() {
-        this.engine.postMessage('stop');
+        this.sendMsgToEngine('stop');
     }
 
     isPlayerTurn() {
@@ -564,7 +583,7 @@ class BackendInstance {
         const isStartPos = getBasicFenLowerCased(this.variantStartPosFen) == getBasicFenLowerCased(fen);
 
         if(isStartPos) {
-            this.engine.postMessage('ucinewgame');
+            this.sendMsgToEngine('ucinewgame');
         }*/
     }
 
@@ -595,12 +614,14 @@ class BackendInstance {
         function findSettingKeyFromData(key) {
             return Object.values(updateObj?.data)?.includes(key);
         }
-
+        
         const didUpdateVariant = findSettingKeyFromData(this.configKeys.chessVariant);
         const didUpdateElo = findSettingKeyFromData(this.configKeys.engineElo);
+        const didUpdateLc0Weight = findSettingKeyFromData(this.configKeys.lc0Weight);
         const didUpdateChessFont = findSettingKeyFromData(this.configKeys.chessFont);
         const didUpdateMultiPV = findSettingKeyFromData(this.configKeys.moveSuggestionAmount);
         const didUpdate960Mode = findSettingKeyFromData(this.configKeys.useChess960);
+        const didUpdateChessEngine = findSettingKeyFromData(this.configKeys.chessEngine);
 
         const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant));
         const useChess960 = this.getConfigValue(this.configKeys.useChess960);
@@ -613,8 +634,19 @@ class BackendInstance {
             if(didUpdateChessFont)
                 this.setChessFont(this.getConfigValue(this.configKeys.chessFont));
 
+            if(didUpdateChessEngine) {
+                const previousEngine = this.chessEngineType;
+                this.chessEngineType = updateObj.data.value;
+
+                this.killEngine(previousEngine);
+
+                this.loadEngine();
+            }
             if(didUpdateElo)
                 this.setEngineElo(this.getConfigValue(this.configKeys.engineElo), true);
+
+            if(didUpdateLc0Weight)
+                this.setEngineWeight(this.getConfigValue(this.configKeys.lc0Weight), true);
 
             if(didUpdateMultiPV)
                 this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount));
@@ -642,29 +674,49 @@ class BackendInstance {
     
         log.info('Sending best move request to the engine!');
     
-        this.engine.postMessage(`position fen ${currentFen}`);
+        this.sendMsgToEngine(`position fen ${currentFen}`);
 
         let searchCommandStr = 'go infinite';
 
-        if(this.searchDepth) {
-            searchCommandStr = `go depth ${this.searchDepth}`;
+        switch(this.chessEngineType) {
+            case 'lc0':
+                searchCommandStr = 'go nodes 1';
+            break;
+
+            default: // Fairy Stockfish NNUE WASM
+                if(this.searchDepth) {
+                    searchCommandStr = `go depth ${this.searchDepth}`;
+                }
+            break;
         }
 
-        //if(this.isPlayerTurn()) {
-            const movetime = this.getConfigValue(this.configKeys.maxMovetime);
+        this.sendMsgToEngine(searchCommandStr);
 
-            if(typeof movetime == 'number') {
-                this.currentMovetimeTimeout = setTimeout(() => {
-                    if(movetime != 0 && !this.engineFinishedCalculation) {
-                        console.log('Stopped');
+        const movetime = this.getConfigValue(this.configKeys.maxMovetime);
 
-                        this.engineStopCalculating();
-                    }
-                }, movetime + 5);
-            }
+        if(typeof movetime == 'number') {
+            this.currentMovetimeTimeout = setTimeout(() => {
+                if(movetime != 0 && !this.engineFinishedCalculation) {
+                    console.log('Stopped');
 
-            this.engine.postMessage(searchCommandStr);
-        //}
+                    this.engineStopCalculating();
+                }
+            }, movetime + 5);
+        }
+    }
+
+    sendMsgToEngine(msg, specificEngineName) {
+        const engineName = specificEngineName ? specificEngineName : this.chessEngineType;
+        
+        switch(engineName) {
+            case 'lc0':
+                this.engine.zero(msg);
+            break;
+
+            default: // Fairy Stockfish NNUE WASM
+                this.engine.postMessage(msg);
+            break;
+        }
     }
 
     engineMessageHandler(msg) {
@@ -703,7 +755,7 @@ class BackendInstance {
 
         if(data?.pv) {
             const moveRegex = /[a-zA-Z]\d+/g;
-            const ranking = convertToCorrectType(data?.multipv);
+            const ranking = convertToCorrectType(data?.multipv) || 1;
             let moves = data.pv.split(' ').map(move => move.match(moveRegex));
 
             if(moves?.length === 1) // if no opponent move guesses yet
@@ -766,6 +818,10 @@ class BackendInstance {
 
             this.setupEnvironment(variantStartposFen, dimensions);
         }
+        
+        if(msg === 'uciok' && this.chessEngineType === 'lc0') {
+            this.setupEnvironment(this.defaultStartpos, [8, 8]);
+        }
     }
 
     async loadEngine() {
@@ -773,17 +829,33 @@ class BackendInstance {
         {
             toast.error(`FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!`, 1e9);
         } else {
-            this.engine = await Stockfish(); // Fairy-Stockfish WASM
-
-            this.engineStartNewGame(formatVariant(this.chessVariant));
-        
-            this.engine.addMessageListener(msg => {
+            const msgHandler = msg => {
                 try {
                     this.engineMessageHandler(msg);
                 } catch(e) {
                     console.error('Engine', this.instanceID, 'error:', e);
                 }
-            });
+            }
+
+            switch(this.chessEngineType) {
+                case 'lc0':
+                    this.engine = await zerofish();
+                    
+                    this.engine.listenZero = msgHandler;
+
+                    await this.setEngineWeight(this.engineWeight);
+
+                    this.engineStartNewGame('chess');
+                break;
+
+                default: // Fairy Stockfish NNUE WASM
+                    this.engine = await Stockfish();
+
+                    this.engine.addMessageListener(msgHandler);
+
+                    this.engineStartNewGame(formatVariant(this.chessVariant));
+                break;
+            }
         }
     }
 
@@ -986,8 +1058,8 @@ class BackendInstance {
         }
     }
 
-    killEngine() {
-        this?.engine?.postMessage('quit');
+    killEngine(specificEngineName) {
+        this.sendMsgToEngine('quit', specificEngineName);
     }
 
     close() {

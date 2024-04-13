@@ -988,3 +988,9 @@ cg-container {
 .info-text-losing {
 	color: rgb(255 130 130) !important;
 }
+#update-your-userscript-notification {
+	color: #ff7858;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+}

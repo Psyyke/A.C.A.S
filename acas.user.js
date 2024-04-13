@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.7
+// @version     2.1.9
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -280,9 +280,14 @@ const configKeys = {
     'onlyShowTopMoves': 'onlyShowTopMoves',
     'maxMovetime': 'maxMovetime',
     'chessVariant': 'chessVariant',
+    'chessEngine': 'chessEngine',
+    'lc0Weight': 'lc0Weight',
     'chessFont': 'chessFont',
     'useChess960': 'useChess960',
-    'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn'
+    'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
+    'ttsVoiceEnabled': 'ttsVoiceEnabled',
+    'ttsVoiceName': 'ttsVoiceName',
+    'ttsVoiceSpeed': 'ttsVoiceSpeed'
 };
 
 const config = {};
@@ -1093,13 +1098,12 @@ function getFen(onlyBasic) {
     }
 
     // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
-    const fullFen = `${basicFen} ${getPlayerColorVariable()} ${getRights()} - - -`;
+    const fullFen = `${basicFen} ${getPlayerColorVariable()} ${getRights()} - 0 1`;
 
     return fullFen;
 }
 
 function resetCachedValues() {
-    chesscomVariantBoardCoordsTable = null;
     chesscomVariantPlayerColorsTable = null;
 }
 
