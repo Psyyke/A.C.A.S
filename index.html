@@ -175,25 +175,29 @@
 						<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_engine" target="_blank">here</a></div></div><div class="dropdown-input-container">
 						<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="fairy-stockfish-nnue-wasm" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish NNUE WASM</div>
-							<div class="dropdown-item" data-value="lc0">Lc0 (Maia weights 1100-1900)</div>
+							<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish v14 NNUE WASM</div>
+							<div class="dropdown-item" data-value="lc0">Lc0 v29.0</div>
 						</div>
 					</div></div>
 					<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weight</div>
 						<div class="input-subtitle">Read more <a href="https://github.com/CSSLab/maia-chess" target="_blank">here</a></div></div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="1100" placeholder="1100 elo"><div class="dropdown-icon"></div>
+						<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="maia-1100.pb" placeholder="1100 elo"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="1100">1100 elo</div>
-							<div class="dropdown-item" data-value="1200">1200 elo</div>
-							<div class="dropdown-item" data-value="1300">1300 elo</div>
-							<div class="dropdown-item" data-value="1400">1400 elo</div>
-							<div class="dropdown-item" data-value="1500">1500 elo</div>
-							<div class="dropdown-item" data-value="1600">1600 elo</div>
-							<div class="dropdown-item" data-value="1700">1700 elo</div>
-							<div class="dropdown-item" data-value="1800">1800 elo</div>
-							<div class="dropdown-item" data-value="1900">1900 elo</div>
+							<div class="dropdown-item" data-value="maia-1100.pb">1100 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1200.pb">1200 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1300.pb">1300 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1400.pb">1400 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1500.pb">1500 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1600.pb">1600 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1700.pb">1700 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1800.pb">1800 elo (Maia)</div>
+							<div class="dropdown-item" data-value="maia-1900.pb">1900 elo (Maia)</div>
 						</div>
 					</div></div>
+					<div id="engine-nodes-input" class="textfield-input custom-input"><div><div class="input-title">Search Nodes</div>
+						<div class="input-subtitle">More nodes means more thinking of the move by the engine</div></div>
+						<input type="textfield" data-key="engineNodes" data-default-value="1" data-between="1-99999999">
+					</div>
 					<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
 						<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_variant" target="_blank">here</a></div></div><div class="dropdown-input-container">
 						<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>

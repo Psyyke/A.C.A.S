@@ -12,6 +12,7 @@ class BackendInstance {
             'chessVariant': 'chessVariant',
             'chessEngine': 'chessEngine',
             'lc0Weight': 'lc0Weight',
+            'engineNodes': 'engineNodes',
             'chessFont': 'chessFont',
             'useChess960': 'useChess960',
             'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
@@ -50,9 +51,9 @@ class BackendInstance {
 
         this.onLoadCallbackFunction = onLoadCallbackFunction;
 
-        this.engine = null;
+        this.engines = [];
         this.chessEngineType = this.getConfigValue(this.configKeys.chessEngine);
-        this.engineWeight = this.getConfigValue(this.configKeys.lc0Weight);
+        this.lc0WeightName = this.getConfigValue(this.configKeys.lc0Weight);
         this.chessground = null;
         this.instanceElem = null;
         this.BoardDrawer = null;
@@ -60,6 +61,7 @@ class BackendInstance {
         this.variantStartPosFen = null;
 
         this.searchDepth = null;
+        this.engineNodes = 1;
         
         this.engineFinishedCalculation = null;
         this.currentMovetimeTimeout = null;
@@ -475,8 +477,23 @@ class BackendInstance {
         }
     }
 
-    async setEngineWeight(weight) {
-        this.engine.setZeroWeights(await loadFileAsUint8Array(`/A.C.A.S/assets/libraries/maia-chess/maia-${weight}.pb`));
+    setEngineNodes(nodeAmount) {
+        if(this.lc0WeightName.includes('maia') && nodeAmount !== 1) {
+            toast.warning('Maia weights work best with no search, please only use one (1) search node!', 30000);
+        }
+
+        this.engineNodes = nodeAmount;
+    }
+
+    async setEngineWeight(weightName) {
+        // legacy support, convert 1100 -> maia-1100.pb etc.
+        if(/^\d{4}(,\d{3})*$/.test(weightName)) {
+            weightName = `maia-${weightName}.pb`;
+        }
+
+        this.lc0WeightName = weightName;
+
+        this.getEngine().setZeroWeights(await loadFileAsUint8Array(`/A.C.A.S/assets/lc0-weights/${weightName}`));
     }
 
     disableEngineElo() {
@@ -545,6 +562,7 @@ class BackendInstance {
 
         switch(this.chessEngineType) {
             case 'lc0':
+                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes));
                 this.sendMsgToEngine('position startpos');
 
                 break;
@@ -622,6 +640,7 @@ class BackendInstance {
         const didUpdateMultiPV = findSettingKeyFromData(this.configKeys.moveSuggestionAmount);
         const didUpdate960Mode = findSettingKeyFromData(this.configKeys.useChess960);
         const didUpdateChessEngine = findSettingKeyFromData(this.configKeys.chessEngine);
+        const didUpdateNodes = findSettingKeyFromData(this.configKeys.engineNodes);
 
         const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant));
         const useChess960 = this.getConfigValue(this.configKeys.useChess960);
@@ -635,15 +654,16 @@ class BackendInstance {
                 this.setChessFont(this.getConfigValue(this.configKeys.chessFont));
 
             if(didUpdateChessEngine) {
-                const previousEngine = this.chessEngineType;
                 this.chessEngineType = updateObj.data.value;
-
-                this.killEngine(previousEngine);
 
                 this.loadEngine();
             }
+
             if(didUpdateElo)
                 this.setEngineElo(this.getConfigValue(this.configKeys.engineElo), true);
+
+            if(didUpdateNodes)
+                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes));
 
             if(didUpdateLc0Weight)
                 this.setEngineWeight(this.getConfigValue(this.configKeys.lc0Weight), true);
@@ -680,7 +700,7 @@ class BackendInstance {
 
         switch(this.chessEngineType) {
             case 'lc0':
-                searchCommandStr = 'go nodes 1';
+                searchCommandStr = `go nodes ${this.engineNodes}`;
             break;
 
             default: // Fairy Stockfish NNUE WASM
@@ -705,18 +725,16 @@ class BackendInstance {
         }
     }
 
-    sendMsgToEngine(msg, specificEngineName) {
-        const engineName = specificEngineName ? specificEngineName : this.chessEngineType;
-        
-        switch(engineName) {
-            case 'lc0':
-                this.engine.zero(msg);
-            break;
+    getEngineAcasObj(i) {
+        return this.engines[i ? i : this.engines.length - 1];
+    }
 
-            default: // Fairy Stockfish NNUE WASM
-                this.engine.postMessage(msg);
-            break;
-        }
+    getEngine(i) {
+        return this.getEngineAcasObj(i)['engine'];
+    }
+
+    sendMsgToEngine(msg, i) {
+        this.getEngineAcasObj(i).sendMsg(msg);
     }
 
     engineMessageHandler(msg) {
@@ -771,7 +789,11 @@ class BackendInstance {
             const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves);
             const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
             
-            const isSearchInfinite = this.searchDepth ? false : true;
+            let isSearchInfinite = this.searchDepth ? false : true;
+
+            if(this.chessEngineType === 'lc0') {
+                isSearchInfinite = this.engineNodes > 999999999 ? true : false;
+            }
 
             if(!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited)) {
                 this.Interface.boardUtils.markMove(moveObj);
@@ -829,6 +851,8 @@ class BackendInstance {
         {
             toast.error(`FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!`, 1e9);
         } else {
+            this.killExtraEngines();
+
             const msgHandler = msg => {
                 try {
                     this.engineMessageHandler(msg);
@@ -836,22 +860,40 @@ class BackendInstance {
                     console.error('Engine', this.instanceID, 'error:', e);
                 }
             }
-
+            
             switch(this.chessEngineType) {
                 case 'lc0':
-                    this.engine = await zerofish();
-                    
-                    this.engine.listenZero = msgHandler;
+                    const waitForZeroFish = setInterval(async () => {
+                        if(typeof zerofish !== 'undefined') {
+                            clearInterval(waitForZeroFish);
 
-                    await this.setEngineWeight(this.engineWeight);
-
-                    this.engineStartNewGame('chess');
+                            this.engines.push({
+                                'type': this.chessEngineType,
+                                'engine': await zerofish(),
+                                'sendMsg': msg => this.getEngine().zero(msg)
+                            });
+        
+                            const ZeroFish = this.getEngine();
+                            
+                            ZeroFish.listenZero = msgHandler;
+        
+                            await this.setEngineWeight(this.lc0WeightName);
+        
+                            this.engineStartNewGame('chess');
+                        }
+                    }, 100);
                 break;
 
                 default: // Fairy Stockfish NNUE WASM
-                    this.engine = await Stockfish();
+                    this.engines.push({
+                        'type': this.chessEngineType,
+                        'engine': await Stockfish(),
+                        'sendMsg': msg => this.getEngine().postMessage(msg)
+                    });
 
-                    this.engine.addMessageListener(msgHandler);
+                    const FairyStockfish = this.getEngine();
+
+                    FairyStockfish.addMessageListener(msgHandler);
 
                     this.engineStartNewGame(formatVariant(this.chessVariant));
                 break;
@@ -1030,7 +1072,7 @@ class BackendInstance {
                     'domain': this.domain, 
                     'id': this.instanceID,
                     'variant': this.chessVariant,
-                    'engine': this.engine,
+                    'engine': this.getEngine(),
                     'chessground': this.chessground,
                     'element': this.instanceElem,
                     'dimensions': boardDimensions
@@ -1058,14 +1100,28 @@ class BackendInstance {
         }
     }
 
-    killEngine(specificEngineName) {
-        this.sendMsgToEngine('quit', specificEngineName);
+    killExtraEngines() {
+        for(let i = 0; i < this.engines.length; i++) {
+            if(!this.engines.length - 1) {
+                this.sendMsgToEngine('quit', i);
+
+                this.engines = this.engines.slice(1);
+            }
+        }
+    }
+
+    killEngines() {
+        for(let i = 0; i < this.engines.length; i++) {
+            this.sendMsgToEngine('quit', i);
+
+            this.engines = this.engines.slice(1);
+        }
     }
 
     close() {
         this.instanceClosed = true;
 
-        this?.killEngine();
+        this?.killEngines();
 
         this?.CommLink?.kill();
 
