@@ -1100,21 +1100,30 @@ class BackendInstance {
         }
     }
 
+    killEngine(i) {
+        const engine = this.engines[i].engine;
+
+        this.sendMsgToEngine('quit', i);
+
+        const freeFunction = engine?.['_free'];
+        
+        if(freeFunction)
+            engine?._free();
+
+        this.engines = this.engines.slice(1);
+    }
+
     killExtraEngines() {
         for(let i = 0; i < this.engines.length; i++) {
             if(this.engines.length - 1 !== i) {
-                this.sendMsgToEngine('quit', i);
-
-                this.engines = this.engines.slice(1);
+                this.killEngine(i);
             }
         }
     }
 
     killEngines() {
         for(let i = 0; i < this.engines.length; i++) {
-            this.sendMsgToEngine('quit', i);
-
-            this.engines = this.engines.slice(1);
+            this.killEngine(i);
         }
     }
 
