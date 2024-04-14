@@ -45,6 +45,7 @@ const increaseInstanceSizeBtn = document.querySelector('#increase-instance-size-
 const chessVariantDropdown = document.querySelector('#chess-variant-dropdown');
 const engineEloInput = document.querySelector('#engine-elo-input');
 const lc0WeightDropdown = document.querySelector('#lc0-weight-dropdown');
+const engineNodesInput = document.querySelector('#engine-nodes-input');
 
 if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
     const GM_info = USERSCRIPT?.GM_info;
@@ -272,12 +273,14 @@ function makeSettingChanges(inputElem) {
             if(value === 'lc0') {
                 chessVariantDropdown.classList.add('hidden');
                 engineEloInput.classList.add('hidden');
-
+                
+                engineNodesInput.classList.remove('hidden');
                 lc0WeightDropdown.classList.remove('hidden');
             } else {
                 chessVariantDropdown.classList.remove('hidden');
                 engineEloInput.classList.remove('hidden');
 
+                engineNodesInput.classList.add('hidden');
                 lc0WeightDropdown.classList.add('hidden');
             }
             break;
