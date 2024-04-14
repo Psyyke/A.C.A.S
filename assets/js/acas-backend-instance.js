@@ -1102,7 +1102,7 @@ class BackendInstance {
 
     killExtraEngines() {
         for(let i = 0; i < this.engines.length; i++) {
-            if(!this.engines.length - 1) {
+            if(this.engines.length - 1 !== i) {
                 this.sendMsgToEngine('quit', i);
 
                 this.engines = this.engines.slice(1);
