@@ -598,23 +598,26 @@ cg-container {
 	padding: 1px;
 }
 #settings-navbar-subtitle {
-	margin-top: 10px;
-	font-size: 15px;
-	color: rgb(111 111 111);
-	font-weight: 600;
+    margin-top: 10px;
+    font-size: 15px;
+    color: rgb(111 111 111);
+    font-weight: 600;
+    margin: 10px 10px 0 10px;
 }
 #settings-header {
-	height: fit-content;
-	width: 100%;
-	display: flex;
-	transition: all 0.1s ease;
-	padding: 10px;
-	opacity: 0.4;
-	justify-content: space-between;
-	flex-direction: row;
-	box-sizing: border-box;
-	background-color: rgb(0 0 0 / 20%);
-	border-bottom: 3px solid rgb(255 255 255 / 5%);
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    transition: all 0.1s ease;
+    padding: 10px;
+    opacity: 0.4;
+    justify-content: space-between;
+    flex-direction: row;
+    box-sizing: border-box;
+    background-color: rgb(0 0 0 / 20%);
+    border-bottom: 3px solid rgb(255 255 255 / 5%);
+    flex-wrap: wrap;
+	grid-gap: 10px;
 }
 #settings-control-panel {
 	display: flex;

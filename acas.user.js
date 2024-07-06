@@ -76,7 +76,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.1.9
+// @version     2.2.0
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -535,36 +535,104 @@ const boardUtils = {
         }
     },
     paintMarkings: () => {
-        const newestBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj.ranking == 1);
-        const newestPromotedBestMarkingIndex = activeSiteMoveHighlights.findLastIndex(obj => obj?.promotedRanking == 1);
-        const lastMarkingIndex = activeSiteMoveHighlights.length - 1;
+        /* Account for none, or multiple 1 rank (multipv 1) markings. This is the priority order,
+            1. Mark the last added rank 1 marking as the best (unless promoted marking is newer)
+            2. (no rank 1 markings) Mark the lats added promoted rank 1 marking as the best
+            3. (no promoted rank 1 markings) Mark the last added marking as the best 
+        */
 
-        const isLastMarkingBest = newestBestMarkingIndex == -1 && newestPromotedBestMarkingIndex == -1;
-        const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
+        function rankMarkings(activeGuiMoveMarkings) {
+            const newestBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj.ranking === 1);
+            const newestPromotedBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj?.promotedRanking === 1);
+            const lastMarkingIndex = activeGuiMoveMarkings.length - 1;
 
-        let bestMoveMarked = false;
+            const isLastMarkingBest = newestBestMarkingIndex === -1 && newestPromotedBestMarkingIndex === -1;
+            const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
+        
+            const bestMarking = [];
+            const secondaryMarkings = [];
+        
+            activeGuiMoveMarkings.forEach((obj, index) => {
+                if (index === bestIndex) {
+                    bestMarking.push({ ...obj, status: 'best' });
+                } else {
+                    secondaryMarkings.push(obj);
+                }
+            });
+        
+            secondaryMarkings.sort((a, b) => {
+                if (a.ranking !== b.ranking) return a.ranking - b.ranking;
+                if (a.promotedRanking !== b.promotedRanking) return (a.promotedRanking || Infinity) - (b.promotedRanking || Infinity);
+                return activeGuiMoveMarkings.indexOf(a) - activeGuiMoveMarkings.indexOf(b);
+            });
+        
+            const sortedMarkings = secondaryMarkings.map((obj, index) => ({
+                ...obj,
+                status: 'secondary'
+            }));
+        
+            return bestMarking.concat(sortedMarkings);
+        }
 
-        activeSiteMoveHighlights.forEach((markingObj, idx) => {
-            const isBestMarking = idx == bestIndex;
+        const rankedMarkings = rankMarkings(this.activeGuiMoveMarkings);
 
-            if(isBestMarking) {
-                markingObj.playerArrowElem.style.cssText = arrowStyles.best;
+        rankedMarkings.forEach((markingObj, idx) => {
+            const [from, to] = markingObj.player;
+            const [oppFrom, oppTo] = markingObj.opponent;
+            const playerArrowElem = markingObj.playerArrowElem;
+            const oppArrowElem = markingObj.opponentArrowElem;
 
-                const playerArrowElem = markingObj.playerArrowElem
-                const opponentArrowElem = markingObj.opponentArrowElem;
+            const rank = idx + 1;
+            const maxScale = 1;
+            const minScale = 0.4;
+            const totalRanks = rankedMarkings.length;
 
+            let arrowStyle = this.arrowStyles.best;
+            let lineWidth = 30;
+            let arrowheadWidth = 80;
+            let arrowheadHeight = 60;
+            let startOffset = 30;
+
+            if(idx !== 0) {
+                arrowStyle = this.arrowStyles.secondary;
+
+                const arrowScale = totalRanks === 2
+                    ? 0.75
+                    : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
+
+                lineWidth = lineWidth * arrowScale;
+                arrowheadWidth = arrowheadWidth * arrowScale;
+                arrowheadHeight = arrowheadHeight * arrowScale;
+                startOffset = startOffset * arrowScale;
+            }
+
+            // Update player move arrow element
+            this.BoardDrawer.createShape('arrow', [from, to],
+                { 
+                    style: arrowStyle,
+                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
+                    existingElem: playerArrowElem
+                }
+            );
+
+            // Update opponent move arrow element
+            this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                { 
+                    style: this.arrowStyles.opponent,
+                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
+                    existingElem: oppArrowElem
+                }
+            );
+
+            if(idx === 0) {
                 // move best arrow element on top (multiple same moves can hide the best move)
                 const parentElem = markingObj.playerArrowElem.parentElement;
 
                 parentElem.appendChild(playerArrowElem);
 
-                if(opponentArrowElem) {
-                    parentElem.appendChild(opponentArrowElem);
+                if(oppArrowElem) {
+                    parentElem.appendChild(oppArrowElem);
                 }
-
-                bestMoveMarked = true;
-            } else {
-                markingObj.playerArrowElem.style.cssText = arrowStyles.secondary;
             }
         });
     },

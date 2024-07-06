@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.3.2
+ - Version: 1.3.3
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -145,8 +145,13 @@ class UniversalBoardDrawer {
         const arrowheadHeight = (config?.arrowheadHeight || 45) * scale;
         const startOffset = (config?.startOffset || 20) * scale;
 
-        const arrowElem = this.document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            arrowElem.setAttribute('transform', `rotate(${angle * (180 / Math.PI) - 90} ${fromX} ${fromY})`);
+        const existingArrowElem = config?.existingElem;
+
+        const arrowElem = typeof existingArrowElem === 'object'
+          ? existingArrowElem
+          : this.document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+
+        arrowElem.setAttribute('transform', `rotate(${angle * (180 / Math.PI) - 90} ${fromX} ${fromY})`);
 
         const arrowPoints = [
             { x: fromX - lineWidth / 2, y: fromY - startOffset },

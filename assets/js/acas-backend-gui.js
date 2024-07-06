@@ -431,7 +431,7 @@ function toggleSelected(selectedElem, instanceID) {
 
     switch(settingFilterObj.type) {
         case 'global':
-            settingsNavbarSubtitleElem.innerText = 'Settings affect every instance, unless settings applied to specific instance';
+            settingsNavbarSubtitleElem.innerText = 'Settings affect every instance';
             break;
         case 'instance':
             settingFilterObj.instanceID = instanceID;

@@ -310,48 +310,104 @@ class BackendInstance {
                     1. Mark the last added rank 1 marking as the best (unless promoted marking is newer)
                     2. (no rank 1 markings) Mark the lats added promoted rank 1 marking as the best
                     3. (no promoted rank 1 markings) Mark the last added marking as the best 
-                    
-                    Every other marking than the best gets marked as secondary.
                 */
 
-                const newestBestMarkingIndex = this.activeGuiMoveMarkings.findLastIndex(obj => obj.ranking == 1);
-                const newestPromotedBestMarkingIndex = this.activeGuiMoveMarkings.findLastIndex(obj => obj?.promotedRanking == 1);
-                const lastMarkingIndex = this.activeGuiMoveMarkings.length - 1;
+                function rankMarkings(activeGuiMoveMarkings) {
+                    const newestBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj.ranking === 1);
+                    const newestPromotedBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj?.promotedRanking === 1);
+                    const lastMarkingIndex = activeGuiMoveMarkings.length - 1;
+    
+                    const isLastMarkingBest = newestBestMarkingIndex === -1 && newestPromotedBestMarkingIndex === -1;
+                    const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
+                
+                    const bestMarking = [];
+                    const secondaryMarkings = [];
+                
+                    activeGuiMoveMarkings.forEach((obj, index) => {
+                        if (index === bestIndex) {
+                            bestMarking.push({ ...obj, status: 'best' });
+                        } else {
+                            secondaryMarkings.push(obj);
+                        }
+                    });
+                
+                    secondaryMarkings.sort((a, b) => {
+                        if (a.ranking !== b.ranking) return a.ranking - b.ranking;
+                        if (a.promotedRanking !== b.promotedRanking) return (a.promotedRanking || Infinity) - (b.promotedRanking || Infinity);
+                        return activeGuiMoveMarkings.indexOf(a) - activeGuiMoveMarkings.indexOf(b);
+                    });
+                
+                    const sortedMarkings = secondaryMarkings.map((obj, index) => ({
+                        ...obj,
+                        status: 'secondary'
+                    }));
+                
+                    return bestMarking.concat(sortedMarkings);
+                }
 
-                const isLastMarkingBest = newestBestMarkingIndex == -1 && newestPromotedBestMarkingIndex == -1;
-                const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
+                const rankedMarkings = rankMarkings(this.activeGuiMoveMarkings);
 
-                console.log(newestBestMarkingIndex, newestPromotedBestMarkingIndex, lastMarkingIndex, `Is last marking the best: ${isLastMarkingBest}, Selected best index: ${bestIndex}`);
+                rankedMarkings.forEach((markingObj, idx) => {
+                    const [from, to] = markingObj.player;
+                    const [oppFrom, oppTo] = markingObj.opponent;
+                    const playerArrowElem = markingObj.playerArrowElem;
+                    const oppArrowElem = markingObj.opponentArrowElem;
 
-                let bestMoveMarked = false;
+                    const rank = idx + 1;
+                    const maxScale = 1;
+                    const minScale = 0.4;
+                    const totalRanks = rankedMarkings.length;
 
-                this.activeGuiMoveMarkings.forEach((markingObj, idx) => {
-                    const isBestMarking = idx == bestIndex;
+                    let arrowStyle = this.arrowStyles.best;
+                    let lineWidth = 30;
+                    let arrowheadWidth = 80;
+                    let arrowheadHeight = 60;
+                    let startOffset = 30;
 
-                    console.log(bestIndex, isBestMarking, markingObj);
+                    if(idx !== 0) {
+                        console.log('Secondary move', markingObj);
 
-                    if(isBestMarking) {
+                        arrowStyle = this.arrowStyles.secondary;
+
+                        const arrowScale = totalRanks === 2
+                            ? 0.75
+                            : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
+
+                        lineWidth = lineWidth * arrowScale;
+                        arrowheadWidth = arrowheadWidth * arrowScale;
+                        arrowheadHeight = arrowheadHeight * arrowScale;
+                        startOffset = startOffset * arrowScale;
+                    }
+
+                    // Update player move arrow element
+                    this.BoardDrawer.createShape('arrow', [from, to],
+                        { 
+                            style: arrowStyle,
+                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
+                            existingElem: playerArrowElem
+                        }
+                    );
+
+                    // Update opponent move arrow element
+                    this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                        { 
+                            style: this.arrowStyles.opponent,
+                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
+                            existingElem: oppArrowElem
+                        }
+                    );
+
+                    if(idx === 0) {
                         console.log('Best move', markingObj);
-
-                        markingObj.playerArrowElem.style.cssText = this.arrowStyles.best;
-
-                        const playerArrowElem = markingObj.playerArrowElem
-                        const opponentArrowElem = markingObj.opponentArrowElem;
 
                         // move best arrow element on top (multiple same moves can hide the best move)
                         const parentElem = markingObj.playerArrowElem.parentElement;
 
                         parentElem.appendChild(playerArrowElem);
 
-                        if(opponentArrowElem) {
-                            parentElem.appendChild(opponentArrowElem);
+                        if(oppArrowElem) {
+                            parentElem.appendChild(oppArrowElem);
                         }
-
-                        bestMoveMarked = true;
-                    } else {
-                        console.log('Secondary move', markingObj);
-
-                        markingObj.playerArrowElem.style.cssText = this.arrowStyles.secondary;
                     }
                 });
             },
@@ -381,7 +437,10 @@ class BackendInstance {
                 else
                     evalBarElem.classList.remove('reversed');
 
+                this.chessground.toggleOrientation();
+                this.chessground.redrawAll();
                 this.chessground.set({ 'orientation': orientationWord });
+
                 this.BoardDrawer.setOrientation(orientation);
             }
         },
