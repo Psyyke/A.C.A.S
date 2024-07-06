@@ -82,6 +82,7 @@
 // @license     GPL-3.0
 // ==/UserScript==
 
+
 /*
      e            e88~-_            e           ,d88~~\
     d8b          d888   \          d8b          8888
@@ -538,7 +539,7 @@ const boardUtils = {
         /* Account for none, or multiple 1 rank (multipv 1) markings. This is the priority order,
             1. Mark the last added rank 1 marking as the best (unless promoted marking is newer)
             2. (no rank 1 markings) Mark the lats added promoted rank 1 marking as the best
-            3. (no promoted rank 1 markings) Mark the last added marking as the best 
+            3. (no promoted rank 1 markings) Mark the last added marking as the best
         */
 
         function rankMarkings(activeGuiMoveMarkings) {
@@ -548,10 +549,10 @@ const boardUtils = {
 
             const isLastMarkingBest = newestBestMarkingIndex === -1 && newestPromotedBestMarkingIndex === -1;
             const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
-        
+
             const bestMarking = [];
             const secondaryMarkings = [];
-        
+
             activeGuiMoveMarkings.forEach((obj, index) => {
                 if (index === bestIndex) {
                     bestMarking.push({ ...obj, status: 'best' });
@@ -559,22 +560,22 @@ const boardUtils = {
                     secondaryMarkings.push(obj);
                 }
             });
-        
+
             secondaryMarkings.sort((a, b) => {
                 if (a.ranking !== b.ranking) return a.ranking - b.ranking;
                 if (a.promotedRanking !== b.promotedRanking) return (a.promotedRanking || Infinity) - (b.promotedRanking || Infinity);
                 return activeGuiMoveMarkings.indexOf(a) - activeGuiMoveMarkings.indexOf(b);
             });
-        
+
             const sortedMarkings = secondaryMarkings.map((obj, index) => ({
                 ...obj,
                 status: 'secondary'
             }));
-        
+
             return bestMarking.concat(sortedMarkings);
         }
 
-        const rankedMarkings = rankMarkings(this.activeGuiMoveMarkings);
+        const rankedMarkings = rankMarkings(activeSiteMoveHighlights);
 
         rankedMarkings.forEach((markingObj, idx) => {
             const [from, to] = markingObj.player;
@@ -587,14 +588,14 @@ const boardUtils = {
             const minScale = 0.4;
             const totalRanks = rankedMarkings.length;
 
-            let arrowStyle = this.arrowStyles.best;
+            let arrowStyle = arrowStyles.best;
             let lineWidth = 30;
             let arrowheadWidth = 80;
             let arrowheadHeight = 60;
             let startOffset = 30;
 
             if(idx !== 0) {
-                arrowStyle = this.arrowStyles.secondary;
+                arrowStyle = arrowStyles.secondary;
 
                 const arrowScale = totalRanks === 2
                     ? 0.75
@@ -607,8 +608,8 @@ const boardUtils = {
             }
 
             // Update player move arrow element
-            this.BoardDrawer.createShape('arrow', [from, to],
-                { 
+            BoardDrawer.createShape('arrow', [from, to],
+                {
                     style: arrowStyle,
                     lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
                     existingElem: playerArrowElem
@@ -617,9 +618,9 @@ const boardUtils = {
 
             if(oppArrowElem) {
                 // Update opponent move arrow element
-                    this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
-                    { 
-                        style: this.arrowStyles.opponent,
+                    BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                    {
+                        style: arrowStyles.opponent,
                         lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
                         existingElem: oppArrowElem
                     }
