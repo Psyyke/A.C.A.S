@@ -388,14 +388,16 @@ class BackendInstance {
                         }
                     );
 
-                    // Update opponent move arrow element
-                    this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
-                        { 
-                            style: this.arrowStyles.opponent,
-                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
-                            existingElem: oppArrowElem
-                        }
-                    );
+                    if(oppArrowElem) {
+                        // Update opponent move arrow element
+                            this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                            { 
+                                style: this.arrowStyles.opponent,
+                                lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
+                                existingElem: oppArrowElem
+                            }
+                        );
+                    }
 
                     if(idx === 0) {
                         console.log('Best move', markingObj);
