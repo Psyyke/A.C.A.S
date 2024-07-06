@@ -376,7 +376,7 @@ class BackendInstance {
                         lineWidth = lineWidth * arrowScale;
                         arrowheadWidth = arrowheadWidth * arrowScale;
                         arrowheadHeight = arrowheadHeight * arrowScale;
-                        startOffset = startOffset * arrowScale;
+                        startOffset = startOffset;
                     }
 
                     // Update player move arrow element
