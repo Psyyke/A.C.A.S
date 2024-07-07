@@ -439,13 +439,13 @@ const boardUtils = {
 
             // create player move arrow element
             const arrowElem = BoardDrawer.createShape('arrow', [from, to],
-                { style: arrowStyle }
+                //{ style: arrowStyle }
             );
 
             // create opponent move arrow element
             if(opponentMoveGuessExists && showOpponentMoveGuess) {
                 opponentArrowElem = BoardDrawer.createShape('arrow', [opponentFrom, opponentTo],
-                    { style: arrowStyles.opponent }
+                    //{ style: arrowStyles.opponent }
                 );
 
                 const squareListener = BoardDrawer.addSquareListener(from, type => {

@@ -207,13 +207,13 @@ class BackendInstance {
     
                     // Create player move arrow element
                     const arrowElem = this.BoardDrawer.createShape('arrow', [from, to],
-                        { style: arrowStyle }
+                        //{ style: arrowStyle }
                     );
     
                     // Create opponent move arrow element
                     if(opponentMoveGuessExists && showOpponentMoveGuess) {
                         opponentArrowElem = this.BoardDrawer.createShape('arrow', [opponentFrom, opponentTo], 
-                            { style: this.arrowStyles.opponent }
+                            //{ style: this.arrowStyles.opponent }
                         );
     
                         const squareListener = this.BoardDrawer.addSquareListener(from, type => {
