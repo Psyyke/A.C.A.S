@@ -16,7 +16,8 @@ if(typeof USERSCRIPT == 'undefined') {
     const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
         'singlePacketResponseWaitTime': 1500,
         'maxSendAttempts': 3,
-        'statusCheckInterval': 1
+        'statusCheckInterval': 1,
+        'silentMode': true
     });
 
     MainCommLink.registerListener('mum', packet => {
@@ -26,11 +27,9 @@ if(typeof USERSCRIPT == 'undefined') {
                     return `pong (took ${Date.now() - packet.date}ms)`;
                 case 'createInstance':
                     log.info('Received request to create another engine instance!');
-    
+
                     const data = packet.data;
 
-                    console.log(data);
-    
                     createInstance(data.domain, data.instanceID, data.chessVariant);
     
                     return true;

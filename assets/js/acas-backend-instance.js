@@ -7,6 +7,7 @@ class BackendInstance {
             'displayMovesOnExternalSite': 'displayMovesOnExternalSite',
             'showMoveGhost': 'showMoveGhost',
             'showOpponentMoveGuess': 'showOpponentMoveGuess',
+            'showOpponentMoveGuessConstantly': 'showOpponentMoveGuessConstantly',
             'onlyShowTopMoves': 'onlyShowTopMoves',
             'maxMovetime': 'maxMovetime',
             'chessVariant': 'chessVariant',
@@ -62,16 +63,21 @@ class BackendInstance {
 
         this.searchDepth = null;
         this.engineNodes = 1;
-        
-        this.engineFinishedCalculation = null;
+ 
         this.currentMovetimeTimeout = null;
-        this.newCalculationRequestBeforeLastEnded = false;
 
         this.pastMoveObjects = [];
         this.bestMoveMarkingElem = null;
         this.activeGuiMoveMarkings = [];
         this.inactiveGuiMoveMarkings = [];
         this.unprocessedPackets = [];
+
+        this.lastCalculatedFen = null;
+        this.pendingCalculations = [];
+
+        this.lastFen = null;
+        this.lastOrientation = null;
+        this.currentFen = null;
 
         this.currentSpeeches = [];
 
@@ -110,7 +116,7 @@ class BackendInstance {
 
         this.CommLink.registerSendCommand('ping');
         this.CommLink.registerSendCommand('getFen');
-        this.CommLink.registerSendCommand('removeSiteMoveMarking');
+        this.CommLink.registerSendCommand('removeSiteMoveMarkings');
         this.CommLink.registerSendCommand('markMoveToSite');
 
         this.CommLinkReceiver = this.CommLink.registerListener(`frontend_${this.instanceID}`, packet => {
@@ -168,282 +174,140 @@ class BackendInstance {
 
     Interface = {
         boardUtils: {
-            markMove: moveObj => {
-                const [from, to] = moveObj.player;
-                const [opponentFrom, opponentTo] = moveObj.opponent;
-                const ranking = moveObj.ranking;
+            markMoves: moveObjArr => {
+                this.Interface.boardUtils.removeMarkings();
 
-                const existingExactSameMoveObj = this.activeGuiMoveMarkings.find(obj => {
-                    const [activeFrom, activeTo] = obj.player;
-                    const [activeOpponentFrom, activeOpponentTo] = obj.opponent;
+                const maxScale = 1;
+                const minScale = 0.5;
+                const totalRanks = moveObjArr.length;
+                const showOpponentMoveGuess = this.getConfigValue(this.configKeys.showOpponentMoveGuess);
+                const showOpponentMoveGuessConstantly = this.getConfigValue(this.configKeys.showOpponentMoveGuessConstantly);
 
-                    return from == activeFrom
-                        && to == activeTo
-                        && opponentFrom == activeOpponentFrom
-                        && opponentTo == activeOpponentTo;
-                });
-
-                this.activeGuiMoveMarkings.map(obj => {
-                    const [activeFrom, activeTo] = obj.player;
-
-                    const existingSameMoveObj = from == activeFrom && to == activeTo;
-
-                    if(existingSameMoveObj) {
-                        obj.promotedRanking = 1;
-                    }
-
-                    return obj;
-                });
-
-                const exactSameMoveDoesNotExist = typeof existingExactSameMoveObj !== 'object';
-
-                if(exactSameMoveDoesNotExist) {
-                    const showOpponentMoveGuess = this.getConfigValue(this.configKeys.showOpponentMoveGuess);
-                    const opponentMoveGuessExists = typeof opponentFrom == 'string';
-                    
-                    const arrowStyle = ranking == 1 ? this.arrowStyles.best : this.arrowStyles.secondary;
-    
-                    let opponentArrowElem = null;
-    
-                    // Create player move arrow element
-                    const arrowElem = this.BoardDrawer.createShape('arrow', [from, to],
-                        //{ style: arrowStyle }
-                    );
-    
-                    // Create opponent move arrow element
-                    if(opponentMoveGuessExists && showOpponentMoveGuess) {
-                        opponentArrowElem = this.BoardDrawer.createShape('arrow', [opponentFrom, opponentTo], 
-                            //{ style: this.arrowStyles.opponent }
-                        );
-    
-                        const squareListener = this.BoardDrawer.addSquareListener(from, type => {
-                            if(!opponentArrowElem) {
-                                squareListener.remove();
-                            }
-    
-                            switch(type) {
-                                case 'enter':
-                                    opponentArrowElem.style.display = 'inherit';
-                                    break;
-                                case 'leave':
-                                    opponentArrowElem.style.display = 'none';
-                                    break;
-                            }
-                        });
-                    }
-    
-                    this.activeGuiMoveMarkings.push({
-                        ...moveObj,
-                        'opponentArrowElem': opponentArrowElem,
-                        'playerArrowElem': arrowElem
-                    });
-                }
-
-                this.Interface.boardUtils.removeOldMarkings();
-                this.Interface.boardUtils.paintMarkings();
-            },
-            removeOldMarkings: () => {
-                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
-                const showGhost = this.getConfigValue(this.configKeys.showMoveGhost);
-                
-                const exceededMarkingLimit = this.activeGuiMoveMarkings.length > markingLimit;
-
-                if(exceededMarkingLimit) {
-                    const amountToRemove = this.activeGuiMoveMarkings.length - markingLimit;
-
-                    for(let i = 0; i < amountToRemove; i++) {
-                        const oldestMarkingObj = this.activeGuiMoveMarkings[0];
-
-                        this.activeGuiMoveMarkings = this.activeGuiMoveMarkings.slice(1);
-
-                        if(oldestMarkingObj?.playerArrowElem?.style) {
-                            oldestMarkingObj.playerArrowElem.style.fill = 'grey';
-                            oldestMarkingObj.playerArrowElem.style.opacity = '0';
-                            oldestMarkingObj.playerArrowElem.style.transition = 'opacity 2.5s ease-in-out';
-                        }
-
-                        if(oldestMarkingObj?.opponentArrowElem?.style) {
-                            oldestMarkingObj.opponentArrowElem.style.fill = 'grey';
-                            oldestMarkingObj.opponentArrowElem.style.opacity = '0';
-                            oldestMarkingObj.opponentArrowElem.style.transition = 'opacity 2.5s ease-in-out';
-                        }
-
-                        if(showGhost) {
-                            this.inactiveGuiMoveMarkings.push(oldestMarkingObj);
-                        } else {
-                            oldestMarkingObj.playerArrowElem?.remove();
-                            oldestMarkingObj.opponentArrowElem?.remove();
-                        }
-                    }
-                }
-
-                if(showGhost) {
-                    this.inactiveGuiMoveMarkings.forEach(markingObj => {
-                        const activeDuplicateArrow = this.activeGuiMoveMarkings.find(x => {
-                            const samePlayerArrow = x.player?.toString() == markingObj.player?.toString();
-                            const sameOpponentArrow = x.opponent?.toString() == markingObj.opponent?.toString();
-    
-                            return samePlayerArrow && sameOpponentArrow;
-                        });
-    
-                        const duplicateExists = activeDuplicateArrow ? true : false;
-    
-                        const removeArrows = () => {
-                            this.inactiveGuiMoveMarkings = this.inactiveGuiMoveMarkings.filter(x => x.playerArrowElem != markingObj.playerArrowElem);
-    
-                            markingObj.playerArrowElem?.remove();
-                            markingObj.opponentArrowElem?.remove();
-                        }
-    
-                        if(duplicateExists) {
-                            removeArrows();
-                        } else {
-                            setTimeout(removeArrows, 2500);
-                        }
-                    });
-                }
-            },
-            paintMarkings: () => {
-                console.log('PAINT MARKINGS!');
-
-                /* Account for none, or multiple 1 rank (multipv 1) markings. This is the priority order,
-                    1. Mark the last added rank 1 marking as the best (unless promoted marking is newer)
-                    2. (no rank 1 markings) Mark the lats added promoted rank 1 marking as the best
-                    3. (no promoted rank 1 markings) Mark the last added marking as the best 
-                */
-
-                function rankMarkings(activeGuiMoveMarkings) {
-                    const newestBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj.ranking === 1);
-                    const newestPromotedBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj?.promotedRanking === 1);
-                    const lastMarkingIndex = activeGuiMoveMarkings.length - 1;
-    
-                    const isLastMarkingBest = newestBestMarkingIndex === -1 && newestPromotedBestMarkingIndex === -1;
-                    const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
-                
-                    const bestMarking = [];
-                    const secondaryMarkings = [];
-                
-                    activeGuiMoveMarkings.forEach((obj, index) => {
-                        if (index === bestIndex) {
-                            bestMarking.push({ ...obj, status: 'best' });
-                        } else {
-                            secondaryMarkings.push(obj);
-                        }
-                    });
-                
-                    secondaryMarkings.sort((a, b) => {
-                        if (a.ranking !== b.ranking) return a.ranking - b.ranking;
-                        if (a.promotedRanking !== b.promotedRanking) return (a.promotedRanking || Infinity) - (b.promotedRanking || Infinity);
-                        return activeGuiMoveMarkings.indexOf(a) - activeGuiMoveMarkings.indexOf(b);
-                    });
-                
-                    const sortedMarkings = secondaryMarkings.map((obj, index) => ({
-                        ...obj,
-                        status: 'secondary'
-                    }));
-                
-                    return bestMarking.concat(sortedMarkings);
-                }
-
-                const rankedMarkings = rankMarkings(this.activeGuiMoveMarkings);
-
-                rankedMarkings.forEach((markingObj, idx) => {
+                moveObjArr.forEach((markingObj, idx) => {
                     const [from, to] = markingObj.player;
                     const [oppFrom, oppTo] = markingObj.opponent;
-                    const playerArrowElem = markingObj.playerArrowElem;
-                    const oppArrowElem = markingObj.opponentArrowElem;
-
+                    const oppMovesExist = oppFrom && oppTo;
                     const rank = idx + 1;
-                    const maxScale = 1;
-                    const minScale = 0.4;
-                    const totalRanks = rankedMarkings.length;
-
+                    
+                    let playerArrowElem = null;
+                    let oppArrowElem = null;
                     let arrowStyle = this.arrowStyles.best;
                     let lineWidth = 30;
                     let arrowheadWidth = 80;
                     let arrowheadHeight = 60;
                     let startOffset = 30;
-
+        
                     if(idx !== 0) {
-                        console.log('Secondary move', markingObj);
-
                         arrowStyle = this.arrowStyles.secondary;
-
+        
                         const arrowScale = totalRanks === 2
                             ? 0.75
                             : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
-
+        
                         lineWidth = lineWidth * arrowScale;
                         arrowheadWidth = arrowheadWidth * arrowScale;
                         arrowheadHeight = arrowheadHeight * arrowScale;
                         startOffset = startOffset;
                     }
-
-                    // Update player move arrow element
-                    this.BoardDrawer.createShape('arrow', [from, to],
-                        { 
+                    
+                    playerArrowElem = this.BoardDrawer.createShape('arrow', [from, to],
+                        {
                             style: arrowStyle,
-                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
-                            existingElem: playerArrowElem
+                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                         }
                     );
-
-                    if(oppArrowElem) {
-                        // Update opponent move arrow element
-                            this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
-                            { 
+        
+                    if(oppMovesExist && showOpponentMoveGuess) {
+                        oppArrowElem = this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                            {
                                 style: this.arrowStyles.opponent,
-                                lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
-                                existingElem: oppArrowElem
+                                lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                             }
                         );
+
+                        if(showOpponentMoveGuessConstantly) {
+                            oppArrowElem.style.display = 'block';
+                        } else {
+                            const squareListener = this.BoardDrawer.addSquareListener(from, type => {
+                                if(!oppArrowElem) {
+                                    squareListener.remove();
+                                }
+            
+                                switch(type) {
+                                    case 'enter':
+                                        oppArrowElem.style.display = 'inherit';
+                                        break;
+                                    case 'leave':
+                                        oppArrowElem.style.display = 'none';
+                                        break;
+                                }
+                            });
+                        }
                     }
-
-                    if(idx === 0) {
-                        console.log('Best move', markingObj);
-
+        
+                    if(idx === 0 && playerArrowElem) {
+                        const parentElem = playerArrowElem.parentElement;
+        
                         // move best arrow element on top (multiple same moves can hide the best move)
-                        const parentElem = markingObj.playerArrowElem.parentElement;
-
                         parentElem.appendChild(playerArrowElem);
-
+        
                         if(oppArrowElem) {
                             parentElem.appendChild(oppArrowElem);
                         }
                     }
+
+                    this.activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem });
                 });
+
+                this.pastMoveObjects = [];
             },
-            removeBestMarkings: () => {
+            removeMarkings: () => {
                 this.activeGuiMoveMarkings.forEach(markingObj => {
-                    markingObj.opponentArrowElem?.remove();
+                    markingObj.oppArrowElem?.remove();
                     markingObj.playerArrowElem?.remove();
                 });
 
                 this.activeGuiMoveMarkings = [];
             },
             updateBoardFen: fen => {
-                USERSCRIPT.instanceVars.fen.set(this.instanceID, fen);
+                if(this.currentFen !== fen) {
+                    this.currentFen = fen;
 
-                this.chessground.set({ fen });
-                this.instanceElem.querySelector('.instance-fen').innerText = fen;
+                    USERSCRIPT.instanceVars.fen.set(this.instanceID, fen);
 
-                this.onNewMove(fen);
+                    this.chessground.set({ fen });
+    
+                    this.instanceElem.querySelector('.instance-fen').innerText = fen;
+                    
+                    this.engineStopCalculating();
+                    this.Interface.boardUtils.removeMarkings();
+            
+                    this.currentSpeeches.forEach(synthesis => synthesis.cancel());
+                    this.currentSpeeches = [];
+
+                    this.calculateBestMoves(fen);
+                }
             },
             updateBoardOrientation: orientation => {
-                const orientationWord = orientation == 'b' ? 'black' : 'white';
+                if(orientation != this.lastOrientation) {
+                    this.lastOrientation = orientation;
+                    this.lastCalculatedFen = null;
 
-                const evalBarElem = this.instanceElem.querySelector('.eval-bar');
+                    const orientationWord = orientation == 'b' ? 'black' : 'white';
 
-                if(orientation == 'b')
-                    evalBarElem.classList.add('reversed');
-                else
-                    evalBarElem.classList.remove('reversed');
-
-                this.chessground.toggleOrientation();
-                this.chessground.redrawAll();
-                this.chessground.set({ 'orientation': orientationWord });
-
-                this.BoardDrawer.setOrientation(orientation);
+                    const evalBarElem = this.instanceElem.querySelector('.eval-bar');
+    
+                    if(orientation == 'b')
+                        evalBarElem.classList.add('reversed');
+                    else
+                        evalBarElem.classList.remove('reversed');
+    
+                    this.chessground.toggleOrientation();
+                    this.chessground.redrawAll();
+                    this.chessground.set({ 'orientation': orientationWord });
+    
+                    this.BoardDrawer.setOrientation(orientation);
+                }
             }
         },
         updateMoveProgress: (text, status) => {
@@ -614,7 +478,9 @@ class BackendInstance {
     engineStartNewGame(variant) {
         const chessVariant = formatVariant(variant);
 
-        this.engineStopCalculating();
+        if(!this.isEngineNotCalculating()) {
+            this.engineStopCalculating();
+        }
 
         this.sendMsgToEngine('ucinewgame'); // very important to be before setting variant and so forth
         this.sendMsgToEngine('uci'); // to display variants
@@ -638,32 +504,22 @@ class BackendInstance {
     }
 
     engineStopCalculating() {
+        if(!this.isEngineNotCalculating()) {
+            clearTimeout(this.currentMovetimeTimeout);
+        }
+
+        console.error('STOP!');
+
         this.sendMsgToEngine('stop');
     }
 
-    isPlayerTurn() {
+    isPlayerTurn(lastFen, currentFen) {
         const playerColor = USERSCRIPT.instanceVars.playerColor.get(this.instanceID);
-        const turn = USERSCRIPT.instanceVars.turn.get(this.instanceID);
+        const turn = this.getTurnFromFenChange(lastFen, currentFen);
+
+        console.error('Turn: ', turn);
 
         return !playerColor || turn == playerColor;
-    }
-
-    onNewMove(fen) {
-        this.Interface.boardUtils.removeBestMarkings();
-
-        this.engineStopCalculating();
-
-        this.currentSpeeches.forEach(synthesis => synthesis.cancel());
-        this.currentSpeeches = [];
-
-        // Not sure if 'ucinewgame' resets variants or other settings, so disabling this for now.
-        // Missing the 'ucinewgame' after each match shouldn't have any negative effects.
-        /*
-        const isStartPos = getBasicFenLowerCased(this.variantStartPosFen) == getBasicFenLowerCased(fen);
-
-        if(isStartPos) {
-            this.sendMsgToEngine('ucinewgame');
-        }*/
     }
 
     speak(spokenText, speechConfig) {
@@ -687,7 +543,7 @@ class BackendInstance {
 
             this.currentSpeeches.push(speakText(spokenText, speechConfig));
         }
-    } 
+    }
 
     updateSettings(updateObj) {
         function findSettingKeyFromData(key) {
@@ -737,16 +593,138 @@ class BackendInstance {
         }
     }
 
-    async calculateBestMoves(currentFen) {
-        if(this.engineFinishedCalculation === false) {
-            console.warn(`Engine didn't finish before the next best move request came, won't show the cancelled calculation results!`);
-            
-            this.newCalculationRequestBeforeLastEnded = true;
+    isAbnormalPieceChange(lastFen, newFen) {
+        if(!lastFen) return false;
+    
+        const lastPieceCount = countTotalPieces(lastFen);
+        const newPieceCount = countTotalPieces(newFen);
 
-            clearTimeout(this.currentMovetimeTimeout);
+        // (need to implement fix for variants which may add pieces legally)
+        const countChange = newPieceCount - lastPieceCount;
+
+        /* Possible "countChange" value explanations,
+            (countChange < -1) -> multiple pieces have disappeared (atomic chess variant or a faulty newFen?)
+            (countChange = -1) -> piece has been eaten
+            (countChange = 0)  -> piece moved
+            (countChange = 1)  -> piece has spawned
+            (countChange > 1)  -> multiple pieces have spawned (possibly a new game?)
+        */
+    
+        // Large abnormal piece changes are allowed, as they usually mean something significant has happened
+        // Smaller abnormal piece changes are most likely caused by a faulty newFen provided by the A.C.A.S on the site
+        return (-3 < countChange && countChange < -1) || (0 < countChange && countChange < 2);
+    }
+
+    // Kind of similar to isAbnormalPieceChange function, however it focuses on titles rather than pieces
+    // It checks for how many titles had changes happen in them
+    isCorrectAmountOfBoardChanges(lastFen, newFen) {
+        if(!lastFen) return true;
+    
+        let board1 = lastFen.split(" ")[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
+        let board2 = newFen.split(" ")[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
+        
+        let diff = 0;
+
+        for (let i = 0; i < board1.length; i++) {
+            if (board1[i] !== board2[i]) {
+                diff += 1;
+            }
+        }
+        
+        /* Possible "diff" value explanations,
+            (diff = 0) -> no changes, same board layout
+            (diff = 1) -> only one title abruptly changed, shouldn't be possible
+            (diff = 2) -> a piece moved, maybe it ate another piece
+            (diff = 3) -> three titles had changes, shouldn't be possible
+            (diff > 3) -> a lot of titles had changes, maybe a new game started, the change is significant so allowing it
+        */
+
+        return diff === 2 || diff > 3;
+    }
+
+    getTurnFromFenChange(lastFen, newFen) {
+        const currentPlayerColor = USERSCRIPT.instanceVars.playerColor.get(this.instanceID);
+        const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn);
+
+        if(!lastFen || !onlyCalculateOwnTurn) return currentPlayerColor;
+
+        const lastBoard = lastFen.split(' ')[0];
+        const newBoard = newFen.split(' ')[0];
+    
+        const lastBoardArray = fenToArray(lastBoard);
+        const newBoardArray = fenToArray(newBoard);
+
+        const isNewFenDefaultPos = newFen.split(' ')[0] == this.defaultStartpos.split(' ')[0];
+    
+        const dimensions = getBoardDimensionsFromFenStr(newFen);
+        const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
+
+        let movedPiece = '';
+        let amountOfMovedPieces = 0;
+    
+        for (let i = 0; i < boardDimensions.width; i++) {
+            for (let j = 0; j < boardDimensions.height; j++) {
+                if (lastBoardArray[i][j] !== newBoardArray[i][j]) {
+                    if(newBoardArray[i][j] === '') {
+                        movedPiece = lastBoardArray[i][j];
+
+                        amountOfMovedPieces++;
+                    }
+                }
+            }
         }
 
-        this.engineFinishedCalculation = false;
+        // When a lot of pieces are moved, it's most likely a new game
+        if(amountOfMovedPieces > 3 || isNewFenDefaultPos) {
+            // Clear the pendingCalculations arr of old calculations
+            this.pendingCalculations = this.pendingCalculations.filter(x => !x?.finished);
+            
+            return currentPlayerColor;
+        }
+
+        const turn = movedPiece.toUpperCase() === movedPiece ? 'b' : 'w';
+    
+        return turn;
+    }
+
+    async calculateBestMoves(currentFen) {
+        const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn);
+
+        const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.lastFen, currentFen);
+        const isAbnormalPieceChange = this.isAbnormalPieceChange(this.lastFen, currentFen);
+
+        let isPlayerTurn = false;
+        
+        if(correctAmountOfChanges && !isAbnormalPieceChange) {
+            isPlayerTurn = this.isPlayerTurn(this.lastFen, currentFen);
+
+            this.lastFen = currentFen;
+        }
+
+        const isFenChanged = this.lastCalculatedFen !== currentFen
+        const isFenChangeAllowed = !onlyCalculateOwnTurn || (correctAmountOfChanges && !isAbnormalPieceChange && isPlayerTurn)
+
+        if(isFenChanged && isFenChangeAllowed) {
+            this.lastCalculatedFen = currentFen;
+        } else {
+            this.CommLink.commands.removeSiteMoveMarkings();
+
+            return;
+        }
+
+        if(!this.isEngineNotCalculating()) {
+            this.engineStopCalculating();
+
+            console.warn(`Engine didn't finish before the next best move request came, won't show the cancelled calculation results!`);
+
+            return;
+        }
+
+        this.pendingCalculations.push({ 'fen': currentFen, 'finished': false });
+
+        this.Interface.boardUtils.removeMarkings();
+
+        console.error('CALCULATING!', this.pendingCalculations, currentFen);
 
         log.info(`Fen: "${currentFen}"`);
         log.info(`Updating board Fen`);
@@ -776,10 +754,10 @@ class BackendInstance {
         const movetime = this.getConfigValue(this.configKeys.maxMovetime);
 
         if(typeof movetime == 'number') {
-            this.currentMovetimeTimeout = setTimeout(() => {
-                if(movetime != 0 && !this.engineFinishedCalculation) {
-                    console.log('Stopped');
+            const startFen = this.currentFen;
 
+            this.currentMovetimeTimeout = setTimeout(() => {
+                if(startFen == this.currentFen && movetime != 0 && !this.isEngineNotCalculating()) {
                     this.engineStopCalculating();
                 }
             }, movetime + 5);
@@ -798,10 +776,16 @@ class BackendInstance {
         this.getEngineAcasObj(i).sendMsg(msg);
     }
 
+    isEngineNotCalculating() {
+        return this.pendingCalculations.find(x => !x.finished) ? false : true;
+    }
+
     engineMessageHandler(msg) {
         const data = parseUCIResponse(msg);
+        const oldestUnfinishedCalcRequestObj = this.pendingCalculations.find(x => !x.finished);
+        const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
 
-        if(!data?.currmovenumber) console.warn(msg);
+        if(!data?.currmovenumber) console.warn(msg, `(FOR FEN: ${oldestUnfinishedCalcRequestObj?.fen})`);
 
         if(msg.includes('option name UCI_Variant type combo')) {
             const chessVariants = extractVariantNames(msg);
@@ -812,7 +796,7 @@ class BackendInstance {
         }
 
         if(msg.includes('info')) {
-            if(data?.multipv == 1) {
+            if(data?.multipv === '1') {
                 if(data?.depth) {
                     if(data?.mate) {
                         const isWinning = data.mate > 0;
@@ -832,7 +816,7 @@ class BackendInstance {
             }
         }
 
-        if(data?.pv) {
+        if(data?.pv && isMessageForCurrentFen) {
             const moveRegex = /[a-zA-Z]\d+/g;
             const ranking = convertToCorrectType(data?.multipv) || 1;
             let moves = data.pv.split(' ').map(move => move.match(moveRegex));
@@ -853,44 +837,56 @@ class BackendInstance {
             let isSearchInfinite = this.searchDepth ? false : true;
 
             if(this.chessEngineType === 'lc0') {
-                isSearchInfinite = this.engineNodes > 999999999 ? true : false;
+                isSearchInfinite = this.engineNodes > 9e6 ? true : false;
             }
 
-            if(!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited)) {
-                this.Interface.boardUtils.markMove(moveObj);
+            const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
+            const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
 
-                if(displayMovesExternally) {
-                    this.CommLink.commands.markMoveToSite(moveObj);
-                }
-            }
-        }
-
-        if(data?.bestmove) {
-            if(!this.newCalculationRequestBeforeLastEnded) {
-                this.engineFinishedCalculation = true;
-    
-                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
-                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
-
-                const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
+            if(topMoveObjects.length === markingLimit) {
+                this.Interface.boardUtils.markMoves(topMoveObjects);
 
                 topMoveObjects.forEach(moveObj => {
-                    this.Interface.boardUtils.markMove(moveObj);
-
                     const spokenText = moveObj.player?.map(x =>
                         x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
                     ).join(', ');
 
                     this.speak(spokenText);
-
-                    if(displayMovesExternally) {
-                        this.CommLink.commands.markMoveToSite(moveObj);
-                    }
                 });
-    
-                this.pastMoveObjects = [];
-            } else {
-                this.newCalculationRequestBeforeLastEnded = false;
+
+                if(displayMovesExternally) {
+                    this.CommLink.commands.markMoveToSite(topMoveObjects);
+                }
+            }
+        }
+
+        if(data?.bestmove) {
+            oldestUnfinishedCalcRequestObj.finished = true;
+
+            if(isMessageForCurrentFen && this.activeGuiMoveMarkings.length === 0) {
+                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
+                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+
+                let topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
+
+                if(topMoveObjects?.length === 0) {
+                    topMoveObjects = [];
+                    topMoveObjects.push({ 'player': [data.bestmove.slice(0,2), data.bestmove.slice(2, data.bestmove.length)], 'opponent': [null, null], 'ranking': 1  });
+                }
+
+                this.Interface.boardUtils.markMoves(topMoveObjects);
+
+                if(displayMovesExternally) {
+                    this.CommLink.commands.markMoveToSite(topMoveObjects);
+                }
+
+                topMoveObjects.forEach(moveObj => {
+                    const spokenText = moveObj.player?.map(x =>
+                        x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
+                    ).join(', ');
+
+                    this.speak(spokenText);
+                });
             }
         }
 
@@ -980,6 +976,12 @@ class BackendInstance {
                 variantText += ` (${this.chessVariant} not supported)`;
             }
 
+            const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn);
+
+            if(variant != 'chess' && onlyCalculateOwnTurn) {
+                toast.warning(`"Only Own Turn" setting might not work for variants! (todo)`, 5000);
+            }
+
             const chessFont = formatChessFont(this.getConfigValue(this.configKeys.chessFont));
 
             this.variantStartPosFen = startpos;
@@ -991,6 +993,10 @@ class BackendInstance {
 
             const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
             const instanceIdQuery = `[data-instance-id="${this.instanceID}"]`;
+
+            this.currentFen = fen;
+
+            this.pendingCalculations = [];
 
             log.info(`Variant: "${variantText}"\n\nFen: "${fen}"\n\nDimension: "${boardDimensions.width}x${boardDimensions.height}"`);
 

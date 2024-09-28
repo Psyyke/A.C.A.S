@@ -61,7 +61,9 @@
 // @match       https://chesstempo.com/*
 // @match       https://www.redhotpawn.com/*
 // @match       https://www.chessanytime.com/*
+// @match       https://www.simplechess.com/*
 // @match       https://chessworld.net/*
+// @match       https://app.edchess.io/*
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -76,12 +78,11 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.0
+// @version     2.2.1
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
 // ==/UserScript==
-
 
 /*
      e            e88~-_            e           ,d88~~\
@@ -107,8 +108,6 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 //////////////////////////////////////////////////////////////////
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
-
-
 
 
 
@@ -215,7 +214,6 @@ const dbValues = {
 
 const instanceVars = {
     playerColor: createInstanceVariable('playerColor'),
-    turn: createInstanceVariable('turn'),
     fen: createInstanceVariable('fen')
 };
 
@@ -278,11 +276,13 @@ const configKeys = {
     'displayMovesOnExternalSite': 'displayMovesOnExternalSite',
     'showMoveGhost': 'showMoveGhost',
     'showOpponentMoveGuess': 'showOpponentMoveGuess',
+    'showOpponentMoveGuessConstantly': 'showOpponentMoveGuessConstantly',
     'onlyShowTopMoves': 'onlyShowTopMoves',
     'maxMovetime': 'maxMovetime',
     'chessVariant': 'chessVariant',
     'chessEngine': 'chessEngine',
     'lc0Weight': 'lc0Weight',
+    'engineNodes': 'engineNodes',
     'chessFont': 'chessFont',
     'useChess960': 'useChess960',
     'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
@@ -303,7 +303,7 @@ Object.values(configKeys).forEach(key => {
 let BoardDrawer = null;
 let chessBoardElem = null;
 let chesscomVariantPlayerColorsTable = null;
-let activeSiteMoveHighlights = [];
+let activeGuiMoveMarkings = [];
 let inactiveGuiMoveMarkings = [];
 
 let lastBoardRanks = null;
@@ -384,10 +384,10 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
             case 'getFen':
                 return getFen();
             case 'removeSiteMoveMarkings':
-                boardUtils.removeBestMarkings();
+                boardUtils.removeMarkings();
                 return true;
             case 'markMoveToSite':
-                boardUtils.markMove(packet.data);
+                boardUtils.markMoves(packet.data);
                 return true;
         }
     } catch(e) {
@@ -396,198 +396,23 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
 });
 
 const boardUtils = {
-    markMove: moveObj => {
-        if(!getConfigValue(configKeys.displayMovesOnExternalSite)) return;
+    markMoves: moveObjArr => {
+        boardUtils.removeMarkings();
 
-        const [from, to] = moveObj.player;
-        const [opponentFrom, opponentTo] = moveObj.opponent;
-        const ranking = moveObj.ranking;
+        const maxScale = 1;
+        const minScale = 0.5;
+        const totalRanks = moveObjArr.length;
+        const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess);
+        const showOpponentMoveGuessConstantly = getConfigValue(configKeys.showOpponentMoveGuessConstantly);
 
-        const existingExactSameMoveObj = activeSiteMoveHighlights.find(obj => {
-            const [activeFrom, activeTo] = obj.player;
-            const [activeOpponentFrom, activeOpponentTo] = obj.opponent;
-
-            return from == activeFrom
-                && to == activeTo
-                && opponentFrom == activeOpponentFrom
-                && opponentTo == activeOpponentTo;
-        });
-
-        activeSiteMoveHighlights.map(obj => {
-            const [activeFrom, activeTo] = obj.player;
-
-            const existingSameMoveObj = from == activeFrom && to == activeTo;
-
-            if(existingSameMoveObj) {
-                obj.promotedRanking = 1;
-            }
-
-            return obj;
-        });
-
-        const exactSameMoveDoesNotExist = typeof existingExactSameMoveObj !== 'object';
-
-        if(exactSameMoveDoesNotExist) {
-
-            const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess);
-
-            const opponentMoveGuessExists = typeof opponentFrom == 'string';
-
-            const arrowStyle = ranking == 1 ? arrowStyles.best : arrowStyles.secondary;
-
-            let opponentArrowElem = null;
-
-            // create player move arrow element
-            const arrowElem = BoardDrawer.createShape('arrow', [from, to],
-                //{ style: arrowStyle }
-            );
-
-            // create opponent move arrow element
-            if(opponentMoveGuessExists && showOpponentMoveGuess) {
-                opponentArrowElem = BoardDrawer.createShape('arrow', [opponentFrom, opponentTo],
-                    //{ style: arrowStyles.opponent }
-                );
-
-                const squareListener = BoardDrawer.addSquareListener(from, type => {
-                    if(!opponentArrowElem) {
-                        squareListener.remove();
-                    }
-
-                    switch(type) {
-                        case 'enter':
-                            opponentArrowElem.style.display = 'inherit';
-                            break;
-                        case 'leave':
-                            opponentArrowElem.style.display = 'none';
-                            break;
-                    }
-                });
-            }
-
-            activeSiteMoveHighlights.push({
-                ...moveObj,
-                'opponentArrowElem': opponentArrowElem,
-                'playerArrowElem': arrowElem
-            });
-        }
-
-        boardUtils.removeOldMarkings();
-        boardUtils.paintMarkings();
-    },
-    removeOldMarkings: () => {
-        const markingLimit = getConfigValue(configKeys.moveSuggestionAmount);
-        const showGhost = getConfigValue(configKeys.showMoveGhost);
-
-        const exceededMarkingLimit = activeSiteMoveHighlights.length > markingLimit;
-
-        if(exceededMarkingLimit) {
-            const amountToRemove = activeSiteMoveHighlights.length - markingLimit;
-
-            for(let i = 0; i < amountToRemove; i++) {
-                const oldestMarkingObj = activeSiteMoveHighlights[0];
-
-                activeSiteMoveHighlights = activeSiteMoveHighlights.slice(1);
-
-                if(oldestMarkingObj?.playerArrowElem?.style) {
-                    oldestMarkingObj.playerArrowElem.style.fill = 'grey';
-                    oldestMarkingObj.playerArrowElem.style.opacity = '0';
-                    oldestMarkingObj.playerArrowElem.style.transition = 'opacity 2.5s ease-in-out';
-                }
-
-                if(oldestMarkingObj?.opponentArrowElem?.style) {
-                    oldestMarkingObj.opponentArrowElem.style.fill = 'grey';
-                    oldestMarkingObj.opponentArrowElem.style.opacity = '0';
-                    oldestMarkingObj.opponentArrowElem.style.transition = 'opacity 2.5s ease-in-out';
-                }
-
-                if(showGhost) {
-                    inactiveGuiMoveMarkings.push(oldestMarkingObj);
-                } else {
-                    oldestMarkingObj.playerArrowElem?.remove();
-                    oldestMarkingObj.opponentArrowElem?.remove();
-                }
-            }
-        }
-
-        if(showGhost) {
-            inactiveGuiMoveMarkings.forEach(markingObj => {
-                const activeDuplicateArrow = activeSiteMoveHighlights.find(x => {
-                    const samePlayerArrow = x.player?.toString() == markingObj.player?.toString();
-                    const sameOpponentArrow = x.opponent?.toString() == markingObj.opponent?.toString();
-
-                    return samePlayerArrow && sameOpponentArrow;
-                });
-
-                const duplicateExists = activeDuplicateArrow ? true : false;
-
-                const removeArrows = () => {
-                    inactiveGuiMoveMarkings = inactiveGuiMoveMarkings.filter(x => x.playerArrowElem != markingObj.playerArrowElem);
-
-                    markingObj.playerArrowElem?.remove();
-                    markingObj.opponentArrowElem?.remove();
-                }
-
-                if(duplicateExists) {
-                    removeArrows();
-                } else {
-                    setTimeout(removeArrows, 2500);
-                }
-            });
-        }
-    },
-    paintMarkings: () => {
-        /* Account for none, or multiple 1 rank (multipv 1) markings. This is the priority order,
-            1. Mark the last added rank 1 marking as the best (unless promoted marking is newer)
-            2. (no rank 1 markings) Mark the lats added promoted rank 1 marking as the best
-            3. (no promoted rank 1 markings) Mark the last added marking as the best
-        */
-
-        function rankMarkings(activeGuiMoveMarkings) {
-            const newestBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj.ranking === 1);
-            const newestPromotedBestMarkingIndex = activeGuiMoveMarkings.findLastIndex(obj => obj?.promotedRanking === 1);
-            const lastMarkingIndex = activeGuiMoveMarkings.length - 1;
-
-            const isLastMarkingBest = newestBestMarkingIndex === -1 && newestPromotedBestMarkingIndex === -1;
-            const bestIndex = isLastMarkingBest ? lastMarkingIndex : Math.max(...[newestBestMarkingIndex, newestPromotedBestMarkingIndex]);
-
-            const bestMarking = [];
-            const secondaryMarkings = [];
-
-            activeGuiMoveMarkings.forEach((obj, index) => {
-                if (index === bestIndex) {
-                    bestMarking.push({ ...obj, status: 'best' });
-                } else {
-                    secondaryMarkings.push(obj);
-                }
-            });
-
-            secondaryMarkings.sort((a, b) => {
-                if (a.ranking !== b.ranking) return a.ranking - b.ranking;
-                if (a.promotedRanking !== b.promotedRanking) return (a.promotedRanking || Infinity) - (b.promotedRanking || Infinity);
-                return activeGuiMoveMarkings.indexOf(a) - activeGuiMoveMarkings.indexOf(b);
-            });
-
-            const sortedMarkings = secondaryMarkings.map((obj, index) => ({
-                ...obj,
-                status: 'secondary'
-            }));
-
-            return bestMarking.concat(sortedMarkings);
-        }
-
-        const rankedMarkings = rankMarkings(activeSiteMoveHighlights);
-
-        rankedMarkings.forEach((markingObj, idx) => {
+        moveObjArr.forEach((markingObj, idx) => {
             const [from, to] = markingObj.player;
             const [oppFrom, oppTo] = markingObj.opponent;
-            const playerArrowElem = markingObj.playerArrowElem;
-            const oppArrowElem = markingObj.opponentArrowElem;
-
+            const oppMovesExist = oppFrom && oppTo;
             const rank = idx + 1;
-            const maxScale = 1;
-            const minScale = 0.4;
-            const totalRanks = rankedMarkings.length;
 
+            let playerArrowElem = null;
+            let oppArrowElem = null;
             let arrowStyle = arrowStyles.best;
             let lineWidth = 30;
             let arrowheadWidth = 80;
@@ -607,45 +432,64 @@ const boardUtils = {
                 startOffset = startOffset;
             }
 
-            // Update player move arrow element
-            BoardDrawer.createShape('arrow', [from, to],
+            playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
                 {
                     style: arrowStyle,
-                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
-                    existingElem: playerArrowElem
+                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                 }
             );
 
-            if(oppArrowElem) {
-                // Update opponent move arrow element
-                    BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+            if(oppMovesExist && showOpponentMoveGuess) {
+                oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
                     {
                         style: arrowStyles.opponent,
-                        lineWidth, arrowheadWidth, arrowheadHeight, startOffset,
-                        existingElem: oppArrowElem
+                        lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                     }
                 );
+
+                if(showOpponentMoveGuessConstantly) {
+                    oppArrowElem.style.display = 'block';
+                } else {
+                    const squareListener = BoardDrawer.addSquareListener(from, type => {
+                        if(!oppArrowElem) {
+                            squareListener.remove();
+                        }
+    
+                        switch(type) {
+                            case 'enter':
+                                oppArrowElem.style.display = 'inherit';
+                                break;
+                            case 'leave':
+                                oppArrowElem.style.display = 'none';
+                                break;
+                        }
+                    });
+                }
             }
 
-            if(idx === 0) {
-                // move best arrow element on top (multiple same moves can hide the best move)
-                const parentElem = markingObj.playerArrowElem.parentElement;
+            if(idx === 0 && playerArrowElem) {
+                const parentElem = playerArrowElem.parentElement;
 
+                // move best arrow element on top (multiple same moves can hide the best move)
                 parentElem.appendChild(playerArrowElem);
 
                 if(oppArrowElem) {
                     parentElem.appendChild(oppArrowElem);
                 }
             }
+
+            activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem });
         });
+
+        pastMoveObjects = [];
     },
-    removeBestMarkings: () => {
-        activeSiteMoveHighlights.forEach(markingObj => {
-            markingObj.opponentArrowElem?.remove();
+    removeMarkings: () => {
+        activeGuiMoveMarkings.forEach(markingObj => {
+            markingObj.oppArrowElem?.remove();
             markingObj.playerArrowElem?.remove();
         });
 
-        activeSiteMoveHighlights = [];
+        activeGuiMoveMarkings = [];
     },
     setBoardOrientation: orientation => {
         if(BoardDrawer) {
@@ -835,27 +679,6 @@ function getBoardDimensionsFromSize() {
 
         if(ranksInAllowedRange && filesInAllowedRange) {
             return [boardRanks, boardFiles];
-        }
-    }
-}
-
-function defaultTurnFromMutation(mutationArr) {
-    const allChessPieceElems = getPieceElem(true);
-
-    const attributeMutationArr = mutationArr.filter(m => allChessPieceElems.includes(m.target));
-    const movedChessPieceElem = attributeMutationArr?.[0]?.target;
-
-    if(movedChessPieceElem) {
-        const pieceFen = getPieceElemFen(movedChessPieceElem);
-
-        if(pieceFen) {
-            const newTurn = getFenPieceOppositeColor(pieceFen);
-
-            if(newTurn?.length === 1) {
-                instanceVars.turn.set(commLinkInstanceID, newTurn);
-
-                return newTurn;
-            }
         }
     }
 }
@@ -1094,12 +917,6 @@ function isMutationNewMove(mutationArr) {
     return isNewMove || false;
 }
 
-function getMutationTurn(mutationArr) {
-    const turn = getSiteData('turnFromMutation', { mutationArr });
-
-    return turn || getPlayerColorVariable();
-}
-
 function getFen(onlyBasic) {
     const [boardRanks, boardFiles] = getBoardDimensions();
 
@@ -1178,19 +995,32 @@ function resetCachedValues() {
     chesscomVariantPlayerColorsTable = null;
 }
 
+function fenToArray(fen) {
+    const rows = fen.split('/');
+    const board = [];
+
+    for (let row of rows) {
+        const boardRow = [];
+        for (let char of row) {
+            if (isNaN(char)) {
+                boardRow.push(char);
+            } else {
+                boardRow.push(...Array(parseInt(char)).fill(''));
+            }
+        }
+        board.push(boardRow);
+    }
+
+    return board;
+}
+
 function onNewMove(mutationArr, bypassFenChangeDetection) {
     const currentFullFen = getFen();
     const lastFullFen = instanceVars.fen.get(commLinkInstanceID);
 
     const fenChanged = currentFullFen !== lastFullFen;
 
-    setTimeout(() => {
-        if(getFen() !== instanceVars.fen.get(commLinkInstanceID)) {
-            onNewMove(null, true);
-        }
-    }, 500);
-
-    if(fenChanged || bypassFenChangeDetection) {
+    if((fenChanged || bypassFenChangeDetection)) {
         if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
 
         resetCachedValues();
@@ -1209,21 +1039,14 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
             resetCachedValues();
 
-            instanceVars.turn.set(commLinkInstanceID, playerColor);
-
             CommLink.commands.log(`Turn updated to ${playerColor}!`);
         }
 
-        boardUtils.removeBestMarkings();
+        boardUtils.removeMarkings();
 
         CommLink.commands.updateBoardFen(currentFullFen);
 
-        const turn = mutationArr ? getMutationTurn(mutationArr) : playerColor;
-        const onlyCalculateOwnTurn = getConfigValue(configKeys.onlyCalculateOwnTurn);
-
-        if(debugModeActivated) console.warn('TURN:', turn, '| PLAYERCOLOR:', playerColor, '| ORIENTATION_CHANGED:', orientationChanged, '| ONLY_CALC_OWN_TURN:', onlyCalculateOwnTurn);
-
-        if(orientationChanged || !onlyCalculateOwnTurn || turn === playerColor) {
+        if(orientationChanged) {
             CommLink.commands.calculateBestMoves(currentFullFen);
         }
     }
@@ -1263,7 +1086,6 @@ async function updatePlayerColor() {
         lastBoardOrientation = boardOrientation;
 
         instanceVars.playerColor.set(commLinkInstanceID, boardOrientation);
-        instanceVars.turn.set(commLinkInstanceID, boardOrientation);
 
         boardUtils.setBoardOrientation(boardOrientation);
 
@@ -1366,7 +1188,7 @@ addSupportedChessSite('chess.com', {
 
             const pieceFenStr = pieceElem?.dataset?.piece;
 
-            pieceColor = chesscomVariantPlayerColorsTable[pieceElem?.dataset?.color];
+            pieceColor = chesscomVariantPlayerColorsTable?.[pieceElem?.dataset?.color];
             pieceName = pieceElem?.dataset?.piece;
 
             if(pieceName?.length > 1) {
@@ -1439,17 +1261,16 @@ addSupportedChessSite('chess.com', {
         const modifiedHighlight = mutationArr.find(m => m?.target?.classList?.contains('highlight')) ? true : false;
         const modifiedElemPool = mutationArr.find(m => m?.target?.classList?.contains('element-pool')) ? true : false;
 
-        return (mutationArr.length >= 4 && !modifiedHoverSquare)
+        const isPremove = mutationArr.filter(m => m?.target?.classList?.contains('highlight'))
+            .map(x => x?.target?.style?.['background-color'])
+            .find(x => x === 'rgb(244, 42, 50)') ? true : false;
+
+        return (
+            (mutationArr.length >= 4 && !modifiedHoverSquare)
             || mutationArr.length >= 7
             || modifiedHighlight
-            || modifiedElemPool;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
+            || modifiedElemPool
+        ) && !isPremove;
     }
 });
 
@@ -1517,13 +1338,6 @@ addSupportedChessSite('lichess.org', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -1605,13 +1419,6 @@ addSupportedChessSite('playstrategy.org', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -1694,13 +1501,6 @@ addSupportedChessSite('pychess.org', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -1765,13 +1565,6 @@ addSupportedChessSite('chess.org', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -1827,19 +1620,12 @@ addSupportedChessSite('chess.coolmath-games.com', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
 addSupportedChessSite('papergames.io', {
     'boardElem': obj => {
-        return document.querySelector('#chessboard');
+        return document.querySelector('#chess_board');
     },
 
     'pieceElem': obj => {
@@ -1884,13 +1670,6 @@ addSupportedChessSite('papergames.io', {
         const mutationArr = obj.mutationArr;
 
         return mutationArr.length >= 12;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -1938,13 +1717,6 @@ addSupportedChessSite('vole.wtf', {
         const mutationArr = obj.mutationArr;
 
         return mutationArr.length >= 12;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2001,13 +1773,6 @@ addSupportedChessSite('immortal.game', {
         }
 
         return mutationArr.length >= 5;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2061,13 +1826,6 @@ addSupportedChessSite('chessarena.com', {
         }
 
         return mutationArr.find(m => m?.attributeName === 'style') ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2136,13 +1894,6 @@ addSupportedChessSite('chess.net', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2198,13 +1949,6 @@ addSupportedChessSite('freechess.club', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2260,13 +2004,6 @@ addSupportedChessSite('play.chessclub.com', {
         return mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2276,7 +2013,7 @@ addSupportedChessSite('gameknot.com', {
     },
 
     'pieceElem': obj => {
-        return obj.boardQuerySelector('*[class*="square_"] > img[src*="chess36."][style*="visible"]');
+        return obj.boardQuerySelector('*[class*="chess-board-piece"] > img[src*="chess56."][style*="visible"]');
     },
 
     'chessVariant': obj => {
@@ -2312,20 +2049,8 @@ addSupportedChessSite('gameknot.com', {
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        if(isUserMouseDown) {
-            return false;
-        }
-
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
+        return mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2374,13 +2099,6 @@ addSupportedChessSite('chesstempo.com', {
         const mutationArr = obj.mutationArr;
 
         return mutationArr.length >= 4;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2429,19 +2147,12 @@ addSupportedChessSite('redhotpawn.com', {
         }
 
         return mutationArr.length >= 4;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
-addSupportedChessSite('chessanytime.com', {
+addSupportedChessSite('simplechess.com', {
     'boardElem': obj => {
-        return document.querySelector('#play');
+        return document.querySelector('#chessboard');
     },
 
     'pieceElem': obj => {
@@ -2457,7 +2168,7 @@ addSupportedChessSite('chessanytime.com', {
     },
 
     'boardOrientation': obj => {
-        return document.querySelector('#play_coordy0')?.innerText === '8' ? 'w' : 'b';
+        return document.querySelector('#chessboard_coordy0')?.innerText === '8' ? 'w' : 'b';
     },
 
     'pieceElemFen': obj => {
@@ -2518,13 +2229,6 @@ addSupportedChessSite('chessanytime.com', {
         }
 
         return mutationArr.length >= 7;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
@@ -2575,24 +2279,16 @@ addSupportedChessSite('chessworld.net', {
         const mutationArr = obj.mutationArr;
 
         return mutationArr.length >= 2;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
     }
 });
 
-/* The site is very shitty I don't feel like finishing this
-addSupportedChessSite('chessfriends.com', {
+addSupportedChessSite('app.edchess.io', {
     'boardElem': obj => {
-        return document.querySelector('div[id*="id_board_"');
+        return document.querySelector('*[data-boardid="chessboard"]');
     },
 
     'pieceElem': obj => {
-        return obj.boardQuerySelector('img[name][id*="id_piece_"][src*="/pieces/"]');
+        return obj.boardQuerySelector('*[data-piece]');
     },
 
     'chessVariant': obj => {
@@ -2600,28 +2296,20 @@ addSupportedChessSite('chessfriends.com', {
     },
 
     'boardOrientation': obj => {
-        const firstSquareTop = document.querySelector('*[id*="id_square_00_"]')?.style?.top;
-
-        return firstSquareTop === '0px' ? 'w' : 'b';
+        return document.querySelector('*[data-square]')?.dataset?.square == 'h1' ? 'b' : 'w';
     },
 
     'pieceElemFen': obj => {
         const pieceElem = obj.pieceElem;
+        const [pieceColor, pieceName] = pieceElem?.dataset?.piece?.split('');
 
-        const dataStr = pieceElem.getAttribute('name');
-
-        if(dataStr?.length === 2) {
-            const pieceColor = dataStr[0];
-            const elemPieceName = dataStr[1];
-
-            return pieceColor == 'w' ? elemPieceName.toUpperCase() : elemPieceName.toLowerCase();
-        }
+        return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
     },
 
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        return getElemCoordinatesFromLeftTopPixels(pieceElem);
+        return chessCoordinatesToIndex(pieceElem?.parentElement?.parentElement?.dataset?.square);
     },
 
     'boardDimensions': obj => {
@@ -2631,25 +2319,9 @@ addSupportedChessSite('chessfriends.com', {
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        if(isUserMouseDown) {
-            return false;
-        }
-
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
-            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    },
-
-    'turnFromMutation': obj => {
-        const pathname = obj.pathname;
-        const mutationArr = obj.mutationArr;
-
-        return defaultTurnFromMutation(mutationArr);
+        return mutationArr.length >= 2;
     }
-});*/
-
-
-
+});
 
 /*
  _____ __   _ _____ _______ _____ _______        _____ ______ _______ _______ _____  _____  __   _
@@ -2670,11 +2342,11 @@ async function start() {
 
     const pathname = window.location.pathname;
     const adjustSizeByDimensions = domain === 'chess.com' && pathname?.includes('/variants');
+    const ignoreBodyRectLeft = domain === 'app.edchess.io';
 
     const boardOrientation = getBoardOrientation();
 
     instanceVars.playerColor.set(commLinkInstanceID, boardOrientation);
-    instanceVars.turn.set(commLinkInstanceID, boardOrientation);
     instanceVars.fen.set(commLinkInstanceID, getFen());
 
     if(getConfigValue(configKeys.displayMovesOnExternalSite)) {
@@ -2688,7 +2360,8 @@ async function start() {
             'adjustSizeByDimensions': adjustSizeByDimensions ? true : false,
             'adjustSizeConfig': {
                 'noLeftAdjustment': true
-            }
+            },
+            'ignoreBodyRectLeft': ignoreBodyRectLeft
         });
     }
 
@@ -2729,6 +2402,9 @@ function initializeIfSiteReady() {
 
         chessBoardElem.addEventListener('mousedown', () => { isUserMouseDown = true; });
         chessBoardElem.addEventListener('mouseup', () => { isUserMouseDown = false; });
+        chessBoardElem.addEventListener('touchstart', () => { isUserMouseDown = true; });
+        chessBoardElem.addEventListener('touchend', () => { isUserMouseDown = false; });
+
 
         if(!blacklistedURLs.includes(window.location.href)) {
             startWhenBackendReady();

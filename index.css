@@ -997,3 +997,13 @@ cg-container {
     align-items: center;
     font-size: 10px;
 }
+.input-combination-box {
+	display: flex;
+    flex-direction: column;
+    grid-gap: 10px;
+}
+.sub-input {
+	padding-left: 10px;
+    margin-left: 10px;
+    border-left: 2px solid rgba(255, 255, 255, 0.05);
+}

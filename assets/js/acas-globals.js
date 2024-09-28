@@ -148,6 +148,51 @@ function convertToCorrectType(data) {
     return data;
 }
 
+function countPieces(fen) {
+    const pieceCount = {};
+    const position = fen.split(' ')[0];
+
+    for (let char of position) {
+        if (/[rnbqkpRNBQKP]/.test(char)) {
+            pieceCount[char] = (pieceCount[char] || 0) + 1;
+        }
+    }
+    
+    return pieceCount;
+}
+
+function countTotalPieces(fen) {
+    let pieceCount = 0;
+    const position = fen.split(' ')[0];
+
+    for (let char of position) {
+        if (/[rnbqkpRNBQKP]/.test(char)) {
+            pieceCount += (pieceCount[char] || 0) + 1;
+        }
+    }
+    
+    return pieceCount;
+}
+
+function fenToArray(fen) {
+    const rows = fen.split('/');
+    const board = [];
+
+    for (let row of rows) {
+        const boardRow = [];
+        for (let char of row) {
+            if (isNaN(char)) {
+                boardRow.push(char);
+            } else {
+                boardRow.push(...Array(parseInt(char)).fill(''));
+            }
+        }
+        board.push(boardRow);
+    }
+
+    return board;
+}
+
 function capitalize(s) {
     return s && s[0].toUpperCase() + s.slice(1);
 }
