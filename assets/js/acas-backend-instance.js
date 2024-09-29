@@ -712,14 +712,6 @@ class BackendInstance {
             return;
         }
 
-        if(!this.isEngineNotCalculating()) {
-            this.engineStopCalculating();
-
-            console.warn(`Engine didn't finish before the next best move request came, won't show the cancelled calculation results!`);
-
-            return;
-        }
-
         this.pendingCalculations.push({ 'fen': currentFen, 'finished': false });
 
         this.Interface.boardUtils.removeMarkings();
