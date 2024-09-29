@@ -835,7 +835,7 @@ class BackendInstance {
             const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
             const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
 
-            if(topMoveObjects.length === markingLimit) {
+            if(topMoveObjects.length === markingLimit && !onlyShowTopMoves) {
                 this.Interface.boardUtils.markMoves(topMoveObjects);
 
                 topMoveObjects.forEach(moveObj => {
