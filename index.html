@@ -167,133 +167,169 @@
 					<div id="reset-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Reset Settings">🗑️</div>
 				</div>
 			</div>
-			<div id="settings-navbar-subtitle">Settings affect every instance</div>
 			<div id="userscript-info-small"></div>
-			<div id="settings-panels">
-				<div class="setting-panel">
-					<div class="setting-panel-title">Engine ⚙️</div>
-					<div id="chess-engine-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Engine</div>
-						<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_engine" target="_blank">here</a></div></div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="fairy-stockfish-nnue-wasm" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
-						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish v14 NNUE WASM</div>
-							<div class="dropdown-item" data-value="lc0">Lc0 v29</div>
+			<div id="setting-container">
+				<div id="main-setting-panel">
+					<div id="profile-panel">
+						<div id="delete-profile-button" class="control-panel-btn no-select acas-fancy-button" title="Delete Profile">🔥</div>
+						<div id="chess-engine-profile-dropdown" class="wrap dropdown-input custom-input">
+							<div><div class="input-title">Chess Engine Profiles</div>
+							<div class="input-subtitle">Multiple profiles can be active at the same time!</div></div><div class="dropdown-input-container">
+							<input class="wide-text-input" type="text" additional-type="dropdown" data-no-profile="true" data-key="chessEngineProfile" data-default-value="default" placeholder="Default"><div class="dropdown-icon"></div>
+							<div class="dropdown-list-container reversed-dropdown-list">
+								<div id="add-new-profile-button" class="dropdown-item">(Add New)</div>
+								<div class="dropdown-item" data-value="default">Default Profile</div>
+							</div>
 						</div>
 					</div></div>
-					<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
-						<div class="input-subtitle">Read more <a href="https://github.com/CSSLab/maia-chess" target="_blank">here</a></div></div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="maia-1100.pb" placeholder="1100 elo"><div class="dropdown-icon"></div>
-						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="maia-1100.pb">1100 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1200.pb">1200 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1300.pb">1300 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1400.pb">1400 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1500.pb">1500 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1600.pb">1600 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1700.pb">1700 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1800.pb">1800 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="maia-1900.pb">1900 elo (Maia) 1.7MB</div>
-							<div class="dropdown-item" data-value="little-demon2.6-swa-20000">Unknown elo (Little Demon 2, 2019) 7MB</div>
-							<div class="dropdown-item" data-value="evilgyal-6.pb">Unknown elo (Evil Gyal 6) 1MB</div>
-							<div class="dropdown-item" data-value="badgyal-8.pb">Unknown elo (Bad Gyal 8) 7MB</div>
-							<div class="dropdown-item" data-value="goodgyal-7.pb">Unknown elo (Good Gyal 7) 23MB</div>
-							<div class="dropdown-item" data-value="tinygyal-8.pb">Unknown elo (Tiny Gyal 8) 0.6MB</div>
+					<div id="settings-navbar-subtitle">Settings affect every instance</div>
+					<div id="settings-panels">
+						<div class="setting-panel">
+							<div class="setting-panel-title">Engine ⚙️</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Enabled</div>
+								<div class="input-subtitle">Is the engine enabled</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="engineEnabled" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div id="chess-engine-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Engine</div>
+								<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_engine" target="_blank">here</a></div></div><div class="dropdown-input-container">
+								<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="fairy-stockfish-nnue-wasm" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
+								<div class="dropdown-list-container">
+									<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish v14 NNUE WASM</div>
+									<div class="dropdown-item" data-value="lc0">Lc0 v29</div>
+								</div>
+							</div></div>
+							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
+								<div class="input-subtitle">Read more <a href="https://github.com/CSSLab/maia-chess" target="_blank">here</a></div></div><div class="dropdown-input-container">
+								<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="maia-1100.pb" placeholder="1100 elo"><div class="dropdown-icon"></div>
+								<div class="dropdown-list-container">
+									<div class="dropdown-item" data-value="maia-1100.pb">1100 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1200.pb">1200 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1300.pb">1300 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1400.pb">1400 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1500.pb">1500 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1600.pb">1600 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1700.pb">1700 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1800.pb">1800 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="maia-1900.pb">1900 elo (Maia) 1.7MB</div>
+									<div class="dropdown-item" data-value="little-demon2.6-swa-20000">Unknown elo (Little Demon 2, 2019) 7MB</div>
+									<div class="dropdown-item" data-value="evilgyal-6.pb">Unknown elo (Evil Gyal 6) 1MB</div>
+									<div class="dropdown-item" data-value="badgyal-8.pb">Unknown elo (Bad Gyal 8) 7MB</div>
+									<div class="dropdown-item" data-value="goodgyal-7.pb">Unknown elo (Good Gyal 7) 23MB</div>
+									<div class="dropdown-item" data-value="tinygyal-8.pb">Unknown elo (Tiny Gyal 8) 0.6MB</div>
+								</div>
+							</div></div>
+							<div id="engine-nodes-input" class="hidden textfield-input custom-input"><div><div class="input-title">Search Nodes</div>
+								<div class="input-subtitle">More nodes means more thinking of the move by the engine</div></div>
+								<input type="textfield" data-key="engineNodes" data-default-value="1" data-between="1-99999999">
+							</div>
+							<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
+								<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_variant" target="_blank">here</a></div></div><div class="dropdown-input-container">
+								<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
+								<div class="dropdown-list-container"></div>
+							</div></div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Random Chess (Chess960)</div>
+								<div class="input-subtitle">Make engine use Chess960 chess variant</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO (500 - 3200)</div>
+								<div class="input-subtitle">Higher number, stronger engine</div></div>
+								<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
+							</div>
+							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions (1 - 500)</div>
+								<div class="input-subtitle">How many arrows will show up</div></div>
+								<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="1-500">
+							</div>
+							<div class="textfield-input custom-input"><div><div class="input-title">Max Movetime (ms)</div>
+								<div class="input-subtitle" title="Ms means millisecond. 1000 milliseconds is 1 second.">1000ms is 1 second</div></div>
+								<input type="textfield" data-key="maxMovetime" data-default-value="0" data-between="0-100000">
+							</div>
 						</div>
-					</div></div>
-					<div id="engine-nodes-input" class="hidden textfield-input custom-input"><div><div class="input-title">Search Nodes</div>
-						<div class="input-subtitle">More nodes means more thinking of the move by the engine</div></div>
-						<input type="textfield" data-key="engineNodes" data-default-value="1" data-between="1-99999999">
-					</div>
-					<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
-						<div class="input-subtitle">Read more <a href="https://en.wikipedia.org/wiki/Chess_variant" target="_blank">here</a></div></div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
-						<div class="dropdown-list-container"></div>
-					</div></div>
-					<div class="checkbox-input custom-input"><div><div class="input-title">Random Chess (Chess960)</div>
-						<div class="input-subtitle">Make engine use Chess960 chess variant</div></div><div class="checkbox-container">
-						<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO (500 - 3200)</div>
-						<div class="input-subtitle">Higher number, stronger engine</div></div>
-						<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
-					</div>
-					<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions (1 - 500)</div>
-						<div class="input-subtitle">How many arrows will show up</div></div>
-						<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="1-500">
-					</div>
-					<div class="textfield-input custom-input"><div><div class="input-title">Max Movetime (ms)</div>
-						<div class="input-subtitle" title="Ms means millisecond. 1000 milliseconds is 1 second.">1000ms is 1 second</div></div>
-						<input type="textfield" data-key="maxMovetime" data-default-value="0" data-between="0-100000">
-					</div>
-				</div>
-				<div class="setting-panel">
-					<div class="setting-panel-title">Visual 👁️‍🗨️</div>
-					<div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
-						<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
-						<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
-						<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">
-						<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-					</div>
-					<div class="input-combination-box">
-						<div class="checkbox-input custom-input"><div><div class="input-title">Opponent move guess</div>
-							<div class="input-subtitle">Show the engine's guess of what move the enemy makes after you play the suggested move</div></div><div class="checkbox-container">
-							<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+						<div class="setting-panel">
+							<div class="setting-panel-title">Visual 👁️‍🗨️</div>
+							<div class="input-combination-box">
+								<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
+									<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+								</div>
+								<div class="textfield-input sub-input custom-input"><div><div class="input-title">Arrow opacity (1 - 100%)</div>
+									<div class="input-subtitle">Change the opacity of arrows on the external site, refresh external site to see changes</div></div>
+									<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
+								</div>
+							</div>
+							<div class="color-input custom-input"><div><div class="input-title">Primary Arrow Color</div>
+								<div class="input-subtitle">The best move color</div></div>
+								<input type="color" data-key="primaryArrowColorHex" data-default-value="#32CD32">
+							</div>
+							<div class="color-input custom-input"><div><div class="input-title">Secondary Arrow Color</div>
+								<div class="input-subtitle">Other moves' color</div></div>
+								<input type="color" data-key="secondaryArrowColorHex" data-default-value="#1E90FF">
+							</div>
+							<div class="color-input custom-input"><div><div class="input-title">Opponent Arrow Color</div>
+								<div class="input-subtitle">Opponent color</div></div>
+								<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
+							</div>
 						</div>
-						<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Constantly visible</div>
-							<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
-							<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+						<div class="setting-panel">
+							<div class="setting-panel-title">Visual #2 👁️‍🗨️</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
+								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
+								<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div class="input-combination-box">
+								<div class="checkbox-input custom-input"><div><div class="input-title">Opponent move guess</div>
+									<div class="input-subtitle">Show the engine's guess of what move the enemy makes after you play the suggested move</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+								</div>
+								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Constantly visible</div>
+									<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+								</div>
+							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
+								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+							</div>
 						</div>
-					</div>
-				</div>
-				<div class="setting-panel">
-					<div class="setting-panel-title">Visual #2 👁️‍🗨️</div>
-					<div class="input-combination-box">
-						<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
-							<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
-							<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+						<div class="setting-panel">
+							<div class="setting-panel-title">Audible 🔊</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Move TTS</div>
+								<div class="input-subtitle">Hear best moves</div></div>
+								<div id="tts-name-dropdown" class="dropdown-input custom-input disabled-input"><div class="dropdown-input-container">
+									<input type="text" additional-type="dropdown" data-key="ttsVoiceName" data-default-value="Default" placeholder="Default"><div class="dropdown-icon"></div>
+									<div class="dropdown-list-container"></div>
+								</div></div>
+								<div class="checkbox-container">
+									<input type="checkbox" data-key="ttsVoiceEnabled" data-default-value="false"><div class="checkbox-fill">✓</div>
+								</div>
+							</div>
+							<div id="tts-speed-range" class="textfield-input custom-input disabled-input"><div><div class="input-title">TTS speed (1 - 100)</div>
+								<div class="input-subtitle">Higher number, faster speed</div></div>
+								<input type="textfield" data-key="ttsVoiceSpeed" data-default-value="10" data-between="1-100">
+							</div>
 						</div>
-						<div class="textfield-input sub-input custom-input"><div><div class="input-title">Arrow opacity (1 - 100%)</div>
-							<div class="input-subtitle">Change the opacity of arrows on the external site, refresh external site to see changes</div></div>
-							<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
-						</div>
-					</div>
-				</div>
-				<div class="setting-panel">
-					<div class="setting-panel-title">Audible 🔊</div>
-					<div class="checkbox-input custom-input"><div><div class="input-title">Move TTS</div>
-						<div class="input-subtitle">Hear best moves</div></div>
-						<div id="tts-name-dropdown" class="dropdown-input custom-input disabled-input"><div class="dropdown-input-container">
-							<input type="text" additional-type="dropdown" data-key="ttsVoiceName" data-default-value="Default" placeholder="Default"><div class="dropdown-icon"></div>
-							<div class="dropdown-list-container"></div>
-						</div></div>
-						<div class="checkbox-container">
-							<input type="checkbox" data-key="ttsVoiceEnabled" data-default-value="false"><div class="checkbox-fill">✓</div>
-						</div>
-					</div>
-					<div id="tts-speed-range" class="textfield-input custom-input disabled-input"><div><div class="input-title">TTS speed (1 - 100)</div>
-						<div class="input-subtitle">Higher number, faster speed</div></div>
-						<input type="textfield" data-key="ttsVoiceSpeed" data-default-value="10" data-between="1-100">
 					</div>
 				</div>
 				<div class="setting-panel">
 					<div class="setting-panel-title">Miscellaneous ❔</div>
 					<div class="color-input custom-input"><div class="input-title">Theme Color</div>
-						<input type="color" data-key="themeColorHex" data-default-value="#3D574C">
+						<input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#3D574C">
 					</div>
 					<div class="color-input custom-input"><div class="input-title">Board Color</div>
-						<input type="color" data-key="boardColorHex" data-default-value="#B5B5B5">
+						<input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#B5B5B5">
 					</div>
 					<div class="dropdown-input custom-input"><div class="input-title">Chess Font</div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-key="chessFont" data-default-value="Merida" placeholder="Merida"><div class="dropdown-icon"></div>
+						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="chessFont" data-default-value="Merida" placeholder="Merida"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container">
 							<div class="dropdown-item" data-value="merida">Merida</div>
 							<div class="dropdown-item" data-value="cburnett">Cburnett</div>
 						</div>
 					</div></div>
 					<div class="dropdown-input custom-input"><div class="input-title">Bg Texture</div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-key="backgroundTextureClass" data-default-value="chess-texture" placeholder="Chess"><div class="dropdown-icon"></div>
+						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="backgroundTextureClass" data-default-value="chess-texture" placeholder="Chess"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container">
 							<div class="dropdown-item" data-value="chess-texture">Chess</div>
 							<div class="dropdown-item" data-value="paper-texture">Paper</div>

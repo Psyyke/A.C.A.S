@@ -33,11 +33,28 @@ function prelongInstanceLife(domain, instanceID, chessVariant) {
     if(instanceObj) {
         instanceObj.date = Date.now();
 
-        const currentActiveVariant = instanceObj.instance.chessVariant;
+        const i = instanceObj.instance;
+        const instanceProfiles = Object.keys(i.pV);
+        const currentActiveVariants = instanceProfiles.map(profileName => {
+            return {
+                'currentVariant': i.pV[profileName].chessVariant,
+                'availableVariants': i.pV[profileName].chessVariants,
+                profileName
+            };
+        });
 
-        if(chessVariant && formatVariant(chessVariant) !== formatVariant(currentActiveVariant)) {
-            instanceObj.instance.engineStartNewGame(chessVariant);
-        }
+        if(!chessVariant) return;
+
+        currentActiveVariants.forEach(obj => {
+            const newVariantFormatted = formatVariant(chessVariant);
+            const currentVariantFormatted = formatVariant(obj.currentVariant);
+
+            const newVariantExistsForEngine = obj.availableVariants.find(x => x === newVariantFormatted) ? true : false;
+
+            if(newVariantExistsForEngine && newVariantFormatted !== currentVariantFormatted) {
+                instanceObj.instance.engineStartNewGame(newVariantFormatted, obj.profileName);
+            }
+        });
     }
 }
 

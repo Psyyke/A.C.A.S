@@ -197,7 +197,57 @@ function capitalize(s) {
     return s && s[0].toUpperCase() + s.slice(1);
 }
 
-function getGmConfigValue(key, instanceID) {
+function getProfile(profileName) {
+    const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
+    const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+    let profile = { 'name': profileName, 'config': null };
+
+    const instanceProfileObj = config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles']?.[profileName];
+    const profileObj = config?.[settingFilterObj.type]?.['profiles']?.[profileName];
+    const globalProfileObj = config?.['global']?.['profiles']?.[profileName];
+
+    if(instanceProfileObj) {
+        profile.config = { ...globalProfileObj, ...instanceProfileObj };
+
+    } else if(profileObj) {
+        profile.config = profileObj;
+    } else {
+        return false;
+    }
+
+    return profile;
+}
+
+function getProfileNames() {
+    const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
+    const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+
+    const instanceProfilesObj = config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles'];
+
+    if(instanceProfilesObj) return Object.keys(instanceProfilesObj);
+
+    const profilesObj = config?.[settingFilterObj.type]?.['profiles'];
+
+    if(profilesObj) return Object.keys(profilesObj);
+
+    return false;
+}
+
+function getProfiles() {
+    const profileNameArr = getProfileNames();
+    
+    if(!profileNameArr) return false;
+
+    const profileArr = profileNameArr.map(profileName => getProfile(profileName));
+
+    return profileArr;
+}
+
+function getGmConfigValue(key, instanceID, profileID) {
+    if(typeof profileID === 'object') {
+        profileID = profileID.name;
+    }
+
     const config = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig);
 
     const instanceValue = config?.instance?.[instanceID]?.[key];
@@ -209,6 +259,19 @@ function getGmConfigValue(key, instanceID) {
 
     if(globalValue !== undefined) {
         return globalValue;
+    }
+
+    if(profileID) {
+        const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
+        const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileID]?.[key];
+
+        if(instanceProfileValue !== undefined) {
+            return instanceProfileValue;
+        }
+
+        if(globalProfileValue !== undefined) {
+            return globalProfileValue;
+        }
     }
 
     return null;
@@ -411,4 +474,18 @@ async function loadFileAsUint8Array(url) {
 
 function isBelowVersion(versionStr, targetVersion) {
     return versionStr.localeCompare(targetVersion, undefined, {numeric: true}) === -1;
+}
+
+function formatProfileName(profileNameStr) {
+    return profileNameStr
+        .trim()
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .replace(/\s+/g, '');
+}
+
+function initNestedObject(obj, keys) {
+    keys.reduce((acc, key) => {
+        if (!acc[key]) acc[key] = {};
+        return acc[key];
+    }, obj);
 }

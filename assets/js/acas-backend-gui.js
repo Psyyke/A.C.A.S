@@ -47,6 +47,12 @@ const engineEloInput = document.querySelector('#engine-elo-input');
 const lc0WeightDropdown = document.querySelector('#lc0-weight-dropdown');
 const engineNodesInput = document.querySelector('#engine-nodes-input');
 
+const addNewProfileBtn = document.querySelector('#add-new-profile-button');
+const profileDropdown = document.querySelector('#chess-engine-profile-dropdown');
+const deleteProfileBtn = document.querySelector('#delete-profile-button');
+
+let lastProfileID = null;
+
 if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
     const GM_info = USERSCRIPT?.GM_info;
     const platform = GM_info?.platform || GM_info?.userAgentData || { 'platform': 'Unknown' };
@@ -57,7 +63,7 @@ if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) 
 
     document.title = `A.C.A.S (Using ${userscriptData})`;
 
-    if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.2.1')) {
+    if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.2.2')) {
         updateYourUserscriptElem.classList.remove('hidden');
     }
     
@@ -102,9 +108,17 @@ seeSupportedSitesBtn.onclick = () => {
     noInstancesSitesElem.classList.toggle('hidden');
 }
 
+addNewProfileBtn.onclick = () => {
+    createNewProfile();
+}
+
+deleteProfileBtn.onclick = () => {
+    deleteProfile();
+}
+
 const options = [settingsNavbarGlobalElem, settingsInstanceDropdownElem];
 
-const settingFilterObj = { 'type': 'global', 'instanceID': null };
+const settingFilterObj = { 'type': 'global', 'instanceID': null, 'profileID': null };
 
 const guiBroadcastChannel = new BroadcastChannel('gui');
 
@@ -200,6 +214,72 @@ function fillTTSVoiceNameDropdown() {
     return true;
 }
 
+function createNewProfile() {
+    while(true) {
+        const profileName = prompt('Enter the profile name: ');
+
+        if(!profileName) break;
+        
+        const nameExists = [...profileDropdown.querySelectorAll('.dropdown-item')].find(elem => elem.dataset.value === formatProfileName(profileName));
+
+        if(nameExists) {
+            alert('That name already exists!');
+        }
+
+        if(profileName.length > 0 && !nameExists) {
+            const itemElem = addDropdownItem(profileDropdown, formatProfileName(profileName));
+
+            setTimeout(() => {
+                itemElem.click();
+            }, 100);
+
+            break;
+        }
+    }
+    
+    updateSettingsValues();
+}
+
+function fillProfileDropdown() {
+    const profileNames = getProfileNames();
+
+    if(!profileNames) return false;
+
+    profileNames.forEach(profileName => {
+        const nameExists = [...profileDropdown.querySelectorAll('.dropdown-item')].find(elem => elem.dataset.value === formatProfileName(profileName));
+
+        if(!nameExists) {
+            const itemElem = addDropdownItem(profileDropdown, formatProfileName(profileName));
+            const currentActiveProfileName = getGmConfigValue(USERSCRIPT.dbValues.chessEngineProfile, settingFilterObj.instanceID, false);
+
+            if(profileName === currentActiveProfileName) {
+                setTimeout(() => {
+                    itemElem.click();
+                }, 100);
+            }
+        }
+    });
+}
+
+function deleteProfile() {
+    if(confirm('Are you sure you want to remove this profile?\n\nThis action cannot be reversed.')) {
+        const profileName = document.querySelector('input[data-key="chessEngineProfile"]').value;
+
+        removeDropdownItem(profileDropdown, profileName);
+
+        const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
+        const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+
+        if(settingFilterObj.instanceID) {
+            delete config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles']?.[profileName];
+        } else {
+            delete config?.[settingFilterObj.type]?.['profiles']?.[profileName];
+        }
+
+        USERSCRIPT.GM_setValue(configDatabaseKey, config);
+    }
+}
+
 const waitForTTSVoices = setInterval(() => {
     const res = fillTTSVoiceNameDropdown();
 
@@ -284,13 +364,31 @@ function makeSettingChanges(inputElem) {
                 lc0WeightDropdown.classList.add('hidden');
             }
             break;
+        case 'chessEngineProfile':
+            settingFilterObj.profileID = value;
+
+            if(value !== 'default') {
+                deleteProfileBtn.style.visibility = 'revert';
+            } else {
+                deleteProfileBtn.style.visibility = 'hidden';
+            }
+
+            if(lastProfileID !== value) {
+                lastProfileID = value;
+
+                updateSettingsValues();
+            }
+
+            break;
     }
 }
 
 function updateSettingsValues() {
     [...document.querySelectorAll('input[data-key]')].forEach(inputElem => {
         const key = inputElem.dataset.key;
-        const value = getGmConfigValue(key, settingFilterObj.instanceID);
+        const noProfile = inputElem.dataset.noProfile;
+
+        const value = getGmConfigValue(key, settingFilterObj.instanceID, noProfile ? false : settingFilterObj.profileID);
 
         if(typeof value === 'boolean' || value) {
             setInputValue(inputElem, value);
@@ -312,20 +410,45 @@ function saveSetting(settingElem) {
     const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
     const config = USERSCRIPT.GM_getValue(configDatabaseKey);
 
-    if(settingFilterObj.instanceID) {
-        config[settingFilterObj.type][settingFilterObj.instanceID] = config[settingFilterObj.type][settingFilterObj.instanceID] || {};
-        config[settingFilterObj.type][settingFilterObj.instanceID][settingObj.key] = settingObj.value;
+    const noProfile = settingElem.dataset.noProfile;
+
+    if (settingFilterObj.instanceID) {
+        let base = config[settingFilterObj.type];
+        
+        // Initialize the instanceID object
+        initNestedObject(base, [settingFilterObj.instanceID]);
+    
+        if (noProfile) {
+            config[settingFilterObj.type][settingFilterObj.instanceID][settingObj.key] = settingObj.value;
+        } else {
+            // Initialize profiles and profileID objects
+            initNestedObject(base[settingFilterObj.instanceID], ['profiles', settingFilterObj.profileID]);
+    
+            config[settingFilterObj.type][settingFilterObj.instanceID]['profiles'][settingFilterObj.profileID][settingObj.key] = settingObj.value;
+        }
     } else {
-        config[settingFilterObj.type][settingObj.key] = settingObj.value;
+        let base = config[settingFilterObj.type];
+        
+        if (noProfile) {
+            // Initialize the type object
+            initNestedObject(config, [settingFilterObj.type]);
+    
+            config[settingFilterObj.type][settingObj.key] = settingObj.value;
+        } else {
+            // Initialize profiles and profileID objects
+            initNestedObject(base, ['profiles', settingFilterObj.profileID]);
+    
+            config[settingFilterObj.type]['profiles'][settingFilterObj.profileID][settingObj.key] = settingObj.value;
+        }
     }
 
     USERSCRIPT.GM_setValue(configDatabaseKey, config);
     
     makeSettingChanges(settingElem);
 
-    guiBroadcastChannel.postMessage({ 'type': 'settingSave', 'data' : { 'key': settingObj.key, 'value': settingObj.value }});
+    guiBroadcastChannel.postMessage({ 'type': 'settingSave', 'data' : { 'key': settingObj.key, 'value': settingObj.value, 'profile': getProfile(settingFilterObj.profileID) }});
     
-    console.log(`[Setting Handler] Added config key ${settingObj.key} with value ${settingObj.value}`);
+    console.log(`[Setting Handler] Added config key ${settingObj.key} with value ${settingObj.value}\n-> Instance ${settingFilterObj.instanceID ? settingFilterObj.instanceID : '(No instance)'}, Profile ${noProfile ? '(No profile)' : settingFilterObj.profileID}`);
 }
 
 function removeSetting(settingElem) {
@@ -336,10 +459,20 @@ function removeSetting(settingElem) {
     const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
     const config = USERSCRIPT.GM_getValue(configDatabaseKey);
 
+    const noProfile = settingElem.dataset.noProfile;
+
     if(settingFilterObj.instanceID) {
-        delete config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.[settingObj.key];
+        if(noProfile) {
+            delete config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.[settingObj.key];
+        } else {
+            delete config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles']?.[settingFilterObj.profileID]?.[settingObj.key];
+        }
     } else {
-        delete config?.[settingFilterObj.type]?.[settingObj.key];
+        if(noProfile) {
+            delete config?.[settingFilterObj.type]?.[settingObj.key];
+        } else {
+            delete config?.[settingFilterObj.type]?.['profiles']?.[settingFilterObj.profileID]?.[settingObj.key];
+        }
     }
 
     USERSCRIPT.GM_setValue(configDatabaseKey, config);
@@ -421,6 +554,8 @@ async function resetSettings() {
 
         toggleSelected(settingsNavbarGlobalElem);
 
+        location.reload();
+
         toast.success(`Config reseted successfully!`, 10000);
     }
 }
@@ -463,6 +598,19 @@ function addDropdownItem(dropdownElem, itemValue, itemText) {
         itemElem.innerText = itemText ? itemText : itemValue;
 
     listContainerElem.appendChild(itemElem);
+
+    return itemElem;
+}
+
+function removeDropdownItem(dropdownElem, itemValue, newValue) {
+    const dropdownItem = dropdownElem.querySelector(`*[data-value="${itemValue}"]`);
+    const dropdownInput = dropdownElem.querySelector('input[data-default-value]');
+
+    dropdownInput.value = newValue || dropdownInput.dataset.defaultValue;
+
+    dropdownItem?.remove();
+
+    dropdownInput.dispatchEvent(new Event('change'));
 }
 
 function initializeDropdown(dropdownElem) {
@@ -471,12 +619,13 @@ function initializeDropdown(dropdownElem) {
     const listContainerElem = dropdownElem.querySelector('.dropdown-list-container');
 
     function updateDropdown(showAll) {
-        const listItems = [...listContainerElem.querySelectorAll('.dropdown-item')];
+        const listItems = [...listContainerElem.querySelectorAll('.dropdown-item')]
+            .filter(x => x?.dataset?.value);
 
         const optionsArr = listItems.map(elem => elem.dataset.value);
 
         const filterStr = inputElem.value.toLowerCase();
-        const filteredOptions = optionsArr.filter(option => option.toLowerCase().startsWith(filterStr));
+        const filteredOptions = optionsArr.filter(option => !option || option.toLowerCase().startsWith(filterStr));
 
         const options = showAll ? optionsArr : filteredOptions;
 
@@ -561,6 +710,8 @@ function initGUI() {
         });
 
     settingsNavbarGlobalElem.onclick = () => toggleSelected(settingsNavbarGlobalElem);
+
+    fillProfileDropdown();
 
     new MutationObserver(() => {
         if([...acasInstanceContainer.querySelectorAll('.acas-instance')]?.length > 0) {

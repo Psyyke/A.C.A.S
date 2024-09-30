@@ -8,6 +8,9 @@
 	#settings-panels {
 		flex-direction: column !important;
 	}
+	#setting-container {
+		flex-direction: column !important;
+	}
 	#acas-is-free-reminder {
 		font-size: 12px !important;
 	}
@@ -227,9 +230,6 @@ cg-container {
 }
 .instance-fen-btn:active {
 	margin-top: 3px;
-}
-.instance-fen-container {
-
 }
 .instance-variant {
 	font-stretch: semi-expanded;
@@ -513,25 +513,26 @@ cg-container {
 	overflow: auto;
 }
 .connection-warning {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	background-color: rgb(0 0 0 / 80%);
-	border-radius: inherit;
-	z-index: 3;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	align-content: center;
-	flex-direction: column;
-	text-align: center;
-	backdrop-filter: blur(1px);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.3));
+    border-radius: inherit;
+    z-index: 3;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    text-align: center;
+    backdrop-filter: blur(1px);
 }
 .connection-warning-title {
 	animation: pulsate 0.5s infinite;
-	font-size: 35px;
-	font-weight: 600;
-	color: rgb(255 255 255 / 75%);
+    font-size: 27px;
+    font-weight: 600;
+    color: rgb(255 255 255 / 75%);
+    margin-top: 23px;
 }
 .connection-warning-subtitle {
 	font-size: 15px;
@@ -602,7 +603,6 @@ cg-container {
     font-size: 15px;
     color: rgb(111 111 111);
     font-weight: 600;
-    margin: 10px 10px 0 10px;
 }
 #settings-header {
     height: fit-content;
@@ -626,7 +626,7 @@ cg-container {
 #settings-control-panel>*:not(:last-child) {
 	margin-right: 5px;
 }
-#settings-control-panel .control-panel-btn {
+.control-panel-btn {
 	width: 40px;
 	height: 40px;
 	border-radius: 5px;
@@ -638,11 +638,11 @@ cg-container {
 	align-items: center;
 	border: 2px solid rgb(255 255 255 / 15%);
 }
-#settings-control-panel .control-panel-btn:hover {
+.control-panel-btn:hover {
 	transform: scale(1.1);
 	background-color: rgb(255 255 255 / 20%);
 }
-#settings-control-panel .control-panel-btn:active {
+.control-panel-btn:active {
 	transform: scale(0.9);
 	background-color: rgb(255 255 255 / 30%);
 }
@@ -653,15 +653,17 @@ cg-container {
 	margin: 5px 0 15px 0;
 }
 #settings-panels {
-	display: flex;
-	justify-content: flex-start;
-	transition: all 0.1s ease;
-	padding: 10px 20px;
-	opacity: 0.4;
-	box-sizing: border-box;
-	width: 100%;
-	flex-wrap: wrap;
-	grid-gap: 10px;
+    display: flex;
+    justify-content: flex-start;
+    transition: all 0.1s ease;
+    opacity: 0.4;
+    box-sizing: border-box;
+    width: 100%;
+    flex-wrap: wrap;
+    grid-gap: 10px;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 3px solid rgba(255, 255, 255, 0.05);
 }
 .unstable-setting-panel {
 	background-color: rgba(50, 0, 0, 0.2) !important;
@@ -687,7 +689,7 @@ cg-container {
 	border-bottom: 3px solid rgba(255, 255, 255, 0.05);
 }
 #acas-settings-container:hover #settings-header,
-#acas-settings-container:hover #settings-panels {
+#acas-settings-container:hover #setting-container {
 	opacity: 1;
 }
 #settings-header #settings-navbar-global,
@@ -1006,4 +1008,96 @@ cg-container {
 	padding-left: 10px;
     margin-left: 10px;
     border-left: 2px solid rgba(255, 255, 255, 0.05);
+}
+#add-engine-button {
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 18px;
+    text-decoration: none;
+    color: rgb(255 255 255 / 75%);
+    background-color: rgb(255 255 255 / 10%);
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 30px;
+    border: 2px solid rgb(255 255 255 / 5%);
+}
+.engine-item {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    grid-gap: 10px;
+    justify-content: space-between;
+    background-color: #ffffff08;
+    border-bottom: 0 !important;
+    padding: 5px !important;
+}
+.engine-item-settings-button {
+	width: 40px;
+	height: 40px;
+	border-radius: 5px;
+	background-color: rgb(255 255 255 / 10%);
+	font-size: 26px;
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	align-items: center;
+	border: 2px solid rgb(255 255 255 / 15%);
+}
+#main-setting-panel {
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)) no-repeat;
+    border-radius: 5px;
+    padding: 10px;
+    border: 2px solid rgb(255 255 255 / 10%);
+	border-bottom-width: 5px;
+}
+#setting-container {
+    margin: 10px;
+    width: inherit;
+    display: flex;
+    justify-content: flex-start;
+    transition: all 0.1s ease;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    grid-gap: 10px;
+    opacity: 0.4;
+}
+#main-setting-panel:hover #settings-panels {
+	opacity: 1;
+}
+.wide-text-input {
+	width: 200px !important;
+}
+#profile-panel {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+}
+.wrap {
+	flex-wrap: wrap;
+}
+.instance-basic-info-title {
+	display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+	grid-gap: 5px;
+}
+.instance-additional-info {
+	font-size: 14px;
+    opacity: 0.6;
+}
+#add-new-profile-button {
+	background-color: #ffffff0a;
+    border-top: 2px solid #ffffff29;
+    transform: scale(1);
+	color: #616161;
+}
+#add-new-profile-button:hover {
+	background-color: #ffffff1f;
+	color: #c0c0c0;
+}
+.dropdown-input-container:hover > .reversed-dropdown-list {
+	display: flex !important;
+    flex-direction: column-reverse !important;
 }

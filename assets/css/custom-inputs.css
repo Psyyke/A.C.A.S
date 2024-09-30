@@ -97,8 +97,8 @@ input:focus {
 }
 /* Color */
 .color-input input {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 42px;
     border-radius: 7px;
     background-color: var(--settings-input-main-bg-color);
     padding: 0;
@@ -191,6 +191,10 @@ input:focus {
     padding: 10px;
     cursor: pointer;
     font-size: 18px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 .dropdown-input .dropdown-none-item {
     padding: 10px;
@@ -212,9 +216,10 @@ input:focus {
     -ms-user-select: none;
 }
 .acas-fancy-button:hover {
-    
+    transform: scale(1.05);
 }
 .acas-fancy-button:active {
     border-width: 2px !important;
     transform: translateY(3px) !important;
+    margin-top: 3px !important;
 }

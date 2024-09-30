@@ -19,24 +19,30 @@ class BackendInstance {
             'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
             'ttsVoiceEnabled': 'ttsVoiceEnabled',
             'ttsVoiceName': 'ttsVoiceName',
-            'ttsVoiceSpeed': 'ttsVoiceSpeed'
+            'ttsVoiceSpeed': 'ttsVoiceSpeed',
+            'chessEngineProfile': 'chessEngineProfile',
+            'primaryArrowColorHex': 'primaryArrowColorHex',
+            'secondaryArrowColorHex': 'secondaryArrowColorHex',
+            'opponentArrowColorHex': 'opponentArrowColorHex',
+            'reverseSide': 'reverseSide'
         };
 
         this.config = {};
 
         Object.values(this.configKeys).forEach(key => {
             this.config[key] = {
-                get:  () => getGmConfigValue(key, this.instanceID),
+                get: profile => getGmConfigValue(key, this.instanceID, profile),
                 set: null
             };
         });
 
-        this.getConfigValue = (key) => {
-            return this.config[key]?.get();
+        this.getConfigValue = (key, profile) => {
+            return this.config[key]?.get(profile);
         }
     
-        this.setConfigValue = (key, val) => {
-            return this.config[key]?.set(val);
+        // Not in use
+        this.setConfigValue = (key, val, profile) => {
+            return this.config[key]?.set(val, profile);
         }
 
         this.instanceReady = false;
@@ -45,68 +51,57 @@ class BackendInstance {
         this.domain = domain;
         this.instanceID = instanceID;
 
-        this.chessVariant = isVariant960(chessVariant) ? formatVariant('chess') : formatVariant(chessVariant || this.getConfigValue(this.configKeys.chessVariant) || 'chess');
-        this.useChess960 =  isVariant960(chessVariant) ? true : this.getConfigValue(this.configKeys.useChess960);
-
-        this.chessVariants = ['chess'];
-
         this.onLoadCallbackFunction = onLoadCallbackFunction;
 
-        this.engines = [];
-        this.chessEngineType = this.getConfigValue(this.configKeys.chessEngine);
-        this.lc0WeightName = this.getConfigValue(this.configKeys.lc0Weight);
         this.chessground = null;
         this.instanceElem = null;
         this.BoardDrawer = null;
 
-        this.variantStartPosFen = null;
+        this.engines = [];
+        this.pV = {}; // profile variables
 
-        this.searchDepth = null;
-        this.engineNodes = 1;
- 
-        this.currentMovetimeTimeout = null;
-
-        this.pastMoveObjects = [];
-        this.bestMoveMarkingElem = null;
-        this.activeGuiMoveMarkings = [];
-        this.inactiveGuiMoveMarkings = [];
         this.unprocessedPackets = [];
-
-        this.lastCalculatedFen = null;
-        this.pendingCalculations = [];
-
-        this.lastFen = null;
-        this.lastOrientation = null;
         this.currentFen = null;
 
-        this.currentSpeeches = [];
+        this.variantStartPosFen = null;
+
+        this.environmentSetupRun = false;
+
+        this.lastOrientation = null;
+
+        this.activeEnginesAmount = 0;
+        this.guiUpdaterActive = false;
+        this.variantNotSupportedByEngineAmount
+        
+        this.profileVariables = class {
+            constructor(t, profile) {
+                this.chessVariants = ['chess'];
+                
+                this.chessVariant = isVariant960(chessVariant) ? formatVariant('chess') : formatVariant(chessVariant || t.getConfigValue(t.configKeys.chessVariant, profile) || 'chess');
+                this.useChess960 =  isVariant960(chessVariant) ? true : t.getConfigValue(t.configKeys.useChess960, profile);
+        
+                this.lc0WeightName = t.getConfigValue(t.configKeys.lc0Weight, profile);
+        
+                this.searchDepth = null;
+                this.engineNodes = 1;
+         
+                this.currentMovetimeTimeout = null;
+        
+                this.pastMoveObjects = [];
+                this.bestMoveMarkingElem = null;
+                this.activeGuiMoveMarkings = [];
+                this.inactiveGuiMoveMarkings = []; // not in use?
+        
+                this.lastCalculatedFen = null;
+                this.pendingCalculations = [];
+        
+                this.lastFen = null;
+        
+                this.currentSpeeches = [];
+            }
+        }
 
         this.defaultStartpos = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
-        this.arrowStyles = {
-            'best': `
-                fill: limegreen;
-                stroke: rgb(0 0 0 / 50%);
-                stroke-width: 2px;
-                stroke-linejoin: round;
-                opacity: 0.9;
-            `,
-            'secondary': `
-                fill: dodgerblue;
-                stroke: rgb(0 0 0 / 50%);
-                stroke-width: 2px;
-                stroke-linejoin: round;
-                opacity: 0.9;
-            `,
-            'opponent': `
-                fill: crimson;
-                stroke: rgb(0 0 0 / 25%);
-                stroke-width: 2px;
-                stroke-linejoin: round;
-                display: none;
-                opacity: 0.3;
-            `
-        };
 
         this.CommLink = new USERSCRIPT.CommLinkHandler(`backend_${this.instanceID}`, {
             'singlePacketResponseWaitTime': 1500,
@@ -147,7 +142,11 @@ class BackendInstance {
             }
         };
 
-        this.loadEngine();
+        getProfiles().filter(p => p.config.engineEnabled).forEach(profileObj => {
+            this.pV[profileObj.name] = new this.profileVariables(this, profileObj);
+
+            this.loadEngine(profileObj.name);
+        });
     }
 
     processPacket(packet) {
@@ -172,16 +171,48 @@ class BackendInstance {
         }
     }
 
+    getArrowStyle(type, fill) {
+        const baseStyleArr = [
+            'stroke: rgb(0 0 0 / 50%);',
+            'stroke-width: 2px;',
+            'stroke-linejoin: round;'
+        ];
+
+        switch(type) {
+            case 'best': 
+                return [
+                    `fill: ${fill ? fill : 'limegreen'};`,
+                    'opacity: 0.9;',
+                    ...baseStyleArr
+                ].join('\n');
+            case 'secondary': 
+                return [
+                    ...baseStyleArr,
+                    `fill: ${fill ? fill : 'dodgerblue'};`,
+                    'opacity: 0.7;'
+                ].join('\n');
+            case 'opponent':
+                return [
+                    ...baseStyleArr,
+                    `fill: ${fill ? fill : 'crimson'};`,
+                    'opacity: 0.3;'
+                ].join('\n');
+        }
+    };
+
     Interface = {
         boardUtils: {
-            markMoves: moveObjArr => {
-                this.Interface.boardUtils.removeMarkings();
+            markMoves: (moveObjArr, profile) => {
+                this.Interface.boardUtils.removeMarkings(profile);
 
                 const maxScale = 1;
                 const minScale = 0.5;
                 const totalRanks = moveObjArr.length;
-                const showOpponentMoveGuess = this.getConfigValue(this.configKeys.showOpponentMoveGuess);
-                const showOpponentMoveGuessConstantly = this.getConfigValue(this.configKeys.showOpponentMoveGuessConstantly);
+                const showOpponentMoveGuess = this.getConfigValue(this.configKeys.showOpponentMoveGuess, profile);
+                const showOpponentMoveGuessConstantly = this.getConfigValue(this.configKeys.showOpponentMoveGuessConstantly, profile);
+                const primaryArrowColorHex = this.getConfigValue(this.configKeys.primaryArrowColorHex, profile);
+                const secondaryArrowColorHex = this.getConfigValue(this.configKeys.secondaryArrowColorHex, profile);
+                const opponentArrowColorHex = this.getConfigValue(this.configKeys.opponentArrowColorHex, profile);
 
                 moveObjArr.forEach((markingObj, idx) => {
                     const [from, to] = markingObj.player;
@@ -191,14 +222,14 @@ class BackendInstance {
                     
                     let playerArrowElem = null;
                     let oppArrowElem = null;
-                    let arrowStyle = this.arrowStyles.best;
+                    let arrowStyle = this.getArrowStyle('best', primaryArrowColorHex);
                     let lineWidth = 30;
                     let arrowheadWidth = 80;
                     let arrowheadHeight = 60;
                     let startOffset = 30;
         
                     if(idx !== 0) {
-                        arrowStyle = this.arrowStyles.secondary;
+                        arrowStyle = this.getArrowStyle('secondary', secondaryArrowColorHex);
         
                         const arrowScale = totalRanks === 2
                             ? 0.75
@@ -220,7 +251,7 @@ class BackendInstance {
                     if(oppMovesExist && showOpponentMoveGuess) {
                         oppArrowElem = this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
                             {
-                                style: this.arrowStyles.opponent,
+                                style: this.getArrowStyle('opponent', opponentArrowColorHex),
                                 lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                             }
                         );
@@ -256,18 +287,28 @@ class BackendInstance {
                         }
                     }
 
-                    this.activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem });
+                    this.pV[profile].activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem });
                 });
 
-                this.pastMoveObjects = [];
+                this.pV[profile].pastMoveObjects = [];
             },
-            removeMarkings: () => {
-                this.activeGuiMoveMarkings.forEach(markingObj => {
-                    markingObj.oppArrowElem?.remove();
-                    markingObj.playerArrowElem?.remove();
-                });
+            removeMarkings: profile => {
+                function removeMarkingFromProfile(t, p) {
+                    t.pV[p].activeGuiMoveMarkings.forEach(markingObj => {
+                        markingObj.oppArrowElem?.remove();
+                        markingObj.playerArrowElem?.remove();
+                    });
+    
+                    t.pV[p].activeGuiMoveMarkings = [];
+                }
 
-                this.activeGuiMoveMarkings = [];
+                if(!profile) {
+                    Object.keys(this.pV).forEach(profileName => {
+                        removeMarkingFromProfile(this, profileName);
+                    });
+                } else {
+                    removeMarkingFromProfile(this, profile);
+                }
             },
             updateBoardFen: fen => {
                 if(this.currentFen !== fen) {
@@ -282,8 +323,10 @@ class BackendInstance {
                     this.engineStopCalculating();
                     this.Interface.boardUtils.removeMarkings();
             
-                    this.currentSpeeches.forEach(synthesis => synthesis.cancel());
-                    this.currentSpeeches = [];
+                    Object.keys(this.pV).forEach(profileName => {
+                        this.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
+                        this.pV[profileName].currentSpeeches = [];
+                    });
 
                     this.calculateBestMoves(fen);
                 }
@@ -291,7 +334,10 @@ class BackendInstance {
             updateBoardOrientation: orientation => {
                 if(orientation != this.lastOrientation) {
                     this.lastOrientation = orientation;
-                    this.lastCalculatedFen = null;
+
+                    Object.keys(this.pV).forEach(profileName => {
+                        this.pV[profileName].lastCalculatedFen = null;
+                    });
 
                     const orientationWord = orientation == 'b' ? 'black' : 'white';
 
@@ -327,11 +373,11 @@ class BackendInstance {
 
             infoTextElem.classList.remove('hidden');
         },
-        updateEval: (centipawnEval, mate) => {
+        updateEval: (centipawnEval, mate, profile) => {
             const evalFill = this.instanceElem.querySelector('.eval-fill');
             const gradualness = 8;
 
-            if(USERSCRIPT.instanceVars.playerColor.get(this.instanceID) == 'b') {
+            if(this.getPlayerColor(profile) == 'b') {
                 centipawnEval = -centipawnEval;
             }
 
@@ -364,36 +410,36 @@ class BackendInstance {
         },
     };
 
-    setEngineElo(elo, didUserUpdateSetting) {
+    setEngineElo(elo, didUserUpdateSetting, profile) {
         if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2600;
 
-            this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`);
+            this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
 
             if(limitStrength) {
-                this.setEngineLimitStrength(true);
+                this.setEngineLimitStrength(true, profile);
     
                 const skillLevel = getSkillLevelFromElo(elo);
-                this.setEngineSkillLevel(skillLevel);
+                this.setEngineSkillLevel(skillLevel, profile);
     
                 const depth = getDepthFromElo(elo);
-                this.searchDepth = depth;
+                this.pV[profile].searchDepth = depth;
 
                 if(didUserUpdateSetting)
                     toast.message(`Engine skill level ${skillLevel}, search depth ${depth}`, 8000);
             } else {
-                this.setEngineLimitStrength(false);
+                this.setEngineLimitStrength(false, profile);
 
-                this.setEngineSkillLevel(20);
+                this.setEngineSkillLevel(20, profile);
 
                 if(elo !== 3200) {
                     const depth = getDepthFromElo(elo);
-                    this.searchDepth = depth;
+                    this.pV[profile].searchDepth = depth;
 
                     if(didUserUpdateSetting)
                         toast.message(`Engine not limited in strength, search depth ${depth}`, 8000);
                 } else {
-                    this.searchDepth = null;
+                    this.pV[profile].searchDepth = null;
 
                     if(didUserUpdateSetting)
                         toast.message(`Engine has no strength limitations, running infinite depth!`, 8000);
@@ -402,61 +448,62 @@ class BackendInstance {
         }
     }
 
-    setEngineNodes(nodeAmount) {
-        if(this.lc0WeightName.includes('maia') && nodeAmount !== 1) {
+    setEngineNodes(nodeAmount, profile) {
+        if(this.pV[profile].lc0WeightName.includes('maia') && nodeAmount !== 1) {
             toast.warning('Maia weights work best with no search, please only use one (1) search node!', 30000);
         }
 
-        this.engineNodes = nodeAmount;
+        this.pV[profile].engineNodes = nodeAmount;
     }
 
-    async setEngineWeight(weightName) {
+    async setEngineWeight(weightName, profile) {
         // legacy support, convert 1100 -> maia-1100.pb etc.
         if(/^\d{4}(,\d{3})*$/.test(weightName)) {
             weightName = `maia-${weightName}.pb`;
         }
 
-        this.lc0WeightName = weightName;
+        this.pV[profile].lc0WeightName = weightName;
 
-        this.getEngine().setZeroWeights(await loadFileAsUint8Array(`/A.C.A.S/assets/lc0-weights/${weightName}`));
+        if(this.getEngine(profile)?.setZeroWeights)
+            this.getEngine(profile).setZeroWeights(await loadFileAsUint8Array(`/A.C.A.S/assets/lc0-weights/${weightName}`));
     }
 
-    disableEngineElo() {
-        this.sendMsgToEngine(`setoption name UCI_LimitStrength value false`);
+    disableEngineElo(profile) {
+        this.sendMsgToEngine(`setoption name UCI_LimitStrength value false`, profile);
     }
 
-    setEngineMultiPV(amount) {
+    setEngineMultiPV(amount, profile) {
         if(typeof amount == 'number') {
-            this.sendMsgToEngine(`setoption name MultiPV value ${amount}`);
+            this.sendMsgToEngine(`setoption name MultiPV value ${amount}`, profile);
         }
     }
 
-    setEngineSkillLevel(amount) {
+    setEngineSkillLevel(amount, profile) {
         if(typeof amount == 'number' && -20 <= amount && amount <= 20) {
-            this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${amount}`);
+            this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${amount}`, profile);
         }
     }
 
-    setEngineLimitStrength(bool) {
+    setEngineLimitStrength(bool, profile) {
         if(typeof bool == 'boolean') {
-            this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${bool}`);
+            this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${bool}`, profile);
         }
     }
 
-    set960Mode(val) {
+    set960Mode(val, profile) {
         const bool = val ? true : false;
 
-        this.sendMsgToEngine(`setoption name UCI_Chess960 value ${bool}`);
+        this.sendMsgToEngine(`setoption name UCI_Chess960 value ${bool}`, profile);
 
-        this.useChess960 = bool;
+        this.pV[profile].useChess960 = bool;
     }
 
-    setEngineVariant(variant) {
+    setEngineVariant(variant, profile) {
         if(typeof variant == 'string') {
-            this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`);
+            this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`, profile);
 
-            this.chessVariant = formatVariant(variant);
-            this.useChess960 = isVariant960(variant) ? true : this.getConfigValue(this.configKeys.useChess960);
+            this.pV[profile].chessVariant = formatVariant(variant);
+            this.pV[profile].useChess960 = isVariant960(variant) ? true : this.getConfigValue(this.configKeys.useChess960, profile);
         }
     }
 
@@ -475,59 +522,73 @@ class BackendInstance {
         });
     }
 
-    engineStartNewGame(variant) {
+    getEngineType(profile) {
+        return this.getConfigValue(this.configKeys.chessEngine, profile);
+    }
+
+    engineStartNewGame(variant, profile) {
         const chessVariant = formatVariant(variant);
 
-        if(!this.isEngineNotCalculating()) {
-            this.engineStopCalculating();
+        if(!this.isEngineNotCalculating(profile)) {
+            this.engineStopCalculating(profile);
         }
 
-        this.sendMsgToEngine('ucinewgame'); // very important to be before setting variant and so forth
-        this.sendMsgToEngine('uci'); // to display variants
+        this.sendMsgToEngine('ucinewgame', profile); // very important to be before setting variant and so forth
+        this.sendMsgToEngine('uci', profile); // to display variants
 
-        this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount));
+        this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
 
-        switch(this.chessEngineType) {
+        switch(this.getEngineType(profile)) {
             case 'lc0':
-                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes));
-                this.sendMsgToEngine('position startpos');
+                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
+                this.sendMsgToEngine('position startpos', profile);
 
                 break;
             default:
-                this.setEngineVariant(chessVariant);
-                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo));    
+                this.setEngineVariant(chessVariant, profile);
+                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), false, profile);
 
-                this.sendMsgToEngine('position startpos');
-                this.sendMsgToEngine('d');
+                this.sendMsgToEngine('position startpos', profile);
+                this.sendMsgToEngine('d', profile);
                 break;
         }
     }
 
-    engineStopCalculating() {
-        if(!this.isEngineNotCalculating()) {
-            clearTimeout(this.currentMovetimeTimeout);
+    engineStopCalculating(profile) {
+        function profileStopCalculating(t, p) {
+            if(!t.isEngineNotCalculating(p)) {
+                clearTimeout(t.pV[p].currentMovetimeTimeout);
+            }
+    
+            console.error('STOP!');
+    
+            t.sendMsgToEngine('stop', p);
         }
 
-        console.error('STOP!');
-
-        this.sendMsgToEngine('stop');
+        if(!profile) {
+            Object.keys(this.pV).forEach(profileName => {
+                profileStopCalculating(this, profileName);
+            });
+        } else {
+            profileStopCalculating(this, profile);
+        }
     }
 
-    isPlayerTurn(lastFen, currentFen) {
-        const playerColor = USERSCRIPT.instanceVars.playerColor.get(this.instanceID);
-        const turn = this.getTurnFromFenChange(lastFen, currentFen);
+    isPlayerTurn(lastFen, currentFen, profile) {
+        const playerColor = this.getPlayerColor(profile);
+        const turn = this.getTurnFromFenChange(lastFen, currentFen, profile);
 
         console.error('Turn: ', turn);
 
         return !playerColor || turn == playerColor;
     }
 
-    speak(spokenText, speechConfig) {
-        const isTTSEnabled = this.getConfigValue(this.configKeys.ttsVoiceEnabled);
+    speak(spokenText, profile) {
+        const isTTSEnabled = this.getConfigValue(this.configKeys.ttsVoiceEnabled, profile);
 
         if(isTTSEnabled) {
-            const ttsVoiceName = this.getConfigValue(this.configKeys.ttsVoiceName);
-            const ttsVoiceSpeed = this.getConfigValue(this.configKeys.ttsVoiceSpeed);
+            const ttsVoiceName = this.getConfigValue(this.configKeys.ttsVoiceName, profile);
+            const ttsVoiceSpeed = this.getConfigValue(this.configKeys.ttsVoiceSpeed, profile);
 
             const speechConfig = {
                 rate: ttsVoiceSpeed / 10,
@@ -541,15 +602,42 @@ class BackendInstance {
 
             console.log(`Speaking: ${spokenText} (Instance "${this.instanceID}")`);
 
-            this.currentSpeeches.push(speakText(spokenText, speechConfig));
+            this.pV[profile].currentSpeeches.push(speakText(spokenText, speechConfig));
         }
     }
 
     updateSettings(updateObj) {
+        const profile = updateObj.data.profile.name;
+
+        let alreadyCreatedEngine = false;
+
+        const profilesWithEnabledEngine = getProfiles().filter(p => p.config.engineEnabled);
+        const profilesWithDisabledEngine = getProfiles().filter(p => !p.config.engineEnabled);
+        const nonexistingProfilesWithEngine = Object.keys(this.pV).filter(profileName => !getProfiles().find(p => p.name === profileName));
+
+        // Handle profiles which engine is disabled
+        for(const profileObj of profilesWithDisabledEngine) {
+            const profileName = profileObj.name;
+            const profileVariables = this.pV[profileName];
+
+            if(profileVariables) {
+                console.log('Kill engine', profileName, 'due to it being disabled');
+
+                this.killEngine(profileName);
+            }
+        }
+        
+        // Handle profiles which do not exist anymore
+        for(const profileName of nonexistingProfilesWithEngine) {
+            console.log('Kill engine', profileName, 'due to the profile not existing anymore');
+
+            this.killEngine(profileName);
+        }
+
         function findSettingKeyFromData(key) {
             return Object.values(updateObj?.data)?.includes(key);
         }
-        
+
         const didUpdateVariant = findSettingKeyFromData(this.configKeys.chessVariant);
         const didUpdateElo = findSettingKeyFromData(this.configKeys.engineElo);
         const didUpdateLc0Weight = findSettingKeyFromData(this.configKeys.lc0Weight);
@@ -559,37 +647,40 @@ class BackendInstance {
         const didUpdateChessEngine = findSettingKeyFromData(this.configKeys.chessEngine);
         const didUpdateNodes = findSettingKeyFromData(this.configKeys.engineNodes);
 
-        const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant));
-        const useChess960 = this.getConfigValue(this.configKeys.useChess960);
+        const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant, profile));
+        const useChess960 = this.getConfigValue(this.configKeys.useChess960, profile);
 
         if(didUpdateVariant || didUpdate960Mode) {
-            this.set960Mode(useChess960);
+            this.set960Mode(useChess960, profile);
 
-            this.engineStartNewGame(didUpdateVariant ? chessVariant : this.chessVariant);
+            this.engineStartNewGame(didUpdateVariant ? chessVariant : this.pV[profile].chessVariant, profile);
         } else {
             if(didUpdateChessFont)
                 this.setChessFont(this.getConfigValue(this.configKeys.chessFont));
 
-            if(didUpdateChessEngine) {
-                this.chessEngineType = updateObj.data.value;
+            if(didUpdateChessEngine && !alreadyCreatedEngine) {
+                console.log('Kill and load engine', profile, 'since the engine type was changed');
 
-                this.loadEngine();
+                this.killEngine(profile);
+
+                this.pV[profile] = new this.profileVariables(this, profile);
+                this.loadEngine(profile);
             }
 
             if(didUpdateElo)
-                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo), true);
+                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo), true, profile);
 
             if(didUpdateNodes)
-                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes));
+                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
 
             if(didUpdateLc0Weight)
-                this.setEngineWeight(this.getConfigValue(this.configKeys.lc0Weight), true);
+                this.setEngineWeight(this.getConfigValue(this.configKeys.lc0Weight, profile), profile);
 
             if(didUpdateMultiPV)
-                this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount));
+                this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
 
             if(didUpdate960Mode)
-                this.set960Mode(useChess960);
+                this.set960Mode(useChess960, profile);
         }
     }
 
@@ -642,9 +733,9 @@ class BackendInstance {
         return diff === 2 || diff > 3;
     }
 
-    getTurnFromFenChange(lastFen, newFen) {
-        const currentPlayerColor = USERSCRIPT.instanceVars.playerColor.get(this.instanceID);
-        const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn);
+    getTurnFromFenChange(lastFen, newFen, profile) {
+        const currentPlayerColor = this.getPlayerColor();
+        const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profile);
 
         if(!lastFen || !onlyCalculateOwnTurn) return currentPlayerColor;
 
@@ -677,7 +768,7 @@ class BackendInstance {
         // When a lot of pieces are moved, it's most likely a new game
         if(amountOfMovedPieces > 3 || isNewFenDefaultPos) {
             // Clear the pendingCalculations arr of old calculations
-            this.pendingCalculations = this.pendingCalculations.filter(x => !x?.finished);
+            this.pV[profile].pendingCalculations = this.pV[profile].pendingCalculations.filter(x => !x?.finished);
             
             return currentPlayerColor;
         }
@@ -687,84 +778,119 @@ class BackendInstance {
         return turn;
     }
 
+    getPlayerColor(profile) {
+        const playerColor = USERSCRIPT.instanceVars.playerColor.get(this.instanceID) || 'w';
+
+        if(profile) {
+            const reverseSide = this.getConfigValue(this.configKeys.reverseSide, profile);
+
+            if(reverseSide) {
+                return playerColor.toLowerCase() === 'w' ? 'b' : 'w'; 
+            }
+        }
+
+        return playerColor;
+    }
+
     async calculateBestMoves(currentFen) {
-        const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn);
 
-        const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.lastFen, currentFen);
-        const isAbnormalPieceChange = this.isAbnormalPieceChange(this.lastFen, currentFen);
+        getProfiles().filter(p => p.config.engineEnabled).forEach(profile => {
+            profile = profile.name;
 
-        let isPlayerTurn = false;
+            const reverseSide = this.getConfigValue(this.configKeys.reverseSide, profile);
+
+            let reversedFen = null;
+
+            if(reverseSide) {
+                const fenSplit = currentFen.split(' ');
+
+                if(fenSplit[1] === 'w')
+                    fenSplit[1] = 'b';
+                else
+                    fenSplit[1] = 'w';
+
+                reversedFen = fenSplit.join(' ');
+            }
+
+            const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profile);
+
+            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.pV[profile].lastFen, currentFen);
+            const isAbnormalPieceChange = this.isAbnormalPieceChange(this.pV[profile].lastFen, currentFen);
+    
+            let isPlayerTurn = false;
+            
+            if(correctAmountOfChanges && !isAbnormalPieceChange) {
+                isPlayerTurn = this.isPlayerTurn(this.pV[profile].lastFen, currentFen, profile);
+    
+                this.pV[profile].lastFen = currentFen;
+            }
+    
+            const isFenChanged = this.pV[profile].lastCalculatedFen !== currentFen
+            const isFenChangeAllowed = !onlyCalculateOwnTurn || (correctAmountOfChanges && !isAbnormalPieceChange && isPlayerTurn)
+    
+            if(isFenChanged && isFenChangeAllowed) {
+                this.pV[profile].lastCalculatedFen = currentFen;
+            } else {
+                this.CommLink.commands.removeSiteMoveMarkings();
+    
+                return;
+            }
+
+            this.pV[profile].pendingCalculations.push({ 'fen': currentFen, 'finished': false });
+    
+            this.Interface.boardUtils.removeMarkings(profile);
+    
+            console.error('CALCULATING!', this.pV[profile].pendingCalculations, reversedFen || currentFen);
+    
+            log.info(`Fen: "${currentFen}"`);
+            log.info(`Updating board Fen`);
+    
+            this.Interface.boardUtils.updateBoardFen(currentFen);
         
-        if(correctAmountOfChanges && !isAbnormalPieceChange) {
-            isPlayerTurn = this.isPlayerTurn(this.lastFen, currentFen);
-
-            this.lastFen = currentFen;
-        }
-
-        const isFenChanged = this.lastCalculatedFen !== currentFen
-        const isFenChangeAllowed = !onlyCalculateOwnTurn || (correctAmountOfChanges && !isAbnormalPieceChange && isPlayerTurn)
-
-        if(isFenChanged && isFenChangeAllowed) {
-            this.lastCalculatedFen = currentFen;
-        } else {
-            this.CommLink.commands.removeSiteMoveMarkings();
-
-            return;
-        }
-
-        if(!this.isEngineNotCalculating()) {
-            this.engineStopCalculating();
-
-            console.warn(`Engine didn't finish before the next best move request came, won't show the cancelled calculation results!`);
-
-            return;
-        }
-
-        this.pendingCalculations.push({ 'fen': currentFen, 'finished': false });
-
-        this.Interface.boardUtils.removeMarkings();
-
-        console.error('CALCULATING!', this.pendingCalculations, currentFen);
-
-        log.info(`Fen: "${currentFen}"`);
-        log.info(`Updating board Fen`);
-
-        this.Interface.boardUtils.updateBoardFen(currentFen);
+            log.info('Sending best move request to the engine!');
+        
+            this.sendMsgToEngine(`position fen ${reversedFen || currentFen}`, profile);
     
-        log.info('Sending best move request to the engine!');
+            let searchCommandStr = 'go infinite';
     
-        this.sendMsgToEngine(`position fen ${currentFen}`);
+            switch(this.getEngineType(profile)) {
+                case 'lc0':
+                    searchCommandStr = `go nodes ${this.pV[profile].engineNodes}`;
+                break;
+    
+                default: // Fairy Stockfish NNUE WASM
+                    if(this.pV[profile].searchDepth) {
+                        searchCommandStr = `go depth ${this.pV[profile].searchDepth}`;
+                    }
+                break;
+            }
+    
+            this.sendMsgToEngine(searchCommandStr, profile);
+    
+            const movetime = this.getConfigValue(this.configKeys.maxMovetime, profile);
+    
+            if(typeof movetime == 'number') {
+                const startFen = this.currentFen;
+    
+                this.pV[profile].currentMovetimeTimeout = setTimeout(() => {
+                    if(startFen == this.currentFen && movetime != 0 && !this.isEngineNotCalculating(profile)) {
+                        this.engineStopCalculating(profile);
+                    }
+                }, movetime + 5);
+            }
+        });
 
-        let searchCommandStr = 'go infinite';
-
-        switch(this.chessEngineType) {
-            case 'lc0':
-                searchCommandStr = `go nodes ${this.engineNodes}`;
-            break;
-
-            default: // Fairy Stockfish NNUE WASM
-                if(this.searchDepth) {
-                    searchCommandStr = `go depth ${this.searchDepth}`;
-                }
-            break;
-        }
-
-        this.sendMsgToEngine(searchCommandStr);
-
-        const movetime = this.getConfigValue(this.configKeys.maxMovetime);
-
-        if(typeof movetime == 'number') {
-            const startFen = this.currentFen;
-
-            this.currentMovetimeTimeout = setTimeout(() => {
-                if(startFen == this.currentFen && movetime != 0 && !this.isEngineNotCalculating()) {
-                    this.engineStopCalculating();
-                }
-            }, movetime + 5);
-        }
     }
 
     getEngineAcasObj(i) {
+        if(typeof i == 'object') {
+            return this.engines.find(obj => obj.profile == i.name);
+        } 
+        
+        else if(typeof i == 'string') {
+            return this.engines.find(obj => obj.profile == i);
+        }
+
         return this.engines[i ? i : this.engines.length - 1];
     }
 
@@ -773,16 +899,41 @@ class BackendInstance {
     }
 
     sendMsgToEngine(msg, i) {
-        this.getEngineAcasObj(i).sendMsg(msg);
+        const isProfile = typeof i == 'string' && this.pV[i];
+        const engineExists = this.getEngineAcasObj(i)?.sendMsg;
+
+        if(!engineExists && isProfile) {
+            let elapsed = 0;
+
+            const waitForEngineToLoad = setInterval(() => {
+
+                if(this.getEngineAcasObj(i)?.sendMsg && isProfile) {
+                    this.getEngineAcasObj(i).sendMsg(msg);
+    
+                    clearInterval(waitForEngineToLoad);
+                } else {
+                    // Wait max 10 seconds
+                    if(elapsed++ > 100) {
+                        console.warn('Attempted to send message to non existing engine?', `(${i})`);
+                        clearInterval(waitForEngineToLoad);
+                    }
+                }
+
+            }, 100);
+        } else if(engineExists) {
+            this.getEngineAcasObj(i).sendMsg(msg);
+        } else {
+            console.warn('Attempted to send message to non existing engine?', `(${i})`);
+        }
     }
 
-    isEngineNotCalculating() {
-        return this.pendingCalculations.find(x => !x.finished) ? false : true;
+    isEngineNotCalculating(profile) {
+        return this.pV[profile].pendingCalculations.find(x => !x.finished) ? false : true;
     }
 
-    engineMessageHandler(msg) {
+    engineMessageHandler(msg, profile) {
         const data = parseUCIResponse(msg);
-        const oldestUnfinishedCalcRequestObj = this.pendingCalculations.find(x => !x.finished);
+        const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
         const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
 
         if(!data?.currmovenumber) console.warn(msg, `(FOR FEN: ${oldestUnfinishedCalcRequestObj?.fen})`);
@@ -790,7 +941,7 @@ class BackendInstance {
         if(msg.includes('option name UCI_Variant type combo')) {
             const chessVariants = extractVariantNames(msg);
 
-            this.chessVariants = chessVariants;
+            this.pV[profile].chessVariants = chessVariants;
 
             this.guiBroadcastChannel.postMessage({ 'type': 'updateChessVariants', 'data' : chessVariants });
         }
@@ -809,10 +960,10 @@ class BackendInstance {
                 }
     
                 if(data?.cp)
-                    this.Interface.updateEval(data.cp);
+                    this.Interface.updateEval(data.cp, false, profile);
     
                 if(data?.mate) 
-                    this.Interface.updateEval(data.mate, true);
+                    this.Interface.updateEval(data.mate, true, profile);
             }
         }
 
@@ -826,32 +977,32 @@ class BackendInstance {
 
             const [[from, to], [opponentFrom, opponentTo]] = moves;
 
-            const moveObj = { 'player': [from, to], 'opponent': [opponentFrom, opponentTo], ranking };
+            const moveObj = { 'player': [from, to], 'opponent': [opponentFrom, opponentTo], profile, ranking };
 
-            this.pastMoveObjects.push(moveObj);
+            this.pV[profile].pastMoveObjects.push(moveObj);
 
-            const isMovetimeLimited = this.getConfigValue(this.configKeys.maxMovetime) ? true : false;
-            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves);
-            const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+            const isMovetimeLimited = this.getConfigValue(this.configKeys.maxMovetime, profile) ? true : false;
+            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
+            const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
             
-            let isSearchInfinite = this.searchDepth ? false : true;
+            let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
-            if(this.chessEngineType === 'lc0') {
-                isSearchInfinite = this.engineNodes > 9e6 ? true : false;
+            if(this.getEngineType(profile) === 'lc0') {
+                isSearchInfinite = this.pV[profile].engineNodes > 9e6 ? true : false;
             }
 
-            const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
-            const topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
+            const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+            const topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
 
-            if(topMoveObjects.length === markingLimit) {
-                this.Interface.boardUtils.markMoves(topMoveObjects);
+            if(topMoveObjects.length === markingLimit && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited))) {
+                this.Interface.boardUtils.markMoves(topMoveObjects, profile);
 
                 topMoveObjects.forEach(moveObj => {
                     const spokenText = moveObj.player?.map(x =>
                         x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
                     ).join(', ');
 
-                    this.speak(spokenText);
+                    this.speak(spokenText, profile);
                 });
 
                 if(displayMovesExternally) {
@@ -863,18 +1014,18 @@ class BackendInstance {
         if(data?.bestmove) {
             oldestUnfinishedCalcRequestObj.finished = true;
 
-            if(isMessageForCurrentFen && this.activeGuiMoveMarkings.length === 0) {
-                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount);
-                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite);
+            if(isMessageForCurrentFen && this.pV[profile].activeGuiMoveMarkings.length === 0) {
+                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
 
-                let topMoveObjects = this.pastMoveObjects?.slice(markingLimit * -1);
+                let topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
 
                 if(topMoveObjects?.length === 0) {
                     topMoveObjects = [];
                     topMoveObjects.push({ 'player': [data.bestmove.slice(0,2), data.bestmove.slice(2, data.bestmove.length)], 'opponent': [null, null], 'ranking': 1  });
                 }
 
-                this.Interface.boardUtils.markMoves(topMoveObjects);
+                this.Interface.boardUtils.markMoves(topMoveObjects, profile);
 
                 if(displayMovesExternally) {
                     this.CommLink.commands.markMoveToSite(topMoveObjects);
@@ -885,7 +1036,7 @@ class BackendInstance {
                         x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
                     ).join(', ');
 
-                    this.speak(spokenText);
+                    this.speak(spokenText, profile);
                 });
             }
         }
@@ -898,12 +1049,12 @@ class BackendInstance {
             this.setupEnvironment(variantStartposFen, dimensions);
         }
         
-        if(msg === 'uciok' && this.chessEngineType === 'lc0') {
+        if(msg === 'uciok' && this.getEngineType(profile) === 'lc0') {
             this.setupEnvironment(this.defaultStartpos, [8, 8]);
         }
     }
 
-    async loadEngine() {
+    async loadEngine(profile) {
         if(!window?.SharedArrayBuffer) // COI failed to enable SharedArrayBuffer, loading basic web worker engine
         {
             toast.error(`FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!`, 1e9);
@@ -912,75 +1063,136 @@ class BackendInstance {
 
             const msgHandler = msg => {
                 try {
-                    this.engineMessageHandler(msg);
+                    this.engineMessageHandler(msg, profile);
                 } catch(e) {
-                    console.error('Engine', this.instanceID, 'error:', e);
+                    console.error('Engine', this.instanceID, profile, 'error:', e);
                 }
             }
+
+            const profileChessEngine = getProfile(profile).config.chessEngine;
             
-            switch(this.chessEngineType) {
+            switch(profileChessEngine) {
                 case 'lc0':
                     const waitForZeroFish = setInterval(async () => {
                         if(typeof zerofish !== 'undefined') {
                             clearInterval(waitForZeroFish);
 
                             this.engines.push({
-                                'type': this.chessEngineType,
+                                'type': profileChessEngine,
                                 'engine': await zerofish(),
-                                'sendMsg': msg => this.getEngine().zero(msg)
+                                'sendMsg': msg => this.getEngine(profile).zero(msg),
+                                profile
                             });
         
-                            const ZeroFish = this.getEngine();
+                            const ZeroFish = this.getEngine(profile);
                             
                             ZeroFish.listenZero = msgHandler;
         
-                            await this.setEngineWeight(this.lc0WeightName);
+                            await this.setEngineWeight(this.pV[profile].lc0WeightName, profile);
         
-                            this.engineStartNewGame('chess');
+                            this.engineStartNewGame('chess', profile);
                         }
                     }, 100);
                 break;
 
                 default: // Fairy Stockfish NNUE WASM
                     this.engines.push({
-                        'type': this.chessEngineType,
+                        'type': profileChessEngine,
                         'engine': await Stockfish(),
-                        'sendMsg': msg => this.getEngine().postMessage(msg)
+                        'sendMsg': msg => this.getEngine(profile).postMessage(msg),
+                        profile
                     });
 
-                    const FairyStockfish = this.getEngine();
+                    const FairyStockfish = this.getEngine(profile);
 
                     FairyStockfish.addMessageListener(msgHandler);
 
-                    this.engineStartNewGame(formatVariant(this.chessVariant));
+                    this.engineStartNewGame(formatVariant(this.pV[profile].chessVariant), profile);
                 break;
             }
         }
     }
 
+    guiUpdater() {
+        if(this.guiUpdaterActive) return;
+
+        const g = setInterval(() => {
+            if(this.instanceClosed) {
+                clearInterval(g);
+
+                this.guiUpdaterActive = false;
+            }
+
+            const additionalInfoElem = this.instanceElem.querySelector('.instance-additional-info');
+            const lastActiveEnginesAmount = this.activeEnginesAmount;
+            const lastVariantNotSupportedByEngineAmount = this.variantNotSupportedByEngineAmount;
+
+            let newInfoStr = '';
+
+            this.activeEnginesAmount = Object.keys(this.pV).length;
+            this.variantNotSupportedByEngineAmount = 0;
+
+            Object.keys(this.pV).forEach(profileName => {
+                const profileVars = this.pV[profileName];
+                const profileVariant = formatVariant(profileVars.chessVariant);
+                const profileVariants = profileVars.chessVariants;
+
+                const profileVariantExists = profileVariants.includes(profileVariant);
+
+                if(!profileVariantExists) {
+                    this.variantNotSupportedByEngineAmount++;
+                }
+            });
+
+            if(this.activeEnginesAmount !== lastActiveEnginesAmount || this.variantNotSupportedByEngineAmount !== lastVariantNotSupportedByEngineAmount) {
+                const correctedActiveAmount = this.activeEnginesAmount - this.variantNotSupportedByEngineAmount;
+
+                if(correctedActiveAmount == this.activeEnginesAmount) {
+                    newInfoStr += ` (${this.activeEnginesAmount} engine${this.activeEnginesAmount > 1 ? 's' : ''})`;
+                }
+                else if(correctedActiveAmount > 0) {
+                    newInfoStr += ` (${correctedActiveAmount}/${this.activeEnginesAmount} engine${correctedActiveAmount > 1 ? 's' : ''})`;
+                } else {
+                    newInfoStr += ` (Variant not supported)`;
+                }
+            }
+
+            if(newInfoStr.length > 0) {
+                additionalInfoElem.innerText = newInfoStr;
+            }
+        }, 500);
+
+        this.guiUpdaterActive = true;
+    }
+
     setupEnvironment(startpos, dimensions) {
+        if(this.environmentSetupRun)
+            return;
+
+        this.environmentSetupRun = true;
+
         try {
             const instanceContainerElem = document.querySelector('#acas-instance-container');
 
-            const variantExists = this.chessVariants.includes(formatVariant(this.chessVariant));
+            let variant = 'chess';
+            let warnedAboutOnlyOwnTurn = false;
 
-            const variant = variantExists ? this.chessVariant : (this.getConfigValue(this.configKeys.chessVariant) || 'chess');
+            Object.keys(this.pV).forEach(profileName => {
+                this.pV[profileName].pendingCalculations = [];
+
+                const profileVariant = formatVariant(this.pV[profileName].chessVariant);
+
+                if(profileVariant !== 'chess')
+                    variant = profileVariant;
+
+                if(!warnedAboutOnlyOwnTurn && variant != 'chess' && this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName)) {
+                    toast.warning(`"Only Own Turn" setting might not work for variants! (todo)`, 5000);
+
+                    warnedAboutOnlyOwnTurn = true;
+                }
+            });
 
             let variantText = variant;
-
-            if(this.useChess960) {
-                variantText += ' (Fischer Random)';
-            }
-
-            if(!variantExists && this.chessVariant != 'chess960') {
-                variantText += ` (${this.chessVariant} not supported)`;
-            }
-
-            const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn);
-
-            if(variant != 'chess' && onlyCalculateOwnTurn) {
-                toast.warning(`"Only Own Turn" setting might not work for variants! (todo)`, 5000);
-            }
 
             const chessFont = formatChessFont(this.getConfigValue(this.configKeys.chessFont));
 
@@ -989,14 +1201,12 @@ class BackendInstance {
             const currentFen = USERSCRIPT.instanceVars.fen.get(this.instanceID);
             const fen = currentFen || this.variantStartPosFen;
 
-            const orientation = USERSCRIPT.instanceVars.playerColor.get(this.instanceID) || 'w';
+            const orientation = this.getPlayerColor();
 
             const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
             const instanceIdQuery = `[data-instance-id="${this.instanceID}"]`;
 
             this.currentFen = fen;
-
-            this.pendingCalculations = [];
 
             log.info(`Variant: "${variantText}"\n\nFen: "${fen}"\n\nDimension: "${boardDimensions.width}x${boardDimensions.height}"`);
 
@@ -1014,7 +1224,7 @@ class BackendInstance {
                 <div class="highlight-indicator hidden"></div>
                 <div class="connection-warning hidden">
                     <div class="connection-warning-title">Losing connection</div>
-                    <div class="connection-warning-subtitle">No messages from this instance for a while</div>
+                    <div class="connection-warning-subtitle">Revisit the page to reconnect 👁️</div>
                 </div>
                 <div class="instance-header">
                     <style class="instance-styling">
@@ -1031,7 +1241,10 @@ class BackendInstance {
                     }
                     </style>
                     <div class="instance-basic-info">
-                        <div class="instance-variant" title="Instance Chess Variant"></div>
+                        <div class="instance-basic-info-title">
+                            <div class="instance-variant" title="Instance Chess Variant"></div>
+                            <div class="instance-additional-info"></div>
+                        </div>
                         <div class="instance-domain" title="Instance Domain"></div>
                         <div class="instance-fen-container">
                             <div class="instance-fen-btn acas-fancy-button">Show Fen</div>
@@ -1138,8 +1351,8 @@ class BackendInstance {
                 this.onLoadCallbackFunction({ 
                     'domain': this.domain, 
                     'id': this.instanceID,
-                    'variant': this.chessVariant,
-                    'engine': this.getEngine(),
+                    'variant': variant,
+                    'engine': this.engines,
                     'chessground': this.chessground,
                     'element': this.instanceElem,
                     'dimensions': boardDimensions
@@ -1154,6 +1367,8 @@ class BackendInstance {
                 this.calculateBestMoves(fen);
 
             this.instanceReady = true;
+
+            this.guiUpdater();
         } catch(e) { 
             console.error(e);
         }
@@ -1168,7 +1383,39 @@ class BackendInstance {
     }
 
     killEngine(i) {
-        const engine = this.engines[i].engine;
+        console.warn('Killing engine', i);
+
+        let engine = null;
+
+        if(typeof i === 'string') {
+            const engineIndex = this.engines.findIndex(obj => obj.profile === i);
+            
+            if(engineIndex !== -1) {
+                engine = this.engines[engineIndex].engine;
+                this.engines.splice(engineIndex, 1);
+
+                if(this.pV[i]) {
+                    this.Interface.boardUtils.removeMarkings(i);
+                }
+
+                delete this.pV[i];
+            }
+        } else if(typeof i === 'number') {
+            if(i >= 0 && i < this.engines.length) {
+                const profileName = this.engines[i].profile;
+
+                engine = this.engines[i].engine;
+                this.engines.splice(i, 1);
+                
+                console.warn(profileName, engine);
+
+                if(this.pV[profileName]) {
+                    this.Interface.boardUtils.removeMarkings(profileName);
+                }
+
+                delete this.pV[profileName];
+            }
+        }
 
         this.sendMsgToEngine('quit', i);
 
@@ -1176,16 +1423,15 @@ class BackendInstance {
         
         if(freeFunction)
             engine?._free();
-
-        this.engines = this.engines.slice(1);
     }
 
     killExtraEngines() {
+        /* No implementation needed yet
         for(let i = 0; i < this.engines.length; i++) {
             if(this.engines.length - 1 !== i) {
                 this.killEngine(i);
             }
-        }
+        }*/
     }
 
     killEngines() {

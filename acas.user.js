@@ -78,7 +78,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.1
+// @version     2.2.2
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -288,14 +288,19 @@ const configKeys = {
     'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
     'ttsVoiceEnabled': 'ttsVoiceEnabled',
     'ttsVoiceName': 'ttsVoiceName',
-    'ttsVoiceSpeed': 'ttsVoiceSpeed'
+    'ttsVoiceSpeed': 'ttsVoiceSpeed',
+    'chessEngineProfile': 'chessEngineProfile',
+    'primaryArrowColorHex': 'primaryArrowColorHex',
+    'secondaryArrowColorHex': 'secondaryArrowColorHex',
+    'opponentArrowColorHex': 'opponentArrowColorHex',
+    'reverseSide': 'reverseSide'
 };
 
 const config = {};
 
 Object.values(configKeys).forEach(key => {
     config[key] = {
-        get:  () => getGmConfigValue(key, commLinkInstanceID),
+        get:  profile => getGmConfigValue(key, commLinkInstanceID, profile),
         set: null
     };
 });
@@ -304,7 +309,6 @@ let BoardDrawer = null;
 let chessBoardElem = null;
 let chesscomVariantPlayerColorsTable = null;
 let activeGuiMoveMarkings = [];
-let inactiveGuiMoveMarkings = [];
 
 let lastBoardRanks = null;
 let lastBoardFiles = null;
@@ -327,29 +331,33 @@ const pieceNameToFen = {
     'king': 'k'
 };
 
-const arrowStyles = {
-    'best': `
-        fill: limegreen;
-        opacity: ${getConfigValue(configKeys.arrowOpacity)/100 || '0.9'};
-        stroke: rgb(0 0 0 / 50%);
-        stroke-width: 2px;
-        stroke-linejoin: round;
-    `,
-    'secondary': `
-        fill: dodgerblue;
-        opacity: ${getConfigValue(configKeys.arrowOpacity)/100 || '0.7'};
-        stroke: rgb(0 0 0 / 50%);
-        stroke-width: 2px;
-        stroke-linejoin: round;
-    `,
-    'opponent': `
-        fill: crimson;
-        stroke: rgb(0 0 0 / 25%);
-        stroke-width: 2px;
-        stroke-linejoin: round;
-        display: none;
-        opacity: ${getConfigValue(configKeys.arrowOpacity)/100 || '0.3'};
-    `
+function getArrowStyle(type, fill, opacity) {
+    const baseStyleArr = [
+        'stroke: rgb(0 0 0 / 50%);',
+        'stroke-width: 2px;',
+        'stroke-linejoin: round;'
+    ];
+
+    switch(type) {
+        case 'best': 
+            return [
+                `fill: ${fill || 'limegreen'};`,
+                `opacity: ${opacity || 0.9};`,
+                ...baseStyleArr
+            ].join('\n');
+        case 'secondary': 
+            return [
+                ...baseStyleArr,
+                `fill: ${fill ? fill : 'dodgerblue'};`,
+                `opacity: ${opacity || 0.7};`,
+            ].join('\n');
+        case 'opponent':
+            return [
+                ...baseStyleArr,
+                `fill: ${fill ? fill : 'crimson'};`,
+                `opacity: ${opacity || 0.3};`,
+            ].join('\n');
+    }
 };
 
 const CommLink = new CommLinkHandler(`frontend_${commLinkInstanceID}`, {
@@ -397,30 +405,39 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
 
 const boardUtils = {
     markMoves: moveObjArr => {
-        boardUtils.removeMarkings();
-
         const maxScale = 1;
         const minScale = 0.5;
         const totalRanks = moveObjArr.length;
-        const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess);
-        const showOpponentMoveGuessConstantly = getConfigValue(configKeys.showOpponentMoveGuessConstantly);
 
         moveObjArr.forEach((markingObj, idx) => {
+            const profile = markingObj.profile;
+
+            if(idx === 0)
+                boardUtils.removeMarkings(profile);
+
             const [from, to] = markingObj.player;
             const [oppFrom, oppTo] = markingObj.opponent;
             const oppMovesExist = oppFrom && oppTo;
             const rank = idx + 1;
 
+            const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess, profile);
+            const showOpponentMoveGuessConstantly = getConfigValue(configKeys.showOpponentMoveGuessConstantly, profile);
+
+            const arrowOpacity = getConfigValue(configKeys.arrowOpacity, profile) / 100;
+            const primaryArrowColorHex = getConfigValue(configKeys.primaryArrowColorHex, profile);
+            const secondaryArrowColorHex = getConfigValue(configKeys.secondaryArrowColorHex, profile);
+            const opponentArrowColorHex = getConfigValue(configKeys.opponentArrowColorHex, profile);
+
             let playerArrowElem = null;
             let oppArrowElem = null;
-            let arrowStyle = arrowStyles.best;
+            let arrowStyle = getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
             let lineWidth = 30;
             let arrowheadWidth = 80;
             let arrowheadHeight = 60;
             let startOffset = 30;
 
             if(idx !== 0) {
-                arrowStyle = arrowStyles.secondary;
+                arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
 
                 const arrowScale = totalRanks === 2
                     ? 0.75
@@ -442,7 +459,7 @@ const boardUtils = {
             if(oppMovesExist && showOpponentMoveGuess) {
                 oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
                     {
-                        style: arrowStyles.opponent,
+                        style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
                         lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                     }
                 );
@@ -454,7 +471,7 @@ const boardUtils = {
                         if(!oppArrowElem) {
                             squareListener.remove();
                         }
-    
+
                         switch(type) {
                             case 'enter':
                                 oppArrowElem.style.display = 'inherit';
@@ -478,18 +495,24 @@ const boardUtils = {
                 }
             }
 
-            activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem });
+            activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem, profile });
         });
-
-        pastMoveObjects = [];
     },
-    removeMarkings: () => {
-        activeGuiMoveMarkings.forEach(markingObj => {
+    removeMarkings: profile => {
+        let removalArr = activeGuiMoveMarkings;
+
+        if(profile) {
+            removalArr = removalArr.filter(obj => obj.profile === profile);
+
+            activeGuiMoveMarkings =  activeGuiMoveMarkings.filter(obj => obj.profile !== profile);
+        } else {
+            activeGuiMoveMarkings = [];
+        }
+
+        removalArr.forEach(markingObj => {
             markingObj.oppArrowElem?.remove();
             markingObj.playerArrowElem?.remove();
         });
-
-        activeGuiMoveMarkings = [];
     },
     setBoardOrientation: orientation => {
         if(BoardDrawer) {
@@ -698,7 +721,11 @@ function chessCoordinatesToIndex(coord) {
     return [x, y];
 }
 
-function getGmConfigValue(key, instanceID) {
+function getGmConfigValue(key, instanceID, profileID) {
+    if(typeof profileID === 'object') {
+        profileID = profileID.name;
+    }
+
     const config = GM_getValue(dbValues.AcasConfig);
 
     const instanceValue = config?.instance?.[instanceID]?.[key];
@@ -712,11 +739,53 @@ function getGmConfigValue(key, instanceID) {
         return globalValue;
     }
 
+    if(profileID) {
+        const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
+        const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileID]?.[key];
+
+        if(instanceProfileValue !== undefined) {
+            return instanceProfileValue;
+        }
+
+        if(globalProfileValue !== undefined) {
+            return globalProfileValue;
+        }
+    }
+
     return null;
 }
 
-function getConfigValue(key) {
-    return config[key]?.get();
+function isBoardDrawerNeeded() {
+    const config = GM_getValue(dbValues.AcasConfig);
+
+    const gP = config?.global?.['profiles'];
+    const iP = config?.instance?.[commLinkInstanceID]?.['profiles'];
+
+    if(gP) {
+        const globalProfiles = Object.keys(gP);
+
+        for(profileName of globalProfiles) {
+            if(gP[profileName][configKeys.displayMovesOnExternalSite]) {
+                return true;
+            }
+        }
+    }
+
+    if(iP) {
+        const instanceProfiles = Object.keys(iP);
+
+        for(profileName of instanceProfiles) {
+            if(iP[profileName][configKeys.displayMovesOnExternalSite]) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function getConfigValue(key, profile) {
+    return config[key]?.get(profile);
 }
 
 function setConfigValue(key, val) {
@@ -2349,7 +2418,7 @@ async function start() {
     instanceVars.playerColor.set(commLinkInstanceID, boardOrientation);
     instanceVars.fen.set(commLinkInstanceID, getFen());
 
-    if(getConfigValue(configKeys.displayMovesOnExternalSite)) {
+    if(isBoardDrawerNeeded()) {
         BoardDrawer = new UniversalBoardDrawer(chessBoardElem, {
             'window': window,
             'boardDimensions': getBoardDimensions(),
