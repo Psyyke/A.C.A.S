@@ -250,17 +250,6 @@ function getGmConfigValue(key, instanceID, profileID) {
 
     const config = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig);
 
-    const instanceValue = config?.instance?.[instanceID]?.[key];
-    const globalValue = config?.global?.[key];
-
-    if(instanceValue !== undefined) {
-        return instanceValue;
-    }
-
-    if(globalValue !== undefined) {
-        return globalValue;
-    }
-
     if(profileID) {
         const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
         const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileID]?.[key];
@@ -272,6 +261,17 @@ function getGmConfigValue(key, instanceID, profileID) {
         if(globalProfileValue !== undefined) {
             return globalProfileValue;
         }
+    }
+
+    const instanceValue = config?.instance?.[instanceID]?.[key];
+    const globalValue = config?.global?.[key];
+
+    if(instanceValue !== undefined) {
+        return instanceValue;
+    }
+
+    if(globalValue !== undefined) {
+        return globalValue;
     }
 
     return null;

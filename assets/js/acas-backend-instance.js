@@ -172,31 +172,31 @@ class BackendInstance {
         }
     }
 
-    getArrowStyle(type, fill) {
+    getArrowStyle(type, fill, opacity) {
         const baseStyleArr = [
             'stroke: rgb(0 0 0 / 50%);',
             'stroke-width: 2px;',
             'stroke-linejoin: round;'
         ];
-
+    
         switch(type) {
             case 'best': 
                 return [
-                    `fill: ${fill ? fill : 'limegreen'};`,
-                    'opacity: 0.9;',
+                    `fill: ${fill || 'limegreen'};`,
+                    `opacity: ${opacity || 0.9};`,
                     ...baseStyleArr
                 ].join('\n');
             case 'secondary': 
                 return [
                     ...baseStyleArr,
                     `fill: ${fill ? fill : 'dodgerblue'};`,
-                    'opacity: 0.7;'
+                    `opacity: ${opacity || 0.7};`,
                 ].join('\n');
             case 'opponent':
                 return [
                     ...baseStyleArr,
                     `fill: ${fill ? fill : 'crimson'};`,
-                    'opacity: 0.5;'
+                    `opacity: ${opacity || 0.3};`,
                 ].join('\n');
         }
     };
@@ -209,6 +209,7 @@ class BackendInstance {
                 const maxScale = 1;
                 const minScale = 0.5;
                 const totalRanks = moveObjArr.length;
+                const arrowOpacity = this.getConfigValue(this.configKeys.arrowOpacity, profile) / 100;
                 const showOpponentMoveGuess = this.getConfigValue(this.configKeys.showOpponentMoveGuess, profile);
                 const showOpponentMoveGuessConstantly = this.getConfigValue(this.configKeys.showOpponentMoveGuessConstantly, profile);
                 const primaryArrowColorHex = this.getConfigValue(this.configKeys.primaryArrowColorHex, profile);
@@ -223,14 +224,14 @@ class BackendInstance {
                     
                     let playerArrowElem = null;
                     let oppArrowElem = null;
-                    let arrowStyle = this.getArrowStyle('best', primaryArrowColorHex);
+                    let arrowStyle = this.getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
                     let lineWidth = 30;
                     let arrowheadWidth = 80;
                     let arrowheadHeight = 60;
                     let startOffset = 30;
         
                     if(idx !== 0) {
-                        arrowStyle = this.getArrowStyle('secondary', secondaryArrowColorHex);
+                        arrowStyle = this.getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
         
                         const arrowScale = totalRanks === 2
                             ? 0.75
@@ -252,7 +253,7 @@ class BackendInstance {
                     if(oppMovesExist && showOpponentMoveGuess) {
                         oppArrowElem = this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
                             {
-                                style: this.getArrowStyle('opponent', opponentArrowColorHex),
+                                style: this.getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
                                 lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                             }
                         );
