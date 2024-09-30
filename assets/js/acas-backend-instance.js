@@ -196,7 +196,7 @@ class BackendInstance {
                 return [
                     ...baseStyleArr,
                     `fill: ${fill ? fill : 'crimson'};`,
-                    'opacity: 0.3;'
+                    'opacity: 0.5;'
                 ].join('\n');
         }
     };
