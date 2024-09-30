@@ -24,7 +24,8 @@ class BackendInstance {
             'primaryArrowColorHex': 'primaryArrowColorHex',
             'secondaryArrowColorHex': 'secondaryArrowColorHex',
             'opponentArrowColorHex': 'opponentArrowColorHex',
-            'reverseSide': 'reverseSide'
+            'reverseSide': 'reverseSide',
+            'engineEnabled': 'engineEnabled'
         };
 
         this.config = {};
@@ -609,11 +610,11 @@ class BackendInstance {
     updateSettings(updateObj) {
         const profile = updateObj.data.profile.name;
 
-        let alreadyCreatedEngine = false;
-
         const profilesWithEnabledEngine = getProfiles().filter(p => p.config.engineEnabled);
         const profilesWithDisabledEngine = getProfiles().filter(p => !p.config.engineEnabled);
         const nonexistingProfilesWithEngine = Object.keys(this.pV).filter(profileName => !getProfiles().find(p => p.name === profileName));
+
+        const isEngineEnabled = this.getConfigValue(this.configKeys.engineEnabled, profile);
 
         // Handle profiles which engine is disabled
         for(const profileObj of profilesWithDisabledEngine) {
@@ -645,6 +646,7 @@ class BackendInstance {
         const didUpdateMultiPV = findSettingKeyFromData(this.configKeys.moveSuggestionAmount);
         const didUpdate960Mode = findSettingKeyFromData(this.configKeys.useChess960);
         const didUpdateChessEngine = findSettingKeyFromData(this.configKeys.chessEngine);
+        const didUpdateEngineEnabled = findSettingKeyFromData(this.configKeys.engineEnabled);
         const didUpdateNodes = findSettingKeyFromData(this.configKeys.engineNodes);
 
         const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant, profile));
@@ -658,8 +660,11 @@ class BackendInstance {
             if(didUpdateChessFont)
                 this.setChessFont(this.getConfigValue(this.configKeys.chessFont));
 
-            if(didUpdateChessEngine && !alreadyCreatedEngine) {
-                console.log('Kill and load engine', profile, 'since the engine type was changed');
+            if(didUpdateChessEngine || (didUpdateEngineEnabled && isEngineEnabled)) {
+                if(didUpdateChessEngine) 
+                    console.log('Kill and load engine', profile, 'since the engine type was changed');
+                else if(didUpdateEngineEnabled)
+                    console.log('Kill and load engine', profile, 'since the engine was enabled');
 
                 this.killEngine(profile);
 
