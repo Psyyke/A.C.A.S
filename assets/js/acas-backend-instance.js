@@ -466,8 +466,7 @@ class BackendInstance {
 
         this.pV[profile].lc0WeightName = weightName;
 
-        if(this.getEngine(profile)?.setZeroWeights)
-            this.getEngine(profile).setZeroWeights(await loadFileAsUint8Array(`/A.C.A.S/assets/lc0-weights/${weightName}`));
+        this.contactEngine('setZeroWeights', [await loadFileAsUint8Array(`/A.C.A.S/assets/lc0-weights/${weightName}`)], profile);
     }
 
     disableEngineElo(profile) {
@@ -900,8 +899,8 @@ class BackendInstance {
         return this.engines[i ? i : this.engines.length - 1];
     }
 
-    getEngine(i) {
-        return this.getEngineAcasObj(i)['engine'];
+    contactEngine(method, args, i) {
+        return this.getEngineAcasObj(i)['engine'](method, args);
     }
 
     sendMsgToEngine(msg, i) {
@@ -942,7 +941,7 @@ class BackendInstance {
         const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
         const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
 
-        if(!data?.currmovenumber) console.warn(msg, `(FOR FEN: ${oldestUnfinishedCalcRequestObj?.fen})`);
+        if(!data?.currmovenumber) console.warn(`${profile} ->`, msg, `\n(Message is for FEN -> ${oldestUnfinishedCalcRequestObj?.fen})`);
 
         if(msg.includes('option name UCI_Variant type combo')) {
             const chessVariants = extractVariantNames(msg);
@@ -1065,8 +1064,6 @@ class BackendInstance {
         {
             toast.error(`FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!`, 1e9);
         } else {
-            this.killExtraEngines();
-
             const msgHandler = msg => {
                 try {
                     this.engineMessageHandler(msg, profile);
@@ -1079,41 +1076,69 @@ class BackendInstance {
             
             switch(profileChessEngine) {
                 case 'lc0':
-                    const waitForZeroFish = setInterval(async () => {
-                        if(typeof zerofish !== 'undefined') {
-                            clearInterval(waitForZeroFish);
+                    const lc0 = new Worker('assets/libraries/zerofish/zerofishWorker.js', { type: 'module' });
+                    let lc0_loaded = false;
+
+                    lc0.onmessage = async e => {
+                        if(e.data === true) {
+                            lc0_loaded = true;
 
                             this.engines.push({
                                 'type': profileChessEngine,
-                                'engine': await zerofish(),
-                                'sendMsg': msg => this.getEngine(profile).zero(msg),
+                                'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
+                                'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
+                                'worker': lc0,
                                 profile
                             });
         
-                            const ZeroFish = this.getEngine(profile);
-                            
-                            ZeroFish.listenZero = msgHandler;
-        
                             await this.setEngineWeight(this.pV[profile].lc0WeightName, profile);
-        
+                
                             this.engineStartNewGame('chess', profile);
+                        } else if (e.data) {
+                            msgHandler(e.data);
                         }
+                    };
+
+                    const waitLc0 = setInterval(() => {
+                        if(lc0_loaded) {
+                            clearInterval(waitLc0);
+                            return;
+                        }
+
+                        lc0.postMessage({ method: 'acas_check_loaded' });
                     }, 100);
                 break;
 
                 default: // Fairy Stockfish NNUE WASM
-                    this.engines.push({
-                        'type': profileChessEngine,
-                        'engine': await Stockfish(),
-                        'sendMsg': msg => this.getEngine(profile).postMessage(msg),
-                        profile
-                    });
+                    const stockfish = new Worker('assets/libraries/fairy-stockfish-nnue.wasm/stockfishWorker.js');
+                    let stockfish_loaded = false;
 
-                    const FairyStockfish = this.getEngine(profile);
+                    stockfish.onmessage = async e => {
+                        if(e.data === true) {
+                            stockfish_loaded = true;
 
-                    FairyStockfish.addMessageListener(msgHandler);
+                            this.engines.push({
+                                'type': profileChessEngine,
+                                'engine': (method, a) => stockfish.postMessage({ method: method, args: [...a] }),
+                                'sendMsg': msg => stockfish.postMessage({ method: 'postMessage', args: [msg] }),
+                                'worker': stockfish,
+                                profile
+                            });
+                
+                            this.engineStartNewGame(formatVariant(this.pV[profile].chessVariant), profile);
+                        } else if (e.data) {
+                            msgHandler(e.data);
+                        }
+                    };
 
-                    this.engineStartNewGame(formatVariant(this.pV[profile].chessVariant), profile);
+                    const waitStockfish = setInterval(() => {
+                        if(stockfish_loaded) {
+                            clearInterval(waitStockfish);
+                            return;
+                        }
+
+                        stockfish.postMessage({ method: 'acas_check_loaded' });
+                    }, 100);
                 break;
             }
         }
@@ -1391,13 +1416,14 @@ class BackendInstance {
     killEngine(i) {
         console.warn('Killing engine', i);
 
-        let engine = null;
+        let worker = null;
 
         if(typeof i === 'string') {
             const engineIndex = this.engines.findIndex(obj => obj.profile === i);
             
             if(engineIndex !== -1) {
-                engine = this.engines[engineIndex].engine;
+                worker = this.engines[engineIndex].worker;
+
                 this.engines.splice(engineIndex, 1);
 
                 if(this.pV[i]) {
@@ -1410,10 +1436,9 @@ class BackendInstance {
             if(i >= 0 && i < this.engines.length) {
                 const profileName = this.engines[i].profile;
 
-                engine = this.engines[i].engine;
+                worker = this.engines[i].worker;
+
                 this.engines.splice(i, 1);
-                
-                console.warn(profileName, engine);
 
                 if(this.pV[profileName]) {
                     this.Interface.boardUtils.removeMarkings(profileName);
@@ -1425,19 +1450,9 @@ class BackendInstance {
 
         this.sendMsgToEngine('quit', i);
 
-        const freeFunction = engine?.['_free'];
-        
-        if(freeFunction)
-            engine?._free();
-    }
-
-    killExtraEngines() {
-        /* No implementation needed yet
-        for(let i = 0; i < this.engines.length; i++) {
-            if(this.engines.length - 1 !== i) {
-                this.killEngine(i);
-            }
-        }*/
+        setTimeout(() => {
+            worker.terminate();
+        }, 1000);
     }
 
     killEngines() {
