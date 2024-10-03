@@ -1109,6 +1109,29 @@ class BackendInstance {
                     }, 100);
                 break;
 
+                case 'stockfish-16-1-wasm':
+                    const stockfish2 = new Worker('assets/libraries/stockfish-16.1.wasm/stockfish-16.1.js');
+                    let stockfish2_loaded = false;
+
+                    stockfish2.onmessage = async e => {
+                        if(!stockfish2_loaded) {
+                            stockfish2_loaded = true;
+
+                            this.engines.push({
+                                'type': profileChessEngine,
+                                'engine': (method, a) => stockfish2[method](...a),
+                                'sendMsg': msg => stockfish2.postMessage(msg),
+                                'worker': stockfish2,
+                                profile
+                            });
+                
+                            this.engineStartNewGame('chess', profile);
+                        }
+
+                        msgHandler(e.data);
+                    };
+                    break;
+
                 default: // Fairy Stockfish NNUE WASM
                     const stockfish = new Worker('assets/libraries/fairy-stockfish-nnue.wasm/stockfishWorker.js');
                     let stockfish_loaded = false;
