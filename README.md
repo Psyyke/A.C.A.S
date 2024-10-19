@@ -1,6 +1,7 @@
 # A.C.A.S (Advanced Chess Assistance System)
 
-> **Warning** A.C.A.S is currently in development. Expect bugs, especially on variants.
+> [!WARNING]
+> A.C.A.S is currently in development. Expect bugs, especially on variants.
 
 A.C.A.S is an **advanced chess assistance system** which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
@@ -13,7 +14,8 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
 * Impossible to detect (well, you can never be sure, so let's say it's *almost* impossible)
 
-> **Note** Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
+> [!CAUTION]
+> Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
 | [▶️ Open A.C.A.S](https://psyyke.github.io/A.C.A.S/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|
@@ -27,9 +29,8 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 
 Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system), open the [A.C.A.S GUI](https://psyyke.github.io/A.C.A.S/) and a supported chess game site. Then, just start playing!
 
-> **Note**
+> [!IMPORTANT]
 > You need to keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
-> 
 
 ## Fundamental Idea
 
@@ -46,7 +47,8 @@ Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137
 | 🟦 | Secondary Move |
 | 🟥 | Enemy Move |
 
-> **Note** Enemy move is shown if "*Display Opponent Move Guess*" setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.
+> [!NOTE]
+> Enemy move is shown if "*Display Opponent Move Guess*" setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.
 
 ## Q&A
 
@@ -70,7 +72,8 @@ Before making an issue, please read these and also join the [Userscript Hub](htt
 
 Otherwise, it could be a bug, please make an issue [here](https://github.com/psyyke/A.C.A.S/issues/new). 
 
-> **Note** When making an issue, please be descriptive! Mention,
+> [!NOTE]
+> When making an issue, please be descriptive! Mention,
 > - The chess site and the variant you were playing.
 > - The browser and the userscript manager you were using.
 > - What did you do for the bug to happen, does it happen often? How could I reproduce it?
@@ -89,15 +92,18 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/psy
 6) You should now see A.C.A.S running on `http://localhost/A.C.A.S/`.
 7) Make sure the A.C.A.S userscript is on and you should be good to go!
 
-> **Warning** Make sure there are no additional folders which would make the URL like `http://localhost/A.C.A.S/A.C.A.S/`.
+> [!WARNING]
+> Make sure there are no additional folders which would make the URL like `http://localhost/A.C.A.S/A.C.A.S/`.
 
-> **Note** You can use [GitHub Desktop](https://desktop.github.com/) to make Git actions such as cloning easy.
+> [!TIP]
+> You can use [GitHub Desktop](https://desktop.github.com/) to make Git actions such as cloning easy.
 
 ### A.C.A.S Userscript
 
 Developing the userscript is easy, simply develop it as you'd any other userscripts.
 
-> **Note** Browsers might cache userscripts after you've refreshed the site enough times. If you notice your userscript being cached, disable the userscript, refresh the page, then enable the userscript and refresh the page again.
+> [!NOTE]
+> Browsers might cache userscripts after you've refreshed the site enough times. If you notice your userscript being cached, disable the userscript, refresh the page, then enable the userscript and refresh the page again.
 
 ## Used Libraries
 
