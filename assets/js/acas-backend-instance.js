@@ -1422,6 +1422,10 @@ class BackendInstance {
 
             this.instanceReady = true;
 
+            if(fen.includes('8/8/8/8/8/8/8/8') && this.domain === 'chess.com') {
+                toast.warning('Oh, the board seems to be empty. This is most likely caused by the site displaying the board as an image which A.C.A.S cannot parse.\n\nPlease disable "Piece Animations: Arcade" on Chess.com settings! (Set to "None")');
+            }
+
             this.guiUpdater();
         } catch(e) { 
             console.error(e);
