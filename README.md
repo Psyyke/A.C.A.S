@@ -70,6 +70,8 @@ Before making an issue, please read these and also join the [Userscript Hub](htt
 
 - Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.
 
+- Make sure you did NOT set "Piece Animations" to "Arcade" on Chess.com board settings! Set the "Piece Animations" to "None" so that A.C.A.S can parse the board correctly.
+
 Otherwise, it could be a bug, please make an issue [here](https://github.com/psyyke/A.C.A.S/issues/new). 
 
 > [!NOTE]
