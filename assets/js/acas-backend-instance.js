@@ -673,7 +673,7 @@ class BackendInstance {
             }
 
             if(didUpdateElo)
-                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo), true, profile);
+                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), true, profile);
 
             if(didUpdateNodes)
                 this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
