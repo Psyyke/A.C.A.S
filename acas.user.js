@@ -936,7 +936,7 @@ class AutomaticMove {
                 { minPieces: 1, maxPieces: 2, timeRange: [500, 1200] },         // Extremely Few Pieces (1 piece)
             ];
 
-            this.shouldHesitate = this.isLegit && Math.random() < 1;
+            this.shouldHesitate = this.isLegit && Math.random() < 0.1;
             this.shouldHesitateTwice = this.isLegit && Math.random() < 0.5;
 
             const legitTotalMoveTime = this.calculateMoveTime(getPieceAmount());
