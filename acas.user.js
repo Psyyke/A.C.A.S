@@ -78,7 +78,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.2
+// @version     2.2.3
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -293,7 +293,11 @@ const configKeys = {
     'primaryArrowColorHex': 'primaryArrowColorHex',
     'secondaryArrowColorHex': 'secondaryArrowColorHex',
     'opponentArrowColorHex': 'opponentArrowColorHex',
-    'reverseSide': 'reverseSide'
+    'reverseSide': 'reverseSide',
+    'autoMove': 'autoMove',
+    'autoMoveLegit': 'autoMoveLegit',
+    'autoMoveRandom': 'autoMoveRandom',
+    'autoMoveAfterUser': 'autoMoveAfterUser'
 };
 
 const config = {};
@@ -316,9 +320,16 @@ let lastBoardFiles = null;
 let lastBoardSize = null;
 let lastPieceSize = null;
 
+let lastBoardMatrix = null;
 let lastBoardOrientation = null;
 
+let matchFirstSuggestionGiven = false;
+
+let lastMoveRequestTime = 0;
+let lastPieceAmount = 0;
+
 let isUserMouseDown = false;
+let activeAutomoves = [];
 
 const supportedSites = {};
 
@@ -339,13 +350,13 @@ function getArrowStyle(type, fill, opacity) {
     ];
 
     switch(type) {
-        case 'best': 
+        case 'best':
             return [
                 `fill: ${fill || 'limegreen'};`,
                 `opacity: ${opacity || 0.9};`,
                 ...baseStyleArr
             ].join('\n');
-        case 'secondary': 
+        case 'secondary':
             return [
                 ...baseStyleArr,
                 `fill: ${fill ? fill : 'dodgerblue'};`,
@@ -396,6 +407,31 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 return true;
             case 'markMoveToSite':
                 boardUtils.markMoves(packet.data);
+
+                const profile = packet.data?.[0]?.profile;
+                const isAutoMove = getConfigValue(configKeys.autoMove, profile);
+                const isAutoMoveAfterUser = getConfigValue(configKeys.autoMoveAfterUser, profile);
+
+                if (isAutoMove && (!isAutoMoveAfterUser || matchFirstSuggestionGiven)) {
+                    const existingAutomoves = activeAutomoves.filter(x => x.move.active);
+
+                    // Stop all existing automoves
+                    for(const x of existingAutomoves) {
+                        x.move.stop();
+                    }
+
+                    const isLegit = getConfigValue(configKeys.autoMoveLegit, profile);
+                    const isRandom = getConfigValue(configKeys.autoMoveRandom, profile);
+
+                    const move = isRandom
+                        ? packet.data[Math.floor(Math.random() * Math.random() * packet.data.length)]?.player
+                        : packet.data[0]?.player;
+
+                    makeMove(move, isLegit);
+                }
+
+                matchFirstSuggestionGiven = true;
+
                 return true;
         }
     } catch(e) {
@@ -639,6 +675,8 @@ function getElemCoordinatesFromLeftBottomPercentages(elem) {
 function getElemCoordinatesFromLeftTopPixels(elem) {
     const pieceSize = getElementSize(elem);
 
+    lastPieceSize = pieceSize;
+
     const leftPixels = parseFloat(elem.style.left?.replace('px', ''));
     const topPixels = parseFloat(elem.style.top?.replace('px', ''));
 
@@ -679,7 +717,7 @@ function updateChesscomVariantPlayerColorsTable() {
 function getBoardDimensionsFromSize() {
     const boardDimensions = getElementSize(chessBoardElem);
 
-    lastBoardSize = getElementSize(chessBoardElem);
+    lastBoardSize = boardDimensions;
 
     const boardWidth = boardDimensions?.width;
     const boardHeight = boardDimensions.height;
@@ -719,6 +757,465 @@ function chessCoordinatesToIndex(coord) {
     }
 
     return [x, y];
+}
+
+/* Need to make the board matricies more cohesive, right now it's really confusing flipping them
+ * differently for each function. I just can't be bothered right now so please don't make fun of it.
+ * Thanks, Haka
+ * */
+
+function chessCoordinatesToMatrixIndex(coord) {
+    const [boardRanks, boardFiles] = getBoardDimensions();
+    const indexArr = chessCoordinatesToIndex(coord);
+
+    let x, y;
+
+    y = boardFiles - (indexArr[1] + 1);
+    x = indexArr[0];
+
+    return [x, y];
+}
+
+function chessCoordinatesToDomIndex(coord) {
+    const [boardRanks, boardFiles] = getBoardDimensions();
+    const indexArr = chessCoordinatesToIndex(coord);
+    const boardOrientation = getBoardOrientation();
+
+    let x, y;
+
+    if(boardOrientation === 'w') {
+        x = indexArr[0];
+        y = boardFiles - (indexArr[1] + 1);
+    } else {
+        x = boardRanks - (indexArr[0] + 1);
+        y = indexArr[1];
+    }
+
+    return [x, y];
+}
+
+function indexToChessCoordinates(coord) {
+    const [boardRanks, boardFiles] = getBoardDimensions();
+    const boardOrientation = getBoardOrientation();
+
+    const [x, y] = coord;
+    const file = String.fromCharCode('a'.charCodeAt(0) + x);
+
+    let rank;
+
+    if (boardOrientation === 'w') {
+        rank = boardRanks - y;
+    } else {
+        rank = boardRanks - y;
+    }
+
+    return `${file}${rank}`;
+}
+
+function isPawnPromotion(bestMove) {
+    const [fenCoordFrom, fenCoordTo] = bestMove;
+    const piece = getBoardPiece(fenCoordFrom);
+
+    if(typeof piece !== 'string' || piece.toLowerCase() !== 'p')
+        return false;
+
+    // Determine the row from the ending coordinate (assumes standard algebraic notation, e.g., 'e8')
+    const endingRow = parseInt(fenCoordTo[1], 10);
+
+    // Check if the pawn reaches the promotion row
+    if ((piece === 'P' && endingRow === (lastBoardFiles ?? 8)) || (piece === 'p' && endingRow === 1)) {
+        return true;
+    }
+
+    return false;
+}
+
+
+function fenCoordArrToDomCoord(fenCoordArr) {
+    // fenCoordArr e.g. ["e6", "e5"]
+
+    const boardClientRect = chessBoardElem.getBoundingClientRect();
+
+    const pieceElem = getPieceElem();
+    const pieceDimensions = getElementSize(pieceElem);
+    const pieceWidth = pieceDimensions?.width;
+    const pieceHeight = pieceDimensions?.height;
+
+    lastPieceSize = pieceDimensions;
+
+    const [boardRanks, boardFiles] = getBoardDimensions();
+
+    // Array to hold the center coordinates of each square
+    const centerCoordinates = fenCoordArr.map(coord => {
+        const [x, y] = chessCoordinatesToDomIndex(coord);
+
+        const centerX = boardClientRect.x + (x * pieceWidth) + (pieceWidth / 2);
+        const centerY = boardClientRect.y + (y * pieceHeight) + (pieceHeight / 2);
+
+        return [centerX, centerY];
+    });
+
+    return centerCoordinates;
+}
+
+function getRandomOwnPieceDomCoord(fenCoord, boardMatrix) {
+    const boardOrientation = getBoardOrientation();
+    let [x, y] = chessCoordinatesToMatrixIndex(fenCoord);
+
+    const pieceAtFenCoord = boardMatrix[y][x];
+
+    if(pieceAtFenCoord === 1) {
+        return null;
+    }
+
+    const isWhitePiece = pieceAtFenCoord === pieceAtFenCoord.toUpperCase();
+
+    const getDistance = (row1, col1, row2, col2) => {
+        return Math.abs(row1 - row2) + Math.abs(col1 - col2);
+    };
+
+    let candidatePieces = [];
+
+    // Loop through the board matrix to find all close own pieces
+    for(let row = 0; row < boardMatrix.length; row++) {
+        for(let col = 0; col < boardMatrix[row].length; col++) {
+            const currentPiece = boardMatrix[row][col];
+
+            // Skip if no piece is found or if the piece is of the wrong color
+            if(currentPiece === 1 || (isWhitePiece && currentPiece === currentPiece.toLowerCase()) || (!isWhitePiece && currentPiece === currentPiece.toUpperCase())) {
+                continue;
+            }
+
+            const distance = getDistance(y, x, row, col);
+
+            if(distance != 0) {
+                candidatePieces.push({ distance, coord: [col, row], piece: currentPiece });
+            }
+        }
+    }
+
+    if (candidatePieces.length > 0) {
+        // Choose a random piece from the candidates
+        const randomIndex = Math.floor(Math.random() * candidatePieces.length);
+        const chosenPiece = candidatePieces[randomIndex];
+
+        return fenCoordArrToDomCoord([indexToChessCoordinates(chosenPiece.coord)])[0];
+    }
+
+    return null;
+}
+
+function getPieceAmount() {
+    return getPieceElem(true)?.length ?? 0;
+}
+
+class AutomaticMove {
+    constructor(fenMoveArr, isLegit, callback) {
+        this.fenMoveArr = fenMoveArr;
+        this.isLegit = isLegit;
+
+        this.active = true;
+        this.isPromotingPawn = false;
+
+        this.onFinished = callback;
+
+        this.moveDomCoords = fenCoordArrToDomCoord(fenMoveArr);
+        this.isPromotion = isPawnPromotion(fenMoveArr);
+
+        if(this.isLegit) {
+            this.timeRanges = [
+                { minPieces: 30, maxPieces: Infinity, timeRange: [400, 800] }, // Opening (60+ pieces)
+                { minPieces: 23, maxPieces: 29, timeRange: [1000, 7000] },     // Early Middlegame (48 to 64 pieces)
+                { minPieces: 16, maxPieces: 22, timeRange: [1500, 10000] },    // Mid Middlegame (32 to 48 pieces)
+                { minPieces: 10, maxPieces: 15, timeRange: [1000, 7000] },     // Late Middlegame (16 to 32 pieces)
+                { minPieces: 6, maxPieces: 9, timeRange: [800, 3000] },       // Endgame (8 to 16 pieces)
+                { minPieces: 3, maxPieces: 5, timeRange: [500, 2000] },        // Very Endgame (2 to 8 pieces)
+                { minPieces: 1, maxPieces: 2, timeRange: [500, 1200] },         // Extremely Few Pieces (1 piece)
+            ];
+
+            this.shouldHesitate = this.isLegit && Math.random() < 1;
+            this.shouldHesitateTwice = this.isLegit && Math.random() < 0.5;
+
+            const legitTotalMoveTime = this.calculateMoveTime(getPieceAmount());
+            const elapsedMoveTime = (Date.now() - lastMoveRequestTime); // How long did it take for the engine to calculate the move
+            const remainingTime = Math.max(legitTotalMoveTime - elapsedMoveTime, 500);
+
+            const delays = this.generateDelaysForDesiredTime(remainingTime);
+
+            for(const key of Object.keys(delays)) {
+                this[key] = delays[key];
+            }
+        }
+
+        this.start();
+    }
+
+    generateDelaysForDesiredTime(desiredTotalTime) {
+        // Fixed minimum values
+        const PROMOTION_DELAY = this.getRandomIntegerBetween(1000, 1111); // just can't be done very fast for some reason at least on Chess.com
+
+        if(desiredTotalTime > 6000) {
+            const timelines = [
+                { move: .4, to: .2, hesitation: .15, hesitationResolve: .15, secondHesitationResolve: .15 },
+                { move: .1, to: .3, hesitation: .25, hesitationResolve: .15, secondHesitationResolve: .2 },
+                { move: .2, to: .25, hesitation: .2, hesitationResolve: .2, secondHesitationResolve: .15 }
+            ];
+
+            const timeline = timelines[Math.floor(Math.random() * timelines.length)];
+
+            return {
+                promotionDelay: PROMOTION_DELAY,
+                moveDelay: desiredTotalTime * timeline.move,
+                toSquareSelectDelay: desiredTotalTime * timeline.to,
+                hesitationDelay: desiredTotalTime * timeline.hesitation,
+                hesitationResolveDelay: desiredTotalTime * timeline.hesitationResolve,
+                secondHesitationResolveDelay: desiredTotalTime * timeline.secondHesitationResolve
+            };
+        }
+        // There is time for one hesitation
+        if(desiredTotalTime > 3000) {
+            const timelines = [
+                { move: .3, to: .2, hesitation: .25, hesitationResolve: .25 },
+                { move: .1, to: .3, hesitation: .45, hesitationResolve: .15 },
+                { move: .2, to: .25, hesitation: .2, hesitationResolve: .35 }
+            ];
+
+            const timeline = timelines[Math.floor(Math.random() * timelines.length)];
+
+            return {
+                promotionDelay: PROMOTION_DELAY,
+                moveDelay: desiredTotalTime * timeline.move,
+                toSquareSelectDelay: desiredTotalTime * timeline.to,
+                hesitationDelay: desiredTotalTime * timeline.hesitation,
+                hesitationResolveDelay: desiredTotalTime * timeline.hesitationResolve,
+                secondHesitationResolveDelay: -1
+            };
+        }
+        // There is not enough time to hesitate
+        else {
+            const timelines = [
+                { move: .9, to: .1 },
+                { move: .45, to: .55 },
+                { move: .6, to: .4 },
+                { move: .4, to: .6 },
+                { move: .1, to: .9 }
+            ];
+
+            const timeline = timelines[Math.floor(Math.random() * timelines.length)];
+
+            return {
+                promotionDelay: PROMOTION_DELAY,
+                moveDelay: desiredTotalTime * timeline.move,
+                toSquareSelectDelay: desiredTotalTime * timeline.to,
+                hesitationDelay: -1, hesitationResolveDelay: -1, secondHesitationResolveDelay: -1
+            };
+        }
+    }
+
+    calculateMoveTime(pieceCount) {
+        for(let range of this.timeRanges) {
+            if(pieceCount >= range.minPieces && pieceCount <= range.maxPieces) {
+                return this.getRandomIntegerBetween(range.timeRange[0], range.timeRange[1]);
+            }
+        }
+
+        return 500;
+    }
+
+    getRandomIntegerBetween(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    delay(ms) {
+        return this.active ? new Promise(resolve => setTimeout(resolve, ms)) : true;
+    }
+
+    triggerPieceClick(input, attemptNum = 0) {
+        const parentExists = activeAutomoves.find(x => x.move === this) ? true : false;
+
+        if(!parentExists && attemptNum > 3) {
+            return;
+        }
+
+        let clientX, clientY;
+
+        if (input instanceof Element) {
+            const rect = input.getBoundingClientRect();
+            clientX = rect.left + rect.width / 2;
+            clientY = rect.top + rect.height / 2;
+        } else if (typeof input === 'object') {
+            clientX = input[0];
+            clientY = input[1];
+        } else {
+            return;
+        }
+
+        const xDivider = Math.random() < 0.85 ? 4 : Math.random() < 0.15 ? 3 : 2;
+        const yDivider = Math.random() < 0.65 ? 3 : Math.random() < 0.35 ? 2 : 4;
+
+        const randomVariationX = (lastPieceSize?.width - 4) / xDivider;
+        const randomVariationY = (lastPieceSize?.height - 4) / yDivider;
+
+        const randomOffsetX = (Math.random() - 0.5) * 2 * randomVariationX;
+        const randomOffsetY = (Math.pow(Math.random(), 0.5) - 0.5) * 2 * randomVariationY;
+
+        const randomizedX = clientX + randomOffsetX;
+        const randomizedY = clientY + randomOffsetY;
+
+        const pointerEventOptions = {
+            bubbles: true,
+            cancelable: true,
+            clientX: randomizedX,
+            clientY: randomizedY,
+        };
+
+        const elementToTrigger = (input instanceof Element) ? input : document.elementFromPoint(clientX, clientY);
+
+        if (elementToTrigger) {
+            elementToTrigger.dispatchEvent(new PointerEvent("pointerdown", pointerEventOptions));
+            elementToTrigger.dispatchEvent(new PointerEvent("pointerup", pointerEventOptions));
+            elementToTrigger.dispatchEvent(new PointerEvent("pointermove", pointerEventOptions));
+        }
+
+        if(debugModeActivated) {
+            const dot = document.createElement('div');
+                  dot.style.position = 'absolute';
+                  dot.style.width = '7px';
+                  dot.style.height = '7px';
+                  dot.style.borderRadius = '50%';
+                  dot.style.backgroundColor = 'lime';
+                  dot.style.left = `${randomizedX - 2.5}px`;
+                  dot.style.top = `${randomizedY - 2.5}px`;
+
+            const container = document.createElement('div');
+                  container.style.position = 'absolute';
+                  container.style.width = `${Math.round(randomVariationX * 2)}px`;
+                  container.style.height = `${Math.round(randomVariationY * 2)}px`;
+                  container.style.border = '2px dashed green';
+                  container.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                  container.style.left = `${clientX - randomVariationX}px`;
+                  container.style.top = `${clientY - randomVariationY}px`;
+
+            document.body.appendChild(container);
+            document.body.appendChild(dot);
+
+            setTimeout(() => {
+                dot.remove();
+                container.remove();
+            }, 1000);
+        }
+    }
+
+    click(domCoord) {
+        if(this.active)
+            this.triggerPieceClick(domCoord);
+    }
+
+    async hesitate() {
+        const hesitationPieceDomCoord = getRandomOwnPieceDomCoord(this.fenMoveArr[0], getBoardMatrix());
+
+        await this.delay(this.hesitationDelay);
+
+        if(hesitationPieceDomCoord) {
+            this.click(hesitationPieceDomCoord);
+
+            await this.delay(this.hesitationResolveDelay);
+
+            if(this.shouldHesitateTwice && this.secondHesitationResolveDelay !== -1) {
+                const secondHesitationPieceDomCoord = getRandomOwnPieceDomCoord(this.fenMoveArr[0], getBoardMatrix());
+
+                this.click(secondHesitationPieceDomCoord);
+
+                await this.delay(this.secondHesitationResolveDelay);
+
+                this.click(this.moveDomCoords[0]);
+            } else {
+                this.click(this.moveDomCoords[0]);
+            }
+        }
+
+        this.finishMove();
+    }
+
+    async finishMove() {
+        await this.delay(this.toSquareSelectDelay);
+
+        this.click(this.moveDomCoords[1]);
+
+        // Handle promotion click if necessary
+        if(this.isPromotion) {
+            this.isPromotingPawn = true;
+
+            await this.delay(this.promotionDelay);
+
+            this.click(this.moveDomCoords[1]);
+
+            this.isPromotingPawn = false;
+        }
+
+        this.onFinished(true);
+    }
+
+    async playLegit() {
+        await this.delay(this.moveDelay);
+
+        this.click(this.moveDomCoords[0]);
+
+        if(this.shouldHesitate && this.hesitationDelay !== -1)
+            this.hesitate();
+        else
+            this.finishMove();
+    }
+
+    async playRage() {
+        this.click(this.moveDomCoords[0]);
+
+        await this.delay(5);
+
+        this.click(this.moveDomCoords[1]);
+
+        // Handle promotion click if necessary
+        if(this.isPromotion) {
+            this.isPromotingPawn = true;
+
+            await this.delay(5);
+
+            this.click(this.moveDomCoords[1]);
+
+            this.isPromotingPawn = false;
+        }
+    }
+
+    async start() {
+        if(this.isLegit) {
+            this.playRage();
+        } else {
+            this.playLegit();
+        }
+    }
+
+    async stop() {
+        if(this.isPromotingPawn) {
+            // Attempt to promote the pawn before closing
+            this.click(this.moveDomCoords[1]);
+        }
+
+        this.active = false;
+
+        this.onFinished(false);
+    }
+}
+
+async function makeMove(fenMoveArr, isLegit) {
+    const id = getUniqueID();
+
+    const move = new AutomaticMove(fenMoveArr, isLegit, () => {
+        // This is ran when the move finished
+
+        activeAutomoves.filter(x => x.id !== id); // remove the move from the active automove list
+    });
+
+    activeAutomoves.push({ id, move });
 }
 
 function getGmConfigValue(key, instanceID, profileID) {
@@ -986,65 +1483,73 @@ function isMutationNewMove(mutationArr) {
     return isNewMove || false;
 }
 
-function getFen(onlyBasic) {
+function getBoardMatrix() {
     const [boardRanks, boardFiles] = getBoardDimensions();
 
-    if(debugModeActivated) console.warn('getFen()', 'onlyBasic:', onlyBasic, 'Ranks:', boardRanks, 'Files:', boardFiles);
-
     const board = Array.from({ length: boardFiles }, () => Array(boardRanks).fill(1));
+    const pieceElems = getPieceElem(true);
+    const isValidPieceElemsArray = Array.isArray(pieceElems) || pieceElems instanceof NodeList;
 
-    function getBasicFen() {
-        const pieceElems = getPieceElem(true);
-        const isValidPieceElemsArray = Array.isArray(pieceElems) || pieceElems instanceof NodeList;
+    if(isValidPieceElemsArray) {
+        pieceElems.forEach(pieceElem => {
+            const pieceFenCode = getPieceElemFen(pieceElem);
+            const pieceCoordsArr = getPieceElemCoords(pieceElem);
 
-        if(isValidPieceElemsArray) {
-            pieceElems.forEach(pieceElem => {
-                const pieceFenCode = getPieceElemFen(pieceElem);
-                const pieceCoordsArr = getPieceElemCoords(pieceElem);
+            if(debugModeActivated) console.warn('pieceElem', pieceElem, 'pieceFenCode', pieceFenCode, 'pieceCoordsArr', pieceCoordsArr);
 
-                if(debugModeActivated) console.warn('pieceElem', pieceElem, 'pieceFenCode', pieceFenCode, 'pieceCoordsArr', pieceCoordsArr);
+            try {
+                const [xIdx, yIdx] = pieceCoordsArr;
 
-                try {
-                    const [xIdx, yIdx] = pieceCoordsArr;
-
-                    board[boardFiles - (yIdx + 1)][xIdx] = pieceFenCode;
-                } catch(e) {
-                    if(debugModeActivated) console.error(e);
-                }
-            });
-        }
-
-        return squeezeEmptySquares(board.map(x => x.join('')).join('/'));
+                board[boardFiles - (yIdx + 1)][xIdx] = pieceFenCode;
+            } catch(e) {
+                if(debugModeActivated) console.error(e);
+            }
+        });
     }
 
-    function getBoardPiece(fenCoord) {
-        const indexArr = chessCoordinatesToIndex(fenCoord);
+    lastBoardMatrix = board;
 
-        return board?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
-    }
+    return board;
+}
 
-    // Works on 8x8 boards only
-    function getRights() {
-        let rights = '';
+function getBoardPiece(fenCoord) {
+    const [boardRanks, boardFiles] = getBoardDimensions();
+    const indexArr = chessCoordinatesToIndex(fenCoord);
 
-        // check for white
-        const e1 = getBoardPiece('e1'),
-              h1 = getBoardPiece('h1'),
-              a1 = getBoardPiece('a1');
+    return getBoardMatrix()?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
+}
 
-        if(e1 == 'K' && h1 == 'R') rights += 'K';
-        if(e1 == 'K' && a1 == 'R') rights += 'Q';
+// Works on 8x8 boards only
+function getRights() {
+    let rights = '';
 
-        //check for black
-        const e8 = getBoardPiece('e8'),
-              h8 = getBoardPiece('h8'),
-              a8 = getBoardPiece('a8');
+    // check for white
+    const e1 = getBoardPiece('e1'),
+          h1 = getBoardPiece('h1'),
+          a1 = getBoardPiece('a1');
 
-        if(e8 == 'k' && h8 == 'r') rights += 'k';
-        if(e8 == 'k' && a8 == 'r') rights += 'q';
+    if(e1 == 'K' && h1 == 'R') rights += 'K';
+    if(e1 == 'K' && a1 == 'R') rights += 'Q';
 
-        return rights ? rights : '-';
-    }
+    //check for black
+    const e8 = getBoardPiece('e8'),
+          h8 = getBoardPiece('h8'),
+          a8 = getBoardPiece('a8');
+
+    if(e8 == 'k' && h8 == 'r') rights += 'k';
+    if(e8 == 'k' && a8 == 'r') rights += 'q';
+
+    return rights ? rights : '-';
+}
+
+function getBasicFen() {
+    const boardMatrix = getBoardMatrix();
+
+    return squeezeEmptySquares(boardMatrix.map(x => x.join('')).join('/'));
+}
+
+function getFen(onlyBasic) {
+    if(debugModeActivated) console.warn('getFen()', 'onlyBasic:', onlyBasic, 'Ranks:', boardRanks, 'Files:', boardFiles);
 
     const basicFen = getBasicFen();
 
@@ -1092,6 +1597,14 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
     if((fenChanged || bypassFenChangeDetection)) {
         if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
 
+        const pieceAmount = getPieceAmount();
+        const pieceAmountChange = Math.abs(pieceAmount - lastPieceAmount);
+
+        // Possibly new match due to large piece amount change
+        if(pieceAmountChange > 7) {
+            matchFirstSuggestionGiven = false;
+        }
+
         resetCachedValues();
 
         boardUtils.setBoardDimensions(getBoardDimensions());
@@ -1108,12 +1621,17 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
             resetCachedValues();
 
+            matchFirstSuggestionGiven = false;
+
             CommLink.commands.log(`Turn updated to ${playerColor}!`);
         }
 
         boardUtils.removeMarkings();
 
         CommLink.commands.updateBoardFen(currentFullFen);
+
+        lastMoveRequestTime = Date.now();
+        lastPieceAmount = pieceAmount;
 
         if(orientationChanged) {
             CommLink.commands.calculateBestMoves(currentFullFen);
@@ -2464,16 +2982,16 @@ function initializeIfSiteReady() {
     const firstPieceElem = getPieceElem();
 
     const bothElemsExist = boardElem && firstPieceElem;
+    const isChessComImageBoard = domain === 'chess.com' && boardElem?.className.includes('webgl-2d');
     const boardElemChanged = chessBoardElem != boardElem;
 
-    if(bothElemsExist && boardElemChanged) {
+    if((bothElemsExist || isChessComImageBoard) && boardElemChanged) {
         chessBoardElem = boardElem;
 
         chessBoardElem.addEventListener('mousedown', () => { isUserMouseDown = true; });
         chessBoardElem.addEventListener('mouseup', () => { isUserMouseDown = false; });
         chessBoardElem.addEventListener('touchstart', () => { isUserMouseDown = true; });
         chessBoardElem.addEventListener('touchend', () => { isUserMouseDown = false; });
-
 
         if(!blacklistedURLs.includes(window.location.href)) {
             startWhenBackendReady();

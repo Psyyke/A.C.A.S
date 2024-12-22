@@ -25,7 +25,11 @@ class BackendInstance {
             'secondaryArrowColorHex': 'secondaryArrowColorHex',
             'opponentArrowColorHex': 'opponentArrowColorHex',
             'reverseSide': 'reverseSide',
-            'engineEnabled': 'engineEnabled'
+            'engineEnabled': 'engineEnabled',
+            'autoMove': 'autoMove',
+            'autoMoveLegit': 'autoMoveLegit',
+            'autoMoveRandom': 'autoMoveRandom',
+            'autoMoveAfterUser': 'autoMoveAfterUser'
         };
 
         this.config = {};
@@ -72,7 +76,9 @@ class BackendInstance {
 
         this.activeEnginesAmount = 0;
         this.guiUpdaterActive = false;
-        this.variantNotSupportedByEngineAmount
+        this.variantNotSupportedByEngineAmount;
+
+        this.moveDiffHistory = [];
         
         this.profileVariables = class {
             constructor(t, profile) {
@@ -165,6 +171,7 @@ class BackendInstance {
                 return true;
             case 'updateBoardFen':
                 this.Interface.boardUtils.updateBoardFen(packet.data);
+
                 return true;
             case 'calculateBestMoves':
                 this.calculateBestMoves(packet.data);
@@ -322,7 +329,7 @@ class BackendInstance {
     
                     this.instanceElem.querySelector('.instance-fen').innerText = fen;
                     
-                    this.engineStopCalculating();
+                    this.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
                     this.Interface.boardUtils.removeMarkings();
             
                     Object.keys(this.pV).forEach(profileName => {
@@ -531,7 +538,7 @@ class BackendInstance {
         const chessVariant = formatVariant(variant);
 
         if(!this.isEngineNotCalculating(profile)) {
-            this.engineStopCalculating(profile);
+            this.engineStopCalculating(profile, 'Engine was calculating while a new game was started!');
         }
 
         this.sendMsgToEngine('ucinewgame', profile); // very important to be before setting variant and so forth
@@ -555,13 +562,13 @@ class BackendInstance {
         }
     }
 
-    engineStopCalculating(profile) {
+    engineStopCalculating(profile, reason) {
         function profileStopCalculating(t, p) {
             if(!t.isEngineNotCalculating(p)) {
                 clearTimeout(t.pV[p].currentMovetimeTimeout);
             }
     
-            console.error('STOP!');
+            console.error('STOP CALCULATION ORDERED!', 'Reason:', reason, 'Profile:', profile);
     
             t.sendMsgToEngine('stop', p);
         }
@@ -705,6 +712,8 @@ class BackendInstance {
             (countChange = 1)  -> piece has spawned
             (countChange > 1)  -> multiple pieces have spawned (possibly a new game?)
         */
+
+        console.warn('Piece amount change', countChange);
     
         // Large abnormal piece changes are allowed, as they usually mean something significant has happened
         // Smaller abnormal piece changes are most likely caused by a faulty newFen provided by the A.C.A.S on the site
@@ -735,7 +744,20 @@ class BackendInstance {
             (diff > 3) -> a lot of titles had changes, maybe a new game started, the change is significant so allowing it
         */
 
-        return diff === 2 || diff > 3;
+        this.moveDiffHistory.unshift(diff);
+        this.moveDiffHistory = this.moveDiffHistory.slice(0, 3);
+
+        console.warn('Board diff amount:', diff, 'History:', this.moveDiffHistory);
+
+        const isHistoryIndicatingTakeback = JSON.stringify(this.moveDiffHistory) === JSON.stringify([4, 2, 2]);
+        const isHistoryIndicatingPromotion = JSON.stringify(this.moveDiffHistory) === JSON.stringify([3, 1, 2]);
+
+        // Possible takeback, just run the calculations again
+        if(isHistoryIndicatingTakeback) {
+            this.calculateBestMoves(newFen, true);
+        }
+
+        return diff === 2 || diff > 3 || isHistoryIndicatingPromotion;
     }
 
     getTurnFromFenChange(lastFen, newFen, profile) {
@@ -797,8 +819,7 @@ class BackendInstance {
         return playerColor;
     }
 
-    async calculateBestMoves(currentFen) {
-
+    async calculateBestMoves(currentFen, skipValidityChecks) {
         getProfiles().filter(p => p.config.engineEnabled).forEach(profile => {
             profile = profile.name;
 
@@ -833,7 +854,7 @@ class BackendInstance {
             const isFenChanged = this.pV[profile].lastCalculatedFen !== currentFen
             const isFenChangeAllowed = !onlyCalculateOwnTurn || (correctAmountOfChanges && !isAbnormalPieceChange && isPlayerTurn)
     
-            if(isFenChanged && isFenChangeAllowed) {
+            if((isFenChanged && isFenChangeAllowed) || skipValidityChecks) {
                 this.pV[profile].lastCalculatedFen = currentFen;
             } else {
                 this.CommLink.commands.removeSiteMoveMarkings();
@@ -879,7 +900,7 @@ class BackendInstance {
     
                 this.pV[profile].currentMovetimeTimeout = setTimeout(() => {
                     if(startFen == this.currentFen && movetime != 0 && !this.isEngineNotCalculating(profile)) {
-                        this.engineStopCalculating(profile);
+                        this.engineStopCalculating(profile, 'Max movetime!');
                     }
                 }, movetime + 5);
             }
@@ -1423,7 +1444,7 @@ class BackendInstance {
             this.instanceReady = true;
 
             if(fen.includes('8/8/8/8/8/8/8/8') && this.domain === 'chess.com') {
-                toast.warning('Oh, the board seems to be empty. This is most likely caused by the site displaying the board as an image which A.C.A.S cannot parse.\n\nPlease disable "Piece Animations: Arcade" on Chess.com settings! (Set to "None")');
+                toast.error('Oh, the board seems to be empty. This is most likely caused by the site displaying the board as an image which A.C.A.S cannot parse.\n\nPlease disable "Piece Animations: Arcade" on Chess.com settings! (Set to "None")');
             }
 
             this.guiUpdater();

@@ -657,9 +657,9 @@ function initializeDropdown(dropdownElem) {
     inputElem.addEventListener('input', () => updateDropdown(false));
     iconElem.addEventListener('click', () => updateDropdown(true));
 
-    updateDropdown();
+    updateDropdown(true);
 
-    new MutationObserver(() => updateDropdown())
+    new MutationObserver(() => updateDropdown(true))
         .observe(listContainerElem, { childList: true, subtree: true });
 }
 

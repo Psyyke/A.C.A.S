@@ -13,6 +13,15 @@ if(typeof USERSCRIPT == 'undefined') {
     initializeDatabase();
     initGUI();
 
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    const hiddenSettingPanel = document.querySelector('#hidden-setting-panel');
+
+    if(urlParams.get('hidden') === 'true') {
+        hiddenSettingPanel.classList.remove('hidden');
+    }
+
     const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
         'singlePacketResponseWaitTime': 1500,
         'maxSendAttempts': 3,

@@ -1101,3 +1101,18 @@ cg-container {
 	display: flex !important;
     flex-direction: column-reverse !important;
 }
+.tos-reminder-setting-panel-item {
+    background-color: #8b000040;
+    border: 2px solid #ff000061;
+    color: white;
+    border-radius: 3px;
+    padding: 10px;
+    border-bottom: 4px solid #ff000061 !important;
+}
+.tos-reminder-setting-panel-item a {
+	text-decoration: none;
+    color: #ffc1c1;
+}
+.tos-reminder-setting-panel-item small {
+	color: grey;
+}
