@@ -351,10 +351,26 @@
 							<div class="input-subtitle">For Chess.com. Use only against bots</div></div><div class="checkbox-container">
 							<input type="checkbox" data-key="autoMove" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 						</div>
-						<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Legit Mode</div>
-							<div class="input-subtitle">Attempt to make Auto Move more legit</div></div><div class="checkbox-container">
-							<input type="checkbox" data-key="autoMoveLegit" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+						<div class="input-combination-box">
+							<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Legit Mode</div>
+								<div class="input-subtitle">Attempt to make Auto Move more legit</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="autoMoveLegit" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div id="legit-mode-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Legit Mode Type</div>
+								<div class="input-subtitle">What kind of player should Auto Move play</div></div><div class="dropdown-input-container">
+								<input type="text" additional-type="dropdown" data-key="legitModeType" data-default-value="casual" placeholder="Casual"><div class="dropdown-icon"></div>
+								<div class="dropdown-list-container">
+									<div class="dropdown-item" data-value="beginner">Beginner</div>
+									<div class="dropdown-item" data-value="casual">Casual</div>
+									<div class="dropdown-item" data-value="intermediate">Intermediate</div>
+									<div class="dropdown-item" data-value="advanced">Advanced</div>
+									<div class="dropdown-item" data-value="master">Master</div>
+									<div class="dropdown-item" data-value="master">Professional</div>
+									<div class="dropdown-item" data-value="god">God</div>
+								</div>
+							</div></div>
 						</div>
+
 						<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Random Mode</div>
 							<div class="input-subtitle">Play other moves than the best one</div></div><div class="checkbox-container">
 							<input type="checkbox" data-key="autoMoveRandom" data-default-value="false"><div class="checkbox-fill">✓</div></div>

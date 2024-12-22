@@ -29,7 +29,8 @@ class BackendInstance {
             'autoMove': 'autoMove',
             'autoMoveLegit': 'autoMoveLegit',
             'autoMoveRandom': 'autoMoveRandom',
-            'autoMoveAfterUser': 'autoMoveAfterUser'
+            'autoMoveAfterUser': 'autoMoveAfterUser',
+            'legitModeType': 'legitModeType'
         };
 
         this.config = {};

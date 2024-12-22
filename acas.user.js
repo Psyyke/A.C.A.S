@@ -300,7 +300,8 @@ const configKeys = {
     'autoMove': 'autoMove',
     'autoMoveLegit': 'autoMoveLegit',
     'autoMoveRandom': 'autoMoveRandom',
-    'autoMoveAfterUser': 'autoMoveAfterUser'
+    'autoMoveAfterUser': 'autoMoveAfterUser',
+    'legitModeType': 'legitModeType'
 };
 
 const config = {};
@@ -430,7 +431,7 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                         ? packet.data[Math.floor(Math.random() * Math.random() * packet.data.length)]?.player
                         : packet.data[0]?.player;
 
-                    makeMove(move, isLegit);
+                    makeMove(profile, move, isLegit);
                 }
 
                 matchFirstSuggestionGiven = true;
@@ -891,7 +892,7 @@ function getRandomOwnPieceDomCoord(fenCoord, boardMatrix) {
 
             const distance = getDistance(y, x, row, col);
 
-            if(distance != 0) {
+            if(distance < 6) {
                 candidatePieces.push({ distance, coord: [col, row], piece: currentPiece });
             }
         }
@@ -913,7 +914,8 @@ function getPieceAmount() {
 }
 
 class AutomaticMove {
-    constructor(fenMoveArr, isLegit, callback) {
+    constructor(profile, fenMoveArr, isLegit, callback) {
+        this.profile = profile;
         this.fenMoveArr = fenMoveArr;
         this.isLegit = isLegit;
 
@@ -926,18 +928,92 @@ class AutomaticMove {
         this.isPromotion = isPawnPromotion(fenMoveArr);
 
         if(this.isLegit) {
-            this.timeRanges = [
-                { minPieces: 30, maxPieces: Infinity, timeRange: [400, 800] }, // Opening (60+ pieces)
-                { minPieces: 23, maxPieces: 29, timeRange: [1000, 7000] },     // Early Middlegame (48 to 64 pieces)
-                { minPieces: 16, maxPieces: 22, timeRange: [1500, 10000] },    // Mid Middlegame (32 to 48 pieces)
-                { minPieces: 10, maxPieces: 15, timeRange: [1000, 7000] },     // Late Middlegame (16 to 32 pieces)
-                { minPieces: 6, maxPieces: 9, timeRange: [800, 3000] },       // Endgame (8 to 16 pieces)
-                { minPieces: 3, maxPieces: 5, timeRange: [500, 2000] },        // Very Endgame (2 to 8 pieces)
-                { minPieces: 1, maxPieces: 2, timeRange: [500, 1200] },         // Extremely Few Pieces (1 piece)
+            const legitModeType = getConfigValue(configKeys.legitModeType, this.profile) ?? 'casual';
+
+            const pieceRanges = [
+                { minPieces: 30, maxPieces: Infinity }, // Opening (60+ pieces)
+                { minPieces: 23, maxPieces: 29 },       // Early Middlegame (48 to 64 pieces)
+                { minPieces: 16, maxPieces: 22 },       // Mid Middlegame (32 to 48 pieces)
+                { minPieces: 10, maxPieces: 15 },       // Late Middlegame (16 to 32 pieces)
+                { minPieces: 6, maxPieces: 9 },         // Endgame (8 to 16 pieces)
+                { minPieces: 3, maxPieces: 5 },         // Very Endgame (2 to 8 pieces)
+                { minPieces: 1, maxPieces: 2 },         // Extremely Few Pieces (1 piece)
             ];
 
-            this.shouldHesitate = this.isLegit && Math.random() < 0.1;
-            this.shouldHesitateTwice = this.isLegit && Math.random() < 0.5;
+            const timeRanges = {
+                beginner: [
+                    [2000, 4000],
+                    [3000, 15000],
+                    [5000, 25000],
+                    [4000, 30000],
+                    [3000, 15000],
+                    [2000, 10000],
+                    [1000, 4000],
+                ],
+                casual: [
+                    [900, 3000],    // Opening
+                    [1000, 15000],  // Early Middlegame
+                    [3000, 20000],  // Mid Middlegame
+                    [2000, 13000],  // Late Middlegame
+                    [1500, 10000],  // Endgame
+                    [1000, 9000],   // Very Endgame
+                    [500, 3000],    // Extremely Few Pieces
+                ],
+                intermediate: [
+                    [750, 2000],
+                    [1000, 10000],
+                    [2000, 15000],
+                    [1500, 12000],
+                    [1000, 8000],
+                    [750, 7000],
+                    [500, 2000],
+                ],
+                advanced: [
+                    [500, 1500],
+                    [1000, 8000],
+                    [750, 8000],
+                    [750, 12000],
+                    [750, 5000],
+                    [750, 3000],
+                    [500, 1200],
+                ],
+                master: [
+                    [333, 999],
+                    [400, 2000],
+                    [400, 3000],
+                    [400, 2500],
+                    [400, 2000],
+                    [400, 1500],
+                    [333, 750],
+                ],
+                professional: [
+                    [333, 666],
+                    [333, 666],
+                    [333, 1000],
+                    [333, 1500],
+                    [333, 1000],
+                    [333, 666],
+                    [333, 666],
+                ],
+                god: [
+                    [50, 333],
+                    [50, 233],
+                    [50, 300],
+                    [50, 250],
+                    [50, 200],
+                    [50, 150],
+                    [50, 100],
+                ]
+            };
+
+            this.timeRanges = pieceRanges.map((range, index) => ({
+                ...range,
+                timeRange: timeRanges[legitModeType][index],
+            }));
+
+            this.shouldHesitate = this.isLegit && Math.random() < 0.15;
+            this.shouldHesitateTwice = this.isLegit && Math.random() < 0.25;
+            this.hesitationTypeOne = this.isLegit && Math.random() < 0.35;
 
             const legitTotalMoveTime = this.calculateMoveTime(getPieceAmount());
             const elapsedMoveTime = (Date.now() - lastMoveRequestTime); // How long did it take for the engine to calculate the move
@@ -1117,31 +1193,31 @@ class AutomaticMove {
     async hesitate() {
         const hesitationPieceDomCoord = getRandomOwnPieceDomCoord(this.fenMoveArr[0], getBoardMatrix());
 
-        await this.delay(this.hesitationDelay);
-
         if(hesitationPieceDomCoord) {
+            if(this.hesitationTypeOne) {
+                this.click(this.moveDomCoords[0]);
+                await this.delay(this.hesitationDelay);
+            }
+
             this.click(hesitationPieceDomCoord);
 
             await this.delay(this.hesitationResolveDelay);
 
             if(this.shouldHesitateTwice && this.secondHesitationResolveDelay !== -1) {
                 const secondHesitationPieceDomCoord = getRandomOwnPieceDomCoord(this.fenMoveArr[0], getBoardMatrix());
-
                 this.click(secondHesitationPieceDomCoord);
-
                 await this.delay(this.secondHesitationResolveDelay);
-
-                this.click(this.moveDomCoords[0]);
-            } else {
-                this.click(this.moveDomCoords[0]);
             }
         }
 
-        this.finishMove();
+        this.finishMove(this.toSquareSelectDelay, this.promotionDelay);
     }
 
-    async finishMove() {
-        await this.delay(this.toSquareSelectDelay);
+
+    async finishMove(delay01, delay02) {
+        this.click(this.moveDomCoords[0]);
+
+        await this.delay(delay01);
 
         this.click(this.moveDomCoords[1]);
 
@@ -1149,7 +1225,7 @@ class AutomaticMove {
         if(this.isPromotion) {
             this.isPromotingPawn = true;
 
-            await this.delay(this.promotionDelay);
+            await this.delay(delay02);
 
             this.click(this.moveDomCoords[1]);
 
@@ -1162,38 +1238,17 @@ class AutomaticMove {
     async playLegit() {
         await this.delay(this.moveDelay);
 
-        this.click(this.moveDomCoords[0]);
-
         if(this.shouldHesitate && this.hesitationDelay !== -1)
             this.hesitate();
         else
-            this.finishMove();
-    }
-
-    async playRage() {
-        this.click(this.moveDomCoords[0]);
-
-        await this.delay(5);
-
-        this.click(this.moveDomCoords[1]);
-
-        // Handle promotion click if necessary
-        if(this.isPromotion) {
-            this.isPromotingPawn = true;
-
-            await this.delay(5);
-
-            this.click(this.moveDomCoords[1]);
-
-            this.isPromotingPawn = false;
-        }
+            this.finishMove(this.toSquareSelectDelay, this.promotionDelay);
     }
 
     async start() {
         if(this.isLegit) {
             this.playLegit();
         } else {
-            this.playRage();
+            this.finishMove(5, 5);
         }
     }
 
@@ -1209,10 +1264,10 @@ class AutomaticMove {
     }
 }
 
-async function makeMove(fenMoveArr, isLegit) {
+async function makeMove(profile, fenMoveArr, isLegit) {
     const id = getUniqueID();
 
-    const move = new AutomaticMove(fenMoveArr, isLegit, () => {
+    const move = new AutomaticMove(profile, fenMoveArr, isLegit, () => {
         // This is ran when the move finished
 
         activeAutomoves.filter(x => x.id !== id); // remove the move from the active automove list
