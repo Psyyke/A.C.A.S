@@ -50,11 +50,12 @@
 // @match       https://chess.org/*
 // @match       https://papergames.io/*
 // @match       https://vole.wtf/kilobytes-gambit/
-// @match       https://chess.coolmath-games.com/*
+// @match       https://chess.coolmathgames.com/*
 // @match       https://www.coolmathgames.com/0-chess/*
 // @match       https://immortal.game/*
 // @match       https://chessarena.com/*
 // @match       http://chess.net/*
+// @match       https://chess.net/*
 // @match       https://www.freechess.club/*
 // @match       https://*chessclub.com/*
 // @match       https://gameknot.com/*
@@ -78,10 +79,12 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.3
+// @version     2.2.4
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
+// @downloadURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Cheat%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.user.js
+// @updateURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Cheat%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.meta.js
 // ==/UserScript==
 
 /*
@@ -1188,9 +1191,9 @@ class AutomaticMove {
 
     async start() {
         if(this.isLegit) {
-            this.playRage();
-        } else {
             this.playLegit();
+        } else {
+            this.playRage();
         }
     }
 
@@ -2155,9 +2158,9 @@ addSupportedChessSite('chess.org', {
     }
 });
 
-addSupportedChessSite('chess.coolmath-games.com', {
+addSupportedChessSite('chess.coolmathgames.com', {
     'boardElem': obj => {
-        return document.querySelector('.cg-board');
+        return document.querySelector('cg-board');
     },
 
     'pieceElem': obj => {
@@ -2171,7 +2174,7 @@ addSupportedChessSite('chess.coolmath-games.com', {
     'boardOrientation': obj => {
         const boardElem = getBoardElem();
 
-        return boardElem.classList?.contains('orientation-black') ? 'b' : 'w';
+        return document.querySelector('.ranks.black') ? 'b' : 'w';
     },
 
     'pieceElemFen': obj => {
@@ -2190,7 +2193,11 @@ addSupportedChessSite('chess.coolmath-games.com', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        return getElemCoordinatesFromLeftBottomPercentages(pieceElem?.parentElement);
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
     },
 
     'boardDimensions': obj => {
@@ -2212,7 +2219,7 @@ addSupportedChessSite('chess.coolmath-games.com', {
 
 addSupportedChessSite('papergames.io', {
     'boardElem': obj => {
-        return document.querySelector('#chess_board');
+        return document.querySelector('.cm-chessboard');
     },
 
     'pieceElem': obj => {
