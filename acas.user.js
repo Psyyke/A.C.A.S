@@ -83,8 +83,6 @@
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
-// @downloadURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Cheat%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.user.js
-// @updateURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Cheat%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.meta.js
 // ==/UserScript==
 
 /*
@@ -1150,10 +1148,19 @@ class AutomaticMove {
 
         const elementToTrigger = (input instanceof Element) ? input : document.elementFromPoint(clientX, clientY);
 
-        if (elementToTrigger) {
-            elementToTrigger.dispatchEvent(new PointerEvent("pointerdown", pointerEventOptions));
-            elementToTrigger.dispatchEvent(new PointerEvent("pointerup", pointerEventOptions));
-            elementToTrigger.dispatchEvent(new PointerEvent("pointermove", pointerEventOptions));
+        if(elementToTrigger) {
+            switch(domain) {
+                case 'chess.com':
+                    elementToTrigger.dispatchEvent(new PointerEvent('pointerdown', pointerEventOptions));
+                    elementToTrigger.dispatchEvent(new PointerEvent('pointerup', pointerEventOptions));
+
+                    break;
+                case 'lichess.org':
+                    elementToTrigger.dispatchEvent(new MouseEvent('mousedown', pointerEventOptions));
+                    elementToTrigger.dispatchEvent(new MouseEvent('mouseup', pointerEventOptions));
+
+                    break;
+            }
         }
 
         if(debugModeActivated) {
@@ -1607,8 +1614,6 @@ function getBasicFen() {
 }
 
 function getFen(onlyBasic) {
-    if(debugModeActivated) console.warn('getFen()', 'onlyBasic:', onlyBasic, 'Ranks:', boardRanks, 'Files:', boardFiles);
-
     const basicFen = getBasicFen();
 
     if(debugModeActivated) console.warn('basicFen', basicFen);
