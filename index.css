@@ -52,13 +52,13 @@ cg-container {
 	height: 100% !important;
 }
 #footer {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 15px 20px 20px;
-	background-color: rgb(0 0 0 / 70%);
-	height: fit-content;
-	z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 20px 75px;
+    background-color: rgb(0 0 0 / 70%);
+    height: fit-content;
+    z-index: 2;
 }
 .footer-small-text {
 	color: rgb(255 255 255 / 10%);
@@ -110,7 +110,7 @@ cg-container {
 #acas-logo-img {
 	width: 100px;
 	position: absolute;
-	opacity: 0.2;
+	opacity: 0.1;
 }
 #acas-logo-text-container {
 	z-index: 1;
@@ -121,9 +121,10 @@ cg-container {
 	font-weight: 300;
 }
 #acas-logo-main {
-	display: flex;
-	align-items: flex-start;
-	font-stretch: ultra-expanded;
+    display: flex;
+    align-items: flex-start;
+    font-stretch: ultra-expanded;
+    font-weight: 700;
 }
 #acas-logo-secondary {
 	font-size: 15px;
@@ -863,22 +864,21 @@ cg-container {
 	transform: scale(1.05);
 }
 #footer-links {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
-	align-content: center;
-	grid-gap: 10px;
-	font-size: 16px;
-	margin-bottom: 5px;
-	font-weight: 200;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    grid-gap: 15px;
+    font-size: 18px;
+    margin-bottom: 5px;
+    font-weight: 200;
 }
 .footer-link {
 	text-decoration: none;
 	text-transform: uppercase;
 	color: rgb(255 255 255 / 20%);
-	text-decoration: underline;
 }
 .footer-link:hover {
 	text-decoration: underline;
@@ -891,6 +891,11 @@ cg-container {
 	font-size: 16px;
 	color: grey;
 	align-items: flex-end;
+}
+#acas-is-free-reminder {
+	font-size: 15px;
+    font-weight: 500;
+    color: #ededed;
 }
 #acas-is-free-reminder .acas-social-actions {
 	display: flex;
