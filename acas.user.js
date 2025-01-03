@@ -299,7 +299,8 @@ const configKeys = {
     'autoMoveLegit': 'autoMoveLegit',
     'autoMoveRandom': 'autoMoveRandom',
     'autoMoveAfterUser': 'autoMoveAfterUser',
-    'legitModeType': 'legitModeType'
+    'legitModeType': 'legitModeType',
+    'moveDisplayDelay': 'moveDisplayDelay'
 };
 
 const config = {};

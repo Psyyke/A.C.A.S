@@ -30,7 +30,8 @@ class BackendInstance {
             'autoMoveLegit': 'autoMoveLegit',
             'autoMoveRandom': 'autoMoveRandom',
             'autoMoveAfterUser': 'autoMoveAfterUser',
-            'legitModeType': 'legitModeType'
+            'legitModeType': 'legitModeType',
+            'moveDisplayDelay': 'moveDisplayDelay'
         };
 
         this.config = {};
@@ -863,7 +864,7 @@ class BackendInstance {
                 return;
             }
 
-            this.pV[profile].pendingCalculations.push({ 'fen': currentFen, 'finished': false });
+            this.pV[profile].pendingCalculations.push({ 'fen': currentFen, 'startedAt': Date.now(), 'finished': false });
     
             this.Interface.boardUtils.removeMarkings(profile);
     
@@ -958,6 +959,24 @@ class BackendInstance {
         return this.pV[profile].pendingCalculations.find(x => !x.finished) ? false : true;
     }
 
+    displayMoves(moveObjects, profile) {
+        const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
+
+        this.Interface.boardUtils.markMoves(moveObjects, profile);
+
+        if(displayMovesExternally) {
+            this.CommLink.commands.markMoveToSite(moveObjects);
+        }
+
+        moveObjects.forEach(moveObj => {
+            const spokenText = moveObj.player?.map(x =>
+                x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
+            ).join(', ');
+
+            this.speak(spokenText, profile);
+        });
+    }
+
     engineMessageHandler(msg, profile) {
         const data = parseUCIResponse(msg);
         const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
@@ -1003,14 +1022,19 @@ class BackendInstance {
                 moves = [...moves, [null, null]];
 
             const [[from, to], [opponentFrom, opponentTo]] = moves;
-
             const moveObj = { 'player': [from, to], 'opponent': [opponentFrom, opponentTo], profile, ranking };
 
             this.pV[profile].pastMoveObjects.push(moveObj);
 
             const isMovetimeLimited = this.getConfigValue(this.configKeys.maxMovetime, profile) ? true : false;
             const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
-            const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
+            const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+            const moveDisplayDelay = this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
+            const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
+
+            const topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
+            const calculationStartedAt = oldestUnfinishedCalcRequestObj?.startedAt;
+            const calculationTimeElapsed = Date.now() - calculationStartedAt;
             
             let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
@@ -1018,23 +1042,12 @@ class BackendInstance {
                 isSearchInfinite = this.pV[profile].engineNodes > 9e6 ? true : false;
             }
 
-            const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
-            const topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
-
-            if(topMoveObjects.length === markingLimit && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited))) {
-                this.Interface.boardUtils.markMoves(topMoveObjects, profile);
-
-                topMoveObjects.forEach(moveObj => {
-                    const spokenText = moveObj.player?.map(x =>
-                        x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
-                    ).join(', ');
-
-                    this.speak(spokenText, profile);
-                });
-
-                if(displayMovesExternally) {
-                    this.CommLink.commands.markMoveToSite(topMoveObjects);
-                }
+            if(
+                topMoveObjects.length === markingLimit
+                && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited)) // handle infinite search, cannot only show top moves when search is infinite
+                && (!isDelayActive || (calculationTimeElapsed > moveDisplayDelay)) // handle visual delay, do not show move if time elapsed is too low
+            ) {
+                this.displayMoves(topMoveObjects, profile);
             }
         }
 
@@ -1043,8 +1056,8 @@ class BackendInstance {
 
             if(isMessageForCurrentFen && this.pV[profile].activeGuiMoveMarkings.length === 0) {
                 const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
-                const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
-
+                const moveDisplayDelay = this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
+                const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
                 let topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
 
                 if(topMoveObjects?.length === 0) {
@@ -1052,19 +1065,17 @@ class BackendInstance {
                     topMoveObjects.push({ 'player': [data.bestmove.slice(0,2), data.bestmove.slice(2, data.bestmove.length)], 'opponent': [null, null], 'ranking': 1  });
                 }
 
-                this.Interface.boardUtils.markMoves(topMoveObjects, profile);
+                if(isDelayActive) {
+                    const startFen = this.currentFen;
 
-                if(displayMovesExternally) {
-                    this.CommLink.commands.markMoveToSite(topMoveObjects);
+                    setTimeout(() => {
+                        if(startFen == this.currentFen && this.isEngineNotCalculating(profile)) {
+                            this.displayMoves(topMoveObjects, profile);
+                        }
+                    }, moveDisplayDelay);
+                } else {
+                    this.displayMoves(topMoveObjects, profile);
                 }
-
-                topMoveObjects.forEach(moveObj => {
-                    const spokenText = moveObj.player?.map(x =>
-                        x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
-                    ).join(', ');
-
-                    this.speak(spokenText, profile);
-                });
             }
         }
 
