@@ -75,6 +75,7 @@ class BackendInstance {
         this.environmentSetupRun = false;
 
         this.lastOrientation = null;
+        this.lastTurn = null;
 
         this.activeEnginesAmount = 0;
         this.guiUpdaterActive = false;
@@ -588,7 +589,17 @@ class BackendInstance {
         const playerColor = this.getPlayerColor(profile);
         const turn = this.getTurnFromFenChange(lastFen, currentFen, profile);
 
-        console.error('Turn: ', turn);
+        if(this.lastTurn === turn) {
+            console.error('For some reason the turn was the same two times in a row, forcing turn to player!');
+
+            this.lastTurn = playerColor;
+
+            return true;
+        } else {
+            console.warn('Turn: ', turn);
+
+            this.lastTurn = turn;
+        }
 
         return !playerColor || turn == playerColor;
     }

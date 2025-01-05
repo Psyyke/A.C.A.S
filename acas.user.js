@@ -79,7 +79,7 @@
 // @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
 // @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.4
+// @version     2.2.5
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -914,6 +914,11 @@ function getPieceAmount() {
 
 class AutomaticMove {
     constructor(profile, fenMoveArr, isLegit, callback) {
+        this.id = getUniqueID();
+        
+        // activeAutomoves is an external variable, not a child of AutomaticMove
+        activeAutomoves.push({ 'id': this.id, 'move': this });
+
         this.profile = profile;
         this.fenMoveArr = fenMoveArr;
         this.isLegit = isLegit;
@@ -921,7 +926,13 @@ class AutomaticMove {
         this.active = true;
         this.isPromotingPawn = false;
 
-        this.onFinished = callback;
+        this.onFinished = function(...args) {
+            activeAutomoves.filter(x => x.id !== this.id); // remove the move from the active automove list
+
+            this.active = false;
+
+            callback(...args);
+        };
 
         this.moveDomCoords = fenCoordArrToDomCoord(fenMoveArr);
         this.isPromotion = isPawnPromotion(fenMoveArr);
@@ -1104,20 +1115,29 @@ class AutomaticMove {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    getRandomIntegerNearAverage(min, max) {
+        const mid = (min + max) / 2;
+        const range = (max - min) / 2;
+        
+        let value = Math.floor(mid + (Math.random() - 0.5) * range * 1.5);
+        
+        return Math.max(min, Math.min(max, value));
+    }
+
     delay(ms) {
         return this.active ? new Promise(resolve => setTimeout(resolve, ms)) : true;
     }
 
-    triggerPieceClick(input, attemptNum = 0) {
+    async triggerPieceClick(input) {
         const parentExists = activeAutomoves.find(x => x.move === this) ? true : false;
 
-        if(!parentExists && attemptNum > 3) {
+        if(!parentExists) {
             return;
         }
 
         let clientX, clientY;
 
-        if (input instanceof Element) {
+        if(input instanceof Element) {
             const rect = input.getBoundingClientRect();
             clientX = rect.left + rect.width / 2;
             clientY = rect.top + rect.height / 2;
@@ -1153,11 +1173,25 @@ class AutomaticMove {
             switch(domain) {
                 case 'chess.com':
                     elementToTrigger.dispatchEvent(new PointerEvent('pointerdown', pointerEventOptions));
+
+                    if(this.isLegit) await this.delay(this.getRandomIntegerNearAverage(35, 125));
+
                     elementToTrigger.dispatchEvent(new PointerEvent('pointerup', pointerEventOptions));
 
                     break;
                 case 'lichess.org':
                     elementToTrigger.dispatchEvent(new MouseEvent('mousedown', pointerEventOptions));
+
+                    if(this.isLegit) await this.delay(this.getRandomIntegerNearAverage(35, 125));
+
+                    elementToTrigger.dispatchEvent(new MouseEvent('mouseup', pointerEventOptions));
+
+                    break;
+                case 'chessarena.com':
+                    elementToTrigger.dispatchEvent(new MouseEvent('mousedown', pointerEventOptions));
+
+                    if(this.isLegit) await this.delay(this.getRandomIntegerNearAverage(35, 125));
+
                     elementToTrigger.dispatchEvent(new MouseEvent('mouseup', pointerEventOptions));
 
                     break;
@@ -1256,7 +1290,7 @@ class AutomaticMove {
         if(this.isLegit) {
             this.playLegit();
         } else {
-            this.finishMove(5, 5);
+            this.finishMove(5, 1111);
         }
     }
 
@@ -1266,22 +1300,16 @@ class AutomaticMove {
             this.click(this.moveDomCoords[1]);
         }
 
-        this.active = false;
-
         this.onFinished(false);
     }
 }
 
 async function makeMove(profile, fenMoveArr, isLegit) {
-    const id = getUniqueID();
-
-    const move = new AutomaticMove(profile, fenMoveArr, isLegit, () => {
+    const move = new AutomaticMove(profile, fenMoveArr, isLegit, e => {
         // This is ran when the move finished
-
-        activeAutomoves.filter(x => x.id !== id); // remove the move from the active automove list
+        
+        if(debugModeActivated) console.warn('Move', fenMoveArr, move.id, 'finished', 'for profile:', profile);
     });
-
-    activeAutomoves.push({ id, move });
 }
 
 function getGmConfigValue(key, instanceID, profileID) {
@@ -1468,8 +1496,6 @@ function getSiteData(dataType, obj) {
 
     const result = dataHandlerFunction(dataObj);
 
-    //if(debugModeActivated) console.warn('GET_SITE_DATA', '| DATA_TYPE:', dataType, '| INPUT_OBJ:', obj, '| DATA_OBJ:', dataObj, '| RESULT:', result);
-
     return result;
 }
 
@@ -1561,7 +1587,7 @@ function getBoardMatrix() {
             const pieceFenCode = getPieceElemFen(pieceElem);
             const pieceCoordsArr = getPieceElemCoords(pieceElem);
 
-            if(debugModeActivated) console.warn('pieceElem', pieceElem, 'pieceFenCode', pieceFenCode, 'pieceCoordsArr', pieceCoordsArr);
+            //if(debugModeActivated) console.warn('pieceElem', pieceElem, 'pieceFenCode', pieceFenCode, 'pieceCoordsArr', pieceCoordsArr);
 
             try {
                 const [xIdx, yIdx] = pieceCoordsArr;
@@ -1704,8 +1730,6 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 }
 
 function observeNewMoves() {
-    let lastProcessedFen = null;
-
     const boardObserver = new MutationObserver(mutationArr => {
         if(debugModeActivated) console.log(mutationArr);
 
@@ -1713,13 +1737,17 @@ function observeNewMoves() {
         {
             if(debugModeActivated) console.warn('Mutation is a new move:', mutationArr);
 
-            if(domain === 'chess.org')
-            {
-                setTimeout(() => onNewMove(mutationArr), 250);
-            }
-            else
-            {
-                onNewMove(mutationArr);
+            try {
+                if(domain === 'chess.org' || domain === 'chessarena.com')
+                {
+                    setTimeout(() => onNewMove(mutationArr), 250);
+                }
+                else
+                {
+                    onNewMove(mutationArr);
+                }
+            } catch(e) {
+                if(debugModeActivated) console.error('Error while running onNewMove:', e);
             }
         }
     });

@@ -20,6 +20,16 @@ if(typeof USERSCRIPT == 'undefined') {
 
     if(urlParams.get('hidden') === 'true') {
         hiddenSettingPanel.classList.remove('hidden');
+
+    // Disable certain settings if no hidden param found
+    } else {
+        const autoMoveCheckbox = document.querySelector('input[data-key="autoMove"]');
+
+        if(autoMoveCheckbox?.checked) {
+            autoMoveCheckbox.click();
+        }
+
+        console.log(autoMoveCheckbox.checked);
     }
 
     const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
