@@ -334,6 +334,13 @@ cg-container {
     text-shadow: 0px 4px 0px #000;
     margin: 10px 0 10px;
 }
+#install-subtitle {
+    font-size: 20px;
+    font-weight: 600;
+    font-stretch: ultra-expanded;
+    text-shadow: 0px 4px 0px #000;
+    margin: 5px 0 5px;
+}
 .install-subtitle {
 	font-size: 20px;
 	margin: 30px 0 10px;
@@ -464,6 +471,36 @@ cg-container {
 }
 .install-userscript-btn:hover {
     background-image: linear-gradient(rgb(79 205 76),rgb(80, 138, 79));
+}
+#install-mobile-container {
+	background-color: #0000005e;
+    padding: 10px;
+	display: none;
+}
+#install-buttons-mobile {
+	display: flex;
+	grid-gap: 5px;
+    background-color: #0000005e;
+    padding: 10px;
+}
+@media (pointer:none), (pointer:coarse) {
+	#install-mobile-container {
+		display: block;
+	}
+}
+.install-kiwi-btn {
+	background-color: rgb(63 92 116);
+	background-image: linear-gradient(rgb(68 165 182), rgb(64 82 121));
+}
+.install-kiwi-btn:hover {
+    background-image: linear-gradient(rgb(79, 191, 211), rgb(48, 68, 110));
+}
+.install-ios-btn {
+	background-color: rgb(229 229 229);
+    background-image: linear-gradient(rgb(187 187 187), rgb(119 119 119));
+}
+.install-ios-btn:hover {
+    background-image: linear-gradient(rgb(206, 206, 206)rgb(99, 97, 97));
 }
 .violentmonkey-btn {
     background-color: #625638;
