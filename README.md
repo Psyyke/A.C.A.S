@@ -22,7 +22,7 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 
 ## Example Gameplay
 
-https://github.com/user-attachments/assets/2a62fe2c-c855-40ba-9e97-1195a337d5d9
+https://github.com/user-attachments/assets/e7a5e9bc-0e39-47c0-82ee-c4d1608ae661
 
 <img src="https://github.com/Psyyke/A.C.A.S/assets/76921756/af4af26b-d5e9-4502-ac6a-8921d34c3cfa" alt="example-gameplay"/>
 
