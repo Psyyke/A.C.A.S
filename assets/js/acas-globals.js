@@ -230,13 +230,19 @@ function getProfileNames() {
 
     if(profilesObj) return Object.keys(profilesObj);
 
+    console.error('Could not found profile names!', { ...settingFilterObj, configDatabaseKey, config });
+
     return false;
 }
 
 function getProfiles() {
     const profileNameArr = getProfileNames();
     
-    if(!profileNameArr) return false;
+    if(!profileNameArr) {
+        console.error('getProfiles() failed, did not find any profile names!');
+
+        return [];
+    }
 
     const profileArr = profileNameArr.map(profileName => getProfile(profileName));
 

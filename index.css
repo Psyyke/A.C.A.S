@@ -21,7 +21,7 @@
 		display: none !important;
 	}
 }
-@media (max-width: 400px) {
+@media (max-width: 550px) {
 	#acas-is-free-reminder span {
 		display: none !important;
 	}
