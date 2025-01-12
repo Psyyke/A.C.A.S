@@ -103,7 +103,7 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/psy
 > Make sure there are no additional folders which would make the URL like `http://localhost/A.C.A.S/A.C.A.S/`.
 
 > [!TIP]
-> You can show hidden features by adding `?hidden=true`. These features will not receive updates, for only developers.
+> You can show hidden features by adding `?hidden=true`. For only developers, no updates guaranteed.
 
 > [!TIP]
 > You can use [GitHub Desktop](https://desktop.github.com/) to make Git actions such as cloning easy.
