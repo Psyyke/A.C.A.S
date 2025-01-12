@@ -23,14 +23,15 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 
 Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system), open the [A.C.A.S GUI](https://psyyke.github.io/A.C.A.S/) and a supported chess game site. Then, just start playing!
 
+> [!IMPORTANT]
+> You need to keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
+
+
 ## Example Gameplay
 
 ### Beating hard bots (Chess.com)
 
 https://github.com/user-attachments/assets/790c91cd-f64b-4d27-b264-9080630b1029
-
-> [!IMPORTANT]
-> You need to keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
 
 ## Fundamental Idea
 
