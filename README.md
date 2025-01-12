@@ -125,7 +125,9 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 
 ![GIF of two engines playing](https://github.com/user-attachments/assets/40e78bf2-b695-44df-9ef8-490e42df7c97)
 
-### A.C.A.S supports lots of games at once
+### A.C.A.S is powerful and supports lots of games at once
+
+#### (Example has 8 engines running at the same time at 2500 ELO)
 
 ![GIF of A.C.A.S playing 4 games at once](https://github.com/user-attachments/assets/a7013e48-bee0-44c3-910c-3d6643b968ec)
 
