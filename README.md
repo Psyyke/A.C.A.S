@@ -7,7 +7,6 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 
 ![277160104-791ad4ef-96c8-4679-ad78-e1188c73d5e4](https://github.com/Psyyke/A.C.A.S/assets/76921756/406c49ec-24dd-4b96-9fc4-4db1cc1fe205)
 
-
 * No anti-features (*e.g. ads, tracking*)
 * WebAssembly chess engine (faster than regular JavaScript engines)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
@@ -20,16 +19,15 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 | [▶️ Open A.C.A.S](https://psyyke.github.io/A.C.A.S/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|
 
-## Example Gameplay
-
-https://github.com/user-attachments/assets/790c91cd-f64b-4d27-b264-9080630b1029
-
-<img src="https://github.com/Psyyke/A.C.A.S/assets/76921756/af4af26b-d5e9-4502-ac6a-8921d34c3cfa" alt="example-gameplay"/>
-
-
 ## Getting Started
 
 Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system), open the [A.C.A.S GUI](https://psyyke.github.io/A.C.A.S/) and a supported chess game site. Then, just start playing!
+
+## Example Gameplay
+
+### Beating hard bots (Chess.com)
+
+https://github.com/user-attachments/assets/790c91cd-f64b-4d27-b264-9080630b1029
 
 > [!IMPORTANT]
 > You need to keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
@@ -82,7 +80,7 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/psy
 > - The browser and the userscript manager you were using.
 > - What did you do for the bug to happen, does it happen often? How could I reproduce it?
 > - You can also include a screenshot of the browser console (e.g. `CTRL + SHIFT + I` or right click, inspect, and go to the console tab), look for **grey underlined text** at the beginning of a red background area, on the right side of the screen, which has the word 'A.C.A.S'. That's an error from the userscript.
-
+> - 
 ## Development
 
 ### A.C.A.S GUI
@@ -108,6 +106,21 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 
 > [!NOTE]
 > Browsers might cache userscripts after you've refreshed the site enough times. If you notice your userscript being cached, disable the userscript, refresh the page, then enable the userscript and refresh the page again.
+
+## More examples
+
+### Playing Xiangqi (Chinese Chess), Playstrategy.org
+
+![GIF of a different chess variant](https://github.com/Psyyke/A.C.A.S/assets/76921756/af4af26b-d5e9-4502-ac6a-8921d34c3cfa)
+
+### Two A.C.A.S's engines playing against each other, Freechess.club
+
+![GIF of two engines playing](https://github.com/user-attachments/assets/40e78bf2-b695-44df-9ef8-490e42df7c97)
+
+### A.C.A.S supports lots of games at once
+
+![GIF of A.C.A.S playing 4 games at once](https://github.com/user-attachments/assets/a7013e48-bee0-44c3-910c-3d6643b968ec)
+
 
 ## Used Libraries
 
