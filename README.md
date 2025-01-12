@@ -73,6 +73,10 @@ Before making an issue, please read these and also join the [Userscript Hub](htt
 
 - Make sure you did NOT set "Piece Animations" to "Arcade" on Chess.com board settings! Set the "Piece Animations" to "None" so that A.C.A.S can parse the board correctly.
 
+- If A.C.A.S complains having no userscript even though it is installed, press down the "shift" key, and then click your browser's refresh button to perform a hard refresh, hopefully clearing the wrongly cached state.
+
+- Nothing is helping? Restart your PC. Try Violentmonkey and a Chromium based browser, such as Brave. Use the default config. Keep two windows open at the same time next to each other, one having the GUI and one the chess site.
+
 Otherwise, it could be a bug, please make an issue [here](https://github.com/psyyke/A.C.A.S/issues/new). 
 
 > [!NOTE]
@@ -81,7 +85,7 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/psy
 > - The browser and the userscript manager you were using.
 > - What did you do for the bug to happen, does it happen often? How could I reproduce it?
 > - You can also include a screenshot of the browser console (e.g. `CTRL + SHIFT + I` or right click, inspect, and go to the console tab), look for **grey underlined text** at the beginning of a red background area, on the right side of the screen, which has the word 'A.C.A.S'. That's an error from the userscript.
-> - 
+
 ## Development
 
 ### A.C.A.S GUI
@@ -97,6 +101,9 @@ Otherwise, it could be a bug, please make an issue [here](https://github.com/psy
 
 > [!WARNING]
 > Make sure there are no additional folders which would make the URL like `http://localhost/A.C.A.S/A.C.A.S/`.
+
+> [!TIP]
+> You can show hidden features by adding `?hidden=true`. These features will not receive updates and are only for developers.
 
 > [!TIP]
 > You can use [GitHub Desktop](https://desktop.github.com/) to make Git actions such as cloning easy.
@@ -122,6 +129,11 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 
 ![GIF of A.C.A.S playing 4 games at once](https://github.com/user-attachments/assets/a7013e48-bee0-44c3-910c-3d6643b968ec)
 
+## Miscellaneous
+
+You can find the userscript on [GreasyFork](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) as well.
+
+You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S). It is no longer updated.
 
 ## Used Libraries
 
@@ -137,13 +149,7 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 
 * [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
-
+* 
 ## Contact
 
 Discussion about A.C.A.S can be had on the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server.
-
-## Other
-
-You can find the userscript on [GreasyFork](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) as well.
-
-You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S). It is no longer updated.
