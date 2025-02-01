@@ -105,5 +105,6 @@
         "instanceConnectionTermination": "Instance terminée en raison d'une perte de connexion.",
         "calculationDepth": "Profondeur",
         "thankYouTranslator": "Merci aux traducteurs !"
-    }
+    },
+    "contributors": ["@PikPakPik"]
 }
