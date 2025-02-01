@@ -15,7 +15,7 @@
 	}, 1000);
 
 	function getFlagPath(languageCode) {
-		return `http://localhost/A.C.A.S/assets/images/flags/${languageCode}.svg`;
+		return `assets/images/flags/${languageCode}.svg`;
 	}
 
 	function initializeLanguageDropdown(dropdownElem) {
