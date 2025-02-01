@@ -22,8 +22,8 @@
                 if (tabSwitchCount >= tabSwitchThreshold) {
                     tabSwitchCount = 0;
 
-                    toast.warning("Warning: Excessive tab switching detected. Continued switching may result in a ban."
-                    + "\n\nTo avoid needing to switch between tabs, do one of the following,\n- Make two separate windows side by side\n- Display moves on the page (this is easily detectable)", 25000);
+                    const msg = transObj?.excessiveTabChangeWarning;
+                    toast.warning(msg, 25000);
                 }
 
                 lastSwitchTime = currentTime;

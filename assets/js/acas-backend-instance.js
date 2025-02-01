@@ -428,6 +428,11 @@ class BackendInstance {
 
             this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
 
+            const skillLevelMsg = transObj?.engineSkillLevel ?? 'Engine skill level';
+            const searchDepthMsg = transObj?.engineSearchDepth ?? 'Search depth';
+            const engineNotLimitedSkillLevel = transObj?.engineNotLimitedSkillLevel ?? "Engine's skill level not limited";
+            const engineNoLimitations = transObj?.engineNoLimitations ?? 'Engine has no strength limitations, running infinite depth!';
+            
             if(limitStrength) {
                 this.setEngineLimitStrength(true, profile);
     
@@ -437,8 +442,9 @@ class BackendInstance {
                 const depth = getDepthFromElo(elo);
                 this.pV[profile].searchDepth = depth;
 
-                if(didUserUpdateSetting)
-                    toast.message(`Engine skill level ${skillLevel}, search depth ${depth}`, 8000);
+                if(didUserUpdateSetting) {
+                    toast.message(`${skillLevelMsg} ${skillLevel} | ${searchDepthMsg} ${depth}`, 8000);
+                }
             } else {
                 this.setEngineLimitStrength(false, profile);
 
@@ -449,12 +455,12 @@ class BackendInstance {
                     this.pV[profile].searchDepth = depth;
 
                     if(didUserUpdateSetting)
-                        toast.message(`Engine not limited in strength, search depth ${depth}`, 8000);
+                        toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
 
                     if(didUserUpdateSetting)
-                        toast.message(`Engine has no strength limitations, running infinite depth!`, 8000);
+                        toast.message(engineNoLimitations, 8000);
                 }
             }
         }
@@ -462,7 +468,8 @@ class BackendInstance {
 
     setEngineNodes(nodeAmount, profile) {
         if(this.pV[profile].lc0WeightName.includes('maia') && nodeAmount !== 1) {
-            toast.warning('Maia weights work best with no search, please only use one (1) search node!', 30000);
+            const msg = transObj?.maiaNodeWarning ?? 'Maia weights work best with no search, please only use one (1) search node!';
+            toast.warning(msg, 30000);
         }
 
         this.pV[profile].engineNodes = nodeAmount;
@@ -486,6 +493,18 @@ class BackendInstance {
     setEngineMultiPV(amount, profile) {
         if(typeof amount == 'number') {
             this.sendMsgToEngine(`setoption name MultiPV value ${amount}`, profile);
+        }
+    }
+
+    setEngineThreads(amount, profile) {
+        if(typeof amount == 'number') {
+            this.sendMsgToEngine(`setoption name Threads value ${amount}`, profile);
+        }
+    }
+    
+    setEngineHashSize(amount, profile) {
+        if(typeof amount == 'number') {
+            this.sendMsgToEngine(`setoption name Hash value ${amount}`, profile);
         }
     }
 
@@ -589,7 +608,7 @@ class BackendInstance {
         const playerColor = this.getPlayerColor(profile);
         const turn = this.getTurnFromFenChange(lastFen, currentFen, profile);
 
-        if(this.lastTurn === turn) {
+        if(this.lastTurn === turn && this.domain === 'chessarena.com') {
             console.error('For some reason the turn was the same two times in a row, forcing turn to player!');
 
             this.lastTurn = playerColor;
@@ -1006,13 +1025,17 @@ class BackendInstance {
         if(msg.includes('info')) {
             if(data?.multipv === '1') {
                 if(data?.depth) {
+                    const depthText = transObj?.calculationDepth ?? 'Depth';
+                    const winningText = transObj?.winning ?? 'Winning';
+                    const losingText = transObj?.losing ?? 'Losing';
+
                     if(data?.mate) {
                         const isWinning = data.mate > 0;
-                        const mateText = `${isWinning ? 'Win' : 'Lose'} in ${Math.abs(data.mate)}`;
+                        const mateText = `${isWinning ? winningText : losingText} ${Math.abs(data.mate)}`;
 
-                        this.Interface.updateMoveProgress(`${mateText} | Depth ${data.depth}`, isWinning ? 1 : 2);
+                        this.Interface.updateMoveProgress(`${mateText} | ${depthText} ${data.depth}`, isWinning ? 1 : 2);
                     } else {
-                        this.Interface.updateMoveProgress(`Depth ${data.depth}`, 0);
+                        this.Interface.updateMoveProgress(`${depthText} ${data.depth}`, 0);
                     }
                 }
     
@@ -1106,7 +1129,8 @@ class BackendInstance {
     async loadEngine(profile) {
         if(!window?.SharedArrayBuffer) // COI failed to enable SharedArrayBuffer, loading basic web worker engine
         {
-            toast.error(`FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!`, 1e9);
+            const msg = transObj?.failedToEnableBuffer ?? 'FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!';
+            toast.error(msg, 1e9);
         } else {
             const msgHandler = msg => {
                 try {
@@ -1245,13 +1269,17 @@ class BackendInstance {
             if(this.activeEnginesAmount !== lastActiveEnginesAmount || this.variantNotSupportedByEngineAmount !== lastVariantNotSupportedByEngineAmount) {
                 const correctedActiveAmount = this.activeEnginesAmount - this.variantNotSupportedByEngineAmount;
 
+                const engineWord = transObj?.engineWord ?? 'engine';
+                const enginesWord = transObj?.enginesWord ?? 'engines';
+                const variantNotSupportedMsg = transObj?.variantNotSupported ?? 'Variant not supported';
+
                 if(correctedActiveAmount == this.activeEnginesAmount) {
-                    newInfoStr += ` (${this.activeEnginesAmount} engine${this.activeEnginesAmount > 1 ? 's' : ''})`;
+                    newInfoStr += ` (${this.activeEnginesAmount} ${this.activeEnginesAmount > 1 ? enginesWord : engineWord})`;
                 }
                 else if(correctedActiveAmount > 0) {
-                    newInfoStr += ` (${correctedActiveAmount}/${this.activeEnginesAmount} engine${correctedActiveAmount > 1 ? 's' : ''})`;
+                    newInfoStr += ` (${correctedActiveAmount}/${this.activeEnginesAmount} ${correctedActiveAmount > 1 ? enginesWord : engineWord})`;
                 } else {
-                    newInfoStr += ` (Variant not supported)`;
+                    newInfoStr += ` (${variantNotSupportedMsg})`;
                 }
             }
 
@@ -1284,7 +1312,8 @@ class BackendInstance {
                     variant = profileVariant;
 
                 if(!warnedAboutOnlyOwnTurn && variant != 'chess' && this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName)) {
-                    toast.warning(`"Only Own Turn" setting might not work for variants! (todo)`, 5000);
+                    const msg = transObj?.ownTurnMightNotWorkVariants ?? "'Only Own Turn' setting might not work for variants!"
+                    toast.warning(`${msg} (todo)`, 5000);
 
                     warnedAboutOnlyOwnTurn = true;
                 }
@@ -1321,8 +1350,8 @@ class BackendInstance {
                 acasInstanceElem.innerHTML = `
                 <div class="highlight-indicator hidden"></div>
                 <div class="connection-warning hidden">
-                    <div class="connection-warning-title">Losing connection</div>
-                    <div class="connection-warning-subtitle">Revisit the page to reconnect 👁️</div>
+                    <div class="connection-warning-title">${transObj?.losingConnection ?? 'Losing connection'}</div>
+                    <div class="connection-warning-subtitle">${transObj?.revisitReconnect ?? 'Revisit the page to reconnect'} 👁️</div>
                 </div>
                 <div class="instance-header">
                     <style class="instance-styling">
@@ -1340,17 +1369,17 @@ class BackendInstance {
                     </style>
                     <div class="instance-basic-info">
                         <div class="instance-basic-info-title">
-                            <div class="instance-variant" title="Instance Chess Variant"></div>
+                            <div class="instance-variant" title="${transObj?.instanceVariant ?? 'Instance Chess Variant'}"></div>
                             <div class="instance-additional-info"></div>
                         </div>
-                        <div class="instance-domain" title="Instance Domain"></div>
+                        <div class="instance-domain" title="${transObj?.instanceDomain ?? 'Instance Domain'}"></div>
                         <div class="instance-fen-container">
-                            <div class="instance-fen-btn acas-fancy-button">Show Fen</div>
-                            <div class="instance-fen hidden" title="Instance Fen"></div>
+                            <div class="instance-fen-btn acas-fancy-button">${transObj?.showFenBtn ?? 'Show FEN'}</div>
+                            <div class="instance-fen hidden" title="${transObj?.instanceFen ?? 'Instance Fen'}"></div>
                         </div>
                     </div>
                     <div class="instance-misc">
-                        <div class="instance-settings-btn acas-fancy-button" title="Open Instance Settings">⚙️</div>
+                        <div class="instance-settings-btn acas-fancy-button" title="${transObj?.openInstanceSettingsBtn ?? 'Open Instance Settings'}">⚙️</div>
                         <div class="instance-info-text"></div>
                     </div>
                 </div>
@@ -1373,12 +1402,12 @@ class BackendInstance {
             showFenBtn.onclick = function() {
                 instanceFenElem.classList.toggle('hidden');
 
-                const didHide = showFenBtn.innerText.includes('Show');
+                const didHide = [...instanceFenElem.classList].includes('hidden');
 
                 if(didHide) {
-                    showFenBtn.innerText = showFenBtn.innerText.replace('Show', 'Hide');
+                    showFenBtn.innerText = transObj?.showFenBtn ?? 'Show FEN';
                 } else {
-                    showFenBtn.innerText = showFenBtn.innerText.replace('Hide', 'Show');
+                    showFenBtn.innerText = transObj?.hideFenBtn ?? 'Hide FEN';
                 }
             }
 
@@ -1467,7 +1496,8 @@ class BackendInstance {
             this.instanceReady = true;
 
             if(fen.includes('8/8/8/8/8/8/8/8') && this.domain === 'chess.com') {
-                toast.error('Oh, the board seems to be empty. This is most likely caused by the site displaying the board as an image which A.C.A.S cannot parse.\n\nPlease disable "Piece Animations: Arcade" on Chess.com settings! (Set to "None")');
+                const msg = transObj?.emptyBoardChesscomWarning ?? 'Oh, the board seems to be empty. This is most likely caused by the site displaying the board as an image which A.C.A.S cannot parse.\n\nPlease disable "Piece Animations: Arcade" on Chess.com settings! (Set to "None")';
+                toast.error(msg);
             }
 
             this.guiUpdater();

@@ -28,8 +28,6 @@ if(typeof USERSCRIPT == 'undefined') {
         if(autoMoveCheckbox?.checked) {
             autoMoveCheckbox.click();
         }
-
-        console.log(autoMoveCheckbox.checked);
     }
 
     const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {

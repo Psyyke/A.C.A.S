@@ -216,14 +216,16 @@ function fillTTSVoiceNameDropdown() {
 
 function createNewProfile() {
     while(true) {
-        const profileName = prompt('Enter the profile name: ');
+        const msg = transObj?.profileNamePrompt ?? 'Enter the profile name:';
+        const profileName = prompt(`${msg} `);
 
         if(!profileName) break;
         
         const nameExists = [...profileDropdown.querySelectorAll('.dropdown-item')].find(elem => elem.dataset.value === formatProfileName(profileName));
 
         if(nameExists) {
-            alert('That name already exists!');
+            const msg = transObj?.profileNameExists ?? 'That name already exists!';
+            alert(msg);
         }
 
         if(profileName.length > 0 && !nameExists) {
@@ -262,7 +264,9 @@ function fillProfileDropdown() {
 }
 
 function deleteProfile() {
-    if(confirm('Are you sure you want to remove this profile?\n\nThis action cannot be reversed.')) {
+    const warningText = transObj?.profileRemovalWarning ?? 'Are you sure you want to remove this profile?\n\nThis action cannot be reversed.';
+
+    if(confirm(warningText)) {
         const profileName = document.querySelector('input[data-key="chessEngineProfile"]').value;
 
         removeDropdownItem(profileDropdown, profileName);
@@ -509,12 +513,15 @@ function importSettings() {
 
                     console.log('Successfully imported settings from a config file!');
 
-                    toast.success('Successfully imported settings from a config file!', 5000);
+                    const msg = transObj?.configImportSuccess ?? 'Successfully imported settings from a config file!';
+                    toast.success(msg, 5000);
                 } else {
-                    toast.error('Invalid config file, missing "global" or "instance" keys!', 15000);
+                    const msg = transObj?.configInvalidError ?? 'Invalid config file, missing "global" or "instance" keys!';
+                    toast.error(msg, 15000);
                 }
                 } catch (error) {
-                    toast.error(`Error while loading config!\n\nError parsing JSON: ${error}`, 30000);
+                    const msg = transObj?.configUnknownError ?? `Error while loading config!`;
+                    toast.error(`${msg}\n\n${error}`, 30000);
                 }
             };
 
@@ -522,7 +529,8 @@ function importSettings() {
         } 
         
         else {
-            toast.error(`Wrong file type loaded, the config needs to be a .json file!`, 30000);
+            const msg = transObj?.configInvalidFiletype ?? `Wrong file type loaded, the config needs to be a .json file!`;
+            toast.error(msg, 30000);
         }
     };
     
@@ -542,9 +550,9 @@ function exportSettings() {
 }
 
 async function resetSettings() {
-    const confirmed = confirm('Are you sure you want to reset settings?\n\nDANGER: This action is irreversable and will reset your whole config!');
+    const warningText = transObj?.settingsResetWarning ?? 'Are you sure you want to reset settings?\n\nDANGER: This action is irreversable and will reset your whole config!';
 
-    if(confirmed) {
+    if(confirm(warningText)) {
         const config = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig);
 
         config.global = {};
@@ -555,8 +563,6 @@ async function resetSettings() {
         toggleSelected(settingsNavbarGlobalElem);
 
         location.reload();
-
-        toast.success(`Config reseted successfully!`, 10000);
     }
 }
 
@@ -701,7 +707,8 @@ function initGUI() {
                     saveSetting(elem);
 
                     if(e?.target?.dataset?.key === 'displayMovesOnExternalSite') {
-                        toast.create('message', '👁‍🗨', `Refresh the external site to see changes!`, 2000);
+                        const msg = transObj?.refreshSiteNotification ?? 'Refresh the external site to see changes!';
+                        toast.create('message', '👁‍🗨', msg, 2000);
                     }
                 } else {
                     removeSetting(elem);

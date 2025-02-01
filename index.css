@@ -34,6 +34,10 @@
 	#acas-is-free-reminder .github-button {
 		display: block !important;
 	}
+	#install-buttons {
+		flex-direction: column-reverse !important;
+		align-items: flex-start !important;
+	}
 }
 body {
 	font-family: "Mona Sans";
@@ -61,8 +65,8 @@ cg-container {
     z-index: 2;
 }
 .footer-small-text {
-	color: rgb(255 255 255 / 10%);
-	font-size: 12px;
+	color: rgb(255 255 255 / 30%);
+	font-size: 15px;
 	font-weight: 300;
 	text-align: center;
 }
@@ -85,7 +89,11 @@ cg-container {
 	height: 50px;
 	display: flex;
 	justify-content: space-between;
-	z-index: 5;
+    z-index: 1000;
+    position: sticky;
+    top: 0;
+	backdrop-filter: blur(10px);
+	border-bottom: 4px solid rgb(0 0 0 / 35%);
 }
 #acas-logo {
 	font-size: 30px;
@@ -322,6 +330,29 @@ cg-container {
 #install-buttons {
     display: flex;
     grid-gap: 5px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+#install-buttons-inner-container {
+	display: flex;
+	grid-gap: 5px;
+}
+#install-buttons .dropdown-input-container {
+    background-color: #00000069;
+    border-color: rgb(0 0 0);
+}
+#install-buttons .dropdown-input-container img {
+	width: 30px;
+	height: 30px;
+	background-color: rgb(0 0 0 / 0%);
+	color: rgb(255 255 255 / 75%);
+	font-size: var(--settings-input-font-size);
+	border: none;
+	padding: 7px;
+	text-transform: capitalize;
+	font-weight: 500;
+	font-family: unset;
+	border-radius: 16px;
 }
 .install-description-small {
 	color: rgb(255 255 255 / 50%);
@@ -333,6 +364,7 @@ cg-container {
     font-stretch: ultra-expanded;
     text-shadow: 0px 4px 0px #000;
     margin: 10px 0 10px;
+	text-transform: uppercase;
 }
 #install-subtitle {
     font-size: 20px;
@@ -421,6 +453,30 @@ cg-container {
     margin-bottom: 20px;
     text-shadow: 0px 2px 0px #000;
 }
+@media (max-width: 600px) {
+	.tos-link {
+		font-size: 14px;
+	}
+}
+@media (max-width: 400px) {
+	#tos-title {
+		font-size: 30px;
+	}
+    .tos-description {
+        font-size: 15px;
+    }
+	.tos-link {
+		font-size: 12px;
+	}
+}
+@media (max-width: 300px) {
+	#tos-title {
+		font-size: 20px;
+	}
+    .tos-description {
+        font-size: 10px;
+    }
+}
 .tos-description-small {
 	color: rgb(255 255 255 / 50%);
 	font-size: 15px;
@@ -435,7 +491,8 @@ cg-container {
 	display: inline-block;
 	color: white;
 	text-decoration: none;
-	background-color: #3b6238;
+	background-color: #ffffff10;
+	border-bottom: 1px solid #447941;
 }
 .tos-checkbox-container {
 	font-size: 20px;
@@ -458,6 +515,11 @@ cg-container {
 }
 #tos-continue-button:active {
 	transform: scale(0.9);
+	margin-bottom: 10px;
+	transform: translateY(10px) !important;
+}
+#tos-continue-button:hover {
+	transform: scale(1);
 }
 #tos-continue-button.active {
 	background-color: #38723e;
@@ -639,8 +701,8 @@ cg-container {
 #settings-navbar-subtitle {
     margin-top: 10px;
     font-size: 15px;
-    color: rgb(111 111 111);
-    font-weight: 600;
+    font-weight: 400;
+    color: rgb(255 255 255 / 50%);
 }
 #settings-header {
     height: fit-content;
@@ -908,7 +970,7 @@ cg-container {
     align-items: center;
     align-content: center;
     grid-gap: 15px;
-    font-size: 18px;
+    font-size: 21px;
     margin-bottom: 5px;
     font-weight: 200;
 }
@@ -1152,9 +1214,12 @@ cg-container {
     border-bottom: 4px solid #ff000061 !important;
 }
 .tos-reminder-setting-panel-item a {
-	text-decoration: none;
-    color: #ffc1c1;
+    text-decoration: none;
+    color: #ffeaea;
+    border-bottom: 2px solid #ff00004a;
+    background-color: #ffffff05;
 }
-.tos-reminder-setting-panel-item small {
-	color: grey;
+.tos-reminder-setting-panel-item small, 
+.tos-reminder-setting-panel-item span {
+    color: grey;
 }

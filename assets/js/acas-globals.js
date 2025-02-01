@@ -1,6 +1,8 @@
 const repositoryURL = 'https://github.com/Psyyke/A.C.A.S'; // old relics, not in use
 const repositoryRawURL = null; // old relics, not in use
 
+let transObj = null; // set by acas-i18n-processor.js
+
 const log = {
     info: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67a9ef;'),
     success: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67f08a;')
@@ -465,6 +467,19 @@ function setIntervalAsync(callback, interval) {
     loop();
 
     return { stop: () => running = false };
+}
+
+async function waitForElement(selector, maxWaitTime = 10000000) {
+    const startTime = Date.now();
+    while (Date.now() - startTime < maxWaitTime) {
+        const element = document.querySelector(selector);
+        if (element) {
+            return element;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before checking again
+    }
+    console.warn(`Element ${selector} not found after ${maxWaitTime / 1000} seconds`);
+    return null;
 }
 
 async function loadFileAsUint8Array(url) {

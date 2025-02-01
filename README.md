@@ -151,7 +151,7 @@ You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/O
 
 * [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
-* 
+
 ## Contact
 
 Discussion about A.C.A.S can be had on the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server.

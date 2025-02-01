@@ -6,7 +6,8 @@ function createInstance(domain, instanceID, chessVariant) {
     chessVariant = formatVariant(chessVariant); // important
 
     if(!instanceExists) {
-        toast.message(`Received new instance request from ${domain}!`, 2000);
+        const msg = transObj?.newInstanceRequest ?? 'New match found!';
+        toast.message(`${msg} (${domain})`, 2000);
 
         instances.push({
             'domain': domain,
@@ -70,7 +71,8 @@ setInterval(() => {
 
         if(instanceAgeMs > 4000) {
             if(instanceAgeMs > 10000) {
-                toast.warning(`Terminated instance from ${instanceObj.domain} due to lost connection.\n\nUnexpected? Visit the ${instanceObj.domain} tab to reactivate A.C.A.S.`, 5000);
+                const warningMsg = transObj?.instanceConnectionTermination ?? 'Terminated instance due to lost connection.\n\nUnexpected? Visit the tab to reactivate A.C.A.S.';
+                toast.warning(`${warningMsg} (${instanceObj.domain})`, 5000);
 
                 instanceObj.instance.close();
             } else {
