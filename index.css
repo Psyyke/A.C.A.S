@@ -31,6 +31,9 @@
 	#acas-is-free-reminder .discord-button {
 		display: none !important;
 	}
+	#acas-is-free-reminder .soundcloud-button {
+		display: none !important;
+	}
 	#acas-is-free-reminder .github-button {
 		display: block !important;
 	}
@@ -1047,6 +1050,14 @@ cg-container {
 }
 .discord-button:hover {
 	background-color: #434bc4;
+}
+.soundcloud-button {
+	color: #C9D1D9;
+    background-color: #8d3e00;
+    border: 2px solid #a94b00;
+}
+.soundcloud-button:hover {
+	background-color: #ac4d00;
 }
 #userscript-info-small {
 	text-transform: capitalize;
