@@ -1053,11 +1053,11 @@ cg-container {
 }
 .soundcloud-button {
 	color: #C9D1D9;
-    background-color: #8d3e00;
+    background-color: #723100;
     border: 2px solid #a94b00;
 }
 .soundcloud-button:hover {
-	background-color: #ac4d00;
+	background-color: #8a3e00;
 }
 #userscript-info-small {
 	text-transform: capitalize;
