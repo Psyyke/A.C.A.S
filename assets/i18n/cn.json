@@ -34,7 +34,7 @@
         "#install-title": "未检测到用户脚本",
         ".violentmonkey-btn": "获取 Violentmonkey",
         ".install-userscript-btn": "安装用户脚本",
-        "#install-mobile-container.install-subtitle": "移动用户可以尝试这些 ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "移动用户可以尝试这些 ♡ ⤵",
         "*[data-translation-random-gift]": "随机礼物",
         "*[data-translation-special-deals]": "感谢使用 A.C.A.S，您有资格获得新的特价优惠！",
         "*[data-translation-get-my-deals]": "获取我的优惠",

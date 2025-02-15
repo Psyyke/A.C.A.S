@@ -34,7 +34,7 @@
         "#install-title": "KHÔNG PHÁT HIỆN USERSCRIPT",
         ".violentmonkey-btn": "Tải Violentmonkey",
         ".install-userscript-btn": "Cài đặt Userscript",
-        "#install-mobile-container.install-subtitle": "Người dùng di động có thể thử những điều này ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Người dùng di động có thể thử những điều này ♡ ⤵",
         "*[data-translation-random-gift]": "Quà ngẫu nhiên",
         "*[data-translation-special-deals]": "Cảm ơn bạn đã sử dụng A.C.A.S, bạn đủ điều kiện nhận các ưu đãi đặc biệt mới!",
         "*[data-translation-get-my-deals]": "Lấy ưu đãi của tôi",

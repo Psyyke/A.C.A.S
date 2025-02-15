@@ -41,6 +41,18 @@
 		flex-direction: column-reverse !important;
 		align-items: flex-start !important;
 	}
+	.acas-offer {
+		overflow-y: auto !important;
+	}
+	.acas-offer::after {
+		top: 0 !important;
+		right: 0 !important;
+	}
+	.product::before {
+		font-size: 35px !important;
+		top: -20px !important;
+		left: -20px !important;
+	}
 	.acas-offer .disclaimer {
 		display: none !important;
 	}
@@ -381,16 +393,12 @@ cg-container {
     margin: 10px 0 10px;
 	text-transform: uppercase;
 }
-#install-subtitle {
+.install-subtitle {
     font-size: 20px;
     font-weight: 600;
     font-stretch: ultra-expanded;
     text-shadow: 0px 4px 0px #000;
     margin: 5px 0 5px;
-}
-.install-subtitle {
-	font-size: 20px;
-	margin: 30px 0 10px;
 }
 .install-notification-btn {
     display: inline-block;
@@ -428,16 +436,16 @@ cg-container {
 	margin: 10px 0 10px;
 }
 #tos-container {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	justify-content: center;
-	align-content: center;
-	align-items: center;
-	position: absolute;
-	z-index: 9999999999;
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 9999999999;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 #tos {
     width: 100%;
@@ -449,6 +457,7 @@ cg-container {
     border: 2px solid rgb(81 150 109);
     border-bottom-width: 5px;
     border-radius: 4px;
+	overflow-y: auto;
 }
 #tos-title {
 	font-size: 40px;
@@ -1258,6 +1267,7 @@ cg-container {
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(5px);
+	-webkit-backdrop-filter: blur(5px);
 }
 .acas-offer {
     display: flex;
@@ -1279,10 +1289,10 @@ cg-container {
     right: -25px;
     font-size: 50px;
 }
-.acas-offer::before {
+.product::before {
     content: "✨";
     position: absolute;
-    bottom: -25px;
+    top: -25px;
     left: -25px;
     font-size: 50px;
 }
@@ -1386,6 +1396,7 @@ cg-container {
     border-bottom-width: 5px;
     border-right-width: 3px;
     color: black;
+	position: relative;
 }
 .product .container {
     display: flex;
@@ -1448,4 +1459,9 @@ cg-container {
     margin: 10px 0 10px;
     cursor: pointer;
     background-color: #840000;
+}
+#install-buttons .small-buttons {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }

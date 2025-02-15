@@ -34,7 +34,7 @@
         "#install-title": "GEEN USERSCRIPT GEDETECTEERD",
         ".violentmonkey-btn": "Krijg Violentmonkey",
         ".install-userscript-btn": "Installeer Userscript",
-        "#install-mobile-container.install-subtitle": "Mobiele gebruikers kunnen deze proberen ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Mobiele gebruikers kunnen deze proberen ♡ ⤵",
         "*[data-translation-random-gift]": "Willekeurig cadeau",
         "*[data-translation-special-deals]": "Bedankt voor het gebruik van A.C.A.S, je komt in aanmerking voor nieuwe speciale aanbiedingen!",
         "*[data-translation-get-my-deals]": "Mijn aanbiedingen verkrijgen",

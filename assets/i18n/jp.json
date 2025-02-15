@@ -34,7 +34,7 @@
         "#install-title": "ユーザースクリプトが検出されませんでした",
         ".violentmonkey-btn": "Violentmonkeyを取得",
         ".install-userscript-btn": "ユーザースクリプトをインストール",
-        "#install-mobile-container.install-subtitle": "モバイルユーザーはこちらをお試しください ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "モバイルユーザーはこちらをお試しください ♡ ⤵",
         "*[data-translation-random-gift]": "ランダムギフト",
         "*[data-translation-special-deals]": "A.C.A.Sをご利用いただきありがとうございます。新しい特別オファーの対象です！",
         "*[data-translation-get-my-deals]": "私のオファーを取得",

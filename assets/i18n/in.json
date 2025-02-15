@@ -34,7 +34,7 @@
         "#install-title": "कोई उपयोगकर्ता स्क्रिप्ट नहीं पाई गई",
         ".violentmonkey-btn": "Violentmonkey प्राप्त करें",
         ".install-userscript-btn": "उपयोगकर्ता स्क्रिप्ट स्थापित करें",
-        "#install-mobile-container.install-subtitle": "मोबाइल उपयोगकर्ता इन्हें आज़मा सकते हैं ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "मोबाइल उपयोगकर्ता इन्हें आज़मा सकते हैं ♡ ⤵",
         "*[data-translation-random-gift]": "रैंडम गिफ्ट",
         "*[data-translation-special-deals]": "A.C.A.S का उपयोग करने के लिए धन्यवाद, आप नए विशेष ऑफ़र के लिए पात्र हैं!",
         "*[data-translation-get-my-deals]": "मेरे ऑफ़र प्राप्त करें",

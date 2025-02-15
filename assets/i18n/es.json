@@ -34,7 +34,7 @@
         "#install-title": "NO SE DETECTÓ USERSCRIPT",
         ".violentmonkey-btn": "Obtener Violentmonkey",
         ".install-userscript-btn": "Instalar Userscript",
-        "#install-mobile-container.install-subtitle": "Los usuarios móviles pueden probar esto ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Los usuarios móviles pueden probar esto ♡ ⤵",
         "*[data-translation-random-gift]": "Regalo aleatorio",
         "*[data-translation-special-deals]": "Gracias por usar A.C.A.S, ¡eres elegible para nuevas ofertas especiales!",
         "*[data-translation-get-my-deals]": "Obtener mis ofertas",

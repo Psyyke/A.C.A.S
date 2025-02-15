@@ -34,7 +34,7 @@
         "#install-title": "NIE WYKRYTO SKRYPTU UŻYTKOWNIKA",
         ".violentmonkey-btn": "Pobierz Violentmonkey",
         ".install-userscript-btn": "Zainstaluj skrypt użytkownika",
-        "#install-mobile-container.install-subtitle": "Użytkownicy mobilni mogą spróbować tych ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Użytkownicy mobilni mogą spróbować tych ♡ ⤵",
         "*[data-translation-random-gift]": "Losowy prezent",
         "*[data-translation-special-deals]": "Dziękujemy za korzystanie z A.C.A.S, masz prawo do nowych ofert specjalnych!",
         "*[data-translation-get-my-deals]": "Zdobądź moje oferty",

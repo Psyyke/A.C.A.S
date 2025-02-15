@@ -34,7 +34,7 @@
         "#install-title": "ПОЛЬЗОВАТЕЛЬСКИЙ СКРИПТ НЕ ОБНАРУЖЕН",
         ".violentmonkey-btn": "Получить Violentmonkey",
         ".install-userscript-btn": "Установить пользователю скрипт",
-        "#install-mobile-container.install-subtitle": "Пользователи мобильных устройств могут попробовать эти ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Пользователи мобильных устройств могут попробовать эти ♡ ⤵",
         "*[data-translation-random-gift]": "Случайный подарок",
         "*[data-translation-special-deals]": "Спасибо за использование A.C.A.S, вы имеете право на новые специальные предложения!",
         "*[data-translation-get-my-deals]": "Получить мои предложения",

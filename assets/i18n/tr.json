@@ -34,7 +34,7 @@
         "#install-title": "KULLANICI BETİĞİ BULUNAMADI",
         ".violentmonkey-btn": "Violentmonkey'i Edinin",
         ".install-userscript-btn": "Kullanıcı Betiğini Yükle",
-        "#install-mobile-container.install-subtitle": "Mobil kullanıcılar bunları deneyebilir ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Mobil kullanıcılar bunları deneyebilir ♡ ⤵",
         "*[data-translation-random-gift]": "Rastgele Hediye",
         "*[data-translation-special-deals]": "A.C.A.S. kullanmanız için teşekkürler, yeni özel fırsatlar için uygunsunuz!",
         "*[data-translation-get-my-deals]": "Tekliflerimi Al",

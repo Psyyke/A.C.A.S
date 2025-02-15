@@ -34,7 +34,7 @@
         "#install-title": "Не виявлено користувацького скрипту",
         ".violentmonkey-btn": "Отримати Violentmonkey",
         ".install-userscript-btn": "Встановити користувацький скрипт",
-        "#install-mobile-container.install-subtitle": "Мобільні користувачі можуть спробувати це ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Мобільні користувачі можуть спробувати це ♡ ⤵",
         "*[data-translation-random-gift]": "Випадковий подарунок",
         "*[data-translation-special-deals]": "Дякуємо за використання A.C.A.S, ви маєте право на нові спеціальні пропозиції!",
         "*[data-translation-get-my-deals]": "Отримати мої пропозиції",

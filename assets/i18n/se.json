@@ -34,7 +34,7 @@
         "#install-title": "INGET ANVÄNDARSKRIPT DETEKTERAT",
         ".violentmonkey-btn": "Hämta Violentmonkey",
         ".install-userscript-btn": "Installera Användarskript",
-        "#install-mobile-container.install-subtitle": "Mobilanvändare kan prova dessa ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Mobilanvändare kan prova dessa ♡ ⤵",
         "*[data-translation-random-gift]": "Slumpmässig gåva",
         "*[data-translation-special-deals]": "Tack för att du använder A.C.A.S, du är berättigad till nya specialerbjudanden!",
         "*[data-translation-get-my-deals]": "Hämta mina erbjudanden",

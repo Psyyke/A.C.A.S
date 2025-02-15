@@ -34,7 +34,7 @@
         "#install-title": "KÄYTTÄJÄSCRIPTIÄ EI LÖYDY",
         ".violentmonkey-btn": "Hanki Violentmonkey",
         ".install-userscript-btn": "Asenna käyttäjäscriptti",
-        "#install-mobile-container.install-subtitle": "Mobiilikäyttäjät voivat kokeilla näitä ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Mobiilikäyttäjät voivat kokeilla näitä ♡ ⤵",
         "*[data-translation-random-gift]": "Satunnainen lahja",
         "*[data-translation-special-deals]": "Kiitos, että käytät A.C.A.S:ia! Olet oikeutettu uusiin erikoistarjouksiin!",
         "*[data-translation-get-my-deals]": "Hanki tarjoukset",

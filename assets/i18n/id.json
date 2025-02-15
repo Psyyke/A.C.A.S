@@ -34,7 +34,7 @@
         "#install-title": "TIDAK ADA USERSCRIPT DITEMUKAN",
         ".violentmonkey-btn": "Dapatkan Violentmonkey",
         ".install-userscript-btn": "Pasang Userscript",
-        "#install-mobile-container.install-subtitle": "Pengguna ponsel bisa mencoba ini ♡ ⤵",
+        "#install-mobile-container .install-subtitle": "Pengguna ponsel bisa mencoba ini ♡ ⤵",
         "*[data-translation-random-gift]": "Hadiah Acak",
         "*[data-translation-special-deals]": "Terima kasih telah menggunakan A.C.A.S, Anda berhak mendapatkan penawaran khusus baru!",
         "*[data-translation-get-my-deals]": "Dapatkan Penawaran Saya",
