@@ -41,6 +41,18 @@
 		flex-direction: column-reverse !important;
 		align-items: flex-start !important;
 	}
+	.acas-offer .disclaimer {
+		display: none !important;
+	}
+	.acas-offer .subtitle {
+		font-size: 20px !important;
+	}
+	.acas-offer .title {
+		font-size: 25px !important;
+	}
+	.acas-offer .midtitle {
+		margin-top: 0px !important;
+	}
 }
 body {
 	font-family: "Mona Sans";
@@ -1258,6 +1270,7 @@ cg-container {
     max-width: 400px;
     position: relative;
     padding: 25px;
+	max-height: 90vh;
 }
 .acas-offer::after {
     content: "💕";
