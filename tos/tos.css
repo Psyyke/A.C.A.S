@@ -1,14 +1,28 @@
 @font-face {
-    font-family: "Mona Sans";
-    src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
+	font-family: "Mona Sans";
+	src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
+	font-weight: 200 900;
+	font-stretch: 75% 125%;
+	unicode-range: U+0000-00FF, U+0100-024F;
+}
+@font-face {
+    font-family: "Rubik";
+    src: url("../assets/fonts/Rubik.ttf") format("truetype");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+	unicode-range: U+0000-00FF, U+0100-024F;
+}
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../assets/fonts/IBMPlexSans.ttf") format("truetype");
     font-weight: 200 900;
     font-stretch: 75% 125%;
 }
 body {
-    font-family: "Mona Sans";
+	font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif;
     margin: 0;
-    background: linear-gradient(to right, #182322, #1f4342);
-    color: white;
+    color: black;
+    background-color: white;
     display: flex;
     align-content: center;
     justify-content: center;
@@ -21,15 +35,16 @@ body {
     width: 600px;
 }
 .big-title {
-    font-size: 30px;
+    font-size: 35px;
     font-weight: 800;
     font-stretch: ultra-expanded;
     align-self: center;
     text-align: center;
+    margin-bottom: 30px;
 }
 .title {
     font-size: 25px;
-    font-weight: 900;
+    font-weight: 700;
     font-stretch: ultra-expanded;
     margin: 20px 0 0 0;
 }
@@ -54,7 +69,4 @@ body {
 }
 .extra-slim {
     font-weight: 200;
-}
-.gradient-text {
-    text-shadow: 0px 3px 0px #000;
 }

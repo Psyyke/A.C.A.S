@@ -66,6 +66,7 @@ input:focus {
     border-width: var(--settings-input-border-width);
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
+    font-family: "Mona Sans";
 }
 .checkbox-container input[type="checkbox"] {
     position: absolute;

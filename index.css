@@ -3,6 +3,20 @@
 	src: url("assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("assets/fonts/Mona-Sans.woff2") format("woff2-variations");
 	font-weight: 200 900;
 	font-stretch: 75% 125%;
+	unicode-range: U+0000-00FF, U+0100-024F;
+}
+@font-face {
+    font-family: "Rubik";
+    src: url("assets/fonts/Rubik.ttf") format("truetype");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+	unicode-range: U+0000-00FF, U+0100-024F;
+}
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("assets/fonts/IBMPlexSans.ttf") format("truetype");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
 }
 @media (max-width: 800px) {
 	#settings-panels {
@@ -48,11 +62,6 @@
 		top: 0 !important;
 		right: 0 !important;
 	}
-	.product::before {
-		font-size: 35px !important;
-		top: -20px !important;
-		left: -20px !important;
-	}
 	.acas-offer .disclaimer {
 		display: none !important;
 	}
@@ -66,8 +75,19 @@
 		margin-top: 0px !important;
 	}
 }
+@media (max-width: 425px) {
+	#install-title {
+		font-size: 30px !important;
+	}
+	.install-notification-btn {
+		font-size: 16px !important;
+	}
+	.install-subtitle {
+		font-size: 15px !important;
+	}
+}
 body {
-	font-family: "Mona Sans";
+	font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif;
 	margin: 0;
 	background-color: #1b342a;
 	height: 100vh;
@@ -96,6 +116,7 @@ cg-container {
 	font-size: 15px;
 	font-weight: 300;
 	text-align: center;
+	margin-top: 100px;
 }
 .chessground-x {
 	width: 100%;
@@ -153,13 +174,16 @@ cg-container {
 }
 #acas-version-tag {
 	font-size: 15px;
-	font-weight: 300;
+    font-weight: 200;
+    font-family: "IBM Plex Sans";
+    margin-left: 3px;
 }
 #acas-logo-main {
     display: flex;
     align-items: flex-start;
     font-stretch: ultra-expanded;
-    font-weight: 700;
+	font-weight: 800;
+    font-family: "Mona Sans";
 }
 #acas-logo-secondary {
 	font-size: 15px;
@@ -387,11 +411,12 @@ cg-container {
 }
 #install-title {
     font-size: 35px;
-    font-weight: 700;
+    font-weight: 900;
     font-stretch: ultra-expanded;
     text-shadow: 0px 4px 0px #000;
     margin: 10px 0 10px;
 	text-transform: uppercase;
+	font-family: "Mona Sans", "IBM Plex Sans";
 }
 .install-subtitle {
     font-size: 20px;
@@ -589,11 +614,11 @@ cg-container {
     background-image: linear-gradient(rgb(206, 206, 206)rgb(99, 97, 97));
 }
 .violentmonkey-btn {
-    background-color: #625638;
-    background-image: linear-gradient(#efbe3c, #79632c);
+    background-color: #cb9e2c;
+    background-image: linear-gradient(#efbe3c, #bd8700);
 }
 .violentmonkey-btn:hover {
-	background-image: linear-gradient(#fac840, #8b7233);
+	background-image: linear-gradient(#faca44, #d49801);
 }
 .hidden {
 	display: none !important;
@@ -614,12 +639,13 @@ cg-container {
 }
 #no-instances-title {
 	font-size: 28px;
-	font-weight: 600;
+	font-weight: 800;
 	font-stretch: expanded;
 	text-transform: uppercase;
 	animation: pulsate 4s infinite;
 	color: rgb(255 255 255 / 90%);
     text-shadow: 0px 4px 0px #000;
+	font-family: "Mona Sans", "IBM Plex Sans";
 }
 #no-instances-subtitle {
     margin: 20px;
@@ -1292,9 +1318,9 @@ cg-container {
 .product::before {
     content: "✨";
     position: absolute;
-    top: -25px;
-    left: -25px;
-    font-size: 50px;
+    top: -20px;
+    left: -20px;
+    font-size: 35px;
 }
 .acas-offer .title {
 	font-size: 30px;
@@ -1415,8 +1441,8 @@ cg-container {
     border-right-width: 4px;
 }
 .product .title {
-    font-size: 20px;
-    font-weight: 900;
+	font-size: 20px;
+    font-weight: 700;
     font-stretch: ultra-expanded;
     padding: 15px;
     border-bottom: 3px solid;
@@ -1426,7 +1452,7 @@ cg-container {
     gap: 3px;
 }
 .product .description {
-    font-weight: 600;
+    font-weight: 400;
     font-style: italic;
 }
 .product .action-btn {
@@ -1434,7 +1460,6 @@ cg-container {
     width: fit-content;
     padding: 10px;
     border-radius: 5px;
-    font-family: 'Mona Sans';
     font-weight: 800;
     font-stretch: extra-expanded;
     text-decoration: none;
@@ -1458,7 +1483,10 @@ cg-container {
     text-shadow: 0px 2px 0px #000;
     margin: 10px 0 10px;
     cursor: pointer;
-    background-color: #840000;
+	background-color: #ad3333;
+}
+.hard-refresh-btn:hover {
+	background-color: #c03b3b;
 }
 #install-buttons .small-buttons {
 	display: flex;
