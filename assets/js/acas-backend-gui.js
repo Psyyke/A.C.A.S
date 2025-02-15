@@ -135,8 +135,11 @@ guiBroadcastChannel.onmessage = e => {
     }
 };
 
-function displayNoUserscriptNotification() {
-    installNotificationElem.classList.remove('hidden');
+function displayNoUserscriptNotification(isEnable) {
+    if(isEnable)
+        installNotificationElem.classList.add('hidden');
+    else
+        installNotificationElem.classList.remove('hidden');
 }
 
 function displayTOS() {

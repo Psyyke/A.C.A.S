@@ -4,19 +4,24 @@ function attemptStarting() {
     if(started)
         return;
 
-    if(typeof USERSCRIPT === 'object')
+    if(typeof USERSCRIPT === 'object') {
         started = true;
 
+        displayNoUserscriptNotification(true);
+    }
+        
     if(typeof USERSCRIPT === 'undefined') {
         displayNoUserscriptNotification();
 
     } else if(!USERSCRIPT.GM_getValue('isTosAccepted')) {
-        started = true;
+        displayNoUserscriptNotification(true); // failsafe
+        started = true; // failsafe
 
         displayTOS();
 
     } else {
-        started = true;
+        displayNoUserscriptNotification(true); // failsafe
+        started = true; // failsafe
 
         (async () => {
             initializeDatabase();
