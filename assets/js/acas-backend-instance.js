@@ -895,7 +895,7 @@ class BackendInstance {
             }
 
             this.pV[profile].pendingCalculations.push({ 'fen': currentFen, 'startedAt': Date.now(), 'finished': false });
-    
+
             this.Interface.boardUtils.removeMarkings(profile);
     
             console.error('CALCULATING!', this.pV[profile].pendingCalculations, reversedFen || currentFen);
@@ -1023,7 +1023,7 @@ class BackendInstance {
         }
 
         if(msg.includes('info')) {
-            if(data?.multipv === '1') {
+            if(data?.multipv === '1' || this.getEngineType(profile) === 'lozza-5') {
                 if(data?.depth) {
                     const depthText = transObj?.calculationDepth ?? 'Depth';
                     const winningText = transObj?.winning ?? 'Winning';
@@ -1120,8 +1120,11 @@ class BackendInstance {
 
             this.setupEnvironment(variantStartposFen, dimensions);
         }
-        
-        if(msg === 'uciok' && this.getEngineType(profile) === 'lc0') {
+
+        if(msg === 'uciok' && (
+               this.getEngineType(profile) === 'lc0'
+            || this.getEngineType(profile) === 'lozza-5'
+        )) {
             this.setupEnvironment(this.defaultStartpos, [8, 8]);
         }
     }
@@ -1143,6 +1146,35 @@ class BackendInstance {
             const profileChessEngine = getProfile(profile).config.chessEngine;
             
             switch(profileChessEngine) {
+                case 'lozza-5':
+                    const lozza = new Worker('assets/libraries/Lozza/lozza-5-acas.js');
+                    let lozza_loaded = false;
+
+                    lozza.onmessage = async e => {
+                        if(!lozza_loaded) {
+                            lozza_loaded = true;
+
+                            this.engines.push({
+                                'type': profileChessEngine,
+                                'engine': (method, a) => lozza[method](...a),
+                                'sendMsg': msg => lozza.postMessage(msg),
+                                'worker': lozza,
+                                profile
+                            });
+
+                            const waitForChessgroundLoad = setInterval(() => {
+                                if(window?.ChessgroundX) {
+                                    clearInterval(waitForChessgroundLoad);
+
+                                    this.engineStartNewGame('chess', profile);
+                                }
+                            }, 500);
+                        } else if (e.data) {
+                            msgHandler(e.data);
+                        }
+                    };
+                break;
+
                 case 'lc0':
                     const lc0 = new Worker('assets/libraries/zerofish/zerofishWorker.js', { type: 'module' });
                     let lc0_loaded = false;
@@ -1198,7 +1230,7 @@ class BackendInstance {
 
                         msgHandler(e.data);
                     };
-                    break;
+                break;
 
                 default: // Fairy Stockfish NNUE WASM
                     const stockfish = new Worker('assets/libraries/fairy-stockfish-nnue.wasm/stockfishWorker.js');

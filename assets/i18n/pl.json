@@ -34,7 +34,20 @@
         "#install-title": "NIE WYKRYTO SKRYPTU UŻYTKOWNIKA",
         ".violentmonkey-btn": "Pobierz Violentmonkey",
         ".install-userscript-btn": "Zainstaluj skrypt użytkownika",
-        "#install-mobile-container.install-subtitle": "Użytkownicy mobilni mogą spróbować tych ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Użytkownicy mobilni mogą spróbować tych ♡ ⤵",
+        "*[data-translation-random-gift]": "Losowy prezent",
+        "*[data-translation-special-deals]": "Dziękujemy za korzystanie z A.C.A.S, masz prawo do nowych ofert specjalnych!",
+        "*[data-translation-get-my-deals]": "Zdobądź moje oferty",
+        "*[data-translation-teamed-up]": "Współpracujemy z AliExpress, aby zaoferować użytkownikom A.C.A.S świetne oferty! Każdy zakup dokonany po kliknięciu w link wspiera rozwój A.C.A.S.",
+        "*[data-translation-recommended-products]": "Polecane produkty",
+        "*[data-translation-support-disclaimer]": "Twoje zakupy pomagają wspierać rozwój A.C.A.S bez dodatkowych kosztów dla Ciebie. Bez tego A.C.A.S otrzymywałby mniej aktualizacji.",
+        "*[data-translation-visit-product-btn]": "Odwiedź",
+        "*[data-translation-acas-recommends]": "A.C.A.S poleca",
+        "*[data-translation-find-more-deals]": "Znajdź więcej ofert",
+        "*[data-translation-we-are-partnered-ali]": "Nawiązaliśmy współpracę z AliExpress, aby przynieść użytkownikom A.C.A.S wspaniałe oferty. Dokładamy wszelkich starań, aby polecać produkty wysokiej jakości, a nie śmieci.",
+        "*[data-translation-if-you-find-something]": "Jeśli znajdziesz coś, co Ci się podoba, świetnie! Ale nawet jeśli wybierzesz coś innego, korzystanie z naszego linku nadal pomaga nas wesprzeć. Naprawdę to doceniamy!",
+        "*[data-translation-support-page-thank-you]": "Dziękujemy za Twoje wsparcie!",
+        "*[data-translation-support-page-disclaimer]": "To są linki afiliacyjne, co oznacza, że otrzymujemy prowizję, gdy kupujesz za ich pośrednictwem. Nie będzie to kosztować Cię nic więcej, ale pomoże wspierać projekt."    
     },
     "configTranslations": {
         "engineEnabled": ["Włączony", "Czy silnik jest włączony"],

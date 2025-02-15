@@ -34,7 +34,20 @@
         "#install-title": "KEIN USERSCRIPT ERKANNT",
         ".violentmonkey-btn": "Hole dir Violentmonkey",
         ".install-userscript-btn": "Userscript installieren",
-        "#install-mobile-container.install-subtitle": "Mobile Nutzer können diese ausprobieren ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Mobile Nutzer können diese ausprobieren ♡ ⤵",
+        "*[data-translation-random-gift]": "Zufälliges Geschenk",
+        "*[data-translation-special-deals]": "Danke, dass Sie A.C.A.S nutzen! Sie sind für neue Sonderangebote berechtigt!",
+        "*[data-translation-get-my-deals]": "Meine Angebote erhalten",
+        "*[data-translation-teamed-up]": "Wir haben uns mit AliExpress zusammengetan, um A.C.A.S-Nutzern tolle Angebote zu bieten! Jeder Kauf nach dem Besuch des Links unterstützt die Entwicklung von A.C.A.S.",
+        "*[data-translation-recommended-products]": "Empfohlene Produkte",
+        "*[data-translation-support-disclaimer]": "Ihre Einkäufe helfen, die Entwicklung von A.C.A.S zu unterstützen, ohne dass Ihnen zusätzliche Kosten entstehen. Ohne dies gäbe es weniger Updates für A.C.A.S.",
+        "*[data-translation-visit-product-btn]": "Besuchen",
+        "*[data-translation-acas-recommends]": "A.C.A.S empfiehlt",
+        "*[data-translation-find-more-deals]": "Mehr Angebote finden",
+        "*[data-translation-we-are-partnered-ali]": "Wir haben eine Partnerschaft mit AliExpress, um A.C.A.S-Nutzern großartige Angebote zu bieten. Wir bemühen uns, qualitativ hochwertige Produkte zu empfehlen – kein Schrott.",
+        "*[data-translation-if-you-find-something]": "Wenn Sie etwas finden, das Ihnen gefällt, großartig! Aber auch wenn Sie sich für etwas anderes entscheiden, hilft uns Ihr Einkauf über unseren Link. Wir wissen das wirklich zu schätzen!",
+        "*[data-translation-support-page-thank-you]": "Vielen Dank für Ihre Unterstützung!",
+        "*[data-translation-support-page-disclaimer]": "Dies sind Empfehlungslinks, was bedeutet, dass wir eine Provision verdienen, wenn Sie über sie einkaufen. Es kostet Sie nichts extra, aber es hilft, das Projekt zu unterstützen."
     },
     "configTranslations": {
         "engineEnabled": ["Aktiviert", "Ist die Engine aktiviert"],

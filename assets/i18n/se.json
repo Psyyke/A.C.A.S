@@ -34,7 +34,20 @@
         "#install-title": "INGET ANVÄNDARSKRIPT DETEKTERAT",
         ".violentmonkey-btn": "Hämta Violentmonkey",
         ".install-userscript-btn": "Installera Användarskript",
-        "#install-mobile-container.install-subtitle": "Mobilanvändare kan prova dessa ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Mobilanvändare kan prova dessa ♡ ⤵",
+        "*[data-translation-random-gift]": "Slumpmässig gåva",
+        "*[data-translation-special-deals]": "Tack för att du använder A.C.A.S, du är berättigad till nya specialerbjudanden!",
+        "*[data-translation-get-my-deals]": "Hämta mina erbjudanden",
+        "*[data-translation-teamed-up]": "Vi har samarbetat med AliExpress för att erbjuda A.C.A.S. användare fantastiska erbjudanden! Alla köp efter att ha besökt länken hjälper till att stödja utvecklingen av A.C.A.S.",
+        "*[data-translation-recommended-products]": "Rekommenderade produkter",
+        "*[data-translation-support-disclaimer]": "Dina köp hjälper till att stödja utvecklingen av A.C.A.S utan extra kostnad för dig. Utan detta skulle A.C.A.S få färre uppdateringar.",
+        "*[data-translation-visit-product-btn]": "Besök",
+        "*[data-translation-acas-recommends]": "A.C.A.S rekommenderar",
+        "*[data-translation-find-more-deals]": "Hitta fler erbjudanden",
+        "*[data-translation-we-are-partnered-ali]": "Vi har samarbetat med AliExpress för att ge A.C.A.S. användare fantastiska erbjudanden. Vi gör vårt bästa för att rekommendera kvalitetsprodukter, inget skräp.",
+        "*[data-translation-if-you-find-something]": "Om du hittar något du gillar, fantastiskt! Men även om du väljer något annat, hjälper du oss fortfarande genom att använda vår länk. Vi uppskattar det verkligen!",
+        "*[data-translation-support-page-thank-you]": "Tack för ditt stöd!",
+        "*[data-translation-support-page-disclaimer]": "Det här är affiliate-länkar, vilket innebär att vi tjänar en provision när du köper genom dem. Det kommer inte att kosta dig extra, men det hjälper till att stödja projektet."    
     },
     "configTranslations": {
         "engineEnabled": ["Aktiverad", "Är motorn aktiverad"],

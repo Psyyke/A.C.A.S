@@ -469,6 +469,15 @@ function setIntervalAsync(callback, interval) {
     return { stop: () => running = false };
 }
 
+function getCookie(name) {
+    const cookies = document.cookie ? document.cookie.split('; ') : [];
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].split('=');
+        if (cookie[0] === name) return decodeURIComponent(cookie.slice(1).join('='));
+    }
+    return null;
+}
+
 async function waitForElement(selector, maxWaitTime = 10000000) {
     const startTime = Date.now();
     while (Date.now() - startTime < maxWaitTime) {

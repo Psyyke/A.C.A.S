@@ -1,0 +1,159 @@
+@font-face {
+    font-family: "Mona Sans";
+    src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+}
+body {
+    font-family: "Mona Sans";
+    margin: 0;
+    color: black;
+    background-color: white;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+#wrapper {
+    margin: 125px 25px 125px 25px;
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+}
+.big-title {
+    font-size: 30px;
+    font-weight: 800;
+    font-stretch: ultra-expanded;
+    align-self: center;
+    text-align: center;
+    text-transform: uppercase;
+}
+.small-paragraph {
+    font-size: 15px;
+    font-weight: 400;
+    margin: 10px 0 10px 0;
+}
+.paragraph {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 10px 0 10px 0;
+}
+.center-text {
+    text-align: center;
+}
+.greyed {
+    color: #bababa;
+}
+.slim {
+    font-weight: 300;
+}
+.extra-slim {
+    font-weight: 200;
+}
+.gradient-text {
+    text-shadow: 0px 3px 0px #000;
+}
+
+#product-container {
+	display: none;
+    padding: 20px;
+    background-color: #f1f1f1;
+    border: 1px solid grey;
+    border-radius: 5px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.product {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 5px;
+    border: 1px solid #000000;
+    margin-bottom: 25px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-bottom-width: 5px;
+    border-right-width: 3px;
+    color: black;
+}
+.product .container {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+}
+.product .right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.product .image {
+    border-radius: 5px;
+    border: 3px solid #000000;
+    border-bottom-width: 6px;
+    border-right-width: 4px;
+}
+.product .title {
+    font-size: 20px;
+    font-weight: 900;
+    font-stretch: ultra-expanded;
+    padding: 15px;
+    border-bottom: 3px solid;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+.product .description {
+    font-weight: 600;
+    font-style: italic;
+}
+.product .action-btn {
+    background-color: white;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: 'Mona Sans';
+    font-weight: 800;
+    font-stretch: extra-expanded;
+    text-decoration: none;
+    color: black;
+    border: 2px solid black;
+    border-bottom-width: 5px;
+    border-right-width: 3px;
+}
+.product .disclaimer {
+	border-left: 2px solid #693f42;
+    padding-left: 10px;
+    color: #3b2527;
+    padding: 10px;
+    font-weight: 400;
+}
+.product .discount {
+    color: #d95864;
+    text-shadow: 0px 2px 0px #751414;
+}
+.product .originalPrice {
+	text-decoration: line-through;
+    font-weight: 300;
+}
+.product .price {
+	font-weight: 600;
+}
+
+.get-deal-btn {
+    background-color: white;
+    height: fit-content;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 700;
+    border: 2px solid rgb(66 127 59);
+    border-bottom-width: 5px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: #2799209e;
+    display: flex;
+    justify-content: center;
+}

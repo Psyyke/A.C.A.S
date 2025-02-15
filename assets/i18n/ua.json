@@ -34,7 +34,20 @@
         "#install-title": "Не виявлено користувацького скрипту",
         ".violentmonkey-btn": "Отримати Violentmonkey",
         ".install-userscript-btn": "Встановити користувацький скрипт",
-        "#install-mobile-container.install-subtitle": "Мобільні користувачі можуть спробувати це ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Мобільні користувачі можуть спробувати це ♡ ⤵",
+        "*[data-translation-random-gift]": "Випадковий подарунок",
+        "*[data-translation-special-deals]": "Дякуємо за використання A.C.A.S, ви маєте право на нові спеціальні пропозиції!",
+        "*[data-translation-get-my-deals]": "Отримати мої пропозиції",
+        "*[data-translation-teamed-up]": "Ми співпрацюємо з AliExpress, щоб запропонувати користувачам A.C.A.S чудові пропозиції! Кожна покупка після відвідування посилання допомагає розвитку A.C.A.S.",
+        "*[data-translation-recommended-products]": "Рекомендовані товари",
+        "*[data-translation-support-disclaimer]": "Ваші покупки допомагають підтримати розвиток A.C.A.S без додаткових витрат з вашої сторони. Без цього A.C.A.S отримуватиме менше оновлень.",
+        "*[data-translation-visit-product-btn]": "Перейти",
+        "*[data-translation-acas-recommends]": "A.C.A.S рекомендує",
+        "*[data-translation-find-more-deals]": "Знайти більше пропозицій",
+        "*[data-translation-we-are-partnered-ali]": "Ми співпрацюємо з AliExpress, щоб принести користувачам A.C.A.S чудові пропозиції. Ми робимо все можливе, щоб рекомендувати якісні продукти, без сміття.",
+        "*[data-translation-if-you-find-something]": "Якщо ви знайшли те, що вам подобається, чудово! Але навіть якщо ви вибираєте інше, використовуючи наше посилання, ви все одно допомагаєте нам. Ми справді це цінуємо!",
+        "*[data-translation-support-page-thank-you]": "Дякуємо за вашу підтримку!",
+        "*[data-translation-support-page-disclaimer]": "Це партнерські посилання, що означає, що ми отримуємо комісію, коли ви купуєте через них. Це не додасть вам додаткових витрат, але допоможе підтримати проект."    
     },
     "configTranslations": {
         "engineEnabled": ["Увімкнено", "Чи увімкнено движок"],

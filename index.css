@@ -31,10 +31,10 @@
 	#acas-is-free-reminder .discord-button {
 		display: none !important;
 	}
-	#acas-is-free-reminder .soundcloud-button {
+	#acas-is-free-reminder .github-button {
 		display: none !important;
 	}
-	#acas-is-free-reminder .github-button {
+	#acas-is-free-reminder .affiliate-button {
 		display: block !important;
 	}
 	#install-buttons {
@@ -1051,13 +1051,13 @@ cg-container {
 .discord-button:hover {
 	background-color: #434bc4;
 }
-.soundcloud-button {
+.affiliate-button {
 	color: #C9D1D9;
-    background-color: #723100;
-    border: 2px solid #a94b00;
+    background-color: #720000;
+    border: 2px solid #a90000;
 }
-.soundcloud-button:hover {
-	background-color: #8a3e00;
+.affiliate-button:hover {
+	background-color: #8a0000;
 }
 #userscript-info-small {
 	text-transform: capitalize;
@@ -1233,4 +1233,206 @@ cg-container {
 .tos-reminder-setting-panel-item small, 
 .tos-reminder-setting-panel-item span {
     color: grey;
+}
+.offer-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999999999;
+    display: none;
+    background-color: rgb(255 169 175 / 50%);
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+.acas-offer {
+    display: flex;
+    background-color: white;
+    flex-direction: column;
+    border-radius: 5px;
+    padding: 10px;
+    border: 5px solid rgb(105 63 66);
+    border-bottom-width: 8px;
+    max-width: 400px;
+    position: relative;
+    padding: 25px;
+}
+.acas-offer::after {
+    content: "💕";
+    position: absolute;
+    top: -25px;
+    right: -25px;
+    font-size: 50px;
+}
+.acas-offer::before {
+    content: "✨";
+    position: absolute;
+    bottom: -25px;
+    left: -25px;
+    font-size: 50px;
+}
+.acas-offer .title {
+	font-size: 30px;
+    font-weight: 700;
+}
+.acas-offer .subtitle {
+    font-size: 25px;
+    font-weight: 300;
+    background-color: #e8122426;
+    font-style: italic;
+    border-radius: 3px;
+    padding: 10px;
+}
+.acas-offer .midtitle {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 10px;
+}
+.acas-offer .pretitle {
+	font-size: 18px;
+    font-weight: 400;
+	color: rgb(105 63 66);
+}
+.acas-offer .small {
+	font-size: 13px;
+    font-weight: 300;
+	margin-top: 10px;
+}
+.acas-offer .offer-x {
+	font-size: 27px;
+	font-weight: 300;
+}
+.acas-offer .disclaimer {
+	border-left: 2px solid #693f42;
+    padding-left: 10px;
+    color: #3b2527;
+    padding: 10px;
+    font-weight: 400;
+}
+.acas-offer .discount {
+    color: #d95864;
+    text-shadow: 0px 2px 0px #751414;
+}
+.acas-offer .originalPrice {
+	text-decoration: line-through;
+    font-weight: 300;
+}
+.acas-offer .price {
+	font-weight: 600;
+}
+.acas-offer .close-btn {
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 999;
+	background-color: #ffffffa3;
+	border-radius: 100%;
+	width: 20;
+	height: 15px;
+	width: 15px;
+	font-size: 10px;
+	align-items: center;
+	justify-content: center;
+}
+.acas-offer .get-deal-btn {
+    background-color: white;
+    height: fit-content;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 700;
+    border: 2px solid rgb(105 63 66);
+    border-bottom-width: 5px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: #99202c9e;
+    display: flex;
+    justify-content: center;
+}
+.acas-offer .get-deal-btn:active {
+	margin-top: 13px !important;
+}
+.product-container {
+	display: none;
+}
+.product {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 5px;
+    border: 1px solid #000000;
+    margin-bottom: 25px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-bottom-width: 5px;
+    border-right-width: 3px;
+    color: black;
+}
+.product .container {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+}
+.product .right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.product .image {
+    border-radius: 5px;
+    border: 3px solid #000000;
+    border-bottom-width: 6px;
+    border-right-width: 4px;
+}
+.product .title {
+    font-size: 20px;
+    font-weight: 900;
+    font-stretch: ultra-expanded;
+    padding: 15px;
+    border-bottom: 3px solid;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+.product .description {
+    font-weight: 600;
+    font-style: italic;
+}
+.product .action-btn {
+    background-color: white;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: 'Mona Sans';
+    font-weight: 800;
+    font-stretch: extra-expanded;
+    text-decoration: none;
+    color: black;
+    border: 2px solid black;
+    border-bottom-width: 5px;
+    border-right-width: 3px;
+}
+.hard-refresh-btn {
+    display: inline-block;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 18px;
+    border: 2px solid black;
+    border-bottom: 5px solid black;
+    transition: allease 0.1s;
+    font-weight: 600;
+    font-stretch: ultra-expanded;
+    text-shadow: 0px 2px 0px #000;
+    margin: 10px 0 10px;
+    cursor: pointer;
+    background-color: #840000;
 }

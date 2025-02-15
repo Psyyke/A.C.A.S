@@ -34,7 +34,20 @@
         "#install-title": "KULLANICI BETİĞİ BULUNAMADI",
         ".violentmonkey-btn": "Violentmonkey'i Edinin",
         ".install-userscript-btn": "Kullanıcı Betiğini Yükle",
-        "#install-mobile-container.install-subtitle": "Mobil kullanıcılar bunları deneyebilir ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Mobil kullanıcılar bunları deneyebilir ♡ ⤵",
+        "*[data-translation-random-gift]": "Rastgele Hediye",
+        "*[data-translation-special-deals]": "A.C.A.S. kullanmanız için teşekkürler, yeni özel fırsatlar için uygunsunuz!",
+        "*[data-translation-get-my-deals]": "Tekliflerimi Al",
+        "*[data-translation-teamed-up]": "A.C.A.S kullanıcılarına harika fırsatlar sunmak için AliExpress ile işbirliği yaptık! Linki ziyaret ettikten sonra yapılan her satın alma, A.C.A.S'in gelişimine katkı sağlıyor.",
+        "*[data-translation-recommended-products]": "Önerilen ürünler",
+        "*[data-translation-support-disclaimer]": "Satın alımlarınız, size ek bir maliyet getirmeden A.C.A.S'in gelişimine yardımcı olur. Bunun olmaması durumunda A.C.A.S daha az güncelleme alır.",
+        "*[data-translation-visit-product-btn]": "Ziyaret et",
+        "*[data-translation-acas-recommends]": "A.C.A.S öneriyor",
+        "*[data-translation-find-more-deals]": "Daha fazla fırsat bulun",
+        "*[data-translation-we-are-partnered-ali]": "A.C.A.S kullanıcılarına harika fırsatlar sunmak için AliExpress ile işbirliği yaptık. Kaliteli ürünleri önermeye özen gösteriyoruz, çöp değil.",
+        "*[data-translation-if-you-find-something]": "Beğendiğiniz bir şey bulursanız harika! Ama başka bir şey seçseniz bile, linkimizi kullanarak hala destek oluyorsunuz. Gerçekten minnettarız!",
+        "*[data-translation-support-page-thank-you]": "Desteğiniz için teşekkür ederiz!",
+        "*[data-translation-support-page-disclaimer]": "Bunlar bağlantılı bağlantılardır, yani bunlar üzerinden satın aldığınızda komisyon alıyoruz. Size ekstra bir maliyet yaratmaz, ancak projeye destek olur."    
     },
     "configTranslations": {
         "engineEnabled": ["Etkin", "Motor etkin mi"],

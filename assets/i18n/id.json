@@ -34,7 +34,20 @@
         "#install-title": "TIDAK ADA USERSCRIPT DITEMUKAN",
         ".violentmonkey-btn": "Dapatkan Violentmonkey",
         ".install-userscript-btn": "Pasang Userscript",
-        "#install-mobile-container.install-subtitle": "Pengguna ponsel bisa mencoba ini ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Pengguna ponsel bisa mencoba ini ♡ ⤵",
+        "*[data-translation-random-gift]": "Hadiah Acak",
+        "*[data-translation-special-deals]": "Terima kasih telah menggunakan A.C.A.S, Anda berhak mendapatkan penawaran khusus baru!",
+        "*[data-translation-get-my-deals]": "Dapatkan Penawaran Saya",
+        "*[data-translation-teamed-up]": "Kami bekerja sama dengan AliExpress untuk memberikan penawaran menarik kepada pengguna A.C.A.S! Setiap pembelian setelah mengunjungi tautan mendukung pengembangan A.C.A.S.",
+        "*[data-translation-recommended-products]": "Produk yang Direkomendasikan",
+        "*[data-translation-support-disclaimer]": "Pembelian Anda membantu mendukung pengembangan A.C.A.S tanpa biaya tambahan untuk Anda. Tanpa ini, A.C.A.S akan mendapatkan lebih sedikit pembaruan.",
+        "*[data-translation-visit-product-btn]": "Kunjungi",
+        "*[data-translation-acas-recommends]": "A.C.A.S merekomendasikan",
+        "*[data-translation-find-more-deals]": "Temukan Penawaran Lain",
+        "*[data-translation-we-are-partnered-ali]": "Kami telah bermitra dengan AliExpress untuk memberikan penawaran hebat kepada pengguna A.C.A.S. Kami berusaha keras untuk merekomendasikan produk berkualitas, tanpa barang murahan.",
+        "*[data-translation-if-you-find-something]": "Jika Anda menemukan sesuatu yang Anda sukai, hebat! Tapi bahkan jika Anda memilih yang lain, menggunakan tautan kami tetap membantu mendukung kami. Kami sangat menghargainya!",
+        "*[data-translation-support-page-thank-you]": "Terima kasih atas dukungan Anda!",
+        "*[data-translation-support-page-disclaimer]": "Ini adalah tautan afiliasi, yang berarti kami mendapatkan komisi ketika Anda membeli melalui mereka. Ini tidak akan menambah biaya Anda, tetapi membantu mendukung proyek ini."    
     },
     "configTranslations": {
         "engineEnabled": ["Diaktifkan", "Apakah mesin diaktifkan"],

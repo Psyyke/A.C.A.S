@@ -34,7 +34,20 @@
         "#install-title": "NESSUNO SCRIPT UTENTE RILEVATO",
         ".violentmonkey-btn": "Ottieni Violentmonkey",
         ".install-userscript-btn": "Installa lo Script Utente",
-        "#install-mobile-container.install-subtitle": "Gli utenti mobili possono provare questi ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Gli utenti mobili possono provare questi ♡ ⤵",
+        "*[data-translation-random-gift]": "Regalo casuale",
+        "*[data-translation-special-deals]": "Grazie per utilizzare A.C.A.S, sei idoneo per nuove offerte speciali!",
+        "*[data-translation-get-my-deals]": "Ottieni le mie offerte",
+        "*[data-translation-teamed-up]": "Ci siamo alleati con AliExpress per offrire ai clienti A.C.A.S offerte fantastiche! Ogni acquisto effettuato dopo aver visitato il link aiuta lo sviluppo di A.C.A.S.",
+        "*[data-translation-recommended-products]": "Prodotti consigliati",
+        "*[data-translation-support-disclaimer]": "I tuoi acquisti aiutano a supportare lo sviluppo di A.C.A.S senza costi aggiuntivi per te. Senza questo, A.C.A.S riceverebbe meno aggiornamenti.",
+        "*[data-translation-visit-product-btn]": "Visita",
+        "*[data-translation-acas-recommends]": "A.C.A.S consiglia",
+        "*[data-translation-find-more-deals]": "Trova più offerte",
+        "*[data-translation-we-are-partnered-ali]": "Ci siamo alleati con AliExpress per portare agli utenti A.C.A.S fantastiche offerte. Facciamo del nostro meglio per raccomandare prodotti di qualità, niente roba scadente.",
+        "*[data-translation-if-you-find-something]": "Se trovi qualcosa che ti piace, fantastico! Ma anche se scegli qualcos'altro, utilizzare il nostro link aiuta comunque a supportarci. Lo apprezziamo davvero tanto!",
+        "*[data-translation-support-page-thank-you]": "Grazie per il tuo supporto!",
+        "*[data-translation-support-page-disclaimer]": "Questi sono link di riferimento, il che significa che guadagniamo una commissione quando acquisti tramite di essi. Non ti costerà nulla in più, ma aiuterà a supportare il progetto."    
     },
     "configTranslations": {
         "engineEnabled": ["Abilitato", "Il motore è abilitato"],

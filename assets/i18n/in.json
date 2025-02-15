@@ -34,7 +34,20 @@
         "#install-title": "कोई उपयोगकर्ता स्क्रिप्ट नहीं पाई गई",
         ".violentmonkey-btn": "Violentmonkey प्राप्त करें",
         ".install-userscript-btn": "उपयोगकर्ता स्क्रिप्ट स्थापित करें",
-        "#install-mobile-container.install-subtitle": "मोबाइल उपयोगकर्ता इन्हें आज़मा सकते हैं ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "मोबाइल उपयोगकर्ता इन्हें आज़मा सकते हैं ♡ ⤵",
+        "*[data-translation-random-gift]": "रैंडम गिफ्ट",
+        "*[data-translation-special-deals]": "A.C.A.S का उपयोग करने के लिए धन्यवाद, आप नए विशेष ऑफ़र के लिए पात्र हैं!",
+        "*[data-translation-get-my-deals]": "मेरे ऑफ़र प्राप्त करें",
+        "*[data-translation-teamed-up]": "हमने A.C.A.S उपयोगकर्ताओं को बेहतरीन ऑफ़र देने के लिए AliExpress के साथ साझेदारी की है! लिंक पर जाने के बाद किए गए कोई भी खरीदारी A.C.A.S के विकास में मदद करते हैं।",
+        "*[data-translation-recommended-products]": "सिफारिश किए गए उत्पाद",
+        "*[data-translation-support-disclaimer]": "आपकी खरीदारी A.C.A.S के विकास में अतिरिक्त लागत के बिना मदद करती है। इसके बिना, A.C.A.S को कम अपडेट मिलते।",
+        "*[data-translation-visit-product-btn]": "देखें",
+        "*[data-translation-acas-recommends]": "A.C.A.S की सिफारिशें",
+        "*[data-translation-find-more-deals]": "अधिक ऑफ़र देखें",
+        "*[data-translation-we-are-partnered-ali]": "हमने A.C.A.S उपयोगकर्ताओं को शानदार ऑफ़र देने के लिए AliExpress के साथ साझेदारी की है। हम गुणवत्ता वाले उत्पादों की सिफारिश करने का हर संभव प्रयास करते हैं, कोई बेकार सामान नहीं।",
+        "*[data-translation-if-you-find-something]": "अगर आपको कुछ पसंद आता है, तो शानदार! लेकिन यदि आप कुछ और चुनते हैं, तो भी हमारे लिंक का उपयोग करके आप हमारी मदद कर रहे हैं। हम इसकी बहुत सराहना करते हैं!",
+        "*[data-translation-support-page-thank-you]": "आपके समर्थन के लिए धन्यवाद!",
+        "*[data-translation-support-page-disclaimer]": "ये संदर्भ लिंक हैं, जिसका मतलब है कि जब आप इनके माध्यम से खरीदारी करते हैं तो हमें कमीशन मिलता है। इससे आपको अतिरिक्त कोई लागत नहीं होगी, लेकिन यह परियोजना का समर्थन करने में मदद करता है।"    
     },
     "configTranslations": {
         "engineEnabled": ["सक्षम", "क्या इंजन सक्षम है"],

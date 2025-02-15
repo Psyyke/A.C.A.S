@@ -34,7 +34,20 @@
         "#install-title": "NO SE DETECTÓ USERSCRIPT",
         ".violentmonkey-btn": "Obtener Violentmonkey",
         ".install-userscript-btn": "Instalar Userscript",
-        "#install-mobile-container.install-subtitle": "Los usuarios móviles pueden probar esto ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Los usuarios móviles pueden probar esto ♡ ⤵",
+        "*[data-translation-random-gift]": "Regalo aleatorio",
+        "*[data-translation-special-deals]": "Gracias por usar A.C.A.S, ¡eres elegible para nuevas ofertas especiales!",
+        "*[data-translation-get-my-deals]": "Obtener mis ofertas",
+        "*[data-translation-teamed-up]": "Nos hemos asociado con AliExpress para ofrecer grandes ofertas a los usuarios de A.C.A.S. ¡Cualquier compra después de visitar el enlace ayuda al desarrollo de A.C.A.S!",
+        "*[data-translation-recommended-products]": "Productos recomendados",
+        "*[data-translation-support-disclaimer]": "Tus compras ayudan a apoyar el desarrollo de A.C.A.S sin costo adicional para ti. Sin esto, A.C.A.S recibiría menos actualizaciones.",
+        "*[data-translation-visit-product-btn]": "Visitar",
+        "*[data-translation-acas-recommends]": "A.C.A.S recomienda",
+        "*[data-translation-find-more-deals]": "Encontrar más ofertas",
+        "*[data-translation-we-are-partnered-ali]": "Nos hemos asociado con AliExpress para traer grandes ofertas a los usuarios de A.C.A.S. Hacemos nuestro mejor esfuerzo para recomendar productos de calidad, sin basura.",
+        "*[data-translation-if-you-find-something]": "Si encuentras algo que te guste, ¡genial! Pero incluso si eliges otra cosa, usar nuestro enlace sigue ayudando a apoyarnos. ¡Te lo agradecemos mucho!",
+        "*[data-translation-support-page-thank-you]": "¡Gracias por tu apoyo!",
+        "*[data-translation-support-page-disclaimer]": "Estos son enlaces de referencia, lo que significa que ganamos una comisión cuando compras a través de ellos. No te costará más, pero ayuda a apoyar el proyecto."
     },
     "configTranslations": {
         "engineEnabled": ["Habilitado", "¿Está habilitado el motor?"],

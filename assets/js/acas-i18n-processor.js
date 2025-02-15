@@ -7,6 +7,7 @@
 	let availableLanguages = [];
 	let firstLoad = true;
 	let triedToLoadAgain = false;
+	let isSecondaryPage = window?.isAcasSecondaryPage;
 
 	let mutationCounter = 0;
 
@@ -58,10 +59,12 @@
 
 	async function load(lang, userActivated){
 		try {
-			const response = await fetch(`assets/i18n/${lang}.json`);
+			const additionalPrefix = isSecondaryPage ? '../' : '';
+
+			const response = await fetch(additionalPrefix + `assets/i18n/${lang}.json`);
 			const translationObj = await response.json();
 
-			const metaResponse = await fetch(`assets/i18n/meta.json`);
+			const metaResponse = await fetch(additionalPrefix + `assets/i18n/meta.json`);
 			const metaObj = await metaResponse.json();
 			const availableLanguagesArr = metaObj.availableLanguages;
 

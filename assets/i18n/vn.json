@@ -34,7 +34,20 @@
         "#install-title": "KHÔNG PHÁT HIỆN USERSCRIPT",
         ".violentmonkey-btn": "Tải Violentmonkey",
         ".install-userscript-btn": "Cài đặt Userscript",
-        "#install-mobile-container.install-subtitle": "Người dùng di động có thể thử những điều này ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Người dùng di động có thể thử những điều này ♡ ⤵",
+        "*[data-translation-random-gift]": "Quà ngẫu nhiên",
+        "*[data-translation-special-deals]": "Cảm ơn bạn đã sử dụng A.C.A.S, bạn đủ điều kiện nhận các ưu đãi đặc biệt mới!",
+        "*[data-translation-get-my-deals]": "Lấy ưu đãi của tôi",
+        "*[data-translation-teamed-up]": "Chúng tôi đã hợp tác với AliExpress để cung cấp cho người dùng A.C.A.S những ưu đãi tuyệt vời! Mọi giao dịch mua sau khi truy cập liên kết giúp phát triển A.C.A.S.",
+        "*[data-translation-recommended-products]": "Sản phẩm được đề xuất",
+        "*[data-translation-support-disclaimer]": "Các giao dịch mua của bạn giúp hỗ trợ sự phát triển của A.C.A.S mà không có chi phí bổ sung cho bạn. Nếu không có điều này, A.C.A.S sẽ nhận ít bản cập nhật hơn.",
+        "*[data-translation-visit-product-btn]": "Thăm",
+        "*[data-translation-acas-recommends]": "A.C.A.S đề xuất",
+        "*[data-translation-find-more-deals]": "Tìm thêm ưu đãi",
+        "*[data-translation-we-are-partnered-ali]": "Chúng tôi đã hợp tác với AliExpress để mang lại những ưu đãi tuyệt vời cho người dùng A.C.A.S. Chúng tôi làm hết sức để đề xuất các sản phẩm chất lượng, không phải hàng rác.",
+        "*[data-translation-if-you-find-something]": "Nếu bạn tìm thấy một món đồ mà bạn thích, thật tuyệt! Nhưng ngay cả khi bạn chọn món khác, việc sử dụng liên kết của chúng tôi vẫn giúp chúng tôi. Chúng tôi thực sự rất biết ơn!",
+        "*[data-translation-support-page-thank-you]": "Cảm ơn bạn vì sự hỗ trợ!",
+        "*[data-translation-support-page-disclaimer]": "Đây là các liên kết tiếp thị liên kết, có nghĩa là chúng tôi kiếm được hoa hồng khi bạn mua qua chúng. Điều này sẽ không khiến bạn phải chi thêm, nhưng nó giúp hỗ trợ dự án."    
     },
     "configTranslations": {
         "engineEnabled": ["Đã bật", "Động cơ đã được bật"],

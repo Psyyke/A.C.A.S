@@ -34,7 +34,20 @@
         "#install-title": "AUCUN SCRIPT UTILISATEUR DÉTECTÉ",
         ".violentmonkey-btn": "Obtenir Violentmonkey",
         ".install-userscript-btn": "Installer le script utilisateur",
-        "#install-mobile-container.install-subtitle": "Les utilisateurs mobiles peuvent essayer ces options ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Les utilisateurs mobiles peuvent essayer ces options ♡ ⤵",
+        "*[data-translation-random-gift]": "Cadeau aléatoire",
+        "*[data-translation-special-deals]": "Merci d'utiliser A.C.A.S, vous êtes éligible à de nouvelles offres spéciales !",
+        "*[data-translation-get-my-deals]": "Obtenir mes offres",
+        "*[data-translation-teamed-up]": "Nous nous sommes associés à AliExpress pour offrir de superbes offres aux utilisateurs de A.C.A.S. Toute commande effectuée après avoir visité le lien aide au développement de A.C.A.S.",
+        "*[data-translation-recommended-products]": "Produits recommandés",
+        "*[data-translation-support-disclaimer]": "Vos achats aident à soutenir le développement de A.C.A.S sans frais supplémentaires pour vous. Sans cela, A.C.A.S recevrait moins de mises à jour.",
+        "*[data-translation-visit-product-btn]": "Visiter",
+        "*[data-translation-acas-recommends]": "A.C.A.S recommande",
+        "*[data-translation-find-more-deals]": "Trouver plus d'offres",
+        "*[data-translation-we-are-partnered-ali]": "Nous avons noué un partenariat avec AliExpress pour apporter de superbes offres aux utilisateurs de A.C.A.S. Nous faisons de notre mieux pour recommander des produits de qualité, sans produits de mauvaise qualité.",
+        "*[data-translation-if-you-find-something]": "Si vous trouvez quelque chose qui vous plaît, génial ! Mais même si vous choisissez quelque chose d'autre, l'utilisation de notre lien nous aide toujours. Nous vous en remercions vraiment !",
+        "*[data-translation-support-page-thank-you]": "Merci pour votre soutien !",
+        "*[data-translation-support-page-disclaimer]": "Ce sont des liens de recommandation, ce qui signifie que nous touchons une commission lorsque vous achetez par leur biais. Cela ne vous coûtera rien de plus, mais cela aide à soutenir le projet."    
     },
     "configTranslations": {
         "engineEnabled": ["Activé", "Le moteur est-il activé ?"],

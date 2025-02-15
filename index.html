@@ -66,6 +66,7 @@
 					<div class="dropdown-list-container">
 					</div>
 				</div></div>
+				<div class="hard-refresh-btn" onclick="location.href = location.origin + location.pathname + '?timestamp=' + new Date().getTime();" title="Attempt Hard Refresh">⚡</div>
 				<div id="install-buttons-inner-container">
 					<a href="https://violentmonkey.github.io/get-it/" class="install-notification-btn violentmonkey-btn" target="_about">Get Violentmonkey</a>
 					<a href="https://greasyfork.org/en/scripts/459137" class="install-notification-btn install-userscript-btn" target="_about">Install Userscript</a>
@@ -107,8 +108,8 @@
 					<a class="header-social-button discord-button acas-fancy-button" href="https://hakorr.github.io/Userscripts/community/invite" target="_blank" title="Join 'Userscript Hub' on Discord">
 						<i class="bi bi-discord"></i>
 					</a>
-					<a class="header-social-button soundcloud-button acas-fancy-button" href="https://soundcloud.com/hakorr/acas" target="_blank" title="We really got A.C.A.S theme song before GTA 6">
-						<i class="bi bi-music-note-beamed"></i>
+					<a class="header-social-button affiliate-button acas-fancy-button" href="support" target="_blank" title="We really got A.C.A.S theme song before GTA 6">
+						<i class="bi bi-heart-fill"></i>
 					</a>
 				</div>
 			</div>
@@ -225,6 +226,7 @@
 									<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish v14 NNUE WASM</div>
 									<div class="dropdown-item" data-value="stockfish-16-1-wasm">Stockfish v16.1 WASM</div>
 									<div class="dropdown-item" data-value="lc0">Lc0 v29</div>
+									<div class="dropdown-item" data-value="lozza-5">Lozza 5</div>
 								</div>
 							</div></div>
 							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
@@ -342,6 +344,44 @@
 								<input type="textfield" data-key="ttsVoiceSpeed" data-default-value="10" data-between="1-100">
 							</div>
 						</div>
+						<div id="hidden-setting-panel" class="setting-panel">
+							<div class="setting-panel-title"><span class="hidden-panel-title">Unstable</span> 👻</div>
+							<div class="tos-reminder-setting-panel-item"><a href="tos/" class="tos-reminder-link" target="_blank">Remember to follow the ToS</a> 💖<br><small class="no-updates-disclaimer-text">Do not ask for updates for these</small><span> ↴</span></div>
+							<div class="input-combination-box">
+								<div class="checkbox-input custom-input"><div><div class="input-title">Auto Move</div>
+									<div class="input-subtitle">For Chess.com. Use only against bots</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="autoMove" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+								</div>
+								<div class="input-combination-box">
+									<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Legit Mode</div>
+										<div class="input-subtitle">Attempt to make Auto Move more legit</div></div><div class="checkbox-container">
+										<input type="checkbox" data-key="autoMoveLegit" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+									</div>
+									<div id="legit-mode-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Legit Mode Type</div>
+										<div class="input-subtitle">What kind of player should Auto Move play</div></div><div class="dropdown-input-container">
+										<input type="text" additional-type="dropdown" data-key="legitModeType" data-default-value="casual" placeholder="Casual"><div class="dropdown-icon"></div>
+										<div class="dropdown-list-container">
+											<div class="dropdown-item" data-value="beginner">Beginner</div>
+											<div class="dropdown-item" data-value="casual">Casual</div>
+											<div class="dropdown-item" data-value="intermediate">Intermediate</div>
+											<div class="dropdown-item" data-value="advanced">Advanced</div>
+											<div class="dropdown-item" data-value="master">Master</div>
+											<div class="dropdown-item" data-value="professional">Professional</div>
+											<div class="dropdown-item" data-value="god">God</div>
+										</div>
+									</div></div>
+								</div>
+		
+								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Random Mode</div>
+									<div class="input-subtitle">Play other moves than the best one</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="autoMoveRandom" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+								</div>
+								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">After User</div>
+									<div class="input-subtitle">Start the Auto Move after user move</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="autoMoveAfterUser" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="setting-panel">
@@ -376,44 +416,18 @@
 						</div>
 					</div></div>
 				</div>
-				<div id="hidden-setting-panel" class="setting-panel hidden">
-					<div class="setting-panel-title"><span class="hidden-panel-title">Hidden</span> 👻</div>
-					<div class="tos-reminder-setting-panel-item"><a href="tos/" class="tos-reminder-link" target="_blank">Remember to follow the ToS</a> 💖<br><small class="no-updates-disclaimer-text">Do not ask for updates for these</small><span> ↴</span></div>
-					<div class="input-combination-box">
-						<div class="checkbox-input custom-input"><div><div class="input-title">Auto Move</div>
-							<div class="input-subtitle">For Chess.com. Use only against bots</div></div><div class="checkbox-container">
-							<input type="checkbox" data-key="autoMove" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-						</div>
-						<div class="input-combination-box">
-							<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Legit Mode</div>
-								<div class="input-subtitle">Attempt to make Auto Move more legit</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="autoMoveLegit" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div id="legit-mode-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Legit Mode Type</div>
-								<div class="input-subtitle">What kind of player should Auto Move play</div></div><div class="dropdown-input-container">
-								<input type="text" additional-type="dropdown" data-key="legitModeType" data-default-value="casual" placeholder="Casual"><div class="dropdown-icon"></div>
-								<div class="dropdown-list-container">
-									<div class="dropdown-item" data-value="beginner">Beginner</div>
-									<div class="dropdown-item" data-value="casual">Casual</div>
-									<div class="dropdown-item" data-value="intermediate">Intermediate</div>
-									<div class="dropdown-item" data-value="advanced">Advanced</div>
-									<div class="dropdown-item" data-value="master">Master</div>
-									<div class="dropdown-item" data-value="professional">Professional</div>
-									<div class="dropdown-item" data-value="god">God</div>
-								</div>
-							</div></div>
-						</div>
+			</div>
+		</div>
 
-						<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Random Mode</div>
-							<div class="input-subtitle">Play other moves than the best one</div></div><div class="checkbox-container">
-							<input type="checkbox" data-key="autoMoveRandom" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-						</div>
-						<div class="checkbox-input sub-input custom-input"><div><div class="input-title">After User</div>
-							<div class="input-subtitle">Start the Auto Move after user move</div></div><div class="checkbox-container">
-							<input type="checkbox" data-key="autoMoveAfterUser" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-						</div>
-					</div>
-				</div>
+		<div class="offer-container">
+			<div class="acas-offer">
+				<div class="close-btn">X</div>
+				<div class="title"><div class="pretitle">(<span data-translation-random-gift>Random Gift</span>)</div>A.C.A.S <span class="offer-x">x</span> AliExpress</div>
+				<div class="subtitle" style="margin-top: 20px;"><span data-translation-special-deals>Thanks for using A.C.A.S, you're eligble for new special deals!</span><span class="emoticon"> (˶◜ᵕ◝˶)</span></div>
+				<a href='https://s.click.aliexpress.com/e/_oEaswTy?bz=300*250' class="get-deal-btn acas-fancy-button" target='_blank'><span data-translation-get-my-deals>Get My Deals</span></a>
+				<div class="disclaimer"><span data-translation-teamed-up>We've teamed up with AliExpress to offer A.C.A.S. users great deals! Any purchases after visiting the link aid A.C.A.S' development.</span></div>
+				<div class="product-container"><div class="midtitle"><span data-translation-recommended-products>Recommended products</span></div></div>
+				<div class="small"><span data-translation-support-disclaimer>Your purchases help support the development of A.C.A.S at no extra cost to you. Without this A.C.A.S would receive less updates.</span></div>
 			</div>
 		</div>
 
@@ -424,6 +438,7 @@
 				<a class="footer-link" href="https://github.com/Hakorr" target="_about">Author</a>
 				<a class="footer-link" href="tos" target="_about">TOS</a>
 				<a class="footer-link" href="why" target="_about">Why</a>
+				<a class="footer-link" href="support" target="_about">Support</a>
 			</div>
 			<div id="thanks-for-using-footer-text" class="footer-small-text">Thanks for using A.C.A.S, a handcrafted project made by a solo developer.</div>
 		</div>

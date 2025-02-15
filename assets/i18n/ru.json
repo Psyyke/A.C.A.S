@@ -34,7 +34,20 @@
         "#install-title": "ПОЛЬЗОВАТЕЛЬСКИЙ СКРИПТ НЕ ОБНАРУЖЕН",
         ".violentmonkey-btn": "Получить Violentmonkey",
         ".install-userscript-btn": "Установить пользователю скрипт",
-        "#install-mobile-container.install-subtitle": "Пользователи мобильных устройств могут попробовать эти ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Пользователи мобильных устройств могут попробовать эти ♡ ⤵",
+        "*[data-translation-random-gift]": "Случайный подарок",
+        "*[data-translation-special-deals]": "Спасибо за использование A.C.A.S, вы имеете право на новые специальные предложения!",
+        "*[data-translation-get-my-deals]": "Получить мои предложения",
+        "*[data-translation-teamed-up]": "Мы объединились с AliExpress, чтобы предложить пользователям A.C.A.S отличные предложения! Каждая покупка, сделанная после посещения ссылки, помогает в развитии A.C.A.S.",
+        "*[data-translation-recommended-products]": "Рекомендуемые товары",
+        "*[data-translation-support-disclaimer]": "Ваши покупки помогают поддерживать разработку A.C.A.S без дополнительных затрат с вашей стороны. Без этого A.C.A.S получал бы меньше обновлений.",
+        "*[data-translation-visit-product-btn]": "Посетить",
+        "*[data-translation-acas-recommends]": "A.C.A.S рекомендует",
+        "*[data-translation-find-more-deals]": "Найти больше предложений",
+        "*[data-translation-we-are-partnered-ali]": "Мы объединились с AliExpress, чтобы предложить пользователям A.C.A.S отличные предложения. Мы стараемся рекомендовать качественные продукты, без всякого хлама.",
+        "*[data-translation-if-you-find-something]": "Если вы нашли что-то, что вам нравится, отлично! Но даже если вы выберете что-то другое, использование нашей ссылки все равно помогает нам. Мы очень благодарны!",
+        "*[data-translation-support-page-thank-you]": "Спасибо за вашу поддержку!",
+        "*[data-translation-support-page-disclaimer]": "Это партнерские ссылки, что означает, что мы получаем комиссию, когда вы покупаете через них. Это не обременит вас дополнительными расходами, но поможет поддержать проект."    
     },
     "configTranslations": {
         "engineEnabled": ["Включено", "Включен ли движок"],

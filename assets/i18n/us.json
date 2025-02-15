@@ -34,7 +34,20 @@
         "#install-title": "NO USERSCRIPT DETECTED",
         ".violentmonkey-btn": "Get Violentmonkey",
         ".install-userscript-btn": "Install Userscript",
-        "#install-mobile-container.install-subtitle": "Mobile users can try these ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Mobile users can try these ♡ ⤵",
+        "*[data-translation-random-gift]": "Random Gift",
+        "*[data-translation-special-deals]": "Thanks for using A.C.A.S, you're eligble for new special deals!",
+        "*[data-translation-get-my-deals]": "Get My Deals",
+        "*[data-translation-teamed-up]": "We've teamed up with AliExpress to offer A.C.A.S. users great deals! Any purchases after visiting the link aid A.C.A.S' development.",
+        "*[data-translation-recommended-products]": "Recommended products",
+        "*[data-translation-support-disclaimer]": "Your purchases help support the development of A.C.A.S at no extra cost to you. Without this A.C.A.S would receive less updates.",
+        "*[data-translation-visit-product-btn]": "Visit",
+        "*[data-translation-acas-recommends]": "A.C.A.S recommends",
+        "*[data-translation-find-more-deals]": "Find More Deals",
+        "*[data-translation-we-are-partnered-ali]": "We've partnered with AliExpress to bring A.C.A.S users great deals. We do our best to recommend quality products, no junk.",
+        "*[data-translation-if-you-find-something]": "If you find something you like, awesome! But even if you choose something else, using our link still helps support us. We really appreciate it!",
+        "*[data-translation-support-page-thank-you]": "Thank you for your support!",
+        "*[data-translation-support-page-disclaimer]": "These are referral links, meaning we earn a commission when you buy through them. It won't cost you extra, but it helps support the project."
     },
     "configTranslations": {
         "engineEnabled": ["Enabled", "Is the engine enabled"],

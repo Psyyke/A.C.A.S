@@ -34,7 +34,20 @@
         "#install-title": "KÄYTTÄJÄSCRIPTIÄ EI LÖYDY",
         ".violentmonkey-btn": "Hanki Violentmonkey",
         ".install-userscript-btn": "Asenna käyttäjäscriptti",
-        "#install-mobile-container.install-subtitle": "Mobiilikäyttäjät voivat kokeilla näitä ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Mobiilikäyttäjät voivat kokeilla näitä ♡ ⤵",
+        "*[data-translation-random-gift]": "Satunnainen lahja",
+        "*[data-translation-special-deals]": "Kiitos, että käytät A.C.A.S:ia! Olet oikeutettu uusiin erikoistarjouksiin!",
+        "*[data-translation-get-my-deals]": "Hanki tarjoukset",
+        "*[data-translation-teamed-up]": "Olemme tehneet yhteistyötä AliExpressin kanssa tarjotaksemme A.C.A.S. käyttäjille upeita tarjouksia! Kaikki ostokset linkin kautta auttavat A.C.A.S:in kehityksessä.",
+        "*[data-translation-recommended-products]": "Suositellut tuotteet",
+        "*[data-translation-support-disclaimer]": "Ostoksesi auttavat tukemaan A.C.A.S:in kehitystä ilman lisäkustannuksia sinulle. Ilman tätä A.C.A.S saisi vähemmän päivityksiä.",
+        "*[data-translation-visit-product-btn]": "Vieraile",
+        "*[data-translation-acas-recommends]": "A.C.A.S suosittelee",
+        "*[data-translation-find-more-deals]": "Etsi lisää tarjouksia",
+        "*[data-translation-we-are-partnered-ali]": "Olemme tehneet yhteistyötä AliExpressin kanssa tuodaksemme A.C.A.S. käyttäjille upeita tarjouksia. Teemme parhaamme suositellaksemme laadukkaita tuotteita, ei roskia.",
+        "*[data-translation-if-you-find-something]": "Jos löydät jotain, mistä pidät, mahtavaa! Mutta vaikka valitsisit jotain muuta, linkkimme käyttäminen auttaa meitä silti. Arvostamme sitä todella!",
+        "*[data-translation-support-page-thank-you]": "Kiitos tuestasi!",
+        "*[data-translation-support-page-disclaimer]": "Nämä ovat suosittelulinkkejä, mikä tarkoittaa, että ansaitsemme komission, kun ostat niiden kautta. Se ei maksa sinulle lisähintaa, mutta auttaa tukemaan projektia."
     },
     "configTranslations": {
         "engineEnabled": ["Päällä", "Onko moottori päällä"],

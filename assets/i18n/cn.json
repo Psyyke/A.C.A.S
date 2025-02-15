@@ -34,7 +34,20 @@
         "#install-title": "未检测到用户脚本",
         ".violentmonkey-btn": "获取 Violentmonkey",
         ".install-userscript-btn": "安装用户脚本",
-        "#install-mobile-container.install-subtitle": "移动用户可以尝试这些 ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "移动用户可以尝试这些 ♡ ⤵",
+        "*[data-translation-random-gift]": "随机礼物",
+        "*[data-translation-special-deals]": "感谢使用 A.C.A.S，您有资格获得新的特价优惠！",
+        "*[data-translation-get-my-deals]": "获取我的优惠",
+        "*[data-translation-teamed-up]": "我们与 AliExpress 合作，为 A.C.A.S 用户提供超值优惠！通过我们的链接购物可以支持 A.C.A.S 的发展。",
+        "*[data-translation-recommended-products]": "推荐产品",
+        "*[data-translation-support-disclaimer]": "您的购买可在不增加额外费用的情况下支持 A.C.A.S 的开发。否则，A.C.A.S 将获得更少的更新。",
+        "*[data-translation-visit-product-btn]": "访问",
+        "*[data-translation-acas-recommends]": "A.C.A.S 推荐",
+        "*[data-translation-find-more-deals]": "查找更多优惠",
+        "*[data-translation-we-are-partnered-ali]": "我们与 AliExpress 合作，为 A.C.A.S 用户带来超值优惠。我们尽力推荐优质产品，杜绝劣质商品。",
+        "*[data-translation-if-you-find-something]": "如果您找到喜欢的商品，那太棒了！即使选择其他商品，通过我们的链接购物仍然可以支持我们，我们非常感激！",
+        "*[data-translation-support-page-thank-you]": "感谢您的支持！",
+        "*[data-translation-support-page-disclaimer]": "这些是推荐链接，这意味着您通过它们购买时，我们会获得佣金。您不会多花一分钱，但这能帮助支持该项目。"
     },
     "configTranslations": {
         "engineEnabled": ["启用", "引擎是否启用"],

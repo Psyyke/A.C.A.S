@@ -34,7 +34,20 @@
         "#install-title": "ユーザースクリプトが検出されませんでした",
         ".violentmonkey-btn": "Violentmonkeyを取得",
         ".install-userscript-btn": "ユーザースクリプトをインストール",
-        "#install-mobile-container.install-subtitle": "モバイルユーザーはこちらをお試しください ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "モバイルユーザーはこちらをお試しください ♡ ⤵",
+        "*[data-translation-random-gift]": "ランダムギフト",
+        "*[data-translation-special-deals]": "A.C.A.Sをご利用いただきありがとうございます。新しい特別オファーの対象です！",
+        "*[data-translation-get-my-deals]": "私のオファーを取得",
+        "*[data-translation-teamed-up]": "A.C.A.Sユーザーに素晴らしいオファーを提供するためにAliExpressと提携しました！リンクを経由して行われた購入はA.C.A.Sの開発を支援します。",
+        "*[data-translation-recommended-products]": "おすすめ商品",
+        "*[data-translation-support-disclaimer]": "ご購入は追加費用なしでA.C.A.Sの開発をサポートします。これがないと、A.C.A.Sは更新が少なくなります。",
+        "*[data-translation-visit-product-btn]": "訪問",
+        "*[data-translation-acas-recommends]": "A.C.A.Sのおすすめ",
+        "*[data-translation-find-more-deals]": "さらにオファーを探す",
+        "*[data-translation-we-are-partnered-ali]": "A.C.A.Sユーザーに素晴らしいオファーを提供するためにAliExpressと提携しました。私たちは品質の高い商品を推奨するよう努めています、ゴミはありません。",
+        "*[data-translation-if-you-find-something]": "気に入った商品を見つけたら素晴らしいですね！でも、別の商品を選んでも、リンクを使っていただけると引き続き支援していただけます。本当に感謝しています！",
+        "*[data-translation-support-page-thank-you]": "ご支援ありがとうございます！",
+        "*[data-translation-support-page-disclaimer]": "これらはアフィリエイトリンクです。つまり、これらを通じて購入いただくと、手数料を得ることができます。追加料金は発生しませんが、プロジェクトの支援に役立ちます。"    
     },
     "configTranslations": {
         "engineEnabled": ["有効", "エンジンは有効ですか"],

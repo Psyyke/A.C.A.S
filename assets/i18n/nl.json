@@ -34,7 +34,20 @@
         "#install-title": "GEEN USERSCRIPT GEDETECTEERD",
         ".violentmonkey-btn": "Krijg Violentmonkey",
         ".install-userscript-btn": "Installeer Userscript",
-        "#install-mobile-container.install-subtitle": "Mobiele gebruikers kunnen deze proberen ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "Mobiele gebruikers kunnen deze proberen ♡ ⤵",
+        "*[data-translation-random-gift]": "Willekeurig cadeau",
+        "*[data-translation-special-deals]": "Bedankt voor het gebruik van A.C.A.S, je komt in aanmerking voor nieuwe speciale aanbiedingen!",
+        "*[data-translation-get-my-deals]": "Mijn aanbiedingen verkrijgen",
+        "*[data-translation-teamed-up]": "We hebben samengewerkt met AliExpress om A.C.A.S.-gebruikers geweldige aanbiedingen te bieden! Elke aankoop na het bezoeken van de link helpt de ontwikkeling van A.C.A.S.",
+        "*[data-translation-recommended-products]": "Aanbevolen producten",
+        "*[data-translation-support-disclaimer]": "Je aankopen helpen de ontwikkeling van A.C.A.S zonder extra kosten voor jou. Zonder dit zou A.C.A.S minder updates ontvangen.",
+        "*[data-translation-visit-product-btn]": "Bezoek",
+        "*[data-translation-acas-recommends]": "A.C.A.S beveelt aan",
+        "*[data-translation-find-more-deals]": "Meer aanbiedingen vinden",
+        "*[data-translation-we-are-partnered-ali]": "We zijn een samenwerking aangegaan met AliExpress om geweldige aanbiedingen naar A.C.A.S.-gebruikers te brengen. We doen ons best om kwaliteitsproducten aan te bevelen, geen rommel.",
+        "*[data-translation-if-you-find-something]": "Als je iets vindt dat je leuk vindt, geweldig! Maar zelfs als je iets anders kiest, helpt het nog steeds om ons te steunen door onze link te gebruiken. We waarderen het echt!",
+        "*[data-translation-support-page-thank-you]": "Bedankt voor je steun!",
+        "*[data-translation-support-page-disclaimer]": "Dit zijn affiliate links, wat betekent dat we een commissie verdienen wanneer je via deze links koopt. Het kost je niets extra, maar het helpt om het project te steunen."    
     },
     "configTranslations": {
         "engineEnabled": ["Ingeschakeld", "Is de engine ingeschakeld"],

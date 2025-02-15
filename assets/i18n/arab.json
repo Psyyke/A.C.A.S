@@ -34,7 +34,20 @@
         "#install-title": "لم يتم اكتشاف البرنامج النصي للمستخدم",
         ".violentmonkey-btn": "احصل على Violentmonkey",
         ".install-userscript-btn": "تثبيت البرنامج النصي للمستخدم",
-        "#install-mobile-container.install-subtitle": "يمكن للمستخدمين عبر الهواتف المحمولة تجربة هذه ♡ ⤵"
+        "#install-mobile-container.install-subtitle": "يمكن للمستخدمين عبر الهواتف المحمولة تجربة هذه ♡ ⤵",
+        "*[data-translation-random-gift]": "هدية عشوائية",
+        "*[data-translation-special-deals]": "شكرًا لاستخدامك A.C.A.S، أنت مؤهل للحصول على عروض خاصة جديدة!",
+        "*[data-translation-get-my-deals]": "احصل على عروض",
+        "*[data-translation-teamed-up]": "لقد تعاونا مع AliExpress لتقديم عروض رائعة لمستخدمي A.C.A.S! أي عمليات شراء بعد زيارة الرابط تساعد في تطوير A.C.A.S.",
+        "*[data-translation-recommended-products]": "المنتجات الموصى بها",
+        "*[data-translation-support-disclaimer]": "تساعد مشترياتك في دعم تطوير A.C.A.S بدون أي تكلفة إضافية عليك. بدون ذلك، سيحصل A.C.A.S على تحديثات أقل.",
+        "*[data-translation-visit-product-btn]": "زيارة",
+        "*[data-translation-acas-recommends]": "A.C.A.S يوصي",
+        "*[data-translation-find-more-deals]": "ابحث عن المزيد من العروض",
+        "*[data-translation-we-are-partnered-ali]": "لقد تعاونا مع AliExpress لتقديم عروض رائعة لمستخدمي A.C.A.S. نحن نبذل قصارى جهدنا لنوصي بمنتجات عالية الجودة، دون أي سلع غير مرغوب فيها.",
+        "*[data-translation-if-you-find-something]": "إذا وجدت شيئًا يعجبك، رائع! ولكن حتى لو اخترت شيئًا آخر، فإن استخدام رابطنا لا يزال يساعدنا في الدعم. نحن نقدّر ذلك حقًا!",
+        "*[data-translation-support-page-thank-you]": "شكرًا لدعمك!",
+        "*[data-translation-support-page-disclaimer]": "هذه روابط إحالة، مما يعني أننا نكسب عمولة عند الشراء من خلالها. لن يكلفك ذلك أي شيء إضافي، ولكنه يساعد في دعم المشروع."
     },
     "configTranslations": {
         "engineEnabled": ["مفعل", "هل المحرك مفعل"],
