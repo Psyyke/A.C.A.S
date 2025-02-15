@@ -55,7 +55,7 @@ if(typeof USERSCRIPT == 'undefined') {
         let data = await response.json();
         let safeword = data?.word ?? 'banana';
     
-        if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.05) {
+        if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.02) {
             const offerContainer = await waitForElement('.offer-container', 2500);
             const startTime = Date.now();
     
@@ -65,7 +65,7 @@ if(typeof USERSCRIPT == 'undefined') {
                 function close() {
                     clearInterval(btnClickEventInitializerInterval);
 
-                    document.cookie = `${safeword}=true; Max-Age=216000; path=/`;
+                    document.cookie = `${safeword}=true; Max-Age=604800; path=/`;
 
                     location.href = location.href + '?=' + new Date().getTime();
                 }
