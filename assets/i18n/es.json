@@ -40,14 +40,16 @@
         "*[data-translation-get-my-deals]": "Obtener mis ofertas",
         "*[data-translation-teamed-up]": "Nos hemos asociado con AliExpress para ofrecer grandes ofertas a los usuarios de A.C.A.S. ¡Cualquier compra después de visitar el enlace ayuda al desarrollo de A.C.A.S!",
         "*[data-translation-recommended-products]": "Productos recomendados",
-        "*[data-translation-support-disclaimer]": "Tus compras ayudan a apoyar el desarrollo de A.C.A.S sin costo adicional para ti. Sin esto, A.C.A.S recibiría menos actualizaciones.",
+        "*[data-translation-support-disclaimer]": "Tus compras ayudan a apoyar el desarrollo de A.C.A.S sin costo adicional para ti.",
         "*[data-translation-visit-product-btn]": "Visitar",
         "*[data-translation-acas-recommends]": "A.C.A.S recomienda",
         "*[data-translation-find-more-deals]": "Encontrar más ofertas",
         "*[data-translation-we-are-partnered-ali]": "Nos hemos asociado con AliExpress para traer grandes ofertas a los usuarios de A.C.A.S. Hacemos nuestro mejor esfuerzo para recomendar productos de calidad, sin basura.",
         "*[data-translation-if-you-find-something]": "Si encuentras algo que te guste, ¡genial! Pero incluso si eliges otra cosa, usar nuestro enlace sigue ayudando a apoyarnos. ¡Te lo agradecemos mucho!",
         "*[data-translation-support-page-thank-you]": "¡Gracias por tu apoyo!",
-        "*[data-translation-support-page-disclaimer]": "Estos son enlaces de referencia, lo que significa que ganamos una comisión cuando compras a través de ellos. No te costará más, pero ayuda a apoyar el proyecto."
+        "*[data-translation-support-page-disclaimer]": "Tus compras ayudan a apoyar el desarrollo de A.C.A.S sin costo adicional para ti.",
+        "*[data-translation-acas-connection-issues-title]": "¿Problemas de conexión?",
+        "*[data-translation-wiki-1]": "Mantén siempre visible la interfaz A.C.A.S GUI en una ventana separada para evitar que se congele. Si los problemas persisten, reinicia tu PC, usa Violentmonkey y prueba un navegador basado en Chromium como Brave con la configuración predeterminada."
     },
     "configTranslations": {
         "engineEnabled": ["Habilitado", "¿Está habilitado el motor?"],

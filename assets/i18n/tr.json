@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "A.C.A.S kullanıcılarına harika fırsatlar sunmak için AliExpress ile işbirliği yaptık. Kaliteli ürünleri önermeye özen gösteriyoruz, çöp değil.",
         "*[data-translation-if-you-find-something]": "Beğendiğiniz bir şey bulursanız harika! Ama başka bir şey seçseniz bile, linkimizi kullanarak hala destek oluyorsunuz. Gerçekten minnettarız!",
         "*[data-translation-support-page-thank-you]": "Desteğiniz için teşekkür ederiz!",
-        "*[data-translation-support-page-disclaimer]": "Bunlar bağlantılı bağlantılardır, yani bunlar üzerinden satın aldığınızda komisyon alıyoruz. Size ekstra bir maliyet yaratmaz, ancak projeye destek olur."    
+        "*[data-translation-support-page-disclaimer]": "Alışverişleriniz, A.C.A.S'ın gelişimini desteklemeye yardımcı olur, ek bir maliyet olmadan.",
+        "*[data-translation-acas-connection-issues-title]": "Bağlantı sorunları?",
+        "*[data-translation-wiki-1]": "A.C.A.S GUI'yi her zaman ayrı bir pencerede görünür tutun, donmayı önlemek için. Sorunlar devam ederse, bilgisayarınızı yeniden başlatın, Violentmonkey kullanın ve varsayılan yapılandırma ile Brave gibi Chromium tabanlı bir tarayıcıyı deneyin."
     },
     "configTranslations": {
         "engineEnabled": ["Etkin", "Motor etkin mi"],

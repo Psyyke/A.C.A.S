@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "Olemme tehneet yhteistyötä AliExpressin kanssa tuodaksemme A.C.A.S. käyttäjille upeita tarjouksia. Teemme parhaamme suositellaksemme laadukkaita tuotteita, ei roskia.",
         "*[data-translation-if-you-find-something]": "Jos löydät jotain, mistä pidät, mahtavaa! Mutta vaikka valitsisit jotain muuta, linkkimme käyttäminen auttaa meitä silti. Arvostamme sitä todella!",
         "*[data-translation-support-page-thank-you]": "Kiitos tuestasi!",
-        "*[data-translation-support-page-disclaimer]": "Nämä ovat suosittelulinkkejä, mikä tarkoittaa, että ansaitsemme komission, kun ostat niiden kautta. Se ei maksa sinulle lisähintaa, mutta auttaa tukemaan projektia."
+        "*[data-translation-support-page-disclaimer]": "Ostosi auttavat tukemaan A.C.A.S:in kehitystä ilman lisäkustannuksia sinulle.",
+        "*[data-translation-acas-connection-issues-title]": "Yhteysongelmia?",
+        "*[data-translation-wiki-1]": "Pidä A.C.A.S GUI aina näkyvissä erillisessä ikkunassa jäätymisen estämiseksi. Jos ongelmat jatkuvat, käynnistä tietokoneesi uudelleen, käytä Violentmonkeya ja kokeile Chromium-pohjaista selainta, kuten Brave, oletusasetuksilla."
     },
     "configTranslations": {
         "engineEnabled": ["Päällä", "Onko moottori päällä"],

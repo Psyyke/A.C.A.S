@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "Сътрудничим с AliExpress, за да донесем страхотни оферти на потребителите на A.C.A.S. Правим всичко възможно, за да предложим качествени продукти, а не боклуци.",
         "*[data-translation-if-you-find-something]": "Ако намерите нещо, което ви харесва, страхотно! Но дори и да изберете нещо друго, използването на нашата връзка все пак ни помага. Много го оценяваме!",
         "*[data-translation-support-page-thank-you]": "Благодарим ви за подкрепата!",
-        "*[data-translation-support-page-disclaimer]": "Това са реферални връзки, което означава, че получаваме комисионна, когато купувате през тях. Това няма да ви струва повече, но помага за поддръжката на проекта."
+        "*[data-translation-support-page-disclaimer]": "Това са реферални връзки, което означава, че получаваме комисионна, когато купувате през тях. Това няма да ви струва повече, но помага за поддръжката на проекта.",
+        "*[data-translation-acas-connection-issues-title]": "Bağlantı problemləri?",
+        "*[data-translation-wiki-1]": "A.C.A.S GUI-nin görünməsini ayrı bir pəncərədə saxlayın ki, donma baş verməsin. Problemlər davam edərsə, kompüterinizi yenidən başladın, Violentmonkey istifadə edin və Brave kimi Chromium-a əsaslanan bir brauzer sınayın."
     },
     "configTranslations": {
         "engineEnabled": ["Активирано", "Двигателят активиран ли е?"],

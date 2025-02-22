@@ -40,14 +40,16 @@
         "*[data-translation-get-my-deals]": "Szerezd meg az ajánlataimat",
         "*[data-translation-teamed-up]": "Összefogtunk az AliExpress-szel, hogy nagyszerű ajánlatokat kínáljunk az A.C.A.S. felhasználóinak! Bármilyen vásárlás a link meglátogatása után segíti az A.C.A.S fejlődését.",
         "*[data-translation-recommended-products]": "Ajánlott termékek",
-        "*[data-translation-support-disclaimer]": "A vásárlásaid segítenek támogatni az A.C.A.S fejlesztését, extra költség nélkül számodra. Enélkül az A.C.A.S kevesebb frissítést kapna.",
+        "*[data-translation-support-disclaimer]": "A vásárlásaid segítenek támogatni az A.C.A.S fejlesztését, extra költség nélkül számodra.",
         "*[data-translation-visit-product-btn]": "Látogass el",
         "*[data-translation-acas-recommends]": "Az A.C.A.S ajánlja",
         "*[data-translation-find-more-deals]": "További ajánlatok keresése",
         "*[data-translation-we-are-partnered-ali]": "Összefogtunk az AliExpress-szel, hogy nagyszerű ajánlatokat hozzunk az A.C.A.S felhasználóinak. Minden tőlünk telhetőt megteszünk, hogy minőségi termékeket ajánljunk, nem szemét.",
         "*[data-translation-if-you-find-something]": "Ha találsz valamit, ami tetszik, szuper! De még ha mást választasz is, a linkünk használata továbbra is segít minket. Nagyon értékeljük!",
         "*[data-translation-support-page-thank-you]": "Köszönjük a támogatásodat!",
-        "*[data-translation-support-page-disclaimer]": "Ezek referral linkek, ami azt jelenti, hogy jutalékot kapunk, amikor vásárolsz rajtuk keresztül. Ez nem kerül többe, de segít támogatni a projektet."
+        "*[data-translation-support-page-disclaimer]": "A vásárlásaid segítenek támogatni az A.C.A.S fejlesztését, extra költség nélkül számodra.",
+        "*[data-translation-acas-connection-issues-title]": "Kapcsolati problémák?",
+        "*[data-translation-wiki-1]": "Mindig tartsa láthatóan az A.C.A.S GUI-t egy külön ablakban a fagyás megakadályozása érdekében. Ha a problémák továbbra is fennállnak, indítsa újra a számítógépét, használja a Violentmonkey-t, és próbáljon ki egy Chromium-alapú böngészőt, például a Brave-t az alapértelmezett konfigurációval."
     },
     "configTranslations": {
         "engineEnabled": ["Engedélyezve", "Engedélyezve van a motor?"],

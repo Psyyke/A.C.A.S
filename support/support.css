@@ -26,13 +26,20 @@ body {
     display: flex;
     align-content: center;
     justify-content: center;
+    flex-direction: column;
     align-items: center;
 }
 #wrapper {
     margin: 125px 25px 125px 25px;
     display: flex;
     flex-direction: column;
-    width: 600px;
+    max-width: 600px;
+}
+#wiki-wrapper {
+    margin: 125px 25px 0px 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .big-title {
     font-size: 35px;
@@ -52,6 +59,7 @@ body {
     font-size: 20px;
     font-weight: 400;
     margin: 10px 0 10px 0;
+    max-width: 1000px;
 }
 .center-text {
     text-align: center;
@@ -170,4 +178,33 @@ body {
     background-color: #2799209e;
     display: flex;
     justify-content: center;
+}
+
+#wiki-section {
+    margin: 20px;
+    text-align: center;
+}
+.animation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90vw;
+    height: 100%;
+    max-width: 1200px;
+    overflow: hidden;
+}
+#lottie-animation {
+    width: 1000px;
+    height: 600px;
+}
+.data-transfer {
+    margin-top: 20px;
+    font-size: 18px;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
 }

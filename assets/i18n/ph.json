@@ -40,14 +40,16 @@
         "*[data-translation-get-my-deals]": "Kunin ang aking mga alok",
         "*[data-translation-teamed-up]": "Nakipagtulungan kami sa AliExpress upang mag-alok ng magagandang deal para sa mga gumagamit ng A.C.A.S! Ang bawat pagbili pagkatapos bisitahin ang link ay tumutulong sa pag-unlad ng A.C.A.S.",
         "*[data-translation-recommended-products]": "Inirerekomendang Produkto",
-        "*[data-translation-support-disclaimer]": "Ang iyong mga pagbili ay tumutulong sa pagsuporta sa pag-unlad ng A.C.A.S nang walang karagdagang gastos sa iyo. Kung wala ito, makakakuha ang A.C.A.S ng mas kaunting mga update.",
+        "*[data-translation-support-disclaimer]": "Ang iyong mga pagbili ay tumutulong sa pagsuporta sa pag-unlad ng A.C.A.S nang walang karagdagang gastos sa iyo.",
         "*[data-translation-visit-product-btn]": "Bumisita",
         "*[data-translation-acas-recommends]": "Inirerekomenda ng A.C.A.S",
         "*[data-translation-find-more-deals]": "Maghanap ng higit pang mga alok",
         "*[data-translation-we-are-partnered-ali]": "Nakipagtulungan kami sa AliExpress upang magdala ng magagandang alok para sa mga gumagamit ng A.C.A.S! Ginagawa namin ang lahat ng aming makakaya upang magrekomenda ng mga de-kalidad na produkto, hindi basura.",
         "*[data-translation-if-you-find-something]": "Kung makakita ka ng isang bagay na gusto mo, mahusay! Ngunit kahit na pumili ka ng ibang bagay, ang paggamit ng aming link ay tumutulong pa rin sa amin. Labis naming pinahahalagahan ito!",
         "*[data-translation-support-page-thank-you]": "Salamat sa iyong suporta!",
-        "*[data-translation-support-page-disclaimer]": "Ito ay mga referral link, na nangangahulugang kumikita kami ng komisyon kapag bumili ka sa pamamagitan ng mga ito. Hindi ito magdadala sa iyo ng karagdagang gastos, ngunit tumutulong ito sa pagsuporta sa proyekto."
+        "*[data-translation-support-page-disclaimer]": "Ang iyong mga pagbili ay tumutulong sa pagsuporta sa pag-unlad ng A.C.A.S nang walang karagdagang gastos sa iyo.",
+        "*[data-translation-acas-connection-issues-title]": "Mga isyu sa koneksyon?",
+        "*[data-translation-wiki-1]": "Palaging panatilihing nakikita ang A.C.A.S GUI sa isang hiwalay na bintana upang maiwasan ang pagyeyelo. Kung patuloy ang mga isyu, i-restart ang iyong PC, gumamit ng Violentmonkey, at subukan ang isang Chromium-based na browser tulad ng Brave na may default na configuration."
     },
     "configTranslations": {
         "engineEnabled": ["Aktibo", "Ang engine ba ay aktibo?"],

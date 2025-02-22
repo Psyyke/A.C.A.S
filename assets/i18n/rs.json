@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "Udružili smo se sa AliExpress-om da bismo doneli sjajne ponude korisnicima A.C.A.S. Radimo sve što možemo da preporučimo kvalitetne proizvode, bez smeća.",
         "*[data-translation-if-you-find-something]": "Ako pronađeš nešto što ti se sviđa, sjajno! Ali čak i ako izabereš nešto drugo, korišćenje našeg linka pomaže nam da se podržimo. Veoma to cenimo!",
         "*[data-translation-support-page-thank-you]": "Hvala ti na podršci!",
-        "*[data-translation-support-page-disclaimer]": "Ovo su referral linkovi, što znači da zarađujemo proviziju kada kupiš preko njih. Neće te koštati više, ali pomaže u podršci projektu."
+        "*[data-translation-support-page-disclaimer]": "Vaše kupovine pomažu u podršci razvoju A.C.A.S bez dodatnih troškova za vas.",
+        "*[data-translation-acas-connection-issues-title]": "Problemi sa povezivanjem?",
+        "*[data-translation-wiki-1]": "Uvek držite A.C.A.S GUI vidljivim u odvojenom prozoru kako biste sprečili zamrzavanje. Ako problemi i dalje traju, ponovo pokrenite svoj računar, koristite Violentmonkey i isprobajte pretraživač zasnovan na Chromium-u, kao što je Brave, sa podrazumevanim podešavanjima."
     },
     "configTranslations": {
         "engineEnabled": ["Omogućeno", "Da li je motor omogućen?"],

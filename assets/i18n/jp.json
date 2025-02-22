@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "A.C.A.Sユーザーに素晴らしいオファーを提供するためにAliExpressと提携しました。私たちは品質の高い商品を推奨するよう努めています、ゴミはありません。",
         "*[data-translation-if-you-find-something]": "気に入った商品を見つけたら素晴らしいですね！でも、別の商品を選んでも、リンクを使っていただけると引き続き支援していただけます。本当に感謝しています！",
         "*[data-translation-support-page-thank-you]": "ご支援ありがとうございます！",
-        "*[data-translation-support-page-disclaimer]": "これらはアフィリエイトリンクです。つまり、これらを通じて購入いただくと、手数料を得ることができます。追加料金は発生しませんが、プロジェクトの支援に役立ちます。"    
+        "*[data-translation-support-page-disclaimer]": "あなたの購入は、追加費用なしでA.C.A.Sの開発を支援します。",
+        "*[data-translation-acas-connection-issues-title]": "接続の問題はありますか？",
+        "*[data-translation-wiki-1]": "A.C.A.S GUIを別のウィンドウで常に表示して、フリーズを防ぎます。問題が続く場合は、PCを再起動し、Violentmonkeyを使用し、BraveのようなChromiumベースのブラウザをデフォルト設定で試してください。"
     },
     "configTranslations": {
         "engineEnabled": ["有効", "エンジンは有効ですか"],

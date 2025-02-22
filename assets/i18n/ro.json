@@ -40,14 +40,16 @@
         "*[data-translation-get-my-deals]": "Obține ofertele mele",
         "*[data-translation-teamed-up]": "Ne-am asociat cu AliExpress pentru a oferi utilizatorilor A.C.A.S oferte excelente! Orice achiziție după vizitarea linkului ajută la dezvoltarea A.C.A.S.",
         "*[data-translation-recommended-products]": "Produse recomandate",
-        "*[data-translation-support-disclaimer]": "Achizițiile tale ajută la susținerea dezvoltării A.C.A.S fără costuri suplimentare pentru tine. Fără aceasta, A.C.A.S ar primi mai puține actualizări.",
+        "*[data-translation-support-disclaimer]": "Achizițiile tale ajută la susținerea dezvoltării A.C.A.S fără costuri suplimentare pentru tine.",
         "*[data-translation-visit-product-btn]": "Vizitează",
         "*[data-translation-acas-recommends]": "A.C.A.S recomandă",
         "*[data-translation-find-more-deals]": "Găsește mai multe oferte",
         "*[data-translation-we-are-partnered-ali]": "Ne-am asociat cu AliExpress pentru a aduce utilizatorilor A.C.A.S oferte excelente. Facem tot posibilul să recomandăm produse de calitate, fără junk.",
         "*[data-translation-if-you-find-something]": "Dacă găsești ceva ce îți place, minunat! Dar chiar dacă alegi altceva, folosind linkul nostru ne ajută să ne susținem. Apreciem foarte mult!",
         "*[data-translation-support-page-thank-you]": "Îți mulțumim pentru suport!",
-        "*[data-translation-support-page-disclaimer]": "Acestea sunt linkuri de referral, ceea ce înseamnă că câștigăm un comision când cumperi prin ele. Nu te va costa mai mult, dar ajută la susținerea proiectului."
+        "*[data-translation-support-page-disclaimer]": "Acestea sunt linkuri de referral, ceea ce înseamnă că câștigăm un comision când cumperi prin ele. Nu te va costa mai mult, dar ajută la susținerea proiectului.",
+        "*[data-translation-acas-connection-issues-title]": "Probleme de conexiune?",
+        "*[data-translation-wiki-1]": "Păstrează întotdeauna interfața A.C.A.S GUI vizibilă într-o fereastră separată pentru a preveni înghețarea. Dacă problemele persistă, repornește-ți PC-ul, folosește Violentmonkey și încearcă un browser bazat pe Chromium, cum ar fi Brave, cu configurația implicită."
     },
     "configTranslations": {
         "engineEnabled": ["Activat", "Este motorul activat"],

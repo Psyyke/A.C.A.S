@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "Nous avons noué un partenariat avec AliExpress pour apporter de superbes offres aux utilisateurs de A.C.A.S. Nous faisons de notre mieux pour recommander des produits de qualité, sans produits de mauvaise qualité.",
         "*[data-translation-if-you-find-something]": "Si vous trouvez quelque chose qui vous plaît, génial ! Mais même si vous choisissez quelque chose d'autre, l'utilisation de notre lien nous aide toujours. Nous vous en remercions vraiment !",
         "*[data-translation-support-page-thank-you]": "Merci pour votre soutien !",
-        "*[data-translation-support-page-disclaimer]": "Ce sont des liens de recommandation, ce qui signifie que nous touchons une commission lorsque vous achetez par leur biais. Cela ne vous coûtera rien de plus, mais cela aide à soutenir le projet."    
+        "*[data-translation-support-page-disclaimer]": "Vos achats aident à soutenir le développement d'A.C.A.S sans frais supplémentaires.",
+        "*[data-translation-acas-connection-issues-title]": "Problèmes de connexion ?",
+        "*[data-translation-wiki-1]": "Gardez toujours l'interface A.C.A.S GUI visible dans une fenêtre séparée pour éviter le gel. Si les problèmes persistent, redémarrez votre PC, utilisez Violentmonkey et essayez un navigateur basé sur Chromium comme Brave avec la configuration par défaut."
     },
     "configTranslations": {
         "engineEnabled": ["Activé", "Le moteur est-il activé ?"],

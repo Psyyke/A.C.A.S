@@ -40,14 +40,16 @@
         "*[data-translation-get-my-deals]": "Hankige minu pakkumised",
         "*[data-translation-teamed-up]": "Oleme AliExpressiga koostööd teinud, et pakkuda A.C.A.S-i kasutajatele suurepäraseid pakkumisi! Iga ost pärast lingi külastamist aitab A.C.A.S-i arendust.",
         "*[data-translation-recommended-products]": "Soovitatud tooted",
-        "*[data-translation-support-disclaimer]": "Teie ostud aitavad toetada A.C.A.S-i arendust, ilma et see teile lisakulusid tooks. Ilma selleta saaks A.C.A.S vähem uuendusi.",
+        "*[data-translation-support-disclaimer]": "Teie ostud aitavad toetada A.C.A.S-i arendust, ilma et see teile lisakulusid tooks.",
         "*[data-translation-visit-product-btn]": "Külastama",
         "*[data-translation-acas-recommends]": "A.C.A.S soovitab",
         "*[data-translation-find-more-deals]": "Leidke rohkem pakkumisi",
         "*[data-translation-we-are-partnered-ali]": "Oleme AliExpressiga koostööd teinud, et tuua A.C.A.S-i kasutajatele suurepäraseid pakkumisi. Teeme kõik endast oleneva, et soovitada kvaliteetseid tooteid, mitte prügi.",
         "*[data-translation-if-you-find-something]": "Kui leiate midagi, mis teile meeldib, suurepärane! Kuid isegi kui valite midagi muud, aitab meie lingi kasutamine meid ikkagi toetada. Hindame seda väga!",
         "*[data-translation-support-page-thank-you]": "Aitäh teie toetuse eest!",
-        "*[data-translation-support-page-disclaimer]": "Need on suunamislingid, mis tähendab, et teenime komisjonitasu, kui ostate nende kaudu. See ei maksa teile rohkem, kuid aitab toetada projekti."
+        "*[data-translation-support-page-disclaimer]": "Teie ostud aitavad toetada A.C.A.S-i arendust, ilma et see teile lisakulusid tooks.",
+        "*[data-translation-acas-connection-issues-title]": "Ühenduse probleemid?",
+        "*[data-translation-wiki-1]": "Hoidke A.C.A.S GUI alati eraldi aknas nähtavana, et vältida külmumist. Kui probleemid püsivad, taaskäivitage oma arvuti, kasutage Violentmonkey'i ja proovige Chromium-põhist brauserit, näiteks Brave, vaikeseadetega."
     },
     "configTranslations": {
         "engineEnabled": ["Aktiveeritud", "Kas mootor on aktiveeritud?"],

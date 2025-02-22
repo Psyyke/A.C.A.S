@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "لقد تعاونا مع AliExpress لتقديم عروض رائعة لمستخدمي A.C.A.S. نحن نبذل قصارى جهدنا لنوصي بمنتجات عالية الجودة، دون أي سلع غير مرغوب فيها.",
         "*[data-translation-if-you-find-something]": "إذا وجدت شيئًا يعجبك، رائع! ولكن حتى لو اخترت شيئًا آخر، فإن استخدام رابطنا لا يزال يساعدنا في الدعم. نحن نقدّر ذلك حقًا!",
         "*[data-translation-support-page-thank-you]": "شكرًا لدعمك!",
-        "*[data-translation-support-page-disclaimer]": "هذه روابط إحالة، مما يعني أننا نكسب عمولة عند الشراء من خلالها. لن يكلفك ذلك أي شيء إضافي، ولكنه يساعد في دعم المشروع."
+        "*[data-translation-support-page-disclaimer]": "هذه روابط إحالة، مما يعني أننا نكسب عمولة عند الشراء من خلالها. لن يكلفك ذلك أي شيء إضافي، ولكنه يساعد في دعم المشروع.",
+        "*[data-translation-acas-connection-issues-title]": "مشاكل الاتصال؟",
+        "*[data-translation-wiki-1]": "دائمًا احتفظ بواجهة A.C.A.S GUI مرئية في نافذة منفصلة لمنع التجمد. إذا استمرت المشاكل، أعد تشغيل جهاز الكمبيوتر الخاص بك، واستخدم Violentmonkey، وجرب متصفحًا قائمًا على Chromium مثل Brave مع الإعدادات الافتراضية."
     },
     "configTranslations": {
         "engineEnabled": ["مفعل", "هل المحرك مفعل"],

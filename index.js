@@ -66,9 +66,10 @@ function attemptStarting() {
                 });
             }
             
-            let response = await fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/safeword.json?' + new Date().getTime());
-            let data = await response.json();
-            let safeword = data?.word ?? 'banana';
+            const safeword = await fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/safeword.json?' + Date.now())
+                .then(res => res.ok ? res.json() : {})
+                .then(data => data?.word ?? 'banana')
+                .catch(() => 'banana');
         
             if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.02) {
                 const offerContainer = await waitForElement('.offer-container', 2500);

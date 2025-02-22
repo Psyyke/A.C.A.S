@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "Spojili sme sa s AliExpress, aby sme priniesli skvelé ponuky pre používateľov A.C.A.S. Robíme všetko pre to, aby sme odporučili kvalitné produkty, nie odpad.",
         "*[data-translation-if-you-find-something]": "Ak nájdete niečo, čo sa vám páči, skvelé! Ale aj keď si vyberiete niečo iné, použitie nášho odkazu nám stále pomáha. Veľmi si to vážime!",
         "*[data-translation-support-page-thank-you]": "Ďakujeme za vašu podporu!",
-        "*[data-translation-support-page-disclaimer]": "Toto sú referral odkazy, čo znamená, že dostávame províziu, keď nakupujete cez ne. Nebude vás to stáť viac, ale pomôže to podporiť projekt."
+        "*[data-translation-support-page-disclaimer]": "Vaše nákupy pomáhajú podporovať vývoj A.C.A.S bez dodatočných nákladov.",
+        "*[data-translation-acas-connection-issues-title]": "Problémy s pripojením?",
+        "*[data-translation-wiki-1]": "Vždy udržujte rozhranie A.C.A.S GUI viditeľné v samostatnom okne, aby ste predišli zamrznutiu. Ak problémy pretrvávajú, reštartujte počítač, použite Violentmonkey a vyskúšajte prehliadač založený na Chromiu, ako je Brave, s predvoleným nastavením."
     },
     "configTranslations": {
         "engineEnabled": ["Povolené", "Je motor povolený?"],

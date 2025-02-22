@@ -47,7 +47,9 @@
         "*[data-translation-we-are-partnered-ali]": "我们与 AliExpress 合作，为 A.C.A.S 用户带来超值优惠。我们尽力推荐优质产品，杜绝劣质商品。",
         "*[data-translation-if-you-find-something]": "如果您找到喜欢的商品，那太棒了！即使选择其他商品，通过我们的链接购物仍然可以支持我们，我们非常感激！",
         "*[data-translation-support-page-thank-you]": "感谢您的支持！",
-        "*[data-translation-support-page-disclaimer]": "这些是推荐链接，这意味着您通过它们购买时，我们会获得佣金。您不会多花一分钱，但这能帮助支持该项目。"
+        "*[data-translation-support-page-disclaimer]": "这些是推荐链接，这意味着您通过它们购买时，我们会获得佣金。您不会多花一分钱，但这能帮助支持该项目。",
+        "*[data-translation-acas-connection-issues-title]": "连接问题？",
+        "*[data-translation-wiki-1]": "始终将 A.C.A.S GUI 保持在单独的窗口中可见，以防止冻结。如果问题仍然存在，请重启您的电脑，使用 Violentmonkey，并尝试使用默认配置的 Chromium 基础浏览器，如 Brave。"
     },
     "configTranslations": {
         "engineEnabled": ["启用", "引擎是否启用"],

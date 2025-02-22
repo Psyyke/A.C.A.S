@@ -84,3 +84,13 @@
         dealLinkElem.href = backupLink;
     }
 })();
+
+document.addEventListener("DOMContentLoaded", function() {
+    const lottieAnimation = lottie.loadAnimation({
+        container: document.querySelector('#lottie-animation'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'lottie.json'
+    });
+});
