@@ -541,7 +541,7 @@ class BackendInstance {
         chessFontStr = formatChessFont(chessFontStr);
 
         const chessboardComponentsElem = this.instanceElem.querySelector('.chessboard-components');
-        const chessFonts = ['merida', 'cburnett'];
+        const chessFonts = ['merida', 'cburnett', 'staunty', 'letters'];
 
         chessFonts.forEach(str => {
             if(str == chessFontStr) {
@@ -1352,8 +1352,24 @@ class BackendInstance {
             });
 
             let variantText = variant;
+            let chessFont = formatChessFont(this.getConfigValue(this.configKeys.chessFont));
 
-            const chessFont = formatChessFont(this.getConfigValue(this.configKeys.chessFont));
+            const formattedChessVariant = formatVariant(variant);
+            console.warn(formattedChessVariant);
+            const shouldSwitchFont = chessFont === 'staunty' && ![
+                // Chess variants which don't have special pieces
+                "chess", "crazyhouse", "chess960", 
+                "kingofthehill", "threecheck", "3check", 
+                "antichess", "atomic", "horde", 
+                "racingkings", "bughouse", "doublechess", 
+                "loserschess", "capablanca", "shatranj", 
+                "kingscourt", "reversechess", "crazychess", 
+                "normal", "fischerandom", "losers", 
+                "shako", "knightmate", "perfect"
+            ].includes(formattedChessVariant);
+
+            if(shouldSwitchFont)
+                chessFont = 'merida';
 
             this.variantStartPosFen = startpos;
 

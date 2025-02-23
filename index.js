@@ -71,7 +71,7 @@ function attemptStarting() {
                 .then(data => data?.word ?? 'banana')
                 .catch(() => 'banana');
         
-            if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.02) {
+            if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.01) {
                 const offerContainer = await waitForElement('.offer-container', 2500);
                 const startTime = Date.now();
         

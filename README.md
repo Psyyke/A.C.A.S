@@ -12,6 +12,7 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
 * Impossible to detect (well, you can never be sure, so let's say it's *almost* impossible)
+* Translated to 30+ languages
 
 > [!CAUTION]
 > Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
