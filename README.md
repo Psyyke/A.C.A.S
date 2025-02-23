@@ -5,9 +5,9 @@
 
 A.C.A.S is an **advanced chess assistance system** which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
-![277160104-791ad4ef-96c8-4679-ad78-e1188c73d5e4](https://github.com/Psyyke/A.C.A.S/assets/76921756/406c49ec-24dd-4b96-9fc4-4db1cc1fe205)
+![A.C.A.S GUI](https://github.com/user-attachments/assets/f8831590-7c5d-4e29-8019-98a02b5a467a)
 
-* No anti-features (*e.g. ads, tracking*)
+* No anti-features (*e.g. ads and tracking*, excluding referral links)
 * WebAssembly chess engine (faster than regular JavaScript engines)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
@@ -26,7 +26,6 @@ Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137
 > [!IMPORTANT]
 > You need to keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
 
-
 ## Example Gameplay
 
 ### Beating hard bots (Chess.com)
@@ -37,8 +36,9 @@ https://github.com/user-attachments/assets/790c91cd-f64b-4d27-b264-9080630b1029
 
 | A.C.A.S (Tab #1)    | Chess Website (Tab #2)  |
 |----------------------|----------------------|
-| ![image](https://github.com/Psyyke/A.C.A.S/assets/76921756/787740d5-b6a2-4ff1-8e8b-b96699a526e7) | ![image](https://github.com/Psyyke/A.C.A.S/assets/76921756/44c9e498-42fd-4d3f-92ea-91371e9732b5) |
+| ![A.C.A.S Tab](https://github.com/user-attachments/assets/4d5d80ac-3a1a-4529-889d-64403dd2adbe) | ![Lichess.org Tab](https://github.com/user-attachments/assets/97cb9650-19d5-41dc-bfbf-f071ee39eb92) |
 | The engine runs on a completely different tab than the chess game page, completely isolated from it. The site cannot block the usage of A.C.A.S. | A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink) and the userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If "Display Moves On External Site" setting is activated!*) |
+
 
 ### Arrow Meaning
 
