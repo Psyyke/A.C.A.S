@@ -1,6 +1,6 @@
 // DETECT EXCESSIVE TAB SWITCHING
 (() => {
-    const tabSwitchThreshold = 4;
+    const tabSwitchThreshold = 2;
     const tabSwitchTimeout = 10000;
 
     let tabSwitchCount = 0;
