@@ -1,3 +1,4 @@
+const defaultSafeword = 'banana';
 let started = false;
 
 function attemptStarting() {
@@ -27,17 +28,22 @@ function attemptStarting() {
             initializeDatabase();
             initGUI();
 
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const isFreshUser = urlParams.get('t') && (Date.now() - Number(urlParams.get('t')) <= 500);
+
             function ready() {
                 log.info('Userscript ready! Listening to instance calls...');
 
                 const autoMoveCheckbox = document.querySelector('input[data-key="autoMove"]');
-            
-                if(autoMoveCheckbox) {
-                    if(autoMoveCheckbox?.checked) {
-                        autoMoveCheckbox.click();
-                    }
-                }
-            
+                const hiddenSettingPanel = document.querySelector('#hidden-setting-panel');
+
+                if(urlParams.get('hidden') === 'true')
+                    hiddenSettingPanel.classList.remove('hidden');
+
+                else if(autoMoveCheckbox?.checked)
+                    autoMoveCheckbox.click();
+
                 const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
                     'singlePacketResponseWaitTime': 1500,
                     'maxSendAttempts': 3,
@@ -65,13 +71,8 @@ function attemptStarting() {
                     }
                 });
             }
-            
-            const safeword = await fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/safeword.json?' + Date.now())
-                .then(res => res.ok ? res.json() : {})
-                .then(data => data?.word ?? 'banana')
-                .catch(() => 'banana');
-        
-            if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.01) {
+
+            async function openPop(safeword) {
                 const offerContainer = await waitForElement('.offer-container', 2500);
                 const startTime = Date.now();
         
@@ -83,7 +84,7 @@ function attemptStarting() {
 
                         document.cookie = `${safeword}=true; Max-Age=604800; path=/`;
 
-                        location.href = location.href + '?=' + new Date().getTime();
+                        location.href = location.href + '?t=' + new Date().getTime();
                     }
 
                     function onClick() {
@@ -129,8 +130,19 @@ function attemptStarting() {
                         });
                     }
                 }
-        
-                return;
+            }
+
+            if(!isFreshUser) {
+                const safeword = await fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/safeword.json?' + Date.now())
+                    .then(res => res.ok ? res.json() : {})
+                    .then(data => data?.word ?? defaultSafeword)
+                    .catch(() => defaultSafeword);
+
+                if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.01) {
+                    openPop(safeword);
+            
+                    return;
+                }
             }
 
             ready();
@@ -182,7 +194,7 @@ const userscriptSearchInterval = setInterval(() => {
         attemptStarting();
     else
         clearInterval(userscriptSearchInterval);
-}, 100);
+}, 1);
 
 (() => {
     fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/products.json?' + new Date().getTime())
@@ -222,7 +234,7 @@ const userscriptSearchInterval = setInterval(() => {
                     discountElem.innerText = `${randomProduct?.discount}% off`;
 
                 actionBtn.href = randomProduct?.link;
-                descriptionElem.innerText = `"${randomProduct?.description ?? `We didn't write a description for this product. It didn't need one, the product is amazing.`}"`;
+                descriptionElem.innerText = `"${randomProduct?.description ?? `We didn't write a description for this product. It didn't need one.`}"`;
             
                 productContainer.appendChild(productItem);
 
@@ -230,20 +242,4 @@ const userscriptSearchInterval = setInterval(() => {
             }
         })
         .catch(error => console.log(error));
-})();
-
-(async () => {
-    const backupLink = 'https://s.click.aliexpress.com/e/_oEaswTy?bz=300*250';
-
-    try {
-        const response = await fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/link.json?' + new Date().getTime());
-        const data = await response.json();
-        const dealLink = data.link;
-
-        const dealLinkElem = await waitForElement('.get-deal-btn');
-        dealLinkElem.href = dealLink ?? backupLink;
-    } catch (error) {
-        const dealLinkElem = await waitForElement('.get-deal-btn');
-        dealLinkElem.href = backupLink;
-    }
 })();

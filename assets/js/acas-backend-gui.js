@@ -51,6 +51,9 @@ const addNewProfileBtn = document.querySelector('#add-new-profile-button');
 const profileDropdown = document.querySelector('#chess-engine-profile-dropdown');
 const deleteProfileBtn = document.querySelector('#delete-profile-button');
 
+const pipData = {};
+
+let pipCanvas = null;
 let lastProfileID = null;
 
 if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
@@ -132,8 +135,149 @@ guiBroadcastChannel.onmessage = e => {
         case 'updateChessVariants':
             fillChessVariantDropdowns(data);
             break;
+        case 'updatePiP':
+            updatePiP(data);
+            break;
     }
 };
+
+let lastPipEval = null;
+let lastBestMove = null;
+
+function updatePiP(data) {
+    for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          pipData[key] = data[key];
+        }
+    }
+
+    if(!pipCanvas)
+        return;
+
+    const ctx = pipCanvas.getContext('2d');
+    const headerHeight = 133;
+    const evalBarWidth = 100;
+    const statusBarHeight = 5;
+    const headerWidth = pipCanvas.width - evalBarWidth;
+
+    const noInstancesText = fullTransObj?.domTranslations?.['#no-instances-title'];
+
+    let progress = 0;
+
+    if(pipData.goalDepth) {
+        progress = pipData.depth / pipData.goalDepth;
+    } else if(pipData?.goalNodes) {
+        progress = pipData?.nodes / pipData?.goalNodes;
+    } else {
+        progress = calculateTimeProgress(pipData.startTime, pipData.movetime);
+    }
+
+    const playerColor = pipData.playerColor;
+    const bestMove = pipData?.moveObjects?.[0];
+    const from = bestMove?.player?.[0],
+          to = bestMove?.player?.[1];
+
+    let eval = pipData.eval ? pipData.eval : (playerColor === 'b' ? 1 : 0);
+
+    if(!pipData.eval && lastPipEval === null) {
+        eval = 0.5;
+    } else if(pipData.eval) {
+        lastPipEval = eval;
+    }
+
+    // Clear the canvas
+    ctx.clearRect(0, 0, pipCanvas.width, pipCanvas.height);
+
+    // Add background color
+    ctx.fillStyle = pipData.themeColorHex;
+    ctx.fillRect(0, 0, headerWidth, pipCanvas.height);
+
+    // Add header background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, headerWidth, headerHeight - statusBarHeight);
+
+    // Add header main title
+    ctx.fillStyle = 'white';
+    ctx.font = '800 70px Mona Sans';
+    ctx.fillText('A.C.A.S', 30, 90);
+
+    // Set regular text style
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = '500 70px IBM Plex Sans';
+
+    if(pipData.moveProgressText) {
+        ctx.fillText(pipData.moveProgressText, 40, headerHeight + 100);
+    } else if(noInstancesText) {
+        ctx.fillText(noInstancesText, 40, headerHeight + 100);
+    }
+
+    if(pipData.calculationTimeElapsed) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.font = '500 50px Mona Sans';
+        ctx.fillText(`(${pipData.calculationTimeElapsed}ms, ${(progress * 100).toFixed(0)}%)`, 320, 80);
+    }
+
+    if(from && to) {
+        ctx.fillStyle = 'white';
+        ctx.font = '500 160px IBM Plex Sans';
+        ctx.fillText(`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 40, headerHeight + 270);
+    }
+
+    // Progress bar
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.fillRect(
+        0,
+        headerHeight,
+        (pipCanvas.width - evalBarWidth) * progress,
+        pipCanvas.height - headerHeight
+    );
+
+    if(playerColor == 'b') {
+        // Eval bar #1
+        ctx.fillStyle = 'rgba(50, 50, 50, 1)';
+        ctx.fillRect(
+            pipCanvas.width - evalBarWidth,
+            0,
+            evalBarWidth,
+            pipCanvas.height
+        );
+
+        // Eval bar #2
+        ctx.fillStyle = 'rgba(200, 200, 200, 1)';
+        ctx.fillRect(
+            pipCanvas.width - evalBarWidth,
+            0,
+            evalBarWidth,
+            pipCanvas.height * eval
+        );
+    } else {
+        // Eval bar #1
+        ctx.fillStyle = 'rgba(200, 200, 200, 1)';
+        ctx.fillRect(
+            pipCanvas.width - evalBarWidth,
+            0,
+            evalBarWidth,
+            pipCanvas.height
+        );
+
+        // Eval bar #2
+        ctx.fillStyle = 'rgba(50, 50, 50, 1)';
+        ctx.fillRect(
+            pipCanvas.width - evalBarWidth,
+            0,
+            evalBarWidth,
+            pipCanvas.height * (1 - eval)
+        );
+    }
+
+    // Status bar
+    ctx.fillStyle = ['rgba(75, 75, 75, 0.4)', 'rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)'][pipData.isWinning];
+    ctx.fillRect(0, headerHeight - statusBarHeight, headerWidth, statusBarHeight);
+
+    // Separator
+    ctx.fillStyle = 'rgba(75, 75, 75, 0.4)';
+    ctx.fillRect(headerWidth, 0, 5, pipCanvas.height);
+}
 
 function displayNoUserscriptNotification(isEnable) {
     if(isEnable)
@@ -157,7 +301,7 @@ function displayTOS() {
         if(tosCheckboxElem.checked) {
             USERSCRIPT.GM_setValue('isTosAccepted', true);
             
-            setTimeout(() => window.location.reload(), 250);
+            setTimeout(() => location.search = '?t=' + Date.now(), 250);
         }
     }
 
@@ -321,14 +465,73 @@ function activateInputDefaultValue(elem) {
     setInputValue(elem, elem.dataset.defaultValue);
 }
 
-function makeSettingChanges(inputElem) {
+async function startPictureInPicture() {
+    if (!document.pictureInPictureEnabled) {
+        toast.error('Picture-in-Picture is not supported on your browser!');
+        return null;
+    }
+
+    const video = document.createElement('video');
+          video.width = 100;
+          video.height = 50;
+
+    pipCanvas = document.createElement('canvas');
+    pipCanvas.width = 1000;
+    pipCanvas.height = 500;
+
+    const stream = pipCanvas.captureStream();
+    video.srcObject = stream;
+
+    const attemptPlay = async () => {
+        try {
+            updatePiP();
+
+            await video.play();
+            await video.requestPictureInPicture();
+
+            setInterval(() => {
+                updatePiP();
+            }, 1000);
+        } catch (err) {
+            if(err.name === 'NotAllowedError') {
+                const handleUserInteraction = async () => {
+                    document.removeEventListener('click', handleUserInteraction);
+                    document.removeEventListener('keydown', handleUserInteraction);
+
+                    await attemptPlay();
+                };
+
+                document.addEventListener('click', handleUserInteraction);
+                document.addEventListener('keydown', handleUserInteraction);
+            } else {
+                console.error(err);
+            }
+        }
+    };
+
+    await attemptPlay();
+}
+
+const processedElems = [];
+
+async function makeSettingChanges(inputElem) {
     const value = getInputValue(inputElem);
     const valueExists = typeof value === 'boolean' || value;
+    const alreadyProcessed = processedElems.find(arr => {
+        const elem = arr[0],
+              val = arr[1];
+            
+        return elem === inputElem && val === value;
+    });
+
+    if(alreadyProcessed && inputElem.dataset.key === 'pip')
+        return;
 
     switch(inputElem.dataset.key) {
         case 'themeColorHex':
             document.body.style['background-color'] = value || null;
             acasInstanceContainer.style['background-color'] = value || null;
+            pipData['themeColorHex'] = value;
 
             console.log('[Setting Handler] Set theme color to', value || 'nothing');
 
@@ -387,7 +590,17 @@ function makeSettingChanges(inputElem) {
             }
 
             break;
+        case 'pip':
+            if(value)
+                startPictureInPicture();
+
+            else if(document.pictureInPictureElement)
+                await document.exitPictureInPicture();
+
+            break;
     }
+
+    processedElems.push([inputElem, value]);
 }
 
 function updateSettingsValues() {

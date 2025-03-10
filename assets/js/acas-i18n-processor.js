@@ -1,8 +1,8 @@
 (function(){
 	let storageLanguageKey = 'selectedLanguage';
 	let currentLang = 'us';
-	let configTranslations = {};
 	let domTranslations = {};
+	let configTranslations = {};
 	let contributors = [];
 	let availableLanguages = [];
 	let firstLoad = true;
@@ -68,6 +68,7 @@
 			const metaObj = await metaResponse.json();
 			const availableLanguagesArr = metaObj.availableLanguages;
 
+			fullTransObj = translationObj; // set global variable on acas-globals.js so that other files can access translations
 			domTranslations = translationObj.domTranslations;
 			configTranslations = translationObj.configTranslations;
 			transObj = translationObj.translations; // set global variable on acas-globals.js so that other files can access translations

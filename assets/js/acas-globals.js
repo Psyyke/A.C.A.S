@@ -2,6 +2,7 @@ const repositoryURL = 'https://github.com/Psyyke/A.C.A.S'; // old relics, not in
 const repositoryRawURL = null; // old relics, not in use
 
 let transObj = null; // set by acas-i18n-processor.js
+let fullTransObj = null;
 
 const log = {
     info: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67a9ef;'),
@@ -345,6 +346,11 @@ function addStyles(styles, id) {
     }
 
     document.querySelector('head')?.appendChild(css);
+}
+
+function calculateTimeProgress(startTime, movetime) {
+    let progress = (Date.now() - startTime) / movetime;
+    return Math.max(0, Math.min(1, progress));
 }
 
 function parseUCIResponse(response) {

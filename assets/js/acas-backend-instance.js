@@ -373,6 +373,9 @@ class BackendInstance {
     
             infoTextElem.innerText = text;
 
+            updatePiP({ 'moveProgressText': text });
+            updatePiP({ 'isWinning': status });
+
             const statusArr = ['info-text-winning', 'info-text-losing'];
 
             if(typeof status === 'number' && status !== 0) {
@@ -388,18 +391,20 @@ class BackendInstance {
         updateEval: (centipawnEval, mate, profile) => {
             const evalFill = this.instanceElem.querySelector('.eval-fill');
             const gradualness = 8;
+            const playerColor = this.getPlayerColor(profile);
 
-            if(this.getPlayerColor(profile) == 'b') {
+            if(playerColor == 'b') {
                 centipawnEval = -centipawnEval;
             }
 
-            const advantage = 1 / (1 + 10**(-centipawnEval / 100 / gradualness)); // [-1, 1]
-            let percent = advantage * 100;
+            let advantage = 1 / (1 + 10**(-centipawnEval / 100 / gradualness)); // [-1, 1]
 
             if(mate)
-                percent = centipawnEval > 0 ? 100 : 0;
+                advantage = centipawnEval > 0 ? 1 : 0;
 
-            evalFill.style.height = `${percent}%`;
+            updatePiP({ 'eval': advantage, playerColor, centipawnEval });
+
+            evalFill.style.height = `${advantage * 100}%`;
         },
         displayConnectionIssueWarning: () => {
             const connectionWarningElem = this.instanceElem?.querySelector('.connection-warning');
@@ -644,6 +649,10 @@ class BackendInstance {
 
             this.pV[profile].currentSpeeches.push(speakText(spokenText, speechConfig));
         }
+    }
+
+    updatePiP(data) {
+        this.guiBroadcastChannel.postMessage({ 'type': 'updatePiP', data });
     }
 
     updateSettings(updateObj) {
@@ -913,12 +922,20 @@ class BackendInstance {
     
             switch(this.getEngineType(profile)) {
                 case 'lc0':
-                    searchCommandStr = `go nodes ${this.pV[profile].engineNodes}`;
+                    const nodes = this.pV[profile].engineNodes;
+
+                    searchCommandStr = `go nodes ${nodes}`;
+
+                    updatePiP({ 'goalNodes': nodes });
                 break;
     
                 default: // Fairy Stockfish NNUE WASM
-                    if(this.pV[profile].searchDepth) {
-                        searchCommandStr = `go depth ${this.pV[profile].searchDepth}`;
+                    const depth = this.pV[profile].searchDepth;
+
+                    if(depth) {
+                        searchCommandStr = `go depth ${depth}`;
+
+                        updatePiP({ 'goalDepth': depth });
                     }
                 break;
             }
@@ -926,6 +943,8 @@ class BackendInstance {
             this.sendMsgToEngine(searchCommandStr, profile);
     
             const movetime = this.getConfigValue(this.configKeys.maxMovetime, profile);
+
+            updatePiP({ 'startTime': Date.now(), movetime });
     
             if(typeof movetime == 'number') {
                 const startFen = this.currentFen;
@@ -994,6 +1013,8 @@ class BackendInstance {
 
         this.Interface.boardUtils.markMoves(moveObjects, profile);
 
+        updatePiP({ moveObjects });
+
         if(displayMovesExternally) {
             this.CommLink.commands.markMoveToSite(moveObjects);
         }
@@ -1037,6 +1058,8 @@ class BackendInstance {
                     } else {
                         this.Interface.updateMoveProgress(`${depthText} ${data.depth}`, 0);
                     }
+
+                    updatePiP({ 'depth': data?.depth });
                 }
     
                 if(data?.cp)
@@ -1069,6 +1092,8 @@ class BackendInstance {
             const topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
             const calculationStartedAt = oldestUnfinishedCalcRequestObj?.startedAt;
             const calculationTimeElapsed = Date.now() - calculationStartedAt;
+
+            updatePiP({ calculationTimeElapsed, 'nodes': data?.nodes });
             
             let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
@@ -1097,6 +1122,12 @@ class BackendInstance {
                 if(topMoveObjects?.length === 0) {
                     topMoveObjects = [];
                     topMoveObjects.push({ 'player': [data.bestmove.slice(0,2), data.bestmove.slice(2, data.bestmove.length)], 'opponent': [null, null], 'ranking': 1  });
+                }
+
+                if(this.getEngineType(profile) === 'lc0') {
+                    updatePiP({ 'nodes': this.pV[profile].engineNodes, 'goalDepth': null });
+                } else {
+                    updatePiP({ 'depth': this.pV[profile].searchDepth, 'goalNodes': null });
                 }
 
                 if(isDelayActive) {
@@ -1317,6 +1348,8 @@ class BackendInstance {
 
             if(newInfoStr.length > 0) {
                 additionalInfoElem.innerText = newInfoStr;
+
+                updatePiP({ 'engineText': newInfoStr });
             }
         }, 500);
 

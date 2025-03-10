@@ -69,7 +69,7 @@
 						<div class="dropdown-list-container">
 						</div>
 					</div></div>
-					<div class="hard-refresh-btn" onclick="location.href = location.origin + location.pathname + '?timestamp=' + new Date().getTime();" title="Attempt Hard Refresh">⚡</div>
+					<div class="hard-refresh-btn" onclick="location.href = location.origin + location.pathname + '?t=' + new Date().getTime();" title="Attempt Hard Refresh">⚡</div>
 				</div>
 				<div id="install-buttons-inner-container">
 					<a href="https://violentmonkey.github.io/get-it/" class="install-notification-btn violentmonkey-btn" target="_about">Get Violentmonkey</a>
@@ -331,6 +331,10 @@
 								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
+								<div class="input-subtitle">Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="pip" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+							</div>
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="audible-panel-title">Audible</span> 🔊</div>
@@ -349,8 +353,8 @@
 								<input type="textfield" data-key="ttsVoiceSpeed" data-default-value="10" data-between="1-100">
 							</div>
 						</div>
-						<div id="hidden-setting-panel" class="setting-panel">
-							<div class="setting-panel-title"><span class="hidden-panel-title">Unstable</span> 👻</div>
+						<div id="hidden-setting-panel" class="setting-panel hidden">
+							<div class="setting-panel-title"><span class="hidden-panel-title">Hidden</span> 👻</div>
 							<div class="tos-reminder-setting-panel-item"><a href="tos/" class="tos-reminder-link" target="_blank">Remember to follow the ToS</a> 💖<br><small class="no-updates-disclaimer-text">Do not ask for updates for these</small><span> ↴</span></div>
 							<div class="input-combination-box">
 								<div class="checkbox-input custom-input"><div><div class="input-title">Auto Move</div>
@@ -431,7 +435,7 @@
 				<div class="close-btn">X</div>
 				<div class="title"><div class="pretitle">(<span data-translation-random-gift>Random Gift</span>)</div>A.C.A.S <span class="offer-x">x</span> AliExpress</div>
 				<div class="subtitle" style="margin-top: 20px;"><span data-translation-special-deals>Thanks for using A.C.A.S, you're eligble for new special deals!</span><span class="emoticon"> (˶◜ᵕ◝˶)</span></div>
-				<a href='https://s.click.aliexpress.com/e/_oEaswTy?bz=300*250' class="get-deal-btn acas-fancy-button" target='_blank'><span data-translation-get-my-deals>Get My Deals</span></a>
+				<a href='https://psyyke.github.io/psyyke/redirect/referral/' class="get-deal-btn acas-fancy-button" target='_blank'><span data-translation-get-my-deals>Get My Deals</span></a>
 				<div class="disclaimer"><span data-translation-teamed-up>We've teamed up with AliExpress to offer A.C.A.S. users great deals! Any purchases after visiting the link aid A.C.A.S' development.</span></div>
 				<div class="product-container"><div class="midtitle"><span data-translation-recommended-products>Recommended products</span></div></div>
 				<div class="small"><span data-translation-support-disclaimer>Your purchases help support the development of A.C.A.S at no extra cost to you. Without this A.C.A.S would receive less updates.</span></div>
