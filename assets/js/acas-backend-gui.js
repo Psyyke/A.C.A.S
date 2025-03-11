@@ -142,7 +142,6 @@ guiBroadcastChannel.onmessage = e => {
 };
 
 let lastPipEval = null;
-let lastBestMove = null;
 
 function updatePiP(data) {
     for (const key in data) {
@@ -269,11 +268,19 @@ function updatePiP(data) {
         );
     }
 
-    if(!pipData?.mate) {
-        let centipawnEval = pipData?.centipawnEval ? pipData?.centipawnEval / 100 : 0;
-        const yPosition = centipawnEval < 0 ? pipCanvas.height - 30 : 60;
+    const centipawnEval = pipData?.centipawnEval / 100;
+
+    if(!pipData?.mate && centipawnEval) {
+        let yPosition;
+
+        if(playerColor === 'w') {
+            yPosition = centipawnEval < 0 ? 60 : pipCanvas.height - 30;
+        } else {
+            yPosition = centipawnEval > 0 ? 60 : pipCanvas.height - 30;
+        }
+
         const evalText = Math.abs(centipawnEval).toFixed(1);
-    
+        
         // Eval bar text
         ctx.fillStyle = 'rgba(125, 125, 125, 1)';
         ctx.font = '500 45px IBM Plex Sans';

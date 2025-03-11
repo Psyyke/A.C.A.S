@@ -1094,7 +1094,7 @@ class BackendInstance {
             const calculationStartedAt = oldestUnfinishedCalcRequestObj?.startedAt;
             const calculationTimeElapsed = Date.now() - calculationStartedAt;
 
-            updatePiP({ calculationTimeElapsed, 'nodes': data?.nodes });
+            updatePiP({ calculationTimeElapsed, 'nodes': data?.nodes, topMoveObjects });
             
             let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
