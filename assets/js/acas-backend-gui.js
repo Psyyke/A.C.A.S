@@ -177,13 +177,12 @@ function updatePiP(data) {
     const from = bestMove?.player?.[0],
           to = bestMove?.player?.[1];
 
-    let eval = pipData.eval ? pipData.eval : (playerColor === 'b' ? 1 : 0);
+    let eval = pipData.eval;
 
-    if(!pipData.eval && lastPipEval === null) {
+    if(!eval && lastPipEval === null) 
         eval = 0.5;
-    } else if(pipData.eval) {
+    else if(eval)
         lastPipEval = eval;
-    }
 
     // Clear the canvas
     ctx.clearRect(0, 0, pipCanvas.width, pipCanvas.height);
@@ -270,13 +269,18 @@ function updatePiP(data) {
         );
     }
 
-    // Status bar
-    ctx.fillStyle = ['rgba(75, 75, 75, 0.4)', 'rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)'][pipData.isWinning];
-    ctx.fillRect(0, headerHeight - statusBarHeight, headerWidth, statusBarHeight);
+    let centipawnEval = pipData?.centipawnEval ? pipData?.centipawnEval / 100 : 0;
+    const yPosition = centipawnEval < 0 ? pipCanvas.height - 30 : 60;
+    const evalText = Math.abs(centipawnEval).toFixed(1);
 
-    // Separator
-    ctx.fillStyle = 'rgba(75, 75, 75, 0.4)';
-    ctx.fillRect(headerWidth, 0, 5, pipCanvas.height);
+    // Eval bar text
+    ctx.fillStyle = 'rgba(125, 125, 125, 1)';
+    ctx.font = '500 45px IBM Plex Sans';
+    ctx.fillText(evalText, headerWidth + [34, 27, 15, 3, 0, 0][evalText.length - 1], yPosition);
+
+    // Status bar
+    ctx.fillStyle = ['rgba(40, 40, 40, 0.9)', 'rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)'][pipData.isWinning ?? 0];
+    ctx.fillRect(0, headerHeight - statusBarHeight, headerWidth, statusBarHeight);
 }
 
 function displayNoUserscriptNotification(isEnable) {
@@ -491,7 +495,7 @@ async function startPictureInPicture() {
 
             setInterval(() => {
                 updatePiP();
-            }, 1000);
+            }, 333);
         } catch (err) {
             if(err.name === 'NotAllowedError') {
                 const handleUserInteraction = async () => {

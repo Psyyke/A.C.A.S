@@ -463,6 +463,7 @@ class BackendInstance {
                         toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
+                    this.updatePiP({ 'goalDepth': null });
 
                     if(didUserUpdateSetting)
                         toast.message(engineNoLimitations, 8000);
