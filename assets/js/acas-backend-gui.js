@@ -269,14 +269,16 @@ function updatePiP(data) {
         );
     }
 
-    let centipawnEval = pipData?.centipawnEval ? pipData?.centipawnEval / 100 : 0;
-    const yPosition = centipawnEval < 0 ? pipCanvas.height - 30 : 60;
-    const evalText = Math.abs(centipawnEval).toFixed(1);
-
-    // Eval bar text
-    ctx.fillStyle = 'rgba(125, 125, 125, 1)';
-    ctx.font = '500 45px IBM Plex Sans';
-    ctx.fillText(evalText, headerWidth + [34, 27, 15, 3, 0, 0][evalText.length - 1], yPosition);
+    if(!pipData?.mate) {
+        let centipawnEval = pipData?.centipawnEval ? pipData?.centipawnEval / 100 : 0;
+        const yPosition = centipawnEval < 0 ? pipCanvas.height - 30 : 60;
+        const evalText = Math.abs(centipawnEval).toFixed(1);
+    
+        // Eval bar text
+        ctx.fillStyle = 'rgba(125, 125, 125, 1)';
+        ctx.font = '500 45px IBM Plex Sans';
+        ctx.fillText(evalText, headerWidth + [34, 27, 15, 2, 0, 0][evalText.length - 1], yPosition);
+    }
 
     // Status bar
     ctx.fillStyle = ['rgba(40, 40, 40, 0.9)', 'rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)'][pipData.isWinning ?? 0];

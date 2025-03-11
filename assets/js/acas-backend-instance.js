@@ -1060,7 +1060,7 @@ class BackendInstance {
                         this.Interface.updateMoveProgress(`${depthText} ${data.depth}`, 0);
                     }
 
-                    updatePiP({ 'depth': data?.depth });
+                    updatePiP({ 'depth': data?.depth, 'mate': data?.mate });
                 }
     
                 if(data?.cp)
