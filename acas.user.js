@@ -1,24 +1,24 @@
 // ==UserScript==
-// @name        🏆 [#1 Chess Cheat] A.C.A.S (Advanced Chess Assistance System)
-// @name:en     🏆 [#1 Chess Cheat] A.C.A.S (Advanced Chess Assistance System)
-// @name:fi     🏆 [#1 Chess Cheat] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
-// @name:sw     🏆 [#1 Chess Cheat] A.C.A.S (Advanserad Schack Assitant System)
-// @name:zh-CN  🏆 [#1 Chess Cheat] A.C.A.S（高级国际象棋辅助系统）
-// @name:es     🏆 [#1 Chess Cheat] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
-// @name:hi     🏆 [#1 Chess Cheat] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
-// @name:ar     🏆 [#1 Chess Cheat] A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
-// @name:pt     🏆 [#1 Chess Cheat] A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
-// @name:ja     🏆 [#1 Chess Cheat] A.C.A.S（先進的なチェス支援システム）
-// @name:de     🏆 [#1 Chess Cheat] A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
-// @name:fr     🏆 [#1 Chess Cheat] A.C.A.S (Système Avancé d'Assistance aux Échecs)
-// @name:it     🏆 [#1 Chess Cheat] A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
-// @name:ko     🏆 [#1 Chess Cheat] A.C.A.S (고급 체스 보조 시스템)
-// @name:nl     🏆 [#1 Chess Cheat] A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
-// @name:pl     🏆 [#1 Chess Cheat] A.C.A.S (Zaawansowany System Pomocy Szachowej)
-// @name:tr     🏆 [#1 Chess Cheat] A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
-// @name:vi     🏆 [#1 Chess Cheat] A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
-// @name:uk     🏆 [#1 Chess Cheat] A.C.A.S (Система передової допомоги в шахах)
-// @name:ru     🏆 [#1 Chess Cheat] A.C.A.S (Система расширенной помощи в шахматах)
+// @name        🏆 [#1 Chess Assistant] A.C.A.S (Advanced Chess Assistance System)
+// @name:en     🏆 [#1 Chess Assistant] A.C.A.S (Advanced Chess Assistance System)
+// @name:fi     🏆 [#1 Chess Assistant] A.C.A.S (Edistynyt shakkiavustusjärjestelmä)
+// @name:sw     🏆 [#1 Chess Assistant] A.C.A.S (Advanserad Schack Assitant System)
+// @name:zh-CN  🏆 [#1 Chess Assistant] A.C.A.S（高级国际象棋辅助系统）
+// @name:es     🏆 [#1 Chess Assistant] A.C.A.S (Sistema Avanzado de Asistencia al Ajedrez)
+// @name:hi     🏆 [#1 Chess Assistant] A.C.A.S (उन्नत शतरंज सहायता प्रणाली)
+// @name:ar     🏆 [#1 Chess Assistant] A.C.A.S (نظام المساعدة المتقدم في الشطرنج)
+// @name:pt     🏆 [#1 Chess Assistant] A.C.A.S (Sistema Avançado de Assistência ao Xadrez)
+// @name:ja     🏆 [#1 Chess Assistant] A.C.A.S（先進的なチェス支援システム）
+// @name:de     🏆 [#1 Chess Assistant] A.C.A.S (Fortgeschrittenes Schach-Hilfesystem)
+// @name:fr     🏆 [#1 Chess Assistant] A.C.A.S (Système Avancé d'Assistance aux Échecs)
+// @name:it     🏆 [#1 Chess Assistant] A.C.A.S (Sistema Avanzato di Assistenza agli Scacchi)
+// @name:ko     🏆 [#1 Chess Assistant] A.C.A.S (고급 체스 보조 시스템)
+// @name:nl     🏆 [#1 Chess Assistant] A.C.A.S (Geavanceerd Schaakondersteuningssysteem)
+// @name:pl     🏆 [#1 Chess Assistant] A.C.A.S (Zaawansowany System Pomocy Szachowej)
+// @name:tr     🏆 [#1 Chess Assistant] A.C.A.S (Gelişmiş Satranç Yardım Sistemi)
+// @name:vi     🏆 [#1 Chess Assistant] A.C.A.S (Hệ Thống Hỗ Trợ Cờ Vua Nâng Cao)
+// @name:uk     🏆 [#1 Chess Assistant] A.C.A.S (Система передової допомоги в шахах)
+// @name:ru     🏆 [#1 Chess Assistant] A.C.A.S (Система расширенной помощи в шахматах)
 // @description        Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:en     Enhance your chess performance with a cutting-edge real-time move analysis and strategy assistance system
 // @description:fi     Paranna shakkipelisi suorituskykyä huippuluokan reaaliaikaisen siirtoanalyysin ja strategisen avustusjärjestelmän avulla
