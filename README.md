@@ -5,7 +5,7 @@
 
 A.C.A.S is an **advanced chess assistance system** which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
-![A.C.A.S GUI](https://github.com/user-attachments/assets/f8831590-7c5d-4e29-8019-98a02b5a467a)
+![Screenshot of A.C.A.S](https://github.com/user-attachments/assets/a002e782-dac0-4b06-bf36-3fe009d6dd3a)
 
 * No anti-features on userscript (*e.g. ads and tracking*)
 * WebAssembly chess engine (faster than regular JavaScript engines)
