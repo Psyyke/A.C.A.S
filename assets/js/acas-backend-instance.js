@@ -1205,6 +1205,10 @@ class BackendInstance {
                             msgHandler(e.data);
                         }
                     };
+
+                    lozza.onerror = e => {
+                        toast.error(`Engine error: ${e.message}`);
+                    };
                 break;
 
                 case 'lc0':
@@ -1261,6 +1265,37 @@ class BackendInstance {
                         }
 
                         msgHandler(e.data);
+                    };
+
+                    stockfish2.onerror = e => {
+                        toast.error(`Engine error: ${e.message}`);
+                    };
+                break;
+
+                case 'stockfish-17-wasm':
+                    const stockfish3 = new Worker('assets/libraries/stockfish-17.wasm/stockfish-17.js');
+                    let stockfish3_loaded = false;
+
+                    stockfish3.onmessage = async e => {
+                        if(!stockfish3_loaded) {
+                            stockfish3_loaded = true;
+
+                            this.engines.push({
+                                'type': profileChessEngine,
+                                'engine': (method, a) => stockfish3[method](...a),
+                                'sendMsg': msg => stockfish3.postMessage(msg),
+                                'worker': stockfish3,
+                                profile
+                            });
+                
+                            this.engineStartNewGame('chess', profile);
+                        }
+
+                        msgHandler(e.data);
+                    };
+
+                    stockfish3.onerror = e => {
+                        toast.error(`Engine error: ${e.message}`);
                     };
                 break;
 
