@@ -7,7 +7,7 @@ A.C.A.S is an **advanced chess assistance system** which helps you make better m
 
 ![A.C.A.S GUI](https://github.com/user-attachments/assets/f8831590-7c5d-4e29-8019-98a02b5a467a)
 
-* No anti-features (*e.g. ads and tracking*, excluding referral links)
+* No anti-features on userscript (*e.g. ads and tracking*)
 * WebAssembly chess engine (faster than regular JavaScript engines)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts

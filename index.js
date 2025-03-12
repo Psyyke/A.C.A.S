@@ -1,4 +1,3 @@
-const defaultSafeword = 'banana';
 let started = false;
 
 function attemptStarting() {
@@ -24,129 +23,49 @@ function attemptStarting() {
         displayNoUserscriptNotification(true); // failsafe
         started = true; // failsafe
 
-        (async () => {
-            initializeDatabase();
-            initGUI();
+        initializeDatabase();
+        initGUI();
 
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            const isFreshUser = urlParams.get('t') && (Date.now() - Number(urlParams.get('t')) <= 500);
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
 
-            function ready() {
-                log.info('Userscript ready! Listening to instance calls...');
+            log.info('Userscript ready! Listening to instance calls...');
 
-                const autoMoveCheckbox = document.querySelector('input[data-key="autoMove"]');
-                const hiddenSettingPanel = document.querySelector('#hidden-setting-panel');
+            const autoMoveCheckbox = document.querySelector('input[data-key="autoMove"]');
+            const hiddenSettingPanel = document.querySelector('#hidden-setting-panel');
 
-                if(urlParams.get('hidden') === 'true')
-                    hiddenSettingPanel.classList.remove('hidden');
+            if(urlParams.get('hidden') === 'true')
+                hiddenSettingPanel.classList.remove('hidden');
 
-                else if(autoMoveCheckbox?.checked)
-                    autoMoveCheckbox.click();
+            else if(autoMoveCheckbox?.checked)
+                autoMoveCheckbox.click();
 
-                const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
-                    'singlePacketResponseWaitTime': 1500,
-                    'maxSendAttempts': 3,
-                    'statusCheckInterval': 1,
-                    'silentMode': true
-                });
-            
-                MainCommLink.registerListener('mum', packet => {
-                    try {
-                        switch(packet.command) {
-                            case 'ping':
-                                return `pong (took ${Date.now() - packet.date}ms)`;
-                            case 'createInstance':
-                                log.info('Received request to create another engine instance!');
-            
-                                const data = packet.data;
-            
-                                createInstance(data.domain, data.instanceID, data.chessVariant);
-                
-                                return true;
-                        }
-                    } catch(e) {
-                        console.error(e);
-                        return null;
-                    }
-                });
-            }
-
-            async function openPop(safeword) {
-                const offerContainer = await waitForElement('.offer-container', 2500);
-                const startTime = Date.now();
+            const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
+                'singlePacketResponseWaitTime': 1500,
+                'maxSendAttempts': 3,
+                'statusCheckInterval': 1,
+                'silentMode': true
+            });
         
-                if(offerContainer) {
-                    offerContainer.style.display = 'flex';
-
-                    function close() {
-                        clearInterval(btnClickEventInitializerInterval);
-
-                        document.cookie = `${safeword}=true; Max-Age=604800; path=/`;
-
-                        location.href = location.href + '?t=' + new Date().getTime();
-                    }
-
-                    function onClick() {
-                        let lastVisibleTime = 0;
-
-                        document.addEventListener("visibilitychange", () => {
-                            if (document.hidden) {
-                                lastVisibleTime = Date.now();
-                            } else {
-                                if (Date.now() - lastVisibleTime >= 3000) {
-                                    close();
-                                }
-                            }
-                        });
-
-                        setTimeout(() => close(), 10000);
-                    }
-
-                    const btnClickEventInitializerInterval = setInterval(() => {
-                        [...offerContainer.querySelectorAll('.action-btn'), ...offerContainer.querySelectorAll('.get-deal-btn')]
-                            .filter(x => !x?.dataset?.onclickready)
-                            .forEach(x => {
-                                x.dataset.onclickready = true;
-                                x.onclick = onClick;
-                            });
-                    }, 500);
-
-                    const closeBtn = offerContainer.querySelector('.close-btn');
-
-                    if(closeBtn) {
-                        closeBtn.onclick = function() {
-                            if(Date.now() - startTime > 6e4) {
-                                offerContainer.style.display = 'none';
-
-                                ready();
-                            }
-                        };
-
-                        setInterval(() => {
-                            if(Date.now() - startTime > 6e4) {
-                                closeBtn.style.display = 'flex';
-                            }
-                        });
-                    }
-                }
-            }
-
-            if(!isFreshUser) {
-                const safeword = await fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/safeword.json?' + Date.now())
-                    .then(res => res.ok ? res.json() : {})
-                    .then(data => data?.word ?? defaultSafeword)
-                    .catch(() => defaultSafeword);
-
-                if(!document.cookie.includes(`${safeword}=true`) || Math.random() < 0.01) {
-                    openPop(safeword);
+            MainCommLink.registerListener('mum', packet => {
+                try {
+                    switch(packet.command) {
+                        case 'ping':
+                            return `pong (took ${Date.now() - packet.date}ms)`;
+                        case 'createInstance':
+                            log.info('Received request to create another engine instance!');
+        
+                            const data = packet.data;
+        
+                            createInstance(data.domain, data.instanceID, data.chessVariant);
             
-                    return;
+                            return true;
+                    }
+                } catch(e) {
+                    console.error(e);
+                    return null;
                 }
-            }
-
-            ready();
-        })();
+            });
     }
 
     function initDbValue(name, value) {
@@ -195,51 +114,3 @@ const userscriptSearchInterval = setInterval(() => {
     else
         clearInterval(userscriptSearchInterval);
 }, 1);
-
-(() => {
-    fetch('https://raw.githubusercontent.com/Psyyke/psyyke/refs/heads/main/json/products.json?' + new Date().getTime())
-        .then(response => response.json())
-        .then(async data => {
-            const productArr = data;
-            const productContainer = await waitForElement('.product-container');
-
-            if(productArr.length > 0) {
-                const randomProduct = productArr[Math.floor(Math.random() * productArr.length)];
-            
-                const productItem = document.createElement('div');
-                productItem.innerHTML = `
-                    <div class="product">
-                        <div class="title"><div class="name"></div><div>(<span class="price"></span> <span class="originalPrice"></span>)</div><div class="discount"></div></div>
-                        <div class="container">
-                            <div class="right">
-                                <div class="description"></div>
-                                <a href="" target="_blank" class="action-btn"><span data-translation-visit-product-btn>Visit</span></a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            
-                const titleElem = productItem.querySelector('.title .name');
-                const originalPriceElem = productItem.querySelector('.title .originalPrice');
-                const priceElem = productItem.querySelector('.title .price');
-                const discountElem = productItem.querySelector('.title .discount');
-                const actionBtn = productItem.querySelector('.action-btn');
-                const descriptionElem = productItem.querySelector('.description');
-            
-                titleElem.innerText = randomProduct?.title; 
-                originalPriceElem.innerText = `$${randomProduct?.originalPrice}`;
-                priceElem.innerText = `$${randomProduct?.price}`;
-
-                if(randomProduct?.discount > 5)
-                    discountElem.innerText = `${randomProduct?.discount}% off`;
-
-                actionBtn.href = randomProduct?.link;
-                descriptionElem.innerText = `"${randomProduct?.description ?? `We didn't write a description for this product. It didn't need one.`}"`;
-            
-                productContainer.appendChild(productItem);
-
-                productContainer.style.display = 'block';
-            }
-        })
-        .catch(error => console.log(error));
-})();
