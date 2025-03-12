@@ -3,7 +3,7 @@
 > [!WARNING]
 > A.C.A.S is currently in development. Expect bugs, especially on variants.
 
-A.C.A.S is an **advanced chess assistance system** which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
+A.C.A.S is an **Advanced Chess Assistance System** which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
 
 ![Screenshot of A.C.A.S](https://github.com/user-attachments/assets/a002e782-dac0-4b06-bf36-3fe009d6dd3a)
 
@@ -141,6 +141,7 @@ You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/O
 ## Used Libraries
 
 * [Fairy Stockfish WASM](https://github.com/fairy-stockfish/fairy-stockfish.wasm) (*the chess engine of A.C.A.S*)
+* [Stockfish WASM](https://github.com/nmrugg/stockfish.js/) (*another chess engine of A.C.A.S*)
 * [ZeroFish](https://github.com/schlawg/zerofish) (*WASM port of Lc0 and the latest Stockfish, another chess engine of A.C.A.S*)
 * [Maia-Chess](https://github.com/CSSLab/maia-chess) (*legit looking weights for Lc0*)
 * [COI-Serviceworker](https://github.com/gzuidhof/coi-serviceworker) (*allowing WASM on GitHub pages, extremely important library*)
