@@ -2,6 +2,7 @@ var klaroConfig = {
     acceptAll: true,
     storageMethod: 'cookie',
     cookieName: 'klaro',
+    cookieExpiresAfterDays: 360,
     services: [
         {
             name: 'adsense',

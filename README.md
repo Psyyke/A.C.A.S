@@ -11,7 +11,7 @@ A.C.A.S is an **Advanced Chess Assistance System** which helps you make better m
 * WebAssembly chess engine (faster than regular JavaScript engines)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
-* Impossible to detect (well, you can never be sure, so let's say it's *almost* impossible)
+* Impossible to detect directly (well, you can never be sure, so let's say it's *almost* impossible)
 * Translated to 30+ languages
 
 > [!CAUTION]
@@ -144,10 +144,14 @@ You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/O
 * [Stockfish WASM](https://github.com/nmrugg/stockfish.js/) (*another chess engine of A.C.A.S*)
 * [ZeroFish](https://github.com/schlawg/zerofish) (*WASM port of Lc0 and the latest Stockfish, another chess engine of A.C.A.S*)
 * [Maia-Chess](https://github.com/CSSLab/maia-chess) (*legit looking weights for Lc0*)
+* [Lozza](https://github.com/op12no2/lozza) (*another chess engine of A.C.A.S*)
 * [COI-Serviceworker](https://github.com/gzuidhof/coi-serviceworker) (*allowing WASM on GitHub pages, extremely important library*)
 * [HackTimer](https://github.com/turuslan/HackTimer) (*bypasses browser timer throttling, it's questionable if this does anything, but it doesn't hurt to have it for now*)
 * [ChessgroundX](https://github.com/gbtami/chessgroundx) (*for displaying a board on the GUI. Modified the library a bit*)
 * [FileSaver](http://purl.eligrey.com/github/FileSaver.js) (*for saving the config file*)
+* [bodymovin](https://github.com/airbnb/lottie-web) (*for SVG animations*)
+* [Klaro!](https://github.com/klaro-org/klaro-js) (*for legal reasons, to ask user for cookie permission*)
+* [Docsify](https://github.com/docsifyjs/docsify) (*documentation library for the support page*)
 
 ## Used Libraries (Made for A.C.A.S)
 

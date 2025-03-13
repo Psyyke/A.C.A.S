@@ -1424,7 +1424,6 @@ class BackendInstance {
             let chessFont = formatChessFont(this.getConfigValue(this.configKeys.chessFont));
 
             const formattedChessVariant = formatVariant(variant);
-            console.warn(formattedChessVariant);
             const shouldSwitchFont = chessFont === 'staunty' && ![
                 // Chess variants which don't have special pieces
                 "chess", "crazyhouse", "chess960", 

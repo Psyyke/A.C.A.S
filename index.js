@@ -28,44 +28,69 @@ function attemptStarting() {
 
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
+        const highlight = urlParams.get('hl');
+        const settingToHighlight = urlParams.get('shl');
 
-            log.info('Userscript ready! Listening to instance calls...');
-
-            const autoMoveCheckbox = document.querySelector('input[data-key="autoMove"]');
-            const hiddenSettingPanel = document.querySelector('#hidden-setting-panel');
-
-            if(urlParams.get('hidden') === 'true')
-                hiddenSettingPanel.classList.remove('hidden');
-
-            else if(autoMoveCheckbox?.checked)
-                autoMoveCheckbox.click();
-
-            const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
-                'singlePacketResponseWaitTime': 1500,
-                'maxSendAttempts': 3,
-                'statusCheckInterval': 1,
-                'silentMode': true
-            });
-        
-            MainCommLink.registerListener('mum', packet => {
-                try {
-                    switch(packet.command) {
-                        case 'ping':
-                            return `pong (took ${Date.now() - packet.date}ms)`;
-                        case 'createInstance':
-                            log.info('Received request to create another engine instance!');
-        
-                            const data = packet.data;
-        
-                            createInstance(data.domain, data.instanceID, data.chessVariant);
+        if(highlight) {
+            switch(highlight) {
+                case 'controlPanel':
+                    highlightSetting(document.querySelector('#settings-control-panel'), 
+                        removeParamFromUrl('hl'));
+                    break;
+                case 'supportedSites':
+                    highlightSetting(document.querySelector('#see-supported-sites-btn'), 
+                        removeParamFromUrl('hl'));
+                    break;
+            }
             
-                            return true;
-                    }
-                } catch(e) {
-                    console.error(e);
-                    return null;
+        } else if(settingToHighlight) {
+            const foundSettingElem = [...document.querySelectorAll('input[data-key]')]
+                .find(elem => elem.dataset.key === settingToHighlight);
+
+            const settingContainer = foundSettingElem?.closest('.custom-input');
+
+            if(foundSettingElem && settingContainer) {
+                highlightSetting(settingContainer, removeParamFromUrl('shl'));
+            }
+        }
+
+        log.info('Userscript ready! Listening to instance calls...');
+
+        const autoMoveCheckbox = document.querySelector('input[data-key="autoMove"]');
+        const hiddenSettingPanel = document.querySelector('#hidden-setting-panel');
+
+        if(urlParams.get('hidden') === 'true')
+            hiddenSettingPanel.classList.remove('hidden');
+
+        else if(autoMoveCheckbox?.checked)
+            autoMoveCheckbox.click();
+
+        const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
+            'singlePacketResponseWaitTime': 1500,
+            'maxSendAttempts': 3,
+            'statusCheckInterval': 1,
+            'silentMode': true
+        });
+    
+        MainCommLink.registerListener('mum', packet => {
+            try {
+                switch(packet.command) {
+                    case 'ping':
+                        return `pong (took ${Date.now() - packet.date}ms)`;
+                    case 'createInstance':
+                        log.info('Received request to create another engine instance!');
+    
+                        const data = packet.data;
+    
+                        createInstance(data.domain, data.instanceID, data.chessVariant);
+        
+                        return true;
                 }
-            });
+            } catch(e) {
+                console.error(e);
+                return null;
+            }
+        });
     }
 
     function initDbValue(name, value) {

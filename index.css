@@ -1498,3 +1498,11 @@ cg-container {
 #klaro {
 	z-index: 99999999;
 }
+.setting-highlight {
+    background-color: #fdff757a;
+    border-radius: 3px;
+    box-shadow: 0 0 11px 10px rgb(255 255 0 / 25%);
+}	
+.setting-panel-highlight {
+	opacity: 1 !important;
+}

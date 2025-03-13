@@ -31,6 +31,34 @@ function objectToString(obj) {
     return parts.join(', ');
 }
 
+function highlightSetting(targetElem, cb) {
+    if(!targetElem) return;
+
+    const subtleElems = ['#settings-header', '#settings-panels', '#setting-container']
+        .map(x => document.querySelector(x))
+        .filter(x => x);
+
+    targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    targetElem.classList.add('setting-highlight');
+    subtleElems.forEach(elem => elem.classList.add('setting-panel-highlight'));
+
+    setTimeout(() => {
+        targetElem.classList.remove('setting-highlight');
+        subtleElems.forEach(elem => elem.classList.remove('setting-panel-highlight'));
+
+        if(cb) cb();
+    }, 5000);
+}
+
+function removeParamFromUrl(paramName) {
+    const newParams = new URLSearchParams(window.location.search);
+    newParams.delete(paramName);
+
+    const newUrl = window.location.pathname + (newParams.toString() ? '?' + newParams.toString() : '');
+    window.history.replaceState({}, '', newUrl);
+}
+
 function speakText(text, config = {}) {
     const speechConfig = {
         pitch: config.pitch || 1, // [0, 2]

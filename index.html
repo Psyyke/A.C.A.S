@@ -9,7 +9,7 @@
 		<meta property="og:description" content="Advanced Chess Assistance System (Chess Cheat) for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported.">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="coi-serviceworker.js"></script>
-		<script async src="https://www.googletagmanager.com/gtag/js?id=ca-pub-7248123202489335"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=pub-7248123202489335"></script>
 		<script>
 		window.dataLayer = window.dataLayer || [];
 		function gtag(){dataLayer.push(arguments);}
@@ -17,11 +17,11 @@
 			'ad_storage': 'denied'
 		});
 		gtag('js', new Date());
-		gtag('config', 'ca-pub-7248123202489335');
+		gtag('config', 'pub-7248123202489335');
 		</script>
 		<script defer type="text/javascript" src="assets/libraries/klaro/config.js"></script>
 		<script defer type="text/javascript" src="assets/libraries/klaro/klaro.js"></script>
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-7248123202489335" crossorigin="anonymous"></script>
 		<script src="assets/libraries/HackTimer/HackTimer.js"></script>
 		<script src="assets/js/acas-globals.js"></script>
 		<script src="assets/js/acas-i18n-processor.js"></script>
@@ -100,7 +100,7 @@
 
 		<!-- ACAS HEADER CONTAINER-->
 		<div id="acas-header">
-			<a id="acas-logo" href="https://github.com/Psyyke/A.C.A.S" target="_blank">
+			<a id="acas-logo" href="home" target="_blank">
 				<img id="acas-logo-img" src="assets/images/grey-logo.png">
 				<div id="acas-logo-text-container">
 					<div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">V2</div></div>
@@ -125,7 +125,7 @@
 					<a class="header-social-button discord-button acas-fancy-button" href="https://hakorr.github.io/Userscripts/community/invite" target="_blank" title="Join 'Userscript Hub' on Discord">
 						<i class="bi bi-discord"></i>
 					</a>
-					<a class="header-social-button affiliate-button acas-fancy-button" href="support" target="_blank" title="We really got A.C.A.S theme song before GTA 6">
+					<a class="header-social-button affiliate-button acas-fancy-button" href="home/#/docs/contributing" target="_blank" title="We really got A.C.A.S theme song before GTA 6">
 						<i class="bi bi-heart-fill"></i>
 					</a>
 				</div>
@@ -211,6 +211,7 @@
 					<div class="control-panel-btn no-select acas-fancy-button"
 						onclick="if (!location.href.includes('hidden=true')) location.href += (location.href.includes('?') ? '&' : '?') + 'hidden=true';"
 						title="Show Hidden Settings">👀</div>
+					<a target="_about" href="/A.C.A.S/home/#/docs/usage" class="control-panel-btn no-select acas-fancy-button" title="Open Documentation">📖</a>
 					<div id="import-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Import Settings">📂</div>
 					<div id="export-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Export Settings">💾</div>
 					<div id="reset-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Reset Settings">🗑️</div>
@@ -240,7 +241,7 @@
 								<input type="checkbox" data-key="engineEnabled" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
 							<div id="chess-engine-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Engine</div>
-							<a href="https://www.wikipedia.org/wiki/Chess_engine" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
+							<a href="/A.C.A.S/home/#/docs/usage?id=⚙%ef%b8%8f-chess-engine" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
 								<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="fairy-stockfish-nnue-wasm" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
 								<div class="dropdown-list-container">
 									<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish v14 NNUE WASM (2MB)</div>
@@ -251,7 +252,7 @@
 								</div>
 							</div></div>
 							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
-								<a href="https://github.com/CSSLab/maia-chess" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
+								<a href="/A.C.A.S/home/#/docs/usage?id=%e2%9a%99%ef%b8%8f-weights" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
 								<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="maia-1100.pb" placeholder="1100 elo"><div class="dropdown-icon"></div>
 								<div class="dropdown-list-container">
 									<div class="dropdown-item" data-value="maia-1100.pb">1100 elo (Maia) 1.7MB</div>
@@ -276,7 +277,7 @@
 								<input type="textfield" data-key="engineNodes" data-default-value="1" data-between="1-99999999">
 							</div>
 							<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
-								<a href="https://en.wikipedia.org/wiki/Chess_variant" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
+								<a href="/A.C.A.S/home/#/docs/usage?id=%e2%9a%99%ef%b8%8f-chess-variant" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
 								<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
 								<div class="dropdown-list-container"></div>
 							</div></div>
@@ -419,9 +420,9 @@
 						<input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
 					</div>
 					<div class="dropdown-input custom-input"><div class="input-title">Chess Font</div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="chessFont" data-default-value="Staunty" placeholder="Merida"><div class="dropdown-icon"></div>
+						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="chessFont" data-default-value="staunty" placeholder="Merida"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="staunty">Staunty</div>
+							<div class="dropdown-item" data-value="staunty">Staunty (Improved)</div>
 							<div class="dropdown-item" data-value="merida">Merida</div>
 							<div class="dropdown-item" data-value="cburnett">Cburnett</div>
 							<div class="dropdown-item" data-value="letters">Letters</div>
@@ -455,7 +456,7 @@
 				<a class="footer-link" href="tos" target="_about">ToS</a>
 				<a class="footer-link" href="privacy" target="_about">Privacy</a>
 				<a class="footer-link" href="why" target="_about">Why</a>
-				<a class="footer-link" href="support" target="_about">Support</a>
+				<a class="footer-link" href="home" target="_about">Documentation</a>
 			</div>
 			<div id="thanks-for-using-footer-text" class="footer-small-text">Thanks for using A.C.A.S, a handcrafted project made by a solo developer.</div>
 		</div>
