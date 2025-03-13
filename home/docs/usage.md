@@ -59,7 +59,7 @@ The <a target="_about" href="../?shl=chessVariant">Chess Variant</a> setting cha
 
 The <a target="_about" href="../?shl=engineElo">Engine Elo</a> setting controls how strong the engine plays (between 500-3200 elo). Note that engines like Stockfish are **very strong**, playing way above human 3000 elo. For that reason, making them play at low elo (below 1500) might result in weird behaviour. Stockfish cannot really play extremely low elo (below 1000). Lc0 is better suited for that.
 
-<img style="max-width: 750px;" src="img/chart.png">
+<img src="img/chart.png">
 
 #### ⚙️ Weights
 
