@@ -8,7 +8,7 @@ What started as a fun technical challenge has turned into something much more us
 
 ## How It Works
 
-Most userscripts mess with the site’s code or rely on its built-in functions, which makes them easy to detect and block. While it's understandable sites want to block such software, we believe live-time learning is extremely helpful and is not cheating if done correctly. So, we took a different route to bypass any restrictions. A.C.A.S reads the chess site to gather the data it needs but tries not to modify anything. It also doesn’t use any of the site’s own functions, keeping everything fully independent. And since it runs in a separate tab, it’s much harder to block, making it more stable and reliable over time.
+Most userscripts mess with the site’s code or rely on its built-in functions, which makes them easy to detect and block. While it's understandable sites want to block such software, we believe real-time learning is extremely helpful and is not cheating if done correctly. So, we took a different route to bypass any restrictions. A.C.A.S reads the chess site to gather the data it needs but tries not to modify anything. It also doesn’t use any of the site’s own functions, keeping everything fully independent. And since it runs in a separate tab, it’s much harder to block, making it more stable and reliable over time.
 
 !> The <a target="_about" href="../?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds a simple element to the site's document to display the move information. This modifies the site and is in risk of being detectable. While the element doesn't scream "**I WAS MADE BY A.C.A.S**", it could be detected either way.
 
