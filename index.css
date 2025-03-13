@@ -1470,13 +1470,13 @@ cg-container {
     border-bottom-width: 5px;
     border-right-width: 3px;
 }
-.hard-refresh-btn {
+.install-open-home-btn {
     display: inline-block;
     padding: 10px;
     color: white;
     text-decoration: none;
     border-radius: 5px;
-    font-size: 18px;
+    font-size: 15px;
     border: 2px solid black;
     border-bottom: 5px solid black;
     transition: allease 0.1s;
@@ -1487,7 +1487,7 @@ cg-container {
     cursor: pointer;
 	background-color: #ad3333;
 }
-.hard-refresh-btn:hover {
+.install-open-home-btn:hover {
 	background-color: #c03b3b;
 }
 #install-buttons .small-buttons {
