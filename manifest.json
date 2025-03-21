@@ -1,0 +1,22 @@
+{
+    "short_name": "A.C.A.S",
+    "name": "Advanced Chess Assistance System",
+    "icons": [
+        {
+            "src": "assets/images/logo-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "assets/images/logo.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "launch_handler": {
+        "client_mode": "navigate-new"
+    },
+    "theme_color": "#000000"
+}
