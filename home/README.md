@@ -1,4 +1,4 @@
-# A.C.A.S (Advanced Chess Assistance System)
+# A.C.A.S (Chess Assistance)
 
 !> A.C.A.S is currently in development. Expect bugs, especially on variants.
 
