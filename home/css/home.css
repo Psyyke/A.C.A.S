@@ -230,6 +230,7 @@ h1#acas {
     font-size: 30px;
     background-color: #00000005;
     margin: 0;
+    border-bottom: 1px solid #eeeeee;
 }
 h1 span {
     align-items: flex-start;
@@ -292,8 +293,12 @@ body {
 }
 .markdown-section {
     background-color: #ffffff;
-    border-radius: 10px;
+    border-radius: 7px;
     padding: 50px;
+    border-left: 7px solid var(--theme-color);
+}
+.sidebar ul li.active>a {
+    border-right: 3px solid;
 }
 @media screen and (max-width: 768px) {
     .content {
