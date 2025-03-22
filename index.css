@@ -600,12 +600,12 @@ cg-container {
 		display: block;
 	}
 }
-.install-kiwi-btn {
-	background-color: rgb(63 92 116);
-	background-image: linear-gradient(rgb(68 165 182), rgb(64 82 121));
+.install-firefox-btn {
+	background-color: #B33EEB;
+    background-image: linear-gradient(#B33EEB, #6d2291);
 }
-.install-kiwi-btn:hover {
-    background-image: linear-gradient(rgb(79, 191, 211), rgb(48, 68, 110));
+.install-firefox-btn:hover {
+    background-image: linear-gradient(#cd60ff, #812ca8);
 }
 .install-ios-btn {
 	background-color: rgb(229 229 229);

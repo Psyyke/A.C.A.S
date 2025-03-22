@@ -18,7 +18,7 @@ Simply open the <a target="_about" href="../">GUI</a>, it will help you install 
 
 Following the [Getting Started](#getting-started) guide, you might notice that your regular mobile browser doesn't support extensions. Don't worry, there are browsers for mobile that support extensions which you can use to follow the first step of the [Getting Started](#getting-started) guide.
 
-- **Android** users can use the [Kiwi Browser](https://kiwibrowser.com/).
+- **Android** users can use [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) with [Violentmonkey](https://addons.mozilla.org/en-US/firefox/addon/violentmonkey/).
 - **iOS** users can use Safari with the [Userscripts](https://apps.apple.com/us/app/userscripts/id1463298887) extension.
 
 **Both users** should enable the <a target="_about" href="../?shl=pip">Floating Panel</a> setting to prevent A.C.A.S freezing and not giving suggestions.
