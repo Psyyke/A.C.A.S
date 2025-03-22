@@ -306,6 +306,7 @@ body {
     }
     .markdown-section {
         padding: 0px;
+        border-left: 0px !important;
     }
     body {
         background-image: unset;
