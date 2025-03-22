@@ -21,4 +21,4 @@ Following the [Getting Started](#getting-started) guide, you might notice that y
 - **Android** users can use [Quetta](https://play.google.com/store/apps/details?id=net.quetta.browser) with [Violentmonkey](https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag).
 - **iOS** users can use Safari with the [Userscripts](https://apps.apple.com/us/app/userscripts/id1463298887) extension.
 
-**Both users** should enable the <a target="_about" href="../?shl=pip">Floating Panel</a> setting to prevent A.C.A.S freezing and not giving suggestions.
+!>**Both users** should enable the <a target="_about" href="../?shl=pip">Floating Panel</a> setting to prevent A.C.A.S freezing and not giving suggestions. Every time you start A.C.A.S, make sure to click the A.C.A.S page once to open the <a target="_about" href="../?shl=pip">Floating Panel</a>!

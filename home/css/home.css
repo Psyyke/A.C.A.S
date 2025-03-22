@@ -238,3 +238,9 @@ h1 span {
 img {
     border-radius: 7px;
 }
+
+@media screen and (max-width: 768px) {
+    .content {
+        padding-top: 80px !important;
+    }
+}
