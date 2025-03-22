@@ -600,12 +600,12 @@ cg-container {
 		display: block;
 	}
 }
-.install-firefox-btn {
-	background-color: #B33EEB;
-    background-image: linear-gradient(#B33EEB, #6d2291);
+.install-quetta-btn {
+	background-color: #E25554;
+    background-image: linear-gradient(#E25554, #BD2E46);
 }
-.install-firefox-btn:hover {
-    background-image: linear-gradient(#cd60ff, #812ca8);
+.install-quetta-btn:hover {
+    background-image: linear-gradient(#f75d5d, #cc334d);
 }
 .install-ios-btn {
 	background-color: rgb(229 229 229);
