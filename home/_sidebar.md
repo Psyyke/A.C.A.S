@@ -1,4 +1,4 @@
-# A.C.A.S V2
+# A.C.A.S
 * [Home](/)
 * [Installation](docs/installation.md "A.C.A.S is not working")
 * [Usage](docs/usage.md "How to use A.C.A.S?")

@@ -220,16 +220,18 @@ body {
 .content {
     max-width: 1100px;
 }
-h1#acas-v2 {
-    margin: 10px;
+h1#acas {
+    padding: 20px;
     font-stretch: expanded;
     align-items: flex-start;
     font-stretch: ultra-expanded;
     font-weight: 800;
     font-family: "Mona Sans";
+    font-size: 30px;
+    background-color: #00000005;
+    margin: 0;
 }
 h1 span {
-    font-stretch: expanded;
     align-items: flex-start;
     font-stretch: ultra-expanded;
     font-weight: 800;
@@ -238,9 +240,49 @@ h1 span {
 img {
     border-radius: 7px;
 }
-
+.sidebar-toggle {
+    width: 75px !important;
+    height: 75px;
+    display: flex;
+    justify-content: center;
+    background-color: rgb(255 255 255 / 90%);
+    align-items: center;
+    border-radius: 0 25px 0 0;
+    padding: 0;
+}
+.sidebar-toggle span {
+    margin-bottom: 4px;
+    border-radius: 20px;
+    width: 30px;
+    height: 3px;
+}
+.sidebar ul li a {
+    align-items: flex-start;
+    font-stretch: ultra-expanded;
+    font-family: "Mona Sans";
+    font-size: 20px;
+}
+.sidebar ul li.active>a {
+    font-weight: 900;
+    background-color: #00000003;
+}
+.anchor span {
+    color: var(--theme-color);
+}
 @media screen and (max-width: 768px) {
     .content {
         padding-top: 80px !important;
     }
+}
+a {
+    color: var(--theme-color);
+}
+.search {
+    margin-bottom: 0px !important;
+}
+input {
+    align-items: flex-start;
+    font-stretch: ultra-expanded;
+    font-family: "Mona Sans";
+    font-size: 15px;
 }

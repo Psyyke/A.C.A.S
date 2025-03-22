@@ -18,7 +18,12 @@ Simply open the <a target="_about" href="../">GUI</a>, it will help you install 
 
 Following the [Getting Started](#getting-started) guide, you might notice that your regular mobile browser doesn't support extensions. Don't worry, there are browsers for mobile that support extensions which you can use to follow the first step of the [Getting Started](#getting-started) guide.
 
-- **Android** users can use [Quetta](https://play.google.com/store/apps/details?id=net.quetta.browser) with [Violentmonkey](https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag).
-- **iOS** users can use Safari with the [Userscripts](https://apps.apple.com/us/app/userscripts/id1463298887) extension.
+1. Install a browser app which supports a userscript manager.
+    - **Android** users can use [Quetta](https://play.google.com/store/apps/details?id=net.quetta.browser) with [Violentmonkey](https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag).
+    - **iOS** users can use Safari with the [Userscripts](https://apps.apple.com/us/app/userscripts/id1463298887) extension.
+2. Follow the [Getting Started](#getting-started) guide found above.
+3. Make sure to enable  <a target="_about" href="../?shl=pip">Floating Panel</a> setting to prevent freezing.
 
-!>**Both users** should enable the <a target="_about" href="../?shl=pip">Floating Panel</a> setting to prevent A.C.A.S freezing and not giving suggestions. Every time you start A.C.A.S, make sure to click the A.C.A.S page once to open the <a target="_about" href="../?shl=pip">Floating Panel</a>!
+Note that you need to play games in the browser. For example, A.C.A.S won’t work in the Chess app. It functions the same way as on a desktop, but the challenge is finding a browser that supports extensions like Violentmonkey. We’ve recommended a few options above.
+
+!>**Both users** should enable the <a target="_about" href="../?shl=pip">Floating Panel</a> setting to prevent A.C.A.S freezing and not giving suggestions. Every time you start A.C.A.S, make sure to click the A.C.A.S page once to open the <a target="_about" href="../?shl=pip">Floating Panel</a>! The panel needs to be visible in order to stop freezing.
