@@ -14,6 +14,11 @@ Are you interested in helping A.C.A.S? ❤️
 
 ##### Thank you.
 
+## Contributors
+
+- [Haka](https://github.com/Hakorr) (Main developer)
+- [PikPakPik](https://github.com/PikPakPik) (Translator, French)
+
 --- 
 
-*Rest assured, your contributions will stay open source and free to everyone for their personal use and you will be credited properly. The main developer of A.C.A.S is a poor student from Finland which is why A.C.A.S has ads.*
+*Rest assured, your contributions will stay open source and free to everyone for their personal use and you will be credited properly. The main developer of A.C.A.S is a poor student which is why A.C.A.S may have ads.*
