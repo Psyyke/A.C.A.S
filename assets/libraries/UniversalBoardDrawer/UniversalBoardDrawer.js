@@ -343,8 +343,6 @@ class UniversalBoardDrawer {
             square = positions;
         }
 
-        console.log(type);
-
         switch(type) {
             case 'text':
                 const textElement = this.createTextOnSquare(square, config);

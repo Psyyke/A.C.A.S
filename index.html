@@ -9,6 +9,7 @@
 		<meta property="og:description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported.">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="manifest" href="manifest.json" />
+		<script src="iframe-processor.js"></script>
 		<script src="coi-serviceworker.js"></script>
 		<script>
 		window.dataLayer = window.dataLayer || [];
@@ -319,59 +320,6 @@
 								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Render</div>
-								<div class="input-subtitle">Render various information</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="render" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
-								<div class="input-subtitle">Show the move arrows after this time</div></div>
-								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
-							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Arrow opacity (1 - 100%)</div>
-								<div class="input-subtitle">Change the opacity of the arrows</div></div>
-								<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Primary Arrow Color</div>
-								<div class="input-subtitle">The best move color</div></div>
-								<input type="color" data-key="primaryArrowColorHex" data-default-value="#32CD32">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Secondary Arrow Color</div>
-								<div class="input-subtitle">Other moves' color</div></div>
-								<input type="color" data-key="secondaryArrowColorHex" data-default-value="#1E90FF">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Opponent Arrow Color</div>
-								<div class="input-subtitle">Opponent color</div></div>
-								<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
-							</div>
-						</div>
-						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👁️‍🗨️</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
-								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
-								<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="input-combination-box">
-								<div class="checkbox-input custom-input"><div><div class="input-title">Opponent move guess</div>
-									<div class="input-subtitle">Show the engine's guess of what move the enemy makes after you play the suggested move</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-								</div>
-								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Constantly visible</div>
-									<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-								</div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
-								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
-								<div class="input-subtitle">Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
 							<div class="floaty-input custom-input">
 								<div><div class="input-title">Rendering</div><div class="input-subtitle">Renders various metrics</div></div>
 								<div class="floaty-wrapper">
@@ -430,6 +378,55 @@
 										</div>
 									</dialog>
 								</div>
+							</div>
+							<div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
+								<div class="input-subtitle">Show the move arrows after this time</div></div>
+								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
+							</div>
+							<div class="textfield-input custom-input"><div><div class="input-title">Arrow opacity (1 - 100%)</div>
+								<div class="input-subtitle">Change the opacity of the arrows</div></div>
+								<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
+							</div>
+							<div class="color-input custom-input"><div><div class="input-title">Primary Arrow Color</div>
+								<div class="input-subtitle">The best move color</div></div>
+								<input type="color" data-key="primaryArrowColorHex" data-default-value="#32CD32">
+							</div>
+							<div class="color-input custom-input"><div><div class="input-title">Secondary Arrow Color</div>
+								<div class="input-subtitle">Other moves' color</div></div>
+								<input type="color" data-key="secondaryArrowColorHex" data-default-value="#1E90FF">
+							</div>
+							<div class="color-input custom-input"><div><div class="input-title">Opponent Arrow Color</div>
+								<div class="input-subtitle">Opponent color</div></div>
+								<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
+							</div>
+						</div>
+						<div class="setting-panel">
+							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👁️‍🗨️</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
+								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
+								<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div class="input-combination-box">
+								<div class="checkbox-input custom-input"><div><div class="input-title">Opponent move guess</div>
+									<div class="input-subtitle">Show the engine's guess of what move the enemy makes after you play the suggested move</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+								</div>
+								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Constantly visible</div>
+									<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+								</div>
+							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
+								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
+								<div class="input-subtitle">Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
 						</div>
 						<div class="setting-panel">

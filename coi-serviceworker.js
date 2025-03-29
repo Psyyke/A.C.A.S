@@ -1,5 +1,5 @@
 /*! coi-serviceworker v0.1.6 - Guido Zuidhof, licensed under MIT */
-let coepCredentialless = false;
+let coepCredentialless = true;
 if (typeof window === 'undefined') {
     self.addEventListener("install", () => self.skipWaiting());
     self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
@@ -23,6 +23,7 @@ if (typeof window === 'undefined') {
 
     self.addEventListener("fetch", function (event) {
         const r = event.request;
+
         if (r.cache === "only-if-cached" && r.mode !== "same-origin") {
             return;
         }
