@@ -12,6 +12,8 @@ Most userscripts mess with the site’s code or rely on its built-in functions, 
 
 !> The <a target="_about" href="../?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds a simple element to the site's document to display the move information. This modifies the site and is in risk of being detectable. While the element doesn't scream "**I WAS MADE BY A.C.A.S**", it could be detected either way.
 
+<div class="gas"></div>
+
 ## Reading The Board
 
 The system first locates the chessboard element, which varies from site to site. Once identified, it scans within that element to detect individual pieces, utilizing multiple techniques to determine their type. Some platforms encode this information in class names, while others store it in attributes like `data-piece`. For more complex cases, A.C.A.S examines inline styles or even inspects pixel colors of the piece images. After classification, it assigns each piece its standard chess notation (FEN), differentiating between white and black pieces.

@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.3.3
+ - Version: 1.3.5
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -24,6 +24,7 @@ class UniversalBoardDrawer {
         this.zIndex = config?.zIndex || 1000; // container z-index
         this.usePrepend = config?.prepend || false;
         this.debugMode = config?.debugMode || false;
+        this.ignoreBodyRectLeft = config?.ignoreBodyRectLeft || false;
 
         this.boardContainerElem = null;
         this.singleSquareSize = null;
@@ -175,12 +176,75 @@ class UniversalBoardDrawer {
         return arrowElem;
     }
 
+    createTextOnSquare(square, config) {
+        const squareCoordinateObj = this.squareSvgCoordinates.find(x => this.coordinateToFen(x.coordinates) == square);
+
+        if(!squareCoordinateObj) {
+            if(this.debugMode) console.error('Coordinate', square, 'does not exist. Possibly out of bounds?');
+
+            return;
+        }
+
+        const defaultFontSize = 20;
+        const sizeMultiplier = config?.size || 1;
+        const scale = this.singleSquareSize / 100;
+        const fontSize = defaultFontSize * sizeMultiplier * scale;
+
+        const textElem = this.document.createElementNS('http://www.w3.org/2000/svg', 'text');
+              textElem.textContent = config?.text || '💧';
+
+        textElem.style.fontSize = `${fontSize}px`;
+
+        const style = config?.style;
+
+        if(style) {
+            const existingStyle = textElem.getAttribute('style') || '';
+
+            textElem.setAttribute('style', `${existingStyle} ${style}`);
+        }
+
+        return textElem;
+    }
+
+    createRectOnSquare(square, config) {
+        const squareCoordinateObj = this.squareSvgCoordinates.find(
+            x => this.coordinateToFen(x.coordinates) == square
+        );
+
+        if (!squareCoordinateObj) {
+            if (this.debugMode) console.error('Coordinate', square, 'does not exist. Possibly out of bounds?');
+            return;
+        }
+
+        const [squareCenterX, squareCenterY] = squareCoordinateObj?.positions;
+
+        const rectElem = this.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+
+        rectElem.setAttribute('x', squareCenterX - this.singleSquareSize / 2);
+        rectElem.setAttribute('y', squareCenterY - this.singleSquareSize / 2);
+        rectElem.setAttribute('width', this.singleSquareSize);
+        rectElem.setAttribute('height', this.singleSquareSize);
+
+        // Default styles
+        rectElem.setAttribute('fill', 'black');
+        rectElem.setAttribute('opacity', '0.5');
+
+        // Apply custom styles if provided
+        const style = config?.style;
+        if (style) {
+            const existingStyle = rectElem.getAttribute('style') || '';
+            rectElem.setAttribute('style', `${existingStyle} ${style}`);
+        }
+
+        return rectElem;
+    }
+
     createDotOnSVG(x, y) {
         const dot = this.document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            dot.setAttribute('cx', x);
-            dot.setAttribute('cy', y);
-            dot.setAttribute('r', '1');
-            dot.setAttribute('fill', 'black');
+              dot.setAttribute('cx', x);
+              dot.setAttribute('cy', y);
+              dot.setAttribute('r', '1');
+              dot.setAttribute('fill', 'black');
 
         this.addedShapes.push({ type: 'debugDot', 'element': dot });
 
@@ -202,6 +266,24 @@ class UniversalBoardDrawer {
             });
     }
 
+    setTextPosition(square, originalElement, config, newElement = originalElement) {
+        const squareCoordinateObj = this.squareSvgCoordinates.find(x => this.coordinateToFen(x.coordinates) == square);
+
+        const textBounds = originalElement.getBBox();
+
+        const squareCenterPos = squareCoordinateObj.positions;
+        let [correctionX, correctionY] = config?.position || [0, 0];
+
+        correctionX = this.singleSquareSize * correctionX / 2;
+        correctionY = this.singleSquareSize * -correctionY / 2;
+
+        const x = (squareCenterPos[0] - (textBounds?.width / 2) + correctionX);
+        const y = (squareCenterPos[1] + (textBounds?.height / 4) + correctionY);
+
+        newElement.setAttribute('x', x);
+        newElement.setAttribute('y', y);
+    }
+
     updateShapes() {
         if(this.debugMode) {
             this.removeAllDebugDots();
@@ -212,10 +294,113 @@ class UniversalBoardDrawer {
         this.addedShapes
             .filter(shapeObj => shapeObj.type != 'debugDot')
             .forEach(shapeObj => {
-                const newShapeElem = this.createArrowBetweenPositions(...shapeObj.positions, shapeObj.config);
+                switch(shapeObj.type) {
+                    case 'text':
+                        // shapeObj.positions is a string, just one square fen
+                        const newTextElement = this.createTextOnSquare(shapeObj.positions, shapeObj.config);
+                        const originalTextElement = shapeObj.element;
 
-                this.transferAttributes(newShapeElem, shapeObj.element);
+                        this.setTextPosition(shapeObj.positions, originalTextElement, shapeObj.config, newTextElement);
+
+                        this.transferAttributes(newTextElement, shapeObj.element);
+
+                        break;
+
+                    case 'rectangle':
+                        // shapeObj.positions is a string, just one square fen
+                        const newRectElem = this.createRectOnSquare(shapeObj.positions, shapeObj.config);
+
+                        this.transferAttributes(newRectElem, shapeObj.element);
+
+                        break;
+
+                    default:
+                        const newArrowElem = this.createArrowBetweenPositions(...shapeObj.positions, shapeObj.config);
+
+                        this.transferAttributes(newArrowElem, shapeObj.element);
+
+                        break;
+                }
             });
+    }
+
+    createShape(type, positions, config) {
+        let square;
+
+        if(this.terminated) {
+            if(this.debugMode) console.warn('Failed to create shape! Tried to create shape after termination!');
+
+            return false;
+        }
+
+        if(!this.boardContainerElem) {
+            if(this.debugMode) console.warn(`Failed to create shape! Board SVG doesn't exist yet! (createOverlaySVG() failed?)`);
+
+            return false;
+        }
+
+        if(typeof positions === 'string') {
+            square = positions;
+        }
+
+        console.log(type);
+
+        switch(type) {
+            case 'text':
+                const textElement = this.createTextOnSquare(square, config);
+
+                if(textElement) {
+                    this.addedShapes.push({ type, positions, config, 'element': textElement });
+
+                    if(this.usePrepend) {
+                        this.boardContainerElem.prepend(textElement);
+                    } else {
+                        this.boardContainerElem.appendChild(textElement);
+                    }
+
+                    this.setTextPosition(square, textElement, config);
+
+                    return textElement;
+                }
+
+                break;
+
+            case 'rectangle':
+                const rectElement = this.createRectOnSquare(square, config);
+
+                if(rectElement) {
+                    this.addedShapes.push({ type, positions, config, 'element': rectElement });
+
+                    if(this.usePrepend) {
+                        this.boardContainerElem.prepend(rectElement);
+                    } else {
+                        this.boardContainerElem.appendChild(rectElement);
+                    }
+
+                    return rectElement;
+                }
+
+                break;
+
+            default:
+                const arrowElement = this.createArrowBetweenPositions(...positions, config);
+
+                if(arrowElement) {
+                    this.addedShapes.push({ 'type': 'arrow', positions, config, 'element': arrowElement });
+
+                    if(this.usePrepend) {
+                        this.boardContainerElem.prepend(arrowElement);
+                    } else {
+                        this.boardContainerElem.appendChild(arrowElement);
+                    }
+
+                    return arrowElement;
+                }
+
+                break;
+        }
+
+        return null;
     }
 
     coordinateToFen(coordinates) {
@@ -254,41 +439,6 @@ class UniversalBoardDrawer {
         }
     }
 
-    createShape(type, positions, config) {
-        if(this.terminated) {
-            if(this.debugMode) console.warn('Failed to create shape! Tried to create shape after termination!');
-
-            return false;
-        }
-
-        if(!this.boardContainerElem) {
-            if(this.debugMode) console.warn(`Failed to create shape! Board SVG doesn't exist yet! (createOverlaySVG() failed?)`);
-
-            return false;
-        }
-
-        switch(type) {
-            case 'arrow':
-                const element = this.createArrowBetweenPositions(...positions, config);
-
-                if(element) {
-                    this.addedShapes.push({ type, positions, config, element });
-
-                    if(this.usePrepend) {
-                        this.boardContainerElem.prepend(element);
-                    } else {
-                        this.boardContainerElem.appendChild(element);
-                    }
-
-                    return element;
-                }
-
-                break;
-        }
-
-        return null;
-    }
-
     updateDimensions() {
         const boardRect = this.boardElem.getBoundingClientRect(),
               bodyRect = this.document.body.getBoundingClientRect(); // https://stackoverflow.com/a/62106310
@@ -297,7 +447,7 @@ class UniversalBoardDrawer {
             boardHeight = boardRect.height;
 
         let boardPositionTop = boardRect.top - bodyRect.top,
-            boardPositionLeft = boardRect.left - bodyRect.left;
+            boardPositionLeft = boardRect.left - (this.ignoreBodyRectLeft ? 0 : bodyRect.left);
 
         if(this.adjustSizeByDimensions) {
 
@@ -429,5 +579,79 @@ class UniversalBoardDrawer {
         this.observers.forEach(observer => observer.disconnect());
 
         this.boardContainerElem.remove();
+    }
+
+    async demo() {
+        const { width: boardWidth, height: boardHeight } = this.boardDimensions;
+        const totalSteps = boardWidth + boardHeight;
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        let createdElements = [];
+
+        const createArrow = (x, y, opacity) => {
+            const arrowStart = this.coordinateToFen([x - 1, y - 1]);
+            const square = this.coordinateToFen([x, y]);
+            return BoardDrawer.createShape('arrow', [arrowStart, square], {
+                lineWidth: 10 + opacity * 25,
+                arrowheadWidth: 30 + opacity * 45,
+                arrowheadHeight: 30 + opacity * 15,
+                startOffset: 25,
+                style: `fill: pink; opacity: ${opacity};`
+            });
+        };
+
+        const createText = (square, opacity, size, x, y) => {
+            return [
+                BoardDrawer.createShape('text', square, {
+                    size,
+                    text: '♥️',
+                    style: `opacity: ${opacity};`,
+                    position: [0, 0]
+                }),
+                BoardDrawer.createShape('text', square, {
+                    size: size / 2,
+                    text: `(${x},${y})`,
+                    style: `opacity: ${opacity / 2};`,
+                    position: [0, 0.8]
+                })
+            ];
+        };
+
+        for (let sum = 0; sum <= totalSteps; sum++) {
+            const step = sum / totalSteps;
+            const opacity = Math.min(step.toFixed(2), 1);
+            const size = Math.max((5 - step * 4).toFixed(2), 1);
+
+            for (let x = 0; x <= sum; x++) {
+                const y = sum - x;
+                if (x > boardWidth || y > boardHeight) continue;
+
+                const square = this.coordinateToFen([x, y]);
+                const rectStyle = `fill: white; opacity: ${opacity}; stroke-width: ${opacity * 2}; stroke: rgb(204,51,102,${opacity});`;
+
+                createdElements.push(BoardDrawer.createShape('rectangle', square, { style: rectStyle }));
+
+                if (x > 0 && y > 0) {
+                    createdElements.push(createArrow(x, y, opacity));
+                }
+
+                createdElements.push(...createText(square, opacity, size, x, y));
+
+                await delay(50);
+            }
+        }
+
+        await delay(1000);
+
+        createdElements = createdElements
+            .filter(x => x)
+            .reverse();
+
+        for(let element of createdElements) {
+            element?.remove();
+            await delay(5);
+        }
+
+        this.removeAllExistingShapes();
     }
 }

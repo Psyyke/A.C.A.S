@@ -1,8 +1,8 @@
 :root {
-    --settings-input-main-bg-color: rgb(255 255 255 / 5%);
+    --settings-input-main-bg-color: rgb(255 255 255 / 6%);
     --settings-input-border-width: 0 0 4px 0;
     --settings-input-border-style: solid;
-    --settings-input-border-color: rgb(255 255 255 / 5%);
+    --settings-input-border-color: rgb(255 255 255 / 6%);
     --settings-input-border-radius: 5px;
     --settings-input-font-size: 18px;
 }
@@ -307,4 +307,128 @@ input:focus {
     border-width: 2px !important;
     transform: translateY(3px) !important;
     margin-top: 3px !important;
+}
+/* Floaty */
+.open-floaty-btn {
+    width: 43px;
+    height: 45px;
+    border-radius: 5px;
+    font-size: 23px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
+}
+.open-floaty-btn:active {
+    border-width: 2px !important;
+    transform: translateY(2px) !important;
+    margin-top: 0px !important;
+}
+dialog#rendering-floaty {
+    border-radius: 5px;
+    background-color: black;
+    border-width: 2px 2px 10px 2px;
+    color: white;
+    padding: 0;
+    border-color:rgb(255 255 255 / 30%);
+}
+dialog#rendering-floaty::backdrop {
+    background: rgb(0 0 0 / 50%);
+    backdrop-filter: blur(3px);
+}
+dialog h1 {
+    font-stretch: expanded;
+    text-transform: uppercase;
+    text-shadow: 0px 3px 0px rgb(0 0 0 / 50%);
+    margin-bottom: 5px !important;
+    color: white !important;
+}
+dialog h3 {
+    text-shadow: 0px 3px 0px rgb(0 0 0 / 35%);
+    margin: 0;
+    margin-bottom: 5px;
+}
+dialog .custom-input {
+    background-color: rgb(0 0 0 / 15%);
+    padding: 12px;
+    border-radius: 5px;
+}
+.floaty-body:nth-child(2) > .custom-input {
+    background-color: rgb(0 0 0 / 25%);
+    border: 2px solid rgb(255 255 255 / 25%);
+    border-bottom-width: 5px;
+}
+dialog .setting-panel-title {
+    color: white;
+}
+dialog .setting-panel {
+    max-width: unset;
+    border: 2px solid rgb(255 255 255 / 25%);
+    border-bottom-width: 5px;
+    padding: 10px;
+}
+dialog .input-title {
+    color: rgb(255 255 255 / 75%);
+}
+dialog .input-subtitle {
+    color: rgb(255 255 255 / 40%);
+    font-size: 13px;
+}
+.floaty-container a {
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(255 255 255 / 85%);
+}
+.floaty-container {
+    background-color: rgb(0 0 0 / 10%);
+    padding: 6px;
+}
+.floaty-close-btn {
+    width: fit-content;
+    height: 45px;
+    border-radius: 5px;
+    font-size: 20px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--settings-input-border-radius);
+    background-color: rgb(255 255 255 / 15%);
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: rgb(255 255 255 / 30%);
+}
+.floaty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgb(255 255 255 / 10%);
+    padding-bottom: 10px;
+    background-color: rgb(0 0 0 / 30%);
+    padding: 10px;
+    border-radius: 5px 5px 0 0;
+}
+.floaty-header .title * {
+    margin: 0;
+    color: rgb(255 255 255 / 75%);
+}
+.floaty-body {
+    background-color: rgb(0 0 0 / 10%);
+    padding: 10px;
+    border-radius: 0 0 5px 5px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+.floaty-setting-container {
+    background-color: rgb(0 0 0 / 15%);
+    padding: 5px;
+    border-radius: 5px;
 }

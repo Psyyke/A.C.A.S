@@ -49,6 +49,8 @@ The <a target="_about" href="../?shl=chessEngine">Chess Engine</a> setting chang
 
 !>A.C.A.S also takes other information from the engine's results to give you insights into the match. Some engines offer less of extra information which cannot then be analyzed. Use Stockfish for best results.
 
+<div class="gas"></div>
+
 #### ⚙️ Chess Variant
 
 The <a target="_about" href="../?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_about" href="../?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized.
@@ -85,3 +87,5 @@ The <a target="_about" href="../?shl=displayMovesOnExternalSite">Moves On Extern
 | 🟥 | Enemy Move |
 
 > Enemy move is shown if <a target="_about" href="../?shl=showOpponentMoveGuess">Opponent Move Guess</a> setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.
+
+<div class="gas"></div>

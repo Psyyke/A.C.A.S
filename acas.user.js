@@ -76,10 +76,10 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @require     https://greasyfork.org/scripts/470418-commlink-js/code/CommLinkjs.js
-// @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
+// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js
+// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.5
+// @version     2.2.6
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -316,6 +316,7 @@ let BoardDrawer = null;
 let chessBoardElem = null;
 let chesscomVariantPlayerColorsTable = null;
 let activeGuiMoveMarkings = [];
+let activeMetricRenders = [];
 
 let lastBoardRanks = null;
 let lastBoardFiles = null;
@@ -436,11 +437,50 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 matchFirstSuggestionGiven = true;
 
                 return true;
+            case 'renderMetricsToSite':
+                renderMetrics(packet.data);
+                return true;
         }
     } catch(e) {
         return null;
     }
 });
+
+function clearMetricRenders() {
+    activeMetricRenders.forEach(elem => {
+        if(elem) elem?.remove();
+    });
+}
+
+function renderMetrics(addedMetrics) {
+    clearMetricRenders();
+
+    function processMetric(metric) {
+        const data = metric?.data;
+
+        if(!data) return;
+
+        const shapeType = data?.shapeType;
+        const shapeSquare = data?.shapeSquare;
+        const shapeConfig = data?.shapeConfig;
+
+        if(shapeType && shapeSquare && shapeConfig) {
+            const shape = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+
+            activeMetricRenders.push(shape);
+        }
+    }
+
+    function findMetricByType(type) {
+        return addedMetrics.filter(metric => metric?.data?.shapeType === type) || [];
+    }
+
+    findMetricByType('text')
+        .forEach(processMetric);
+
+    findMetricByType('rectangle')
+        .forEach(processMetric);
+}
 
 const boardUtils = {
     markMoves: moveObjArr => {
@@ -915,7 +955,7 @@ function getPieceAmount() {
 class AutomaticMove {
     constructor(profile, fenMoveArr, isLegit, callback) {
         this.id = getUniqueID();
-        
+
         // activeAutomoves is an external variable, not a child of AutomaticMove
         activeAutomoves.push({ 'id': this.id, 'move': this });
 
@@ -1118,9 +1158,9 @@ class AutomaticMove {
     getRandomIntegerNearAverage(min, max) {
         const mid = (min + max) / 2;
         const range = (max - min) / 2;
-        
+
         let value = Math.floor(mid + (Math.random() - 0.5) * range * 1.5);
-        
+
         return Math.max(min, Math.min(max, value));
     }
 
@@ -1307,7 +1347,7 @@ class AutomaticMove {
 async function makeMove(profile, fenMoveArr, isLegit) {
     const move = new AutomaticMove(profile, fenMoveArr, isLegit, e => {
         // This is ran when the move finished
-        
+
         if(debugModeActivated) console.warn('Move', fenMoveArr, move.id, 'finished', 'for profile:', profile);
     });
 }

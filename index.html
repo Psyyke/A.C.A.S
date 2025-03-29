@@ -10,22 +10,32 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="manifest" href="manifest.json" />
 		<script src="coi-serviceworker.js"></script>
-		<script async src="https://www.googletagmanager.com/gtag/js?id=pub-7248123202489335"></script>
 		<script>
 		window.dataLayer = window.dataLayer || [];
 		function gtag(){dataLayer.push(arguments);}
-		gtag('consent', 'default', {
-			'ad_storage': 'denied'
-		});
-		gtag('js', new Date());
-		gtag('config', 'pub-7248123202489335');
+		// Deny personalization by default <3
+        gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'analytics_storage': 'denied',
+            'wait_for_update': 500
+        });
 		</script>
 		<script defer type="text/javascript" src="assets/libraries/klaro/config.js"></script>
 		<script defer type="text/javascript" src="assets/libraries/klaro/klaro.js"></script>
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-7248123202489335" crossorigin="anonymous"></script>
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5499BQ4B');</script>
+        <script>
+		gtag("js", new Date);
+		gtag('set', 'url_passthrough', true);
+		gtag("config", "GTM-5499BQ4B");
+		</script>
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+		<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 		<script src="assets/libraries/HackTimer/HackTimer.js"></script>
 		<script src="assets/js/acas-globals.js"></script>
 		<script src="assets/js/acas-i18n-processor.js"></script>
+		<script src="assets/js/acas-board-analyzer.js"></script>
 		<script src="assets/js/acas-backend-instance.js"></script>
 		<script src="assets/js/acas-backend-manager.js"></script>
 		<script src="assets/js/acas-user-security-system.js"></script>
@@ -46,6 +56,8 @@
 		<link rel="icon" type="image/x-icon" href="favicon.ico"/>
 	</head>
 	<body>
+		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
 		<!-- TOS CONTAINER-->
 		<div id="tos-container" class="hidden">
 			<div id="tos">
@@ -93,7 +105,7 @@
 			<div id="install-mobile-container">
 				<div class="install-subtitle">Mobile users can try these ♡ ⤵</div>
 				<div id="install-buttons-mobile">
-					<a href="https://play.google.com/store/apps/details?id=net.quetta.browser" class="install-notification-btn install-quetta-btn" target="_about">(Android) Quetta</a>
+					<a href="https://play.google.com/store/apps/details?id=com.lemurbrowser.exts" class="install-notification-btn install-lemur-btn" target="_about">(Android) Lemur</a>
 					<a href="https://apps.apple.com/us/app/userscripts/id1463298887" class="install-notification-btn install-ios-btn" target="_about">(iOS) Userscripts</a>
 				</div>
 			</div>
@@ -193,6 +205,8 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="ga"><ins class="adsbygoogle"data-ad-client="ca-pub-7248123202489335"data-ad-format="fluid"data-ad-layout="in-article"data-ad-slot="4819810311"style="display:block;text-align:center"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div>
 
 		<!-- ACAS SETTINGS CONTAINER-->
 		<div id="acas-settings-container">
@@ -305,6 +319,10 @@
 								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Render</div>
+								<div class="input-subtitle">Render various information</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="render" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
 								<div class="input-subtitle">Show the move arrows after this time</div></div>
 								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
@@ -352,7 +370,66 @@
 							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
 								<div class="input-subtitle">Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="pip" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+								<input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+							</div>
+							<div class="floaty-input custom-input">
+								<div><div class="input-title">Rendering</div><div class="input-subtitle">Renders various metrics</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+								    <dialog id="rendering-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header">
+												<div class="title">
+													<h1>Rendering Settings</h1>
+													<p>Display various metrics on the board</p>
+												</div>
+												<div class="floaty-buttons">
+													<button class="floaty-close-btn acas-fancy-button">👍</button>
+												</div>
+											</section>
+											<section class="floaty-body">
+												<div class="checkbox-input custom-input"><div><div class="input-title">Render On External Site</div>
+													<div class="input-subtitle">Render on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
+													<input type="checkbox" data-key="renderOnExternalSite" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+												</div>
+
+												<div class="setting-panel">
+													<div class="setting-panel-title">Square</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Vision</div>
+														<div class="input-subtitle">Highlight squares your pieces see with green</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderSquarePlayer" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Enemy Piece Vision</div>
+														<div class="input-subtitle">Highlight squares enemy's pieces see with red</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderSquareEnemy" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Contested Squares</div>
+														<div class="input-subtitle">Highlight contested squares with orange</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderSquareContested" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Safe Squares</div>
+														<div class="input-subtitle">Highlight safe squares with cyan</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderSquareSafe" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+												</div>
+
+												<div class="setting-panel">
+													<div class="setting-panel-title">Piece</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Capture</div>
+														<div class="input-subtitle">Display 💧 on pieces that are in danger of capture</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderPiecePlayerCapture" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Enemy Piece Capture</div>
+														<div class="input-subtitle">Display 🩸 on pieces that you should attack</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderPieceEnemyCapture" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+												</div>
+
+												<a target="_blank" href="home/#/docs/usage">Learn more about these features here.</a>
+											</section>
+										</div>
+									</dialog>
+								</div>
 							</div>
 						</div>
 						<div class="setting-panel">
@@ -449,6 +526,8 @@
 			</div>
 		</div>
 
+		<div class="ga"><ins class="adsbygoogle"data-ad-client="ca-pub-7248123202489335"data-ad-format="fluid"data-ad-layout="in-article"data-ad-slot="4819810311"style="display:block;text-align:center"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div>
+
 		<div id="footer">
 			<div id="footer-links">
 				<a class="footer-link" href="https://github.com/Psyyke/A.C.A.S" target="_about">GitHub</a>
@@ -466,5 +545,6 @@
 		<script type="module" src="assets/js/acas-load-modules.js"></script>
 		<script src="assets/js/acas-backend-gui.js"></script>
 		<script src="index.js"></script>
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
 	</body>
 </html>

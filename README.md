@@ -3,7 +3,7 @@
 > [!WARNING]
 > A.C.A.S is currently in development. Expect bugs, especially on variants.
 
-A.C.A.S is an open source **Advanced Chess Assistance System** which helps you make better moves with the help of a chess engine. Just install the userscript, open the A.C.A.S GUI and you're good to go! No downloading needed.
+A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (not a chess cheat), designed to help you make better moves using a chess engine. Just install the userscript, open the A.C.A.S GUI, and you're ready to go—no downloads necessary!
 
 ![Screenshot of A.C.A.S](assets/images/mock.png)
 

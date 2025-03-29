@@ -14,12 +14,18 @@ var klaroConfig = {
             required: false,
             onAccept: function() {
                 gtag('consent', 'update', {
-                    'ad_storage': 'granted'
-                });
+                    'ad_user_data': 'granted',
+                    'ad_personalization': 'granted',
+                    'ad_storage': 'granted',
+                    'analytics_storage': 'granted'
+                  });
             },
             onDecline: function() {
                 gtag('consent', 'update', {
-                    'ad_storage': 'denied'
+                    'ad_user_data': 'denied',
+                    'ad_personalization': 'denied',
+                    'ad_storage': 'denied',
+                    'analytics_storage': 'denied'
                 });
             }
         }

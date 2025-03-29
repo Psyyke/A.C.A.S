@@ -38,6 +38,14 @@ function highlightSetting(targetElem, cb) {
         .map(x => document.querySelector(x))
         .filter(x => x);
 
+    const targetInput = targetElem.querySelector('input');
+
+    if(targetInput?.dataset?.renderSetting) {
+        const renderDialog = document.querySelector('.floaty-wrapper > #rendering-floaty');
+
+        if(renderDialog) renderDialog.showModal();
+    }
+
     targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
     targetElem.classList.add('setting-highlight');

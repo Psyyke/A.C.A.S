@@ -20,6 +20,8 @@ Vary move times, avoid perfect accuracy, allow position swings, be mindful of bl
 
 Whew, that’s a lot of stuff! AI detection systems track all kinds of patterns, making it really hard to cheat without getting caught. Honestly, just play legit—it's way easier and more fun. You could disable the <a target="_about" href="../?shl=displayMovesOnExternalSite">Moves On External Site</a> setting, so that you don't see them all the time, that way you're playing yourself but still have a helping hand when needed, that way you can actually learn.
 
+<div class="gas"></div>
+
 ### Why is it not working?
 
 If it's not working at all, the site might be unsupported or modified in a way which broke A.C.A.S and we need to update it. In that case, please report it to us. Some edge-cases, like unpopular devices and special Linux distros may not work for some reason. We still want A.C.A.S to work on most devices, so let us know if it doesn't work at all.

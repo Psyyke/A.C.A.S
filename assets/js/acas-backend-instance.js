@@ -31,7 +31,14 @@ class BackendInstance {
             'autoMoveRandom': 'autoMoveRandom',
             'autoMoveAfterUser': 'autoMoveAfterUser',
             'legitModeType': 'legitModeType',
-            'moveDisplayDelay': 'moveDisplayDelay'
+            'moveDisplayDelay': 'moveDisplayDelay',
+            'renderSquarePlayer': 'renderSquarePlayer',
+            'renderSquareEnemy': 'renderSquareEnemy',
+            'renderSquareContested': 'renderSquareContested',
+            'renderSquareSafe': 'renderSquareSafe',
+            'renderPiecePlayerCapture': 'renderPiecePlayerCapture',
+            'renderPieceEnemyCapture': 'renderPieceEnemyCapture',
+            'renderOnExternalSite': 'renderOnExternalSite'
         };
 
         this.config = {};
@@ -100,7 +107,7 @@ class BackendInstance {
                 this.pastMoveObjects = [];
                 this.bestMoveMarkingElem = null;
                 this.activeGuiMoveMarkings = [];
-                this.inactiveGuiMoveMarkings = []; // not in use?
+                this.activeMetrics = [];
         
                 this.lastCalculatedFen = null;
                 this.pendingCalculations = [];
@@ -123,6 +130,7 @@ class BackendInstance {
         this.CommLink.registerSendCommand('getFen');
         this.CommLink.registerSendCommand('removeSiteMoveMarkings');
         this.CommLink.registerSendCommand('markMoveToSite');
+        this.CommLink.registerSendCommand('renderMetricsToSite');
 
         this.CommLinkReceiver = this.CommLink.registerListener(`frontend_${this.instanceID}`, packet => {
             try {
@@ -174,7 +182,6 @@ class BackendInstance {
                 return true;
             case 'updateBoardFen':
                 this.Interface.boardUtils.updateBoardFen(packet.data);
-
                 return true;
             case 'calculateBestMoves':
                 this.calculateBestMoves(packet.data);
@@ -334,10 +341,13 @@ class BackendInstance {
                     
                     this.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
                     this.Interface.boardUtils.removeMarkings();
-            
+
+                    // For each profile config
                     Object.keys(this.pV).forEach(profileName => {
                         this.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
                         this.pV[profileName].currentSpeeches = [];
+
+                        this.renderMetric(fen, profileName);
                     });
 
                     this.calculateBestMoves(fen);
@@ -426,6 +436,121 @@ class BackendInstance {
             console.log('%c' + message, 'color: dodgerblue');
         },
     };
+
+    renderMetric(fen, profile) {
+        // Remove all previous metrics
+        const previousMetrics = this.pV[profile].activeMetrics;
+        
+        if(previousMetrics.length) {
+            previousMetrics.forEach(x => {
+                if(x.elem) x.elem.remove();
+            });
+
+            this.pV[profile].activeMetrics = [];
+        }
+
+        // Get config variables
+        const renderSquarePlayer        = this.getConfigValue(this.configKeys.renderSquarePlayer, profile);
+        const renderSquareEnemy         = this.getConfigValue(this.configKeys.renderSquareEnemy, profile);
+        const renderSquareContested     = this.getConfigValue(this.configKeys.renderSquareContested, profile);
+        const renderSquareSafe          = this.getConfigValue(this.configKeys.renderSquareSafe, profile);
+        const renderPiecePlayerCapture  = this.getConfigValue(this.configKeys.renderPiecePlayerCapture, profile);
+        const renderPieceEnemyCapture   = this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
+        const renderOnExternalSite      = this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
+
+        // If none exist, do not analyze
+        if(!(renderSquarePlayer || renderSquareEnemy || renderSquareContested || renderSquareSafe || renderPieceEnemyCapture))
+            return;
+
+        const playerColor = this.getPlayerColor(profile);
+        const addedMetrics = [];
+
+        // BoardAnalyzer exists on the global window object, file acas-board-analyzer.js
+        const BoardAnal = new BoardAnalyzer(fen, { 'orientation': playerColor, 'debug': true });
+        const BoardDrawer = this.BoardDrawer;
+
+        function fillSquare(pos, style) {
+            const shapeType = 'rectangle';
+            const shapeSquare = BoardAnal.indexToFen(pos);
+            const shapeConfig = { style };
+    
+            const rect = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+
+            addedMetrics.push({ 'elem': rect, 'data': { shapeType, shapeSquare, shapeConfig }});
+        }
+        
+        function addText(squareFen, size, text, style, position) {
+            const shapeType = 'text';
+            const shapeSquare = squareFen;
+            const shapeConfig = { size, text, style, position };
+
+            const textElem = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+
+            addedMetrics.push({ 'elem': textElem, 'data': { shapeType, shapeSquare, shapeConfig }});
+        }
+
+        function renderDanger(piece, emoji) {
+            if(piece.captureDanger) {
+                const squareFen = BoardAnal.indexToFen(piece.position);
+    
+                addText(squareFen, 1.5, emoji, `opacity: 1;`, [0.3, 0.1]);
+                addText(squareFen, 2, emoji, `opacity: 0.75; filter: sepia(2) brightness(4);`, [0.3, 0.1]);
+            }
+        }
+
+        function renderSafe(pos) {
+            fillSquare(pos, `opacity: 0.30; fill: cyan;`);
+        }
+    
+        function renderPlayerOnly(pos) {
+            fillSquare(pos, `opacity: 0.30; fill: green;`);
+        }
+    
+        function renderEnemyOnly(pos) {
+            fillSquare(pos, `opacity: 0.30; fill: red;`);
+        }
+
+        function renderContested(obj) {
+            const pos = obj.square;
+            const rating = obj.rating;
+            const opacity = Math.min(0.1 + rating / 10, 0.85);
+    
+            fillSquare(pos, `opacity: ${0.1 + rating / 10}; fill: orange;`);
+        }
+
+        const analResult = BoardAnal.analyze();
+
+        if(renderPiecePlayerCapture)
+            analResult.player
+                .forEach(piece => renderDanger(piece, '💧'));
+
+        if(renderPieceEnemyCapture)
+            analResult.enemy
+                .forEach(piece => renderDanger(piece, '🩸'));
+
+        if(renderSquarePlayer)
+            analResult.squares.playerOnly
+                .forEach(pos => renderPlayerOnly(pos));
+    
+        if(renderSquareEnemy)
+            analResult.squares.enemyOnly
+                .forEach(pos => renderEnemyOnly(pos));
+    
+        if(renderSquareContested)
+            analResult.squares.contested
+                .forEach(obj => renderContested(obj));
+    
+        if(renderSquareSafe)
+            analResult.squares.safe
+                .forEach(pos => renderSafe(pos));
+
+        this.pV[profile].activeMetrics.push(...addedMetrics);
+
+        // this to external addedMetrics
+        if(renderOnExternalSite) {
+            this.CommLink.commands.renderMetricsToSite(addedMetrics);
+        }
+    }
 
     setEngineElo(elo, didUserUpdateSetting, profile) {
         if(typeof elo == 'number') {
@@ -913,6 +1038,7 @@ class BackendInstance {
             log.info(`Fen: "${currentFen}"`);
             log.info(`Updating board Fen`);
     
+            this.renderMetric(currentFen, profile);
             this.Interface.boardUtils.updateBoardFen(currentFen);
         
             log.info('Sending best move request to the engine!');
@@ -1207,7 +1333,7 @@ class BackendInstance {
                     };
 
                     lozza.onerror = e => {
-                        toast.error(`Engine error: ${e.message}`);
+                        toast.error(`Lozza-5 error: ${e.message}`);
                     };
                 break;
 
@@ -1268,7 +1394,7 @@ class BackendInstance {
                     };
 
                     stockfish2.onerror = e => {
-                        toast.error(`Engine error: ${e.message}`);
+                        toast.error(`Stockfish-16.1 error: ${e.message}`);
                     };
                 break;
 
@@ -1295,7 +1421,7 @@ class BackendInstance {
                     };
 
                     stockfish3.onerror = e => {
-                        toast.error(`Engine error: ${e.message}`);
+                        toast.error(`Stockfish-17 error: ${e.message}`);
                     };
                 break;
 

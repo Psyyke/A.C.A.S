@@ -7,3 +7,5 @@
 * [Development](docs/development.md "How to develop A.C.A.S?")
 * [Q&A](docs/qa.md "Most asked questions")
 * [Contributing](docs/contributing.md "Support A.C.A.S")
+
+<div class="gas" data-v></div>

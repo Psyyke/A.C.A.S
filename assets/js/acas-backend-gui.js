@@ -51,6 +51,26 @@ const addNewProfileBtn = document.querySelector('#add-new-profile-button');
 const profileDropdown = document.querySelector('#chess-engine-profile-dropdown');
 const deleteProfileBtn = document.querySelector('#delete-profile-button');
 
+const floatyButtons = document.querySelectorAll('.open-floaty-btn');
+
+[...floatyButtons].forEach(btn => {
+    const floatyDialog = btn?.parentElement?.querySelector('dialog');
+
+    if(floatyDialog) {
+        const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
+
+        btn.onclick = () => floatyDialog.open ? floatyDialog.close() : floatyDialog.showModal();
+        closeBtn.onclick = () => floatyDialog.close();
+
+        floatyDialog.onclick = e => {
+            if(e.target === floatyDialog)
+                floatyDialog.close();
+        };
+    } else {
+        console.error('No floaty dialog found for floaty button!');
+    }
+});
+
 const pipData = {};
 
 let pipCanvas = null;
@@ -479,8 +499,12 @@ function activateInputDefaultValue(elem) {
 }
 
 async function startPictureInPicture() {
-    if (!document.pictureInPictureEnabled) {
-        toast.error('Picture-in-Picture is not supported on your browser!');
+    if(!document.pictureInPictureEnabled) {
+        toast.error('Picture-in-Picture is not supported on your browser! Please use Chrome.');
+
+        const pipSettingCheckbox = document.querySelector('input[data-key="pip"]');
+        if(pipSettingCheckbox) pipSettingCheckbox?.click();
+
         return null;
     }
 
@@ -543,6 +567,9 @@ async function makeSettingChanges(inputElem) {
     switch(inputElem.dataset.key) {
         case 'themeColorHex':
             document.body.style['background-color'] = value || null;
+            document.querySelectorAll('dialog').forEach(diag => {
+                diag.style['background-color'] = value || null;
+            });
             acasInstanceContainer.style['background-color'] = value || null;
             pipData['themeColorHex'] = value;
 
@@ -935,9 +962,12 @@ function initGUI() {
                 if(e.target.value || e.target.checked) {
                     saveSetting(elem);
 
-                    if(e?.target?.dataset?.key === 'displayMovesOnExternalSite') {
+                    if(
+                        e?.target?.dataset?.key === 'displayMovesOnExternalSite' ||
+                        e?.target?.dataset?.key === 'renderOnExternalSite'
+                    ) {
                         const msg = transObj?.refreshSiteNotification ?? 'Refresh the external site to see changes!';
-                        toast.create('message', '👁‍🗨', msg, 2000);
+                        toast.create('message', '👁‍🗨', msg);
                     }
                 } else {
                     removeSetting(elem);
