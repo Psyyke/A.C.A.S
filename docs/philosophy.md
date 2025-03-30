@@ -48,3 +48,7 @@ A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink)
 ![External Tab](../assets/images/example2.png)
 
 The userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On External Site</a> is activated!*)
+
+---
+
+*The [Q&A](docs/qa) page might have more answers if this wasn't enough for you.*

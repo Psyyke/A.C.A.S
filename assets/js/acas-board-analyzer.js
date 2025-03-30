@@ -329,7 +329,7 @@ class BoardAnalyzer {
                         result.enemyOnly.push([row, col]); // Seen only by enemy
 
                     } else if(playerCount > 0 && enemyCount > 0) {
-                        result.contested.push({ square: [row, col], rating: playerCount + enemyCount }); // Contested with rating
+                        result.contested.push({ square: [row, col], counts: {playerCount, enemyCount} });
                     }
                 }
             }

@@ -11,7 +11,6 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (no
 * WebAssembly chess engine (faster than regular JavaScript engines)
 * Supports the most popular chess game sites (*e.g. chess.com, lichess.org*)
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
-* Impossible to detect directly (well, you can never be sure, so let's say it's *almost* impossible)
 * Translated to 30+ languages
 
 > [!CAUTION]

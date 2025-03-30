@@ -489,12 +489,16 @@ class BackendInstance {
             addedMetrics.push({ 'elem': textElem, 'data': { shapeType, shapeSquare, shapeConfig }});
         }
 
+        function addTextWithBorder(squareFen, size, text, style, position) {
+            addText(squareFen, size, text, style, position);
+            addText(squareFen, size + 0.5, text, `opacity: 0.75; filter: sepia(2) brightness(4);`, position);
+        }
+
         function renderDanger(piece, emoji) {
             if(piece.captureDanger) {
                 const squareFen = BoardAnal.indexToFen(piece.position);
     
-                addText(squareFen, 1.5, emoji, `opacity: 1;`, [0.3, 0.1]);
-                addText(squareFen, 2, emoji, `opacity: 0.75; filter: sepia(2) brightness(4);`, [0.3, 0.1]);
+                addTextWithBorder(squareFen, 1.5, emoji, `opacity: 1;`, [0.3, 0.1]);
             }
         }
 
@@ -512,10 +516,22 @@ class BackendInstance {
 
         function renderContested(obj) {
             const pos = obj.square;
-            const rating = obj.rating;
-            const opacity = Math.min(0.1 + rating / 10, 0.85);
-    
-            fillSquare(pos, `opacity: ${0.1 + rating / 10}; fill: orange;`);
+            const { playerCount, enemyCount } = obj.counts;
+            const rating = playerCount + enemyCount;
+            const opacity = Math.min(0.1 + rating / 8, 0.85);
+            const squareFen = BoardAnal.indexToFen(pos);
+
+            const a = rating > 4 ? (rating > 6 ? 5 : 4) : 3;
+
+            for(let i = 0; i < rating; i++) {
+                addTextWithBorder(squareFen, 1.1, '🔥', `opacity: 1;`, [0.7, 0.7-i/a]);
+            }
+
+            if(enemyCount > playerCount) {
+                addTextWithBorder(squareFen, 1.1, '⚠️', `opacity: 1;`, [-0.7, 0.7]);
+            }
+
+            fillSquare(pos, `opacity: ${opacity}; fill: orange;`);
         }
 
         const analResult = BoardAnal.analyze();

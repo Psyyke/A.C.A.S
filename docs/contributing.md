@@ -2,6 +2,8 @@
 
 >Our goal is to create a free and open-source chess assistant that helps you learn and improve in real-time, providing immediate feedback so you can learn as you play—no need for separate study sessions.
 
+<div class="gas"></div>
+
 Are you interested in helping A.C.A.S? ❤️
 
 - Give us feedback on [GreasyFork](https://greasyfork.org/en/scripts/459137-1-chess-assistant-a-c-a-s-advanced-chess-assistance-system/feedback)!

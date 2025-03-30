@@ -61,7 +61,7 @@ The <a target="_about" href="app?shl=chessVariant">Chess Variant</a> setting cha
 
 The <a target="_about" href="app?shl=engineElo">Engine Elo</a> setting controls how strong the engine plays (between 500-3200 elo). Note that engines like Stockfish are **very strong**, playing way above human 3000 elo. For that reason, making them play at low elo (below 1500) might result in weird behaviour. Stockfish cannot really play extremely low elo (below 1000). Lc0 is better suited for that.
 
-<img src="img/chart.png">
+<img src="assets/images/chart.png">
 
 #### ⚙️ Weights
 
@@ -89,3 +89,37 @@ The <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On Extern
 > Enemy move is shown if <a target="_about" href="app?shl=showOpponentMoveGuess">Opponent Move Guess</a> setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.
 
 <div class="gas"></div>
+
+## Render Settings
+
+The rendering settings allow you to display various metrics about the match. These features do not use the chess engine and don't go into great depths if any at all. The features don't give you straight answers on what to do, but just show you the **current** situation on the board. Could be great features for learning.
+
+<img src="assets/images/render-example.png">
+
+#### ⚙️ Colors
+
+> You can often change the board background color on chess sites. If its hard to see the colors, change the board to be something more white and not so colored.
+
+**Green** squares indicate that **at least one of your piece** is defending that square, and that the enemy **does not have any pieces attacking them**. The same goes for **Red** squares, however it indicates that **none of your pieces attack that square** and that the enemy has **at least one piece defending that square**.
+
+**Orange** indicates that the square is **contested**, which means that *at least one* of your- and the enemy's piece attacks/defends it. On the other hand, **Aqua** means that there is no activity on that square, no one is defending it, nor attacking it.
+
+#### ⚙️ Contested Squares
+
+The <a target="_about" href="app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. Fire emojis 🔥 can appear on **contested squares**. For example, 🔥🔥🔥🔥 means that the square is attacked/defended by 4 pieces, such as 1 of yours, and 3 of the enemy's.
+
+A warning emoji ⚠️ appears on **contested squares** that the enemy attacks/defends more. For example, if you have 1 piece protecting a square, and the enemy has 2 pieces attacking it, the warning appears.
+
+#### ⚙️ Own Piece Capture
+
+The <a target="_about" href="app?shl=renderPiecePlayerCapture">Own Piece Capture</a> setting displays your vulnerable pieces. The teardrop emoji 💧 appears on **your pieces** which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, an enemy **Queen** attacks your **Rook** which is protected. However, if an enemy **Rook** was to attack your **Queen**, 💧 would appear on your **Queen**.
+
+#### ⚙️ Enemy Piece Capture
+
+The <a target="_about" href="app?shl=renderPieceEnemyCapture">Enemy Piece Capture</a> setting displays vulnerable enemy pieces. The bleed emoji 🩸 appears on **enemy pieces** which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, your **Queen** attacks an enemy **Rook** which is protected. However, if your **Rook** was to attack an enemy **Queen**, 🩸 would appear on the enemy **Queen**.
+
+---
+
+*Didn't find what you were looking for? Perhaps the [troubleshoot](docs/troubleshoot) page can help?*
+
+*Want to learn even more? Visit the [philosophy](docs/philosophy) page!*

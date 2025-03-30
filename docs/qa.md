@@ -39,3 +39,7 @@ Chess engines simply play differently than humans. It's fairly easy to detect by
 Your ban most likely wasn't because of the site detecting A.C.A.S *directly*, it was because of your "suspicious behaviour patterns" (move times and such). This is something A.C.A.S cannot really fix, unless there would exist a bot that could play exactly like a human. For now, it's your responsiblity to play as a human and be fair to others.
 
 Don't want to get banned again? Don't use A.C.A.S against other humans.
+
+---
+
+*Didn't find what you were looking for? Perhaps the [troubleshoot](docs/troubleshoot) page can help?*

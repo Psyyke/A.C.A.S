@@ -336,6 +336,7 @@ dialog#rendering-floaty {
     color: white;
     padding: 0;
     border-color:rgb(255 255 255 / 30%);
+    max-height: 70%;
 }
 dialog#rendering-floaty::backdrop {
     background: rgb(0 0 0 / 50%);

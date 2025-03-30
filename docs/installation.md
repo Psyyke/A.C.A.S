@@ -28,3 +28,7 @@ Following the [Getting Started](#getting-started) guide, you might notice that y
 Note that you need to play games in the browser. For example, A.C.A.S won’t work in the Chess app. It functions the same way as on a desktop, but the challenge is finding a browser that supports extensions like Violentmonkey. We’ve recommended a few options above.
 
 !>**Both users** should enable the <a target="_about" href="app?shl=pip">Floating Panel</a> setting to prevent A.C.A.S freezing and not giving suggestions. Every time you start A.C.A.S, make sure to click the A.C.A.S page once to open the <a target="_about" href="app?shl=pip">Floating Panel</a>! The panel needs to be visible in order to stop freezing.
+
+---
+
+*Got it installed already? Perhaps the [usage](docs/usage) page has some useful information for you?*
