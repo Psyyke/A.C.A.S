@@ -1,6 +1,6 @@
 # Troubleshoot
 
-!> Browsers freeze code execution on inactive pages, you need to visit the GUI tab from time to time, **keep it at least partly visible on a separate window** or **use the <a target="_about" href="../?shl=pip">Floating Panel</a> setting**. This prevents A.C.A.S from freezing and not giving any move suggestions.
+!> Browsers freeze code execution on inactive pages, you need to visit the GUI tab from time to time, **keep it at least partly visible on a separate window** or **use the <a target="_about" href="app?shl=pip">Floating Panel</a> setting**. This prevents A.C.A.S from freezing and not giving any move suggestions.
 
 <div class="gas"></div>
 
@@ -8,9 +8,9 @@
 
 Before [making an issue](https://github.com/Psyyke/A.C.A.S/issues), please read these and also join the [Discord server](https://hakorr.github.io/Userscripts/community/invite) for assistance,
 
-- Make sure the <a target="_about" href="../">GUI</a> is active. Do not close the tab.
+- Make sure the <a target="_about" href="app">GUI</a> is active. Do not close the tab.
 
-- Not seeing any moves displayed on the chess site? Are you sure you have enabled the <a target="_about" href="../?shl=displayMovesOnExternalSite">Display Moves On External Site</a> setting? After enabling that setting, please refresh the chess site to see changes.
+- Not seeing any moves displayed on the chess site? Are you sure you have enabled the <a target="_about" href="app?shl=displayMovesOnExternalSite">Display Moves On External Site</a> setting? After enabling that setting, please refresh the chess site to see changes.
 
 - Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.
 

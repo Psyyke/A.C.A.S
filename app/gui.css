@@ -1,20 +1,20 @@
 @font-face {
 	font-family: "Mona Sans";
-	src: url("assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("assets/fonts/Mona-Sans.woff2") format("woff2-variations");
+	src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
 	font-weight: 200 900;
 	font-stretch: 75% 125%;
 	unicode-range: U+0000-00FF, U+0100-024F;
 }
 @font-face {
     font-family: "Rubik";
-    src: url("assets/fonts/Rubik.ttf") format("truetype");
+    src: url("../assets/fonts/Rubik.ttf") format("truetype");
     font-weight: 200 900;
     font-stretch: 75% 125%;
 	unicode-range: U+0000-00FF, U+0100-024F;
 }
 @font-face {
     font-family: "IBM Plex Sans";
-    src: url("assets/fonts/IBMPlexSans.ttf") format("truetype");
+    src: url("../assets/fonts/IBMPlexSans.ttf") format("truetype");
     font-weight: 200 900;
     font-stretch: 75% 125%;
 }

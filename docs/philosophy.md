@@ -10,7 +10,7 @@ What started as a fun technical challenge has turned into something much more us
 
 Most userscripts mess with the site’s code or rely on its built-in functions, which makes them easy to detect and block. While it's understandable sites want to block such software, we believe real-time learning is extremely helpful and is not cheating if done correctly. So, we took a different route to bypass any restrictions. A.C.A.S reads the chess site to gather the data it needs but tries not to modify anything. It also doesn’t use any of the site’s own functions, keeping everything fully independent. And since it runs in a separate tab, it’s much harder to block, making it more stable and reliable over time.
 
-!> The <a target="_about" href="../?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds a simple element to the site's document to display the move information. This modifies the site and is in risk of being detectable. While the element doesn't scream "**I WAS MADE BY A.C.A.S**", it could be detected either way.
+!> The <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds a simple element to the site's document to display the move information. This modifies the site and is in risk of being detectable. While the element doesn't scream "**I WAS MADE BY A.C.A.S**", it could be detected either way.
 
 <div class="gas"></div>
 
@@ -23,7 +23,7 @@ To establish piece positions, the system maps them to a coordinate grid. Some si
 ## Cross-Window Communication
 
 #### First Tab (A.C.A.S GUI)
-![A.C.A.S Tab](../img/example.png)
+![A.C.A.S Tab](../assets/images/example.png)
 
 The engine runs on a completely different tab than the chess game page, completely isolated from it. This is done so that the site cannot block the usage of A.C.A.S. Since A.C.A.S is a userscript, it has certain restrictions and cannot operate in the same way as a proper browser extension. Well, why isn't A.C.A.S just a browser extension then? The challenge was fun, and still is, actually.
 
@@ -45,6 +45,6 @@ A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink)
 *beep boop ╰(°▽°)╯*
 
 #### Second Tab (Chess Site)
-![External Tab](../img/example2.png)
+![External Tab](../assets/images/example2.png)
 
-The userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If <a target="_about" href="../?shl=displayMovesOnExternalSite">Moves On External Site</a> is activated!*)
+The userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On External Site</a> is activated!*)

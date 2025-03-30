@@ -1,5 +1,5 @@
 /*! coi-serviceworker v0.1.6 - Guido Zuidhof, licensed under MIT */
-let coepCredentialless = true;
+let coepCredentialless = false;
 if (typeof window === 'undefined') {
     self.addEventListener("install", () => self.skipWaiting());
     self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
@@ -41,9 +41,7 @@ if (typeof window === 'undefined') {
                     }
 
                     const newHeaders = new Headers(response.headers);
-                    newHeaders.set("Cross-Origin-Embedder-Policy",
-                        coepCredentialless ? "credentialless" : "require-corp"
-                    );
+                    newHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
                     newHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
 
                     return new Response(response.body, {
@@ -92,7 +90,7 @@ if (typeof window === 'undefined') {
 
         // In some environments (e.g. Chrome incognito mode) this won't be available
         if (n.serviceWorker) {
-            n.serviceWorker.register(window.document.currentScript.src).then(
+            n.serviceWorker.register(window.document.currentScript.src, { scope: "/A.C.A.S/app/" }).then(
                 (registration) => {
                     console.log("COOP/COEP Service Worker registered", registration.scope);
 

@@ -1,547 +1,95 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>A.C.A.S - Advanced Chess Assistance System</title>
-		<meta charset="UTF-8">
-		<meta name="description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported. Chess assistance, chess engines, chess assistance, online chess tools, chess.com assistance, lichess.org assistance, pychess.org assistance">
-		<meta name="keywords" content="chess assistance, chess engine, chess assistance, online chess tools, chess.com assistance, lichess.org assistance, pychess.org assistance">
-		<meta property="og:title" content="A.C.A.S - Advanced Chess Assistance System">
-		<meta property="og:description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported.">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="manifest" href="manifest.json" />
-		<script src="iframe-processor.js"></script>
-		<script src="coi-serviceworker.js"></script>
-		<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		// Deny personalization by default <3
+    <head>
+        <title>A.C.A.S Home</title>
+        <link rel="stylesheet" type="text/css" href="assets/css/vue.css">
+        <link rel="stylesheet" type="text/css" href="assets/css/home.css">
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <meta name="description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported. Chess assistance, chess engines, chess assistance, online chess tools, chess.com assistance, lichess.org assistance, pychess.org assistance">
+        <meta name="keywords" content="chess assistance, chess engine, chess assistance, online chess tools, chess.com assistance, lichess.org assistance, pychess.org assistance">
+        <meta property="og:title" content="A.C.A.S - Advanced Chess Assistance System">
+        <meta property="og:description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported.">
+        <script>window.isAcasSecondaryPage = true;</script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        // Deny personalization by default <3
         gtag('consent', 'default', {
             'ad_storage': 'denied',
             'ad_user_data': 'denied',
             'ad_personalization': 'denied',
             'analytics_storage': 'denied',
-            'wait_for_update': 500
+            'wait_for_update':  500
         });
-		</script>
-		<script defer type="text/javascript" src="assets/libraries/klaro/config.js"></script>
-		<script defer type="text/javascript" src="assets/libraries/klaro/klaro.js"></script>
+        </script>
+        <script defer type="text/javascript" src="assets/libraries/klaro/config.js"></script>
+        <script defer type="text/javascript" src="assets/libraries/klaro/klaro.js"></script>
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5499BQ4B');</script>
         <script>
-		gtag("js", new Date);
-		gtag('set', 'url_passthrough', true);
-		gtag("config", "GTM-5499BQ4B");
-		</script>
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
-		<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-		<script src="assets/libraries/HackTimer/HackTimer.js"></script>
-		<script src="assets/js/acas-globals.js"></script>
-		<script src="assets/js/acas-i18n-processor.js"></script>
-		<script src="assets/js/acas-board-analyzer.js"></script>
-		<script src="assets/js/acas-backend-instance.js"></script>
-		<script src="assets/js/acas-backend-manager.js"></script>
-		<script src="assets/js/acas-user-security-system.js"></script>
-		<script src="assets/libraries/FileSaver/FileSaver.js"></script>
-		<script src="assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/chessground.base.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/chessground.brown.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/theme-cburnett.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/theme-merida.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/theme-letters.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/theme-staunty.css"/>
-		<link rel="stylesheet" type="text/css" href="index.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/custom-scroll.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/custom-inputs.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/acas-toast.css"/>
-		<link rel="stylesheet" type="text/css" href="assets/css/bg-textures.css"/>
-		<link rel="icon" type="image/x-icon" href="favicon.ico"/>
-	</head>
-	<body>
-		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        gtag("js", new Date);
+        gtag('set', 'url_passthrough', true);
+        gtag("config", "GTM-5499BQ4B");
+        </script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+        <script src="assets/libraries/bodymovin/lottie.js" type="text/javascript"></script>
+        <script src="assets/js/acas-globals.js"></script>
+        <script src="assets/js/acas-i18n-processor.js"></script>
+        <link rel="icon" type="image/x-icon" href="favicon.ico"/>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <div id="app"></div>
+        <script>
+        function insertGas(elem) {
+            elem.dataset.processed = true;
 
-		<!-- TOS CONTAINER-->
-		<div id="tos-container" class="hidden">
-			<div id="tos">
-				<!-- Introduction -->
-				<div id="tos-title">Welcome, my friend!</div>
-				<div class="tos-description">
-				We're thrilled to have you here! A.C.A.S is all set and ready to provide you with a fantastic experience. Its circuits are already powered up and functioning, thanks to the userscript that has been installed.
-				<br><br>
-				You're fully equipped to explore and enjoy all the features and benefits that A.C.A.S brings to the table. Whether it's assistance, engagement, or a touch of fun you're seeking, A.C.A.S is here to serve you.
-				</div>
-				<div class="language-dropdown-input"><div class="dropdown-input-container">
-					<img class="selected-language-img" src="assets/images/flags/us.svg">
-					<div class="dropdown-list-container">
-					</div>
-				</div></div>
-				<br>
-				<div class="tos-checkbox-container">
-					<label class="tos-checkbox-label">
-						<input type="checkbox" id="tos-checkbox"/>
-						<span><a href="tos" class="tos-link" target="_about">I have read and agree to the Terms of Service.</a></span>
-					</label>
-				</div>
-				<button id="tos-continue-button" class="acas-fancy-button" disabled>Kickstart A.C.A.S</button>
-				<div class="tos-footer-small">By using A.C.A.S, you confirm that you have read, understood, and agree to abide by the TOS.</div>
-			</div>
-		</div>
+            const pubId = "ca-pub-7248123202489335";
+            
+            elem.innerHTML = `<ins class="adsbygoogle"
+                style="display:block; text-align:center;"
+                data-ad-layout="in-article"
+                data-ad-format="fluid"
+                data-ad-client="${pubId}"
+                data-ad-slot="4819810311"></ins>`;
 
-		<!-- INSTALL NOTIFICATION -->
-		<div id="install-notification" class="hidden">
-			<div id="install-title">NO USERSCRIPT DETECTED</div>
-			<div id="install-buttons">
-				<div class="small-buttons">
-					<div class="language-dropdown-input"><div class="dropdown-input-container">
-						<img class="selected-language-img" src="assets/images/flags/us.svg">
-						<div class="dropdown-list-container">
-						</div>
-					</div></div>
-					<a class="install-open-home-btn" href="/A.C.A.S/home/#/docs/installation" title="Open Documentation">( ╹ -╹)?</a>
-				</div>
-				<div id="install-buttons-inner-container">
-					<a href="https://violentmonkey.github.io/get-it/" class="install-notification-btn violentmonkey-btn" target="_about">Get Violentmonkey</a>
-					<a href="https://greasyfork.org/en/scripts/459137" class="install-notification-btn install-userscript-btn" target="_about">Install Userscript</a>
-				</div>
-			</div>
-			<div id="install-mobile-container">
-				<div class="install-subtitle">Mobile users can try these ♡ ⤵</div>
-				<div id="install-buttons-mobile">
-					<a href="https://play.google.com/store/apps/details?id=com.lemurbrowser.exts" class="install-notification-btn install-lemur-btn" target="_about">(Android) Lemur</a>
-					<a href="https://apps.apple.com/us/app/userscripts/id1463298887" class="install-notification-btn install-ios-btn" target="_about">(iOS) Userscripts</a>
-				</div>
-			</div>
-		</div>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        }
 
-		<!-- ACAS HEADER CONTAINER-->
-		<div id="acas-header">
-			<a id="acas-logo" href="home" target="_blank">
-				<img id="acas-logo-img" src="assets/images/grey-logo.png">
-				<div id="acas-logo-text-container">
-					<div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">V2</div></div>
-					<div id="acas-logo-secondary">Chess Assistance</div>
-				</div>
-			</a>
-			<a id="update-your-userscript-notification" class="hidden" href="https://greasyfork.org/en/scripts/459137">UPDATE YOUR USERSCRIPT, NEW FEATURES MIGHT NOT WORK ON YOUR VERSION</a>
-			<div id="acas-is-free-reminder">
-				<span>(´｡• ◡ •｡`) ♡ <span id="acas-is-free-reminder-text">Help by giving feedback!</span> ⤵</span>
-				<div class="acas-social-actions">
-					<div class="language-dropdown-input"><div class="dropdown-input-container">
-						<img class="selected-language-img" src="assets/images/flags/us.svg">
-						<div class="dropdown-list-container">
-						</div>
-					</div></div>
-					<a class="header-social-button greasyfork-button acas-fancy-button" href="https://greasyfork.org/en/scripts/459137/feedback" target="_blank" title="Give A.C.A.S positive feedback on Greasyfork">
-						<i class="bi bi-chat-text"></i>
-					</a>
-					<a class="header-social-button github-button acas-fancy-button" href="https://github.com/Psyyke/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
-						<i class="bi bi-github"></i>
-					</a>
-					<a class="header-social-button discord-button acas-fancy-button" href="https://hakorr.github.io/Userscripts/community/invite" target="_blank" title="Join 'Userscript Hub' on Discord">
-						<i class="bi bi-discord"></i>
-					</a>
-					<a class="header-social-button affiliate-button acas-fancy-button" href="home/#/docs/contributing" target="_blank" title="We really got A.C.A.S theme song before GTA 6">
-						<i class="bi bi-heart-fill"></i>
-					</a>
-				</div>
-			</div>
-		</div>
+        window.$docsify = {
+            repo: 'psyyke/A.C.A.S',
+            loadSidebar: true,
+            notFoundPage: true,
+            auto2top: true,
+			homepage: 'index.md'
+        };
 
-		<div id="instance-size-change-container" class="hidden">
-			<div id="instance-size-change-modal">
-				<div id="decrease-instance-size-btn" class="instance-size-change-btn acas-fancy-button">-</div>
-				<div id="increase-instance-size-btn" class="instance-size-change-btn acas-fancy-button">+</div>
-			</div>
-		</div>
+        const observer = new MutationObserver((mutations, obs) => {
+            const lottieElement = document.querySelector("#lottie-animation");
 
-		<!-- ACAS INSTANCE CONTAINER-->
-		<div id="acas-instance-container">
-			<div id="no-instances-container">
-				<div id="no-instances-title">Waiting for instances...</div>
-				<div id="no-instances-subtitle">Ready to give me some action? Open up a chess game site and let me finally have some fun! I've been waiting patiently, counting my virtual fingers, just dying to make some moves!</div>
-				<div id="see-supported-sites-btn" class="acas-fancy-button">See all supported sites</div>
-				<div id="no-instances-sites" class="hidden">
-					<div class="battletested-sites">
-						<div class="sites-header">
-							<div class="sites-title">Battletested</div>
-							<div class="sites-subtitle">(Should work flawlessly)</div>
-						</div>
-						<div class="sites-list">
-							<a class="chess-site-link popular-chess-site-link acas-fancy-button" href="https://www.chess.com/play" target="_blank">Chess.com</a>
-							<a class="chess-site-link popular-chess-site-link acas-fancy-button" href="https://www.lichess.org" target="_blank">Lichess.org</a>
-							<a class="chess-site-link acas-fancy-button" href="https://playstrategy.org" target="_blank">Playstrategy.org</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.pychess.org/" target="_blank">Pychess.org</a>
-							<a class="chess-site-link acas-fancy-button" href="http://chess.net/" target="_blank">Chess.net</a>
-						</div>
-					</div>
-					<div class="stable-sites">
-						<div class="sites-header">
-							<div class="sites-title">Stable</div>
-							<div class="sites-subtitle">(Works fine, but might have some minor bugs)</div>
-						</div>
-						<div class="sites-list">
-							<a class="chess-site-link acas-fancy-button" href="https://app.edchess.io/" target="_blank">EdChess.io</a>
-							<a class="chess-site-link acas-fancy-button" href="https://chess.org" target="_blank">Chess.org</a>
-							<a class="chess-site-link acas-fancy-button" href="https://papergames.io/en/chess" target="_blank">Papergames.io</a>
-							<a class="chess-site-link acas-fancy-button" href="https://vole.wtf/kilobytes-gambit/" target="_blank">Vole.wtf</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.coolmathgames.com/0-chess" target="_blank">Coolmathgames.com</a>
-						</div>
-					</div>
-					<div class="unstable-sites">
-						<div class="sites-header">
-							<div class="sites-title">Uncertain</div>
-							<div class="sites-subtitle">(Might work fine, be buggy or not work at all)</div>
-						</div>
-						<div class="sites-list">
-							<a class="chess-site-link acas-fancy-button" href="https://chessarena.com/lobby" target="_blank">Chessarena.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://gameknot.com" target="_blank">Gameknot.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://redhotpawn.com" target="_blank">Redhotpawn.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://chessworld.net" target="_blank">Chessworld.net</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.simplechess.com/" target="_blank">Simplechess.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://immortal.game/" target="_blank">Immortal.game</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.freechess.club/" target="_blank">Freechess.club</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.chessclub.com" target="_blank">Chessclub.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.chesstempo.com" target="_blank">Chesstempo.com</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+            if (lottieElement) {
+                const lottieAnimation = lottie.loadAnimation({
+                    container: document.querySelector('#lottie-animation'),
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    path: 'json/lottie.json'
+                });
+                
+                obs.disconnect();
+            }
 
-		<div class="ga"><ins class="adsbygoogle"data-ad-client="ca-pub-7248123202489335"data-ad-format="fluid"data-ad-layout="in-article"data-ad-slot="4819810311"style="display:block;text-align:center"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div>
+            [...document.querySelectorAll('.gas')]
+                .filter(x => !x.dataset.processed)
+                .forEach(insertGas);
+        });
 
-		<!-- ACAS SETTINGS CONTAINER-->
-		<div id="acas-settings-container">
-			<div class="highlight-indicator hidden"></div>
-			<div id="settings-header">
-				<div id="settings-navbar-container" class="hidden">
-					<div id="settings-navbar">
-						<div id="settings-navbar-global" class="selected" data-type="global">Global</div>
-						<div id="settings-navbar-instance" data-type="instance">
-							<div class="dropdown-title"><span class="text-content">Instance</span><div class="arrow-down-icon"></div></div>
-							<div class="dropdown-content">
-							</div>
-						</div>
-					</div>
-				</div>
-				<div id="settings-control-panel">
-					<div class="control-panel-btn no-select acas-fancy-button"
-						onclick="if (!location.href.includes('hidden=true')) location.href += (location.href.includes('?') ? '&' : '?') + 'hidden=true';"
-						title="Show Hidden Settings">👀</div>
-					<a target="_about" href="/A.C.A.S/home/#/docs/usage" class="control-panel-btn no-select acas-fancy-button" title="Open Documentation">📖</a>
-					<div id="import-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Import Settings">📂</div>
-					<div id="export-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Export Settings">💾</div>
-					<div id="reset-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Reset Settings">🗑️</div>
-				</div>
-			</div>
-			<div id="userscript-info-small"></div>
-			<div id="setting-container">
-				<div id="main-setting-panel">
-					<div id="profile-panel">
-						<div id="delete-profile-button" class="control-panel-btn no-select acas-fancy-button" title="Delete Profile">🔥</div>
-						<div id="chess-engine-profile-dropdown" class="wrap dropdown-input custom-input">
-							<div><div class="input-title">Chess Engine Profiles</div>
-							<div class="input-subtitle">Multiple profiles can be active at the same time!</div></div><div class="dropdown-input-container">
-							<input class="wide-text-input" type="text" additional-type="dropdown" data-no-profile="true" data-key="chessEngineProfile" data-default-value="default" placeholder="Default"><div class="dropdown-icon"></div>
-							<div class="dropdown-list-container reversed-dropdown-list">
-								<div id="add-new-profile-button" class="dropdown-item">( <span class="text-content">Add New</span> )</div>
-								<div class="dropdown-item" data-value="default">Default Profile</div>
-							</div>
-						</div>
-					</div></div>
-					<div id="settings-navbar-subtitle">Settings affect every instance</div>
-					<div id="settings-panels">
-						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="engine-panel-title">Engine</span> ⚙️</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Enabled</div>
-								<div class="input-subtitle">Is the engine enabled</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="engineEnabled" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div id="chess-engine-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Engine</div>
-							<a href="/A.C.A.S/home/#/docs/usage?id=⚙%ef%b8%8f-chess-engine" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
-								<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="fairy-stockfish-nnue-wasm" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
-								<div class="dropdown-list-container">
-									<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish v14 NNUE WASM (2MB)</div>
-									<div class="dropdown-item" data-value="lc0">Lc0 v29 (900KB)</div>
-									<div class="dropdown-item" data-value="stockfish-17-wasm">[UNSTABLE] Stockfish v17 WASM (66MB)</div>
-									<div class="dropdown-item" data-value="stockfish-16-1-wasm">[UNSTABLE] Stockfish v16.1 WASM (66MB)</div>
-									<div class="dropdown-item" data-value="lozza-5">[UNSTABLE] Lozza 5 (400KB)</div>
-								</div>
-							</div></div>
-							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
-								<a href="/A.C.A.S/home/#/docs/usage?id=%e2%9a%99%ef%b8%8f-weights" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
-								<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="maia-1100.pb" placeholder="1100 elo"><div class="dropdown-icon"></div>
-								<div class="dropdown-list-container">
-									<div class="dropdown-item" data-value="maia-1100.pb">1100 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1200.pb">1200 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1300.pb">1300 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1400.pb">1400 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1500.pb">1500 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1600.pb">1600 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1700.pb">1700 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1800.pb">1800 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="maia-1900.pb">1900 elo (Maia) 1.7MB</div>
-									<div class="dropdown-item" data-value="little-demon2.6-swa-20000">Unknown elo (Little Demon 2, 2019) 7MB</div>
-									<div class="dropdown-item" data-value="evilgyal-6.pb">Unknown elo (Evil Gyal 6) 1MB</div>
-									<div class="dropdown-item" data-value="badgyal-8.pb">Unknown elo (Bad Gyal 8) 7MB</div>
-									<div class="dropdown-item" data-value="goodgyal-7.pb">Unknown elo (Good Gyal 7) 23MB</div>
-									<div class="dropdown-item" data-value="tinygyal-8.pb">Unknown elo (Tiny Gyal 8) 0.6MB</div>
-									<div class="dropdown-item" data-value="TK6430.pb">Unknown elo (TK6430.pb) 7MB</div>
-								</div>
-							</div></div>
-							<div id="engine-nodes-input" class="hidden textfield-input custom-input"><div><div class="input-title">Search Nodes</div>
-								<div class="input-subtitle">More nodes means more thinking of the move by the engine</div></div>
-								<input type="textfield" data-key="engineNodes" data-default-value="1" data-between="1-99999999">
-							</div>
-							<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
-								<a href="/A.C.A.S/home/#/docs/usage?id=%e2%9a%99%ef%b8%8f-chess-variant" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
-								<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
-								<div class="dropdown-list-container"></div>
-							</div></div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Random Chess (Chess960)</div>
-								<div class="input-subtitle">Make engine use Chess960 chess variant</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO (500 - 3200)</div>
-								<div class="input-subtitle">Higher number, stronger engine</div></div>
-								<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
-							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions (1 - 500)</div>
-								<div class="input-subtitle">How many arrows will show up</div></div>
-								<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="1-500">
-							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Max Movetime (ms)</div>
-								<div class="input-subtitle" title="Ms means millisecond. 1000 milliseconds is 1 second.">1000ms is 1 second</div></div>
-								<input type="textfield" data-key="maxMovetime" data-default-value="0" data-between="0-100000">
-							</div>
-						</div>
-						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👁️‍🗨️</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
-								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="floaty-input custom-input">
-								<div><div class="input-title">Rendering</div><div class="input-subtitle">Renders various metrics</div></div>
-								<div class="floaty-wrapper">
-									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
-								    <dialog id="rendering-floaty">
-										<div class="floaty-container">
-											<section class="floaty-header">
-												<div class="title">
-													<h1>Rendering Settings</h1>
-													<p>Display various metrics on the board</p>
-												</div>
-												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">👍</button>
-												</div>
-											</section>
-											<section class="floaty-body">
-												<div class="checkbox-input custom-input"><div><div class="input-title">Render On External Site</div>
-													<div class="input-subtitle">Render on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
-													<input type="checkbox" data-key="renderOnExternalSite" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-												</div>
-
-												<div class="setting-panel">
-													<div class="setting-panel-title">Square</div>
-													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Vision</div>
-														<div class="input-subtitle">Highlight squares your pieces see with green</div></div><div class="checkbox-container">
-														<input type="checkbox" data-render-setting="true" data-key="renderSquarePlayer" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-													</div>
-													<div class="checkbox-input custom-input"><div><div class="input-title">Enemy Piece Vision</div>
-														<div class="input-subtitle">Highlight squares enemy's pieces see with red</div></div><div class="checkbox-container">
-														<input type="checkbox" data-render-setting="true" data-key="renderSquareEnemy" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-													</div>
-													<div class="checkbox-input custom-input"><div><div class="input-title">Contested Squares</div>
-														<div class="input-subtitle">Highlight contested squares with orange</div></div><div class="checkbox-container">
-														<input type="checkbox" data-render-setting="true" data-key="renderSquareContested" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-													</div>
-													<div class="checkbox-input custom-input"><div><div class="input-title">Safe Squares</div>
-														<div class="input-subtitle">Highlight safe squares with cyan</div></div><div class="checkbox-container">
-														<input type="checkbox" data-render-setting="true" data-key="renderSquareSafe" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-													</div>
-												</div>
-
-												<div class="setting-panel">
-													<div class="setting-panel-title">Piece</div>
-													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Capture</div>
-														<div class="input-subtitle">Display 💧 on pieces that are in danger of capture</div></div><div class="checkbox-container">
-														<input type="checkbox" data-render-setting="true" data-key="renderPiecePlayerCapture" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-													</div>
-													<div class="checkbox-input custom-input"><div><div class="input-title">Enemy Piece Capture</div>
-														<div class="input-subtitle">Display 🩸 on pieces that you should attack</div></div><div class="checkbox-container">
-														<input type="checkbox" data-render-setting="true" data-key="renderPieceEnemyCapture" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-													</div>
-												</div>
-
-												<a target="_blank" href="home/#/docs/usage">Learn more about these features here.</a>
-											</section>
-										</div>
-									</dialog>
-								</div>
-							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
-								<div class="input-subtitle">Show the move arrows after this time</div></div>
-								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
-							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Arrow opacity (1 - 100%)</div>
-								<div class="input-subtitle">Change the opacity of the arrows</div></div>
-								<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Primary Arrow Color</div>
-								<div class="input-subtitle">The best move color</div></div>
-								<input type="color" data-key="primaryArrowColorHex" data-default-value="#32CD32">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Secondary Arrow Color</div>
-								<div class="input-subtitle">Other moves' color</div></div>
-								<input type="color" data-key="secondaryArrowColorHex" data-default-value="#1E90FF">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Opponent Arrow Color</div>
-								<div class="input-subtitle">Opponent color</div></div>
-								<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
-							</div>
-						</div>
-						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👁️‍🗨️</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
-								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
-								<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="input-combination-box">
-								<div class="checkbox-input custom-input"><div><div class="input-title">Opponent move guess</div>
-									<div class="input-subtitle">Show the engine's guess of what move the enemy makes after you play the suggested move</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-								</div>
-								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Constantly visible</div>
-									<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-								</div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
-								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
-								<div class="input-subtitle">Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
-						</div>
-						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="audible-panel-title">Audible</span> 🔊</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Move TTS</div>
-								<div class="input-subtitle">Hear best moves</div></div>
-								<div id="tts-name-dropdown" class="dropdown-input custom-input disabled-input"><div class="dropdown-input-container">
-									<input type="text" additional-type="dropdown" data-key="ttsVoiceName" data-default-value="Default" placeholder="Default"><div class="dropdown-icon"></div>
-									<div class="dropdown-list-container"></div>
-								</div></div>
-								<div class="checkbox-container">
-									<input type="checkbox" data-key="ttsVoiceEnabled" data-default-value="false"><div class="checkbox-fill">✓</div>
-								</div>
-							</div>
-							<div id="tts-speed-range" class="textfield-input custom-input disabled-input"><div><div class="input-title">TTS speed (1 - 100)</div>
-								<div class="input-subtitle">Higher number, faster speed</div></div>
-								<input type="textfield" data-key="ttsVoiceSpeed" data-default-value="10" data-between="1-100">
-							</div>
-						</div>
-						<div id="hidden-setting-panel" class="setting-panel hidden">
-							<div class="setting-panel-title"><span class="hidden-panel-title">Hidden</span> 👻</div>
-							<div class="tos-reminder-setting-panel-item"><a href="tos/" class="tos-reminder-link" target="_blank">Remember to follow the ToS</a> 💖<br><small class="no-updates-disclaimer-text">Do not ask for updates for these</small><span> ↴</span></div>
-							<div class="input-combination-box">
-								<div class="checkbox-input custom-input"><div><div class="input-title">Auto Move</div>
-									<div class="input-subtitle">For Chess.com. Use only against bots</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="autoMove" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-								</div>
-								<div class="input-combination-box">
-									<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Legit Mode</div>
-										<div class="input-subtitle">Attempt to make Auto Move more legit</div></div><div class="checkbox-container">
-										<input type="checkbox" data-key="autoMoveLegit" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-									</div>
-									<div id="legit-mode-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Legit Mode Type</div>
-										<div class="input-subtitle">What kind of player should Auto Move play</div></div><div class="dropdown-input-container">
-										<input type="text" additional-type="dropdown" data-key="legitModeType" data-default-value="casual" placeholder="Casual"><div class="dropdown-icon"></div>
-										<div class="dropdown-list-container">
-											<div class="dropdown-item" data-value="beginner">Beginner</div>
-											<div class="dropdown-item" data-value="casual">Casual</div>
-											<div class="dropdown-item" data-value="intermediate">Intermediate</div>
-											<div class="dropdown-item" data-value="advanced">Advanced</div>
-											<div class="dropdown-item" data-value="master">Master</div>
-											<div class="dropdown-item" data-value="professional">Professional</div>
-											<div class="dropdown-item" data-value="god">God</div>
-										</div>
-									</div></div>
-								</div>
-		
-								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Random Mode</div>
-									<div class="input-subtitle">Play other moves than the best one</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="autoMoveRandom" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-								</div>
-								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">After User</div>
-									<div class="input-subtitle">Start the Auto Move after user move</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="autoMoveAfterUser" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="setting-panel">
-					<div class="setting-panel-title"><span class="misc-panel-title">Miscellaneous</span> ❔</div>
-					<div class="color-input custom-input"><div class="input-title">Theme Color</div>
-						<input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#4A707D">
-					</div>
-					<div class="color-input custom-input"><div class="input-title">Board Color</div>
-						<input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
-					</div>
-					<div class="dropdown-input custom-input"><div class="input-title">Chess Font</div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="chessFont" data-default-value="staunty" placeholder="Merida"><div class="dropdown-icon"></div>
-						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="staunty">Staunty (Improved)</div>
-							<div class="dropdown-item" data-value="merida">Merida</div>
-							<div class="dropdown-item" data-value="cburnett">Cburnett</div>
-							<div class="dropdown-item" data-value="letters">Letters</div>
-						</div>
-					</div></div>
-					<div class="dropdown-input custom-input"><div class="input-title">Bg Texture</div><div class="dropdown-input-container">
-						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="backgroundTextureClass" data-default-value="chess-texture" placeholder="Chess"><div class="dropdown-icon"></div>
-						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="chess-texture">Chess</div>
-							<div class="dropdown-item" data-value="paper-texture">Paper</div>
-							<div class="dropdown-item" data-value="tartan-texture">Tartan</div>
-							<div class="dropdown-item" data-value="boxes-texture">Boxes</div>
-							<div class="dropdown-item" data-value="dotted-texture">Dotted</div>
-							<div class="dropdown-item" data-value="striped-texture">Striped</div>
-							<div class="dropdown-item" data-value="circles-texture">Circles</div>
-							<div class="dropdown-item" data-value="isometric-texture">Isometric</div>
-							<div class="dropdown-item" data-value="abstract-texture">Abstract</div>
-							<div class="dropdown-item" data-value="watercolor-texture">Watercolor</div>
-							<div class="dropdown-item" data-value="rainbow-texture">Rainbow</div>
-						</div>
-					</div></div>
-				</div>
-			</div>
-		</div>
-
-		<div class="ga"><ins class="adsbygoogle"data-ad-client="ca-pub-7248123202489335"data-ad-format="fluid"data-ad-layout="in-article"data-ad-slot="4819810311"style="display:block;text-align:center"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div>
-
-		<div id="footer">
-			<div id="footer-links">
-				<a class="footer-link" href="https://github.com/Psyyke/A.C.A.S" target="_about">GitHub</a>
-				<a class="footer-link" href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_about">GreasyFork</a>
-				<a class="footer-link" href="https://github.com/Hakorr" target="_about">Author</a>
-				<a class="footer-link" href="tos" target="_about">ToS</a>
-				<a class="footer-link" href="privacy" target="_about">Privacy</a>
-				<a class="footer-link" href="why" target="_about">Why</a>
-				<a class="footer-link" href="home" target="_about">Documentation</a>
-			</div>
-			<div id="thanks-for-using-footer-text" class="footer-small-text">Thanks for using A.C.A.S, a handcrafted project made by a solo developer.</div>
-		</div>
-
-		<script src="assets/js/acas-toast.js"></script>
-		<script type="module" src="assets/js/acas-load-modules.js"></script>
-		<script src="assets/js/acas-backend-gui.js"></script>
-		<script src="index.js"></script>
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
-	</body>
+        observer.observe(document.body, { childList: true, subtree: true });
+        </script>
+        <script src="assets/libraries/docsify/docsify.min.js" type="text/javascript"></script>
+        <script src="assets/libraries/docsify/docsify.search.min.js" type="text/javascript"></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+    </body>
 </html>

@@ -18,7 +18,7 @@
 
 Vary move times, avoid perfect accuracy, allow position swings, be mindful of blurs (changing tabs), balance speed and accuracy, limit fast moves in longer games, match your rating, avoid extreme consistency and so on...
 
-Whew, that’s a lot of stuff! AI detection systems track all kinds of patterns, making it really hard to cheat without getting caught. Honestly, just play legit—it's way easier and more fun. You could disable the <a target="_about" href="../?shl=displayMovesOnExternalSite">Moves On External Site</a> setting, so that you don't see them all the time, that way you're playing yourself but still have a helping hand when needed, that way you can actually learn.
+Whew, that’s a lot of stuff! AI detection systems track all kinds of patterns, making it really hard to cheat without getting caught. Honestly, just play legit—it's way easier and more fun. You could disable the <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting, so that you don't see them all the time, that way you're playing yourself but still have a helping hand when needed, that way you can actually learn.
 
 <div class="gas"></div>
 
