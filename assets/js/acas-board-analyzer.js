@@ -87,7 +87,7 @@ class BoardAnalyzer {
     }
 
     // Extract all pieces from the board, categorized by player and with paths
-    // Paths are are the squares the protects or can move to.
+    // Paths are the squares the piece protects or can move to.
     // (e.g. a rook behind another protects the same squares beyond it in the same direction.)
     getPiecesWithPaths() {
         const pieces = { player: [], enemy: [] };

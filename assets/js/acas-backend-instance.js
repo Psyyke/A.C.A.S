@@ -491,7 +491,7 @@ class BackendInstance {
 
         function addTextWithBorder(squareFen, size, text, style, position) {
             addText(squareFen, size, text, style, position);
-            addText(squareFen, size + 0.5, text, `opacity: 0.75; filter: sepia(2) brightness(4);`, position);
+            addText(squareFen, size + 0.35, text, `opacity: 0.75; filter: sepia(2) brightness(4);`, position);
         }
 
         function renderDanger(piece, emoji) {
@@ -517,19 +517,16 @@ class BackendInstance {
         function renderContested(obj) {
             const pos = obj.square;
             const { playerCount, enemyCount } = obj.counts;
-            const rating = playerCount + enemyCount;
-            const opacity = Math.min(0.1 + rating / 8, 0.85);
+            const rating = Math.floor((playerCount + enemyCount) / 2);
+            const opacity = Math.min(0.1 + rating / 12, 0.85);
             const squareFen = BoardAnal.indexToFen(pos);
+            const countDifference = playerCount - enemyCount;
 
-            const a = rating > 4 ? (rating > 6 ? 5 : 4) : 3;
-
-            for(let i = 0; i < rating; i++) {
-                addTextWithBorder(squareFen, 1.1, '🔥', `opacity: 1;`, [0.7, 0.7-i/a]);
+            if(countDifference !== 0) {
+                addText(squareFen, 0.8, `${countDifference >= 0 ? '+' : ''}${countDifference}`, `opacity: 1;`, [0.8, 0.8]);
             }
 
-            if(enemyCount > playerCount) {
-                addTextWithBorder(squareFen, 1.1, '⚠️', `opacity: 1;`, [-0.7, 0.7]);
-            }
+            addTextWithBorder(squareFen, 1.5, '🔥', `opacity: 1;`, [0.8, 0.8]);
 
             fillSquare(pos, `opacity: ${opacity}; fill: orange;`);
         }

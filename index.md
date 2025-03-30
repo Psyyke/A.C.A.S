@@ -18,6 +18,8 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (no
 | <a href="app">▶️ Open A.C.A.S</a> | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) | <a href="acas.user.js">⬇️ Download (Direct)</a> | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|-------|
 
+<div class="gas"></div>
+
 ## Hindsight is Overrated
 
 You know that feeling when you finish a game, check the analysis, and realize you’re complete dogsht* at chess? Like nah bro, what was that, how is 9 missed wins even possible?? I should just quit, pack it up, and never play again... if GothamChess sees my match, his next video wouldn't be from his home but a damn hospital bed... Nahhh 😭🙏

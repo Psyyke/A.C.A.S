@@ -106,9 +106,7 @@ The rendering settings allow you to display various metrics about the match. The
 
 #### ⚙️ Contested Squares
 
-The <a target="_about" href="app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. Fire emojis 🔥 can appear on **contested squares**. For example, 🔥🔥🔥🔥 means that the square is attacked/defended by 4 pieces, such as 1 of yours, and 3 of the enemy's.
-
-A warning emoji ⚠️ appears on **contested squares** that the enemy attacks/defends more. For example, if you have 1 piece protecting a square, and the enemy has 2 pieces attacking it, the warning appears.
+The <a target="_about" href="app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. Fire emojis 🔥 indicate **contested squares**. The fire emoji can have text, for example, 🔥 with -2 text means that the square is defended by 2 less pieces than the enemy attacks it with (e.g. you have 1 piece defending the square, the enemy has 3 pieces attacking it, so 1 - 3 = -2). +2 means that you have 2 more pieces attacking the specific square than the enemy does (e.g. you attack a square with 4 pieces and the enemy defends it with only 2, so 4 - 2 = 2).
 
 #### ⚙️ Own Piece Capture
 
