@@ -18,10 +18,9 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (no
 | <a href="app">▶️ Open A.C.A.S</a> | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) | <a href="acas.user.js">⬇️ Download (Direct)</a> | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|-------|
 
-
 ## Hindsight is Overrated
 
-You know that feeling when you finish a game, check the analysis, and realize you’re complete dogsht* at chess? Like nah bro, what was that, how is 9 missed wins even possible?? I should just quit, pack it up, never play again... if GothamChess sees my match, his next video wouldn't be from his home but a damn hospital bed... Nahhh 😭🙏
+You know that feeling when you finish a game, check the analysis, and realize you’re complete dogsht* at chess? Like nah bro, what was that, how is 9 missed wins even possible?? I should just quit, pack it up, and never play again... if GothamChess sees my match, his next video wouldn't be from his home but a damn hospital bed... Nahhh 😭🙏
 
 Tell you what. No subscriptions, no paywalls—just a ridiculously useful chess tool that works right on your favorite sites. That's what A.C.A.S is. Whether you're grinding puzzles, playing bullet, or trying to break 2000 Elo, A.C.A.S overlays insights directly on the board. It’s lightweight, it’s fast, and it doesn’t get in your way. Just install it, keep the GUI open, and learn how to play better. Oh yeah and it works on literally all of your devices that has a modern browser, including your little phone, everything processed locally!
 
