@@ -23,7 +23,6 @@ if (typeof window === 'undefined') {
 
     self.addEventListener("fetch", function (event) {
         const r = event.request;
-
         if (r.cache === "only-if-cached" && r.mode !== "same-origin") {
             return;
         }
@@ -41,7 +40,9 @@ if (typeof window === 'undefined') {
                     }
 
                     const newHeaders = new Headers(response.headers);
-                    newHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
+                    newHeaders.set("Cross-Origin-Embedder-Policy",
+                        coepCredentialless ? "credentialless" : "require-corp"
+                    );
                     newHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
 
                     return new Response(response.body, {
@@ -90,7 +91,7 @@ if (typeof window === 'undefined') {
 
         // In some environments (e.g. Chrome incognito mode) this won't be available
         if (n.serviceWorker) {
-            n.serviceWorker.register(window.document.currentScript.src, { scope: "/A.C.A.S/app/" }).then(
+            n.serviceWorker.register(window.document.currentScript.src).then(
                 (registration) => {
                     console.log("COOP/COEP Service Worker registered", registration.scope);
 

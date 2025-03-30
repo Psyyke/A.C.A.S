@@ -1,9 +1,9 @@
-import zerofish from '/A.C.A.S/assets/libraries/zerofish/zerofishEngine.js';
+importScripts('/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfish.js');
 
 let engine = null;
 
 (async () => {
-    engine = await zerofish();
+    engine = await Stockfish();
 })();
 
 onmessage = e => {
@@ -17,8 +17,8 @@ onmessage = e => {
     if(engine && method === 'acas_check_loaded') {
         postMessage(true);
 
-        engine.listenZero = msg => postMessage(msg);
-        
+        engine.addMessageListener(postMessage);
+
         return;
     }
 

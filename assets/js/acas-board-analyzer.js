@@ -14,7 +14,7 @@ class BoardAnalyzer {
         this.boardHeight = this.board.length;  // Number of rows in the board
         this.boardWidth = this.board[0].length;  // Number of columns in the board
 
-        this.fenToValue = c => ({ P:1, N:2, B:2, R:3, Q:5, K:0 })[c.toUpperCase()] || 0;
+        this.fenToValue = c => ({ P:1, N:2, B:2, R:3, Q:5, K:100 })[c.toUpperCase()] || 0;
 
         this.pieces = this.getPiecesWithPaths();
 

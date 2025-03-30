@@ -614,7 +614,7 @@ class BackendInstance {
 
         this.pV[profile].lc0WeightName = weightName;
 
-        this.contactEngine('setZeroWeights', [await loadFileAsUint8Array(`/A.C.A.S/assets/lc0-weights/${weightName}`)], profile);
+        this.contactEngine('setZeroWeights', [await loadFileAsUint8Array(`/A.C.A.S/app/assets/lc0-weights/${weightName}`)], profile);
     }
 
     disableEngineElo(profile) {
@@ -1305,7 +1305,7 @@ class BackendInstance {
             
             switch(profileChessEngine) {
                 case 'lozza-5':
-                    const lozza = new Worker('/A.C.A.S/assets/libraries/Lozza/lozza-5-acas.js');
+                    const lozza = new Worker('/A.C.A.S/app/assets/engines/Lozza/lozza-5-acas.js');
                     let lozza_loaded = false;
 
                     lozza.onmessage = async e => {
@@ -1338,7 +1338,7 @@ class BackendInstance {
                 break;
 
                 case 'lc0':
-                    const lc0 = new Worker('/A.C.A.S/assets/libraries/zerofish/zerofishWorker.js', { type: 'module' });
+                    const lc0 = new Worker('/A.C.A.S/app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
                     let lc0_loaded = false;
 
                     lc0.onmessage = async e => {
@@ -1372,7 +1372,7 @@ class BackendInstance {
                 break;
 
                 case 'stockfish-16-1-wasm':
-                    const stockfish2 = new Worker('/A.C.A.S/assets/libraries/stockfish-16.1.wasm/stockfish-16.1.js');
+                    const stockfish2 = new Worker('/A.C.A.S/app/assets/engines/stockfish-16.1.wasm/stockfish-16.1.js');
                     let stockfish2_loaded = false;
 
                     stockfish2.onmessage = async e => {
@@ -1399,7 +1399,7 @@ class BackendInstance {
                 break;
 
                 case 'stockfish-17-wasm':
-                    const stockfish3 = new Worker('/A.C.A.S/assets/libraries/stockfish-17.wasm/stockfish-17.js');
+                    const stockfish3 = new Worker('/A.C.A.S/app/assets/engines/stockfish-17.wasm/stockfish-17.js');
                     let stockfish3_loaded = false;
 
                     stockfish3.onmessage = async e => {
@@ -1426,7 +1426,7 @@ class BackendInstance {
                 break;
 
                 default: // Fairy Stockfish NNUE WASM
-                    const stockfish = new Worker('/A.C.A.S/assets/libraries/fairy-stockfish-nnue.wasm/stockfishWorker.js');
+                    const stockfish = new Worker('/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfishWorker.js');
                     let stockfish_loaded = false;
 
                     stockfish.onmessage = async e => {

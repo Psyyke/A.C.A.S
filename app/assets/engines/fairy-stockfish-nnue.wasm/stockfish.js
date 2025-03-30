@@ -1,6 +1,6 @@
 
 var Stockfish = (function() {
-  var _scriptDir = '/A.C.A.S/assets/libraries/fairy-stockfish-nnue.wasm/stockfish.js';
+  var _scriptDir = '/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfish.js';
   if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
   return (
 function(Stockfish) {
