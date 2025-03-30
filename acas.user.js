@@ -77,12 +77,14 @@
 // @grant       unsafeWindow
 // @run-at      document-start
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js
-// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js
+// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.6
+// @version     2.2.7
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
+// @downloadURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Assistant%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.user.js
+// @updateURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Assistant%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.meta.js
 // ==/UserScript==
 
 /*
@@ -300,7 +302,8 @@ const configKeys = {
     'autoMoveRandom': 'autoMoveRandom',
     'autoMoveAfterUser': 'autoMoveAfterUser',
     'legitModeType': 'legitModeType',
-    'moveDisplayDelay': 'moveDisplayDelay'
+    'moveDisplayDelay': 'moveDisplayDelay',
+    'renderOnExternalSite': 'renderOnExternalSite'
 };
 
 const config = {};
@@ -1396,7 +1399,10 @@ function isBoardDrawerNeeded() {
         const globalProfiles = Object.keys(gP);
 
         for(profileName of globalProfiles) {
-            if(gP[profileName][configKeys.displayMovesOnExternalSite]) {
+            const externalMoves = gP[profileName][configKeys.displayMovesOnExternalSite];
+            const externalRenders = gP[profileName][configKeys.renderOnExternalSite];
+
+            if(externalMoves || externalRenders) {
                 return true;
             }
         }
@@ -1406,7 +1412,10 @@ function isBoardDrawerNeeded() {
         const instanceProfiles = Object.keys(iP);
 
         for(profileName of instanceProfiles) {
-            if(iP[profileName][configKeys.displayMovesOnExternalSite]) {
+            const externalMoves = iP[profileName][configKeys.displayMovesOnExternalSite];
+            const externalRenders = iP[profileName][configKeys.renderOnExternalSite];
+
+            if(externalMoves || externalRenders) {
                 return true;
             }
         }
