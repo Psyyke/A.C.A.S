@@ -1509,3 +1509,7 @@ cg-container {
 ins.adsbygoogle[data-ad-status="unfilled"] {
     display: none !important;
 }
+input[disabled] {
+	opacity: 0.25;
+	filter: blur(1px);
+}

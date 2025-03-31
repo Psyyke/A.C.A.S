@@ -258,6 +258,7 @@
 								<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="fairy-stockfish-nnue-wasm" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
 								<div class="dropdown-list-container">
 									<div class="dropdown-item" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish v14 NNUE WASM (2MB)</div>
+									<div class="dropdown-item" data-value="stockfish-17-single">Stockfish v17 Single (66MB)</div>
 									<div class="dropdown-item" data-value="lc0">Lc0 v29 (900KB)</div>
 									<div class="dropdown-item" data-value="stockfish-17-wasm">[UNSTABLE] Stockfish v17 WASM (66MB)</div>
 									<div class="dropdown-item" data-value="stockfish-16-1-wasm">[UNSTABLE] Stockfish v16.1 WASM (66MB)</div>
@@ -300,6 +301,66 @@
 							</div>
 							<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO (500 - 3200)</div>
 								<div class="input-subtitle">Higher number, stronger engine</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+								    <dialog id="rendering-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header">
+												<div class="title">
+													<h1>Advanced Elo</h1>
+													<p>Settings for engine behaviour fine tuning</p>
+												</div>
+												<div class="floaty-buttons">
+													<button class="floaty-close-btn acas-fancy-button">👍</button>
+												</div>
+											</section>
+											<section class="floaty-body">
+												<p id="user-computer-stats">Loading...</p>
+												
+												<div class="checkbox-input custom-input"><div><div class="input-title">Enable</div>
+													<div class="input-subtitle">Enable the advanced elo settings</div></div><div class="checkbox-container">
+													<input type="checkbox" data-key="enableAdvancedElo" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+												</div>
+
+												<div class="setting-panel">
+													<div class="setting-panel-title">Regular</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Elo (1320 - 3190)</div>
+														<div class="input-subtitle">Engine tries to play at this level</div></div>
+														<input type="textfield" data-key="advancedElo" data-default-value="1500" data-between="1320-3190">
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Depth (1 - 500)</div>
+														<div class="input-subtitle">How deep will the engine calculate</div></div>
+														<input type="textfield" data-key="advancedEloDepth" data-default-value="2" data-between="1-500">
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Skill Level (0 - 40)</div>
+														<div class="input-subtitle">Sets the skill level of the engine</div></div>
+														<input type="textfield" data-key="advancedEloSkill" data-default-value="15" data-between="0-40">
+													</div>
+												</div>
+												<div class="setting-panel">
+													<div class="setting-panel-title">No proven effect</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Threads (1 - 32)</div>
+														<div class="input-subtitle">Sets how many threads a multithreaded engine will use</div></div>
+														<input type="textfield" data-key="advancedEloThreads" data-default-value="5" data-between="1-32">
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Hash (1 - 33554432MB)</div>
+														<div class="input-subtitle">Memory limit of the hashtable</div></div>
+														<input type="textfield" data-key="advancedEloHash" data-default-value="1" data-between="1-33554432">
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Maximum Error (0 - 1000)</div>
+														<div class="input-subtitle">(No engines seem to support this)</div></div>
+														<input type="textfield" data-key="advancedEloMaxError" data-default-value="0" data-between="0-1000">
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Probability (0 - 1000)</div>
+														<div class="input-subtitle">(No engines seem to support this)</div></div>
+														<input type="textfield" data-key="advancedEloProbability" data-default-value="0" data-between="0-1000">
+													</div>
+												</div>
+												<a target="_blank" href="../#/docs/usage">Learn more about these features here.</a>
+											</section>
+										</div>
+									</dialog>
+								</div>
 								<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
 							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions (1 - 500)</div>

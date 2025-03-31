@@ -392,7 +392,7 @@ function calculateTimeProgress(startTime, movetime) {
 function parseUCIResponse(response) {
     const keywords = ['id', 'name', 'author', 'uciok', 'readyok', 
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',
-        'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
+        'wdl', 'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
         'currmove', 'currmovenumber', 'hashfull', 'multipv',
         'refutation', 'line', 'stop', 'ponderhit', 'ucs',
         'position', 'startpos', 'moves', 'files', 'ranks',

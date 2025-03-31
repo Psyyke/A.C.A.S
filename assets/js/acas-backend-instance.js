@@ -38,7 +38,15 @@ class BackendInstance {
             'renderSquareSafe': 'renderSquareSafe',
             'renderPiecePlayerCapture': 'renderPiecePlayerCapture',
             'renderPieceEnemyCapture': 'renderPieceEnemyCapture',
-            'renderOnExternalSite': 'renderOnExternalSite'
+            'renderOnExternalSite': 'renderOnExternalSite',
+            'enableAdvancedElo': 'enableAdvancedElo',
+            'advancedElo': 'advancedElo',
+            'advancedEloDepth': 'advancedEloDepth',
+            'advancedEloSkill': 'advancedEloSkill',
+            'advancedEloMaxError': 'advancedEloMaxError',
+            'advancedEloProbability': 'advancedEloProbability',
+            'advancedEloHash': 'advancedEloHash',
+            'advancedEloThreads': 'advancedEloThreads'
         };
 
         this.config = {};
@@ -523,10 +531,12 @@ class BackendInstance {
             const countDifference = playerCount - enemyCount;
 
             if(countDifference !== 0) {
-                addText(squareFen, 0.8, `${countDifference >= 0 ? '+' : ''}${countDifference}`, `opacity: 1;`, [0.8, 0.8]);
+                addText(squareFen, 0.8, `${countDifference >= 0 ? '+' : ''}${countDifference}`, `opacity: 1; font-weight: 900;`, [0.8, 0.8]);
             }
 
-            addTextWithBorder(squareFen, 1.5, '🔥', `opacity: 1;`, [0.8, 0.8]);
+            for(let i = 0; i < rating; i++) {
+                addTextWithBorder(squareFen, 1.5, '🔥', `opacity: 1;`, [0.8, 0.8 - i/10]);
+            }
 
             fillSquare(pos, `opacity: ${opacity}; fill: orange;`);
         }
@@ -566,6 +576,42 @@ class BackendInstance {
     }
 
     setEngineElo(elo, didUserUpdateSetting, profile) {
+        const enableAdvancedElo = this.getConfigValue(this.configKeys.enableAdvancedElo, profile);
+
+        if(enableAdvancedElo) {
+            const advancedElo            = this.getConfigValue(this.configKeys.advancedElo, profile);
+            const advancedEloDepth       = this.getConfigValue(this.configKeys.advancedEloDepth, profile);
+            const advancedEloSkill       = this.getConfigValue(this.configKeys.advancedEloSkill, profile);
+            const advancedEloMaxError    = this.getConfigValue(this.configKeys.advancedEloMaxError, profile);
+            const advancedEloProbability = this.getConfigValue(this.configKeys.advancedEloProbability, profile);
+            const advancedEloHash        = this.getConfigValue(this.configKeys.advancedEloHash, profile);
+            const advancedEloThreads     = this.getConfigValue(this.configKeys.advancedEloThreads, profile);
+
+            this.sendMsgToEngine(`setoption name UCI_Elo value ${advancedElo}`, profile);
+
+            this.pV[profile].searchDepth = advancedEloDepth;
+
+            const limitStrength = advancedEloSkill < 40;
+
+            this.setEngineSkillLevel(advancedEloSkill - 20, profile); // Convert (0-40) to (-20-20)
+            
+            if(!limitStrength)
+                this.setEngineLimitStrength(false, profile);
+
+            if(advancedEloMaxError > 0)
+                this.setEngineMaxError(advancedEloMaxError, profile);
+
+            if(advancedEloProbability > 0)
+                this.setEngineProbability(advancedEloProbability, profile);
+
+            this.setEngineHashSize(advancedEloHash, profile);
+            this.setEngineThreads(advancedEloThreads, profile);
+
+            console.error(limitStrength, advancedEloDepth, advancedEloSkill, advancedEloMaxError, advancedEloProbability, advancedEloHash, advancedEloThreads);
+
+            return;
+        }
+
         if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2600;
 
@@ -645,6 +691,24 @@ class BackendInstance {
             this.sendMsgToEngine(`setoption name Threads value ${amount}`, profile);
         }
     }
+
+    setEngineNodesTime(amount, profile) {
+        if(typeof amount == 'number') {
+            this.sendMsgToEngine(`setoption name nodestime value ${amount}`, profile);
+        }
+    }
+
+    setEngineMaxError(amount, profile) {
+        if(typeof amount == 'number') {
+            this.sendMsgToEngine(`setoption name Skill Level Maximum Error value ${amount}`, profile);
+        }
+    }
+
+    setEngineProbability(amount, profile) {
+        if(typeof amount == 'number') {
+            this.sendMsgToEngine(`setoption name Skill Level Probability value ${amount}`, profile);
+        }
+    }
     
     setEngineHashSize(amount, profile) {
         if(typeof amount == 'number') {
@@ -661,6 +725,12 @@ class BackendInstance {
     setEngineLimitStrength(bool, profile) {
         if(typeof bool == 'boolean') {
             this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${bool}`, profile);
+        }
+    }
+
+    setEngineShowWDL(bool, profile) {
+        if(typeof bool == 'boolean') {
+            this.sendMsgToEngine(`setoption name UCI_ShowWDL value ${bool}`, profile);
         }
     }
 
@@ -711,7 +781,8 @@ class BackendInstance {
         this.sendMsgToEngine('uci', profile); // to display variants
 
         this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
-
+        this.setEngineShowWDL(true, profile);
+        
         switch(this.getEngineType(profile)) {
             case 'lc0':
                 this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
@@ -827,7 +898,16 @@ class BackendInstance {
         }
 
         const didUpdateVariant = findSettingKeyFromData(this.configKeys.chessVariant);
-        const didUpdateElo = findSettingKeyFromData(this.configKeys.engineElo);
+        const didUpdateElo = [
+            this.configKeys.engineElo,
+            this.configKeys.enableAdvancedElo,
+            this.configKeys.advancedEloDepth,
+            this.configKeys.advancedEloSkill,
+            this.configKeys.advancedEloMaxError,
+            this.configKeys.advancedEloProbability,
+            this.configKeys.advancedEloHash,
+            this.configKeys.advancedEloThreads
+        ].find(key => findSettingKeyFromData(key));
         const didUpdateLc0Weight = findSettingKeyFromData(this.configKeys.lc0Weight);
         const didUpdateChessFont = findSettingKeyFromData(this.configKeys.chessFont);
         const didUpdateMultiPV = findSettingKeyFromData(this.configKeys.moveSuggestionAmount);
@@ -1172,6 +1252,21 @@ class BackendInstance {
         const data = parseUCIResponse(msg);
         const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
         const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
+        const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant');
+        const isMsgFailure = msg.includes('Failed');
+
+        if(isMsgNoSuchOption) {
+            const profileChessEngine = getProfile(profile).config.chessEngine;
+            const missingOptionName =  msg.split('No such option:')?.[1]?.trim();
+
+            toast.warning(`"${missingOptionName}" not supported on ${profileChessEngine} (Running on profile "${profile}")`, 4e4);
+        }
+
+        if(isMsgFailure) {
+            const profileChessEngine = getProfile(profile).config.chessEngine;
+
+            toast.warning(`"${msg}" ("${profileChessEngine}" running on profile "${profile}")`, 4e4);
+        }
 
         if(!data?.currmovenumber) console.warn(`${profile} ->`, msg, `\n(Message is for FEN -> ${oldestUnfinishedCalcRequestObj?.fen})`);
 
@@ -1208,6 +1303,12 @@ class BackendInstance {
                 if(data?.mate) 
                     this.Interface.updateEval(data.mate, true, profile);
             }
+        }
+
+        if(data?.wdl) {
+            const [winChance, drawChance, lossChance] = data?.wdl?.split(' ');
+
+            updatePiP({ winChance, drawChance, lossChance });
         }
 
         if(data?.pv && isMessageForCurrentFen) {
@@ -1300,176 +1401,202 @@ class BackendInstance {
         }
     }
 
-    async loadEngine(profile) {
+    async loadEngine(profile, engineName) {
         if(!window?.SharedArrayBuffer) // COI failed to enable SharedArrayBuffer, loading basic web worker engine
         {
             const msg = transObj?.failedToEnableBuffer ?? 'FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!';
             toast.error(msg, 1e9);
-        } else {
-            const msgHandler = msg => {
-                try {
-                    this.engineMessageHandler(msg, profile);
-                } catch(e) {
-                    console.error('Engine', this.instanceID, profile, 'error:', e);
-                }
+        }
+
+        const msgHandler = msg => {
+            try {
+                this.engineMessageHandler(msg, profile);
+            } catch(e) {
+                console.error('Engine', this.instanceID, profile, 'error:', e);
             }
+        }
 
-            const profileChessEngine = getProfile(profile).config.chessEngine;
-            
-            switch(profileChessEngine) {
-                case 'lozza-5':
-                    const lozza = new Worker('/A.C.A.S/app/assets/engines/Lozza/lozza-5-acas.js');
-                    let lozza_loaded = false;
-
-                    lozza.onmessage = async e => {
-                        if(!lozza_loaded) {
-                            lozza_loaded = true;
-
-                            this.engines.push({
-                                'type': profileChessEngine,
-                                'engine': (method, a) => lozza[method](...a),
-                                'sendMsg': msg => lozza.postMessage(msg),
-                                'worker': lozza,
-                                profile
-                            });
-
-                            const waitForChessgroundLoad = setInterval(() => {
-                                if(window?.ChessgroundX) {
-                                    clearInterval(waitForChessgroundLoad);
-
-                                    this.engineStartNewGame('chess', profile);
-                                }
-                            }, 500);
-                        } else if (e.data) {
-                            msgHandler(e.data);
-                        }
-                    };
-
-                    lozza.onerror = e => {
-                        toast.error(`Lozza-5 error: ${e.message}`);
-                    };
-                break;
-
-                case 'lc0':
-                    const lc0 = new Worker('/A.C.A.S/app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
-                    let lc0_loaded = false;
-
-                    lc0.onmessage = async e => {
-                        if(e.data === true) {
-                            lc0_loaded = true;
-
-                            this.engines.push({
-                                'type': profileChessEngine,
-                                'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
-                                'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
-                                'worker': lc0,
-                                profile
-                            });
+        const profileChessEngine = engineName || getProfile(profile).config.chessEngine;
         
-                            await this.setEngineWeight(this.pV[profile].lc0WeightName, profile);
-                
-                            this.engineStartNewGame('chess', profile);
-                        } else if (e.data) {
-                            msgHandler(e.data);
-                        }
-                    };
+        switch(profileChessEngine) {
+            case 'lozza-5':
+                const lozza = new Worker('/A.C.A.S/app/assets/engines/Lozza/lozza-5-acas.js');
+                let lozza_loaded = false;
 
-                    const waitLc0 = setInterval(() => {
-                        if(lc0_loaded) {
-                            clearInterval(waitLc0);
-                            return;
-                        }
+                lozza.onmessage = async e => {
+                    if(!lozza_loaded) {
+                        lozza_loaded = true;
 
-                        lc0.postMessage({ method: 'acas_check_loaded' });
-                    }, 100);
-                break;
+                        this.engines.push({
+                            'type': profileChessEngine,
+                            'engine': (method, a) => lozza[method](...a),
+                            'sendMsg': msg => lozza.postMessage(msg),
+                            'worker': lozza,
+                            profile
+                        });
 
-                case 'stockfish-16-1-wasm':
-                    const stockfish2 = new Worker('/A.C.A.S/app/assets/engines/stockfish-16.1.wasm/stockfish-16.1.js');
-                    let stockfish2_loaded = false;
+                        const waitForChessgroundLoad = setInterval(() => {
+                            if(window?.ChessgroundX) {
+                                clearInterval(waitForChessgroundLoad);
 
-                    stockfish2.onmessage = async e => {
-                        if(!stockfish2_loaded) {
-                            stockfish2_loaded = true;
-
-                            this.engines.push({
-                                'type': profileChessEngine,
-                                'engine': (method, a) => stockfish2[method](...a),
-                                'sendMsg': msg => stockfish2.postMessage(msg),
-                                'worker': stockfish2,
-                                profile
-                            });
-                
-                            this.engineStartNewGame('chess', profile);
-                        }
-
+                                this.engineStartNewGame('chess', profile);
+                            }
+                        }, 500);
+                    } else if (e.data) {
                         msgHandler(e.data);
-                    };
+                    }
+                };
 
-                    stockfish2.onerror = e => {
-                        toast.error(`Stockfish-16.1 error: ${e.message}`);
-                    };
-                break;
+                lozza.onerror = e => {
+                    toast.error(`Lozza-5 error: ${e.message}`);
+                };
+            break;
 
-                case 'stockfish-17-wasm':
-                    const stockfish3 = new Worker('/A.C.A.S/app/assets/engines/stockfish-17.wasm/stockfish-17.js');
-                    let stockfish3_loaded = false;
+            case 'lc0':
+                const lc0 = new Worker('/A.C.A.S/app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
+                let lc0_loaded = false;
 
-                    stockfish3.onmessage = async e => {
-                        if(!stockfish3_loaded) {
-                            stockfish3_loaded = true;
+                lc0.onmessage = async e => {
+                    if(e.data === true) {
+                        lc0_loaded = true;
 
-                            this.engines.push({
-                                'type': profileChessEngine,
-                                'engine': (method, a) => stockfish3[method](...a),
-                                'sendMsg': msg => stockfish3.postMessage(msg),
-                                'worker': stockfish3,
-                                profile
-                            });
-                
-                            this.engineStartNewGame('chess', profile);
-                        }
+                        this.engines.push({
+                            'type': profileChessEngine,
+                            'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
+                            'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
+                            'worker': lc0,
+                            profile
+                        });
 
+                        await this.setEngineWeight(this.pV[profile].lc0WeightName, profile);
+            
+                        this.engineStartNewGame('chess', profile);
+                    } else if (e.data) {
                         msgHandler(e.data);
-                    };
+                    }
+                };
 
-                    stockfish3.onerror = e => {
-                        toast.error(`Stockfish-17 error: ${e.message}`);
-                    };
-                break;
+                const waitLc0 = setInterval(() => {
+                    if(lc0_loaded) {
+                        clearInterval(waitLc0);
+                        return;
+                    }
 
-                default: // Fairy Stockfish NNUE WASM
-                    const stockfish = new Worker('/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfishWorker.js');
-                    let stockfish_loaded = false;
+                    lc0.postMessage({ method: 'acas_check_loaded' });
+                }, 100);
+            break;
 
-                    stockfish.onmessage = async e => {
-                        if(e.data === true) {
-                            stockfish_loaded = true;
+            case 'stockfish-16-1-wasm':
+                const stockfish2 = new Worker('/A.C.A.S/app/assets/engines/stockfish-16.1.wasm/stockfish-16.1.js');
+                let stockfish2_loaded = false;
 
-                            this.engines.push({
-                                'type': profileChessEngine,
-                                'engine': (method, a) => stockfish.postMessage({ method: method, args: [...a] }),
-                                'sendMsg': msg => stockfish.postMessage({ method: 'postMessage', args: [msg] }),
-                                'worker': stockfish,
-                                profile
-                            });
-                
-                            this.engineStartNewGame(formatVariant(this.pV[profile].chessVariant), profile);
-                        } else if (e.data) {
-                            msgHandler(e.data);
-                        }
-                    };
+                stockfish2.onmessage = async e => {
+                    if(!stockfish2_loaded) {
+                        stockfish2_loaded = true;
 
-                    const waitStockfish = setInterval(() => {
-                        if(stockfish_loaded) {
-                            clearInterval(waitStockfish);
-                            return;
-                        }
+                        this.engines.push({
+                            'type': profileChessEngine,
+                            'engine': (method, a) => stockfish2[method](...a),
+                            'sendMsg': msg => stockfish2.postMessage(msg),
+                            'worker': stockfish2,
+                            profile
+                        });
+            
+                        this.engineStartNewGame('chess', profile);
+                    }
 
-                        stockfish.postMessage({ method: 'acas_check_loaded' });
-                    }, 100);
-                break;
-            }
+                    msgHandler(e.data);
+                };
+
+                stockfish2.onerror = e => {
+                    toast.error(`Stockfish-16.1 error: ${e.message}`);
+                };
+            break;
+
+            case 'stockfish-17-wasm':
+                const stockfish3 = new Worker('/A.C.A.S/app/assets/engines/stockfish-17.wasm/stockfish-17.js');
+                let stockfish3_loaded = false;
+
+                stockfish3.onmessage = async e => {
+                    if(!stockfish3_loaded) {
+                        stockfish3_loaded = true;
+
+                        this.engines.push({
+                            'type': profileChessEngine,
+                            'engine': (method, a) => stockfish3[method](...a),
+                            'sendMsg': msg => stockfish3.postMessage(msg),
+                            'worker': stockfish3,
+                            profile
+                        });
+            
+                        this.engineStartNewGame('chess', profile);
+                    }
+
+                    msgHandler(e.data);
+                };
+                stockfish3.onerror = e => {
+                    toast.error(`Stockfish-17 error: ${e.message}`);
+                };
+            break;
+
+            case 'stockfish-17-single':
+                const stockfish4 = new Worker('/A.C.A.S/app/assets/engines/stockfish-17-single/stockfish-17-single.js');
+                let stockfish4_loaded = false;
+
+                stockfish4.onmessage = async e => {
+                    if(!stockfish4_loaded) {
+                        stockfish4_loaded = true;
+
+                        this.engines.push({
+                            'type': profileChessEngine,
+                            'engine': (method, a) => stockfish4[method](...a),
+                            'sendMsg': msg => stockfish4.postMessage(msg),
+                            'worker': stockfish4,
+                            profile
+                        });
+            
+                        this.engineStartNewGame('chess', profile);
+                    }
+
+                    msgHandler(e.data);
+                };
+
+                stockfish4.onerror = e => {
+                    toast.error(`Stockfish-17-single error: ${e.message}`);
+                };
+            break;
+
+            default: // Fairy Stockfish NNUE WASM
+                const stockfish = new Worker('/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfishWorker.js');
+                let stockfish_loaded = false;
+
+                stockfish.onmessage = async e => {
+                    if(e.data === true) {
+                        stockfish_loaded = true;
+
+                        this.engines.push({
+                            'type': profileChessEngine,
+                            'engine': (method, a) => stockfish.postMessage({ method: method, args: [...a] }),
+                            'sendMsg': msg => stockfish.postMessage({ method: 'postMessage', args: [msg] }),
+                            'worker': stockfish,
+                            profile
+                        });
+            
+                        this.engineStartNewGame(formatVariant(this.pV[profile].chessVariant), profile);
+                    } else if (e.data) {
+                        msgHandler(e.data);
+                    }
+                };
+
+                const waitStockfish = setInterval(() => {
+                    if(stockfish_loaded) {
+                        clearInterval(waitStockfish);
+                        return;
+                    }
+
+                    stockfish.postMessage({ method: 'acas_check_loaded' });
+                }, 100);
+            break;
         }
     }
 

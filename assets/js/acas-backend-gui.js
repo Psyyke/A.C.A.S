@@ -53,6 +53,15 @@ const deleteProfileBtn = document.querySelector('#delete-profile-button');
 
 const floatyButtons = document.querySelectorAll('.open-floaty-btn');
 
+const userComputerStatsText = document.querySelector('#user-computer-stats');
+
+if (userComputerStatsText) {
+    const deviceMemory = (navigator.deviceMemory * 1024) || '❔';
+    const hardwareConcurrency = navigator.hardwareConcurrency || '❔';
+
+    userComputerStatsText.innerText = `You might have max ${deviceMemory} MB of memory & ${hardwareConcurrency} threads (cores).`;
+}
+
 [...floatyButtons].forEach(btn => {
     const floatyDialog = btn?.parentElement?.querySelector('dialog');
 
@@ -191,10 +200,14 @@ function updatePiP(data) {
         progress = calculateTimeProgress(pipData.startTime, pipData.movetime);
     }
 
-    const playerColor = pipData.playerColor;
-    const bestMove = pipData?.moveObjects?.[0];
-    const from = bestMove?.player?.[0],
-          to = bestMove?.player?.[1];
+    const playerColor = pipData.playerColor,
+          bestMove = pipData?.moveObjects?.[0],
+          from = bestMove?.player?.[0],
+          to = bestMove?.player?.[1],
+          winChance = pipData?.winChance,
+          drawChance = pipData?.drawChance,
+          lossChance = pipData?.lossChance;
+
 
     let eval = pipData.eval;
 
@@ -224,7 +237,7 @@ function updatePiP(data) {
     ctx.font = '500 70px IBM Plex Sans';
 
     if(pipData.moveProgressText) {
-        ctx.fillText(pipData.moveProgressText, 40, headerHeight + 100);
+        ctx.fillText(pipData.moveProgressText, 40, headerHeight + 90);
     } else if(noInstancesText) {
         ctx.fillText(noInstancesText, 40, headerHeight + 100);
     }
@@ -238,8 +251,26 @@ function updatePiP(data) {
     if(from && to) {
         ctx.fillStyle = 'white';
         ctx.font = '500 160px IBM Plex Sans';
-        ctx.fillText(`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 40, headerHeight + 270);
+        ctx.fillText(`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 40, headerHeight + 250);
     }
+
+    if (winChance && drawChance && lossChance) {
+        const chances = [
+            { label: 'Win', percentage: Math.round(winChance / 10) },
+            { label: 'Draw', percentage: Math.round(drawChance / 10) },
+            { label: 'Loss', percentage: Math.round(lossChance / 10) }
+        ];
+
+        const highestChance = chances.reduce((max, chance) => chance.percentage > max.percentage ? chance : max);
+    
+        const pX = 40;
+        const pY = headerHeight + 320;
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.font = '400 50px IBM Plex Sans';
+
+        ctx.fillText(`${highestChance.label} ${highestChance.percentage}%`, pX, pY);
+    }    
 
     // Progress bar
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
@@ -638,6 +669,17 @@ async function makeSettingChanges(inputElem) {
                 await document.exitPictureInPicture();
 
             break;
+        case 'enableAdvancedElo':
+            const normalEloInput = document.querySelector('input[data-key="engineElo"]');
+
+            if(!normalEloInput) return;
+
+            if(value)
+                normalEloInput.setAttribute('disabled', 'true');
+            else
+                normalEloInput.removeAttribute('disabled');
+
+            break;
     }
 
     processedElems.push([inputElem, value]);
@@ -949,7 +991,7 @@ function initGUI() {
 
                 elem.onkeypress = event => allowOnlyNumbers(event);
 
-                elem.style.width = `${(String(max).length + 0.3) * 10}px`;
+                elem.style.width = `${(String(max).length + 0.45) * 10}px`;
             }
 
             elem.oninput = e => makeSettingChanges(e.target);

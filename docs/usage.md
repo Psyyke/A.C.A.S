@@ -116,6 +116,12 @@ The <a target="_about" href="app?shl=renderPiecePlayerCapture">Own Piece Capture
 
 The <a target="_about" href="app?shl=renderPieceEnemyCapture">Enemy Piece Capture</a> setting displays vulnerable enemy pieces. The bleed emoji 🩸 appears on **enemy pieces** which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, your **Queen** attacks an enemy **Rook** which is protected. However, if your **Rook** was to attack an enemy **Queen**, 🩸 would appear on the enemy **Queen**.
 
+## Advanced Elo Settings
+
+Many settings don't seem to do anything. For each setting to work, the engine has to have implemented them. Small engines like Lozza 5 probably don't support anything other than depth, maybe skill level.
+
+With our testing we didn't seem to get Threads nor Hash to work and Maximum Error and Probability settings also had no impact or weren't supported at all. If you're modifying the hashtable size, make sure to refresh the page or start a new engine to see results.
+
 ---
 
 *Didn't find what you were looking for? Perhaps the [troubleshoot](docs/troubleshoot) page can help?*
