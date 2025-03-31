@@ -1424,6 +1424,16 @@ class BackendInstance {
             toast.error('The engine you have selected is incompatible with the mode A.C.A.S was launched in.\n\nPlease change the engine on the settings or launch A.C.A.S using ?sab=true.');
             return;
         }
+
+        function startGame() {
+            const waitForChessgroundLoad = setInterval(() => {
+                if(window?.ChessgroundX) {
+                    clearInterval(waitForChessgroundLoad);
+
+                    this.engineStartNewGame('chess', profile);
+                }
+            }, 500);
+        }
         
         function loadStockfish(name) {
             const stockfish = new Worker(`/A.C.A.S/app/assets/engines/${name}/${name}.js`);
@@ -1441,7 +1451,7 @@ class BackendInstance {
                         profile
                     });
         
-                    this.engineStartNewGame('chess', profile);
+                    startGame.bind(this)();
                 }
 
                 msgHandler(e.data);
@@ -1497,13 +1507,7 @@ class BackendInstance {
                             profile
                         });
 
-                        const waitForChessgroundLoad = setInterval(() => {
-                            if(window?.ChessgroundX) {
-                                clearInterval(waitForChessgroundLoad);
-
-                                this.engineStartNewGame('chess', profile);
-                            }
-                        }, 500);
+                        startGame.bind(this)();
                     } else if (e.data) {
                         msgHandler(e.data);
                     }
