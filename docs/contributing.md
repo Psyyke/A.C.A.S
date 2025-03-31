@@ -1,4 +1,4 @@
-# Contributing
+# Contributing 🤝
 
 >Our goal is to create a free and open-source chess assistant that helps you learn and improve in real-time, providing immediate feedback so you can learn as you play—no need for separate study sessions.
 

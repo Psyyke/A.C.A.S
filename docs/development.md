@@ -1,4 +1,4 @@
-# Development
+# Development 🌱
 
 > You can show hidden features by adding `?hidden=true`. For only developers, no updates guaranteed.
 

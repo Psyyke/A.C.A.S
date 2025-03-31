@@ -1,4 +1,4 @@
-# Usage
+# Usage 📖
 
 Using A.C.A.S is easy! Once you have the userscript installed, just keep the <a target="_about" href="app">GUI</a> open while you're playing on a chess site. By default, the moves it suggests will show up directly on the board you're playing on.
 
@@ -6,7 +6,7 @@ Using A.C.A.S is easy! Once you have the userscript installed, just keep the <a 
 
 <a id="lottie-animation"/>
 
-## Chess Sites Compatibility  
+## Chess Sites Compatibility 🔗
 
 Most chess sites are supported! If the one you're playing on isn't, please let us know!
 
@@ -18,17 +18,17 @@ Most chess sites are supported! If the one you're playing on isn't, please let u
 
 >This table might be outdated. Check out the supported sites by clicking on the <a target="_about" href="app?hl=supportedSites">see all supported sites</a> button.
 
-## Control Panel
+## Control Panel 🖥️
 
 The <a target="_about" href="app?hl=controlPanel">settings control panel</a> has buttons to show hidden settings and to load, save and reset the settings. You can use it to share your settings with your friends or the community, or load someone's settings.
 
-## Profiles
+## Profiles 👥
 
 You can use <a target="_about" href="app?shl=chessEngineProfile">profiles</a> to run multiple chess engines at once. Keep in mind that some features might not work well with multiple engines running, but most should work fine. If you notice some feature acting weirdly with multiple engines, don't be alarmed.
 
 Profiles can also be used to just store different configurations if you <a target="_about" href="app?shl=engineEnabled">disable the engine</a>.
 
-## Languages
+## Languages 🌐
 
 <img src="assets/images/example5.png">
 

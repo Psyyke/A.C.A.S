@@ -1,4 +1,4 @@
-# Q&A
+# Q&A 🤔
 
 ## Chess Engine Terms Explained  
 

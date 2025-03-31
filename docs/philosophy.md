@@ -1,4 +1,4 @@
-# Philosophy
+# Philosophy 📚
 
 This page discusses the fundemental idea behind A.C.A.S and how it works. A page for nerds like us, basically.
 

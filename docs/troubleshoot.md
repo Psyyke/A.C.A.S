@@ -1,4 +1,4 @@
-# Troubleshoot
+# Troubleshoot 🛠️
 
 !> Browsers freeze code execution on inactive pages, you need to visit the GUI tab from time to time, **keep it at least partly visible on a separate window** or **use the <a target="_about" href="app?shl=pip">Floating Panel</a> setting**. This prevents A.C.A.S from freezing and not giving any move suggestions.
 

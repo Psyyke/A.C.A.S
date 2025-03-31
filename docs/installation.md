@@ -1,4 +1,4 @@
-# Installation
+# Installation 📦
 
 Simply open the <a target="_about" href="app">GUI</a>, it will help you install A.C.A.S. More detailed information is below.
 

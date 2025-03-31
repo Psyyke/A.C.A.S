@@ -1516,3 +1516,12 @@ input[disabled] {
 	opacity: 0.25;
 	filter: blur(1px);
 }
+.cg-wrap coords {
+	font-size: 13px !important;
+}
+.cg-wrap coords.bottom {
+	bottom: -18px !important;
+}
+.cg-wrap coords.side {
+	right: -18px !important;
+}
