@@ -82,7 +82,22 @@
         "themeColorHex": ["Themenfarbe"],
         "boardColorHex": ["Brettfarbe"],
         "chessFont": ["Schachschriftart"],
-        "backgroundTextureClass": ["Hintergrundtextur"]
+        "backgroundTextureClass": ["Hintergrundtextur"],
+        "enableAdvancedElo": ["Aktiviere", "Aktiviere die erweiterten Elo-Einstellungen"],
+        "advancedElo": ["Elo (1320 - 3190)", "Die Engine versucht, auf diesem Niveau zu spielen"],
+        "advancedEloDepth": ["Tiefe (1 - 500)", "Wie tief wird die Engine berechnen"],
+        "advancedEloSkill": ["Fähigkeitslevel (0 - 40)", "Legt das Fähigkeitslevel der Engine fest"],
+        "advancedEloThreads": ["Threads (1 - 32)", "Legt fest, wie viele Threads eine multithreaded Engine verwenden wird"],
+        "advancedEloHash": ["Hash (1 - 33554432MB)", "Speichergrenze der Hashtabelle"],
+        "advancedEloMaxError": ["Maximaler Fehler (0 - 1000)", "(Keine Engine scheint dies zu unterstützen)"],
+        "advancedEloProbability": ["Wahrscheinlichkeit (0 - 1000)", "(Keine Engine scheint dies zu unterstützen)"],
+        "renderOnExternalSite": ["Auf externer Seite rendern", "Auf dem Brett der Schach-Website rendern (z.B. auf dem Brett von chess.com)"],
+        "renderSquarePlayer": ["Sicht des eigenen Stücks", "Höhe die Quadrate hervor, die deine Stücke sehen, mit grün"],
+        "renderSquareEnemy": ["Sicht des feindlichen Stücks", "Höhe die Quadrate hervor, die die Stücke des Gegners sehen, mit rot"],
+        "renderSquareContested": ["Umstrittene Quadrate", "Höhe die umstrittenen Quadrate mit orange hervor"],
+        "renderSquareSafe": ["Sichere Quadrate", "Höhe die sicheren Quadrate mit cyan hervor"],
+        "renderPiecePlayerCapture": ["Eroberung des eigenen Stücks", "Zeige 💧 auf Stücken an, die in Gefahr der Eroberung sind"],
+        "renderPieceEnemyCapture": ["Eroberung des feindlichen Stücks", "Zeige 🩸 auf Stücken an, die du angreifen solltest"]
     },
     "translations": {
         "profileRemovalWarning": "Bist du sicher, dass du dieses Profil entfernen möchtest?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",

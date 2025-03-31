@@ -82,7 +82,22 @@
         "themeColorHex": ["Cor do Tema"],
         "boardColorHex": ["Cor do Tabuleiro"],
         "chessFont": ["Fonte do Xadrez"],
-        "backgroundTextureClass": ["Textura do fundo"]
+        "backgroundTextureClass": ["Textura do fundo"],
+        "enableAdvancedElo": ["Habilitar", "Habilitar as configurações avançadas de elo"],
+        "advancedElo": ["Elo (1320 - 3190)", "O motor tenta jogar neste nível"],
+        "advancedEloDepth": ["Profundidade (1 - 500)", "Até que profundidade o motor calculará"],
+        "advancedEloSkill": ["Nível de Habilidade (0 - 40)", "Define o nível de habilidade do motor"],
+        "advancedEloThreads": ["Threads (1 - 32)", "Define quantas threads um motor multithreaded usará"],
+        "advancedEloHash": ["Hash (1 - 33554432MB)", "Limite de memória da tabela de hash"],
+        "advancedEloMaxError": ["Erro Máximo (0 - 1000)", "(Nenhum motor parece suportar isso)"],
+        "advancedEloProbability": ["Probabilidade (0 - 1000)", "(Nenhum motor parece suportar isso)"],
+        "renderOnExternalSite": ["Renderizar no Site Externo", "Renderizar no tabuleiro do site de xadrez (por exemplo, no tabuleiro do chess.com)"],
+        "renderSquarePlayer": ["Visão da Própria Peça", "Destacar quadrados que suas peças veem com verde"],
+        "renderSquareEnemy": ["Visão da Peça Inimiga", "Destacar quadrados que as peças inimigas veem com vermelho"],
+        "renderSquareContested": ["Quadrados Contestados", "Destacar quadrados contestados com laranja"],
+        "renderSquareSafe": ["Quadrados Seguros", "Destacar quadrados seguros com ciano"],
+        "renderPiecePlayerCapture": ["Captura da Própria Peça", "Exibir 💧 em peças que estão em perigo de captura"],
+        "renderPieceEnemyCapture": ["Captura da Peça Inimiga", "Exibir 🩸 em peças que você deve atacar"]
     },
     "translations": {
         "profileRemovalWarning": "Tem certeza de que deseja remover este perfil?\n\nEsta ação não pode ser desfeita.",

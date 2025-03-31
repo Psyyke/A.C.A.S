@@ -82,7 +82,22 @@
         "themeColorHex": ["テーマ色"],
         "boardColorHex": ["ボード色"],
         "chessFont": ["チェスフォント"],
-        "backgroundTextureClass": ["背景テクスチャ"]
+        "backgroundTextureClass": ["背景テクスチャ"],
+        "enableAdvancedElo": ["高度なELO設定を有効にする", "高度なELO設定を有効にします"],
+        "advancedElo": ["ELO (1320 - 3190)", "エンジンがこのレベルでプレイを試みます"],
+        "advancedEloDepth": ["深度 (1 - 500)", "エンジンがどのくらい深く計算するか"],
+        "advancedEloSkill": ["スキルレベル (0 - 40)", "エンジンのスキルレベルを設定します"],
+        "advancedEloThreads": ["スレッド (1 - 32)", "マルチスレッドエンジンが使用するスレッドの数を設定します"],
+        "advancedEloHash": ["ハッシュ (1 - 33554432MB)", "ハッシュテーブルのメモリ制限"],
+        "advancedEloMaxError": ["最大誤差 (0 - 1000)", "(どのエンジンもこれをサポートしないようです)"],
+        "advancedEloProbability": ["確率 (0 - 1000)", "(どのエンジンもこれをサポートしないようです)"],
+        "renderOnExternalSite": ["外部サイトにレンダリング", "チェスサイトのボードにレンダリング (例: chess.comのボード)"],
+        "renderSquarePlayer": ["自分の駒の視野", "自分の駒が見える正方形を緑色で強調"],
+        "renderSquareEnemy": ["敵の駒の視野", "敵の駒が見える正方形を赤色で強調"],
+        "renderSquareContested": ["争奪中の正方形", "争奪中の正方形をオレンジ色で強調"],
+        "renderSquareSafe": ["安全な正方形", "安全な正方形をシアン色で強調"],
+        "renderPiecePlayerCapture": ["自分の駒の捕獲", "捕獲の危険にある駒に💧を表示"],
+        "renderPieceEnemyCapture": ["敵の駒の捕獲", "攻撃すべき駒に🩸を表示"]
     },
     "translations": {
         "profileRemovalWarning": "このプロフィールを削除してもよろしいですか？\n\nこの操作は取り消せません。",

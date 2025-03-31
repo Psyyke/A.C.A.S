@@ -82,7 +82,22 @@
         "themeColorHex": ["Culoarea temei"],
         "boardColorHex": ["Culoarea tablei"],
         "chessFont": ["Font de șah"],
-        "backgroundTextureClass": ["Textura fundalului"]
+        "backgroundTextureClass": ["Textura fundalului"],
+        "enableAdvancedElo": ["Activează", "Activează setările Elo avansate"],
+        "advancedElo": ["Elo (1320 - 3190)", "Motorul încearcă să joace la acest nivel"],
+        "advancedEloDepth": ["Adâncime (1 - 500)", "Cât de adânc va calcula motorul"],
+        "advancedEloSkill": ["Nivel de abilitate (0 - 40)", "Setează nivelul de abilitate al motorului"],
+        "advancedEloThreads": ["Fire de execuție (1 - 32)", "Setează câte fire de execuție va folosi un motor multithread"],
+        "advancedEloHash": ["Hash (1 - 33554432MB)", "Limita de memorie a tabelului de dispersie"],
+        "advancedEloMaxError": ["Eroare maximă (0 - 1000)", "(Niciun motor nu pare să susțină aceasta)"],
+        "advancedEloProbability": ["Probabilitate (0 - 1000)", "(Niciun motor nu pare să susțină aceasta)"],
+        "renderOnExternalSite": ["Redă pe site-ul extern", "Redă pe tabla site-ului de șah (de exemplu, tabla chess.com)"],
+        "renderSquarePlayer": ["Viziunea pieselor proprii", "Subliniază pătratele pe care le văd piesele tale cu verde"],
+        "renderSquareEnemy": ["Viziunea pieselor inamice", "Subliniază pătratele pe care le văd piesele inamice cu roșu"],
+        "renderSquareContested": ["Pătrate contestate", "Subliniază pătratele contestate cu portocaliu"],
+        "renderSquareSafe": ["Pătrate sigure", "Subliniază pătratele sigure cu cian"],
+        "renderPiecePlayerCapture": ["Capturarea pieselor proprii", "Afișează 💧 pe piesele care sunt în pericol de captură"],
+        "renderPieceEnemyCapture": ["Capturarea pieselor inamice", "Afișează 🩸 pe piesele pe care ar trebui să le atacăm"]
     },
     "translations": {
         "profileRemovalWarning": "Ești sigur că vrei să elimini acest profil?\n\nAceastă acțiune nu poate fi inversată.",

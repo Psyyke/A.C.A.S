@@ -82,7 +82,22 @@
         "themeColorHex": ["Theme Color"],
         "boardColorHex": ["Board Color"],
         "chessFont": ["Chess Font"],
-        "backgroundTextureClass": ["Bg Texture"]
+        "backgroundTextureClass": ["Bg Texture"],
+        "enableAdvancedElo": ["Enable", "Enable the advanced elo settings"],
+        "advancedElo": ["Elo (1320 - 3190)", "Engine tries to play at this level"],
+        "advancedEloDepth": ["Depth (1 - 500)", "How deep will the engine calculate"],
+        "advancedEloSkill": ["Skill Level (0 - 40)", "Sets the skill level of the engine"],
+        "advancedEloThreads": ["Threads (1 - 32)", "Sets how many threads a multithreaded engine will use"],
+        "advancedEloHash": ["Hash (1 - 33554432MB)", "Memory limit of the hashtable"],
+        "advancedEloMaxError": ["Maximum Error (0 - 1000)", "(No engines seem to support this)"],
+        "advancedEloProbability": ["Probability (0 - 1000)", "(No engines seem to support this)"],
+        "renderOnExternalSite": ["Render On External Site", "Render on chess site's board (e.g. chess.com's board)"],
+        "renderSquarePlayer": ["Own Piece Vision", "Highlight squares your pieces see with green"],
+        "renderSquareEnemy": ["Enemy Piece Vision", "Highlight squares enemy's pieces see with red"],
+        "renderSquareContested": ["Contested Squares", "Highlight contested squares with orange"],
+        "renderSquareSafe": ["Safe Squares", "Highlight safe squares with cyan"],
+        "renderPiecePlayerCapture": ["Own Piece Capture", "Display 💧 on pieces that are in danger of capture"],
+        "renderPieceEnemyCapture": ["Enemy Piece Capture", "Display 🩸 on pieces that you should attack"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",

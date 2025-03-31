@@ -82,7 +82,22 @@
         "themeColorHex": ["Kolor motywu"],
         "boardColorHex": ["Kolor planszy"],
         "chessFont": ["Czcionka szachowa"],
-        "backgroundTextureClass": ["Tekstura tła"]
+        "backgroundTextureClass": ["Tekstura tła"],
+        "enableAdvancedElo": ["Włącz", "Włącz zaawansowane ustawienia elo"],
+        "advancedElo": ["Elo (1320 - 3190)", "Silnik próbuje grać na tym poziomie"],
+        "advancedEloDepth": ["Głębokość (1 - 500)", "Jak głęboko silnik będzie obliczał"],
+        "advancedEloSkill": ["Poziom umiejętności (0 - 40)", "Ustawia poziom umiejętności silnika"],
+        "advancedEloThreads": ["Wątki (1 - 32)", "Ustawia, ile wątków wielowątkowy silnik będzie używał"],
+        "advancedEloHash": ["Hasz (1 - 33554432MB)", "Limit pamięci tablicy haszującej"],
+        "advancedEloMaxError": ["Maksymalny błąd (0 - 1000)", "(Wygląda na to, że żaden silnik nie obsługuje tego)"],
+        "advancedEloProbability": ["Prawdopodobieństwo (0 - 1000)", "(Wygląda na to, że żaden silnik nie obsługuje tego)"],
+        "renderOnExternalSite": ["Renderuj na zewnętrznej stronie", "Renderuj na planszy strony szachowej (np. plansza chess.com)"],
+        "renderSquarePlayer": ["Widok własnych pionków", "Zaznaczaj pola, na których widzą twoje pionki na zielono"],
+        "renderSquareEnemy": ["Widok pionków przeciwnika", "Zaznaczaj pola, na których widzą pionki przeciwnika na czerwono"],
+        "renderSquareContested": ["Zakwestionowane pola", "Zaznaczaj zakwestionowane pola na pomarańczowo"],
+        "renderSquareSafe": ["Bezpieczne pola", "Zaznaczaj bezpieczne pola na cyjanowo"],
+        "renderPiecePlayerCapture": ["Złapanie własnego pionka", "Wyświetl 💧 na pionkach, które są w niebezpieczeństwie złapania"],
+        "renderPieceEnemyCapture": ["Złapanie pionka przeciwnika", "Wyświetl 🩸 na pionkach, które powinieneś zaatakować"]
     },
     "translations": {
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",

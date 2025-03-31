@@ -82,7 +82,22 @@
         "themeColorHex": ["Barva motivu"],
         "boardColorHex": ["Barva desky"],
         "chessFont": ["Šachové písmo"],
-        "backgroundTextureClass": ["Pozadí textura"]
+        "backgroundTextureClass": ["Pozadí textura"],
+        "enableAdvancedElo": ["Povolit", "Povolit pokročilá nastavení elo"],
+        "advancedElo": ["Elo (1320 - 3190)", "Motor se snaží hrát na této úrovni"],
+        "advancedEloDepth": ["Hloubka (1 - 500)", "Jak hluboko bude motor počítat"],
+        "advancedEloSkill": ["Úroveň dovedností (0 - 40)", "Nastaví úroveň dovedností motoru"],
+        "advancedEloThreads": ["Vlákna (1 - 32)", "Nastaví, kolik vláken bude vícevláknový motor používat"],
+        "advancedEloHash": ["Hash (1 - 33554432MB)", "Limit paměti hashtabulky"],
+        "advancedEloMaxError": ["Maximální chyba (0 - 1000)", "(Zdá se, že žádné motory toto nepodporují)"],
+        "advancedEloProbability": ["Pravděpodobnost (0 - 1000)", "(Zdá se, že žádné motory toto nepodporují)"],
+        "renderOnExternalSite": ["Zobrazit na externí stránce", "Zobrazit na šachové desce stránky (např. na desce chess.com)"],
+        "renderSquarePlayer": ["Vlastní viditelnost figur", "Zvýrazní pole, která vidí vaše figurky zeleně"],
+        "renderSquareEnemy": ["Viditelnost figur protivníka", "Zvýrazní pole, která vidí figurky protivníka červeně"],
+        "renderSquareContested": ["Zpochybněná pole", "Zvýrazní pole, která jsou zpochybněná oranžově"],
+        "renderSquareSafe": ["Bezpečná pole", "Zvýrazní pole, která jsou bezpečná azurově"],
+        "renderPiecePlayerCapture": ["Vlastní ohrožení figur", "Zobrazí 💧 na figurkách, které jsou v ohrožení zajetí"],
+        "renderPieceEnemyCapture": ["Ohrožení figur protivníka", "Zobrazí 🩸 na figurkách, které byste měli napadnout"]
     },
     "translations": {
         "profileRemovalWarning": "Opravdu chcete odstranit tento profil?\n\nTuto akci nelze vrátit.",

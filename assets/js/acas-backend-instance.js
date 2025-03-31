@@ -1421,7 +1421,7 @@ class BackendInstance {
         const isEngineIncompatible = !window?.SharedArrayBuffer && enginesRequiringSAB.includes(profileChessEngine);
 
         if(isEngineIncompatible) {
-            toast.error('The engine you have selected is incompatible with the mode A.C.A.S was launched in.\n\nPlease launch A.C.A.S using ?sab=true.');
+            toast.error('The engine you have selected is incompatible with the mode A.C.A.S was launched in.\n\nPlease change the engine on the settings or launch A.C.A.S using ?sab=true.');
             return;
         }
         

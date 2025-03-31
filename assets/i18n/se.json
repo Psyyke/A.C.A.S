@@ -82,7 +82,22 @@
         "themeColorHex": ["Temafärg"],
         "boardColorHex": ["Brädfärg"],
         "chessFont": ["Schackfont"],
-        "backgroundTextureClass": ["Bakgrundstextur"]
+        "backgroundTextureClass": ["Bakgrundstextur"],
+        "enableAdvancedElo": ["Aktivera", "Aktivera avancerade Elo-inställningar"],
+        "advancedElo": ["Elo (1320 - 3190)", "Motorn försöker att spela på denna nivå"],
+        "advancedEloDepth": ["Djup (1 - 500)", "Hur djupt kommer motorn att beräkna"],
+        "advancedEloSkill": ["Färdighetsnivå (0 - 40)", "Ange färdighetsnivån för motorn"],
+        "advancedEloThreads": ["Trådar (1 - 32)", "Ange hur många trådar en multitrådad motor kommer att använda"],
+        "advancedEloHash": ["Hash (1 - 33554432MB)", "Minnesgräns för hashtabellen"],
+        "advancedEloMaxError": ["Maximalt Fel (0 - 1000)", "(Inga motorer verkar att stödja detta)"],
+        "advancedEloProbability": ["Sannolikhet (0 - 1000)", "(Inga motorer verkar att stödja detta)"],
+        "renderOnExternalSite": ["Rendera på extern webbplats", "Rendera på schackwebbplatsens bräda (t.ex. chess.com:s bräda)"],
+        "renderSquarePlayer": ["Eget pjäsvision", "Markera med grönt de kvadrater ditt pjäs ser"],
+        "renderSquareEnemy": ["Motståndarens pjäsvision", "Markera med rött de kvadrater motståndarens pjäs ser"],
+        "renderSquareContested": ["Omtvistade kvadrater", "Markera med orange omtvistade kvadrater"],
+        "renderSquareSafe": ["Säkra kvadrater", "Markera med cyan säkra kvadrater"],
+        "renderPiecePlayerCapture": ["Eget pjäsfång", "Visa 💧 på pjäser som är i fara att erövras"],
+        "renderPieceEnemyCapture": ["Motståndarens pjäsfång", "Visa 🩸 på pjäser som du bör attackera"]
     },
     "translations": {
         "profileRemovalWarning": "Är du säker på att du vill ta bort denna profil?\n\nDenna åtgärd kan inte ångras.",

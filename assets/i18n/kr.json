@@ -82,7 +82,22 @@
         "themeColorHex": ["테마 색상"],
         "boardColorHex": ["보드 색상"],
         "chessFont": ["체스 글꼴"],
-        "backgroundTextureClass": ["배경 질감"]
+        "backgroundTextureClass": ["배경 질감"],
+        "enableAdvancedElo": ["활성화", "고급 elo 설정 활성화"],
+        "advancedElo": ["Elo (1320 - 3190)", "엔진은 이 수준에서 플레이하려고 시도합니다"],
+        "advancedEloDepth": ["깊이 (1 - 500)", "엔진이 얼마나 깊게 계산할지 설정"],
+        "advancedEloSkill": ["스킬 레벨 (0 - 40)", "엔진의 스킬 레벨 설정"],
+        "advancedEloThreads": ["스레드 (1 - 32)", "멀티스레드 엔진이 사용할 스레드 수 설정"],
+        "advancedEloHash": ["해시 (1 - 33554432MB)", "해시 테이블의 메모리 제한"],
+        "advancedEloMaxError": ["최대 오류 (0 - 1000)", "(엔진이 이를 지원하지 않는 것 같습니다)"],
+        "advancedEloProbability": ["확률 (0 - 1000)", "(엔진이 이를 지원하지 않는 것 같습니다)"],
+        "renderOnExternalSite": ["외부 사이트에 렌더링", "체스 사이트의 보드에 렌더링 (예: chess.com의 보드)"],
+        "renderSquarePlayer": ["자신의 말 시야", "자신의 말이 보는 곳을 초록색으로 강조"],
+        "renderSquareEnemy": ["적 말 시야", "적 말이 보는 곳을 빨간색으로 강조"],
+        "renderSquareContested": ["경쟁 중인 칸", "경쟁 중인 칸을 주황색으로 강조"],
+        "renderSquareSafe": ["안전한 칸", "안전한 칸을 청록색으로 강조"],
+        "renderPiecePlayerCapture": ["자신의 말 잡힘", "잡힐 위험이 있는 말에 💧 표시"],
+        "renderPieceEnemyCapture": ["적 말 잡힘", "공격해야 할 말에 🩸 표시"]
     },
     "translations": {
         "profileRemovalWarning": "이 프로필을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",

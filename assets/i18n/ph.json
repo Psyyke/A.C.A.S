@@ -82,7 +82,22 @@
         "themeColorHex": ["Kulay ng Tema"],
         "boardColorHex": ["Kulay ng Board"],
         "chessFont": ["Font ng Chess"],
-        "backgroundTextureClass": ["Textura ng Background"]
+        "backgroundTextureClass": ["Textura ng Background"],
+        "enableAdvancedElo": ["I-enable", "I-enable ang mga setting ng advanced elo"],
+        "advancedElo": ["Elo (1320 - 3190)", "Ang engine ay sinusubukan na maglaro sa antas na ito"],
+        "advancedEloDepth": ["Lalim (1 - 500)", "Kung gaano kalalim ang engine sa paghahanap"],
+        "advancedEloSkill": ["Antas ng Kasanayan (0 - 40)", "Nagtatakda sa antas ng kasanayan ng engine"],
+        "advancedEloThreads": ["Mga Thread (1 - 32)", "Nagtatakda sa bilang ng mga thread na gagamitin ng isang engine na may maraming thread"],
+        "advancedEloHash": ["Hash (1 - 33554432MB)", "Limit ng memory ng hashtable"],
+        "advancedEloMaxError": ["Maximum Error (0 - 1000)", "(Walang mga engine na mukhang sumusuporta sa ito)"],
+        "advancedEloProbability": ["Probability (0 - 1000)", "(Walang mga engine na mukhang sumusuporta sa ito)"],
+        "renderOnExternalSite": ["I-render sa Panlabas na Site", "I-render sa board ng chess site (hal. sa board ng chess.com)"],
+        "renderSquarePlayer": ["Bisyon ng Piyesa Mo", "Ihighlight ang mga square na nakikita ng mga piyesa mo ng berde"],
+        "renderSquareEnemy": ["Bisyon ng Piyesa ng Kalaban", "Ihighlight ang mga square na nakikita ng mga piyesa ng kalaban ng pula"],
+        "renderSquareContested": ["Mga Square na Pinag-aagawan", "Ihighlight ang mga square na pinag-aagawan ng orange"],
+        "renderSquareSafe": ["Mga Square na Ligtas", "Ihighlight ang mga square na ligtas ng cyan"],
+        "renderPiecePlayerCapture": ["Kapit ng Piyesa Mo", "Ipakita ang 💧 sa mga piyesa na nanganganib na makapit"],
+        "renderPieceEnemyCapture": ["Kapit ng Piyesa ng Kalaban", "Ipakita ang 🩸 sa mga piyesa na dapat mong atakihin"]
     },
     "translations": {
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",
