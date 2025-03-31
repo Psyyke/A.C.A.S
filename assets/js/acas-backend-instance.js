@@ -1253,7 +1253,7 @@ class BackendInstance {
         const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
         const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
         const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant');
-        const isMsgFailure = msg.includes('Failed');
+        const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
 
         if(isMsgNoSuchOption) {
             const profileChessEngine = getProfile(profile).config.chessEngine;
