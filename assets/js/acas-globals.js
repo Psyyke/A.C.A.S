@@ -396,7 +396,7 @@ function parseUCIResponse(response) {
         'currmove', 'currmovenumber', 'hashfull', 'multipv',
         'refutation', 'line', 'stop', 'ponderhit', 'ucs',
         'position', 'startpos', 'moves', 'files', 'ranks',
-        'pocket', 'template', 'variant', 'ponder', 'Fen:'];
+        'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc'];
 
     const data = {};
     let currentKeyword = null;

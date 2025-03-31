@@ -80,6 +80,18 @@ if (userComputerStatsText) {
     }
 });
 
+if(window?.SharedArrayBuffer) {
+    [...document.querySelectorAll('.requires-sab')].forEach(x => x.classList.remove('requires-sab'));
+} else {
+    if('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+            registrations.forEach((registration) => {
+                registration.unregister();
+            });
+        });
+    }
+}
+
 const pipData = {};
 
 let pipCanvas = null;

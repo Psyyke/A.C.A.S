@@ -53,9 +53,9 @@ The <a target="_about" href="app?shl=chessEngine">Chess Engine</a> setting chang
 
 #### ⚙️ Chess Variant
 
-The <a target="_about" href="app?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_about" href="app?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized.
+!>Most users do not play chess variants, **you most likely do not need to change this nor the <a target="_about" href="app?shl=useChess960">Chess 960</a>**. If you happen to play a variant, A.C.A.S should automatically detect the chess variant you're playing if its supported.
 
->Most users do not play chess variants, **you most likely do not need to change this nor the <a target="_about" href="app?shl=useChess960">Chess 960</a>**. If you happen to play a variant, A.C.A.S should automatically detect the chess variant you're playing if its supported.
+The <a target="_about" href="app?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_about" href="app?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized. If you happen to play variants, you need to use Fairy Stockfish <a target="_about" href="app?shl=chessEngine">Chess Engine</a>. You can access it via `?sab=true`.
 
 #### ⚙️ Engine Elo
 

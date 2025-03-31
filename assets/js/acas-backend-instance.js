@@ -1252,7 +1252,7 @@ class BackendInstance {
         const data = parseUCIResponse(msg);
         const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
         const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
-        const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant');
+        const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant') && !msg.includes('UCI_');
         const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
 
         if(isMsgNoSuchOption) {
@@ -1402,12 +1402,6 @@ class BackendInstance {
     }
 
     async loadEngine(profile, engineName) {
-        if(!window?.SharedArrayBuffer) // COI failed to enable SharedArrayBuffer, loading basic web worker engine
-        {
-            const msg = transObj?.failedToEnableBuffer ?? 'FATAL ERROR: COI failed to enable SharedArrayBuffer, report issue to GitHub!';
-            toast.error(msg, 1e9);
-        }
-
         const msgHandler = msg => {
             try {
                 this.engineMessageHandler(msg, profile);
@@ -1417,8 +1411,76 @@ class BackendInstance {
         }
 
         const profileChessEngine = engineName || getProfile(profile).config.chessEngine;
+        const enginesRequiringSAB = [ // Requiring SharedArrayBuffer
+            'stockfish-17-wasm',
+            'stockfish-16-1-wasm', 
+            'stockfish-14-nnue',
+            'fairy-stockfish-nnue-wasm',
+            'lc0'
+        ];
+        const isEngineIncompatible = !window?.SharedArrayBuffer && enginesRequiringSAB.includes(profileChessEngine);
+
+        if(isEngineIncompatible) {
+            toast.error('The engine you have selected is incompatible with the mode A.C.A.S was launched in.\n\nPlease launch A.C.A.S using ?sab=true.');
+            return;
+        }
+        
+        function loadStockfish(name) {
+            const stockfish = new Worker(`/A.C.A.S/app/assets/engines/${name}/${name}.js`);
+            let stockfish_loaded = false;
+
+            stockfish.onmessage = async e => {
+                if(!stockfish_loaded) {
+                    stockfish_loaded = true;
+
+                    this.engines.push({
+                        'type': profileChessEngine,
+                        'engine': (method, a) => stockfish[method](...a),
+                        'sendMsg': msg => stockfish.postMessage(msg),
+                        'worker': stockfish,
+                        profile
+                    });
+        
+                    this.engineStartNewGame('chess', profile);
+                }
+
+                msgHandler(e.data);
+            };
+
+            stockfish.onerror = e => {
+                toast.error(`${name} error: ${e.message}`);
+            };
+        }
         
         switch(profileChessEngine) {
+            case 'stockfish-17-wasm':
+                loadStockfish.bind(this)('stockfish-17-wasm');
+                break;
+
+            case 'stockfish-17-single':
+                loadStockfish.bind(this)('stockfish-17-single');
+                break;
+
+            case 'stockfish-16-1-wasm':
+                loadStockfish.bind(this)('stockfish-16-1-wasm');
+                break;
+
+            case 'stockfish-16-1-single':
+                loadStockfish.bind(this)('stockfish-16-1-single');
+                break;
+
+            case 'stockfish-14-nnue':
+                loadStockfish.bind(this)('stockfish-14-nnue');
+                break;
+
+            case 'stockfish-11':
+                loadStockfish.bind(this)('stockfish-11');
+                break;
+
+            case 'stockfish-8':
+                loadStockfish.bind(this)('stockfish-8');
+                break;
+
             case 'lozza-5':
                 const lozza = new Worker('/A.C.A.S/app/assets/engines/Lozza/lozza-5-acas.js');
                 let lozza_loaded = false;
@@ -1450,7 +1512,8 @@ class BackendInstance {
                 lozza.onerror = e => {
                     toast.error(`Lozza-5 error: ${e.message}`);
                 };
-            break;
+
+                break;
 
             case 'lc0':
                 const lc0 = new Worker('/A.C.A.S/app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
@@ -1484,89 +1547,10 @@ class BackendInstance {
 
                     lc0.postMessage({ method: 'acas_check_loaded' });
                 }, 100);
-            break;
 
-            case 'stockfish-16-1-wasm':
-                const stockfish2 = new Worker('/A.C.A.S/app/assets/engines/stockfish-16.1.wasm/stockfish-16.1.js');
-                let stockfish2_loaded = false;
+                break;
 
-                stockfish2.onmessage = async e => {
-                    if(!stockfish2_loaded) {
-                        stockfish2_loaded = true;
-
-                        this.engines.push({
-                            'type': profileChessEngine,
-                            'engine': (method, a) => stockfish2[method](...a),
-                            'sendMsg': msg => stockfish2.postMessage(msg),
-                            'worker': stockfish2,
-                            profile
-                        });
-            
-                        this.engineStartNewGame('chess', profile);
-                    }
-
-                    msgHandler(e.data);
-                };
-
-                stockfish2.onerror = e => {
-                    toast.error(`Stockfish-16.1 error: ${e.message}`);
-                };
-            break;
-
-            case 'stockfish-17-wasm':
-                const stockfish3 = new Worker('/A.C.A.S/app/assets/engines/stockfish-17.wasm/stockfish-17.js');
-                let stockfish3_loaded = false;
-
-                stockfish3.onmessage = async e => {
-                    if(!stockfish3_loaded) {
-                        stockfish3_loaded = true;
-
-                        this.engines.push({
-                            'type': profileChessEngine,
-                            'engine': (method, a) => stockfish3[method](...a),
-                            'sendMsg': msg => stockfish3.postMessage(msg),
-                            'worker': stockfish3,
-                            profile
-                        });
-            
-                        this.engineStartNewGame('chess', profile);
-                    }
-
-                    msgHandler(e.data);
-                };
-                stockfish3.onerror = e => {
-                    toast.error(`Stockfish-17 error: ${e.message}`);
-                };
-            break;
-
-            case 'stockfish-17-single':
-                const stockfish4 = new Worker('/A.C.A.S/app/assets/engines/stockfish-17-single/stockfish-17-single.js');
-                let stockfish4_loaded = false;
-
-                stockfish4.onmessage = async e => {
-                    if(!stockfish4_loaded) {
-                        stockfish4_loaded = true;
-
-                        this.engines.push({
-                            'type': profileChessEngine,
-                            'engine': (method, a) => stockfish4[method](...a),
-                            'sendMsg': msg => stockfish4.postMessage(msg),
-                            'worker': stockfish4,
-                            profile
-                        });
-            
-                        this.engineStartNewGame('chess', profile);
-                    }
-
-                    msgHandler(e.data);
-                };
-
-                stockfish4.onerror = e => {
-                    toast.error(`Stockfish-17-single error: ${e.message}`);
-                };
-            break;
-
-            default: // Fairy Stockfish NNUE WASM
+            case 'fairy-stockfish-nnue-wasm': 
                 const stockfish = new Worker('/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfishWorker.js');
                 let stockfish_loaded = false;
 
@@ -1596,7 +1580,11 @@ class BackendInstance {
 
                     stockfish.postMessage({ method: 'acas_check_loaded' });
                 }, 100);
-            break;
+                break;
+
+            default:
+                loadStockfish.bind(this)('stockfish-17-lite-single');
+                break;
         }
     }
 

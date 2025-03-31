@@ -624,6 +624,9 @@ cg-container {
 .hidden {
 	display: none !important;
 }
+.requires-sab {
+	display: none !important;
+}
 #no-instances-container {
 	background-color: rgb(0 0 0 / 20%);
 	color: rgb(255 255 255 / 75%);
