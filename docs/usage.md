@@ -28,6 +28,13 @@ You can use <a target="_about" href="app?shl=chessEngineProfile">profiles</a> to
 
 Profiles can also be used to just store different configurations if you <a target="_about" href="app?shl=engineEnabled">disable the engine</a>.
 
+## Languages
+
+<img src="assets/images/example5.png">
+
+
+You can change the language using the flag dropdown found on the top right on the <a target="_about" href="app">GUI</a>.
+
 ## Settings
 
 #### ⚙️ Floating Panel
@@ -65,7 +72,7 @@ The <a target="_about" href="app?shl=engineElo">Engine Elo</a> setting controls 
 
 #### ⚙️ Weights
 
-The <a target="_about" href="app?shl=lc0Weight">Lc0 Weights</a> setting determines how the Lc0 engine plays. The weight controls the engine's playing style, influencing the decisions it makes while playing. **Maia weights** have the elo they're roughly playing at marked on them. The elo and playing style of other weights is not known, but most of them are quite weak.
+The <a target="_about" href="app?shl=lc0Weight">Lc0 Weights</a> setting determines how the Lc0 engine plays. The weight controls the engine's playing style, influencing the decisions it makes while playing. **Maia weights** have the elo they're roughly playing at marked on them. The elo and playing style of other weights is not known, but most of them are quite weak. You can access the Lc0 engine via `?sab=true`.
 
 !>Most weights A.C.A.S has, Maia specifically, are designed to only use 1 search node. It's fine that it goes just to depth 1. Using more than 1 search node might cause weird behavior.
 
@@ -106,7 +113,9 @@ The rendering settings allow you to display various metrics about the match. The
 
 #### ⚙️ Contested Squares
 
-The <a target="_about" href="app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. Fire emojis 🔥 indicate **contested squares**. The fire emoji can have text, for example, 🔥 with -2 text means that the square is defended by 2 less pieces than the enemy attacks it with (e.g. you have 1 piece defending the square, the enemy has 3 pieces attacking it, so 1 - 3 = -2). +2 means that you have 2 more pieces attacking the specific square than the enemy does (e.g. you attack a square with 4 pieces and the enemy defends it with only 2, so 4 - 2 = 2).
+The <a target="_about" href="app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. For clarity, fire emojis 🔥 indicate **contested squares** too. If two fire emojis are stacked it means there are 4 or 5 pieces attacking that square. 3 fire emojis stacked mean there are 6 or 7 pieces attacking that square, 4 fire emojis mean that 8 or 9 pieces are attacking it, and so fourth.
+
+The fire emoji can have text, for example, 🔥 with -2 text means that the square is defended by 2 less pieces than the enemy attacks it with (e.g. you have 1 piece defending the square, the enemy has 3 pieces attacking it, so 1 - 3 = -2). +2 means that you have 2 more pieces attacking the specific square than the enemy does (e.g. you attack a square with 4 pieces and the enemy defends it with only 2, so 4 - 2 = 2).
 
 #### ⚙️ Own Piece Capture
 
@@ -118,9 +127,9 @@ The <a target="_about" href="app?shl=renderPieceEnemyCapture">Enemy Piece Captur
 
 ## Advanced Elo Settings
 
-Many settings don't seem to do anything. For each setting to work, the engine has to have implemented them. Small engines like Lozza 5 probably don't support anything other than depth, maybe skill level.
+Unfortunately, many of these settings don't seem to do anything, and they most likely don't. Engines running on the browser have strict limitations and they aren't as configurable as locally running engines. For each setting to work, the engine has to have implemented support them. Small engines like Lozza 5 probably don't support anything other than depth, maybe skill level.
 
-With our testing we didn't seem to get Threads nor Hash to work and Maximum Error and Probability settings also had no impact or weren't supported at all. If you're modifying the hashtable size, make sure to refresh the page or start a new engine to see results.
+With our testing we didn't seem to get "threads" nor "hash" to work and "maximum error" along with "probability" settings also had no impact or weren't supported at all. If you're modifying the hashtable size, make sure to refresh the page or start a new engine to see results, but it's probably not worth it to mess with them.
 
 ---
 
