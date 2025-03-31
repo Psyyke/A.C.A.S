@@ -17,7 +17,7 @@ Simply open the <a target="_about" href="app">GUI</a>, it will help you install 
 
 ## Mobile Users
 
-Following the [Getting Started](#getting-started) guide, you might notice that your regular mobile browser doesn't support extensions. Don't worry, there are browsers for mobile that support extensions which you can use to follow the first step of the [Getting Started](#getting-started) guide.
+Following the [Getting Started](#getting-started) guide, you might notice that your regular mobile browser doesn't support extensions. Don't worry, there are browsers for mobile that support extensions which you can use to follow the second step of the [Getting Started](#getting-started) guide.
 
 1. Install a browser app which supports a userscript manager.
     - **Android** users can use [Lemur Browser](https://play.google.com/store/apps/details?id=com.lemurbrowser.exts) with [Violentmonkey](https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag).
