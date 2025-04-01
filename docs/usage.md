@@ -45,7 +45,7 @@ The <a target="_about" href="app?shl=pip">Floating Panel</a> setting creates a s
 
 #### ⚙️ Chess Engine
 
-The <a target="_about" href="app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using **Fairy Stockfish 14** as you can play chess variants with it and its the most optimized for A.C.A.S. Other engines might be unstable as they haven't been tested so much on A.C.A.S. You can access Lc0 and Fairy Stockfish engines via the `?sab=true` URL parameter. It enables SharedArrayBuffer required by those engines.
+The <a target="_about" href="app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using **Stockfish 17 WASM** as its the fastest and strongest engine, although it does not play like a human and has a hard time playing badly. If you want to play chess variants, use **Fairy Stockfish 14**. You can access Lc0 and Fairy Stockfish engines via the `?sab=true` URL parameter. It enables SharedArrayBuffer required by those engines.
 
 | Engine | For |
 |-----|-----|
