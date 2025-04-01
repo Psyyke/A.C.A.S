@@ -207,6 +207,42 @@ input:focus {
 .dropdown-input-container:hover .dropdown-list-container {
     display: block;
 }
+.dropdown-input-special .dropdown-input-container {
+    flex-direction: column;
+    width: 100%;
+}
+.dropdown-input-special .dropdown-list-container {
+    position: unset;
+    display: unset !important;
+    height: 300px;
+    max-height: 500px;
+    background-color: unset;
+    background-color: #0000002e;
+}
+.dropdown-input-special .dropdown-item {
+    margin-bottom: 5px;
+    background-color: rgb(0 0 0 / 30%);
+    border-bottom: 3px solid rgb(0 0 0 / 25%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-radius: 5px;
+}
+.dropdown-input-special .dropdown-icon {
+    display: none;
+}
+.dropdown-input-special input {
+    width: 95%;
+}
+.selected-list-item {
+    border: 1px solid grey !important;
+    border-radius: 5px;
+    margin: 5px;
+}
+.dropdown-input-special input[disabled] {
+    display: none;
+}
 /* Language dropdown */
 .language-dropdown-input .selected-language-img {
     width: 30px;

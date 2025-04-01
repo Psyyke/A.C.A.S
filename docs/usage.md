@@ -45,14 +45,14 @@ The <a target="_about" href="app?shl=pip">Floating Panel</a> setting creates a s
 
 #### ⚙️ Chess Engine
 
-The <a target="_about" href="app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using **Fairy Stockfish 14** as you can play chess variants with it and its the most optimized for A.C.A.S. Other engines might be unstable as they haven't been tested so much on A.C.A.S.
+The <a target="_about" href="app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using **Fairy Stockfish 14** as you can play chess variants with it and its the most optimized for A.C.A.S. Other engines might be unstable as they haven't been tested so much on A.C.A.S. You can access Lc0 and Fairy Stockfish engines via the `?sab=true` URL parameter. It enables SharedArrayBuffer required by those engines.
 
 | Engine | For |
 |-----|-----|
-| Fairy Stockfish 14 | Chess variants and strong gameplay |
 | Stockfish <17 | The strongest gameplay |
+| Fairy Stockfish 14 | Chess variants and strong gameplay |
 | Lc0 with Maia | Realistic human-like gameplay |
-| Lozza 5 | Pretty strong engine-like gameplay |
+| Lozza 5 | Quite strong engine-like gameplay |
 
 !>A.C.A.S also takes other information from the engine's results to give you insights into the match. Some engines offer less of extra information which cannot then be analyzed. Use Stockfish for best results.
 
@@ -127,9 +127,9 @@ The <a target="_about" href="app?shl=renderPieceEnemyCapture">Enemy Piece Captur
 
 ## Advanced Elo Settings
 
-Unfortunately, many of these settings don't seem to do anything, and they most likely don't. Engines running on the browser have strict limitations and they aren't as configurable as locally running engines. For each setting to work, the engine has to have implemented support them. Small engines like Lozza 5 probably don't support anything other than depth, maybe skill level.
+With our testing we didn't seem to get "maximum error" and "probability" settings to work. They don't seem to be supported by many chess engines. If you're a chess engine UCI command guru and know how to enable those settings, PRs are welcome.
 
-With our testing we didn't seem to get "threads" nor "hash" to work and "maximum error" along with "probability" settings also had no impact or weren't supported at all. If you're modifying the hashtable size, make sure to refresh the page or start a new engine to see results, but it's probably not worth it to mess with them.
+16, 32, 64, 128, 256, 512MB are all great choices for the hash memory. Might or might not actually affect performance. Engines running on the browser have limited resources and might already be using everything they have, so increasing the hash memory might not do anything. Same with increasing the threads.
 
 ---
 

@@ -1525,3 +1525,23 @@ input[disabled] {
 .cg-wrap coords.side {
 	right: -18px !important;
 }
+#engine-floaty {
+	min-width: 50%;
+    max-width: 90%;
+}
+.list-tag {
+    padding: 7px;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 0.8em;
+    background-color: rgb(255 255 255 / 6%);
+}
+.list-tag:hover {
+	transform: scale(1.1);
+}
+.unstable-engine-tag {
+	background-color: rgb(255 0 0 / 22%);
+}
+.realistic-engine-tag {
+	background-color: rgb(19 255 0 / 17%);
+}

@@ -575,7 +575,7 @@ class BackendInstance {
         }
     }
 
-    setEngineElo(elo, didUserUpdateSetting, profile) {
+    setEngineElo(elo, didUserUpdateSetting, didUpdateAdvancedElo, profile) {
         const enableAdvancedElo = this.getConfigValue(this.configKeys.enableAdvancedElo, profile);
 
         if(enableAdvancedElo) {
@@ -608,11 +608,9 @@ class BackendInstance {
             this.setEngineThreads(advancedEloThreads, profile);
 
             console.error(limitStrength, advancedEloDepth, advancedEloSkill, advancedEloMaxError, advancedEloProbability, advancedEloHash, advancedEloThreads);
-
-            return;
-        }
-
-        if(typeof elo == 'number') {
+        } 
+        
+        else if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2600;
 
             this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
@@ -631,7 +629,7 @@ class BackendInstance {
                 const depth = getDepthFromElo(elo);
                 this.pV[profile].searchDepth = depth;
 
-                if(didUserUpdateSetting) {
+                if(didUserUpdateSetting && !didUpdateAdvancedElo) {
                     toast.message(`${skillLevelMsg} ${skillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 }
             } else {
@@ -643,7 +641,7 @@ class BackendInstance {
                     const depth = getDepthFromElo(elo);
                     this.pV[profile].searchDepth = depth;
 
-                    if(didUserUpdateSetting)
+                    if(didUserUpdateSetting && !didUpdateAdvancedElo)
                         toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
@@ -772,6 +770,7 @@ class BackendInstance {
 
     engineStartNewGame(variant, profile) {
         const chessVariant = formatVariant(variant);
+        const engineName = this.getEngineType(profile);
 
         if(!this.isEngineNotCalculating(profile)) {
             this.engineStopCalculating(profile, 'Engine was calculating while a new game was started!');
@@ -782,8 +781,11 @@ class BackendInstance {
 
         this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
         this.setEngineShowWDL(true, profile);
+
+        if(engineName !== 'lc0')
+            this.sendMsgToEngine(`setoption name UCI_AnalyseMode value true`, profile); // required for threads, etc.
         
-        switch(this.getEngineType(profile)) {
+        switch(engineName) {
             case 'lc0':
                 this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
                 this.sendMsgToEngine('position startpos', profile);
@@ -791,7 +793,7 @@ class BackendInstance {
                 break;
             default:
                 this.setEngineVariant(chessVariant, profile);
-                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), false, profile);
+                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), false, false, profile);
 
                 this.sendMsgToEngine('position startpos', profile);
                 this.sendMsgToEngine('d', profile);
@@ -861,10 +863,6 @@ class BackendInstance {
         }
     }
 
-    updatePiP(data) {
-        this.guiBroadcastChannel.postMessage({ 'type': 'updatePiP', data });
-    }
-
     updateSettings(updateObj) {
         const profile = updateObj.data.profile.name;
 
@@ -897,9 +895,7 @@ class BackendInstance {
             return Object.values(updateObj?.data)?.includes(key);
         }
 
-        const didUpdateVariant = findSettingKeyFromData(this.configKeys.chessVariant);
-        const didUpdateElo = [
-            this.configKeys.engineElo,
+        const advancedEloKeys = [
             this.configKeys.enableAdvancedElo,
             this.configKeys.advancedEloDepth,
             this.configKeys.advancedEloSkill,
@@ -907,7 +903,13 @@ class BackendInstance {
             this.configKeys.advancedEloProbability,
             this.configKeys.advancedEloHash,
             this.configKeys.advancedEloThreads
-        ].find(key => findSettingKeyFromData(key));
+        ];
+
+        const didUpdateVariant = findSettingKeyFromData(this.configKeys.chessVariant);
+        const didUpdateElo = [this.configKeys.engineElo, ...advancedEloKeys]
+            .find(key => findSettingKeyFromData(key));
+        const didUpdateAdvancedElo = advancedEloKeys
+            .find(key => findSettingKeyFromData(key));
         const didUpdateLc0Weight = findSettingKeyFromData(this.configKeys.lc0Weight);
         const didUpdateChessFont = findSettingKeyFromData(this.configKeys.chessFont);
         const didUpdateMultiPV = findSettingKeyFromData(this.configKeys.moveSuggestionAmount);
@@ -940,7 +942,7 @@ class BackendInstance {
             }
 
             if(didUpdateElo)
-                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), true, profile);
+                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), true, didUpdateAdvancedElo, profile);
 
             if(didUpdateNodes)
                 this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
@@ -1149,7 +1151,7 @@ class BackendInstance {
                     updatePiP({ 'goalNodes': nodes });
                 break;
     
-                default: // Fairy Stockfish NNUE WASM
+                default:
                     const depth = this.pV[profile].searchDepth;
 
                     if(depth) {
@@ -1225,6 +1227,10 @@ class BackendInstance {
     }
 
     isEngineNotCalculating(profile) {
+        const profileObj = this.pV[profile];
+
+        if(!profileObj) return true;
+
         return this.pV[profile].pendingCalculations.find(x => !x.finished) ? false : true;
     }
 
@@ -1249,6 +1255,14 @@ class BackendInstance {
     }
 
     engineMessageHandler(msg, profile) {
+        const profileObj = this.pV[profile];
+
+        if(!profileObj) {
+            console.warn('Attempted to process an engine message from a nonexisting engine, uhh, ghosts?');
+
+            return;
+        }
+
         const data = parseUCIResponse(msg);
         const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
         const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
@@ -1401,7 +1415,18 @@ class BackendInstance {
         }
     }
 
-    async loadEngine(profile, engineName) {
+    async loadEngine(profile, engineName, attempt = 0) {
+        const isReload = attempt > 0;
+        let alreadyRestarted = false;
+
+        if(isReload) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profile);
+
+        if(engineName && attempt > 100) {
+            toast.warning(`Restarting the engine ${engineName} failed despite many attempts :(\n\nRefresh A.C.A.S!`);
+            
+            return;
+        }
+
         const msgHandler = msg => {
             try {
                 this.engineMessageHandler(msg, profile);
@@ -1425,18 +1450,66 @@ class BackendInstance {
             return;
         }
 
+        function restartEngine(name, e) {
+            if(alreadyRestarted) return;
+
+            if(!e?.message?.includes('memory access')) {
+                if(!e?.message?.includes('[object ErrorEvent]'))
+                    toast.error(`Engine "${name}" crashed due to "${e?.message}"!`, 5e3);
+
+                return;
+            }
+
+            toast.warning(`Restarting the engine "${name}" due to the error "${e?.message}"!`, 1e3);
+
+            const engineObjectIdx = this.engines.findIndex(x => x.type === name);
+
+            // Ask engine to quit if it can still listen
+            this.sendMsgToEngine('quit', name); 
+            // Try to terminate the engine worker
+            this.engines?.[engineObjectIdx]?.worker?.terminate();
+            // Delete previous engine object
+            delete this.engines?.[engineObjectIdx]; 
+            
+            // Filter out empty from the array
+            this.engines = this.engines.filter(x => x);
+
+            console.error('RESTARTING engine', name, profile);
+            this.loadEngine(profile, name, attempt + 1);
+
+            alreadyRestarted = true;
+        }
+
         function startGame() {
+            if(isReload) {
+                const currentFen = USERSCRIPT.instanceVars.fen.get(this.instanceID);
+                const fen = currentFen || this.variantStartPosFen;
+
+                // Finish all previous calculations
+                this.pV[profile].pendingCalculations.map(x => x['finished'] = true);
+
+                this.engineStartNewGame('chess', profile);
+
+                // For some reason the moves aren't calculated with multiple threads if we request it too fast...
+                // I literally do not care anymore, this works, so be it. When false, the move will be calculated on next move.
+                // The code I write is garbage anyway, I mean look at the size of this class, this is like tossing a bag of trash into the landfill!
+                if(!['stockfish-17-wasm', 'stockfish-16-1-wasm'].includes(profileChessEngine))
+                    this.calculateBestMoves(fen, true);
+
+                return;
+            }
+
             const waitForChessgroundLoad = setInterval(() => {
                 if(window?.ChessgroundX) {
                     clearInterval(waitForChessgroundLoad);
-
+                    
                     this.engineStartNewGame('chess', profile);
                 }
             }, 500);
         }
         
-        function loadStockfish(name) {
-            const stockfish = new Worker(`/A.C.A.S/app/assets/engines/${name}/${name}.js`);
+        function loadStockfish(folderName, fileName = folderName) {
+            const stockfish = new Worker(`/A.C.A.S/app/assets/engines/${folderName}/${fileName}.js`);
             let stockfish_loaded = false;
 
             stockfish.onmessage = async e => {
@@ -1458,13 +1531,15 @@ class BackendInstance {
             };
 
             stockfish.onerror = e => {
-                toast.error(`${name} error: ${e.message}`);
+                restartEngine.bind(this)(folderName, e);
             };
         }
         
+        // When using loadStockfish(folderName, fileName), make sure the folder name
+        // is exactly the same as the switch case string, since otherwise reloading wont work
         switch(profileChessEngine) {
             case 'stockfish-17-wasm':
-                loadStockfish.bind(this)('stockfish-17-wasm');
+                loadStockfish.bind(this)('stockfish-17-wasm', 'stockfish-17'); // folder name, file name
                 break;
 
             case 'stockfish-17-single':
@@ -1472,7 +1547,7 @@ class BackendInstance {
                 break;
 
             case 'stockfish-16-1-wasm':
-                loadStockfish.bind(this)('stockfish-16-1-wasm');
+                loadStockfish.bind(this)('stockfish-16-1-wasm', 'stockfish-16.1');
                 break;
 
             case 'stockfish-16-1-single':
@@ -1514,7 +1589,7 @@ class BackendInstance {
                 };
 
                 lozza.onerror = e => {
-                    toast.error(`Lozza-5 error: ${e.message}`);
+                    restartEngine.bind(this)('lozza-5', e);
                 };
 
                 break;

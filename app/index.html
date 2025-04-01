@@ -253,22 +253,75 @@
 								<div class="input-subtitle">Is the engine enabled</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="engineEnabled" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
-							<div id="chess-engine-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Engine</div>
-							<a href="../#/docs/usage?id=⚙%ef%b8%8f-chess-engine" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
-								<input type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="stockfish-17-lite-single" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
-								<div class="dropdown-list-container">
-									<div class="dropdown-item" data-value="stockfish-17-lite-single">Stockfish 17 Lite WASM (7MB)</div>
-									<div class="dropdown-item" data-value="stockfish-17-single">Stockfish 17 WASM (66MB)</div>
-									<div class="dropdown-item requires-sab" data-value="stockfish-17-wasm">[UNSTABLE] Stockfish 17 WASM MULTI (66MB)</div>
-									<div class="dropdown-item requires-sab" data-value="stockfish-16-1-wasm">[UNSTABLE] Stockfish 16.1 WASM (66MB)</div>
-									<div class="dropdown-item requires-sab" data-value="stockfish-14-nnue">Stockfish 14 WASM (700KB)</div>
-									<div class="dropdown-item requires-sab" data-value="fairy-stockfish-nnue-wasm">Fairy Stockfish 14 NNUE WASM (2MB)</div>
-									<div class="dropdown-item" data-value="stockfish-11">Stockfish 11 WASM (4MB)</div>
-									<div class="dropdown-item" data-value="stockfish-8">Stockfish 8 JS (1MB)</div>
-									<div class="dropdown-item" data-value="lozza-5">Lozza 5 (400KB)</div>
-									<div class="dropdown-item requires-sab" data-value="lc0">Lc0 29 (900KB)</div> 
+							<div class="custom-input"><div><div class="input-title">Chess Engine</div>
+								<a href="../#/docs/usage?id=⚙%ef%b8%8f-chess-engine" target="_blank"><div class="input-subtitle">Read more here</div></a></div>
+
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+								    <dialog id="engine-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header">
+												<div class="title">
+													<h1>Engine Settings</h1>
+													<p>Please select the engine you like</p>
+												</div>
+												<div class="floaty-buttons">
+													<button class="floaty-close-btn acas-fancy-button">👍</button>
+												</div>
+											</section>
+											<section class="floaty-body">
+												<div class="setting-panel">
+													<div class="setting-panel-title">Built-in Engine</div>
+													<div id="chess-engine-dropdown" class="dropdown-input dropdown-input-special">
+														<div class="dropdown-input-container">
+															<input disabled type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="stockfish-17-lite-single" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
+															<div class="dropdown-list-container">
+																<div class="dropdown-item requires-sab" data-value="stockfish-17-wasm">
+																Stockfish 17 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="engine-size-tag list-tag">(66MB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
+																</div>
+																<div class="dropdown-item" data-value="stockfish-17-single">
+																Stockfish 17 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(66MB)</span>
+																</div>
+																<div class="dropdown-item" data-value="stockfish-17-lite-single">
+																Stockfish 17 Lite <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(7MB)</span>
+																</div>
+																<div class="dropdown-item requires-sab" data-value="stockfish-16-1-wasm">
+																Stockfish 16.1 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="engine-size-tag list-tag">(66MB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
+																</div>
+																<div class="dropdown-item requires-sab" data-value="stockfish-14-nnue">
+																Stockfish 14 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(700KB)</span>
+																</div>
+																<div class="dropdown-item requires-sab" data-value="fairy-stockfish-nnue-wasm">
+																Fairy Stockfish 14 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(2MB)</span>
+																</div>
+																<div class="dropdown-item" data-value="stockfish-11">
+																Stockfish 11 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(4MB)</span>
+																</div>
+																<div class="dropdown-item" data-value="stockfish-8">
+																Stockfish 8 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(1MB)</span>
+																</div>
+																<div class="dropdown-item" data-value="lozza-5">
+																Lozza 5 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(400KB)</span>
+																</div>
+																<div class="dropdown-item requires-sab" data-value="lc0">
+																Lc0 29 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(900KB)</span> <span class="realistic-engine-tag list-tag">Realistic</span>
+																</div>											  
+															</div>
+														</div>
+													</div>
+												</div>
+
+												<div class="setting-panel">
+													<div class="setting-panel-title">External Engine</div>
+													<p>Todo ⏳</p>
+												</div>
+
+												<a target="_blank" href="../#/docs/usage">More engines might be available with a different launch mode.</a>
+											</section>
+										</div>
+									</dialog>
 								</div>
-							</div></div>
+							</div>
 							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
 								<a href="../#/docs/usage?id=%e2%9a%99%ef%b8%8f-weights" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
 								<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="maia-1100.pb" placeholder="1100 elo"><div class="dropdown-icon"></div>
@@ -296,7 +349,7 @@
 							</div>
 							<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
 								<a href="../#/docs/usage?id=%e2%9a%99%ef%b8%8f-chess-variant" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
-								<input type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
+								<input disabled type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
 								<div class="dropdown-list-container"></div>
 							</div></div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Random Chess (Chess960)</div>
@@ -338,9 +391,6 @@
 														<div class="input-subtitle">Sets the skill level of the engine</div></div>
 														<input type="textfield" data-key="advancedEloSkill" data-default-value="15" data-between="0-40">
 													</div>
-												</div>
-												<div class="setting-panel">
-													<div class="setting-panel-title">No proven effect</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Threads (1 - 32)</div>
 														<div class="input-subtitle">Sets how many threads a multithreaded engine will use</div></div>
 														<input type="textfield" data-key="advancedEloThreads" data-default-value="5" data-between="1-32">
@@ -349,6 +399,9 @@
 														<div class="input-subtitle">Memory limit of the hashtable</div></div>
 														<input type="textfield" data-key="advancedEloHash" data-default-value="1" data-between="1-33554432">
 													</div>
+												</div>
+												<div class="setting-panel">
+													<div class="setting-panel-title">Not supported well</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Maximum Error (0 - 1000)</div>
 														<div class="input-subtitle">(No engines seem to support this)</div></div>
 														<input type="textfield" data-key="advancedEloMaxError" data-default-value="0" data-between="0-1000">

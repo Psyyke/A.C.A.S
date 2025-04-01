@@ -65,16 +65,34 @@ if (userComputerStatsText) {
 [...floatyButtons].forEach(btn => {
     const floatyDialog = btn?.parentElement?.querySelector('dialog');
 
-    if(floatyDialog) {
+    if (floatyDialog) {
         const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
-
-        btn.onclick = () => floatyDialog.open ? floatyDialog.close() : floatyDialog.showModal();
-        closeBtn.onclick = () => floatyDialog.close();
-
-        floatyDialog.onclick = e => {
-            if(e.target === floatyDialog)
-                floatyDialog.close();
+    
+        function open() {
+            floatyDialog.showModal();
+            document.body.style.overflow = 'hidden'; // stop background scrolling
+        }
+    
+        function close() {
+            floatyDialog.close();
+            document.body.style.overflow = ''; // restore scrolling
+        }
+    
+        btn.onclick = () => (floatyDialog.open ? close() : open());
+        closeBtn.onclick = () => close();
+    
+        floatyDialog.onclick = (e) => {
+            if (e.target === floatyDialog) close();
         };
+    
+        // Automatically detect when dialog closes
+        const observer = new MutationObserver(() => {
+            if (!floatyDialog.open) {
+                document.body.style.overflow = '';
+            }
+        });
+    
+        observer.observe(floatyDialog, { attributes: true, attributeFilter: ['open'] });
     } else {
         console.error('No floaty dialog found for floaty button!');
     }
@@ -90,6 +108,14 @@ if(window?.SharedArrayBuffer) {
             });
         });
     }
+
+    ['advancedEloThreads', 'advancedEloHash']
+        .forEach(x => {
+            const input = document.querySelector(`input[data-key="${x}"]`);
+            const parent = input?.parentElement;
+
+            if(parent) parent.style.display = 'none';
+        });
 }
 
 const pipData = {};
@@ -176,18 +202,26 @@ guiBroadcastChannel.onmessage = e => {
         case 'updateChessVariants':
             fillChessVariantDropdowns(data);
             break;
-        case 'updatePiP':
-            updatePiP(data);
-            break;
     }
 };
 
 let lastPipEval = null;
+let firstTimeOpeningPip = true;
 
 function updatePiP(data) {
+    const isForceUpdate = data === 1;
+
+    if(!data && !isForceUpdate)
+        return;
+
     for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-          pipData[key] = data[key];
+        if(data.hasOwnProperty(key)) {
+            const isValueNew = pipData[key] !== data[key];
+
+            if(isValueNew || isForceUpdate)
+                pipData[key] = data[key];
+            else
+                return;
         }
     }
 
@@ -219,7 +253,6 @@ function updatePiP(data) {
           winChance = pipData?.winChance,
           drawChance = pipData?.drawChance,
           lossChance = pipData?.lossChance;
-
 
     let eval = pipData.eval;
 
@@ -422,6 +455,8 @@ function fillChessVariantDropdowns(arr) {
             chessVariantsArr.forEach(str => addDropdownItem(elem, str));
 
             elem.setAttribute('filled-successfully', true);
+
+            elem.querySelector('input').removeAttribute('disabled');
         });
 }
 
@@ -533,6 +568,22 @@ function setInputValue(elem, val) {
     if(isCheckbox) {
         elem.checked = convertToCorrectType(val);
     } else {
+        const key = elem?.dataset?.key;
+        const parentElem = elem?.parentElement;
+        const isDropdown = key && parentElem && parentElem.classList.contains('dropdown-input-container');
+
+        if(isDropdown) { // highlight dropdown selected item
+            const selectedItemKey = 'selected-list-item';
+            const dropdownElems = [...parentElem?.querySelectorAll('.dropdown-item')];
+
+            dropdownElems.forEach(elem => {
+                if(elem?.dataset?.value === val)
+                    elem.classList.add(selectedItemKey);
+                else
+                    elem.classList.remove(selectedItemKey);
+            });
+        }
+
         elem.value = convertToCorrectType(val);
     }
 }
@@ -564,14 +615,14 @@ async function startPictureInPicture() {
 
     const attemptPlay = async () => {
         try {
-            updatePiP();
+            updatePiP(1);
 
             await video.play();
             await video.requestPictureInPicture();
 
             setInterval(() => {
-                updatePiP();
-            }, 333);
+                updatePiP(1);
+            }, 1000);
         } catch (err) {
             if(err.name === 'NotAllowedError') {
                 const handleUserInteraction = async () => {
@@ -938,11 +989,18 @@ function initializeDropdown(dropdownElem) {
         const listItems = [...listContainerElem.querySelectorAll('.dropdown-item')]
             .filter(x => x?.dataset?.value);
 
-        const optionsArr = listItems.map(elem => elem.dataset.value);
-
-        const filterStr = inputElem.value.toLowerCase();
-        const filteredOptions = optionsArr.filter(option => !option || option.toLowerCase().startsWith(filterStr));
-
+        const optionsArr = listItems.map(elem => elem.dataset.value?.toLowerCase() || "");
+        
+        // Not pretty code and could be simpler
+        const filterStr = inputElem.value.toLowerCase().trim();
+        const words = filterStr.split(/\s+/);
+        const filteredOptions = optionsArr.filter(option => 
+            words.every(word => {
+                const lowerCaseWord = word.toLowerCase();
+                return option.includes(lowerCaseWord); 
+            })
+        );
+            
         const options = showAll ? optionsArr : filteredOptions;
 
         listItems.forEach(elem => {
@@ -959,10 +1017,14 @@ function initializeDropdown(dropdownElem) {
                 elem.addEventListener('click', e => {
                     inputElem.value = e.target.dataset.value;
 
+                    const selectedClass ='selected-list-item';
+                    listItems.forEach(x => x.classList.remove(selectedClass));
+                    elem.classList.add(selectedClass);
+
                     setTimeout(() => {
                         inputElem.dispatchEvent(new Event('change'));
 
-                        updateDropdown();
+                        updateDropdown(true);
                     }, 100);
                 });
 
