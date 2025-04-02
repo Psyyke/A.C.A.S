@@ -83,8 +83,6 @@
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
-// @downloadURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Assistant%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.user.js
-// @updateURL https://update.greasyfork.org/scripts/459137/%F0%9F%8F%86%20%5B1%20Chess%20Assistant%5D%20ACAS%20%28Advanced%20Chess%20Assistance%20System%29.meta.js
 // ==/UserScript==
 
 /*
