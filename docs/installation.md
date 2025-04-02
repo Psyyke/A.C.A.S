@@ -2,6 +2,8 @@
 
 Simply open the <a target="_about" href="app">GUI</a>, it will help you install A.C.A.S. More detailed information is below.
 
+<div class="gas" data-t></div>
+
 ## Getting Started
 
 1. Install a browser like [Chrome](https://www.google.com/chrome/) or something based off it. Firefox and others should work too.
@@ -13,7 +15,7 @@ Simply open the <a target="_about" href="app">GUI</a>, it will help you install 
 
 !> Keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't move. The GUI has the chess engine, it calculates the moves! Either make two browser windows next to each other or use the <a target="_about" href="app?shl=pip">Floating Panel</a> setting.
 
-<div class="gas"></div>
+<div class="gas" data-t></div>
 
 ## Mobile Users
 
@@ -24,6 +26,8 @@ Following the [Getting Started](#getting-started) guide, you might notice that y
     - **iOS** users can use Safari with the [Userscripts](https://apps.apple.com/us/app/userscripts/id1463298887) extension.
 2. Follow the [Getting Started](#getting-started) guide found above.
 3. Make sure to enable  <a target="_about" href="app?shl=pip">Floating Panel</a> setting to prevent freezing.
+
+<div class="gas" data-r></div>
 
 Note that you need to play games in the browser. For example, A.C.A.S won’t work in the Chess app. It functions the same way as on a desktop, but the challenge is finding a browser that supports extensions like Violentmonkey. We’ve recommended a few options above.
 

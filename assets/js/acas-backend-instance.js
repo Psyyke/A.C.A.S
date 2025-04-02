@@ -39,6 +39,10 @@ class BackendInstance {
             'renderPiecePlayerCapture': 'renderPiecePlayerCapture',
             'renderPieceEnemyCapture': 'renderPieceEnemyCapture',
             'renderOnExternalSite': 'renderOnExternalSite',
+            'feedbackOnExternalSite': 'feedbackOnExternalSite',
+            'enableMoveRatings': 'enableMoveRatings',
+            'enableEnemyFeedback': 'enableEnemyFeedback',
+            'feedbackEngineDepth': 'feedbackEngineDepth',
             'enableAdvancedElo': 'enableAdvancedElo',
             'advancedElo': 'advancedElo',
             'advancedEloDepth': 'advancedEloDepth',
@@ -96,6 +100,8 @@ class BackendInstance {
         this.guiUpdaterActive = false;
         this.variantNotSupportedByEngineAmount;
 
+        this.MoveEval = new MoveEvaluator();
+
         this.moveDiffHistory = [];
         
         this.profileVariables = class {
@@ -116,11 +122,13 @@ class BackendInstance {
                 this.bestMoveMarkingElem = null;
                 this.activeGuiMoveMarkings = [];
                 this.activeMetrics = [];
+                this.activeFeedbackDisplays = [];
         
                 this.lastCalculatedFen = null;
                 this.pendingCalculations = [];
         
                 this.lastFen = null;
+                this.lastFeedbackFen = null;
         
                 this.currentSpeeches = [];
             }
@@ -139,6 +147,7 @@ class BackendInstance {
         this.CommLink.registerSendCommand('removeSiteMoveMarkings');
         this.CommLink.registerSendCommand('markMoveToSite');
         this.CommLink.registerSendCommand('renderMetricsToSite');
+        this.CommLink.registerSendCommand('feedbackToSite');
 
         this.CommLinkReceiver = this.CommLink.registerListener(`frontend_${this.instanceID}`, packet => {
             try {
@@ -359,6 +368,7 @@ class BackendInstance {
                     });
 
                     this.calculateBestMoves(fen);
+                    this.displayFeedback(fen);
                 }
             },
             updateBoardOrientation: orientation => {
@@ -531,11 +541,11 @@ class BackendInstance {
             const countDifference = playerCount - enemyCount;
 
             if(countDifference !== 0) {
-                addText(squareFen, 0.8, `${countDifference >= 0 ? '+' : ''}${countDifference}`, `opacity: 1; font-weight: 900;`, [0.8, 0.8]);
+                addText(squareFen, 0.8, `${countDifference >= 0 ? '+' : ''}${countDifference}`, `opacity: 1; font-weight: 900;`, [-0.8, 0.8]);
             }
 
             for(let i = 0; i < rating; i++) {
-                addTextWithBorder(squareFen, 1.5, '🔥', `opacity: 1;`, [0.8, 0.8 - i/10]);
+                addTextWithBorder(squareFen, 1.5, '🔥', `opacity: 1;`, [-0.8, 0.8 - i/10]);
             }
 
             fillSquare(pos, `opacity: ${opacity}; fill: orange;`);
@@ -645,7 +655,7 @@ class BackendInstance {
                         toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
-                    this.updatePiP({ 'goalDepth': null });
+                    updatePiP({ 'goalDepth': null });
 
                     if(didUserUpdateSetting)
                         toast.message(engineNoLimitations, 8000);
@@ -1081,40 +1091,135 @@ class BackendInstance {
         return playerColor;
     }
 
+    displayFeedback(currentFen) {
+        const profiles = getProfiles();
+
+        const clearFeedback = profileName => {
+            if(!profileName) return;
+
+            // Remove all previous metrics
+            const previousFeedbacks = this.pV[profileName].activeFeedbackDisplays;
+
+            if(previousFeedbacks.length) {
+                previousFeedbacks.forEach(x => {
+                    if(x.elem) x.elem.remove();
+                });
+
+                this.pV[profileName].activeFeedbackDisplays = [];
+            }
+        }
+
+        // Remove any existing feedback
+        profiles.filter(p => !p.config.enableMoveRatings).forEach(profileObj => {
+            clearFeedback(profileObj?.name);
+        });
+
+        // Display new feedback
+        profiles.filter(p => p.config.enableMoveRatings).forEach(profileObj => {
+            const profileName = profileObj.name;
+            const lastFen = this.pV[profileName].lastFeedbackFen;
+            const feedbackOnExternalSite = this.getConfigValue(this.configKeys.feedbackOnExternalSite, profileName);
+            const feedbackEngineDepth = this.getConfigValue(this.configKeys.feedbackEngineDepth, profileName);
+            const enableEnemyFeedback = this.getConfigValue(this.configKeys.enableEnemyFeedback, profileName);
+
+            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(lastFen, currentFen);
+            const isAbnormalPieceChange = this.isAbnormalPieceChange(lastFen, currentFen);
+            const isFenChangeLogical = correctAmountOfChanges && !isAbnormalPieceChange;
+
+            if(!isFenChangeLogical) return;
+
+            const playerColor = this.getPlayerColor();
+
+            if(isFenChangeLogical && lastFen && currentFen) {
+                const moveObj = extractMoveFromBoardFen(lastFen, currentFen);
+                const from = moveObj.from,
+                      to = moveObj.to,
+                      pieceColor = moveObj.color;
+
+                let fromFen = lastFen;
+
+                // Analyze for the enemy if enemy moved piee
+                if(playerColor !== pieceColor)
+                    if(!enableEnemyFeedback) { // do not show feedback for enemies
+                        clearFeedback(profileName);
+                        return;
+                    } else { // show feedback for enemies
+                        fromFen = reverseFenPlayer(fromFen);
+                    }
+
+                this.MoveEval.eval([from, to], { 'fen' : fromFen, 'depth': feedbackEngineDepth }, resultObj => {
+                    const category = resultObj.category;
+                    const cp = resultObj.cp;
+                    const label = this.MoveEval.resultLabels[category];
+
+                    display(from, to, cp, category, label);
+                });
+            }
+    
+            this.pV[profileName].lastFeedbackFen = currentFen;
+
+            const display = (from, to, cp, category, label) => {
+                clearFeedback(profileName);
+        
+                const addedFeedbacks = [];
+                const BoardDrawer = this.BoardDrawer;
+
+                function addText(squareFen, size, text, style, position) {
+                    const shapeType = 'text';
+                    const shapeSquare = squareFen;
+                    const shapeConfig = { size, text, style, position };
+        
+                    const textElem = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+        
+                    addedFeedbacks.push({ 'elem': textElem, 'data': { shapeType, shapeSquare, shapeConfig }});
+                }
+
+                if(category !== 0) {
+                    // ['Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic', 'Good Move', 'Excellent', 'Brilliancy'];
+
+                    const label = ['-', '?!', '?', '??', '???', '✪', '!', '!!']?.[category] || '⚪';
+                    const emoji = ['⚪', '🟡', '🟠', '🔴', '🟤', '🟢', '🔵', '🟣'][category] || '⚪';
+
+                    addText(to, 1.3, label, 'opacity: 1; font-weight: 700; fill: white;', [0.8, 0.8]);
+                    addText(to, 1.7, emoji, `opacity: 1;`, [0.8, 0.8]);
+                }
+        
+                this.pV[profileName].activeFeedbackDisplays.push(...addedFeedbacks);
+        
+                if(feedbackOnExternalSite) {
+                    this.CommLink.commands.feedbackToSite(addedFeedbacks);
+                }
+            }
+        });
+    }
+
     async calculateBestMoves(currentFen, skipValidityChecks) {
         getProfiles().filter(p => p.config.engineEnabled).forEach(profile => {
             profile = profile.name;
 
+            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.pV[profile].lastFen, currentFen);
+            const isAbnormalPieceChange = this.isAbnormalPieceChange(this.pV[profile].lastFen, currentFen);
+            const isFenChangeLogical = correctAmountOfChanges && !isAbnormalPieceChange;
             const reverseSide = this.getConfigValue(this.configKeys.reverseSide, profile);
 
             let reversedFen = null;
 
             if(reverseSide) {
-                const fenSplit = currentFen.split(' ');
-
-                if(fenSplit[1] === 'w')
-                    fenSplit[1] = 'b';
-                else
-                    fenSplit[1] = 'w';
-
-                reversedFen = fenSplit.join(' ');
+                reversedFen = reverseFenPlayer(currentFen);
             }
 
             const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profile);
 
-            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.pV[profile].lastFen, currentFen);
-            const isAbnormalPieceChange = this.isAbnormalPieceChange(this.pV[profile].lastFen, currentFen);
-    
             let isPlayerTurn = false;
             
-            if(correctAmountOfChanges && !isAbnormalPieceChange) {
+            if(isFenChangeLogical) {
                 isPlayerTurn = this.isPlayerTurn(this.pV[profile].lastFen, currentFen, profile);
     
                 this.pV[profile].lastFen = currentFen;
             }
     
-            const isFenChanged = this.pV[profile].lastCalculatedFen !== currentFen
-            const isFenChangeAllowed = !onlyCalculateOwnTurn || (correctAmountOfChanges && !isAbnormalPieceChange && isPlayerTurn)
+            const isFenChanged = this.pV[profile].lastCalculatedFen !== currentFen;
+            const isFenChangeAllowed = !onlyCalculateOwnTurn || (isFenChangeLogical && isPlayerTurn);
     
             if((isFenChanged && isFenChangeAllowed) || skipValidityChecks) {
                 this.pV[profile].lastCalculatedFen = currentFen;
@@ -1443,10 +1548,12 @@ class BackendInstance {
             'fairy-stockfish-nnue-wasm',
             'lc0'
         ];
+
         const isEngineIncompatible = !window?.SharedArrayBuffer && enginesRequiringSAB.includes(profileChessEngine);
 
         if(isEngineIncompatible) {
-            toast.error('The engine you have selected is incompatible with the mode A.C.A.S was launched in.\n\nPlease change the engine on the settings or launch A.C.A.S using ?sab=true.');
+            toast.warning(`The engine "${profileChessEngine}" you have selected on profile "${profile}" is incompatible with the mode A.C.A.S was launched in.` 
+                + '\n\nPlease change the engine on the settings or launch A.C.A.S using ?sab=true.', 5000);
             return;
         }
 
@@ -1837,6 +1944,9 @@ class BackendInstance {
                         <div class="eval-fill"></div>
                     </div>
                     <div class="chessground-x"></div>
+                </div>
+                <div class="gas-container">
+                    <div class="gas" data-r></div>
                 </div>
                 `;
 

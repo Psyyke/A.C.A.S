@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.7
+// @version     2.2.8
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -303,7 +303,8 @@ const configKeys = {
     'autoMoveAfterUser': 'autoMoveAfterUser',
     'legitModeType': 'legitModeType',
     'moveDisplayDelay': 'moveDisplayDelay',
-    'renderOnExternalSite': 'renderOnExternalSite'
+    'renderOnExternalSite': 'renderOnExternalSite',
+    'feedbackOnExternalSite': 'feedbackOnExternalSite'
 };
 
 const config = {};
@@ -320,6 +321,7 @@ let chessBoardElem = null;
 let chesscomVariantPlayerColorsTable = null;
 let activeGuiMoveMarkings = [];
 let activeMetricRenders = [];
+let activeFeedback = [];
 
 let lastBoardRanks = null;
 let lastBoardFiles = null;
@@ -443,6 +445,9 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
             case 'renderMetricsToSite':
                 renderMetrics(packet.data);
                 return true;
+            case 'feedbackToSite':
+                displayFeedback(packet.data);
+                return true;
         }
     } catch(e) {
         return null;
@@ -483,6 +488,35 @@ function renderMetrics(addedMetrics) {
 
     findMetricByType('rectangle')
         .forEach(processMetric);
+}
+
+function clearFeedback() {
+    activeFeedback.forEach(elem => {
+        if(elem) elem?.remove();
+    });
+}
+
+
+function displayFeedback(addedFeedback) {
+    clearFeedback();
+
+    function processFeedback(feedback) {
+        const data = feedback?.data;
+
+        if(!data) return;
+
+        const shapeType = data?.shapeType;
+        const shapeSquare = data?.shapeSquare;
+        const shapeConfig = data?.shapeConfig;
+
+        if(shapeType && shapeSquare && shapeConfig) {
+            const shape = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+
+            activeFeedback.push(shape);
+        }
+    }
+
+    addedFeedback.forEach(processFeedback);
 }
 
 const boardUtils = {
@@ -1401,8 +1435,10 @@ function isBoardDrawerNeeded() {
         for(profileName of globalProfiles) {
             const externalMoves = gP[profileName][configKeys.displayMovesOnExternalSite];
             const externalRenders = gP[profileName][configKeys.renderOnExternalSite];
+            const externalFeedback = gP[profileName][configKeys.feedbackOnExternalSite];
 
-            if(externalMoves || externalRenders) {
+
+            if(externalMoves || externalRenders || externalFeedback) {
                 return true;
             }
         }
@@ -1413,9 +1449,10 @@ function isBoardDrawerNeeded() {
 
         for(profileName of instanceProfiles) {
             const externalMoves = iP[profileName][configKeys.displayMovesOnExternalSite];
-            const externalRenders = iP[profileName][configKeys.renderOnExternalSite];
+            const externalRenders = gP[profileName][configKeys.renderOnExternalSite];
+            const externalFeedback = gP[profileName][configKeys.feedbackOnExternalSite];
 
-            if(externalMoves || externalRenders) {
+            if(externalMoves || externalRenders || externalFeedback) {
                 return true;
             }
         }

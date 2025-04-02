@@ -22,6 +22,8 @@ Before [making an issue](https://github.com/Psyyke/A.C.A.S/issues), please read 
 
 Otherwise, it could be a bug, please make an issue [here](https://github.com/psyyke/A.C.A.S/issues/new). 
 
+<div class="gas" data-r></div>
+
 > When making an issue, please be descriptive! Mention,
 > - The chess site and the variant you were playing.
 > - The browser and the userscript manager you were using.

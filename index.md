@@ -18,7 +18,7 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (no
 | <a href="app">▶️ Open A.C.A.S</a> | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) | <a href="acas.user.js">⬇️ Download (Direct)</a> | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|-------|
 
-<div class="gas"></div>
+<div class="gas" data-t></div>
 
 ## Hindsight is Overrated
 
@@ -26,7 +26,11 @@ You know that feeling when you finish a game, check the analysis, and realize yo
 
 Tell you what. No subscriptions, no paywalls—just a ridiculously useful chess tool that works right on your favorite sites. That's what A.C.A.S is. Whether you're grinding puzzles, playing bullet, or trying to break 2000 Elo, A.C.A.S overlays insights directly on the board. It’s lightweight, it’s fast, and it doesn’t get in your way. Just install it, keep the GUI open, and learn how to play better. Oh yeah and it works on literally all of your devices that has a modern browser, including your little phone, everything processed locally!
 
-<p style="font-size: 20px;background-color: #4a707d0f;width: fit-content;padding: 20px;border-top: 5px solid #4a707d40;/* font-style: italic; */">Ready to begin? <a href="#/docs/installation">Install now</a>!</p>
+<div class="gas" data-r></div>
+
+<p style="font-size: 18px;background-color: #4a707d0f;width: fit-content;padding: 20px;border-top: 5px solid #4a707d40;/* font-style: italic; */">Ready to begin? <a href="#/docs/installation">Install now</a>!</p>
+
+<div class="gas" data-t></div>
 
 ---
 

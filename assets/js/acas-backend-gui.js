@@ -133,7 +133,7 @@ if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) 
 
     document.title = `A.C.A.S (Using ${userscriptData})`;
 
-    if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.2.2')) {
+    if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.2.8')) {
         updateYourUserscriptElem.classList.remove('hidden');
     }
     

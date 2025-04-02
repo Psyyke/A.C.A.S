@@ -389,6 +389,54 @@ function calculateTimeProgress(startTime, movetime) {
     return Math.max(0, Math.min(1, progress));
 }
 
+function extractMoveFromBoardFen(lastFen, currentFen) {
+    if (!(lastFen && currentFen)) return { from: null, to: null, color: null };
+
+    lastFen = lastFen.split(' ')[0];
+    currentFen = currentFen.split(' ')[0];
+
+    let lastBoard = fenToArray(lastFen);
+    let currentBoard = fenToArray(currentFen);
+
+    let moveFrom = null;
+    let moveTo = null;
+    let movedPiece = null;
+
+    const rows = lastBoard.length;
+    const cols = lastBoard[0].length;
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            if (lastBoard[i][j] !== currentBoard[i][j]) {
+                // This might be different for variants, however,
+                // every time a piece moves in chess, the square it left from will stay empty
+                if (lastBoard[i][j] !== '' && currentBoard[i][j] === '') {
+                    moveFrom = `${String.fromCharCode(97 + j)}${rows - i}`;
+                }
+                if (currentBoard[i][j] !== '') {
+                    moveTo = `${String.fromCharCode(97 + j)}${rows - i}`;
+                    movedPiece = currentBoard[i][j];
+                }
+            }
+        }
+    }
+
+    let color = movedPiece ? (movedPiece === movedPiece.toUpperCase() ? 'w' : 'b') : null;
+
+    return { from: moveFrom, to: moveTo, color: color };
+}
+
+function reverseFenPlayer(fen) {
+    const fenSplit = fen.split(' ');
+
+    if(fenSplit[1] === 'w')
+        fenSplit[1] = 'b';
+    else
+        fenSplit[1] = 'w';
+
+    return fenSplit.join(' ');
+}
+
 function parseUCIResponse(response) {
     const keywords = ['id', 'name', 'author', 'uciok', 'readyok', 
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',

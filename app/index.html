@@ -37,6 +37,7 @@
 		<script src="../assets/js/acas-globals.js"></script>
 		<script src="../assets/js/acas-i18n-processor.js"></script>
 		<script src="../assets/js/acas-board-analyzer.js"></script>
+		<script src="../assets/js/acas-move-eval.js"></script>
 		<script src="../assets/js/acas-backend-instance.js"></script>
 		<script src="../assets/js/acas-backend-manager.js"></script>
 		<script src="../assets/js/acas-user-security-system.js"></script>
@@ -316,6 +317,8 @@
 													<p>Todo ⏳</p>
 												</div>
 
+												<div class="gas" data-t></div>
+
 												<a target="_blank" href="../#/docs/usage">More engines might be available with a different launch mode.</a>
 											</section>
 										</div>
@@ -411,6 +414,9 @@
 														<input type="textfield" data-key="advancedEloProbability" data-default-value="0" data-between="0-1000">
 													</div>
 												</div>
+
+												<div class="gas" data-t></div>
+
 												<a target="_blank" href="../#/docs/usage">Learn more about these features here.</a>
 											</section>
 										</div>
@@ -429,10 +435,6 @@
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👁️‍🗨️</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
-								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
 							<div class="floaty-input custom-input">
 								<div><div class="input-title">Rendering</div><div class="input-subtitle">Renders various metrics</div></div>
 								<div class="floaty-wrapper">
@@ -486,6 +488,54 @@
 													</div>
 												</div>
 
+												<div class="gas" data-t></div>
+
+												<a target="_blank" href="../#/docs/usage">Learn more about these features here.</a>
+											</section>
+										</div>
+									</dialog>
+								</div>
+							</div>
+							<div class="floaty-input custom-input">
+								<div><div class="input-title">Feedback</div><div class="input-subtitle">Get feedback on your moves</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+								    <dialog id="feedback-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header">
+												<div class="title">
+													<h1>Feedback Settings</h1>
+													<p>Get feedback on your moves (Beta)</p>
+												</div>
+												<div class="floaty-buttons">
+													<button class="floaty-close-btn acas-fancy-button">👍</button>
+												</div>
+											</section>
+											<section class="floaty-body">
+												<p><b>Remember:</b> Engine critiques are just comparisons to <i>perfection</i>.</p>
+												<div class="checkbox-input custom-input"><div><div class="input-title">Feedback On External Site</div>
+													<div class="input-subtitle">Show feedback on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
+													<input type="checkbox" data-key="feedbackOnExternalSite" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+												</div>
+
+												<div class="setting-panel">
+													<div class="setting-panel-title">Moves</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Move Ratings</div>
+														<div class="input-subtitle">Show engine's thoughts about moves</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="enableMoveRatings" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Rate Enemy</div>
+														<div class="input-subtitle">Give feedback on the enemy too</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="enableEnemyFeedback" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Search Depth</div>
+														<div class="input-subtitle">How deep will the feedback engine search</div></div>
+														<input type="textfield" data-key="feedbackEngineDepth" data-default-value="5" data-between="1-99">
+													</div>
+												</div>
+												<p>Feature is in <b>Beta</b>. Currently not good in middle-/endgames!</p>
+												<div class="gas" data-t></div>
+
 												<a target="_blank" href="../#/docs/usage">Learn more about these features here.</a>
 											</section>
 										</div>
@@ -515,6 +565,10 @@
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👁️‍🗨️</div>
+								<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
+								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
 								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✓</div></div>
@@ -610,7 +664,7 @@
 					<div class="dropdown-input custom-input"><div class="input-title">Chess Font</div><div class="dropdown-input-container">
 						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="chessFont" data-default-value="staunty" placeholder="Merida"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container">
-							<div class="dropdown-item" data-value="staunty">Staunty (Improved)</div>
+							<div class="dropdown-item" data-value="staunty">Staunty</div>
 							<div class="dropdown-item" data-value="merida">Merida</div>
 							<div class="dropdown-item" data-value="cburnett">Cburnett</div>
 							<div class="dropdown-item" data-value="letters">Letters</div>
@@ -632,12 +686,11 @@
 							<div class="dropdown-item" data-value="rainbow-texture">Rainbow</div>
 						</div>
 					</div></div>
+					<div class="gas" data-t></div>
 				</div>
 			</div>
 		</div>
-
-		<div class="ga"><ins class="adsbygoogle"data-ad-client="ca-pub-7248123202489335"data-ad-format="fluid"data-ad-layout="in-article"data-ad-slot="4819810311"style="display:block;text-align:center"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div>
-
+		
 		<div id="footer">
 			<div id="footer-links">
 				<a class="footer-link" href="https://github.com/Psyyke/A.C.A.S" target="_about">GitHub</a>
@@ -656,5 +709,46 @@
 		<script src="../assets/js/acas-backend-gui.js?new=true"></script>
 		<script src="index.js"></script>
 		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+		<script>
+		function insertGas(elem) {
+            const text = elem?.dataset?.t;
+            const rect = elem?.dataset?.r;
+
+            elem.dataset.processed = true;
+
+            const pubId = "ca-pub-7248123202489335";
+
+            if(text) {
+                elem.innerHTML = `<ins class="adsbygoogle"
+                style="display:block"
+                data-ad-format="fluid"
+                data-ad-layout-key="-gw-3+1f-3d+2z"
+                data-ad-client="${pubId}"
+                data-ad-slot="1668980906"></ins>`;
+            } else if(rect) {
+                elem.innerHTML = `<ins class="adsbygoogle"
+                style="display:inline-block;width:320px;height:100px"
+                data-ad-client="${pubId}"
+                data-ad-slot="9586999372"></ins>`;
+            } else {
+                elem.innerHTML = `<ins class="adsbygoogle"
+                style="display:block; text-align:center;"
+                data-ad-layout="in-article"
+                data-ad-format="fluid"
+                data-ad-client="${pubId}"
+                data-ad-slot="4819810311"></ins>`;
+            }
+
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        }
+
+        const observer = new MutationObserver((mutations, obs) => {
+            [...document.querySelectorAll('.gas')]
+                .filter(x => !x.dataset.processed)
+                .forEach(insertGas);
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+		</script>
 	</body>
 </html>

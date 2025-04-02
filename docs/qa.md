@@ -1,5 +1,7 @@
 # Q&A 🤔
 
+<div class="gas" data-t></div>
+
 ## Chess Engine Terms Explained  
 
 | Term          | Explanation |
@@ -20,7 +22,7 @@ Vary move times, avoid perfect accuracy, allow position swings, be mindful of bl
 
 Whew, that’s a lot of stuff! AI detection systems track all kinds of patterns, making it really hard to cheat without getting caught. Honestly, just play legit—it's way easier and more fun. You could disable the <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting, so that you don't see them all the time, that way you're playing yourself but still have a helping hand when needed, that way you can actually learn.
 
-<div class="gas"></div>
+<div class="gas" data-t></div>
 
 ### Why is it not working?
 
@@ -31,6 +33,8 @@ Before making any reports or negative reviews, please read the [troubleshoot](do
 ### Does this have an automove setting?
 
 Yes, A.C.A.S has automove (a bot that plays for you) that is currently only supported on Chess.com. This feature is hidden by default to prevent abuse of the feature, as most people that use automove use it on real online matches, which is against the Terms of Service. It is mostly used for debugging and quality control purposes.
+
+<div class="gas" data-t></div>
 
 ### Why did I get banned, wasn't this impossible to detect?
 

@@ -12,7 +12,7 @@ Most userscripts mess with the site’s code or rely on its built-in functions, 
 
 !> The <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds a simple element to the site's document to display the move information. This modifies the site and is in risk of being detectable. While the element doesn't scream "**I WAS MADE BY A.C.A.S**", it could be detected either way.
 
-<div class="gas"></div>
+<div class="gas" data-r></div>
 
 ## Reading The Board
 

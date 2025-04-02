@@ -2,6 +2,8 @@
 
 Using A.C.A.S is easy! Once you have the userscript installed, just keep the <a target="_about" href="app">GUI</a> open while you're playing on a chess site. By default, the moves it suggests will show up directly on the board you're playing on.
 
+<div class="gas"></div>
+
 !>Press Ctrl+D (Cmd+D for Mac) to bookmark this page.
 
 <a id="lottie-animation"/>
@@ -26,12 +28,13 @@ The <a target="_about" href="app?hl=controlPanel">settings control panel</a> has
 
 You can use <a target="_about" href="app?shl=chessEngineProfile">profiles</a> to run multiple chess engines at once. Keep in mind that some features might not work well with multiple engines running, but most should work fine. If you notice some feature acting weirdly with multiple engines, don't be alarmed.
 
-Profiles can also be used to just store different configurations if you <a target="_about" href="app?shl=engineEnabled">disable the engine</a>.
+Profiles can also be used to just store different configurations if you <a target="_about" href="app?shl=engineEnabled">disable the engine</a>. You can remove a profile by clicking the fire emoji at the right.
+
+<div class="gas" data-t></div>
 
 ## Languages 🌐
 
 <img src="assets/images/example5.png">
-
 
 You can change the language using the flag dropdown found on the top right on the <a target="_about" href="app">GUI</a>.
 
@@ -95,7 +98,7 @@ The <a target="_about" href="app?shl=displayMovesOnExternalSite">Moves On Extern
 
 > Enemy move is shown if <a target="_about" href="app?shl=showOpponentMoveGuess">Opponent Move Guess</a> setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.
 
-<div class="gas"></div>
+<div class="gas" data-r></div>
 
 ## Render Settings
 
@@ -124,6 +127,8 @@ The <a target="_about" href="app?shl=renderPiecePlayerCapture">Own Piece Capture
 #### ⚙️ Enemy Piece Capture
 
 The <a target="_about" href="app?shl=renderPieceEnemyCapture">Enemy Piece Capture</a> setting displays vulnerable enemy pieces. The bleed emoji 🩸 appears on **enemy pieces** which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, your **Queen** attacks an enemy **Rook** which is protected. However, if your **Rook** was to attack an enemy **Queen**, 🩸 would appear on the enemy **Queen**.
+
+<div class="gas" data-t></div>
 
 ## Advanced Elo Settings
 
