@@ -348,6 +348,16 @@ class BackendInstance {
             },
             updateBoardFen: fen => {
                 if(this.currentFen !== fen) {
+                    const isAbnormalPieceChange = this.isAbnormalPieceChange(this.currentFen, fen);
+                    const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.currentFen, fen);
+                    const fenChangeMakesSense = !isAbnormalPieceChange && correctAmountOfChanges;
+
+                    if(!fenChangeMakesSense) {
+                        console.warn('Fen change made no sense, did not proceed with updating the board fen!');
+                        
+                        return;
+                    }
+
                     this.currentFen = fen;
 
                     USERSCRIPT.instanceVars.fen.set(this.instanceID, fen);
@@ -355,8 +365,9 @@ class BackendInstance {
                     this.chessground.set({ fen });
     
                     this.instanceElem.querySelector('.instance-fen').innerText = fen;
-                    
+
                     this.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
+
                     this.Interface.boardUtils.removeMarkings();
 
                     // For each profile config
