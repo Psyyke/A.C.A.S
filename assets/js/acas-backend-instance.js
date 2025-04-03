@@ -348,7 +348,9 @@ class BackendInstance {
             },
             updateBoardFen: fen => {
                 if(this.currentFen !== fen) {
-                    this.currentFen = fen;
+                    const isChangeLogical = this.isFenChangeLogical(this.currentFen, fen);
+
+                    if(isChangeLogical) this.currentFen = fen;
 
                     USERSCRIPT.instanceVars.fen.set(this.instanceID, fen);
 
@@ -356,8 +358,7 @@ class BackendInstance {
     
                     this.instanceElem.querySelector('.instance-fen').innerText = fen;
 
-                    // Disabled this for now since it just causes issues
-                    //this.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
+                    this.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
 
                     this.Interface.boardUtils.removeMarkings();
 
@@ -1034,6 +1035,13 @@ class BackendInstance {
         return diff === 2 || diff > 3 || isHistoryIndicatingPromotion;
     }
 
+    isFenChangeLogical(lastFen, newFen) {
+        const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(lastFen, newFen);
+        const isAbnormalPieceChange = this.isAbnormalPieceChange(lastFen, newFen);
+
+        return correctAmountOfChanges && !isAbnormalPieceChange;
+    }
+
     getTurnFromFenChange(lastFen, newFen, profile) {
         const currentPlayerColor = this.getPlayerColor();
         const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profile);
@@ -1124,15 +1132,13 @@ class BackendInstance {
             const feedbackEngineDepth = this.getConfigValue(this.configKeys.feedbackEngineDepth, profileName);
             const enableEnemyFeedback = this.getConfigValue(this.configKeys.enableEnemyFeedback, profileName);
 
-            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(lastFen, currentFen);
-            const isAbnormalPieceChange = this.isAbnormalPieceChange(lastFen, currentFen);
-            const isFenChangeLogical = correctAmountOfChanges && !isAbnormalPieceChange;
+            const isChangeLogical = this.isFenChangeLogical(lastFen, currentFen);
 
-            if(!isFenChangeLogical) return;
+            if(!isChangeLogical) return;
 
             const playerColor = this.getPlayerColor();
 
-            if(isFenChangeLogical && lastFen && currentFen) {
+            if(isChangeLogical && lastFen && currentFen) {
                 const moveObj = extractMoveFromBoardFen(lastFen, currentFen);
                 const from = moveObj.from,
                       to = moveObj.to,
@@ -1569,7 +1575,7 @@ class BackendInstance {
                 return;
             }
 
-            toast.warning(`Restarting the engine "${name}" due to the error "${e?.message}"!`, 1e3);
+            console.error(`Restarting the engine "${name}" due to the error "${e?.message}"!`);
 
             const engineObjectIdx = this.engines.findIndex(x => x.type === name);
 
@@ -1599,11 +1605,7 @@ class BackendInstance {
 
                 this.engineStartNewGame('chess', profile);
 
-                // For some reason the moves aren't calculated with multiple threads if we request it too fast...
-                // I literally do not care anymore, this works, so be it. When false, the move will be calculated on next move.
-                // The code I write is garbage anyway, I mean look at the size of this class, this is like tossing a bag of trash into the landfill!
-                if(!['stockfish-17-wasm', 'stockfish-16-1-wasm'].includes(profileChessEngine))
-                    this.calculateBestMoves(fen, true);
+                this.calculateBestMoves(fen, true);
 
                 return;
             }
@@ -1643,12 +1645,48 @@ class BackendInstance {
                 restartEngine.bind(this)(folderName, e);
             };
         }
+
+        function loadLilaStockfish(workerName) {
+            const stockfish = new Worker(`/A.C.A.S/app/assets/engines/lila-stockfish/${workerName}.js`, { type: 'module' });
+            let stockfish_loaded = false;
+
+            stockfish.onmessage = async e => {
+                if(e.data === true) {
+                    stockfish_loaded = true;
+
+                    this.engines.push({
+                        'type': profileChessEngine,
+                        'engine': (method, a) => stockfish.postMessage({ method: method, args: [...a] }),
+                        'sendMsg': msg => stockfish.postMessage({ method: 'uci', args: [msg] }),
+                        'worker': stockfish,
+                        profile
+                    });
+
+                    this.engineStartNewGame(workerName === 'f14-worker'
+                        ? formatVariant(this.pV[profile].chessVariant)
+                        : 'chess'
+                    , profile);
+                } else if (e.data) {
+                    msgHandler(e.data);
+                }
+            };
+
+            const waitStockfish = setInterval(() => {
+                if(stockfish_loaded) {
+                    clearInterval(waitStockfish);
+                    return;
+                }
+
+                stockfish.postMessage({ method: 'acas_check_loaded' });
+            }, 100);
+        }
         
         // When using loadStockfish(folderName, fileName), make sure the folder name
         // is exactly the same as the switch case string, since otherwise reloading wont work
+        // Stockfish 17 singlethreaded lite is the default
         switch(profileChessEngine) {
             case 'stockfish-17-wasm':
-                loadStockfish.bind(this)('stockfish-17-wasm', 'stockfish-17'); // folder name, file name
+                loadLilaStockfish.bind(this)('17-1-worker');
                 break;
 
             case 'stockfish-17-single':
@@ -1656,15 +1694,7 @@ class BackendInstance {
                 break;
 
             case 'stockfish-16-1-wasm':
-                loadStockfish.bind(this)('stockfish-16-1-wasm', 'stockfish-16.1');
-                break;
-
-            case 'stockfish-16-1-single':
-                loadStockfish.bind(this)('stockfish-16-1-single');
-                break;
-
-            case 'stockfish-14-nnue':
-                loadStockfish.bind(this)('stockfish-14-nnue');
+                loadLilaStockfish.bind(this)('16-0-worker');
                 break;
 
             case 'stockfish-11':
@@ -1675,100 +1705,72 @@ class BackendInstance {
                 loadStockfish.bind(this)('stockfish-8');
                 break;
 
-            case 'lozza-5':
-                const lozza = new Worker('/A.C.A.S/app/assets/engines/Lozza/lozza-5-acas.js');
-                let lozza_loaded = false;
-
-                lozza.onmessage = async e => {
-                    if(!lozza_loaded) {
-                        lozza_loaded = true;
-
-                        this.engines.push({
-                            'type': profileChessEngine,
-                            'engine': (method, a) => lozza[method](...a),
-                            'sendMsg': msg => lozza.postMessage(msg),
-                            'worker': lozza,
-                            profile
-                        });
-
-                        startGame.bind(this)();
-                    } else if (e.data) {
-                        msgHandler(e.data);
-                    }
-                };
-
-                lozza.onerror = e => {
-                    restartEngine.bind(this)('lozza-5', e);
-                };
-
-                break;
-
-            case 'lc0':
-                const lc0 = new Worker('/A.C.A.S/app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
-                let lc0_loaded = false;
-
-                lc0.onmessage = async e => {
-                    if(e.data === true) {
-                        lc0_loaded = true;
-
-                        this.engines.push({
-                            'type': profileChessEngine,
-                            'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
-                            'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
-                            'worker': lc0,
-                            profile
-                        });
-
-                        await this.setEngineWeight(this.pV[profile].lc0WeightName, profile);
-            
-                        this.engineStartNewGame('chess', profile);
-                    } else if (e.data) {
-                        msgHandler(e.data);
-                    }
-                };
-
-                const waitLc0 = setInterval(() => {
-                    if(lc0_loaded) {
-                        clearInterval(waitLc0);
-                        return;
-                    }
-
-                    lc0.postMessage({ method: 'acas_check_loaded' });
-                }, 100);
-
-                break;
-
             case 'fairy-stockfish-nnue-wasm': 
-                const stockfish = new Worker('/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfishWorker.js');
-                let stockfish_loaded = false;
-
-                stockfish.onmessage = async e => {
-                    if(e.data === true) {
-                        stockfish_loaded = true;
-
-                        this.engines.push({
-                            'type': profileChessEngine,
-                            'engine': (method, a) => stockfish.postMessage({ method: method, args: [...a] }),
-                            'sendMsg': msg => stockfish.postMessage({ method: 'postMessage', args: [msg] }),
-                            'worker': stockfish,
-                            profile
-                        });
-            
-                        this.engineStartNewGame(formatVariant(this.pV[profile].chessVariant), profile);
-                    } else if (e.data) {
-                        msgHandler(e.data);
-                    }
-                };
-
-                const waitStockfish = setInterval(() => {
-                    if(stockfish_loaded) {
-                        clearInterval(waitStockfish);
-                        return;
-                    }
-
-                    stockfish.postMessage({ method: 'acas_check_loaded' });
-                }, 100);
+                loadLilaStockfish.bind(this)('f14-worker');
                 break;
+
+                case 'lozza-5':
+                    const lozza = new Worker('/A.C.A.S/app/assets/engines/Lozza/lozza-5-acas.js');
+                    let lozza_loaded = false;
+    
+                    lozza.onmessage = async e => {
+                        if(!lozza_loaded) {
+                            lozza_loaded = true;
+    
+                            this.engines.push({
+                                'type': profileChessEngine,
+                                'engine': (method, a) => lozza[method](...a),
+                                'sendMsg': msg => lozza.postMessage(msg),
+                                'worker': lozza,
+                                profile
+                            });
+    
+                            startGame.bind(this)();
+                        } else if (e.data) {
+                            msgHandler(e.data);
+                        }
+                    };
+    
+                    lozza.onerror = e => {
+                        restartEngine.bind(this)('lozza-5', e);
+                    };
+    
+                    break;
+    
+                case 'lc0':
+                    const lc0 = new Worker('/A.C.A.S/app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
+                    let lc0_loaded = false;
+    
+                    lc0.onmessage = async e => {
+                        if(e.data === true) {
+                            lc0_loaded = true;
+    
+                            this.engines.push({
+                                'type': profileChessEngine,
+                                'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
+                                'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
+                                'worker': lc0,
+                                profile
+                            });
+    
+                            await this.setEngineWeight(this.pV[profile].lc0WeightName, profile);
+                
+                            this.engineStartNewGame('chess', profile);
+                        } else if (e.data) {
+                            msgHandler(e.data);
+                        }
+                    };
+    
+                    const waitLc0 = setInterval(() => {
+                        if(lc0_loaded) {
+                            clearInterval(waitLc0);
+                            return;
+                        }
+    
+                        lc0.postMessage({ method: 'acas_check_loaded' });
+                    }, 100);
+    
+                    break;
 
             default:
                 loadStockfish.bind(this)('stockfish-17-lite-single');

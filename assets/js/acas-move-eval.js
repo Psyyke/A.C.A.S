@@ -20,7 +20,7 @@ class MoveEvaluator {
 
         this.resultLabels = ['Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic', 'Good Move', 'Excellent', 'Brilliancy'];
 
-        this.loadStockfish('stockfish-17-single');
+        this.loadStockfish('stockfish-17-lite-single');
     }
 
     loadStockfish(folderName, fileName = folderName) {
@@ -50,7 +50,7 @@ class MoveEvaluator {
             this.isEngineCrashed = true;
 
             console.error('MoveEvaluator crashed with message:', e);
-            toast.warning('MoveEvaluator crashed with message:', e?.message);
+            //toast.warning('MoveEvaluator crashed with message:', e?.message);
         };
     }
 
