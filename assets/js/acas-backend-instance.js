@@ -348,9 +348,11 @@ class BackendInstance {
             },
             updateBoardFen: fen => {
                 if(this.currentFen !== fen) {
-                    const isChangeLogical = this.isFenChangeLogical(this.currentFen, fen);
+                    const moveObj = extractMoveFromBoardFen(this.currentFen, fen);
 
-                    if(isChangeLogical) this.currentFen = fen;
+                    if(!(moveObj?.from && moveObj?.to && moveObj?.color)) return;
+
+                    this.currentFen = fen;
 
                     USERSCRIPT.instanceVars.fen.set(this.instanceID, fen);
 
