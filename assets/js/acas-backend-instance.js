@@ -1597,7 +1597,7 @@ class BackendInstance {
             alreadyRestarted = true;
         }
 
-        function startGame() {
+        function startGame(variant = 'chess') {
             if(isReload) {
                 const currentFen = USERSCRIPT.instanceVars.fen.get(this.instanceID);
                 const fen = currentFen || this.variantStartPosFen;
@@ -1605,7 +1605,7 @@ class BackendInstance {
                 // Finish all previous calculations
                 this.pV[profile].pendingCalculations.map(x => x['finished'] = true);
 
-                this.engineStartNewGame('chess', profile);
+                this.engineStartNewGame(variant, profile);
 
                 this.calculateBestMoves(fen, true);
 
@@ -1616,7 +1616,7 @@ class BackendInstance {
                 if(window?.ChessgroundX) {
                     clearInterval(waitForChessgroundLoad);
                     
-                    this.engineStartNewGame('chess', profile);
+                    this.engineStartNewGame(variant, profile);
                 }
             }, 500);
         }
@@ -1664,10 +1664,9 @@ class BackendInstance {
                         profile
                     });
 
-                    this.engineStartNewGame(workerName === 'f14-worker'
+                    startGame.bind(this)(workerName === 'f14-worker' 
                         ? formatVariant(this.pV[profile].chessVariant)
-                        : 'chess'
-                    , profile);
+                        : 'chess');
                 } else if (e.data) {
                     msgHandler(e.data);
                 }

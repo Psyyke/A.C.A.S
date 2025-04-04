@@ -112,9 +112,7 @@ function getAvailableTTSVoices() {
         const voiceNames = voices.map(voice => voice.name);
 
         return voiceNames;
-    } else {
-        return ['Default'];
-    }
+    } else return false;
 }
 
 function getSkillLevelFromElo(elo) {

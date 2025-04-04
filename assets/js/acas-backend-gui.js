@@ -1004,7 +1004,8 @@ function initializeDropdown(dropdownElem) {
         const options = showAll ? optionsArr : filteredOptions;
 
         listItems.forEach(elem => {
-            if(options.includes(elem.dataset.value)) {
+            if(options.includes(elem.dataset.value?.toLowerCase()) 
+            || options.includes(elem.dataset.value)) {
                 elem.classList.remove('hidden');
             } else {
                 elem.classList.add('hidden');
