@@ -1,111 +1,136 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>A.C.A.S Home</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="UTF-8">
-        <meta name="description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported. Chess assistance, chess engines, chess assistance, online chess tools, chess.com assistance, lichess.org assistance, pychess.org assistance">
-        <meta name="keywords" content="chess assistance, chess engine, chess assistance, online chess tools, chess.com assistance, lichess.org assistance, pychess.org assistance">
-        <meta property="og:title" content="A.C.A.S - Advanced Chess Assistance System">
-        <meta property="og:description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported.">
-		<script type="text/javascript" src="index.js"></script>
-        <link rel="stylesheet" type="text/css" href="assets/css/vue.css">
-        <link rel="stylesheet" type="text/css" href="assets/css/home.css">
-        <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        // Deny personalization by default <3
-        gtag('consent', 'default', {
-            'ad_storage': 'denied',
-            'ad_user_data': 'denied',
-            'ad_personalization': 'denied',
-            'analytics_storage': 'denied',
-            'wait_for_update':  500
-        });
-        </script>
-        <script defer type="text/javascript" src="assets/libraries/klaro/config.js"></script>
-        <script defer type="text/javascript" src="assets/libraries/klaro/klaro.js"></script>
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5499BQ4B');</script>
-        <script>
-        gtag("js", new Date);
-        gtag('set', 'url_passthrough', true);
-        gtag("config", "GTM-5499BQ4B");
-        </script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
-        <script src="assets/libraries/bodymovin/lottie.js" type="text/javascript"></script>
-        <script src="assets/js/acas-globals.js"></script>
-        <script src="assets/js/acas-i18n-processor.js"></script>
-        <link rel="icon" type="image/x-icon" href="favicon.ico"/>
-        <meta charset="UTF-8">
-    </head>
-    <body>
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <div id="app"></div>
-        <script>
-        function insertGas(elem) {
-            const text = elem?.dataset?.t;
-            const rect = elem?.dataset?.r;
-
-            elem.dataset.processed = true;
-
-            const pubId = "ca-pub-7248123202489335";
-
-            if(text) {
-                elem.innerHTML = `<ins class="adsbygoogle"
-                style="display:block"
-                data-ad-format="fluid"
-                data-ad-layout-key="-gw-3+1f-3d+2z"
-                data-ad-client="${pubId}"
-                data-ad-slot="1668980906"></ins>`;
-            } else if(rect) {
-                elem.innerHTML = `<ins class="adsbygoogle"
-                style="display:inline-block;width:320px;height:100px"
-                data-ad-client="${pubId}"
-                data-ad-slot="9586999372"></ins>`;
-            } else {
-                elem.innerHTML = `<ins class="adsbygoogle"
-                style="display:block; text-align:center;"
-                data-ad-layout="in-article"
-                data-ad-format="fluid"
-                data-ad-client="${pubId}"
-                data-ad-slot="4819810311"></ins>`;
-            }
-
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        }
-
-        window.$docsify = {
-            repo: 'psyyke/A.C.A.S',
-            loadSidebar: true,
-            notFoundPage: true,
-            auto2top: true,
-			homepage: 'index.md'
-        };
-
-        const observer = new MutationObserver((mutations, obs) => {
-            const lottieElement = document.querySelector("#lottie-animation");
-
-            if (lottieElement) {
-                const lottieAnimation = lottie.loadAnimation({
-                    container: document.querySelector('#lottie-animation'),
-                    renderer: 'svg',
-                    loop: true,
-                    autoplay: true,
-                    path: '/A.C.A.S/assets/json/lottie.json'
-                });
-                
-                obs.disconnect();
-            }
-
-            [...document.querySelectorAll('.gas')]
-                .filter(x => !x.dataset.processed)
-                .forEach(insertGas);
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
-        </script>
-        <script src="assets/libraries/docsify/docsify.min.js" type="text/javascript"></script>
-        <script src="assets/libraries/docsify/docsify.search.min.js" type="text/javascript"></script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
-    </body>
+<head>
+    <title>A.C.A.S | Home - Advanced Chess Assistance for Chess.com, Lichess & More</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="description" content="A.C.A.S provides advanced chess assistance for Chess.com, Lichess, and PyChess. Install with one click, no downloads required. Compatible across all devices and browsers. Elevate your chess game today!">
+    <meta name="keywords" content="chess assistance, chess engine, chess assistance, online chess tools, chess.com assistance, lichess.org assistance, pychess.org assistance">
+    <meta property="og:title" content="A.C.A.S - Advanced Chess Assistance System">
+    <meta property="og:description" content="Advanced Chess Assistance System for Chess.com, Lichess.org, Pychess.org, and more. Hassle-free 1-click install, no downloading. All devices and browsers supported.">
+    <meta property="og:image" content="assets/images/mock.png">
+    <link rel="preload" href="assets/fonts/Mona-Sans.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="assets/fonts/Rubik.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="assets/fonts/IBMPlexSans.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="assets/images/mock.webp" as="image">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    <link rel="stylesheet" type="text/css" href="assets/css/home.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/">
+    <meta property="og:type" content="website">
+    <script type="text/javascript"src="assets/js/tag-manager.js"></script>
+    <script async="" type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-5499BQ4B"></script>
+    <script async="" type="text/javascript" src="index.js"></script>
+    <script defer="" type="text/javascript" src="assets/libraries/klaro/config.js"></script>
+    <script defer="" type="text/javascript" src="assets/libraries/klaro/klaro.js"></script>
+    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+</head>
+<body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <main>
+        <header>
+            <div><a href="/A.C.A.S/" class="acas-logo-main">A.C.A.S<span>V2</span></a></div>
+            <div>
+                <a href="/A.C.A.S/install/" aria-label="Install A.C.A.S"><i class="bi bi-download"></i>Install</a>
+                <a href="/A.C.A.S/usage/" aria-label="How to use A.C.A.S"><i class="bi bi-journals"></i>Usage</a>
+                <a href="/A.C.A.S/troubleshoot/" aria-label="Fixing A.C.A.S"><i class="bi bi-tools"></i>Troubleshoot</a>
+                <a href="/A.C.A.S/faq/" aria-label="Frequently Asked Questions"><i class="bi bi-chat-square-quote"></i>FAQ</a>
+                <a href="/A.C.A.S/blog/" aria-label="View A.C.A.S blog"><i class="bi bi-pen"></i>Blog</a>
+                <a href="/A.C.A.S/contributing/" aria-label="Contribute to A.C.A.S"><i class="bi bi-heart"></i></a>
+                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner" aria-label="View source on Github"><i class="bi bi-github"></i></a>
+            </div>
+        </header>
+        <section class="content">
+            <img style="right: -40px;width: 120px;top: -50px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile" src="/A.C.A.S/assets/images/pieces/staunty/wK.svg"/>
+            <img style="left: -40px;width: 110px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile" src="/A.C.A.S/assets/images/pieces/staunty/bQ.svg"/>
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix" src="/A.C.A.S/assets/images/pieces/staunty/wQ.svg"/>
+            <img style="right: -130px;width: 120px;top: 75px;filter: blur(4px);transform: rotate(-26deg);opacity: 0.65;" class="floaty-piece floaty-no-mobile" src="/A.C.A.S/assets/images/pieces/staunty/bK.svg"/>
+            <img style="right: -40px;width: 90px;top: 220px;transform: rotate(15deg);" class="floaty-piece" src="/A.C.A.S/assets/images/pieces/staunty/bR.svg"/>
+             <!-- PAGE CONTENT -->
+            <article class="markdown-section" id="main">
+                <section>
+                    <h1 class="large-intro">Chess Assistance<span>Open source & free, for you~💖</span></h1>
+                    <img class="mock-img" src="assets/images/mock.webp" alt="A mockup image of the A.C.A.S software.">
+                </section>
+                <section class="stats-container bordered">
+                    <img style="left: -50px;width: 90px;top: -20px;transform: rotate(-6deg);" class="floaty-piece" src="/A.C.A.S/assets/images/pieces/staunty/wN.svg"/>
+                    <div>
+                        <div><h2>40 000+</h2><span>Installs</span></div>
+                        <div><h2>2000</h2><span>Daily Uses</span></div>
+                        <div><h2>&gt;80%</h2><span>Positive Reviews</span></div>
+                        <div><h2>100+</h2><span>Stars</span></div>
+                    </div>
+                    <img style="right: -50px;width: 90px;bottom: -20px;transform: rotate(6deg);" class="floaty-piece" src="/A.C.A.S/assets/images/pieces/staunty/bB.svg"/>
+                </section>
+                <section>
+                    <p><b>A.C.A.S</b> (<i>Advanced Chess Assistance System</i>) is an open-source chess assistant (not a chess cheat), designed to help you make better moves using a chess engine. Just install the userscript, open the A.C.A.S GUI, and you're ready to go—no downloads necessary!</p>
+                    <ul>
+                        <li><strong>Completely free</strong> and <strong>open source</strong>! (Licensed with GPLv3 💖)</li>
+                        <li>No anti-features on userscript (<em>e.g. ads and tracking</em>)</li>
+                        <li>WebAssembly chess engine (faster than regular JavaScript engines)</li>
+                        <li>Supports the most popular chess game sites (<em>e.g. chess.com, lichess.org</em>)</li>
+                        <li>Supports multiple move suggestions, move arrow markings, chess variants &amp; fonts</li>
+                        <li>Translated to 30+ languages</li>
+                    </ul>
+                </section>
+                <section>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="bordered"><a href="app/">▶️ Open A.C.A.S</a></th>
+                                <th class="bordered"><a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener">⬇️ Install (GreasyFork)</a></th>
+                                <th class="bordered"><a href="acas.user.js">⬇️ Download (Direct)</a></th>
+                                <th class="bordered"><a href="https://hakorr.github.io/Userscripts/community/invite" target="_blank" rel="noopener">💬 Discuss With Community</a></th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <p class="tip">Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.</p>
+                </section>
+                <section>
+                    <div class="showcase">
+                        <div>
+                            <h2>Beyond Move Suggestions.</h2>
+                            <p>Our goal is to build chess software that benefits everyone. We aim to support new players by offering features that enhance learning and deepen understanding of the game.</p>
+                        </div>
+                        <img loading="lazy" src="/A.C.A.S/assets/images/homeshowcase.png" alt="A.C.A.S can render stuff right on the chessboard."/>
+                    </div>
+                </section>
+                <section>
+                    <div class="showcase showcase-2">
+                        <img loading="lazy" src="/A.C.A.S/assets/images/homeshowcase2.png" alt="Settings for changing the engine and such. A.C.A.S offers great customization."/>
+                        <div>
+                            <h2>Customize it.</h2>
+                            <p>We’ve made it so you’re in charge, giving you full control over your experience. Whether you’re a newbie or a chess pro, it’s all about playing your way.</p>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h2 id="hindsight-is-overrated">Okay, so what.</h2>
+                    <p>Tell you what. No subscriptions, no paywalls—just a ridiculously useful chess tool that works right on your favorite sites. That's what A.C.A.S is. Whether you're grinding puzzles, playing bullet, or trying to break 2000 Elo, A.C.A.S overlays insights directly on the board. It’s lightweight, it’s fast, and it doesn’t get in your way.</p>
+                    <p>Just install it, keep the GUI open, and learn how to play better. Oh yeah and it works on literally all of your devices that has a modern browser, including your little phone, everything processed locally!</p>
+                </section>
+                <section>
+                <p class="install-suggestion">Ready to begin? <a href="/A.C.A.S/install/">Install now</a>!</p>
+                </section>
+                <section>
+                    <h2>Are you a developer?</h2>
+                    <p>Please visit the <a href="/A.C.A.S/development">development</a> page.</p>
+                    <p class="tip">A.C.A.S is currently in development. Expect bugs, especially on variants.</p>
+                <section>
+                <section>
+                    <hr>
+                    <p><a href="https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S" target="_blank" rel="noopener">A.C.A.S V1</a> is no longer updated, but feel free to use it if it still works. <a href="privacy/">Privacy Policy</a>.</p>
+                    <p><em>Discussion about A.C.A.S can be had on the <a href="https://hakorr.github.io/Userscripts/community/invite" target="_blank" rel="noopener">Userscript Hub</a> Discord server.</em> <a href="tos/">Terms of Service</a>.</p>
+                </section>
+            </article>
+            <!-- PAGE CONTENT ENDS -->
+        </section>
+        <footer><section>See you!</section></footer>
+    </main>
+    <script async="" src="assets/js/site-additional-content.js"></script>
+    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+</body>
 </html>

@@ -18,10 +18,13 @@
     font-weight: 200 900;
     font-stretch: 75% 125%;
 }
+html {
+    overflow-x: hidden;
+}
 body {
 	font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif;
     margin: 0;
-    color: black;
+    color: #213a43;
     background-color: white;
     display: flex;
     align-content: center;
@@ -74,7 +77,7 @@ body {
     font-weight: 200;
 }
 .gradient-text {
-    text-shadow: 0px 3px 0px #000;
+    text-shadow: 0px 3px 0px #213a43;
 }
 
 #product-container {
@@ -91,13 +94,13 @@ body {
     flex-direction: column;
     gap: 10px;
     border-radius: 5px;
-    border: 1px solid #000000;
+    border: 1px solid #213a43;
     margin-bottom: 25px;
     padding: 10px;
     background-color: #ffffff;
     border-bottom-width: 5px;
     border-right-width: 3px;
-    color: black;
+    color: #213a43;
 }
 .product .container {
     display: flex;
@@ -111,7 +114,7 @@ body {
 }
 .product .image {
     border-radius: 5px;
-    border: 3px solid #000000;
+    border: 3px solid #213a43;
     border-bottom-width: 6px;
     border-right-width: 4px;
 }
@@ -138,8 +141,8 @@ body {
     font-weight: 800;
     font-stretch: extra-expanded;
     text-decoration: none;
-    color: black;
-    border: 2px solid black;
+    color: #213a43;
+    border: 2px solid #213a43;
     border-bottom-width: 5px;
     border-right-width: 3px;
 }
@@ -194,7 +197,6 @@ body {
     overflow: hidden;
 }
 #lottie-animation {
-    width: 1000px;
     height: 600px;
 }
 .data-transfer {
@@ -208,6 +210,9 @@ body {
         opacity: 1;
     }
 }
+.markdown-section-sub {
+    padding: 50px 100px 50px 100px !important;
+}
 .markdown-section blockquote, .markdown-section code {
     color: #4f6881;
 }
@@ -217,20 +222,26 @@ body {
 .markdown-section em {
     color: #34495e;
 }
-.content {
-    max-width: 1100px;
+.tip {
+    border-left: 5px solid #213a43;
+    padding-left: 10px;
+    padding: 20px;
+    border-radius: 5px;
+    border: 2px solid #213a43;
+    border-left: 5px solid #213a43;
 }
-h1#acas {
+h1 {
     padding: 20px;
     font-stretch: expanded;
     align-items: flex-start;
     font-stretch: ultra-expanded;
     font-weight: 800;
     font-family: "Mona Sans";
-    font-size: 30px;
-    background-color: #00000005;
+    font-size: 35px;
     margin: 0;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 2px solid #eeeeee;
+    margin-bottom: 10px;
+    padding-left: 0;
 }
 h1 span {
     align-items: flex-start;
@@ -240,6 +251,13 @@ h1 span {
 }
 img {
     border-radius: 7px;
+    max-width: 99%;
+    object-fit: scale-down;
+    object-position: center;
+}
+.bi {
+    width: 20px;
+    height: 20px;
 }
 .sidebar-toggle {
     width: 75px !important;
@@ -265,7 +283,7 @@ img {
 }
 .sidebar ul li.active>a {
     font-weight: 900;
-    background-color: #00000003;
+    background-color: #213a4303;
 }
 .anchor span {
     color: var(--theme-color);
@@ -284,35 +302,314 @@ input {
 }
 main {
     font-size: 16px;
+    max-width: 1100px;
+    font-size: 18px;
+    width: 100%;
 }
 body {
-    background-color: #f6fdff;
-    background-image: linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.02) 75%, rgba(0,0,0,0.02)), linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.02) 75%, rgba(0,0,0,0.02));
+    background-color: #c5b8a575;
+    background-image: linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.05) 75%, rgba(0, 0, 0, 0.05)), linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.05) 75%, rgba(0, 0, 0, 0.05));
     background-size: 122.4px 122.4px;
     background-position: 0 0, 61.2px 61.2px;
 }
 .markdown-section {
     background-color: #ffffff;
-    border-radius: 7px;
     padding: 50px;
     border-left: 7px solid var(--theme-color);
 }
 .sidebar ul li.active>a {
     border-right: 3px solid;
 }
-@media screen and (max-width: 768px) {
+ins.adsbygoogle[data-ad-status="unfilled"] {
+    display: none !important;
+}
+main {
+    border-left: 3px solid #213a43;
+    border-right: 3px solid #213a43;
+}
+.acas-logo-main {
+    font-size: 32px;
+    display: flex;
+    font-weight: 900;
+    font-stretch: expanded;
+    font-family: "Mona Sans";
+    text-decoration: none;
+}
+.acas-logo-main span {
+    font-size: 0.6em;
+    font-weight: 600;
+}
+header {
+    background-color: #ffffff;
+    color: #213a43;
+    padding: 20px;
+    border-bottom: 7px solid #213a43;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.large-intro {
+    display: flex;
+    flex-direction: column;
+    font-size: 70px;
+    font-weight: 800;
+    text-align: center;
+    align-items: center;
+    padding: 40px;
+    color: #213a43;
+}
+.large-intro span {
+    font-size: 40px;
+    font-weight: 300;
+    font-stretch: normal;
+}
+header a {
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #213a43;
+    border-bottom-width: 5px;
+    text-decoration: none;
+}
+.bordered {
+    border: 2px solid #213a43;
+    border-bottom-width: 5px;
+    border-radius: 5px;
+    padding: 10px;
+}
+.bordered:hover {
+    transform: scale(1.01);
+}
+.stats-container {
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+.stats-container div {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 50px;
+}
+.stats-container div div {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+}
+.stats-container h2 {
+    font-size: 40px;
+    margin: 0;
+}
+footer {
+    background-color: #213a43;
+    padding: 20px;
+    font-size: 30px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    background-image: linear-gradient(45deg, rgb(255 255 255 / 10%) 25%, transparent 25%, transparent 75%, rgb(255 255 255 / 10%) 75%, rgb(255 255 255 / 10%)), linear-gradient(45deg, rgb(255 255 255 / 10%) 25%, transparent 25%, transparent 75%, rgb(255 255 255 / 10%) 75%, rgb(255 255 255 / 20%));
+    background-size: 122.4px 122.4px;
+    background-position: 0 0, 61.2px 61.2px;
+}
+footer section {
+    background-color: #263a41;
+    width: 100%;
+    height: 100%;
+    padding: 80px;
+    border-radius: 5px;
+    border: 2px solid #466773;
+    border-bottom-width: 7px;
+}
+header a:has(.bi) {
+    display: flex;
+    gap: 5px;
+    width: fit-content;
+}
+header div:nth-of-type(2) {
+    display: flex;
+    gap: 5px;
+}
+th a {
+    text-decoration: none;
+}
+tr {
+    display: flex;
+    gap: 10px;
+}
+article {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    position: relative;
+}
+.content {
+    position: relative;
+}
+.floaty-piece {
+    width: 80px;
+    position: absolute;
+    z-index: 2;
+}
+.showcase {
+    display: flex;
+    gap: 70px;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 25px;
+    border: 2px solid;
+    border-radius: 5px;
+    border-bottom-width: 7px;
+}
+.showcase div:first-of-type {
+    width: 100%;
+    border-top: 2px dashed #213a43;
+}
+.showcase img {
+    border: 3px solid #213a43;
+    border-bottom-width: 8px;
+    min-width: 466px;
+    min-height: 500px;
+}
+.install-suggestion {
+    font-size: 20px;
+    background-color: #213a430a;
+    width: fit-content;
+    padding: 20px;
+    border-top: 5px solid #213a43;
+}
+.mock-img {
+    min-width: 490px;
+    min-height: 490px;
+}
+li {
+    margin-bottom: 10px;
+    border-bottom: 2px dashed #cacaca;
+    padding-bottom: 5px;
+}
+ul li {
+    border-bottom: 2px dashed #ebebeb;
+}
+ul {
+    margin-top: 10px;
+}
+.img-container {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+}
+.markdown-section-sub section h3 {
+    margin-top: 50px;
+}
+.markdown-section-sub section h2 {
+    margin-top: 80px;
+    border-bottom: 2px solid #dfdfdf;
+    padding: 15px 0;
+}
+.blog-post h2 {
+    margin-top: 0 !important;
+}
+@media (max-width: 920px) {
+    header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        overflow-x: auto;
+    }
+}
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+    header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        overflow-x: auto;
+    }
+    .markdown-section blockquote {
+        margin: 0;
+    }
+    #lottie-animation {
+        display: none;
+    }
+    .large-intro {
+        font-size: 13vw;
+    }
+    .large-intro span {
+        font-size: 7vw;
+    }
+    h1 {
+        border-bottom: unset;
+    }
     .content {
-        padding-top: 80px !important;
+        padding-top: 4vw !important;
+        margin: 8vw;
     }
     .markdown-section {
         padding: 0px;
         border-left: 0px !important;
     }
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
     body {
         background-image: unset;
         background-color: #ffffff;
     }
-}
-ins.adsbygoogle[data-ad-status="unfilled"] {
-    display: none !important;
-}
+    table {
+        width: 100%;
+    }
+    tr {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .floaty-no-mobile {
+        display: none;    
+    }
+    .showcase {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .mock-img {
+        min-width: 200px;
+        min-height: 200px;
+    }
+    .showcase img {
+        min-width: 200px;
+        min-height: 200px;
+    }
+    .acas-logo-main {
+        font-size: 20px;
+    }
+    header a {
+        font-size: 18px;
+    }
+    header a:has(.bi) {
+        height: fit-content;
+    }
+    .showcase-2 {
+        flex-direction: column-reverse;
+    }
+    footer section {
+        display: flex;
+        justify-content: center;
+    }
+    .floaty-mobile-fix {
+        left: -110px !important;
+        top: 20px !important;
+    }
+    .floaty-subpage {
+        display: none;
+    }
+    .markdown-section-sub {
+        padding: 0 !important;
+    }
+}  
