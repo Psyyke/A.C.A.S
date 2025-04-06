@@ -518,6 +518,9 @@ ul {
 .blog-post h2 {
     margin-top: 0 !important;
 }
+header a:hover {
+    background-color: rgb(0 0 0 / 5%);
+}
 @media (max-width: 920px) {
     header {
         flex-direction: row;
