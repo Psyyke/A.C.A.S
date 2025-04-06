@@ -535,6 +535,14 @@ ul {
         gap: 20px;
         overflow-x: auto;
     }
+    footer section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .floaty-footer {
+        display: none;
+    }
     .markdown-section blockquote {
         margin: 0;
     }
