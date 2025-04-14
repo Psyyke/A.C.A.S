@@ -1274,8 +1274,8 @@ class BackendInstance {
                 default:
                     // The search is "infinite" if the searchDepth is null. The engine's max depth seems to be 245 on 'go infinite',
                     // but if it reaches that max depth on 'go infinite' it does not give 'bestmove'. A.C.A.S expects a bestmove, so that is no good.
-                    // That is why we limit the infinite search to depth 245 ourselves. So infinite search = search to 245 depth.
-                    const depth = this.pV[profile].searchDepth || 245;
+                    // That is why we limit the infinite search depth ourselves.
+                    const depth = this.pV[profile].searchDepth || 100;
 
                     searchCommandStr = `go depth ${depth}`;
 
