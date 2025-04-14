@@ -623,7 +623,7 @@ class BackendInstance {
             this.setEngineThreads(advancedEloThreads, profile);
 
             console.error(limitStrength, advancedEloDepth, advancedEloSkill, advancedEloMaxError, advancedEloProbability, advancedEloHash, advancedEloThreads);
-        } 
+        }
         
         else if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2600;
@@ -817,22 +817,20 @@ class BackendInstance {
     }
 
     engineStopCalculating(profile, reason) {
-        function profileStopCalculating(t, p) {
-            if(!t.isEngineNotCalculating(p)) {
-                clearTimeout(t.pV[p].currentMovetimeTimeout);
-            }
-    
+        const profileStopCalculating = p => {
+            if(!this.isEngineNotCalculating(p)) clearTimeout(this.pV[p].currentMovetimeTimeout);
+                
             console.error('STOP CALCULATION ORDERED!', 'Reason:', reason, 'Profile:', profile);
     
-            t.sendMsgToEngine('stop', p);
+            this.sendMsgToEngine('stop', p);
         }
 
         if(!profile) {
             Object.keys(this.pV).forEach(profileName => {
-                profileStopCalculating(this, profileName);
+                profileStopCalculating(profileName);
             });
         } else {
-            profileStopCalculating(this, profile);
+            profileStopCalculating(profile);
         }
     }
 
@@ -1207,6 +1205,11 @@ class BackendInstance {
         getProfiles().filter(p => p.config.engineEnabled).forEach(profile => {
             profile = profile.name;
 
+            // Engine is still calculating, do not start any new calculation since,
+            // that will not give us 'bestmove' which A.C.A.S' logic EXPECTS.
+            // The best moves will be calculated after we get the 'bestmove'.
+            if(!this.isEngineNotCalculating(profile)) return;
+
             const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.pV[profile].lastFen, currentFen);
             const isAbnormalPieceChange = this.isAbnormalPieceChange(this.pV[profile].lastFen, currentFen);
             const isFenChangeLogical = correctAmountOfChanges && !isAbnormalPieceChange;
@@ -1255,6 +1258,8 @@ class BackendInstance {
         
             this.sendMsgToEngine(`position fen ${reversedFen || currentFen}`, profile);
     
+            // Should not actually go infinite depth, read commenting below.
+            // This is just a backup. It's not terrible to go infinite depth but problematic.
             let searchCommandStr = 'go infinite';
     
             switch(this.getEngineType(profile)) {
@@ -1267,13 +1272,14 @@ class BackendInstance {
                 break;
     
                 default:
-                    const depth = this.pV[profile].searchDepth;
+                    // The search is "infinite" if the searchDepth is null. The engine's max depth seems to be 245 on 'go infinite',
+                    // but if it reaches that max depth on 'go infinite' it does not give 'bestmove'. A.C.A.S expects a bestmove, so that is no good.
+                    // That is why we limit the infinite search to depth 245 ourselves. So infinite search = search to 245 depth.
+                    const depth = this.pV[profile].searchDepth || 245;
 
-                    if(depth) {
-                        searchCommandStr = `go depth ${depth}`;
+                    searchCommandStr = `go depth ${depth}`;
 
-                        updatePiP({ 'goalDepth': depth });
-                    }
+                    updatePiP({ 'goalDepth': depth });
                 break;
             }
     
@@ -1482,6 +1488,14 @@ class BackendInstance {
 
         if(data?.bestmove) {
             oldestUnfinishedCalcRequestObj.finished = true;
+
+            // Check if the board has changed while we were finishing up a move calculation.
+            if(oldestUnfinishedCalcRequestObj?.fen !== this.currentFen) {
+                // Let's start the new move calculation since we have now received the old 'bestmove'.
+                // A.C.A.S expects 'bestmove' to appear to finish up the calculation which is why we do this.
+                // (Starting a new best move calculation while the old one was running, there would be no 'bestmove')
+                this.calculateBestMoves(this.currentFen);
+            }
 
             if(isMessageForCurrentFen && this.pV[profile].activeGuiMoveMarkings.length === 0) {
                 const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);

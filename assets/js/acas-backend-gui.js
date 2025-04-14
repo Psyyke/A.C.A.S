@@ -208,23 +208,12 @@ guiBroadcastChannel.onmessage = e => {
 let lastPipEval = null;
 let firstTimeOpeningPip = true;
 
+// This only updates the pipData object, the actual PiP view is updated periodically
 function updatePiP(data) {
-    const isForceUpdate = data === 1;
+    if (data) Object.assign(pipData, data);
+}
 
-    if(!data && !isForceUpdate)
-        return;
-
-    for (const key in data) {
-        if(data.hasOwnProperty(key)) {
-            const isValueNew = pipData[key] !== data[key];
-
-            if(isValueNew || isForceUpdate)
-                pipData[key] = data[key];
-            else
-                return;
-        }
-    }
-
+function updatePictureInPictureView() {
     if(!pipCanvas)
         return;
 
@@ -288,9 +277,16 @@ function updatePiP(data) {
     }
 
     if(pipData.calculationTimeElapsed) {
+        const timeMs = pipData.calculationTimeElapsed;
+        const timeFormatted = timeMs > 9999
+            ? `${(timeMs / 1000).toFixed(1)}s`
+            : `${timeMs}ms`;
+    
+        const progressPercent = (progress * 100).toFixed(0);
+    
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
         ctx.font = '500 50px Mona Sans';
-        ctx.fillText(`(${pipData.calculationTimeElapsed}ms, ${(progress * 100).toFixed(0)}%)`, 320, 80);
+        ctx.fillText(`(${timeFormatted}, ${progressPercent}%)`, 320, 80);
     }
 
     if(from && to) {
@@ -615,14 +611,14 @@ async function startPictureInPicture() {
 
     const attemptPlay = async () => {
         try {
-            updatePiP(1);
+            updatePictureInPictureView();
 
             await video.play();
             await video.requestPictureInPicture();
 
             setInterval(() => {
-                updatePiP(1);
-            }, 1000);
+                updatePictureInPictureView();
+            }, 250);
         } catch (err) {
             if(err.name === 'NotAllowedError') {
                 const handleUserInteraction = async () => {
