@@ -57,7 +57,7 @@
 // @match       http://chess.net/*
 // @match       https://chess.net/*
 // @match       https://www.freechess.club/*
-// @match       https://*chessclub.com/*
+// @match       https://*.chessclub.com/*
 // @match       https://gameknot.com/*
 // @match       https://chesstempo.com/*
 // @match       https://www.redhotpawn.com/*
@@ -65,21 +65,28 @@
 // @match       https://www.simplechess.com/*
 // @match       https://chessworld.net/*
 // @match       https://app.edchess.io/*
+// [ GRANTS FOR BASIC FUNCTIONALITY ]
+// @grant       GM.getValue
+// @grant       GM.setValue
+// @grant       GM.deleteValue
+// @grant       GM.listValues
+// @grant       GM.openInTab
+// @grant       unsafeWindow
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
 // @grant       GM_listValues
-// @grant       GM_registerMenuCommand
 // @grant       GM_openInTab
-// @grant       GM_addStyle
+// [ GRANTS FOR EXTRA FUNCTIONALITY ]
+// @grant       GM_registerMenuCommand
 // @grant       GM_setClipboard
 // @grant       GM_notification
-// @grant       unsafeWindow
 // @run-at      document-start
-// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js
+// @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
+// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=1
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.8
+// @version     2.2.9
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -110,9 +117,16 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 //////////////////////////////////////////////////////////////////
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
 
+if(typeof unsafeWindow !== 'object') {
+    if(confirm(
+        'Your userscript manager is not supported because "unsafeWindow" is missing.\n\n'
+        + 'Would you like to be redirected to an install page for a supported manager?'
+    )) window.location.href = 'https://psyyke.github.io/A.C.A.S/install/';
 
+    return;
+}
 
-
+(async () => { await LOAD_LEGACY_GM_SUPPORT();
 /*
   ______         _____  ______  _______
  |  ____ |      |     | |_____] |_____| |
@@ -122,21 +136,16 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
 Code below this point runs on any site, including the GUI.
 */
 
-// KEEP THESE AS FALSE ON PRODUCTION
-const debugModeActivated = false;
-const onlyUseDevelopmentBackend = false;
-
-const domain = window.location.hostname.replace('www.', '');
-const greasyforkURL = 'https://greasyfork.org/en/scripts/459137';
-
 const backendConfig = {
     'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' },
     'path': '/A.C.A.S/'
 };
 
 const currentBackendUrlKey = 'currentBackendURL';
-
-const isBackendUrlUpToDate = Object.values(backendConfig.hosts).some(x => GM_getValue(currentBackendUrlKey)?.includes(x));
+const currentBackendUrl = typeof GM_getValue === 'function'
+    ? GM_getValue(currentBackendUrlKey)
+    : await GM.getValue(currentBackendUrlKey);
+const isBackendUrlUpToDate = Object.values(backendConfig.hosts).some(x => currentBackendUrl?.includes(x));
 
 function constructBackendURL(host) {
     const protocol = window.location.protocol + '//';
@@ -145,7 +154,7 @@ function constructBackendURL(host) {
     return protocol + (host || (hosts?.prod || hosts?.path)) + backendConfig.path;
 }
 
-function isRunningOnBackend() {
+function isRunningOnBackend(skipGM) {
     const hostsArr = Object.values(backendConfig.hosts);
 
     const foundHost = hostsArr.find(host => host === window?.location?.host);
@@ -153,14 +162,18 @@ function isRunningOnBackend() {
 
     const isBackend = typeof foundHost === 'string' && isCorrectPath;
 
-    if(isBackend) {
+    if(isBackend && !skipGM)
         GM_setValue(currentBackendUrlKey, constructBackendURL(foundHost));
 
-        return true;
-    }
-
-    return false;
+    return isBackend;
 }
+
+// KEEP THESE AS FALSE ON PRODUCTION
+const debugModeActivated = false;
+const onlyUseDevelopmentBackend = false;
+
+const domain = window.location.hostname.replace('www.', '');
+const greasyforkURL = 'https://greasyfork.org/en/scripts/459137';
 
 function prependProtocolWhenNeeded(url) {
     if(!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -234,10 +247,6 @@ if(isRunningOnBackend()) {
 
     return;
 }
-
-
-
-
 
 
 /*
@@ -3224,3 +3233,5 @@ if(typeof GM_registerMenuCommand === 'function') {
 }
 
 setInterval(initializeIfSiteReady, 1000);
+
+})(); // wraps around the whole userscript to enable async
