@@ -272,7 +272,7 @@ function exposeViaMessages() {
     const script = document.createElement('script');
     script.innerHTML = 'window.isUserscriptActive = true;';
 
-    document.body.appendChild(script);
+    document.head.appendChild(script);
 }
 
 function exposeViaUnsafe() {
