@@ -62,8 +62,8 @@ class BackendInstance {
             };
         });
 
-        this.getConfigValue = (key, profile) => {
-            return this.config[key]?.get(profile);
+        this.getConfigValue = async (key, profile) => {
+            return await this.config[key]?.get(profile);
         }
     
         // Not in use
@@ -105,17 +105,16 @@ class BackendInstance {
         this.moveDiffHistory = [];
         
         this.profileVariables = class {
-            constructor(t, profile) {
+            constructor() {
                 this.chessVariants = ['chess'];
-                
-                this.chessVariant = isVariant960(chessVariant) ? formatVariant('chess') : formatVariant(chessVariant || t.getConfigValue(t.configKeys.chessVariant, profile) || 'chess');
-                this.useChess960 =  isVariant960(chessVariant) ? true : t.getConfigValue(t.configKeys.useChess960, profile);
         
-                this.lc0WeightName = t.getConfigValue(t.configKeys.lc0Weight, profile);
+                this.chessVariant = null;
+                this.useChess960 = null;
+                this.lc0WeightName = null;
         
                 this.searchDepth = null;
                 this.engineNodes = 1;
-         
+        
                 this.currentMovetimeTimeout = null;
         
                 this.pastMoveObjects = [];
@@ -132,14 +131,35 @@ class BackendInstance {
         
                 this.currentSpeeches = [];
             }
-        }
+        
+            static async create(t, profile) {
+                const instance = new this();
+        
+                const variantFromConfig = await t.getConfigValue(t.configKeys.chessVariant, profile);
+                const use960FromConfig = await t.getConfigValue(t.configKeys.useChess960, profile);
 
+                instance.chessVariant = isVariant960(chessVariant)
+                    ? formatVariant('chess')
+                    : formatVariant(chessVariant || variantFromConfig || 'chess');
+                instance.useChess960 = isVariant960(chessVariant) ? true : use960FromConfig;
+                instance.lc0WeightName = await t.getConfigValue(t.configKeys.lc0Weight, profile);
+        
+                return instance;
+            }
+        };
+        
         this.defaultStartpos = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-        this.CommLink = new USERSCRIPT.CommLinkHandler(`backend_${this.instanceID}`, {
+        this.CommLink = new CommLinkHandler(`backend_${this.instanceID}`, {
             'singlePacketResponseWaitTime': 1500,
             'maxSendAttempts': 3,
-            'statusCheckInterval': 1
+            'statusCheckInterval': 1,
+            'functions': {
+                'getValue': USERSCRIPT.getValue,
+                'setValue': USERSCRIPT.setValue,
+                'deleteValue': USERSCRIPT.deleteValue,
+                'listValues': USERSCRIPT.listValues,
+            }
         });
 
         this.CommLink.registerSendCommand('ping');
@@ -177,11 +197,17 @@ class BackendInstance {
             }
         };
 
-        getProfiles().filter(p => p.config.engineEnabled).forEach(profileObj => {
-            this.pV[profileObj.name] = new this.profileVariables(this, profileObj);
+        this.loadEngines();
+    }
 
+    async loadEngines() {
+        const profiles = await getProfiles();
+        const activeProfiles = profiles.filter(p => p.config.engineEnabled);
+
+        for (const profileObj of activeProfiles) {
+            this.pV[profileObj.name] = await this.profileVariables.create(this, profileObj);
             this.loadEngine(profileObj.name);
-        });
+        }        
     }
 
     processPacket(packet) {
@@ -237,18 +263,18 @@ class BackendInstance {
 
     Interface = {
         boardUtils: {
-            markMoves: (moveObjArr, profile) => {
+            markMoves: async (moveObjArr, profile) => {
                 this.Interface.boardUtils.removeMarkings(profile);
 
                 const maxScale = 1;
                 const minScale = 0.5;
                 const totalRanks = moveObjArr.length;
-                const arrowOpacity = this.getConfigValue(this.configKeys.arrowOpacity, profile) / 100;
-                const showOpponentMoveGuess = this.getConfigValue(this.configKeys.showOpponentMoveGuess, profile);
-                const showOpponentMoveGuessConstantly = this.getConfigValue(this.configKeys.showOpponentMoveGuessConstantly, profile);
-                const primaryArrowColorHex = this.getConfigValue(this.configKeys.primaryArrowColorHex, profile);
-                const secondaryArrowColorHex = this.getConfigValue(this.configKeys.secondaryArrowColorHex, profile);
-                const opponentArrowColorHex = this.getConfigValue(this.configKeys.opponentArrowColorHex, profile);
+                const arrowOpacity = await this.getConfigValue(this.configKeys.arrowOpacity, profile) / 100;
+                const showOpponentMoveGuess = await this.getConfigValue(this.configKeys.showOpponentMoveGuess, profile);
+                const showOpponentMoveGuessConstantly = await this.getConfigValue(this.configKeys.showOpponentMoveGuessConstantly, profile);
+                const primaryArrowColorHex = await this.getConfigValue(this.configKeys.primaryArrowColorHex, profile);
+                const secondaryArrowColorHex = await this.getConfigValue(this.configKeys.secondaryArrowColorHex, profile);
+                const opponentArrowColorHex = await this.getConfigValue(this.configKeys.opponentArrowColorHex, profile);
 
                 moveObjArr.forEach((markingObj, idx) => {
                     const [from, to] = markingObj.player;
@@ -421,10 +447,10 @@ class BackendInstance {
 
             infoTextElem.classList.remove('hidden');
         },
-        updateEval: (centipawnEval, mate, profile) => {
+        updateEval: async (centipawnEval, mate, profile) => {
             const evalFill = this.instanceElem.querySelector('.eval-fill');
             const gradualness = 8;
-            const playerColor = this.getPlayerColor(profile);
+            const playerColor = await this.getPlayerColor(profile);
 
             if(playerColor == 'b') {
                 centipawnEval = -centipawnEval;
@@ -460,7 +486,7 @@ class BackendInstance {
         },
     };
 
-    renderMetric(fen, profile) {
+    async renderMetric(fen, profile) {
         // Remove all previous metrics
         const previousMetrics = this.pV[profile].activeMetrics;
         
@@ -473,19 +499,19 @@ class BackendInstance {
         }
 
         // Get config variables
-        const renderSquarePlayer        = this.getConfigValue(this.configKeys.renderSquarePlayer, profile);
-        const renderSquareEnemy         = this.getConfigValue(this.configKeys.renderSquareEnemy, profile);
-        const renderSquareContested     = this.getConfigValue(this.configKeys.renderSquareContested, profile);
-        const renderSquareSafe          = this.getConfigValue(this.configKeys.renderSquareSafe, profile);
-        const renderPiecePlayerCapture  = this.getConfigValue(this.configKeys.renderPiecePlayerCapture, profile);
-        const renderPieceEnemyCapture   = this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
-        const renderOnExternalSite      = this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
+        const renderSquarePlayer        = await this.getConfigValue(this.configKeys.renderSquarePlayer, profile);
+        const renderSquareEnemy         = await this.getConfigValue(this.configKeys.renderSquareEnemy, profile);
+        const renderSquareContested     = await this.getConfigValue(this.configKeys.renderSquareContested, profile);
+        const renderSquareSafe          = await this.getConfigValue(this.configKeys.renderSquareSafe, profile);
+        const renderPiecePlayerCapture  = await this.getConfigValue(this.configKeys.renderPiecePlayerCapture, profile);
+        const renderPieceEnemyCapture   = await this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
+        const renderOnExternalSite      = await this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
 
         // If none exist, do not analyze
         if(!(renderSquarePlayer || renderSquareEnemy || renderSquareContested || renderSquareSafe || renderPieceEnemyCapture))
             return;
 
-        const playerColor = this.getPlayerColor(profile);
+        const playerColor = await this.getPlayerColor(profile);
         const addedMetrics = [];
 
         // BoardAnalyzer exists on the global window object, file acas-board-analyzer.js
@@ -584,23 +610,26 @@ class BackendInstance {
 
         this.pV[profile].activeMetrics.push(...addedMetrics);
 
-        // this to external addedMetrics
+        // Send metrics to external addedMetrics
         if(renderOnExternalSite) {
-            this.CommLink.commands.renderMetricsToSite(addedMetrics);
+            // Create a copy without modifying the original array
+            const metricsWithoutElem = addedMetrics.map(x => ({ ...x, elem: null }));
+
+            this.CommLink.commands.renderMetricsToSite(metricsWithoutElem);
         }
     }
 
-    setEngineElo(elo, didUserUpdateSetting, didUpdateAdvancedElo, profile) {
-        const enableAdvancedElo = this.getConfigValue(this.configKeys.enableAdvancedElo, profile);
+    async setEngineElo(elo, didUserUpdateSetting, didUpdateAdvancedElo, profile) {
+        const enableAdvancedElo = await this.getConfigValue(this.configKeys.enableAdvancedElo, profile);
 
         if(enableAdvancedElo) {
-            const advancedElo            = this.getConfigValue(this.configKeys.advancedElo, profile);
-            const advancedEloDepth       = this.getConfigValue(this.configKeys.advancedEloDepth, profile);
-            const advancedEloSkill       = this.getConfigValue(this.configKeys.advancedEloSkill, profile);
-            const advancedEloMaxError    = this.getConfigValue(this.configKeys.advancedEloMaxError, profile);
-            const advancedEloProbability = this.getConfigValue(this.configKeys.advancedEloProbability, profile);
-            const advancedEloHash        = this.getConfigValue(this.configKeys.advancedEloHash, profile);
-            const advancedEloThreads     = this.getConfigValue(this.configKeys.advancedEloThreads, profile);
+            const advancedElo            = await this.getConfigValue(this.configKeys.advancedElo, profile);
+            const advancedEloDepth       = await this.getConfigValue(this.configKeys.advancedEloDepth, profile);
+            const advancedEloSkill       = await this.getConfigValue(this.configKeys.advancedEloSkill, profile);
+            const advancedEloMaxError    = await this.getConfigValue(this.configKeys.advancedEloMaxError, profile);
+            const advancedEloProbability = await this.getConfigValue(this.configKeys.advancedEloProbability, profile);
+            const advancedEloHash        = await this.getConfigValue(this.configKeys.advancedEloHash, profile);
+            const advancedEloThreads     = await this.getConfigValue(this.configKeys.advancedEloThreads, profile);
 
             this.sendMsgToEngine(`setoption name UCI_Elo value ${advancedElo}`, profile);
 
@@ -755,12 +784,12 @@ class BackendInstance {
         this.pV[profile].useChess960 = bool;
     }
 
-    setEngineVariant(variant, profile) {
+    async setEngineVariant(variant, profile) {
         if(typeof variant == 'string') {
             this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`, profile);
 
             this.pV[profile].chessVariant = formatVariant(variant);
-            this.pV[profile].useChess960 = isVariant960(variant) ? true : this.getConfigValue(this.configKeys.useChess960, profile);
+            this.pV[profile].useChess960 = isVariant960(variant) || await this.getConfigValue(this.configKeys.useChess960, profile);
         }
     }
 
@@ -779,13 +808,13 @@ class BackendInstance {
         });
     }
 
-    getEngineType(profile) {
-        return this.getConfigValue(this.configKeys.chessEngine, profile);
+    async getEngineType(profile) {
+        return await this.getConfigValue(this.configKeys.chessEngine, profile);
     }
 
-    engineStartNewGame(variant, profile) {
+    async engineStartNewGame(variant, profile) {
         const chessVariant = formatVariant(variant);
-        const engineName = this.getEngineType(profile);
+        const engineName = await this.getEngineType(profile);
 
         if(!this.isEngineNotCalculating(profile)) {
             this.engineStopCalculating(profile, 'Engine was calculating while a new game was started!');
@@ -794,7 +823,7 @@ class BackendInstance {
         this.sendMsgToEngine('ucinewgame', profile); // very important to be before setting variant and so forth
         this.sendMsgToEngine('uci', profile); // to display variants
 
-        this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
+        this.setEngineMultiPV(await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
         this.setEngineShowWDL(true, profile);
 
         if(engineName !== 'lc0')
@@ -802,13 +831,13 @@ class BackendInstance {
         
         switch(engineName) {
             case 'lc0':
-                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
+                this.setEngineNodes(await this.getConfigValue(this.configKeys.engineNodes, profile), profile);
                 this.sendMsgToEngine('position startpos', profile);
 
                 break;
             default:
                 this.setEngineVariant(chessVariant, profile);
-                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), false, false, profile);
+                this.setEngineElo(await this.getConfigValue(this.configKeys.engineElo, profile), false, false, profile);
 
                 this.sendMsgToEngine('position startpos', profile);
                 this.sendMsgToEngine('d', profile);
@@ -834,9 +863,9 @@ class BackendInstance {
         }
     }
 
-    isPlayerTurn(lastFen, currentFen, profile) {
-        const playerColor = this.getPlayerColor(profile);
-        const turn = this.getTurnFromFenChange(lastFen, currentFen, profile);
+    async isPlayerTurn(lastFen, currentFen, profile) {
+        const playerColor = await this.getPlayerColor(profile);
+        const turn = await this.getTurnFromFenChange(lastFen, currentFen, profile);
 
         if(this.lastTurn === turn && this.domain === 'chessarena.com') {
             console.error('For some reason the turn was the same two times in a row, forcing turn to player!');
@@ -853,12 +882,12 @@ class BackendInstance {
         return !playerColor || turn == playerColor;
     }
 
-    speak(spokenText, profile) {
-        const isTTSEnabled = this.getConfigValue(this.configKeys.ttsVoiceEnabled, profile);
+    async speak(spokenText, profile) {
+        const isTTSEnabled = await this.getConfigValue(this.configKeys.ttsVoiceEnabled, profile);
 
         if(isTTSEnabled) {
-            const ttsVoiceName = this.getConfigValue(this.configKeys.ttsVoiceName, profile);
-            const ttsVoiceSpeed = this.getConfigValue(this.configKeys.ttsVoiceSpeed, profile);
+            const ttsVoiceName = await this.getConfigValue(this.configKeys.ttsVoiceName, profile);
+            const ttsVoiceSpeed = await this.getConfigValue(this.configKeys.ttsVoiceSpeed, profile);
 
             const speechConfig = {
                 rate: ttsVoiceSpeed / 10,
@@ -876,14 +905,15 @@ class BackendInstance {
         }
     }
 
-    updateSettings(updateObj) {
+    async updateSettings(updateObj) {
         const profile = updateObj.data.profile.name;
+        const profiles = await getProfiles();
 
-        const profilesWithEnabledEngine = getProfiles().filter(p => p.config.engineEnabled);
-        const profilesWithDisabledEngine = getProfiles().filter(p => !p.config.engineEnabled);
-        const nonexistingProfilesWithEngine = Object.keys(this.pV).filter(profileName => !getProfiles().find(p => p.name === profileName));
+        const profilesWithEnabledEngine = profiles.filter(p => p.config.engineEnabled);
+        const profilesWithDisabledEngine = profiles.filter(p => !p.config.engineEnabled);
+        const nonexistingProfilesWithEngine = Object.keys(this.pV).filter(profileName => !profiles.find(p => p.name === profileName));
 
-        const isEngineEnabled = this.getConfigValue(this.configKeys.engineEnabled, profile);
+        const isEngineEnabled = await this.getConfigValue(this.configKeys.engineEnabled, profile);
 
         // Handle profiles which engine is disabled
         for(const profileObj of profilesWithDisabledEngine) {
@@ -931,8 +961,8 @@ class BackendInstance {
         const didUpdateEngineEnabled = findSettingKeyFromData(this.configKeys.engineEnabled);
         const didUpdateNodes = findSettingKeyFromData(this.configKeys.engineNodes);
 
-        const chessVariant = formatVariant(this.getConfigValue(this.configKeys.chessVariant, profile));
-        const useChess960 = this.getConfigValue(this.configKeys.useChess960, profile);
+        const chessVariant = formatVariant(await this.getConfigValue(this.configKeys.chessVariant, profile));
+        const useChess960 = await this.getConfigValue(this.configKeys.useChess960, profile);
 
         if(didUpdateVariant || didUpdate960Mode) {
             this.set960Mode(useChess960, profile);
@@ -940,7 +970,7 @@ class BackendInstance {
             this.engineStartNewGame(didUpdateVariant ? chessVariant : this.pV[profile].chessVariant, profile);
         } else {
             if(didUpdateChessFont)
-                this.setChessFont(this.getConfigValue(this.configKeys.chessFont));
+                this.setChessFont(await this.getConfigValue(this.configKeys.chessFont));
 
             if(didUpdateChessEngine || (didUpdateEngineEnabled && isEngineEnabled)) {
                 if(didUpdateChessEngine) 
@@ -950,21 +980,21 @@ class BackendInstance {
 
                 this.killEngine(profile);
 
-                this.pV[profile] = new this.profileVariables(this, profile);
+                this.pV[profile] = await this.profileVariables.create(this, profile);
                 this.loadEngine(profile);
             }
 
             if(didUpdateElo)
-                this.setEngineElo(this.getConfigValue(this.configKeys.engineElo, profile), true, didUpdateAdvancedElo, profile);
+                this.setEngineElo(await this.getConfigValue(this.configKeys.engineElo, profile), true, didUpdateAdvancedElo, profile);
 
             if(didUpdateNodes)
-                this.setEngineNodes(this.getConfigValue(this.configKeys.engineNodes, profile), profile);
+                this.setEngineNodes(await this.getConfigValue(this.configKeys.engineNodes, profile), profile);
 
             if(didUpdateLc0Weight)
-                this.setEngineWeight(this.getConfigValue(this.configKeys.lc0Weight, profile), profile);
+                this.setEngineWeight(await this.getConfigValue(this.configKeys.lc0Weight, profile), profile);
 
             if(didUpdateMultiPV)
-                this.setEngineMultiPV(this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
+                this.setEngineMultiPV(await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
 
             if(didUpdate960Mode)
                 this.set960Mode(useChess960, profile);
@@ -1042,9 +1072,9 @@ class BackendInstance {
         return correctAmountOfChanges && !isAbnormalPieceChange;
     }
 
-    getTurnFromFenChange(lastFen, newFen, profile) {
-        const currentPlayerColor = this.getPlayerColor();
-        const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profile);
+    async getTurnFromFenChange(lastFen, newFen, profile) {
+        const currentPlayerColor = await this.getPlayerColor();
+        const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profile);
 
         if(!lastFen || !onlyCalculateOwnTurn) return currentPlayerColor;
 
@@ -1087,11 +1117,11 @@ class BackendInstance {
         return turn;
     }
 
-    getPlayerColor(profile) {
-        const playerColor = USERSCRIPT.instanceVars.playerColor.get(this.instanceID) || 'w';
+    async getPlayerColor(profile) {
+        const playerColor = await USERSCRIPT.instanceVars.playerColor.get(this.instanceID) || 'w';
 
         if(profile) {
-            const reverseSide = this.getConfigValue(this.configKeys.reverseSide, profile);
+            const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profile);
 
             if(reverseSide) {
                 return playerColor.toLowerCase() === 'w' ? 'b' : 'w'; 
@@ -1101,8 +1131,8 @@ class BackendInstance {
         return playerColor;
     }
 
-    displayFeedback(currentFen) {
-        const profiles = getProfiles();
+    async displayFeedback(currentFen) {
+        const profiles = await getProfiles();
 
         const clearFeedback = profileName => {
             if(!profileName) return;
@@ -1125,18 +1155,18 @@ class BackendInstance {
         });
 
         // Display new feedback
-        profiles.filter(p => p.config.enableMoveRatings).forEach(profileObj => {
+        for(const profileObj of profiles.filter(p => p.config.enableMoveRatings)) {
             const profileName = profileObj.name;
             const lastFen = this.pV[profileName].lastFeedbackFen;
-            const feedbackOnExternalSite = this.getConfigValue(this.configKeys.feedbackOnExternalSite, profileName);
-            const feedbackEngineDepth = this.getConfigValue(this.configKeys.feedbackEngineDepth, profileName);
-            const enableEnemyFeedback = this.getConfigValue(this.configKeys.enableEnemyFeedback, profileName);
+            const feedbackOnExternalSite = await this.getConfigValue(this.configKeys.feedbackOnExternalSite, profileName);
+            const feedbackEngineDepth = await this.getConfigValue(this.configKeys.feedbackEngineDepth, profileName);
+            const enableEnemyFeedback = await this.getConfigValue(this.configKeys.enableEnemyFeedback, profileName);
 
             const isChangeLogical = this.isFenChangeLogical(lastFen, currentFen);
 
             if(!isChangeLogical) return;
 
-            const playerColor = this.getPlayerColor();
+            const playerColor = await this.getPlayerColor();
 
             if(isChangeLogical && lastFen && currentFen) {
                 const moveObj = extractMoveFromBoardFen(lastFen, currentFen);
@@ -1195,25 +1225,30 @@ class BackendInstance {
                 this.pV[profileName].activeFeedbackDisplays.push(...addedFeedbacks);
         
                 if(feedbackOnExternalSite) {
-                    this.CommLink.commands.feedbackToSite(addedFeedbacks);
+                    // Create a copy without modifying the original array
+                    const feedbacksWithoutElem = addedFeedbacks.map(x => ({ ...x, elem: null }));
+
+                    this.CommLink.commands.feedbackToSite(feedbacksWithoutElem);
                 }
             }
-        });
+        }
     }
 
     async calculateBestMoves(currentFen, skipValidityChecks) {
-        getProfiles().filter(p => p.config.engineEnabled).forEach(profile => {
-            profile = profile.name;
+        const profiles = await getProfiles();
+
+        profiles.filter(p => p.config.engineEnabled).forEach(async (profile) => {
+            const profileName = profile.name;
 
             // Engine is still calculating, do not start any new calculation since,
             // that will not give us 'bestmove' which A.C.A.S' logic EXPECTS.
             // The best moves will be calculated after we get the 'bestmove'.
-            if(!this.isEngineNotCalculating(profile)) return;
+            if(!this.isEngineNotCalculating(profileName)) return;
 
-            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.pV[profile].lastFen, currentFen);
-            const isAbnormalPieceChange = this.isAbnormalPieceChange(this.pV[profile].lastFen, currentFen);
+            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.pV[profileName].lastFen, currentFen);
+            const isAbnormalPieceChange = this.isAbnormalPieceChange(this.pV[profileName].lastFen, currentFen);
             const isFenChangeLogical = correctAmountOfChanges && !isAbnormalPieceChange;
-            const reverseSide = this.getConfigValue(this.configKeys.reverseSide, profile);
+            const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
 
             let reversedFen = null;
 
@@ -1221,50 +1256,50 @@ class BackendInstance {
                 reversedFen = reverseFenPlayer(currentFen);
             }
 
-            const onlyCalculateOwnTurn = this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profile);
+            const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
 
             let isPlayerTurn = false;
             
             if(isFenChangeLogical) {
-                isPlayerTurn = this.isPlayerTurn(this.pV[profile].lastFen, currentFen, profile);
+                isPlayerTurn = await this.isPlayerTurn(this.pV[profileName].lastFen, currentFen, profileName);
     
-                this.pV[profile].lastFen = currentFen;
+                this.pV[profileName].lastFen = currentFen;
             }
     
-            const isFenChanged = this.pV[profile].lastCalculatedFen !== currentFen;
+            const isFenChanged = this.pV[profileName].lastCalculatedFen !== currentFen;
             const isFenChangeAllowed = !onlyCalculateOwnTurn || (isFenChangeLogical && isPlayerTurn);
     
             if((isFenChanged && isFenChangeAllowed) || skipValidityChecks) {
-                this.pV[profile].lastCalculatedFen = currentFen;
+                this.pV[profileName].lastCalculatedFen = currentFen;
             } else {
                 this.CommLink.commands.removeSiteMoveMarkings();
     
                 return;
             }
 
-            this.pV[profile].pendingCalculations.push({ 'fen': currentFen, 'startedAt': Date.now(), 'finished': false });
+            this.pV[profileName].pendingCalculations.push({ 'fen': currentFen, 'startedAt': Date.now(), 'finished': false });
 
-            this.Interface.boardUtils.removeMarkings(profile);
+            this.Interface.boardUtils.removeMarkings(profileName);
     
-            console.error('CALCULATING!', this.pV[profile].pendingCalculations, reversedFen || currentFen);
+            console.error('CALCULATING!', this.pV[profileName].pendingCalculations, reversedFen || currentFen);
     
             log.info(`Fen: "${currentFen}"`);
             log.info(`Updating board Fen`);
     
-            this.renderMetric(currentFen, profile);
+            this.renderMetric(currentFen, profileName);
             this.Interface.boardUtils.updateBoardFen(currentFen);
         
             log.info('Sending best move request to the engine!');
         
-            this.sendMsgToEngine(`position fen ${reversedFen || currentFen}`, profile);
+            this.sendMsgToEngine(`position fen ${reversedFen || currentFen}`, profileName);
     
             // Should not actually go infinite depth, read commenting below.
             // This is just a backup. It's not terrible to go infinite depth but problematic.
             let searchCommandStr = 'go infinite';
     
-            switch(this.getEngineType(profile)) {
+            switch(await this.getEngineType(profileName)) {
                 case 'lc0':
-                    const nodes = this.pV[profile].engineNodes;
+                    const nodes = this.pV[profileName].engineNodes;
 
                     searchCommandStr = `go nodes ${nodes}`;
 
@@ -1275,7 +1310,7 @@ class BackendInstance {
                     // The search is "infinite" if the searchDepth is null. The engine's max depth seems to be 245 on 'go infinite',
                     // but if it reaches that max depth on 'go infinite' it does not give 'bestmove'. A.C.A.S expects a bestmove, so that is no good.
                     // That is why we limit the infinite search depth ourselves.
-                    const depth = this.pV[profile].searchDepth || 100;
+                    const depth = this.pV[profileName].searchDepth || 100;
 
                     searchCommandStr = `go depth ${depth}`;
 
@@ -1283,32 +1318,31 @@ class BackendInstance {
                 break;
             }
     
-            this.sendMsgToEngine(searchCommandStr, profile);
+            this.sendMsgToEngine(searchCommandStr, profileName);
     
-            const movetime = this.getConfigValue(this.configKeys.maxMovetime, profile);
+            const movetime = await this.getConfigValue(this.configKeys.maxMovetime, profileName);
 
             updatePiP({ 'startTime': Date.now(), movetime });
     
             if(typeof movetime == 'number') {
                 const startFen = this.currentFen;
     
-                this.pV[profile].currentMovetimeTimeout = setTimeout(() => {
-                    if(startFen == this.currentFen && movetime != 0 && !this.isEngineNotCalculating(profile)) {
-                        this.engineStopCalculating(profile, 'Max movetime!');
+                this.pV[profileName].currentMovetimeTimeout = setTimeout(() => {
+                    if(startFen == this.currentFen && movetime != 0 && !this.isEngineNotCalculating(profileName)) {
+                        this.engineStopCalculating(profileName, 'Max movetime!');
                     }
                 }, movetime + 5);
             }
         });
-
     }
 
     getEngineAcasObj(i) {
         if(typeof i == 'object') {
-            return this.engines.find(obj => obj.profile == i.name);
+            return this.engines.find(obj => obj.profileName == i.name);
         } 
         
         else if(typeof i == 'string') {
-            return this.engines.find(obj => obj.profile == i);
+            return this.engines.find(obj => obj.profileName == i);
         }
 
         return this.engines[i ? i : this.engines.length - 1];
@@ -1355,8 +1389,8 @@ class BackendInstance {
         return this.pV[profile].pendingCalculations.find(x => !x.finished) ? false : true;
     }
 
-    displayMoves(moveObjects, profile) {
-        const displayMovesExternally = this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
+    async displayMoves(moveObjects, profile) {
+        const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
 
         this.Interface.boardUtils.markMoves(moveObjects, profile);
 
@@ -1375,7 +1409,7 @@ class BackendInstance {
         });
     }
 
-    engineMessageHandler(msg, profile) {
+    async engineMessageHandler(msg, profile) {
         const profileObj = this.pV[profile];
 
         if(!profileObj) {
@@ -1391,14 +1425,16 @@ class BackendInstance {
         const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
 
         if(isMsgNoSuchOption) {
-            const profileChessEngine = getProfile(profile).config.chessEngine;
+            const profile = await getProfile(profile);
+            const profileChessEngine = profile.config.chessEngine;
             const missingOptionName =  msg.split('No such option:')?.[1]?.trim();
 
             toast.warning(`"${missingOptionName}" not supported on ${profileChessEngine} (Running on profile "${profile}")`, 4e4);
         }
 
         if(isMsgFailure) {
-            const profileChessEngine = getProfile(profile).config.chessEngine;
+            const profile = await getProfile(profile);
+            const profileChessEngine = profile.config.chessEngine;
 
             toast.warning(`"${msg}" ("${profileChessEngine}" running on profile "${profile}")`, 4e4);
         }
@@ -1414,7 +1450,7 @@ class BackendInstance {
         }
 
         if(msg.includes('info')) {
-            if(data?.multipv === '1' || this.getEngineType(profile) === 'lozza-5') {
+            if(data?.multipv === '1' || await this.getEngineType(profile) === 'lozza-5') {
                 if(data?.depth) {
                     const depthText = transObj?.calculationDepth ?? 'Depth';
                     const winningText = transObj?.winning ?? 'Winning';
@@ -1459,10 +1495,10 @@ class BackendInstance {
 
             this.pV[profile].pastMoveObjects.push(moveObj);
 
-            const isMovetimeLimited = this.getConfigValue(this.configKeys.maxMovetime, profile) ? true : false;
-            const onlyShowTopMoves = this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
-            const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
-            const moveDisplayDelay = this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
+            const isMovetimeLimited = await this.getConfigValue(this.configKeys.maxMovetime, profile) ? true : false;
+            const onlyShowTopMoves = await this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
+            const markingLimit = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+            const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
             const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
             const topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
@@ -1473,7 +1509,7 @@ class BackendInstance {
             
             let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
-            if(this.getEngineType(profile) === 'lc0') {
+            if(await this.getEngineType(profile) === 'lc0') {
                 isSearchInfinite = this.pV[profile].engineNodes > 9e6 ? true : false;
             }
 
@@ -1498,8 +1534,8 @@ class BackendInstance {
             }
 
             if(isMessageForCurrentFen && this.pV[profile].activeGuiMoveMarkings.length === 0) {
-                const markingLimit = this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
-                const moveDisplayDelay = this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
+                const markingLimit = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+                const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
                 const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
                 let topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
 
@@ -1508,7 +1544,7 @@ class BackendInstance {
                     topMoveObjects.push({ 'player': [data.bestmove.slice(0,2), data.bestmove.slice(2, data.bestmove.length)], 'opponent': [null, null], 'ranking': 1  });
                 }
 
-                if(this.getEngineType(profile) === 'lc0') {
+                if(await this.getEngineType(profile) === 'lc0') {
                     updatePiP({ 'nodes': this.pV[profile].engineNodes, 'goalDepth': null });
                 } else {
                     updatePiP({ 'depth': this.pV[profile].searchDepth, 'goalNodes': null });
@@ -1537,18 +1573,18 @@ class BackendInstance {
         }
 
         if(msg === 'uciok' && (
-               this.getEngineType(profile) === 'lc0'
-            || this.getEngineType(profile) === 'lozza-5'
+               await this.getEngineType(profile) === 'lc0'
+            || await this.getEngineType(profile) === 'lozza-5'
         )) {
             this.setupEnvironment(this.defaultStartpos, [8, 8]);
         }
     }
 
-    async loadEngine(profile, engineName, attempt = 0) {
+    async loadEngine(profileName, engineName, attempt = 0) {
         const isReload = attempt > 0;
         let alreadyRestarted = false;
 
-        if(isReload) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profile);
+        if(isReload) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profileName);
 
         if(engineName && attempt > 100) {
             toast.warning(`Restarting the engine ${engineName} failed despite many attempts :(\n\nRefresh A.C.A.S!`);
@@ -1558,13 +1594,14 @@ class BackendInstance {
 
         const msgHandler = msg => {
             try {
-                this.engineMessageHandler(msg, profile);
+                this.engineMessageHandler(msg, profileName);
             } catch(e) {
-                console.error('Engine', this.instanceID, profile, 'error:', e);
+                console.error('Engine', this.instanceID, profileName, 'error:', e);
             }
-        }
+        };
 
-        const profileChessEngine = engineName || getProfile(profile).config.chessEngine;
+        const profileObj = await getProfile(profileName);
+        const profileChessEngine = engineName || profileObj.config.chessEngine;
         const enginesRequiringSAB = [ // Requiring SharedArrayBuffer
             'stockfish-17-wasm',
             'stockfish-16-1-wasm', 
@@ -1576,7 +1613,7 @@ class BackendInstance {
         const isEngineIncompatible = !window?.SharedArrayBuffer && enginesRequiringSAB.includes(profileChessEngine);
 
         if(isEngineIncompatible) {
-            toast.warning(`The engine "${profileChessEngine}" you have selected on profile "${profile}" is incompatible with the mode A.C.A.S was launched in.` 
+            toast.warning(`The engine "${profileChessEngine}" you have selected on profile "${profileName}" is incompatible with the mode A.C.A.S was launched in.` 
                 + '\n\nPlease change the engine on the settings or launch A.C.A.S using ?sab=true.', 3e4);
             return;
         }
@@ -1605,21 +1642,21 @@ class BackendInstance {
             // Filter out empty from the array
             this.engines = this.engines.filter(x => x);
 
-            console.error('RESTARTING engine', name, profile);
-            this.loadEngine(profile, name, attempt + 1);
+            console.error('RESTARTING engine', name, profileName);
+            this.loadEngine(profileName, name, attempt + 1);
 
             alreadyRestarted = true;
         }
 
-        function startGame(variant = 'chess') {
+        async function startGame(variant = 'chess') {
             if(isReload) {
-                const currentFen = USERSCRIPT.instanceVars.fen.get(this.instanceID);
+                const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
                 const fen = currentFen || this.variantStartPosFen;
 
                 // Finish all previous calculations
-                this.pV[profile].pendingCalculations.map(x => x['finished'] = true);
+                this.pV[profileName].pendingCalculations.map(x => x['finished'] = true);
 
-                this.engineStartNewGame(variant, profile);
+                this.engineStartNewGame(variant, profileName);
 
                 this.calculateBestMoves(fen, true);
 
@@ -1630,7 +1667,7 @@ class BackendInstance {
                 if(window?.ChessgroundX) {
                     clearInterval(waitForChessgroundLoad);
                     
-                    this.engineStartNewGame(variant, profile);
+                    this.engineStartNewGame(variant, profileName);
                 }
             }, 500);
         }
@@ -1648,7 +1685,7 @@ class BackendInstance {
                         'engine': (method, a) => stockfish[method](...a),
                         'sendMsg': msg => stockfish.postMessage(msg),
                         'worker': stockfish,
-                        profile
+                        profileName
                     });
         
                     startGame.bind(this)();
@@ -1675,11 +1712,11 @@ class BackendInstance {
                         'engine': (method, a) => stockfish.postMessage({ method: method, args: [...a] }),
                         'sendMsg': msg => stockfish.postMessage({ method: 'uci', args: [msg] }),
                         'worker': stockfish,
-                        profile
+                        profileName
                     });
 
                     startGame.bind(this)(workerName === 'f14-worker' 
-                        ? formatVariant(this.pV[profile].chessVariant)
+                        ? formatVariant(this.pV[profileName].chessVariant)
                         : 'chess');
                 } else if (e.data) {
                     msgHandler(e.data);
@@ -1737,7 +1774,7 @@ class BackendInstance {
                                 'engine': (method, a) => lozza[method](...a),
                                 'sendMsg': msg => lozza.postMessage(msg),
                                 'worker': lozza,
-                                profile
+                                profileName
                             });
     
                             startGame.bind(this)();
@@ -1765,12 +1802,12 @@ class BackendInstance {
                                 'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
                                 'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
                                 'worker': lc0,
-                                profile
+                                profileName
                             });
     
-                            await this.setEngineWeight(this.pV[profile].lc0WeightName, profile);
+                            await this.setEngineWeight(this.pV[profileName].lc0WeightName, profileName);
                 
-                            this.engineStartNewGame('chess', profile);
+                            this.engineStartNewGame('chess', profileName);
                         } else if (e.data) {
                             msgHandler(e.data);
                         }
@@ -1851,7 +1888,7 @@ class BackendInstance {
         this.guiUpdaterActive = true;
     }
 
-    setupEnvironment(startpos, dimensions) {
+    async setupEnvironment(startpos, dimensions) {
         if(this.environmentSetupRun)
             return;
 
@@ -1863,7 +1900,7 @@ class BackendInstance {
             let variant = 'chess';
             let warnedAboutOnlyOwnTurn = false;
 
-            Object.keys(this.pV).forEach(profileName => {
+            for(const profileName of Object.keys(this.pV)) {
                 this.pV[profileName].pendingCalculations = [];
 
                 const profileVariant = formatVariant(this.pV[profileName].chessVariant);
@@ -1871,16 +1908,18 @@ class BackendInstance {
                 if(profileVariant !== 'chess')
                     variant = profileVariant;
 
-                if(!warnedAboutOnlyOwnTurn && variant != 'chess' && this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName)) {
+                const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
+
+                if(!warnedAboutOnlyOwnTurn && variant != 'chess' && onlyCalculateOwnTurn) {
                     const msg = transObj?.ownTurnMightNotWorkVariants ?? "'Only Own Turn' setting might not work for variants!"
                     toast.warning(`${msg} (todo)`, 5000);
 
                     warnedAboutOnlyOwnTurn = true;
                 }
-            });
+            }
 
             let variantText = variant;
-            let chessFont = formatChessFont(this.getConfigValue(this.configKeys.chessFont));
+            let chessFont = formatChessFont(await this.getConfigValue(this.configKeys.chessFont));
 
             const formattedChessVariant = formatVariant(variant);
             const shouldSwitchFont = chessFont === 'staunty' && ![
@@ -1900,10 +1939,10 @@ class BackendInstance {
 
             this.variantStartPosFen = startpos;
 
-            const currentFen = USERSCRIPT.instanceVars.fen.get(this.instanceID);
+            const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
             const fen = currentFen || this.variantStartPosFen;
 
-            const orientation = this.getPlayerColor();
+            const orientation = await this.getPlayerColor();
 
             const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
             const instanceIdQuery = `[data-instance-id="${this.instanceID}"]`;
@@ -2098,7 +2137,7 @@ class BackendInstance {
         let worker = null;
 
         if(typeof i === 'string') {
-            const engineIndex = this.engines.findIndex(obj => obj.profile === i);
+            const engineIndex = this.engines.findIndex(obj => obj.profileName === i);
             
             if(engineIndex !== -1) {
                 worker = this.engines[engineIndex].worker;

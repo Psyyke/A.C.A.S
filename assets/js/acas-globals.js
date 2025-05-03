@@ -1,5 +1,8 @@
-const repositoryURL = 'https://github.com/Psyyke/A.C.A.S'; // old relics, not in use
-const repositoryRawURL = null; // old relics, not in use
+// If you modify these strings, modify them on the userscript as well
+const GLOBAL_VARIABLES = {
+    gmConfigKey: 'AcasConfig',
+    tempValueIndicator: '-temp-value-'
+};
 
 let transObj = null; // set by acas-i18n-processor.js
 let fullTransObj = null;
@@ -234,9 +237,10 @@ function capitalize(s) {
     return s && s[0].toUpperCase() + s.slice(1);
 }
 
-function getProfile(profileName) {
-    const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
-    const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+async function getProfile(profileName) {
+    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
+
     let profile = { 'name': profileName, 'config': null };
 
     const instanceProfileObj = config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles']?.[profileName];
@@ -255,9 +259,9 @@ function getProfile(profileName) {
     return profile;
 }
 
-function getProfileNames() {
-    const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
-    const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+async function getProfileNames() {
+    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
 
     const instanceProfilesObj = config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles'];
 
@@ -267,31 +271,32 @@ function getProfileNames() {
 
     if(profilesObj) return Object.keys(profilesObj);
 
-    console.error('Could not found profile names!', { ...settingFilterObj, configDatabaseKey, config });
+    console.error('Could not found profile names!', { ...settingFilterObj, gmConfigKey, config });
 
     return false;
 }
 
-function getProfiles() {
-    const profileNameArr = getProfileNames();
-    
+async function getProfiles() {
+    const profileNameArr = await getProfileNames();
+
     if(!profileNameArr) {
         console.error('getProfiles() failed, did not find any profile names!');
 
         return [];
     }
 
-    const profileArr = profileNameArr.map(profileName => getProfile(profileName));
+    const profileArr = await Promise.all(profileNameArr.map(profileName => getProfile(profileName)));
 
     return profileArr;
 }
 
-function getGmConfigValue(key, instanceID, profileID) {
+async function getGmConfigValue(key, instanceID, profileID) {
     if(typeof profileID === 'object') {
         profileID = profileID.name;
     }
 
-    const config = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig);
+    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
 
     if(profileID) {
         const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
@@ -606,4 +611,10 @@ function initNestedObject(obj, keys) {
         if (!acc[key]) acc[key] = {};
         return acc[key];
     }, obj);
+}
+
+function getUniqueID() {
+    return ([1e7]+-1e3+4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    )
 }

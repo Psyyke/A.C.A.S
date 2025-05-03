@@ -1,19 +1,24 @@
 let started = false;
 
-function attemptStarting() {
+async function attemptStarting() {
     if(started)
         return;
 
-    if(typeof USERSCRIPT === 'object') {
+    const isUserscriptActive = window.isUserscriptActive;
+    const isTosAccepted = isUserscriptActive
+        ? await USERSCRIPT.getValue('isTosAccepted')
+        : false;
+
+    if(isUserscriptActive) {
         started = true;
 
         displayNoUserscriptNotification(true);
     }
         
-    if(typeof USERSCRIPT === 'undefined') {
+    if(!isUserscriptActive) {
         displayNoUserscriptNotification();
 
-    } else if(!USERSCRIPT.GM_getValue('isTosAccepted')) {
+    } else if(!isTosAccepted) {
         displayNoUserscriptNotification(true); // failsafe
         started = true; // failsafe
 
@@ -65,11 +70,17 @@ function attemptStarting() {
         else if(autoMoveCheckbox?.checked)
             autoMoveCheckbox.click();
 
-        const MainCommLink = new USERSCRIPT.CommLinkHandler('mum', {
+        const MainCommLink = new CommLinkHandler('mum', {
             'singlePacketResponseWaitTime': 1500,
             'maxSendAttempts': 3,
             'statusCheckInterval': 1,
-            'silentMode': true
+            'silentMode': true,
+            'functions': {
+                'getValue': USERSCRIPT.getValue,
+                'setValue': USERSCRIPT.setValue,
+                'deleteValue': USERSCRIPT.deleteValue,
+                'listValues': USERSCRIPT.listValues,
+            }
         });
     
         MainCommLink.registerListener('mum', packet => {
@@ -93,18 +104,28 @@ function attemptStarting() {
         });
     }
 
-    function initDbValue(name, value) {
-        if(USERSCRIPT.GM_getValue(name) == undefined) {
-            USERSCRIPT.GM_setValue(name, value);
+    async function initDbValue(name, value) {
+        const dbValue = await USERSCRIPT.getValue(name);
+
+        if(dbValue == undefined) {
+            USERSCRIPT.setValue(name, value);
         }
+
+        return true;
     }
 
-    function initializeDatabase() {
-        // add AcasConfig value if it doesn't exist already
-        initDbValue(USERSCRIPT.dbValues.AcasConfig, { 'global': {} });
+    async function initializeDatabase() {
+        const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+        const tempValueIndicator = GLOBAL_VARIABLES.tempValueIndicator;
 
-        const tempValueKeys = USERSCRIPT.GM_listValues().filter(key => key.includes(USERSCRIPT.tempValueIndicator));
-        const configInstances = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig)?.instance;
+        // add AcasConfig value if it doesn't exist already
+        await initDbValue(gmConfigKey, { 'global': {} });
+
+        const gmStorageKeys = await USERSCRIPT.listValues();
+        const tempValueKeys = gmStorageKeys.filter(key => key.includes(tempValueIndicator));
+        const config = await USERSCRIPT.getValue(gmConfigKey);
+        
+        const configInstances = config?.instance;
         
         // removes instance config values from instance IDs that aren't active anymore
         if(configInstances) {
@@ -115,27 +136,35 @@ function attemptStarting() {
                     ? true : false;
 
                 if(!isConfigInstanceRelevant) {
-                    const config = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig);
-
                     delete config.instance[instanceIdKey];
 
-                    USERSCRIPT.GM_setValue(USERSCRIPT.dbValues.AcasConfig, config);
+                    USERSCRIPT.setValue(gmConfigKey, config);
                 }
             });
         }
         
+        const expiredKeys = await Promise.all(
+            tempValueKeys.map(async key => {
+                const configValue = await USERSCRIPT.getValue(key);
+                const isExpired = Date.now() - configValue.date > 6e4 * 60;
+                return isExpired ? key : null;
+            })
+        );
+        
         // removes temp values with no usage for over 60 minutes
-        tempValueKeys
-            .filter(key => Date.now() - USERSCRIPT.GM_getValue(key).date > 6e4 * 60)
-            .forEach(key => USERSCRIPT.GM_deleteValue(key));
+        expiredKeys
+            .filter(key => key !== null)
+            .forEach(key => USERSCRIPT.deleteValue(key));
     }
 }
 
-attemptStarting();
+(async () => {
+    await attemptStarting();
 
-const userscriptSearchInterval = setInterval(() => {
-    if(!started)
-        attemptStarting();
-    else
-        clearInterval(userscriptSearchInterval);
-}, 1);
+    const userscriptSearchInterval = setIntervalAsync(async () => {
+        if(!started)
+            await attemptStarting();
+        else
+            userscriptSearchInterval.stop();
+    }, 1);
+})();

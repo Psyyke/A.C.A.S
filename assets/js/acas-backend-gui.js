@@ -123,24 +123,27 @@ const pipData = {};
 let pipCanvas = null;
 let lastProfileID = null;
 
-if(userscriptInfoElem && typeof USERSCRIPT === 'object' && USERSCRIPT?.GM_info) {
-    const GM_info = USERSCRIPT?.GM_info;
-    const platform = GM_info?.platform || GM_info?.userAgentData || { 'platform': 'Unknown' };
+(async () => {
+    const GM_info = await USERSCRIPT.getInfo();
 
-    const platformData = objectToString(platform);
-    const userscriptManagerData = [GM_info?.scriptHandler, GM_info?.version]?.join(' ');
-    const userscriptData = [GM_info?.script?.author, GM_info?.script?.version]?.join(' ');
-
-    document.title = `A.C.A.S (Using ${userscriptData})`;
-
-    if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.2.8')) {
-        updateYourUserscriptElem.classList.remove('hidden');
-    }
+    if(userscriptInfoElem && typeof USERSCRIPT === 'object' && GM_info) {
+        const platform = GM_info?.platform || GM_info?.userAgentData || { 'platform': 'Unknown' };
     
-    userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
-} else {
-    userscriptInfoElem?.remove();
-}
+        const platformData = objectToString(platform);
+        const userscriptManagerData = [GM_info?.scriptHandler, GM_info?.version]?.join(' ');
+        const userscriptData = [GM_info?.script?.author, GM_info?.script?.version]?.join(' ');
+    
+        document.title = `A.C.A.S (Using ${userscriptData})`;
+    
+        if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.2.8')) {
+            updateYourUserscriptElem.classList.remove('hidden');
+        }
+        
+        userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
+    } else {
+        userscriptInfoElem?.remove();
+    }
+})();
 
 const boardSizeModifierKey = 'boardSizeModifier';
 const instanceSizeKey = 'instanceSize';
@@ -404,7 +407,7 @@ function displayTOS() {
 
     tosContinueBtnElem.onclick = function() {
         if(tosCheckboxElem.checked) {
-            USERSCRIPT.GM_setValue('isTosAccepted', true);
+            USERSCRIPT.setValue('isTosAccepted', true);
             
             setTimeout(() => location.search = '?t=' + Date.now(), 250);
         }
@@ -496,17 +499,19 @@ function createNewProfile() {
     updateSettingsValues();
 }
 
-function fillProfileDropdown() {
-    const profileNames = getProfileNames();
+async function fillProfileDropdown() {
+    const profileNames = await getProfileNames();
 
     if(!profileNames) return false;
 
-    profileNames.forEach(profileName => {
-        const nameExists = [...profileDropdown.querySelectorAll('.dropdown-item')].find(elem => elem.dataset.value === formatProfileName(profileName));
+    for(const profileName of profileNames) {
+        const nameExists = [...profileDropdown.querySelectorAll('.dropdown-item')].find(
+            elem => elem.dataset.value === formatProfileName(profileName)
+        );
 
         if(!nameExists) {
             const itemElem = addDropdownItem(profileDropdown, formatProfileName(profileName));
-            const currentActiveProfileName = getGmConfigValue(USERSCRIPT.dbValues.chessEngineProfile, settingFilterObj.instanceID, false);
+            const currentActiveProfileName = await getGmConfigValue('chessEngineProfile', settingFilterObj.instanceID, false);
 
             if(profileName === currentActiveProfileName) {
                 setTimeout(() => {
@@ -514,19 +519,19 @@ function fillProfileDropdown() {
                 }, 100);
             }
         }
-    });
+    }
 }
 
-function deleteProfile() {
+async function deleteProfile() {
     const warningText = transObj?.profileRemovalWarning ?? 'Are you sure you want to remove this profile?\n\nThis action cannot be reversed.';
 
     if(confirm(warningText)) {
+        const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
         const profileName = document.querySelector('input[data-key="chessEngineProfile"]').value;
 
         removeDropdownItem(profileDropdown, profileName);
 
-        const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
-        const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+        const config = await USERSCRIPT.getValue(gmConfigKey);
 
         if(settingFilterObj.instanceID) {
             delete config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles']?.[profileName];
@@ -534,7 +539,7 @@ function deleteProfile() {
             delete config?.[settingFilterObj.type]?.['profiles']?.[profileName];
         }
 
-        USERSCRIPT.GM_setValue(configDatabaseKey, config);
+        USERSCRIPT.setValue(gmConfigKey, config);
     }
 }
 
@@ -744,32 +749,32 @@ async function makeSettingChanges(inputElem) {
     processedElems.push([inputElem, value]);
 }
 
-function updateSettingsValues() {
-    [...document.querySelectorAll('input[data-key]')].forEach(inputElem => {
+async function updateSettingsValues() {
+    const inputElements = [...document.querySelectorAll('input[data-key]')];
+
+    for(const inputElem of inputElements) {
         const key = inputElem.dataset.key;
         const noProfile = inputElem.dataset.noProfile;
 
-        const value = getGmConfigValue(key, settingFilterObj.instanceID, noProfile ? false : settingFilterObj.profileID);
+        const value = await getGmConfigValue(key, settingFilterObj.instanceID, noProfile ? false : settingFilterObj.profileID);
 
-        if(typeof value === 'boolean' || value) {
+        if (typeof value === 'boolean' || value) {
             setInputValue(inputElem, value);
-
             makeSettingChanges(inputElem);
         } else {
             activateInputDefaultValue(inputElem);
-
             saveSetting(inputElem);
         }
-    });
+    }
 }
 
-function saveSetting(settingElem) {
+async function saveSetting(settingElem) {
     const elemValue = getInputValue(settingElem);
 
     const settingObj = { 'key': settingElem.dataset.key, 'value': convertToCorrectType(elemValue) };
 
-    const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
-    const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
 
     const noProfile = settingElem.dataset.noProfile;
 
@@ -803,22 +808,24 @@ function saveSetting(settingElem) {
         }
     }
 
-    USERSCRIPT.GM_setValue(configDatabaseKey, config);
+    USERSCRIPT.setValue(gmConfigKey, config);
     
     makeSettingChanges(settingElem);
 
-    guiBroadcastChannel.postMessage({ 'type': 'settingSave', 'data' : { 'key': settingObj.key, 'value': settingObj.value, 'profile': getProfile(settingFilterObj.profileID) }});
+    const profile = await getProfile(settingFilterObj.profileID);
+
+    guiBroadcastChannel.postMessage({ 'type': 'settingSave', 'data' : { 'key': settingObj.key, 'value': settingObj.value, profile }});
     
     console.log(`[Setting Handler] Added config key ${settingObj.key} with value ${settingObj.value}\n-> Instance ${settingFilterObj.instanceID ? settingFilterObj.instanceID : '(No instance)'}, Profile ${noProfile ? '(No profile)' : settingFilterObj.profileID}`);
 }
 
-function removeSetting(settingElem) {
+async function removeSetting(settingElem) {
     const elemValue  = getInputValue(settingElem);
 
     const settingObj = { 'key': settingElem.dataset.key, 'value': convertToCorrectType(elemValue) };
 
-    const configDatabaseKey = USERSCRIPT.dbValues.AcasConfig;
-    const config = USERSCRIPT.GM_getValue(configDatabaseKey);
+    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
 
     const noProfile = settingElem.dataset.noProfile;
 
@@ -836,7 +843,7 @@ function removeSetting(settingElem) {
         }
     }
 
-    USERSCRIPT.GM_setValue(configDatabaseKey, config);
+    USERSCRIPT.setValue(gmConfigKey, config);
 
     makeSettingChanges(settingElem);
 
@@ -864,7 +871,7 @@ function importSettings() {
                 }
 
                 if ('global' in jsonData) {
-                    USERSCRIPT.GM_setValue(USERSCRIPT.dbValues.AcasConfig, jsonData);
+                    USERSCRIPT.setValue(GLOBAL_VARIABLES.gmConfigKey, jsonData);
 
                     updateSettingsValues();
 
@@ -894,8 +901,8 @@ function importSettings() {
     input.click();
 }
 
-function exportSettings() {
-    const config = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig);
+async function exportSettings() {
+    const config = await USERSCRIPT.getValue(GLOBAL_VARIABLES.gmConfigKey);
 
     delete config.instance;
 
@@ -910,12 +917,13 @@ async function resetSettings() {
     const warningText = transObj?.settingsResetWarning ?? 'Are you sure you want to reset settings?\n\nDANGER: This action is irreversable and will reset your whole config!';
 
     if(confirm(warningText)) {
-        const config = USERSCRIPT.GM_getValue(USERSCRIPT.dbValues.AcasConfig);
+        const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+        const config = await USERSCRIPT.getValue(gmConfigKey);
 
         config.global = {};
         config.instance = {};
 
-        USERSCRIPT.GM_setValue(USERSCRIPT.dbValues.AcasConfig, config);
+        USERSCRIPT.setValue(gmConfigKey, config);
 
         toggleSelected(settingsNavbarGlobalElem);
 

@@ -66,27 +66,28 @@
 // @match       https://chessworld.net/*
 // @match       https://app.edchess.io/*
 // [ GRANTS FOR BASIC FUNCTIONALITY ]
-// @grant       GM.getValue
-// @grant       GM.setValue
-// @grant       GM.deleteValue
-// @grant       GM.listValues
-// @grant       GM.openInTab
-// @grant       unsafeWindow
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
 // @grant       GM_listValues
 // @grant       GM_openInTab
+// [ GRANTS FOR COMPATIBILITY (NEW) ]
+// @grant       GM.getValue
+// @grant       GM.setValue
+// @grant       GM.deleteValue
+// @grant       GM.listValues
+// @grant       GM.openInTab
 // [ GRANTS FOR EXTRA FUNCTIONALITY ]
 // @grant       GM_registerMenuCommand
 // @grant       GM_setClipboard
 // @grant       GM_notification
+// @grant       unsafeWindow
 // @run-at      document-start
 // @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
-// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=1
+// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.2.9
+// @version     2.3.0
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -117,20 +118,11 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 //////////////////////////////////////////////////////////////////
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
 
-if(typeof unsafeWindow !== 'object') {
-    if(confirm(
-        'Your userscript manager is not supported because "unsafeWindow" is missing.\n\n'
-        + 'Would you like to be redirected to an install page for a supported manager?'
-    )) window.location.href = 'https://psyyke.github.io/A.C.A.S/install/';
-
-    return;
-}
-
 (async () => { await LOAD_LEGACY_GM_SUPPORT();
 /*
-  ______         _____  ______  _______
- |  ____ |      |     | |_____] |_____| |
- |_____| |_____ |_____| |_____] |     | |_____
+    ______         _____  ______  _______
+    |  ____ |      |     | |_____] |_____| |
+    |_____| |_____ |_____| |_____] |     | |_____
 
 
 Code below this point runs on any site, including the GUI.
@@ -218,6 +210,8 @@ function createInstanceVariable(dbValue) {
     }
 }
 
+// If you modify tempValueIndicator or AcasConfig key,
+// then modify them on the GUI (acas-globals.js) as well
 const tempValueIndicator = '-temp-value-';
 const dbValues = {
     AcasConfig: 'AcasConfig',
@@ -225,34 +219,91 @@ const dbValues = {
     turn: instanceID => 'turn' + tempValueIndicator + instanceID,
     fen: instanceID => 'fen' + tempValueIndicator + instanceID
 };
-
+// Add them to acas-userscript-bridge.js as well if you,
+// decide to add more variables here
 const instanceVars = {
     playerColor: createInstanceVariable('playerColor'),
     fen: createInstanceVariable('fen')
 };
 
-if(isRunningOnBackend()) {
-    // expose variables and functions
+function exposeViaMessages() {
+    window.addEventListener('message', (event) => {
+        const handlers = {
+            USERSCRIPT_getValue: (args, messageId) => {
+                const [key] = args;
+                const value = GM_getValue(key);
+                window.postMessage({ messageId, value }, '*');
+            },
+            USERSCRIPT_setValue: (args, messageId) => {
+                const [key, value] = args;
+                GM_setValue(key, value);
+                window.postMessage({ messageId, 'value': true }, '*');
+            },
+            USERSCRIPT_deleteValue: (args, messageId) => {
+                const [key] = args;
+                GM_deleteValue(key);
+                window.postMessage({ messageId, 'value': true }, '*');
+            },
+            USERSCRIPT_listValues: (args, messageId) => {
+                const value = GM_listValues();
+                window.postMessage({ messageId, value }, '*');
+            },
+            USERSCRIPT_getInfo: (args, messageId) => {
+                const value = typeof GM_info !== 'undefined' ? JSON.parse(JSON.stringify(GM_info)) : {};
+                window.postMessage({ messageId, value }, '*');
+            },
+            USERSCRIPT_instanceVars: (args, messageId) => {
+                const [instanceId, key, value] = args;
+
+                if(!instanceVars.hasOwnProperty(key)) {
+                    window.postMessage({ messageId, 'value': false }, '*');
+                    return;
+                }
+
+                const result = (value !== undefined) ? instanceVars[key].set(instanceId, value)
+                                                     : instanceVars[key].get(instanceId);
+
+                window.postMessage({ messageId, 'value': result }, '*');
+            }
+        };
+
+        const script = document.createElement('script');
+                script.innerHTML = 'window.isUserscriptActive = true;';
+
+        document.body.appendChild(script);
+
+        const handler = handlers[event.data.type];
+
+        if(handler) handler(event.data.args, event.data.messageId);
+    });
+}
+
+function exposeViaUnsafe() {
+    if(typeof unsafeWindow !== 'object') return;
+
     unsafeWindow.USERSCRIPT = {
-        'GM_info': GM_info,
-        'GM_getValue': val => GM_getValue(val),
-        'GM_setValue': (val, data) => GM_setValue(val, data),
-        'GM_deleteValue': val => GM_deleteValue(val),
-        'GM_listValues': val => GM_listValues(val),
-        'tempValueIndicator': tempValueIndicator,
-        'dbValues': dbValues,
+        'getValue': val => GM_getValue(val),
+        'setValue': (val, data) => GM_setValue(val, data),
+        'deleteValue': val => GM_deleteValue(val),
+        'listValues': val => GM_listValues(val),
         'instanceVars': instanceVars,
-        'CommLinkHandler': CommLinkHandler,
+        'getInfo': () => GM_info
     };
+}
+
+if(isRunningOnBackend()) {
+    if(typeof unsafeWindow === 'object')
+        exposeViaUnsafe();
+    else
+        exposeViaMessages();
 
     return;
 }
 
-
 /*
- _______ _     _ _______ _______ _______      _______ _____ _______ _______ _______
- |       |_____| |______ |______ |______      |______   |      |    |______ |______
- |_____  |     | |______ ______| ______|      ______| __|__    |    |______ ______|
+    _______ _     _ _______ _______ _______      _______ _____ _______ _______ _______
+    |       |_____| |______ |______ |______      |______   |      |    |______ |______
+    |_____  |     | |______ ______| ______|      ______| __|__    |    |______ ______|
 
 
 Code below this point only runs on chess sites, not on the GUI itself.
@@ -847,9 +898,9 @@ function chessCoordinatesToIndex(coord) {
 }
 
 /* Need to make the board matricies more cohesive, right now it's really confusing flipping them
- * differently for each function. I just can't be bothered right now so please don't make fun of it.
- * Thanks, Haka
- * */
+    * differently for each function. I just can't be bothered right now so please don't make fun of it.
+    * Thanks, Haka
+    * */
 
 function chessCoordinatesToMatrixIndex(coord) {
     const [boardRanks, boardFiles] = getBoardDimensions();
@@ -1284,22 +1335,22 @@ class AutomaticMove {
 
         if(debugModeActivated) {
             const dot = document.createElement('div');
-                  dot.style.position = 'absolute';
-                  dot.style.width = '7px';
-                  dot.style.height = '7px';
-                  dot.style.borderRadius = '50%';
-                  dot.style.backgroundColor = 'lime';
-                  dot.style.left = `${randomizedX - 2.5}px`;
-                  dot.style.top = `${randomizedY - 2.5}px`;
+                    dot.style.position = 'absolute';
+                    dot.style.width = '7px';
+                    dot.style.height = '7px';
+                    dot.style.borderRadius = '50%';
+                    dot.style.backgroundColor = 'lime';
+                    dot.style.left = `${randomizedX - 2.5}px`;
+                    dot.style.top = `${randomizedY - 2.5}px`;
 
             const container = document.createElement('div');
-                  container.style.position = 'absolute';
-                  container.style.width = `${Math.round(randomVariationX * 2)}px`;
-                  container.style.height = `${Math.round(randomVariationY * 2)}px`;
-                  container.style.border = '2px dashed green';
-                  container.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-                  container.style.left = `${clientX - randomVariationX}px`;
-                  container.style.top = `${clientY - randomVariationY}px`;
+                    container.style.position = 'absolute';
+                    container.style.width = `${Math.round(randomVariationX * 2)}px`;
+                    container.style.height = `${Math.round(randomVariationY * 2)}px`;
+                    container.style.border = '2px dashed green';
+                    container.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                    container.style.left = `${clientX - randomVariationX}px`;
+                    container.style.top = `${clientY - randomVariationY}px`;
 
             document.body.appendChild(container);
             document.body.appendChild(dot);
@@ -1521,11 +1572,11 @@ function getCanvasPixelColor(canvas, [xPercentage, yPercentage], debug) {
 
     if(debug) {
         const clonedCanvas = document.createElement('canvas');
-              clonedCanvas.width = canvas.width;
-              clonedCanvas.height = canvas.height;
+                clonedCanvas.width = canvas.width;
+                clonedCanvas.height = canvas.height;
 
         const clonedCtx = clonedCanvas.getContext('2d');
-              clonedCtx.drawImage(canvas, 0, 0);
+                clonedCtx.drawImage(canvas, 0, 0);
 
         clonedCtx.fillStyle = 'red';
         clonedCtx.beginPath();
@@ -1553,11 +1604,11 @@ function canvasHasPixelAt(canvas, [xPercentage, yPercentage], debug) {
 
     if(debug) {
         const clonedCanvas = document.createElement('canvas');
-              clonedCanvas.width = canvas.width;
-              clonedCanvas.height = canvas.height;
+                clonedCanvas.width = canvas.width;
+                clonedCanvas.height = canvas.height;
 
         const clonedCtx = clonedCanvas.getContext('2d');
-              clonedCtx.drawImage(canvas, 0, 0);
+                clonedCtx.drawImage(canvas, 0, 0);
 
         clonedCtx.fillStyle = 'red';
         clonedCtx.beginPath();
@@ -1710,16 +1761,16 @@ function getRights() {
 
     // check for white
     const e1 = getBoardPiece('e1'),
-          h1 = getBoardPiece('h1'),
-          a1 = getBoardPiece('a1');
+            h1 = getBoardPiece('h1'),
+            a1 = getBoardPiece('a1');
 
     if(e1 == 'K' && h1 == 'R') rights += 'K';
     if(e1 == 'K' && a1 == 'R') rights += 'Q';
 
     //check for black
     const e8 = getBoardPiece('e8'),
-          h8 = getBoardPiece('h8'),
-          a8 = getBoardPiece('a8');
+            h8 = getBoardPiece('h8'),
+            a8 = getBoardPiece('a8');
 
     if(e8 == 'k' && h8 == 'r') rights += 'k';
     if(e8 == 'k' && a8 == 'r') rights += 'q';
@@ -1871,9 +1922,9 @@ async function updatePlayerColor() {
 
 
 /*
- _______ _____ _______ _______      _______  _____  _______ _______ _____ _______ _____ _______
- |______   |      |    |______      |______ |_____] |______ |         |   |______   |   |
- ______| __|__    |    |______      ______| |       |______ |_____  __|__ |       __|__ |_____
+    _______ _____ _______ _______      _______  _____  _______ _______ _____ _______ _____ _______
+    |______   |      |    |______      |______ |_____] |______ |         |   |______   |   |
+    ______| __|__    |    |______      ______| |       |______ |_____  __|__ |       __|__ |_____
 
 Code below this point handles chess site specific things. (e.g. which element is the board or the pieces)
 */
@@ -2286,16 +2337,7 @@ addSupportedChessSite('chess.org', {
     },
 
     'chessVariant': obj => {
-        const variantNum = unsafeWindow?.GameConfig?.instance?.variant;
-        const variant = GameConfig?.VARIANT_NAMES?.[variantNum]?.toLowerCase();
-
-        if(variant) {
-            const replacementTable = {
-                'standard': 'chess'
-            };
-
-            return replacementTable[variant] || variant;
-        }
+        return 'chess';
     },
 
     'boardOrientation': obj => {
@@ -3100,9 +3142,9 @@ addSupportedChessSite('app.edchess.io', {
 });
 
 /*
- _____ __   _ _____ _______ _____ _______        _____ ______ _______ _______ _____  _____  __   _
-   |   | \  |   |      |      |   |_____| |        |    ____/ |_____|    |      |   |     | | \  |
- __|__ |  \_| __|__    |    __|__ |     | |_____ __|__ /_____ |     |    |    __|__ |_____| |  \_|
+    _____ __   _ _____ _______ _____ _______        _____ ______ _______ _______ _____  _____  __   _
+    |   | \  |   |      |      |   |_____| |        |    ____/ |_____|    |      |   |     | | \  |
+    __|__ |  \_| __|__    |    __|__ |     | |_____ __|__ /_____ |     |    |    __|__ |_____| |  \_|
 
 Code below this point is related to initialization. (e.g. wait for chess board and create the instance)
 */
