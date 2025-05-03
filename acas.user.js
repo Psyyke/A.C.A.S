@@ -264,15 +264,15 @@ function exposeViaMessages() {
             }
         };
 
-        const script = document.createElement('script');
-                script.innerHTML = 'window.isUserscriptActive = true;';
-
-        document.body.appendChild(script);
-
-        const handler = handlers[event.data.type];
+        const handler = handlers?.[event.data.type];
 
         if(handler) handler(event.data.args, event.data.messageId);
     });
+
+    const script = document.createElement('script');
+    script.innerHTML = 'window.isUserscriptActive = true;';
+
+    document.body.appendChild(script);
 }
 
 function exposeViaUnsafe() {
