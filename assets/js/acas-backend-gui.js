@@ -124,7 +124,9 @@ let pipCanvas = null;
 let lastProfileID = null;
 
 (async () => {
-    const GM_info = await USERSCRIPT.getInfo();
+    const GM_info = typeof USERSCRIPT?.getInfo === 'function'
+        ? await USERSCRIPT?.getInfo()
+        : USERSCRIPT?.GM_info;
 
     if(userscriptInfoElem && typeof USERSCRIPT === 'object' && GM_info) {
         const platform = GM_info?.platform || GM_info?.userAgentData || { 'platform': 'Unknown' };
@@ -135,7 +137,7 @@ let lastProfileID = null;
     
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
-        if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.2.8')) {
+        if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.3.0')) {
             updateYourUserscriptElem.classList.remove('hidden');
         }
         
