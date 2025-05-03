@@ -65,19 +65,16 @@
 // @match       https://www.simplechess.com/*
 // @match       https://chessworld.net/*
 // @match       https://app.edchess.io/*
-// [ GRANTS FOR BASIC FUNCTIONALITY ]
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
 // @grant       GM_listValues
 // @grant       GM_openInTab
-// [ GRANTS FOR COMPATIBILITY (NEW) ]
 // @grant       GM.getValue
 // @grant       GM.setValue
 // @grant       GM.deleteValue
 // @grant       GM.listValues
 // @grant       GM.openInTab
-// [ GRANTS FOR EXTRA FUNCTIONALITY ]
 // @grant       GM_registerMenuCommand
 // @grant       GM_setClipboard
 // @grant       GM_notification
@@ -87,7 +84,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.3.0
+// @version     2.3.1
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -289,6 +286,8 @@ function exposeViaUnsafe() {
         'instanceVars': instanceVars,
         'getInfo': () => GM_info
     };
+
+    unsafeWindow.isUserscriptActive = true;
 }
 
 if(isRunningOnBackend()) {
