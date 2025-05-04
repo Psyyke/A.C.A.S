@@ -1,3 +1,5 @@
+ensureSabParam();
+
 let started = false;
 
 async function attemptStarting() {

@@ -618,3 +618,41 @@ function getUniqueID() {
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     )
 }
+
+async function isEngineIncompatible(engineName, profileName, skipSabCheck) {
+    async function check(pN) {
+        const enginesRequiringSAB = [ // Requiring SharedArrayBuffer
+            'stockfish-17-wasm',
+            'stockfish-16-1-wasm', 
+            'stockfish-14-nnue',
+            'fairy-stockfish-nnue-wasm',
+            'lc0'
+        ];
+
+        const profileObj = await getProfile(pN);
+        const profileChessEngine = engineName || profileObj.config.chessEngine;
+        
+        return (skipSabCheck || !window?.SharedArrayBuffer) && enginesRequiringSAB.includes(profileChessEngine);
+    }
+
+    if(profileName) return check(profileName);
+
+    const profiles = await getProfiles();
+
+    for(const profile of profiles.filter(p => p.config.engineEnabled)) {
+        const profileName = profile.name;
+
+        return check(profileName);
+    }
+}
+
+async function ensureSabParam() {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const hasSabParam = params.has('sab');
+
+    if(!hasSabParam && await isEngineIncompatible(null, null, true)) {
+        params.set('sab', 'true');
+        window.location.href = `${url.origin}${url.pathname}?${params.toString()}`;
+    }
+}

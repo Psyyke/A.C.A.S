@@ -1,0 +1,36 @@
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../../assets/fonts/IBMPlexSans.ttf") format("truetype");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+}
+html {
+    overflow-x: hidden;
+}
+body {
+    font-family: "IBM Plex Sans", sans-serif;
+    margin: 0;
+    color: #659aad;
+    background-color: white;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    background-color: #111f24;
+    padding: 50px;
+    display: flex;
+    height: 50vh;
+}
+#wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+a {
+    color: #ffffff;
+    font-size: 20px;
+    border-top: 1px solid rgb(255 255 255 / 10%);
+    padding-top: 10px;
+    width: 100%;
+}

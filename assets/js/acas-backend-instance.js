@@ -1581,6 +1581,8 @@ class BackendInstance {
     }
 
     async loadEngine(profileName, engineName, attempt = 0) {
+        const profileObj = await getProfile(profileName);
+        const profileChessEngine = engineName || profileObj.config.chessEngine;
         const isReload = attempt > 0;
         let alreadyRestarted = false;
 
@@ -1600,19 +1602,7 @@ class BackendInstance {
             }
         };
 
-        const profileObj = await getProfile(profileName);
-        const profileChessEngine = engineName || profileObj.config.chessEngine;
-        const enginesRequiringSAB = [ // Requiring SharedArrayBuffer
-            'stockfish-17-wasm',
-            'stockfish-16-1-wasm', 
-            'stockfish-14-nnue',
-            'fairy-stockfish-nnue-wasm',
-            'lc0'
-        ];
-
-        const isEngineIncompatible = !window?.SharedArrayBuffer && enginesRequiringSAB.includes(profileChessEngine);
-
-        if(isEngineIncompatible) {
+        if(await isEngineIncompatible(engineName, profileName)) {
             toast.warning(`The engine "${profileChessEngine}" you have selected on profile "${profileName}" is incompatible with the mode A.C.A.S was launched in.` 
                 + '\n\nPlease change the engine on the settings or launch A.C.A.S using ?sab=true.', 3e4);
             return;
