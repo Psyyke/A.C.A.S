@@ -635,14 +635,14 @@ async function isEngineIncompatible(engineName, profileName, skipSabCheck) {
         return (skipSabCheck || !window?.SharedArrayBuffer) && enginesRequiringSAB.includes(profileChessEngine);
     }
 
-    if(profileName) return check(profileName);
+    if(profileName) return await check(profileName);
 
     const profiles = await getProfiles();
 
     for(const profile of profiles.filter(p => p.config.engineEnabled)) {
         const profileName = profile.name;
 
-        return check(profileName);
+        return await check(profileName);
     }
 }
 
