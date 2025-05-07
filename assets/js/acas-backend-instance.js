@@ -1001,6 +1001,25 @@ class BackendInstance {
         }
     }
 
+    isPawnOnPromotionSquare(currentFen) {
+        if(!currentFen) return false;
+    
+        currentFen = currentFen.split(' ')[0];
+    
+        const ranks = currentFen.split('/');
+        const boardHeight = ranks.length;
+    
+        const topRank = ranks[0];
+        const bottomRank = ranks[boardHeight - 1];
+
+        const pawnOnPromotionSquare = topRank.includes('P') || bottomRank.includes('p');
+        
+        if(pawnOnPromotionSquare)
+            return true;
+    
+        return false;
+    }
+
     isAbnormalPieceChange(lastFen, newFen) {
         if(!lastFen) return false;
     
@@ -1244,6 +1263,9 @@ class BackendInstance {
 
         profiles.filter(p => p.config.engineEnabled).forEach(async (profile) => {
             const profileName = profile.name;
+            const currentEngineName = await this.getEngineType(profileName);
+
+            if(this.isPawnOnPromotionSquare(currentFen) && currentEngineName === 'lc0') return;
 
             // Engine is still calculating, do not start any new calculation since,
             // that will not give us 'bestmove' which A.C.A.S' logic EXPECTS.
