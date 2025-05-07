@@ -1030,13 +1030,16 @@ class BackendInstance {
     isCorrectAmountOfBoardChanges(lastFen, newFen) {
         if(!lastFen) return true;
     
-        let board1 = lastFen.split(" ")[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
-        let board2 = newFen.split(" ")[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
+        let board1 = lastFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
+        let board2 = newFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
         
+        let changedFrom = [];
         let diff = 0;
 
-        for (let i = 0; i < board1.length; i++) {
-            if (board1[i] !== board2[i]) {
+        for(let i = 0; i < board1.length; i++) {
+            if(board1[i] !== board2[i]) {
+                if(board1[i]?.trim()?.length > 0) changedFrom.push(board1[i]?.toLowerCase());
+
                 diff += 1;
             }
         }
@@ -1047,18 +1050,20 @@ class BackendInstance {
             (diff = 2) -> a piece moved, maybe it ate another piece
             (diff = 3) -> three titles had changes, shouldn't be possible
             (diff > 3) -> a lot of titles had changes, maybe a new game started, the change is significant so allowing it
+            (diff = 4) -> takeback or castling
         */
 
         this.moveDiffHistory.unshift(diff);
         this.moveDiffHistory = this.moveDiffHistory.slice(0, 3);
 
-        console.warn('Board diff amount:', diff, 'History:', this.moveDiffHistory);
+        console.warn('Board diff amount:', diff, 'History:', JSON.stringify(this.moveDiffHistory));
 
         const isHistoryIndicatingTakeback = JSON.stringify(this.moveDiffHistory) === JSON.stringify([4, 2, 2]);
         const isHistoryIndicatingPromotion = JSON.stringify(this.moveDiffHistory) === JSON.stringify([3, 1, 2]);
+        const isCastle = changedFrom.includes('r') && changedFrom.includes('k');
 
         // Possible takeback, just run the calculations again
-        if(isHistoryIndicatingTakeback) {
+        if(isHistoryIndicatingTakeback && !isCastle) {
             this.calculateBestMoves(newFen, true);
         }
 
@@ -1268,7 +1273,7 @@ class BackendInstance {
     
             const isFenChanged = this.pV[profileName].lastCalculatedFen !== currentFen;
             const isFenChangeAllowed = !onlyCalculateOwnTurn || (isFenChangeLogical && isPlayerTurn);
-    
+
             if((isFenChanged && isFenChangeAllowed) || skipValidityChecks) {
                 this.pV[profileName].lastCalculatedFen = currentFen;
             } else {
@@ -1811,6 +1816,10 @@ class BackendInstance {
     
                         lc0.postMessage({ method: 'acas_check_loaded' });
                     }, 100);
+
+                    lc0.onerror = e => {
+                        restartEngine.bind(this)('lc0', e);
+                    };
     
                     break;
 
