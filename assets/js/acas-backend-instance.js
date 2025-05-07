@@ -1077,14 +1077,7 @@ class BackendInstance {
 
         console.warn('Board diff amount:', diff, 'History:', JSON.stringify(this.moveDiffHistory));
 
-        const isHistoryIndicatingTakeback = JSON.stringify(this.moveDiffHistory) === JSON.stringify([4, 2, 2]);
         const isHistoryIndicatingPromotion = JSON.stringify(this.moveDiffHistory) === JSON.stringify([3, 1, 2]);
-        const isCastle = changedFrom.includes('r') && changedFrom.includes('k');
-
-        // Possible takeback, just run the calculations again
-        if(isHistoryIndicatingTakeback && !isCastle) {
-            this.calculateBestMoves(newFen, true);
-        }
 
         return diff === 2 || diff > 3 || isHistoryIndicatingPromotion;
     }
@@ -1272,9 +1265,7 @@ class BackendInstance {
             // The best moves will be calculated after we get the 'bestmove'.
             if(!this.isEngineNotCalculating(profileName)) return;
 
-            const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(this.pV[profileName].lastFen, currentFen);
-            const isAbnormalPieceChange = this.isAbnormalPieceChange(this.pV[profileName].lastFen, currentFen);
-            const isFenChangeLogical = correctAmountOfChanges && !isAbnormalPieceChange;
+            const isFenChangeLogical = this.isFenChangeLogical(this.pV[profileName].lastFen, currentFen);
             const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
 
             let reversedFen = null;
