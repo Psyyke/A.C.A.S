@@ -159,7 +159,7 @@ async function attemptStarting() {
 }
 
 (async () => {
-    await ensureSabParam();
+    ensureSabParam();
     await attemptStarting();
 
     const userscriptSearchInterval = setIntervalAsync(async () => {
