@@ -89,7 +89,7 @@
 body {
 	font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif;
 	margin: 0;
-	background-color: #1b342a;
+	background-color: rgb(39 60 67);
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
@@ -368,9 +368,8 @@ cg-container {
 	height: 999vh;
     background: linear-gradient(45deg, rgb(255 0 0 / 7%) 25%, rgb(129 0 0 / 7%) 25%, rgb(129 0 0 / 7%) 50%, rgb(255 0 0 / 7%) 50%, rgb(255 0 0 / 7%) 75%, rgb(129 0 0 / 7%) 75%, rgb(129 0 0 / 7%));
     background-size: 20px 20px;
-	/* Semi-transparent background to cover the content */
 	z-index: -1;
-	/* A high z-index to place it on top of everything */
+	pointer-events: none;
 }
 .install-description {
 	color: rgb(159 159 159);
