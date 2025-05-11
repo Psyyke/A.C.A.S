@@ -55,7 +55,7 @@ async function attemptStarting() {
             const settingContainer = foundSettingElem?.closest('.custom-input');
 
             if(foundSettingElem && settingContainer) {
-                highlightSetting(settingContainer, removeParamFromUrl('shl'));
+                highlightSetting(settingContainer, () => removeParamFromUrl('shl'));
             }
         }
 
