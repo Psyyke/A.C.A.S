@@ -42,9 +42,6 @@
 	#acas-is-free-reminder .greasyfork-button {
 		display: none !important;
 	}
-	#acas-is-free-reminder .discord-button {
-		display: none !important;
-	}
 	#acas-is-free-reminder .github-button {
 		display: none !important;
 	}
@@ -1093,14 +1090,6 @@ cg-container {
 }
 .greasyfork-button:hover {
 	background-color: #505050;
-}
-.discord-button {
-	color: #C9D1D9;
-	background-color: #2c338e;
-	border: 2px solid #5965F1;
-}
-.discord-button:hover {
-	background-color: #434bc4;
 }
 .affiliate-button {
 	color: #C9D1D9;

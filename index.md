@@ -35,5 +35,3 @@ Tell you what. No subscriptions, no paywalls—just a ridiculously useful chess 
 ---
 
 [A.C.A.S V1](https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S) is no longer updated, but feel free to use it if it still works. <a href="privacy/">Privacy Policy</a>.
-
-*Discussion about A.C.A.S can be had on the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server.*
