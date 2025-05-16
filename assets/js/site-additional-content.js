@@ -30,14 +30,6 @@ function insertGas(elem) {
     (adsbygoogle = window.adsbygoogle || []).push({});
 }
 
-window.$docsify = {
-    repo: 'psyyke/A.C.A.S',
-    loadSidebar: true,
-    notFoundPage: true,
-    auto2top: true,
-    homepage: 'index.md'
-};
-
 function initLottieAndGas() {
     const lottieElement = document.querySelector("#lottie-animation");
 
