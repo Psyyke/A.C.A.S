@@ -13,6 +13,8 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (no
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
 * Translated to 30+ languages
 
+<a href="https://liberapay.com/Haka/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
+
 !> Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
 | <a href="app">▶️ Open A.C.A.S</a> | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) | <a href="acas.user.js">⬇️ Download (Direct)</a> | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
