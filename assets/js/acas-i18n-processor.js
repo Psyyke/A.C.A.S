@@ -16,7 +16,7 @@
 	}, 1000);
 
 	function getFlagPath(languageCode) {
-		return `/A.C.A.S/assets/images/flags/${languageCode}.svg`;
+		return `../assets/images/flags/${languageCode}.svg`;
 	}
 
 	function initializeLanguageDropdown(dropdownElem) {
@@ -61,10 +61,10 @@
 		try {
 			const additionalPrefix = isSecondaryPage ? '../' : '';
 
-			const response = await fetch(additionalPrefix + `/A.C.A.S/assets/i18n/${lang}.json`);
+			const response = await fetch(additionalPrefix + `../assets/i18n/${lang}.json`);
 			const translationObj = await response.json();
 
-			const metaResponse = await fetch(additionalPrefix + `/A.C.A.S/assets/i18n/meta.json`);
+			const metaResponse = await fetch(additionalPrefix + `../assets/i18n/meta.json`);
 			const metaObj = await metaResponse.json();
 			const availableLanguagesArr = metaObj.availableLanguages;
 

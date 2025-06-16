@@ -24,7 +24,7 @@ class MoveEvaluator {
     }
 
     loadStockfish(folderName, fileName = folderName) {
-        const stockfish = new Worker(`/A.C.A.S/app/assets/engines/${folderName}/${fileName}.js`);
+        const stockfish = new Worker(`../app/assets/engines/${folderName}/${fileName}.js`);
         let stockfish_loaded = false;
 
         stockfish.onmessage = async e => {

@@ -39,7 +39,7 @@ function initLottieAndGas() {
             renderer: 'svg',
             loop: true,
             autoplay: true,
-            path: '/A.C.A.S/assets/json/lottie.json'
+            path: '../assets/json/lottie.json'
         });
         lottieElement.dataset.lottieLoaded = "true"; // Prevent duplicate loading
     }

@@ -715,7 +715,7 @@ class BackendInstance {
 
         this.pV[profile].lc0WeightName = weightName;
 
-        this.contactEngine('setZeroWeights', [await loadFileAsUint8Array(`/A.C.A.S/app/assets/lc0-weights/${weightName}`)], profile);
+        this.contactEngine('setZeroWeights', [await loadFileAsUint8Array(`../app/assets/lc0-weights/${weightName}`)], profile);
     }
 
     disableEngineElo(profile) {
@@ -1681,7 +1681,7 @@ class BackendInstance {
         }
         
         function loadStockfish(folderName, fileName = folderName) {
-            const stockfish = new Worker(`/A.C.A.S/app/assets/engines/${folderName}/${fileName}.js`);
+            const stockfish = new Worker(`../app/assets/engines/${folderName}/${fileName}.js`);
             let stockfish_loaded = false;
 
             stockfish.onmessage = async e => {
@@ -1708,7 +1708,7 @@ class BackendInstance {
         }
 
         function loadLilaStockfish(workerName) {
-            const stockfish = new Worker(`/A.C.A.S/app/assets/engines/lila-stockfish/${workerName}.js`, { type: 'module' });
+            const stockfish = new Worker(`../app/assets/engines/lila-stockfish/${workerName}.js`, { type: 'module' });
             let stockfish_loaded = false;
 
             stockfish.onmessage = async e => {
@@ -1770,7 +1770,7 @@ class BackendInstance {
                 break;
 
                 case 'lozza-5':
-                    const lozza = new Worker('/A.C.A.S/app/assets/engines/Lozza/lozza-5-acas.js');
+                    const lozza = new Worker('../app/assets/engines/Lozza/lozza-5-acas.js');
                     let lozza_loaded = false;
     
                     lozza.onmessage = async e => {
@@ -1798,7 +1798,7 @@ class BackendInstance {
                     break;
     
                 case 'lc0':
-                    const lc0 = new Worker('/A.C.A.S/app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
+                    const lc0 = new Worker('../app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
                     let lc0_loaded = false;
     
                     lc0.onmessage = async e => {

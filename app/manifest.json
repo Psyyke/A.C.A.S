@@ -3,12 +3,12 @@
     "name": "Advanced Chess Assistance System",
     "icons": [
         {
-            "src": "/A.C.A.S/assets/images/logo-192.png",
+            "src": "../assets/images/logo-192.png",
             "type": "image/png",
             "sizes": "192x192"
         },
         {
-            "src": "/A.C.A.S/assets/images/logo.png",
+            "src": "../assets/images/logo.png",
             "type": "image/png",
             "sizes": "512x512"
         }
