@@ -3,7 +3,7 @@
 > [!WARNING]
 > A.C.A.S is currently in development. Expect bugs, especially on variants.
 
-A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (not a chess cheat), designed to help you make better moves using a chess engine. Just install the userscript, open the A.C.A.S GUI, and you're ready to go—no downloads necessary!
+A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (**not a chess cheat**), designed to help you make better moves using a chess engine. Just install the userscript, open the A.C.A.S GUI, and you're ready to go. No downloads necessary!
 
 ![Screenshot of A.C.A.S](assets/images/mock.png)
 
@@ -28,6 +28,8 @@ Simply [install the A.C.A.S userscript](https://greasyfork.org/en/scripts/459137
 > [!IMPORTANT]
 > You need to keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't run, nor move. The A.C.A.S GUI has the chess engine which calculates the moves.
 
+You can find A.C.A.S V1 [here](https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S). It is no longer updated.
+
 ## Example Gameplay
 
 ### Beating hard bots (Chess.com)
@@ -41,18 +43,6 @@ https://github.com/user-attachments/assets/790c91cd-f64b-4d27-b264-9080630b1029
 | ![A.C.A.S Tab](https://github.com/user-attachments/assets/4d5d80ac-3a1a-4529-889d-64403dd2adbe) | ![Lichess.org Tab](https://github.com/user-attachments/assets/97cb9650-19d5-41dc-bfbf-f071ee39eb92) |
 | The engine runs on a completely different tab than the chess game page, completely isolated from it. The site cannot block the usage of A.C.A.S. | A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink) and the userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If "Display Moves On External Site" setting is activated!*) |
 
-
-### Arrow Meaning
-
-| Color    | Meaning  |
-|----------------------|----------------------|
-| 🟩 | Best Move |
-| 🟦 | Secondary Move |
-| 🟥 | Enemy Move |
-
-> [!NOTE]
-> Enemy move is shown if "*Display Opponent Move Guess*" setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.
-
 ## Q&A
 
 ### Why did I get banned, wasn't this impossible to detect?
@@ -65,7 +55,7 @@ Don't want to get banned again? Don't use A.C.A.S against other humans.
 
 ### Why doesn't it work?
 
-Before making an issue, please read these and also join the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server for assistance,
+Before making an issue, please read these:
 
 - Make sure the [A.C.A.S GUI](https://psyyke.github.io/A.C.A.S/) is active. Do not close the tab. Browsers freeze code execution on inactive pages, you need to visit the A.C.A.S GUI tab from time to time or keep it open on a separate window. This prevents A.C.A.S from freezing and not giving any move suggestions, for example.
 
@@ -133,13 +123,7 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 
 ![GIF of A.C.A.S playing 4 games at once](https://github.com/user-attachments/assets/a7013e48-bee0-44c3-910c-3d6643b968ec)
 
-## Miscellaneous
-
-You can find the userscript on [GreasyFork](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system) as well.
-
-You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S). It is no longer updated.
-
-## Used Libraries
+## Used Libraries ❤︎
 
 * [Fairy Stockfish WASM](https://github.com/fairy-stockfish/fairy-stockfish.wasm) (*the chess engine of A.C.A.S*)
 * [Stockfish WASM](https://github.com/nmrugg/stockfish.js/) (*another chess engine of A.C.A.S*)
@@ -147,18 +131,14 @@ You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/O
 * [Maia-Chess](https://github.com/CSSLab/maia-chess) (*legit looking weights for Lc0*)
 * [Lozza](https://github.com/op12no2/lozza) (*another chess engine of A.C.A.S*)
 * [COI-Serviceworker](https://github.com/gzuidhof/coi-serviceworker) (*allowing WASM on GitHub pages, extremely important library*)
-* [HackTimer](https://github.com/turuslan/HackTimer) (*bypasses browser timer throttling, it's questionable if this does anything, but it doesn't hurt to have it for now*)
 * [ChessgroundX](https://github.com/gbtami/chessgroundx) (*for displaying a board on the GUI. Modified the library a bit*)
 * [FileSaver](http://purl.eligrey.com/github/FileSaver.js) (*for saving the config file*)
 * [bodymovin](https://github.com/airbnb/lottie-web) (*for SVG animations*)
 * [Klaro!](https://github.com/klaro-org/klaro-js) (*for legal reasons, to ask user for cookie permission*)
-* [Docsify](https://github.com/docsifyjs/docsify) (*documentation library for the support page*)
-
-## Used Libraries (Made for A.C.A.S)
-
 * [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
+* [HackTimer](https://github.com/turuslan/HackTimer) (*not necessary anymore*)
 
-## Contact
+## GUI Overview
 
-Discussion about A.C.A.S can be had on the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server.
+<img width="1903" height="1676" alt="acas" src="https://github.com/user-attachments/assets/cbb510f0-5083-4a6b-9bd5-a7b91d390e68" />
