@@ -303,7 +303,7 @@
 																Lozza 5 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(400KB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
 																</div>
 																<div class="dropdown-item requires-sab" data-value="stockfish-17-wasm">
-																Stockfish 17.1 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="unstable-engine-tag list-tag" data-translation-needs-fixing-tag>Needs fixing</span> <span class="engine-size-tag list-tag">(79MB)</span>
+																Stockfish 17.1 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="needs-fixing-engine-tag list-tag" data-translation-needs-fixing-tag>Needs fixing</span> <span class="engine-size-tag list-tag">(79MB)</span>
 																</div>				  
 															</div>
 														</div>
@@ -312,7 +312,7 @@
 
 												<div class="setting-panel">
 													<div class="setting-panel-title" data-translation-external-engine>External Engine</div>
-													<p data-translation-todo-text>Todo ⏳</p>
+													<p data-translation-todo-text>To be developed...</p>
 												</div>
 
 												<a target="_blank" href="../usage/" data-translation-more-engines>More engines might be available with a different launch mode.</a>
@@ -378,7 +378,7 @@
 													<input type="checkbox" data-key="enableAdvancedElo" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 												</div>
 												<div class="setting-panel">
-													<div class="setting-panel-title" data-translation-adelo-regular>Regular</div>
+													<div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Elo (1320 - 3190)</div>
 														<div class="input-subtitle">Engine tries to play at this level</div></div>
 														<input type="textfield" data-key="advancedElo" data-default-value="1500" data-between="1320-3190">
@@ -419,7 +419,7 @@
 								</div>
 								<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
 							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions (1 - 500)</div>
+							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions</div>
 								<div class="input-subtitle">How many arrows will show up</div></div>
 								<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="0-500">
 							</div>
@@ -431,7 +431,7 @@
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👁️‍🗨️</div>
 							<div class="floaty-input custom-input">
-								<div><div class="input-title" data-translation-rendering-title>Rendering Settings</div><div class="input-subtitle" data-translation-rendering-subtitle>Renders various metrics</div></div>
+								<div><div class="input-title" data-translation-rendering-title>Rendering Settings</div><div class="input-subtitle" data-translation-rendering-subtitle>Display various metrics on the board</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
 								    <dialog id="rendering-floaty">
@@ -513,7 +513,7 @@
 												</div>
 
 												<div class="setting-panel">
-													<div class="setting-panel-title" data-translation-moves-text>Moves</div>
+													<div class="setting-panel-title" data-translation-moves-text>Move feedback</div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Move Ratings</div>
 														<div class="input-subtitle">Show engine's thoughts about moves</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="enableMoveRatings" data-default-value="false"><div class="checkbox-fill">✓</div></div>
@@ -557,7 +557,7 @@
 													<input type="checkbox" data-key="moveAsFilledSquares" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 												</div>
 												<div class="setting-panel">
-													<div class="setting-panel-title" data-translation-move-display-settings>Move display</div>
+													<div class="setting-panel-title" data-translation-move-display-settings>Move suggestion settings</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Move opacity (1 - 100%)</div>
 														<div class="input-subtitle">Change the opacity of the arrows</div></div>
 														<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
@@ -583,7 +583,7 @@
 								</div>
 							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
-								<div class="input-subtitle">Show the move arrows after this time</div></div>
+								<div class="input-subtitle">Show the move suggestions after this time</div></div>
 								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
 							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>

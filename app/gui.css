@@ -1537,6 +1537,9 @@ input[disabled] {
 .unstable-engine-tag {
 	background-color: rgb(255 0 0 / 22%);
 }
+.needs-fixing-engine-tag {
+	background-color: rgb(255 0 0 / 22%);
+}
 .realistic-engine-tag {
 	background-color: rgb(19 255 0 / 17%);
 }
