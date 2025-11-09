@@ -264,8 +264,8 @@
 										<div class="floaty-container">
 											<section class="floaty-header">
 												<div class="title">
-													<h1>Engine Settings</h1>
-													<p>Please select the engine you like</p>
+													<h1 data-translation-engine-title>Engine Settings</h1>
+													<p data-translation-engine-subtitle>Please select the engine you like</p>
 												</div>
 												<div class="floaty-buttons">
 													<button class="floaty-close-btn acas-fancy-button">👍</button>
@@ -273,7 +273,7 @@
 											</section>
 											<section class="floaty-body">
 												<div class="setting-panel">
-													<div class="setting-panel-title">Built-in Engine</div>
+													<div class="setting-panel-title" data-translation-built-in-engine>Built-in Engine</div>
 													<div id="chess-engine-dropdown" class="dropdown-input dropdown-input-special">
 														<div class="dropdown-input-container">
 															<input disabled type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="stockfish-17-lite-single" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
@@ -282,7 +282,7 @@
 																Stockfish 17 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(66MB)</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-17-lite-single">
-																Stockfish 17 Lite <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(7MB)</span> <span class="list-tag">Default</span> <span class="stable-engine-tag list-tag">Stable</span>
+																Stockfish 17 Lite <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(7MB)</span> <span class="list-tag" data-translation-default-tag>Default</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item requires-sab" data-value="stockfish-16-1-wasm">
 																Stockfish 16 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="engine-size-tag list-tag">(79MB)</span>
@@ -303,7 +303,7 @@
 																Lozza 5 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(400KB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
 																</div>
 																<div class="dropdown-item requires-sab" data-value="stockfish-17-wasm">
-																Stockfish 17.1 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="unstable-engine-tag list-tag">Needs fixing</span> <span class="engine-size-tag list-tag">(79MB)</span>
+																Stockfish 17.1 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="unstable-engine-tag list-tag" data-translation-needs-fixing-tag>Needs fixing</span> <span class="engine-size-tag list-tag">(79MB)</span>
 																</div>				  
 															</div>
 														</div>
@@ -311,11 +311,11 @@
 												</div>
 
 												<div class="setting-panel">
-													<div class="setting-panel-title">External Engine</div>
-													<p>Todo ⏳</p>
+													<div class="setting-panel-title" data-translation-external-engine>External Engine</div>
+													<p data-translation-todo-text>Todo ⏳</p>
 												</div>
 
-												<a target="_blank" href="../usage/">More engines might be available with a different launch mode.</a>
+												<a target="_blank" href="../usage/" data-translation-more-engines>More engines might be available with a different launch mode.</a>
 											</section>
 										</div>
 									</dialog>
@@ -365,21 +365,20 @@
 										<div class="floaty-container">
 											<section class="floaty-header">
 												<div class="title">
-													<h1>Advanced Elo</h1>
-													<p>Settings for engine behaviour fine tuning</p>
+													<h1 data-translation-adelo-title>Advanced Elo</h1>
+													<p data-translation-adelo-subtitle>Settings for engine behaviour fine tuning</p>
 												</div>
 												<div class="floaty-buttons">
 													<button class="floaty-close-btn acas-fancy-button">👍</button>
 												</div>
 											</section>
 											<section class="floaty-body">
-												<p id="user-computer-stats">Loading...</p>
 												<div class="checkbox-input custom-input"><div><div class="input-title">Enable</div>
 													<div class="input-subtitle">Enable the advanced elo settings</div></div><div class="checkbox-container">
 													<input type="checkbox" data-key="enableAdvancedElo" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 												</div>
 												<div class="setting-panel">
-													<div class="setting-panel-title">Regular</div>
+													<div class="setting-panel-title" data-translation-adelo-regular>Regular</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Elo (1320 - 3190)</div>
 														<div class="input-subtitle">Engine tries to play at this level</div></div>
 														<input type="textfield" data-key="advancedElo" data-default-value="1500" data-between="1320-3190">
@@ -402,7 +401,7 @@
 													</div>
 												</div>
 												<div class="setting-panel">
-													<div class="setting-panel-title">Not supported well</div>
+													<div class="setting-panel-title" data-translation-not-supported-well>Not supported well</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Maximum Error (0 - 1000)</div>
 														<div class="input-subtitle">(No engines seem to support this)</div></div>
 														<input type="textfield" data-key="advancedEloMaxError" data-default-value="0" data-between="0-1000">
@@ -413,7 +412,7 @@
 													</div>
 												</div>
 
-												<a target="_blank" href="../usage/">Learn more about these features here.</a>
+												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
 											</section>
 										</div>
 									</dialog>
@@ -422,7 +421,7 @@
 							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions (1 - 500)</div>
 								<div class="input-subtitle">How many arrows will show up</div></div>
-								<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="1-500">
+								<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="0-500">
 							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Max Movetime (ms)</div>
 								<div class="input-subtitle" title="Ms means millisecond. 1000 milliseconds is 1 second.">1000ms is 1 second</div></div>
@@ -432,15 +431,15 @@
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👁️‍🗨️</div>
 							<div class="floaty-input custom-input">
-								<div><div class="input-title">Rendering</div><div class="input-subtitle">Renders various metrics</div></div>
+								<div><div class="input-title" data-translation-rendering-title>Rendering</div><div class="input-subtitle" data-translation-rendering-subtitle>Renders various metrics</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
 								    <dialog id="rendering-floaty">
 										<div class="floaty-container">
 											<section class="floaty-header">
 												<div class="title">
-													<h1>Rendering Settings</h1>
-													<p>Display various metrics on the board</p>
+													<h1 data-translation-rendering-title>Rendering Settings</h1>
+													<p data-translation-rendering-subtitle>Display various metrics on the board</p>
 												</div>
 												<div class="floaty-buttons">
 													<button class="floaty-close-btn acas-fancy-button">👍</button>
@@ -453,7 +452,7 @@
 												</div>
 
 												<div class="setting-panel">
-													<div class="setting-panel-title">Square</div>
+													<div class="setting-panel-title" data-translation-squares-text>Squares</div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Vision</div>
 														<div class="input-subtitle">Highlight squares your pieces see with green</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="renderSquarePlayer" data-default-value="false"><div class="checkbox-fill">✓</div></div>
@@ -473,7 +472,7 @@
 												</div>
 
 												<div class="setting-panel">
-													<div class="setting-panel-title">Piece</div>
+													<div class="setting-panel-title" data-translation-pieces-text>Pieces</div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Capture</div>
 														<div class="input-subtitle">Display 💧 on pieces that are in danger of capture</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="renderPiecePlayerCapture" data-default-value="false"><div class="checkbox-fill">✓</div></div>
@@ -484,36 +483,37 @@
 													</div>
 												</div>
 
-												<a target="_blank" href="../usage/">Learn more about these features here.</a>
+												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
 											</section>
 										</div>
 									</dialog>
 								</div>
 							</div>
 							<div class="floaty-input custom-input">
-								<div><div class="input-title">Feedback</div><div class="input-subtitle">Get feedback on your moves</div></div>
+								<div><div class="input-title" data-translation-feedback-title>Feedback</div><div class="input-subtitle" data-translation-feedback-subtitle>Get feedback on your moves</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
 								    <dialog id="feedback-floaty">
 										<div class="floaty-container">
 											<section class="floaty-header">
 												<div class="title">
-													<h1>Feedback Settings</h1>
-													<p>Get feedback on your moves (Beta)</p>
+													<h1 data-translation-feedback-title>Feedback Settings</h1>
+													<p data-translation-feedback-subtitle>Get feedback on your moves</p>
 												</div>
 												<div class="floaty-buttons">
 													<button class="floaty-close-btn acas-fancy-button">👍</button>
 												</div>
 											</section>
 											<section class="floaty-body">
-												<p><b>Remember:</b> Engine critiques are just comparisons to <i>perfection</i>.</p>
+												<p data-translation-remember-perfection>Remember: Engine critiques are just comparisons to perfection.</p>
+
 												<div class="checkbox-input custom-input"><div><div class="input-title">Feedback On External Site</div>
 													<div class="input-subtitle">Show feedback on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
 													<input type="checkbox" data-key="feedbackOnExternalSite" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 												</div>
 
 												<div class="setting-panel">
-													<div class="setting-panel-title">Moves</div>
+													<div class="setting-panel-title" data-translation-moves-text>Moves</div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Move Ratings</div>
 														<div class="input-subtitle">Show engine's thoughts about moves</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="enableMoveRatings" data-default-value="false"><div class="checkbox-fill">✓</div></div>
@@ -527,9 +527,56 @@
 														<input type="textfield" data-key="feedbackEngineDepth" data-default-value="5" data-between="1-99">
 													</div>
 												</div>
-												<p>Feature is in <b>Beta</b>. Currently not good in middle-/endgames!</p>
 
-												<a target="_blank" href="../usage/">Learn more about these features here.</a>
+												<p data-translation-experimental-warning>This feature is experimental, it might not work well!</p>
+
+												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
+											</section>
+										</div>
+									</dialog>
+								</div>
+							</div>
+							<div class="floaty-input custom-input">
+								<div><div class="input-title" data-translation-accessibility-title>Accessibility</div><div class="input-subtitle" data-translation-accessibility-subtitle>Improve your personal experience</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+								    <dialog id="feedback-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header">
+												<div class="title">
+													<h1 data-translation-accessibility-title>Accessibility Settings</h1>
+													<p data-translation-accessibility-subtitle>Improve your personal experience</p>
+												</div>
+												<div class="floaty-buttons">
+													<button class="floaty-close-btn acas-fancy-button">👍</button>
+												</div>
+											</section>
+											<section class="floaty-body">
+												<div class="checkbox-input custom-input"><div><div class="input-title">Colored Squares</div>
+													<div class="input-subtitle">Change move arrows into colored squares</div></div><div class="checkbox-container">
+													<input type="checkbox" data-key="moveAsFilledSquares" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+												</div>
+												<div class="setting-panel">
+													<div class="setting-panel-title" data-translation-move-display-settings>Move display</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Move opacity (1 - 100%)</div>
+														<div class="input-subtitle">Change the opacity of the arrows</div></div>
+														<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
+													</div>
+													<div class="color-input custom-input"><div><div class="input-title">Primary Move Color</div>
+														<div class="input-subtitle">The best move color</div></div>
+														<input type="color" data-key="primaryArrowColorHex" data-default-value="#32CD32">
+													</div>
+													<div class="color-input custom-input"><div><div class="input-title">Secondary Move Color</div>
+														<div class="input-subtitle">Other moves' color</div></div>
+														<input type="color" data-key="secondaryArrowColorHex" data-default-value="#1E90FF">
+													</div>
+													<div class="color-input custom-input"><div><div class="input-title">Opponent Arrow Color</div>
+														<div class="input-subtitle">Opponent move color</div></div>
+														<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
+													</div>
+												</div>
+
+												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
 											</section>
 										</div>
 									</dialog>
@@ -539,21 +586,13 @@
 								<div class="input-subtitle">Show the move arrows after this time</div></div>
 								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
 							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Arrow opacity (1 - 100%)</div>
-								<div class="input-subtitle">Change the opacity of the arrows</div></div>
-								<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
+							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
+								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Primary Arrow Color</div>
-								<div class="input-subtitle">The best move color</div></div>
-								<input type="color" data-key="primaryArrowColorHex" data-default-value="#32CD32">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Secondary Arrow Color</div>
-								<div class="input-subtitle">Other moves' color</div></div>
-								<input type="color" data-key="secondaryArrowColorHex" data-default-value="#1E90FF">
-							</div>
-							<div class="color-input custom-input"><div><div class="input-title">Opponent Arrow Color</div>
-								<div class="input-subtitle">Opponent color</div></div>
-								<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
+							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
+								<div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
 						</div>
 						<div class="setting-panel">
@@ -579,14 +618,6 @@
 									<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
 									<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 								</div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
-								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
-								<div class="input-subtitle">Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
 						</div>
 						<div class="setting-panel">
@@ -649,7 +680,7 @@
 				<div class="setting-panel">
 					<div class="setting-panel-title"><span class="misc-panel-title">Miscellaneous</span> ❔</div>
 					<div class="color-input custom-input"><div class="input-title">Theme Color</div>
-						<input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#4A707D">
+						<input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
 					</div>
 					<div class="color-input custom-input"><div class="input-title">Board Color</div>
 						<input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
@@ -690,7 +721,6 @@
 				<a class="footer-link" href="https://github.com/Hakorr" target="_about">Author</a>
 				<a class="footer-link" href="../tos" target="_about">ToS</a>
 				<a class="footer-link" href="../privacy" target="_about">Privacy</a>
-				<a class="footer-link" href="../why" target="_about">Why</a>
 				<a class="footer-link" href="../#/" target="_about">Documentation</a>
 			</div>
 			<div id="thanks-for-using-footer-text" class="footer-small-text">Thanks for using A.C.A.S, a handcrafted project made by a solo developer.</div>

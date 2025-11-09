@@ -451,6 +451,7 @@ dialog .input-subtitle {
     background-color: rgb(0 0 0 / 30%);
     padding: 10px;
     border-radius: 5px 5px 0 0;
+    gap: 30px;
 }
 .floaty-header .title * {
     margin: 0;

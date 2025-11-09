@@ -50,7 +50,8 @@ class BackendInstance {
             'advancedEloMaxError': 'advancedEloMaxError',
             'advancedEloProbability': 'advancedEloProbability',
             'advancedEloHash': 'advancedEloHash',
-            'advancedEloThreads': 'advancedEloThreads'
+            'advancedEloThreads': 'advancedEloThreads',
+            'moveAsFilledSquares': 'moveAsFilledSquares'
         };
 
         this.config = {};
@@ -89,12 +90,15 @@ class BackendInstance {
         this.unprocessedPackets = [];
         this.currentFen = null;
 
+        this.activeVariant = '';
         this.variantStartPosFen = null;
 
         this.environmentSetupRun = false;
 
         this.lastOrientation = null;
         this.lastTurn = null;
+
+        this.boardDimensions = { 'width': 8, 'height': 8 };
 
         this.activeEnginesAmount = 0;
         this.guiUpdaterActive = false;
@@ -207,7 +211,27 @@ class BackendInstance {
         for (const profileObj of activeProfiles) {
             this.pV[profileObj.name] = await this.profileVariables.create(this, profileObj);
             this.loadEngine(profileObj.name);
-        }        
+
+            //setIntervalAsync(async () => await this.enforceMoveSuggestions(profileObj.name), 2000);
+        }
+    }
+
+    // Makes sure there's always a move suggestion visible, if necessary
+    // Not in use right now, for future!
+    async enforceMoveSuggestions(profile) {
+        const moveSuggestionAmount = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+        const isEngineCalculating = this.isEngineNotCalculating(profile);
+        const activeMoveMarkings = this.pV[profile].activeGuiMoveMarkings;
+
+        const noEnforcementNeeded = moveSuggestionAmount <= 0 
+            || isEngineCalculating
+            || activeMoveMarkings?.length > 0;
+
+        console.log({ moveSuggestionAmount, isEngineCalculating, activeMoveMarkings });
+
+        if(noEnforcementNeeded) return;
+
+        console.log('Do something!');
     }
 
     processPacket(packet) {
@@ -233,31 +257,21 @@ class BackendInstance {
     }
 
     getArrowStyle(type, fill, opacity) {
-        const baseStyleArr = [
+        const getBaseStyleModification = (f, o) => [
             'stroke: rgb(0 0 0 / 50%);',
             'stroke-width: 2px;',
-            'stroke-linejoin: round;'
-        ];
-    
+            'stroke-linejoin: round;',
+            `fill: ${fill || f};`,
+            `opacity: ${opacity || o};`
+        ].join('\n');
+
         switch(type) {
             case 'best': 
-                return [
-                    `fill: ${fill || 'limegreen'};`,
-                    `opacity: ${opacity || 0.9};`,
-                    ...baseStyleArr
-                ].join('\n');
+                return getBaseStyleModification('limegreen', 0.9);
             case 'secondary': 
-                return [
-                    ...baseStyleArr,
-                    `fill: ${fill ? fill : 'dodgerblue'};`,
-                    `opacity: ${opacity || 0.7};`,
-                ].join('\n');
+                return getBaseStyleModification('dodgerblue', 0.7);
             case 'opponent':
-                return [
-                    ...baseStyleArr,
-                    `fill: ${fill ? fill : 'crimson'};`,
-                    `opacity: ${opacity || 0.3};`,
-                ].join('\n');
+                return getBaseStyleModification('crimson', 0.3);
         }
     };
 
@@ -275,81 +289,118 @@ class BackendInstance {
                 const primaryArrowColorHex = await this.getConfigValue(this.configKeys.primaryArrowColorHex, profile);
                 const secondaryArrowColorHex = await this.getConfigValue(this.configKeys.secondaryArrowColorHex, profile);
                 const opponentArrowColorHex = await this.getConfigValue(this.configKeys.opponentArrowColorHex, profile);
+                const moveAsFilledSquares = await this.getConfigValue(this.configKeys.moveAsFilledSquares, profile);
+
+                const BoardDrawer = this.BoardDrawer;
+
+                function fillSquare(square, style) {
+                    const shapeType = 'rectangle';
+                    const shapeConfig = { style };
+ 
+                    const rect = BoardDrawer.createShape(shapeType, square, shapeConfig);
+        
+                    return rect;
+                }
+                
+                const markedSquares = { 0: [], 1: [] };
 
                 moveObjArr.forEach((markingObj, idx) => {
                     const [from, to] = markingObj.player;
                     const [oppFrom, oppTo] = markingObj.opponent;
                     const oppMovesExist = oppFrom && oppTo;
                     const rank = idx + 1;
-                    
-                    let playerArrowElem = null;
-                    let oppArrowElem = null;
-                    let arrowStyle = this.getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
-                    let lineWidth = 30;
-                    let arrowheadWidth = 80;
-                    let arrowheadHeight = 60;
-                    let startOffset = 30;
+                    const cp = markingObj.cp;
+
+                    if(moveAsFilledSquares) {
+                        const fillType = idx === 0 ? 1 : 0,
+                              fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
+                              styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
+                              skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
+                              skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
         
-                    if(idx !== 0) {
-                        arrowStyle = this.getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
-        
-                        const arrowScale = totalRanks === 2
-                            ? 0.75
-                            : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
-        
-                        lineWidth = lineWidth * arrowScale;
-                        arrowheadWidth = arrowheadWidth * arrowScale;
-                        arrowheadHeight = arrowheadHeight * arrowScale;
-                        startOffset = startOffset;
-                    }
-                    
-                    playerArrowElem = this.BoardDrawer.createShape('arrow', [from, to],
-                        {
-                            style: arrowStyle,
-                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset
+                        const fromSquareStyle = `${styling} ${skipFromSquare}`;
+                        const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
+                        
+                        const fromSquareFill = fillSquare(from, fromSquareStyle);
+                        const toSquareFill = fillSquare(to, toSquareStyle);
+
+                        markedSquares[fillType].push(from, to);
+
+                        this.pV[profile].activeGuiMoveMarkings.push(
+                            { 'otherElems': [fromSquareFill, toSquareFill] }
+                        );
+                    } else {
+                        let playerArrowElem = null;
+                        let oppArrowElem = null;
+                        let arrowStyle = this.getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
+                        let lineWidth = 30;
+                        let arrowheadWidth = 80;
+                        let arrowheadHeight = 60;
+                        let startOffset = 30;
+            
+                        if(idx !== 0) {
+                            arrowStyle = this.getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
+            
+                            const arrowScale = totalRanks === 2
+                                ? 0.75
+                                : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
+            
+                            lineWidth = lineWidth * arrowScale;
+                            arrowheadWidth = arrowheadWidth * arrowScale;
+                            arrowheadHeight = arrowheadHeight * arrowScale;
+                            startOffset = startOffset;
                         }
-                    );
-        
-                    if(oppMovesExist && showOpponentMoveGuess) {
-                        oppArrowElem = this.BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                        
+                        playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
                             {
-                                style: this.getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
+                                style: arrowStyle,
                                 lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                             }
                         );
-
-                        if(showOpponentMoveGuessConstantly) {
-                            oppArrowElem.style.display = 'block';
-                        } else {
-                            const squareListener = this.BoardDrawer.addSquareListener(from, type => {
-                                if(!oppArrowElem) {
-                                    squareListener.remove();
-                                }
             
-                                switch(type) {
-                                    case 'enter':
-                                        oppArrowElem.style.display = 'inherit';
-                                        break;
-                                    case 'leave':
-                                        oppArrowElem.style.display = 'none';
-                                        break;
+                        if(oppMovesExist && showOpponentMoveGuess) {
+                            oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                                {
+                                    style: this.getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
+                                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                                 }
-                            });
+                            );
+    
+                            if(showOpponentMoveGuessConstantly) {
+                                oppArrowElem.style.display = 'block';
+                            } else {
+                                const squareListener = BoardDrawer.addSquareListener(from, type => {
+                                    if(!oppArrowElem) {
+                                        squareListener.remove();
+                                    }
+                
+                                    switch(type) {
+                                        case 'enter':
+                                            oppArrowElem.style.display = 'inherit';
+                                            break;
+                                        case 'leave':
+                                            oppArrowElem.style.display = 'none';
+                                            break;
+                                    }
+                                });
+                            }
                         }
-                    }
-        
-                    if(idx === 0 && playerArrowElem) {
-                        const parentElem = playerArrowElem.parentElement;
-        
-                        // move best arrow element on top (multiple same moves can hide the best move)
-                        parentElem.appendChild(playerArrowElem);
-        
-                        if(oppArrowElem) {
-                            parentElem.appendChild(oppArrowElem);
+            
+                        if(idx === 0 && playerArrowElem) {
+                            const parentElem = playerArrowElem.parentElement;
+            
+                            // move best arrow element on top (multiple same moves can hide the best move)
+                            parentElem.appendChild(playerArrowElem);
+            
+                            if(oppArrowElem) {
+                                parentElem.appendChild(oppArrowElem);
+                            }
                         }
+    
+                        this.pV[profile].activeGuiMoveMarkings.push(
+                            { ...markingObj, playerArrowElem, oppArrowElem }
+                        );
                     }
-
-                    this.pV[profile].activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem });
                 });
 
                 this.pV[profile].pastMoveObjects = [];
@@ -359,6 +410,7 @@ class BackendInstance {
                     t.pV[p].activeGuiMoveMarkings.forEach(markingObj => {
                         markingObj.oppArrowElem?.remove();
                         markingObj.playerArrowElem?.remove();
+                        markingObj?.otherElems?.forEach(x => x?.remove());
                     });
     
                     t.pV[p].activeGuiMoveMarkings = [];
@@ -376,7 +428,7 @@ class BackendInstance {
                 if(this.currentFen !== fen) {
                     const moveObj = extractMoveFromBoardFen(this.currentFen, fen);
 
-                    if(!(moveObj?.from && moveObj?.to && moveObj?.color)) return;
+                    if(!(moveObj?.from && moveObj?.to && moveObj?.color) && this.activeVariant !== 'atomic') return;
 
                     this.currentFen = fen;
 
@@ -1083,6 +1135,8 @@ class BackendInstance {
     }
 
     isFenChangeLogical(lastFen, newFen) {
+        if(this.activeVariant === 'atomic') return true;
+
         const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(lastFen, newFen);
         const isAbnormalPieceChange = this.isAbnormalPieceChange(lastFen, newFen);
 
@@ -1105,6 +1159,8 @@ class BackendInstance {
     
         const dimensions = getBoardDimensionsFromFenStr(newFen);
         const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
+
+        this.boardDimensions = boardDimensions;
 
         let movedPiece = '';
         let amountOfMovedPieces = 0;
@@ -1193,7 +1249,7 @@ class BackendInstance {
 
                 let fromFen = lastFen;
 
-                // Analyze for the enemy if enemy moved piee
+                // Analyze for the enemy if enemy moved piece
                 if(playerColor !== pieceColor)
                     if(!enableEnemyFeedback) { // do not show feedback for enemies
                         clearFeedback(profileName);
@@ -1229,13 +1285,10 @@ class BackendInstance {
                     addedFeedbacks.push({ 'elem': textElem, 'data': { shapeType, shapeSquare, shapeConfig }});
                 }
 
-                if(category !== 0) {
+                if(typeof category === 'number') {
                     // ['Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic', 'Good Move', 'Excellent', 'Brilliancy'];
+                    const emoji = ['🙂', '🤨', '😟', '😨', '💀', '😊', '😁', '🤩']?.[category] || '😐';
 
-                    const label = ['-', '?!', '?', '??', '???', '✪', '!', '!!']?.[category] || '⚪';
-                    const emoji = ['⚪', '🟡', '🟠', '🔴', '🟤', '🟢', '🔵', '🟣'][category] || '⚪';
-
-                    addText(to, 1.3, label, 'opacity: 1; font-weight: 700; fill: white;', [0.8, 0.8]);
                     addText(to, 1.7, emoji, `opacity: 1;`, [0.8, 0.8]);
                 }
         
@@ -1508,8 +1561,9 @@ class BackendInstance {
             if(moves?.length === 1) // if no opponent move guesses yet
                 moves = [...moves, [null, null]];
 
+            const cp = data?.cp;
             const [[from, to], [opponentFrom, opponentTo]] = moves;
-            const moveObj = { 'player': [from, to], 'opponent': [opponentFrom, opponentTo], profile, ranking };
+            const moveObj = { 'player': [from, to], 'opponent': [opponentFrom, opponentTo], cp, profile, ranking };
 
             this.pV[profile].pastMoveObjects.push(moveObj);
 
@@ -1532,7 +1586,8 @@ class BackendInstance {
             }
 
             if(
-                topMoveObjects.length === markingLimit
+                markingLimit !== 0
+                && topMoveObjects.length === markingLimit
                 && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited)) // handle infinite search, cannot only show top moves when search is infinite
                 && (!isDelayActive || (calculationTimeElapsed > moveDisplayDelay)) // handle visual delay, do not show move if time elapsed is too low
             ) {
@@ -1555,6 +1610,7 @@ class BackendInstance {
                 const markingLimit = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
                 const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
                 const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
+
                 let topMoveObjects = this.pV[profile].pastMoveObjects?.slice(markingLimit * -1);
 
                 if(topMoveObjects?.length === 0) {
@@ -1577,7 +1633,8 @@ class BackendInstance {
                         }
                     }, moveDisplayDelay);
                 } else {
-                    this.displayMoves(topMoveObjects, profile);
+                    if(markingLimit !== 0)
+                        this.displayMoves(topMoveObjects, profile);
                 }
             }
         }
@@ -2040,6 +2097,7 @@ class BackendInstance {
                 }
             }
 
+            this.activeVariant = formatVariant(variantText);
             instanceChessVariantElem.innerText = variantText;
             instanceDomainElem.innerText = this.domain;
             instanceFenElem.innerText = fen;

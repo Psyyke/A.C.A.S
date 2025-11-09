@@ -53,15 +53,6 @@ const deleteProfileBtn = document.querySelector('#delete-profile-button');
 
 const floatyButtons = document.querySelectorAll('.open-floaty-btn');
 
-const userComputerStatsText = document.querySelector('#user-computer-stats');
-
-if (userComputerStatsText) {
-    const deviceMemory = (navigator.deviceMemory * 1024) || '❔';
-    const hardwareConcurrency = navigator.hardwareConcurrency || '❔';
-
-    userComputerStatsText.innerText = `You might have max ${deviceMemory} MB of memory & ${hardwareConcurrency} threads (cores).`;
-}
-
 [...floatyButtons].forEach(btn => {
     const floatyDialog = btn?.parentElement?.querySelector('dialog');
 
@@ -262,6 +253,15 @@ function updatePictureInPictureView() {
     ctx.fillStyle = pipData.themeColorHex;
     ctx.fillRect(0, 0, headerWidth, pipCanvas.height);
 
+    // Create a subtle diagonal dark gradient
+    const gradient = ctx.createLinearGradient(headerWidth, 0, 0, pipCanvas.height);
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+
+    // Overlay the gradient
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, headerWidth, pipCanvas.height);
+
     // Add header background
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.fillRect(0, 0, headerWidth, headerHeight - statusBarHeight);
@@ -278,9 +278,10 @@ function updatePictureInPictureView() {
     if(pipData.moveProgressText) {
         ctx.fillText(pipData.moveProgressText, 40, headerHeight + 90);
     } else if(noInstancesText) {
-        ctx.fillText(noInstancesText, 40, headerHeight + 100);
+        ctx.fillText(noInstancesText, 40, headerHeight + 100, 830);
+        ctx.fillText('ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', 40, headerHeight + 200, 830);
     }
-
+    
     if(pipData.calculationTimeElapsed) {
         const timeMs = pipData.calculationTimeElapsed;
         const timeFormatted = timeMs > 9999
@@ -300,7 +301,7 @@ function updatePictureInPictureView() {
         ctx.fillText(`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 40, headerHeight + 250);
     }
 
-    if (winChance && drawChance && lossChance) {
+    if(winChance && drawChance && lossChance) {
         const chances = [
             { label: 'Win', percentage: Math.round(winChance / 10) },
             { label: 'Draw', percentage: Math.round(drawChance / 10) },
@@ -382,6 +383,13 @@ function updatePictureInPictureView() {
         ctx.fillStyle = 'rgba(125, 125, 125, 1)';
         ctx.font = '500 45px IBM Plex Sans';
         ctx.fillText(evalText, headerWidth + [34, 27, 15, 2, 0, 0][evalText.length - 1], yPosition);
+    }
+
+    
+    if(noInstancesText) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.font = '900 900px IBM Plex Sans';
+        ctx.fillText('☯︎', pipCanvas.width - 500, pipCanvas.height + 105);
     }
 
     // Status bar
@@ -760,7 +768,7 @@ async function updateSettingsValues() {
 
         const value = await getGmConfigValue(key, settingFilterObj.instanceID, noProfile ? false : settingFilterObj.profileID);
 
-        if (typeof value === 'boolean' || value) {
+        if(typeof value === 'boolean' || value || value === 0) {
             setInputValue(inputElem, value);
             makeSettingChanges(inputElem);
         } else {

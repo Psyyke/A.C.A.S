@@ -50,7 +50,6 @@ class MoveEvaluator {
             this.isEngineCrashed = true;
 
             console.error('MoveEvaluator crashed with message:', e);
-            //toast.warning('MoveEvaluator crashed with message:', e?.message);
         };
     }
 
@@ -73,16 +72,16 @@ class MoveEvaluator {
         this.setPosition(this.currentFen);
     }
 
-    categorize(cp) {
-        if (cp >= 200) return 7;
-        if (cp >= 100) return 6;
-        if (cp >= 60) return 5;
-        if (cp <= -500) return 4;
-        if (cp <= -300) return 3;
-        if (cp <= -100) return 2;
-        if (cp <= -50) return 1;
-        
-        return 0;
+    categorize(relativeCp) {
+        if(relativeCp >= 90) return 7;   // Brilliancy
+        if(relativeCp >= 50) return 6;   // Excellent
+        if(relativeCp >= 15) return 5;   // Good Move
+        if(relativeCp > -15 && relativeCp < 15) return 0; // Neutral
+        if(relativeCp <= -90) return 4;  // Catastrophic
+        if(relativeCp <= -50) return 3;  // Blunder
+        if(relativeCp <= -15) return 2;  // Mistake
+
+        return 1; // Inaccuracy
     }
 
     eval(moveObj, configObj, callback) {
@@ -92,6 +91,9 @@ class MoveEvaluator {
         this.searchDepth = configObj?.depth || this.searchDepth;
 
         const playerColor = this.currentFen.split(' ')[1];
+        const enemyColor = playerColor === 'w' ? 'b' : 'w';
+
+        let isMate = 0;
 
         const ready = () => {
             if(this.currentFen)
@@ -100,28 +102,37 @@ class MoveEvaluator {
             // Once ready, send the UCI command
             this.uci(`go depth ${this.searchDepth} searchmoves ${from + to}`, msg => {
                 const result = parseUCIResponse(msg);
-                
-                if(result?.mate) {
-                    const mateIn = Number(result.mate);
-                    const mateValue = 800 - Math.abs(mateIn);
-                    const cp = mateIn > 0 ? mateValue : -mateValue;
 
-                    this.currentCp[playerColor] = cp;
-                } else if (result?.cp && result?.cp !== 0)
+                if(result?.cp !== undefined && result.cp !== 0) {
+                    this.lastCp[playerColor] = this.currentCp[playerColor];
                     this.currentCp[playerColor] = Number(result.cp);
-                
+                }
+
                 if(result?.bestmove) {
-                    const currentCp = this.currentCp[playerColor];
-                    //const averageCp = (this.lastCp[playerColor] + this.currentCp[playerColor]) / 2;
-                    //console.log(this.lastCp[playerColor], this.currentCp[playerColor], averageCp, playerColor);
-                    //this.lastCp[playerColor] = this.currentCp[playerColor];
+                    const currentPlayerCp = this.currentCp[playerColor];
+                    const lastPlayerCp = this.lastCp[playerColor];
+                    const lastEnemyCp = this.lastCp[enemyColor];
+
+                    const magnitude = (Math.abs(lastPlayerCp) + Math.abs(lastEnemyCp));
+                    const divisor = magnitude > 1000 ? 10 : 1;
+
+                    const previousCpAverage = magnitude / 2 * Math.sign(lastPlayerCp);
+                    const previousCp = previousCpAverage || currentPlayerCp;
+
+                    const ownMate = typeof isMate === 'number' && isMate > 0;
+
+                    const relativeCp = (currentPlayerCp === 0 || ownMate)
+                        ? 50 + (55 - isMate * 10)
+                        : (currentPlayerCp - previousCp) / divisor;
 
                     callback({
-                        'category': this.categorize(currentCp),
-                        'cp': currentCp
+                        'category': this.categorize(relativeCp),
+                        'cp': relativeCp
                     });
                 }
 
+                isMate = Number(result?.mate || 0);
+                
                 console.warn('[Feedback Engine]', msg);
             });
         }

@@ -53,7 +53,7 @@
 // @match       https://chess.coolmathgames.com/*
 // @match       https://www.coolmathgames.com/0-chess/*
 // @match       https://immortal.game/*
-// @match       https://chessarena.com/*
+// @match       https://worldchess.com/*
 // @match       http://chess.net/*
 // @match       https://chess.net/*
 // @match       https://www.freechess.club/*
@@ -84,18 +84,18 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.3.1
+// @version     2.3.2
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
 // ==/UserScript==
 
 /*
-     e            e88~-_            e           ,d88~~\
-    d8b          d888   \          d8b          8888
-   /Y88b         8888             /Y88b         `Y88b
-  /  Y88b        8888            /  Y88b         `Y88b,
- /____Y88b  d88b Y888   / d88b  /____Y88b  d88b    8888
+e            e88~-_            e           ,d88~~\
+d8b          d888   \          d8b          8888
+/Y88b         8888             /Y88b         `Y88b
+/  Y88b        8888            /  Y88b         `Y88b,
+/____Y88b  d88b Y888   / d88b  /____Y88b  d88b    8888
 /      Y88b Y88P  "88_-~  Y88P /      Y88b Y88P \__88P'
 
 Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
@@ -361,7 +361,8 @@ const configKeys = {
     'legitModeType': 'legitModeType',
     'moveDisplayDelay': 'moveDisplayDelay',
     'renderOnExternalSite': 'renderOnExternalSite',
-    'feedbackOnExternalSite': 'feedbackOnExternalSite'
+    'feedbackOnExternalSite': 'feedbackOnExternalSite',
+    'moveAsFilledSquares': 'moveAsFilledSquares'
 };
 
 const config = {};
@@ -409,31 +410,21 @@ const pieceNameToFen = {
 };
 
 function getArrowStyle(type, fill, opacity) {
-    const baseStyleArr = [
+    const getBaseStyleModification = (f, o) => [
         'stroke: rgb(0 0 0 / 50%);',
         'stroke-width: 2px;',
-        'stroke-linejoin: round;'
-    ];
+        'stroke-linejoin: round;',
+        `fill: ${fill || f};`,
+        `opacity: ${opacity || o};`
+    ].join('\n');
 
     switch(type) {
-        case 'best':
-            return [
-                `fill: ${fill || 'limegreen'};`,
-                `opacity: ${opacity || 0.9};`,
-                ...baseStyleArr
-            ].join('\n');
-        case 'secondary':
-            return [
-                ...baseStyleArr,
-                `fill: ${fill ? fill : 'dodgerblue'};`,
-                `opacity: ${opacity || 0.7};`,
-            ].join('\n');
+        case 'best': 
+            return getBaseStyleModification('limegreen', 0.9);
+        case 'secondary': 
+            return getBaseStyleModification('dodgerblue', 0.7);
         case 'opponent':
-            return [
-                ...baseStyleArr,
-                `fill: ${fill ? fill : 'crimson'};`,
-                `opacity: ${opacity || 0.3};`,
-            ].join('\n');
+            return getBaseStyleModification('crimson', 0.3);
     }
 };
 
@@ -581,6 +572,17 @@ const boardUtils = {
         const maxScale = 1;
         const minScale = 0.5;
         const totalRanks = moveObjArr.length;
+        
+        function fillSquare(square, style) {
+            const shapeType = 'rectangle';
+            const shapeConfig = { style };
+
+            const rect = BoardDrawer.createShape(shapeType, square, shapeConfig);
+
+            return rect;
+        }
+        
+        const markedSquares = { 0: [], 1: [] };
 
         moveObjArr.forEach((markingObj, idx) => {
             const profile = markingObj.profile;
@@ -592,83 +594,106 @@ const boardUtils = {
             const [oppFrom, oppTo] = markingObj.opponent;
             const oppMovesExist = oppFrom && oppTo;
             const rank = idx + 1;
+            const cp = markingObj?.cp;
 
             const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess, profile);
             const showOpponentMoveGuessConstantly = getConfigValue(configKeys.showOpponentMoveGuessConstantly, profile);
-
             const arrowOpacity = getConfigValue(configKeys.arrowOpacity, profile) / 100;
             const primaryArrowColorHex = getConfigValue(configKeys.primaryArrowColorHex, profile);
             const secondaryArrowColorHex = getConfigValue(configKeys.secondaryArrowColorHex, profile);
             const opponentArrowColorHex = getConfigValue(configKeys.opponentArrowColorHex, profile);
+            const moveAsFilledSquares = getConfigValue(configKeys.moveAsFilledSquares, profile);
 
-            let playerArrowElem = null;
-            let oppArrowElem = null;
-            let arrowStyle = getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
-            let lineWidth = 30;
-            let arrowheadWidth = 80;
-            let arrowheadHeight = 60;
-            let startOffset = 30;
+            if(moveAsFilledSquares) {
+                const fillType = idx === 0 ? 1 : 0,
+                      fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
+                      styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
+                      skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
+                      skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
 
-            if(idx !== 0) {
-                arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
+                const fromSquareStyle = `${styling} ${skipFromSquare}`;
+                const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
+                
+                const fromSquareFill = fillSquare(from, fromSquareStyle);
+                const toSquareFill = fillSquare(to, toSquareStyle);
 
-                const arrowScale = totalRanks === 2
-                    ? 0.75
-                    : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
+                markedSquares[fillType].push(from, to);
 
-                lineWidth = lineWidth * arrowScale;
-                arrowheadWidth = arrowheadWidth * arrowScale;
-                arrowheadHeight = arrowheadHeight * arrowScale;
-                startOffset = startOffset;
-            }
-
-            playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
-                {
-                    style: arrowStyle,
-                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset
+                activeGuiMoveMarkings.push(
+                    { 'otherElems': [fromSquareFill, toSquareFill] }, profile
+                );
+            } else {
+                let playerArrowElem = null;
+                let oppArrowElem = null;
+                let arrowStyle = getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
+                let lineWidth = 30;
+                let arrowheadWidth = 80;
+                let arrowheadHeight = 60;
+                let startOffset = 30;
+    
+                if(idx !== 0) {
+                    arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
+    
+                    const arrowScale = totalRanks === 2
+                        ? 0.75
+                        : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
+    
+                    lineWidth = lineWidth * arrowScale;
+                    arrowheadWidth = arrowheadWidth * arrowScale;
+                    arrowheadHeight = arrowheadHeight * arrowScale;
+                    startOffset = startOffset;
                 }
-            );
-
-            if(oppMovesExist && showOpponentMoveGuess) {
-                oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                
+                playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
                     {
-                        style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
+                        style: arrowStyle,
                         lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                     }
                 );
-
-                if(showOpponentMoveGuessConstantly) {
-                    oppArrowElem.style.display = 'block';
-                } else {
-                    const squareListener = BoardDrawer.addSquareListener(from, type => {
-                        if(!oppArrowElem) {
-                            squareListener.remove();
+    
+                if(oppMovesExist && showOpponentMoveGuess) {
+                    oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                        {
+                            style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
+                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                         }
+                    );
 
-                        switch(type) {
-                            case 'enter':
-                                oppArrowElem.style.display = 'inherit';
-                                break;
-                            case 'leave':
-                                oppArrowElem.style.display = 'none';
-                                break;
-                        }
-                    });
+                    if(showOpponentMoveGuessConstantly) {
+                        oppArrowElem.style.display = 'block';
+                    } else {
+                        const squareListener = BoardDrawer.addSquareListener(from, type => {
+                            if(!oppArrowElem) {
+                                squareListener.remove();
+                            }
+        
+                            switch(type) {
+                                case 'enter':
+                                    oppArrowElem.style.display = 'inherit';
+                                    break;
+                                case 'leave':
+                                    oppArrowElem.style.display = 'none';
+                                    break;
+                            }
+                        });
+                    }
                 }
-            }
-
-            if(idx === 0 && playerArrowElem) {
-                const parentElem = playerArrowElem.parentElement;
-
-                // move best arrow element on top (multiple same moves can hide the best move)
-                parentElem.appendChild(playerArrowElem);
-
-                if(oppArrowElem) {
-                    parentElem.appendChild(oppArrowElem);
+    
+                if(idx === 0 && playerArrowElem) {
+                    const parentElem = playerArrowElem.parentElement;
+    
+                    // move best arrow element on top (multiple same moves can hide the best move)
+                    parentElem.appendChild(playerArrowElem);
+    
+                    if(oppArrowElem) {
+                        parentElem.appendChild(oppArrowElem);
+                    }
                 }
-            }
 
-            activeGuiMoveMarkings.push({ ...markingObj, playerArrowElem, oppArrowElem, profile });
+                activeGuiMoveMarkings.push(
+                    { ...markingObj, playerArrowElem, oppArrowElem, profile }
+                );
+            }
         });
     },
     removeMarkings: profile => {
@@ -685,6 +710,7 @@ const boardUtils = {
         removalArr.forEach(markingObj => {
             markingObj.oppArrowElem?.remove();
             markingObj.playerArrowElem?.remove();
+            markingObj?.otherElems?.forEach(x => x?.remove());
         });
     },
     setBoardOrientation: orientation => {
@@ -1321,7 +1347,7 @@ class AutomaticMove {
                     elementToTrigger.dispatchEvent(new MouseEvent('mouseup', pointerEventOptions));
 
                     break;
-                case 'chessarena.com':
+                case 'worldchess.com':
                     elementToTrigger.dispatchEvent(new MouseEvent('mousedown', pointerEventOptions));
 
                     if(this.isLegit) await this.delay(this.getRandomIntegerNearAverage(35, 125));
@@ -1881,7 +1907,7 @@ function observeNewMoves() {
             if(debugModeActivated) console.warn('Mutation is a new move:', mutationArr);
 
             try {
-                if(domain === 'chess.org' || domain === 'chessarena.com')
+                if(domain === 'chess.org' || domain === 'worldchess.com')
                 {
                     setTimeout(() => onNewMove(mutationArr), 250);
                 }
@@ -2593,7 +2619,7 @@ addSupportedChessSite('immortal.game', {
     }
 });
 
-addSupportedChessSite('chessarena.com', {
+addSupportedChessSite('worldchess.com', {
     'boardElem': obj => {
         return document.querySelector('*[data-component="GameLayoutBoard"] cg-board');
     },
@@ -3171,7 +3197,7 @@ async function start() {
             'window': window,
             'boardDimensions': getBoardDimensions(),
             'playerColor': getPlayerColorVariable(),
-            'zIndex': domain === 'chessarena.com' ? 9999 : 500,
+            'zIndex': domain === 'worldchess.com' ? 9999 : 500,
             'prepend': true,
             'debugMode': debugModeActivated,
             'adjustSizeByDimensions': adjustSizeByDimensions ? true : false,
