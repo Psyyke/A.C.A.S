@@ -162,3 +162,6 @@ You can find A.C.A.S v1 [here](https://github.com/Hakorr/Userscripts/tree/main/O
 ## Contact
 
 Discussion about A.C.A.S can be had on the [Userscript Hub](https://hakorr.github.io/Userscripts/community/invite) Discord server.
+
+<img width="1903" height="1676" alt="acas" src="https://github.com/user-attachments/assets/cbb510f0-5083-4a6b-9bd5-a7b91d390e68" />
+
