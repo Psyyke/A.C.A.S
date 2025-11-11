@@ -387,7 +387,7 @@ function updatePictureInPictureView() {
 
     
     if(noInstancesText) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
         ctx.font = '900 900px IBM Plex Sans';
         ctx.fillText('☯︎', pipCanvas.width - 500, pipCanvas.height + 105);
     }
