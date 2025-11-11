@@ -99,6 +99,7 @@ class BackendInstance {
         this.lastTurn = null;
 
         this.boardDimensions = { 'width': 8, 'height': 8 };
+        this.kingMoved = '';
 
         this.activeEnginesAmount = 0;
         this.guiUpdaterActive = false;
@@ -107,6 +108,9 @@ class BackendInstance {
         this.MoveEval = new MoveEvaluator();
 
         this.moveDiffHistory = [];
+
+        this.logEngineMessages = false;
+        this.debugLogsEnabled = false;
         
         this.profileVariables = class {
             constructor() {
@@ -158,6 +162,7 @@ class BackendInstance {
             'singlePacketResponseWaitTime': 1500,
             'maxSendAttempts': 3,
             'statusCheckInterval': 1,
+            'silentMode': true,
             'functions': {
                 'getValue': USERSCRIPT.getValue,
                 'setValue': USERSCRIPT.setValue,
@@ -168,7 +173,6 @@ class BackendInstance {
 
         this.CommLink.registerSendCommand('ping');
         this.CommLink.registerSendCommand('getFen');
-        this.CommLink.registerSendCommand('removeSiteMoveMarkings');
         this.CommLink.registerSendCommand('markMoveToSite');
         this.CommLink.registerSendCommand('renderMetricsToSite');
         this.CommLink.registerSendCommand('feedbackToSite');
@@ -278,7 +282,7 @@ class BackendInstance {
     Interface = {
         boardUtils: {
             markMoves: async (moveObjArr, profile) => {
-                this.Interface.boardUtils.removeMarkings(profile);
+                this.Interface.boardUtils.removeMarkings(profile, 'Make room for new move markings');
 
                 const maxScale = 1;
                 const minScale = 0.5;
@@ -405,7 +409,9 @@ class BackendInstance {
 
                 this.pV[profile].pastMoveObjects = [];
             },
-            removeMarkings: profile => {
+            removeMarkings: (profile, reason) => {
+                if(this.debugLogsEnabled) console.warn('[Remove markings] FOR:', reason);
+
                 function removeMarkingFromProfile(t, p) {
                     t.pV[p].activeGuiMoveMarkings.forEach(markingObj => {
                         markingObj.oppArrowElem?.remove();
@@ -428,7 +434,30 @@ class BackendInstance {
                 if(this.currentFen !== fen) {
                     const moveObj = extractMoveFromBoardFen(this.currentFen, fen);
 
-                    if(!(moveObj?.from && moveObj?.to && moveObj?.color) && this.activeVariant !== 'atomic') return;
+                    if(this.debugLogsEnabled) {
+                        const origin = (typeof location !== 'undefined' && location.origin) ? location.origin : '';
+                        const fens = [this.currentFen, fen];
+                        const fensString = fens.map(x => x.split(' ')[0]).join(',');
+    
+                        console.warn('%c[ NEW FEN RECEIVED! ]', 'color: neon; font-weight: bold; font-size: 50px;');
+                        console.warn('[Logical Change Detection] New board FEN received:', `${origin}/A.C.A.S/board/?fens=${fensString}&o=${this.lastOrientation}`, { fen, moveObj });
+                    }
+
+                    if(!(moveObj?.from && moveObj?.to && moveObj?.color) && this.activeVariant !== 'atomic') {
+                        if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Skipping FEN due to being unable to extract move:', fen);
+                        return;
+                    }
+
+                    const movedPieceLowered = moveObj?.movedPiece?.toLowerCase();
+                    if(movedPieceLowered === 'k') {
+                        const kingColor = moveObj?.movedPiece === movedPieceLowered
+                            ? 'b' : 'w';
+
+                        if(!this.kingMoved.includes(kingColor))
+                            this.kingMoved += kingColor;
+                    }
+
+                    fen = modifyFenCastleRights(fen, this.kingMoved);
 
                     this.currentFen = fen;
 
@@ -440,7 +469,7 @@ class BackendInstance {
 
                     this.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
 
-                    this.Interface.boardUtils.removeMarkings();
+                    this.Interface.boardUtils.removeMarkings(null, 'New board FEN');
 
                     // For each profile config
                     Object.keys(this.pV).forEach(profileName => {
@@ -848,14 +877,18 @@ class BackendInstance {
     setChessFont(chessFontStr) {
         chessFontStr = formatChessFont(chessFontStr);
 
-        const chessboardComponentsElem = this.instanceElem.querySelector('.chessboard-components');
+        const chessboardElems = [
+            this.instanceElem.querySelector('.chessboard-components'),
+            this.instanceElem.querySelector('.pseudoground-x')?.parentElement
+        ];
+
         const chessFonts = ['merida', 'cburnett', 'staunty', 'letters'];
 
         chessFonts.forEach(str => {
             if(str == chessFontStr) {
-                chessboardComponentsElem.classList.add(str);
+                chessboardElems.forEach(x => x?.classList?.add(str));
             } else {
-                chessboardComponentsElem.classList.remove(str);
+                chessboardElems.forEach(x => x?.classList?.remove(str));
             }
         });
     }
@@ -867,6 +900,8 @@ class BackendInstance {
     async engineStartNewGame(variant, profile) {
         const chessVariant = formatVariant(variant);
         const engineName = await this.getEngineType(profile);
+        
+        this.kingMoved = ''; // reset king moved check
 
         if(!this.isEngineNotCalculating(profile)) {
             this.engineStopCalculating(profile, 'Engine was calculating while a new game was started!');
@@ -880,7 +915,7 @@ class BackendInstance {
 
         if(engineName !== 'lc0')
             this.sendMsgToEngine(`setoption name UCI_AnalyseMode value true`, profile); // required for threads, etc.
-        
+
         switch(engineName) {
             case 'lc0':
                 this.setEngineNodes(await this.getConfigValue(this.configKeys.engineNodes, profile), profile);
@@ -901,7 +936,7 @@ class BackendInstance {
         const profileStopCalculating = p => {
             if(!this.isEngineNotCalculating(p)) clearTimeout(this.pV[p].currentMovetimeTimeout);
                 
-            console.error('STOP CALCULATION ORDERED!', 'Reason:', reason, 'Profile:', profile);
+            if(this.debugLogsEnabled) console.error('STOP CALCULATION ORDERED!', 'Reason:', reason, 'Profile:', profile);
     
             this.sendMsgToEngine('stop', p);
         }
@@ -920,13 +955,13 @@ class BackendInstance {
         const turn = await this.getTurnFromFenChange(lastFen, currentFen, profile);
 
         if(this.lastTurn === turn && this.domain === 'chessarena.com') {
-            console.error('For some reason the turn was the same two times in a row, forcing turn to player!');
+            if(this.debugLogsEnabled) console.error('For some reason the turn was the same two times in a row, forcing turn to player!');
 
             this.lastTurn = playerColor;
 
             return true;
         } else {
-            console.warn('Turn: ', turn);
+            if(this.debugLogsEnabled) console.warn('Turn: ', turn);
 
             this.lastTurn = turn;
         }
@@ -1089,7 +1124,7 @@ class BackendInstance {
             (countChange > 1)  -> multiple pieces have spawned (possibly a new game?)
         */
 
-        console.warn('Piece amount change', countChange);
+        if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Changed pieces:', countChange);
     
         // Large abnormal piece changes are allowed, as they usually mean something significant has happened
         // Smaller abnormal piece changes are most likely caused by a faulty newFen provided by the A.C.A.S on the site
@@ -1127,10 +1162,10 @@ class BackendInstance {
         this.moveDiffHistory.unshift(diff);
         this.moveDiffHistory = this.moveDiffHistory.slice(0, 3);
 
-        console.warn('Board diff amount:', diff, 'History:', JSON.stringify(this.moveDiffHistory));
+        if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Changed squares:', diff, 'History:', JSON.stringify(this.moveDiffHistory));
 
         const isHistoryIndicatingPromotion = JSON.stringify(this.moveDiffHistory) === JSON.stringify([3, 1, 2]);
-
+        
         return diff === 2 || diff > 3 || isHistoryIndicatingPromotion;
     }
 
@@ -1139,6 +1174,8 @@ class BackendInstance {
 
         const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(lastFen, newFen);
         const isAbnormalPieceChange = this.isAbnormalPieceChange(lastFen, newFen);
+
+        if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Is FEN change logical:', { correctAmountOfChanges, isAbnormalPieceChange });
 
         return correctAmountOfChanges && !isAbnormalPieceChange;
     }
@@ -1343,24 +1380,18 @@ class BackendInstance {
             if((isFenChanged && isFenChangeAllowed) || skipValidityChecks) {
                 this.pV[profileName].lastCalculatedFen = currentFen;
             } else {
-                this.CommLink.commands.removeSiteMoveMarkings();
-    
                 return;
             }
 
             this.pV[profileName].pendingCalculations.push({ 'fen': currentFen, 'startedAt': Date.now(), 'finished': false });
 
-            this.Interface.boardUtils.removeMarkings(profileName);
+            this.Interface.boardUtils.removeMarkings(profileName, 'Calculating best moves');
     
-            console.error('CALCULATING!', this.pV[profileName].pendingCalculations, reversedFen || currentFen);
-    
-            log.info(`Fen: "${currentFen}"`);
-            log.info(`Updating board Fen`);
+            if(this.debugLogsEnabled) console.warn('CALCULATING!', this.pV[profileName].pendingCalculations, reversedFen || currentFen);
+            if(this.debugLogsEnabled) log.info(`Fen: "${currentFen}" -> Sending best move request to the engine!`);
     
             this.renderMetric(currentFen, profileName);
             this.Interface.boardUtils.updateBoardFen(currentFen);
-        
-            log.info('Sending best move request to the engine!');
         
             this.sendMsgToEngine(`position fen ${reversedFen || currentFen}`, profileName);
     
@@ -1439,7 +1470,7 @@ class BackendInstance {
                 } else {
                     // Wait max 10 seconds
                     if(elapsed++ > 100) {
-                        console.warn('Attempted to send message to non existing engine?', `(${i})`);
+                        if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
                         clearInterval(waitForEngineToLoad);
                     }
                 }
@@ -1448,7 +1479,7 @@ class BackendInstance {
         } else if(engineExists) {
             this.getEngineAcasObj(i).sendMsg(msg);
         } else {
-            console.warn('Attempted to send message to non existing engine?', `(${i})`);
+            if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
         }
     }
 
@@ -1484,7 +1515,7 @@ class BackendInstance {
         const profileObj = this.pV[profile];
 
         if(!profileObj) {
-            console.warn('Attempted to process an engine message from a nonexisting engine, uhh, ghosts?');
+            if(this.debugLogsEnabled) console.warn('Attempted to process an engine message from a nonexisting engine, uhh, ghosts?');
 
             return;
         }
@@ -1510,7 +1541,7 @@ class BackendInstance {
             toast.warning(`"${msg}" ("${profileChessEngine}" running on profile "${profile}")`, 4e4);
         }
 
-        if(!data?.currmovenumber) console.warn(`${profile} ->`, msg, `\n(Message is for FEN -> ${oldestUnfinishedCalcRequestObj?.fen})`);
+        if(!data?.currmovenumber && this.logEngineMessages) console.warn(`${profile} ->`, msg, `\n(Message is for FEN -> ${oldestUnfinishedCalcRequestObj?.fen})`);
 
         if(msg.includes('option name UCI_Variant type combo')) {
             const chessVariants = extractVariantNames(msg);
@@ -1661,7 +1692,7 @@ class BackendInstance {
         const isReload = attempt > 0;
         let alreadyRestarted = false;
 
-        if(isReload) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profileName);
+        if(isReload && this.debugLogsEnabled) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profileName);
 
         if(engineName && attempt > 100) {
             toast.warning(`Restarting the engine ${engineName} failed despite many attempts :(\n\nRefresh A.C.A.S!`);
@@ -2075,6 +2106,7 @@ class BackendInstance {
                 <div class="gas-container">
                     <div class="gas" data-r></div>
                 </div>
+                <div><div class="pseudoground-x"></div></div>
                 `;
 
             acasInstanceElem.style.width = `${Number(localStorage.getItem('instanceSize')) * Number(localStorage.getItem('boardSizeModifier'))}px`;
@@ -2102,8 +2134,6 @@ class BackendInstance {
             instanceDomainElem.innerText = this.domain;
             instanceFenElem.innerText = fen;
 
-            chessboardComponentsElem.classList.add(chessFont);
-
             this.instanceElem = acasInstanceElem;
 
             const settingsContainerElem = document.querySelector('#acas-settings-container');
@@ -2122,6 +2152,8 @@ class BackendInstance {
 
             const chessgroundElem = this.instanceElem.querySelector('.chessground-x');
 
+            chessboardComponentsElem.classList.add(chessFont);
+            
             new ResizeObserver(entries => {
                 const width = entries[0].target.getBoundingClientRect().width;
 
@@ -2202,7 +2234,7 @@ class BackendInstance {
     }
 
     killEngine(i) {
-        console.warn('Killing engine', i);
+        if(this.debugLogsEnabled) console.warn('Killing engine', i);
 
         let worker = null;
 
@@ -2215,7 +2247,7 @@ class BackendInstance {
                 this.engines.splice(engineIndex, 1);
 
                 if(this.pV[i]) {
-                    this.Interface.boardUtils.removeMarkings(i);
+                    this.Interface.boardUtils.removeMarkings(i, 'Killing engine');
                 }
 
                 delete this.pV[i];
@@ -2229,7 +2261,7 @@ class BackendInstance {
                 this.engines.splice(i, 1);
 
                 if(this.pV[profileName]) {
-                    this.Interface.boardUtils.removeMarkings(profileName);
+                    this.Interface.boardUtils.removeMarkings(profileName, 'Killing engine');
                 }
 
                 delete this.pV[profileName];

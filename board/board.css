@@ -1,0 +1,64 @@
+@font-face {
+    font-family: "Mona Sans";
+    src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+    unicode-range: U+0000-00FF, U+0100-024F;
+}
+@font-face {
+    font-family: "Rubik";
+    src: url("../assets/fonts/Rubik.ttf") format("truetype");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+    unicode-range: U+0000-00FF, U+0100-024F;
+}
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../assets/fonts/IBMPlexSans.ttf") format("truetype");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+}
+* {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: "Mona Sans";
+}
+cg-board {
+    border-radius: 20px;
+}
+html, body {
+    height: 100%;
+    background-color: #c5b8a5;
+    color: #9e9384;
+}
+body {
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+#board {
+    width: min(90vw, 90svh);
+    height: min(90svh, 90vw);
+}
+.back-to-acas-link {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #9e9384;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: "Mona Sans";
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #c5b8a5;
+    border: 2px solid #9e9384;
+}

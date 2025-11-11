@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Board / A.C.A.S</title>
+        <link rel="stylesheet" type="text/css" href="board.css"/>
+		<meta charset="UTF-8">
+		<meta name="description" content="View chess positions full‑screen via URL. Supply one or more FENs to animate, and set board orientation (w/b).">
+		<meta name="keywords" content="fen viewer, chess position viewer, chessground, chess board full screen, animate fen, chess orientation">
+		<meta property="og:title" content="Board / A.C.A.S">
+		<meta property="og:description" content="Full‑screen chess board viewer with FEN and orientation params. Supports animated sequences.">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="../assets/js/acas-globals.js"></script>
+		<script src="../assets/js/acas-i18n-processor.js"></script>
+		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
+		<script src="../assets/libraries/html2canvas/html2canvas.min.js"></script>
+		<script src="../assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
+        <script type="module" src="../assets/js/acas-load-modules.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/chessground.base.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/chessground.brown.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/theme-cburnett.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/theme-merida.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/theme-letters.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/theme-staunty.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/custom-scroll.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/custom-inputs.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/acas-toast.css"/>
+		<link rel="stylesheet" type="text/css" href="../assets/css/bg-textures.css"/>
+		<link rel="icon" type="image/x-icon" href="../favicon.ico"/>
+</head>
+<body class="staunty">
+    <a href="../" target="_blank" class="back-to-acas-link" rel="noopener">Back to A.C.A.S</a>
+    <div id="board"></div>
+    <script>
+		(function initWhenReady() {
+			const start = Date.now();
+			const timeoutMs = 10000;
+
+			function ready() {
+				return typeof window.ChessgroundX === 'function' && document.readyState !== 'loading';
+			}
+
+			function init() {
+				const params = new URLSearchParams(window.location.search);
+				const fenParams = params.getAll('fen');
+				const fensListParam = params.get('fens');
+				const orientationParam = (params.get('orientation') || params.get('o') || 'w').toLowerCase();
+
+				let fens = [];
+				if(fenParams && fenParams.length) fens = fenParams;
+				else if(fensListParam) fens = fensListParam.split(/[\|,;]/);
+
+				fens = fens.map(s => (s || '').trim()).filter(Boolean);
+
+				const fen = fens[0] || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+				const orientation = orientationParam === 'b' || orientationParam === 'black' ? 'black' : 'white';
+
+				const container = document.getElementById('board');
+				const cg = window.ChessgroundX(container, {
+					fen,
+					orientation,
+					animation: { enabled: true, duration: 800 },
+					movable: {
+						free: true
+					}
+				});
+
+				if(fens.length > 1) {
+					let idx = 0;
+					setInterval(() => {
+						idx = (idx + 1) % fens.length;
+						cg.set({ fen: fens[idx] });
+					}, 2200);
+				}
+			}
+
+			function tick() {
+				if(ready()) return init();
+				if(Date.now() - start > timeoutMs) return;
+				setTimeout(tick, 50);
+			}
+
+			if(ready()) init();
+			else if(document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', tick, { once: true });
+			} else {
+				tick();
+			}
+		})();
+    </script>
+</body>

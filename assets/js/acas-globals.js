@@ -392,9 +392,32 @@ function calculateTimeProgress(startTime, movetime) {
     return Math.max(0, Math.min(1, progress));
 }
 
-function extractMoveFromBoardFen(lastFen, currentFen) {
-    if (!(lastFen && currentFen)) return { from: null, to: null, color: null };
+function modifyFenCastleRights(fen, rights) {
+    let parts = fen.split(' ');
+    if(parts.length < 4) return fen;
 
+    let cr = parts[2];
+    let newCr = cr;
+
+    const wMoved = rights.includes('w');
+    const bMoved = rights.includes('b');
+
+    if(wMoved && bMoved) {
+        newCr = '-';
+    } else {
+        if(wMoved) newCr = newCr.replace(/[KQ]/g, '');
+        if(bMoved) newCr = newCr.replace(/[kq]/g, '');
+        if(newCr === '') newCr = '-';
+    }
+
+    parts[2] = newCr;
+    return parts.join(' ');
+}
+
+function extractMoveFromBoardFen(lastFen, currentFen, boardDimensions = [8, 8]) {
+    if(!(lastFen && currentFen)) return { from: null, to: null, color: null };
+
+    const [cols, rows] = boardDimensions;
     lastFen = lastFen.split(' ')[0];
     currentFen = currentFen.split(' ')[0];
 
@@ -405,18 +428,13 @@ function extractMoveFromBoardFen(lastFen, currentFen) {
     let moveTo = null;
     let movedPiece = null;
 
-    const rows = lastBoard.length;
-    const cols = lastBoard[0].length;
-
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            if (lastBoard[i][j] !== currentBoard[i][j]) {
-                // This might be different for variants, however,
-                // every time a piece moves in chess, the square it left from will stay empty
-                if (lastBoard[i][j] !== '' && currentBoard[i][j] === '') {
+    for(let i = 0; i < rows; i++) {
+        for(let j = 0; j < cols; j++) {
+            if(lastBoard[i][j] !== currentBoard[i][j]) {
+                if(lastBoard[i][j] !== '' && currentBoard[i][j] === '') {
                     moveFrom = `${String.fromCharCode(97 + j)}${rows - i}`;
                 }
-                if (currentBoard[i][j] !== '') {
+                if(currentBoard[i][j] !== '') {
                     moveTo = `${String.fromCharCode(97 + j)}${rows - i}`;
                     movedPiece = currentBoard[i][j];
                 }
@@ -426,7 +444,20 @@ function extractMoveFromBoardFen(lastFen, currentFen) {
 
     let color = movedPiece ? (movedPiece === movedPiece.toUpperCase() ? 'w' : 'b') : null;
 
-    return { from: moveFrom, to: moveTo, color: color };
+    if(movedPiece && moveTo && (!moveFrom || moveFrom === null)) {
+        const toRank = parseInt(moveTo.match(/\d+/)[0]);
+        const toFile = moveTo[0];
+
+        if(color === 'w' && toRank === rows) {
+            moveFrom = `${toFile}${toRank - 1}`;
+            movedPiece = movedPiece.toUpperCase() ? 'P' : movedPiece;
+        } else if(color === 'b' && toRank === 1) {
+            moveFrom = `${toFile}${toRank + 1}`;
+            movedPiece = movedPiece.toLowerCase() ? 'p' : movedPiece;
+        }
+    }
+
+    return { from: moveFrom, to: moveTo, color, movedPiece };
 }
 
 function reverseFenPlayer(fen) {

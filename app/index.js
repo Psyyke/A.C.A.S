@@ -89,8 +89,6 @@ async function attemptStarting() {
                     case 'ping':
                         return `pong (took ${Date.now() - packet.date}ms)`;
                     case 'createInstance':
-                        log.info('Received request to create another engine instance!');
-    
                         const data = packet.data;
     
                         createInstance(data.domain, data.instanceID, data.chessVariant);
