@@ -32,27 +32,60 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <main>
         <header>
-            <div><a href="" class="acas-logo-main">A.C.A.S<span>V2</span></a></div>
+            <div><a href="" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
             <div>
-                <a href="install/" aria-label="Install A.C.A.S"><i class="bi bi-download"></i>Install</a>
-                <a href="usage/" aria-label="How to use A.C.A.S"><i class="bi bi-journals"></i>Usage</a>
-                <a href="troubleshoot/" aria-label="Fixing A.C.A.S"><i class="bi bi-tools"></i>Troubleshoot</a>
-                <a href="faq/" aria-label="Frequently Asked Questions"><i class="bi bi-chat-square-quote"></i>FAQ</a>
-                <a href="blog/" aria-label="View A.C.A.S blog"><i class="bi bi-pen"></i>Blog</a>
-                <a href="contributing/" aria-label="Contribute to A.C.A.S"><i class="bi bi-heart"></i></a>
-                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner" aria-label="View source on Github"><i class="bi bi-github"></i></a>
+                <a href="install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
+                <a href="usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
+                <a href="troubleshoot/" aria-label="Fixing A.C.A.S" class="fancy-btn"><i class="bi bi-tools"></i>Troubleshoot</a>
+                <a href="faq/" aria-label="Frequently Asked Questions" class="fancy-btn"><i class="bi bi-chat-square-quote"></i>FAQ</a>
+                <a href="blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
+                <a href="contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
+                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
         </header>
         <section class="content">
-            <img style="right: -40px;width: 120px;top: -50px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile" src="assets/images/pieces/staunty/wK.svg"/>
-            <img style="left: -40px;width: 110px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile" src="assets/images/pieces/staunty/bQ.svg"/>
-            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix" src="assets/images/pieces/staunty/wQ.svg"/>
-            <img style="right: -130px;width: 120px;top: 75px;filter: blur(4px);transform: rotate(-26deg);opacity: 0.65;" class="floaty-piece floaty-no-mobile" src="assets/images/pieces/staunty/bK.svg"/>
-            <img style="right: -40px;width: 90px;top: 220px;transform: rotate(15deg);" class="floaty-piece" src="assets/images/pieces/staunty/bR.svg"/>
+            <style>
+            @keyframes floatyAnimation {
+                0%   { transform: translateY(0) scale(1) rotate(var(--floaty-rotate, 0deg)); }
+                15%  { transform: translateY(-10px) scale(1.03) rotate(var(--floaty-rotate, 2deg)); }
+                60%  { transform: translateY(8px) scale(0.98) rotate(var(--floaty-rotate, -3deg)); }
+                100% { transform: translateY(0) scale(1) rotate(var(--floaty-rotate, 0deg)); }
+            }
+            .floaty-piece {
+                animation: floatyAnimation 5.5s ease-in-out infinite alternate; will-change: transform; position: absolute;
+            }
+
+            .floaty0 { --floaty-rotate: 7deg; animation-delay: 0.5s; transform: rotate(7deg); }
+
+            .floaty2 { --floaty-rotate: 4deg; animation-delay: 0s; left: -100px; width: 240px; top: 100px; transform: rotate(4deg); }
+            .floaty3 { --floaty-rotate: 30deg; animation-delay: 0.5s; left: -135px; width: 170px; top: 0; filter: blur(0.7px); opacity: 0.95; transform: rotate(30deg); z-index: 0; }
+            .floaty6 { --floaty-rotate: -10deg; animation-delay: 1s; left: -80px; width: 130px; top: -120px; transform: rotate(-10deg); opacity: 0.85; filter: blur(1.2px); z-index: -1; }
+            .floaty7 { --floaty-rotate: 25deg; animation-delay: 1.5s; left: 70px; width: 80px; top: -180px; transform: rotate(25deg); opacity: 0.7; filter: blur(1.8px); z-index: -1; }
+            .floaty8 { --floaty-rotate: -35deg; animation-delay: 2s; left: 190px; width: 50px; top: -180px; transform: rotate(-35deg); opacity: 0.4; filter: blur(2.5px); z-index: -1; }
+            .floaty9 { --floaty-rotate: 15deg; animation-delay: 2.5s; left: 270px; width: 30px; top: -175px; transform: rotate(15deg); opacity: 0.2; filter: blur(3px); z-index: -1; }
+
+            .floaty5 { --floaty-rotate: 15deg; animation-delay: 0s; right: -120px; width: 300px; top: 1100px; transform: rotate(15deg); }
+            .floaty1 { --floaty-rotate: -10deg; animation-delay: 0.5s; right: -150px; width: 200px; top: 960px; opacity: 0.95; filter: blur(1.5px); transform: rotate(-10deg); z-index: -1; }
+            .floaty4 { --floaty-rotate: 35deg; animation-delay: 1.2s; right: -90px; width: 120px; top: 840px; filter: blur(2px); opacity: 0.5; transform: rotate(35deg); z-index: -1; }
+            .floaty10 { --floaty-rotate: -40deg; animation-delay: 2s; right: -25px; width: 60px; top: 790px; filter: blur(4px) brightness(0.8); opacity: 0.5; transform: rotate(-40deg); z-index: -1; }
+            </style>
+            <img class="floaty-piece floaty-no-mobile floaty1" src="assets/images/pieces/staunty/wK.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty2" src="assets/images/pieces/staunty/bB.svg">
+            <img class="floaty-piece floaty-no-mobile floaty3" src="assets/images/pieces/staunty/wQ.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty4" src="assets/images/pieces/staunty/bP.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty5" src="assets/images/pieces/staunty/bR.svg">
+            <img class="floaty-piece floaty-no-mobile floaty6" src="assets/images/pieces/staunty/bP.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty7" src="assets/images/pieces/staunty/wR.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty9" src="assets/images/pieces/staunty/bK.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty8" src="assets/images/pieces/staunty/bQ.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty8" src="assets/images/pieces/staunty/wQ.svg"/>
+            <img class="floaty-piece floaty-no-mobile floaty10" src="assets/images/pieces/staunty/wR.svg"/>
              <!-- PAGE CONTENT -->
             <article class="markdown-section" id="main">
-                <section>
-                    <h1 class="large-intro">Chess Assistance<span>Open source & free, for you~💖</span></h1>
+                <section class="main-first-section">
+                    <h1 class="large-intro"><span>Chess</span> Assistance</h1>
+                    <div class="large-intro-mobile">A.C.A.S</div>
+                    <h2 class="large-intro-desc">Open source & free, for you~💖</h2>
                     <img class="mock-img" src="assets/images/mock.webp" alt="A mockup image of the A.C.A.S software.">
                 </section>
                 <section class="stats-container bordered">
@@ -63,7 +96,7 @@
                         <div><h2>&gt;80%</h2><span>Positive Reviews</span></div>
                         <div><h2>100+</h2><span>Stars</span></div>
                     </div>
-                    <img style="right: -42px;width: 90px;bottom: -20px;transform: rotate(6deg);" class="floaty-piece" src="assets/images/pieces/staunty/bB.svg"/>
+                    <img style="right: -42px;width: 90px;bottom: -20px;transform: rotate(6deg);" class="floaty-piece floaty0" src="assets/images/pieces/staunty/bB.svg"/>
                 </section>
                 <section>
                     <p><b>A.C.A.S</b> (<i>Advanced Chess Assistance System</i>) is an open-source chess assistant (not a chess cheat), designed to help you make better moves using a chess engine. Just install the userscript, open the A.C.A.S GUI, and you're ready to go—no downloads necessary!</p>
@@ -81,9 +114,9 @@
                         <thead>
                             <tr>
                                 <th class="bordered tweaking"><a href="app/">▶️ Open A.C.A.S</a></th>
-                                <th class="bordered"><a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener">⬇️ Install (GreasyFork)</a></th>
-                                <th class="bordered"><a href="acas.user.js">⬇️ Download (Direct)</a></th>
-                                <th class="bordered"><a href="https://github.com/Psyyke/A.C.A.S/issues" target="_blank" rel="noopener">💬 Discuss With Community</a></th>
+                                <th class="bordered fancy-btn"><a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener">⬇️ Install (GreasyFork)</a></th>
+                                <th class="bordered fancy-btn"><a href="acas.user.js">⬇️ Download (Direct)</a></th>
+                                <th class="bordered fancy-btn"><a href="https://github.com/Psyyke/A.C.A.S/issues" target="_blank" rel="noopener">💬 Discuss With Community</a></th>
                             </tr>
                         </thead>
                     </table>
@@ -108,29 +141,23 @@
                     </div>
                 </section>
                 <section>
-                    <h2 id="hindsight-is-overrated">Okay, so what.</h2>
-                    <p>Tell you what. No subscriptions, no paywalls—just a ridiculously useful chess tool that works right on your favorite sites. That's what A.C.A.S is. Whether you're grinding puzzles, playing bullet, or trying to break 2000 Elo, A.C.A.S overlays insights directly on the board. It’s lightweight, it’s fast, and it doesn’t get in your way.</p>
-                    <p>Just install it, keep the GUI open, and learn how to play better. Oh yeah and it works on literally all of your devices that has a modern browser, including your little phone, everything processed locally!</p>
+                    <h2 id="hindsight-is-overrated">Okay, so what’s the deal?</h2>
+                    <p>No payments, no complex software installations. Just a real-time chess tool that actually helps you play better. That’s A.C.A.S baby. Whether you’re grinding puzzles, playing bullet, or trying to hit 2000 ELO, A.C.A.S gives you smart overlays right on the board. It’s light and fast, some could even call it stable, but we'll let you decide that one. Remember, no guarantees!</p>
+                    <p>Just install it, keep the window open, and you’ll start learning as you play. Works on basically anything with a modern browser, even your phone. Everything runs locally, no cloud stuff. A.C.A.S is amazing.</p>
+                    <div class="checkitout-container"><img src="assets/images/checkit.png" alt="Check it out" style="width:300px;height:112.3px;" loading="lazy"></div>
+                </section>                  
+                <section>
                 </section>
+                <img src="assets/images/full.png" alt="A.C.A.S full showcase" style="width:100%;display:block;max-width: 100%;border-radius:0;min-height:700px;object-fit: cover;" loading="lazy">
                 <section>
-                <p class="install-suggestion">Ready to begin? <a href="install/">Install now</a>!</p>
-                </section>
-                <section>
-                    <h2>Are you a developer?</h2>
-                    <p>Please visit the <a href="development">development</a> page.</p>
-                    <p class="tip">A.C.A.S is currently in development. Expect bugs, especially on variants.</p>
-                <section>
-                <section>
-                    <hr>
-                    <p><a href="https://github.com/Hakorr/Userscripts/tree/main/Other/A.C.A.S" target="_blank" rel="noopener">A.C.A.S V1</a> is no longer updated, but feel free to use it if it still works.</p>
-                    <p><a href="tos/">Terms of Service</a> | <a href="privacy/">Privacy Policy</a></p>
+                    <p class="install-suggestion">Ready to begin? <a href="install/" class="install-button fancy-btn">(˶˘ ³˘Install</a></p>
                 </section>
             </article>
             <!-- PAGE CONTENT ENDS -->
         </section>
         <footer>
-            <img style="right: -100px;bottom: -35px;width: 300px;" class="floaty-piece floaty-footer" src="assets/images/pieces/staunty/wN.svg"/>
-            <section>See you!</section>
+            <img style="right: -70px;bottom: -35px;width: 200px;" class="floaty-piece floaty-footer" src="assets/images/pieces/staunty/wN.svg"/>
+            <section><a href="tos/">Terms of Service</a><a href="privacy/">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>
         </footer>
     </main>
     <script async="" src="assets/js/site-additional-content.js"></script>

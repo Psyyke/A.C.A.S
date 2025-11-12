@@ -79,7 +79,6 @@ body {
 .gradient-text {
     text-shadow: 0px 3px 0px #213a43;
 }
-
 #product-container {
 	display: none;
     padding: 20px;
@@ -256,7 +255,6 @@ h1 {
     font-family: "Mona Sans";
     font-size: 35px;
     margin: 0;
-    border-bottom: 2px solid #eeeeee;
     margin-bottom: 10px;
     padding-left: 0;
 }
@@ -322,6 +320,15 @@ main {
     max-width: 1100px;
     font-size: 18px;
     width: 100%;
+    border-left: 7px solid var(--theme-color);
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.02) 75%, rgba(0, 0, 0, 0.02)),
+      linear-gradient(45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.02) 75%, rgba(0, 0, 0, 0.02));
+    background-size: 122.4px 122.4px;
+    background-position: 0 0, 61.2px 61.2px;
+    margin-top: 120px;
+    border-radius: 5px 5px 0 0;
 }
 body {
     background-color: #c5b8a575;
@@ -330,9 +337,16 @@ body {
     background-position: 0 0, 61.2px 61.2px;
 }
 .markdown-section {
-    background-color: #ffffff;
-    padding: 50px;
-    border-left: 7px solid var(--theme-color);
+    background: linear-gradient(to bottom, transparent 200px, #fcfeff 500px);
+}
+.markdown-section section {
+    margin: 0 50px;
+}
+.markdown-section section:first-of-type {
+    margin: 70px 50px 0;
+}
+.markdown-section section:last-of-type {
+    padding-bottom: 50px;
 }
 .sidebar ul li.active>a {
     border-right: 3px solid;
@@ -356,30 +370,61 @@ main {
     font-size: 0.6em;
     font-weight: 600;
 }
+.fancy-btn:hover {
+    background-color: rgb(0 0 0 / 5%);
+}
+.fancy-btn:active {
+    border: 2px solid black;
+    transform: translateY(3px);
+}
 header {
     background-color: #ffffff;
     color: #213a43;
     padding: 20px;
     border-bottom: 7px solid #213a43;
+    border-top: 2px solid #213a43;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    height: 70px;
 }
 .large-intro {
-    display: flex;
-    flex-direction: column;
     font-size: 70px;
-    font-weight: 800;
+    font-weight: 900;
+    font-stretch: ultra-expanded;
     text-align: center;
     align-items: center;
     padding: 40px;
     color: #213a43;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
-.large-intro span {
+.large-intro-mobile {
+    font-size: 20vw;
+    font-weight: 900;
+    font-stretch: ultra-expanded;
+    color: #213a43;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 0 0 0;
+    margin-bottom: 30px;
+    margin-bottom: 0;
+    display: none;
+}
+.large-intro-desc {
     font-size: 40px;
     font-weight: 300;
     font-stretch: normal;
+    text-align: center;
+    font-family: "Mona Sans";
+    margin-top: 0;
+    padding-top: 0;
+}
+.large-intro span {
+    font-weight: 900;
 }
 header a {
     font-size: 20px;
@@ -394,9 +439,6 @@ header a {
     border-bottom-width: 5px;
     border-radius: 5px;
     padding: 10px;
-}
-.bordered:hover {
-    transform: scale(1.01);
 }
 .stats-container {
     padding: 30px;
@@ -425,7 +467,7 @@ header a {
 }
 footer {
     background-color: #213a43;
-    padding: 20px;
+    padding: 30px 0 0;
     font-size: 30px;
     color: white;
     display: flex;
@@ -436,15 +478,26 @@ footer {
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;
+    padding-top: 100px;
+}
+dt {
+    border-bottom: 1px solid grey;
+}
+dd {
+    margin-bottom: 20px;
+    border-left: 1px solid grey;
+    padding-left: 10px;
 }
 footer section {
     background-color: #263a41;
     width: 100%;
     height: 100%;
-    padding: 80px;
-    border-radius: 5px;
-    border: 2px solid #466773;
-    border-bottom-width: 7px;
+    padding: 50px;
+    border-top: 2px solid #466773;
+    font-size: 16px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 header a:has(.bi) {
     display: flex;
@@ -498,11 +551,28 @@ article {
     min-height: 500px;
 }
 .install-suggestion {
-    font-size: 20px;
+    font-size: 25px;
     background-color: #213a430a;
-    width: fit-content;
+    margin: 50px 0 25px;
     padding: 20px;
-    border-top: 5px solid #213a43;
+    display: flex;
+    gap: 10px;
+    border: 2px solid #334b53;
+    border-bottom: 5px solid #334b53;
+    justify-content: space-between;
+    border-radius: 5px;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 100px;
+}
+.install-button {
+    background-color: rgb(70 103 115) !important;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 5px;
+    padding: 20px 70px;
+    border: 2px solid rgb(38 58 65);
+    border-bottom: 10px solid rgb(38 58 65);
 }
 .mock-img {
     min-width: 490px;
@@ -536,9 +606,6 @@ ul {
 .blog-post h2 {
     margin-top: 0 !important;
 }
-header a:hover {
-    background-color: rgb(0 0 0 / 5%);
-}
 @media (max-width: 920px) {
     header {
         flex-direction: row;
@@ -556,6 +623,9 @@ header a:hover {
     }
 }
 @media (max-width: 768px), (hover: none) and (pointer: coarse) {
+    main {
+        margin-top: 0px !important;
+    }
     header {
         flex-direction: row;
         justify-content: space-between;
@@ -566,6 +636,15 @@ header a:hover {
     footer section {
         display: flex;
         justify-content: center;
+        align-items: center;
+        font-size: 16px;
+    }
+    .markdown-section section:first-of-type {
+        margin: 10px 20px 0;
+    }
+    .main-first-section {
+        display: flex;
+        flex-direction: column;
         align-items: center;
     }
     .floaty-footer {
@@ -578,21 +657,24 @@ header a:hover {
         display: none;
     }
     .large-intro {
-        font-size: 13vw;
+        display: none;
     }
-    .large-intro span {
-        font-size: 7vw;
+    .large-intro-mobile {
+        display: block;
+    }
+    .large-intro-desc {
+        font-size: 8vw;
+        max-width: 80vw;
+        text-align: center;
     }
     h1 {
         border-bottom: unset;
     }
-    .content {
-        padding-top: 4vw !important;
-        margin: 8vw;
-    }
     .markdown-section {
-        padding: 0px;
         border-left: 0px !important;
+    }
+    .markdown-section section {
+        margin: 0 20px;
     }
     html, body {
         overflow-x: hidden;
@@ -614,8 +696,8 @@ header a:hover {
         display: none;    
     }
     .mock-img {
-        min-width: 200px;
-        min-height: 200px;
+        min-width: 50%;
+        min-height: 50%;
     }
     .showcase img {
         min-width: 200px;
@@ -640,4 +722,17 @@ header a:hover {
     .markdown-section-sub {
         padding: 0 !important;
     }
+    .install-suggestion {
+        flex-direction: column;
+        min-height: 140px;
+    }
+}
+#hindsight-is-overrated {
+    font-size: 35px;
+    margin: 75px 0 35px;
+    text-align: center;
+}
+.checkitout-container {
+    display: flex;
+    justify-content: flex-end;
 }

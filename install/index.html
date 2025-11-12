@@ -31,23 +31,23 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <main>
         <header>
-            <div><a href="../" class="acas-logo-main">A.C.A.S<span>V2</span></a></div>
+            <div><a href="../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
             <div>
-                <a href="../install/" aria-label="Install A.C.A.S"><i class="bi bi-download"></i>Install</a>
-                <a href="../usage/" aria-label="How to use A.C.A.S"><i class="bi bi-journals"></i>Usage</a>
-                <a href="../troubleshoot/" aria-label="Fixing A.C.A.S"><i class="bi bi-tools"></i>Troubleshoot</a>
-                <a href="../faq/" aria-label="Frequently Asked Questions"><i class="bi bi-chat-square-quote"></i>FAQ</a>
-                <a href="../blog/" aria-label="View A.C.A.S blog"><i class="bi bi-pen"></i>Blog</a>
-                <a href="../contributing/" aria-label="Contribute to A.C.A.S"><i class="bi bi-heart"></i></a>
-                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner" aria-label="View source on Github"><i class="bi bi-github"></i></a>
+                <a href="../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
+                <a href="../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
+                <a href="../troubleshoot/" aria-label="Fixing A.C.A.S" class="fancy-btn"><i class="bi bi-tools"></i>Troubleshoot</a>
+                <a href="../faq/" aria-label="Frequently Asked Questions" class="fancy-btn"><i class="bi bi-chat-square-quote"></i>FAQ</a>
+                <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
+                <a href="../contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
+                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
         </header>
         <section class="content">
-            <img style="right: -40px;width: 120px;top: -50px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wK.svg"/>
-            <img style="left: -40px;width: 110px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bQ.svg"/>
-            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../assets/images/pieces/staunty/wQ.svg"/>
-            <img style="right: -130px;width: 120px;top: 75px;filter: blur(4px);transform: rotate(-26deg);opacity: 0.65;" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg"/>
-            <img style="right: -40px;width: 90px;top: 220px;transform: rotate(15deg);" class="floaty-piece floaty-subpage" src="../assets/images/pieces/staunty/bR.svg"/>
+            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wN.svg">
+            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../assets/images/pieces/staunty/wQ.svg">
+            <img style="right: -130px;width: 120px;top: 75px;filter: blur(4px);transform: rotate(-26deg);opacity: 0.65;" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
+            <img style="right: -40px;width: 90px;top: 220px;transform: rotate(15deg);" class="floaty-piece floaty-subpage" src="../assets/images/pieces/staunty/bR.svg">
             <!-- PAGE CONTENT -->
             <article class="markdown-section-sub markdown-section" id="main">
                 <section>
@@ -56,7 +56,28 @@
                 <section>
                     <h2 id="getting-started">Getting Started</h2>
                     <p class="tip warning"><strong>Apple’s iOS & macOS</strong> are not supported right now. "Stay for Safari" seems to be the best userscript manager for Safari, however, it is missing a critical function essential to A.C.A.S. We are ready, but we need to wait for better userscript managers.</p>
-                    <ol><li>Install a browser like <a href="https://www.google.com/chrome/" target="_blank" rel="noopener">Chrome</a> or something based off it. Firefox and others should work too.</li><li>Install either <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener">Violentmonkey</a> or <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener">Tampermonkey</a>. You can find them on your browser's extension store.</li><li>Install A.C.A.S from <a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener">GreasyFork</a>. If you don't like GreasyFork for some reason, you can also manually create a new userscript on the manager and then copy paste the code from <code>acas.user.js</code> there.</li><li>Open the <a target="_about" href="../app">GUI</a>. Follow the instructions.</li><li>Open a supported chess site on <strong>another browser window next to the GUI</strong> and start playing.<ul><li>Alternatively, enable the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting to prevent the GUI from freezing.</li></ul></li></ol><p class="tip">Keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't move. The GUI has the chess engine, it calculates the moves! Either make two browser windows next to each other or use the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting.</p></div>
+                    <ol>
+                        <li>Install a browser like <a href="https://www.google.com/chrome/" target="_blank" rel="noopener">Chrome</a> or something based off it. Firefox and others should work too.</li>
+                        <li>
+                            Install either <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener">Violentmonkey</a> or <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener">Tampermonkey</a>. You can find them on your browser's extension store.
+                            <ul>
+                                <li><strong>NOTE:</strong> For users of the Tampermonkey extension (version 5.3+) in a Chrome-based browser, enabling either the "Allow User Scripts" toggle (available in Chrome 138+ via extension settings) or Developer Mode is required. <a href="https://www.tampermonkey.net/faq.php#Q209" target="_blank" rel="noopener">(Q209: Permission to execute userscripts)</a>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Install A.C.A.S from <a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener">GreasyFork</a>. If you don't like GreasyFork for some reason, you can also manually create a new userscript on the manager and then copy paste the code from <code>acas.user.js</code> there.
+                        </li>
+                        <li>
+                            Open the <a target="_about" href="../app">GUI</a>. Follow the instructions.
+                        </li>
+                        <li>
+                            Open a supported chess site on <strong>another browser window next to the GUI</strong> and start playing.
+                            <ul>
+                                <li>Alternatively, enable the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting to prevent the GUI from freezing.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p class="tip">Keep the A.C.A.S GUI tab active to keep the whole system functional. Think of the tab as an engine of a car, the userscript alone is simply an empty hull, it won't move. The GUI has the chess engine, it calculates the moves! Either make two browser windows next to each other or use the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting.</p>
                 </section>
                 <section>
                     <h2 id="mobile-users">Mobile Users (& macOS)</h2>
@@ -80,8 +101,8 @@
             <!-- PAGE CONTENT ENDS -->
         </section>
         <footer>
-            <img style="right: -100px;bottom: -35px;width: 300px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wP.svg"/>
-            <section>See you!</section>
+            <img style="right: -70px;bottom: -35px;width: 200px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wP.svg"/>
+            <section><a href="../tos">Terms of Service</a><a href="../privacy">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>
         </footer>
     </main>
     <script async="" src="../assets/js/site-additional-content.js"></script>
