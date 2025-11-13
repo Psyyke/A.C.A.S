@@ -2104,14 +2104,12 @@ class BackendInstance {
                     <div class="chessground-x"></div>
                 </div>
                 <div class="gas-container">
-                    <div class="gas">
-                        <ins class="adsbygoogle"
-                             style="display:block; text-align:center;max-height:100px;"
-                             data-ad-layout="in-article"
-                             data-ad-format="fluid"
-                             data-ad-client="ca-pub-7248123202489335"
-                             data-ad-slot="4819810311"></ins>
-                    </div>
+                    <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-7248123202489335"
+                    data-ad-slot="4278138469"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
                 </div>
                 <div><div class="pseudoground-x"></div></div>
                 `;

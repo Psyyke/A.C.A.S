@@ -633,7 +633,7 @@ async function startPictureInPicture() {
 
             setInterval(() => {
                 updatePictureInPictureView();
-            }, 250);
+            }, 50);
         } catch (err) {
             if(err.name === 'NotAllowedError') {
                 const handleUserInteraction = async () => {
