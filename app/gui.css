@@ -1552,9 +1552,9 @@ input[disabled] {
 }
 .gas-container {
     width: 100%;
-	height: auto;
-    max-height: 100px;
+    height: 100%;
     background-color: rgb(0 0 0 / 25%);
     display: flex;
     justify-content: center;
+    align-items: center;
 }

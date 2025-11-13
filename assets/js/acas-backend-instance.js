@@ -2056,6 +2056,8 @@ class BackendInstance {
 
             const oldInstanceElem = this.instanceElem ? this.instanceElem : null;
 
+            const instanceWidth = `${Number(localStorage.getItem('instanceSize')) * Number(localStorage.getItem('boardSizeModifier'))}px`;
+
             // To avoid XSS do not put data from external sites directly inside the innerHTML string using templates!
             // InstanceIdQuery, boardPieceDimensions and such are safe since they don't contain external data.
             const acasInstanceElem = document.createElement('div');
@@ -2104,17 +2106,19 @@ class BackendInstance {
                     <div class="chessground-x"></div>
                 </div>
                 <div class="gas-container">
-                    <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="ca-pub-7248123202489335"
-                    data-ad-slot="4278138469"
-                    data-ad-format="auto"
-                    data-full-width-responsive="true"></ins>
+                    <div class="gas" style="width:${instanceWidth};">
+                        <ins class="adsbygoogle"
+                        style="display:block"
+                        data-ad-client="ca-pub-7248123202489335"
+                        data-ad-slot="4278138469"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"></ins>
+                    </div>
                 </div>
                 <div><div class="pseudoground-x"></div></div>
                 `;
 
-            acasInstanceElem.style.width = `${Number(localStorage.getItem('instanceSize')) * Number(localStorage.getItem('boardSizeModifier'))}px`;
+            acasInstanceElem.style.width = instanceWidth;
 
             const instanceChessVariantElem = acasInstanceElem.querySelector('.instance-variant');
             const instanceDomainElem = acasInstanceElem.querySelector('.instance-domain');
