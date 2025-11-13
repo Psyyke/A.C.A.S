@@ -633,6 +633,7 @@ ul {
         align-items: center;
         gap: 20px;
         overflow-x: auto;
+        border-radius: 0;
     }
     footer section {
         display: flex;
