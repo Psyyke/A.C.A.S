@@ -137,7 +137,6 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 * [Klaro!](https://github.com/klaro-org/klaro-js) (*for legal reasons, to ask user for cookie permission*)
 * [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
-* [HackTimer](https://github.com/turuslan/HackTimer) (*not necessary anymore*)
 
 ## GUI Overview
 

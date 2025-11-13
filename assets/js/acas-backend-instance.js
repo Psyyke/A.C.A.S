@@ -2224,6 +2224,8 @@ class BackendInstance {
                 toast.error(msg);
             }
 
+            (adsbygoogle = window.adsbygoogle || []).push({});
+
             this.guiUpdater();
         } catch(e) { 
             console.error(e);
