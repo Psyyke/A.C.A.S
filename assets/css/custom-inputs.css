@@ -23,11 +23,13 @@ input:focus {
     text-transform: capitalize;
     font-weight: 300;
     margin-bottom: 2.5px;
+    overflow-wrap: anywhere;
 }
 .input-subtitle {
     font-size: 12px;
     color: rgb(255 255 255 / 25%);
     font-weight: 300;
+    overflow-wrap: anywhere;
 }
 .custom-input a {
     color: rgb(255 255 255 / 30%);
