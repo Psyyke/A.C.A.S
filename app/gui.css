@@ -439,7 +439,7 @@ cg-container {
     font-stretch: ultra-expanded;
     text-shadow: 0px 2px 0px #000;
     margin: 10px 0 10px;
-    font-family: 'Mona Sans';
+	font-family: "Mona Sans", "IBM Plex Sans";
 }
 .install-notification-btn:active {
 	border: 2px solid black;
@@ -1557,4 +1557,11 @@ input[disabled] {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+p[data-translation-ffs-instructions] {
+	max-width: 600px;
+	font-size: 14px;
+  	opacity: 0.8;
+	font-weight: 600;
+	font-style: italic;
 }

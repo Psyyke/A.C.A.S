@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varianty",
         ".realistic-engine-tag": "Realistické",
         ".unstable-engine-tag": "Nestabilné",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Nastavenia plávajúceho panela",
+        "*[data-translation-ffs-subtitle]": "Tieto možnosti sú predovšetkým pre používateľov s podporou PiP",
+        "*[data-translation-ffs-instructions]": "(Poznámka: Na počítači kliknite pravým tlačidlom myši na video (alebo otvorte menu ⋯) a vyberte 'Obrázok v obrázku'. Na mobile podržte video, aby sa zobrazilo rovnaké menu. Ak váš prehliadač nepodporuje PiP, skúste použiť prehliadač s podporou PiP.)",
+        "*[data-translation-ffs-videostream]": "Video stream"
     },
     "configTranslations": {
         "engineEnabled": ["Povolené", "Je motor povolený?"],

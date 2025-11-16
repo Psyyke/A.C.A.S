@@ -79,7 +79,11 @@
         ".variants-engine-tag": "バリアント",
         ".realistic-engine-tag": "リアル",
         ".unstable-engine-tag": "不安定",
-        ".multithread-tag": "マルチスレッド"
+        ".multithread-tag": "マルチスレッド",
+        "*[data-translation-ffs-title]": "フローティングパネルの設定",
+        "*[data-translation-ffs-subtitle]": "主に Firefox ユーザー向けです",
+        "*[data-translation-ffs-instructions]": "(Firefox ユーザー向けの注意：下のビデオストリームを右クリックして「ピクチャー・イン・ピクチャーで再生」を選択すると「Floating Panel」を有効にできます。モバイルの方はビデオストリームを1秒間長押ししてみてください。これにより計算が速くなり、接続が安定します。A.C.A.S を開くたびにこのパネルを表示したくない場合は、「Floating Panel」を無効にするか Chrome を使用してください。)",
+        "*[data-translation-ffs-videostream]": "ビデオストリーム"
     },
     "configTranslations": {
         "engineEnabled": ["有効", "エンジンは有効ですか"],

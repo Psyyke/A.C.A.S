@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variantit",
         ".realistic-engine-tag": "Realistinen",
         ".unstable-engine-tag": "Epävakaa",
-        ".multithread-tag": "Monisäikeinen"
+        ".multithread-tag": "Monisäikeinen",
+        "*[data-translation-ffs-title]": "Kelluvan paneelin asetukset",
+        "*[data-translation-ffs-subtitle]": "Nämä ovat pääasiassa Firefox-käyttäjille",
+        "*[data-translation-ffs-instructions]": "(Huom: Firefox-käyttäjille: ota 'Kelluva paneeli' käyttöön klikkaamalla alla olevaa videovirtaa hiiren oikealla ja valitsemalla 'Katso kuva kuvassa'. Mobiilikäyttäjät voivat kokeilla pitää videovirtaa painettuna sekunnin. Tämä mahdollistaa nopeammat laskelmat ja vakaamman yhteyden. Jos et halua nähdä tätä paneelia aina avatessasi A.C.A.S, poista 'Kelluva paneeli' käytöstä tai käytä Chromea.)",
+        "*[data-translation-ffs-videostream]": "Videovirta"
     },
     "configTranslations": {
         "engineEnabled": ["Päällä", "Onko moottori päällä"],

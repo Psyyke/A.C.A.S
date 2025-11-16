@@ -596,7 +596,7 @@ class BackendInstance {
         const addedMetrics = [];
 
         // BoardAnalyzer exists on the global window object, file acas-board-analyzer.js
-        const BoardAnal = new BoardAnalyzer(fen, { 'orientation': playerColor, 'debug': true });
+        const BoardAnal = new BoardAnalyzer(fen, { 'orientation': playerColor, 'debug': this.debugLogsEnabled });
         const BoardDrawer = this.BoardDrawer;
 
         function fillSquare(pos, style) {
@@ -2049,7 +2049,7 @@ class BackendInstance {
 
             this.currentFen = fen;
 
-            log.info(`Variant: "${variantText}"\n\nFen: "${fen}"\n\nDimension: "${boardDimensions.width}x${boardDimensions.height}"`);
+            if(this.debugLogsEnabled) log.info(`Variant: "${variantText}"\n\nFen: "${fen}"\n\nDimension: "${boardDimensions.width}x${boardDimensions.height}"`);
 
             const boardPieceDimensions = getPieceStyleDimensions(boardDimensions);
             const backgroundSize = getBackgroundStyleDimension(boardDimensions);

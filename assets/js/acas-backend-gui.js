@@ -53,10 +53,13 @@ const deleteProfileBtn = document.querySelector('#delete-profile-button');
 
 const floatyButtons = document.querySelectorAll('.open-floaty-btn');
 
+const floatingPanelVideoElem = document.querySelector('#floating-panel-video');
+const floatingFloaty = document.querySelector('#floating-floaty');
+
 [...floatyButtons].forEach(btn => {
     const floatyDialog = btn?.parentElement?.querySelector('dialog');
 
-    if (floatyDialog) {
+    if(floatyDialog) {
         const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
     
         function open() {
@@ -201,12 +204,22 @@ guiBroadcastChannel.onmessage = e => {
     }
 };
 
+const headerHeight = 133;
+const evalBarWidth = 100;
+const statusBarHeight = 5;
+
 let lastPipEval = null;
 let firstTimeOpeningPip = true;
 
-// This only updates the pipData object, the actual PiP view is updated periodically
 function updatePiP(data) {
-    if (data) Object.assign(pipData, data);
+    if(data) Object.assign(pipData, data);
+    if(data?.moveObjects) {
+        updatePictureInPictureView();
+
+        setTimeout(() => {
+            updatePictureInPictureView();
+        }, 1000);
+    }
 }
 
 function updatePictureInPictureView() {
@@ -214,11 +227,7 @@ function updatePictureInPictureView() {
         return;
 
     const ctx = pipCanvas.getContext('2d');
-    const headerHeight = 133;
-    const evalBarWidth = 100;
-    const statusBarHeight = 5;
     const headerWidth = pipCanvas.width - evalBarWidth;
-
     const noInstancesText = fullTransObj?.domTranslations?.['#no-instances-title'];
 
     let progress = 0;
@@ -604,18 +613,9 @@ function activateInputDefaultValue(elem) {
 }
 
 async function startPictureInPicture() {
-    if(!document.pictureInPictureEnabled) {
-        toast.error('Picture-in-Picture is not supported on your browser! Please use Chrome.');
-
-        const pipSettingCheckbox = document.querySelector('input[data-key="pip"]');
-        if(pipSettingCheckbox) pipSettingCheckbox?.click();
-
-        return null;
-    }
-
     const video = document.createElement('video');
-          video.width = 100;
-          video.height = 50;
+          video.width = 200;
+          video.height = 100;
 
     pipCanvas = document.createElement('canvas');
     pipCanvas.width = 1000;
@@ -623,17 +623,26 @@ async function startPictureInPicture() {
 
     const stream = pipCanvas.captureStream();
     video.srcObject = stream;
+    floatingPanelVideoElem.appendChild(video);
+
+    if(!document.pictureInPictureEnabled && floatingPanelVideoElem) {
+        floatingFloaty.showModal();
+    }
 
     const attemptPlay = async () => {
         try {
             updatePictureInPictureView();
 
             await video.play();
-            await video.requestPictureInPicture();
+            if(video?.requestPictureInPicture) await video.requestPictureInPicture();
 
-            setInterval(() => {
-                updatePictureInPictureView();
-            }, 50);
+            let i = 0;
+
+            const pipUpdateInterval = setInterval(() => {
+                updatePictureInPictureView(); i++;
+    
+                if(i > 10) clearInterval(pipUpdateInterval);
+            }, 25);
         } catch (err) {
             if(err.name === 'NotAllowedError') {
                 const handleUserInteraction = async () => {

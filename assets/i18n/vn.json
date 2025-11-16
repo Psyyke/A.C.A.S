@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Biến thể",
         ".realistic-engine-tag": "Thực tế",
         ".unstable-engine-tag": "Không ổn định",
-        ".multithread-tag": "Đa luồng"
+        ".multithread-tag": "Đa luồng",
+        "*[data-translation-ffs-title]": "Cài đặt Bảng Nổi",
+        "*[data-translation-ffs-subtitle]": "Tùy chọn này dành cho trình duyệt hỗ trợ PiP (Hình ảnh trong hình)",
+        "*[data-translation-ffs-instructions]": "(Lưu ý cho người dùng Firefox: Bật 'Bảng nổi' bằng cách nhấp chuột phải vào luồng video bên dưới và chọn 'Xem ở hình ảnh trong hình'. Người dùng di động có thể thử nhấn giữ vào luồng video trong một giây. Việc này giúp phép tính nhanh hơn và kết nối ổn định hơn. Nếu bạn không muốn thấy bảng này mỗi lần mở A.C.A.S, tắt 'Bảng nổi' hoặc bắt đầu dùng Chrome.)",
+        "*[data-translation-ffs-videostream]": "Luồng video"
     },
     "configTranslations": {
         "engineEnabled": ["Đã bật", "Động cơ đã được bật"],

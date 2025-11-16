@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variantes",
         ".realistic-engine-tag": "Realista",
         ".unstable-engine-tag": "Inestable",
-        ".multithread-tag": "Multihilo"
+        ".multithread-tag": "Multihilo",
+        "*[data-translation-ffs-title]": "Ajustes del panel flotante",
+        "*[data-translation-ffs-subtitle]": "Principalmente para usuarios de Firefox",
+        "*[data-translation-ffs-instructions]": "(Nota para usuarios de Firefox: Habilita el 'Floating Panel' haciendo clic derecho en la transmisión de vídeo abajo y seleccionando 'Ver en imagen en imagen'. Los usuarios móviles pueden intentar mantener pulsada la transmisión de vídeo durante un segundo. Esto permitirá cálculos más rápidos y una conexión más estable. Si no quieres ver este panel cada vez que abras A.C.A.S, desactiva 'Floating Panel' o usa Chrome.)",
+        "*[data-translation-ffs-videostream]": "Transmisión de vídeo"
     },
     "configTranslations": {
         "engineEnabled": ["Habilitado", "¿Está habilitado el motor?"],

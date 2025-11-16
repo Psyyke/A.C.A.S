@@ -79,7 +79,11 @@
         ".variants-engine-tag": "متغيرات",
         ".realistic-engine-tag": "واقعي",
         ".unstable-engine-tag": "غير مستقر",
-        ".multithread-tag": "متعدد الخيوط"
+        ".multithread-tag": "متعدد الخيوط",
+        "*[data-translation-ffs-title]": "إعدادات اللوحة العائمة",
+        "*[data-translation-ffs-subtitle]": "مخصصة في الغالب لمستخدمي Firefox",
+        "*[data-translation-ffs-instructions]": "(ملاحظة لمستخدمي Firefox: فعّل 'اللوحة العائمة' بالنقر بزر الماوس الأيمن على بث الفيديو أدناه واختيار 'المشاهدة في وضع صورة داخل صورة'. يمكن لمستخدمي الهواتف المحمولة محاولة الضغط مطولًا على بث الفيديو لثانية. سيسمح ذلك بحسابات أسرع واتصال أكثر استقرارًا. إذا كنت لا تريد رؤية هذه اللوحة في كل مرة تفتح فيها A.C.A.S، قم بإيقاف 'اللوحة العائمة' أو ابدأ باستخدام Chrome.)",
+        "*[data-translation-ffs-videostream]": "بث الفيديو"
     },
     "configTranslations": {
         "engineEnabled": ["مفعل", "هل المحرك مفعل"],

@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varianter",
         ".realistic-engine-tag": "Realistisk",
         ".unstable-engine-tag": "Instabil",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Inställningar för flytande panel",
+        "*[data-translation-ffs-subtitle]": "Dessa inställningar är främst för användare med PiP-stöd",
+        "*[data-translation-ffs-instructions]": "(Obs för Firefox-användare: Aktivera 'Flytande panel' genom att högerklicka på videoströmmen nedan och välj 'Titta i bild-i-bild'. Mobila användare kan prova att trycka länge på videon i en sekund. Detta ger snabbare beräkningar och en mer stabil anslutning. Om du inte vill se den här panelen varje gång du öppnar A.C.A.S, avaktivera 'Flytande panel' eller börja använda Chrome.)",
+        "*[data-translation-ffs-videostream]": "Videoström"
     },
     "configTranslations": {
         "engineEnabled": ["Aktiverad", "Är motorn aktiverad"],

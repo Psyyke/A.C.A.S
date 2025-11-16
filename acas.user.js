@@ -84,7 +84,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.3.2
+// @version     2.3.3
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -419,9 +419,9 @@ function getArrowStyle(type, fill, opacity) {
     ].join('\n');
 
     switch(type) {
-        case 'best': 
+        case 'best':
             return getBaseStyleModification('limegreen', 0.9);
-        case 'secondary': 
+        case 'secondary':
             return getBaseStyleModification('dodgerblue', 0.7);
         case 'opponent':
             return getBaseStyleModification('crimson', 0.3);
@@ -572,7 +572,7 @@ const boardUtils = {
         const maxScale = 1;
         const minScale = 0.5;
         const totalRanks = moveObjArr.length;
-        
+
         function fillSquare(square, style) {
             const shapeType = 'rectangle';
             const shapeConfig = { style };
@@ -581,14 +581,11 @@ const boardUtils = {
 
             return rect;
         }
-        
+
         const markedSquares = { 0: [], 1: [] };
 
         moveObjArr.forEach((markingObj, idx) => {
             const profile = markingObj.profile;
-
-            if(idx === 0)
-                boardUtils.removeMarkings(profile);
 
             const [from, to] = markingObj.player;
             const [oppFrom, oppTo] = markingObj.opponent;
@@ -613,7 +610,7 @@ const boardUtils = {
 
                 const fromSquareStyle = `${styling} ${skipFromSquare}`;
                 const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
-                
+
                 const fromSquareFill = fillSquare(from, fromSquareStyle);
                 const toSquareFill = fillSquare(to, toSquareStyle);
 
@@ -630,27 +627,27 @@ const boardUtils = {
                 let arrowheadWidth = 80;
                 let arrowheadHeight = 60;
                 let startOffset = 30;
-    
+
                 if(idx !== 0) {
                     arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
-    
+
                     const arrowScale = totalRanks === 2
                         ? 0.75
                         : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
-    
+
                     lineWidth = lineWidth * arrowScale;
                     arrowheadWidth = arrowheadWidth * arrowScale;
                     arrowheadHeight = arrowheadHeight * arrowScale;
                     startOffset = startOffset;
                 }
-                
+
                 playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
                     {
                         style: arrowStyle,
                         lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                     }
                 );
-    
+
                 if(oppMovesExist && showOpponentMoveGuess) {
                     oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
                         {
@@ -666,7 +663,7 @@ const boardUtils = {
                             if(!oppArrowElem) {
                                 squareListener.remove();
                             }
-        
+
                             switch(type) {
                                 case 'enter':
                                     oppArrowElem.style.display = 'inherit';
@@ -678,13 +675,13 @@ const boardUtils = {
                         });
                     }
                 }
-    
+
                 if(idx === 0 && playerArrowElem) {
                     const parentElem = playerArrowElem.parentElement;
-    
+
                     // move best arrow element on top (multiple same moves can hide the best move)
                     parentElem.appendChild(playerArrowElem);
-    
+
                     if(oppArrowElem) {
                         parentElem.appendChild(oppArrowElem);
                     }
@@ -1851,7 +1848,8 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
     const currentFullFen = getFen();
     const lastFullFen = instanceVars.fen.get(commLinkInstanceID);
 
-    const fenChanged = currentFullFen !== lastFullFen;
+    // Only compare the first part of the FENs to detect change
+    const fenChanged = currentFullFen?.split(' ', 1)?.[0] !== lastFullFen?.split(' ', 1)?.[0];
 
     if((fenChanged || bypassFenChangeDetection)) {
         if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
@@ -1864,8 +1862,6 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
             matchFirstSuggestionGiven = false;
         }
 
-        resetCachedValues();
-
         boardUtils.setBoardDimensions(getBoardDimensions());
 
         const lastPlayerColor = getPlayerColorVariable();
@@ -1876,13 +1872,9 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
         const orientationChanged = playerColor != lastPlayerColor;
 
         if(orientationChanged) {
-            CommLink.commands.log(`Player color (e.g. board orientation) changed from ${lastPlayerColor} to ${playerColor}!`);
-
             resetCachedValues();
 
             matchFirstSuggestionGiven = false;
-
-            CommLink.commands.log(`Turn updated to ${playerColor}!`);
         }
 
         boardUtils.removeMarkings();
@@ -3222,7 +3214,9 @@ function startWhenBackendReady() {
 
     const interval = CommLink.setIntervalAsync(async () => {
         if(await isAcasBackendReady()) {
-            start();
+            setTimeout(() => {
+                start();
+            }, 500);
 
             interval.stop();
         } else if(timesUrlForceOpened < 1) {

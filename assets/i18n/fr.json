@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variantes",
         ".realistic-engine-tag": "Réaliste",
         ".unstable-engine-tag": "Instable",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Paramètres du panneau flottant",
+        "*[data-translation-ffs-subtitle]": "Principalement pour les utilisateurs de Firefox",
+        "*[data-translation-ffs-instructions]": "(Remarque pour les utilisateurs de Firefox : activez le « Panneau flottant » en cliquant avec le bouton droit sur le flux vidéo ci-dessous et en sélectionnant « Regarder en image dans l'image ». Les utilisateurs mobiles peuvent essayer d'appuyer longuement sur le flux vidéo. Cela permettra des calculs plus rapides et une connexion plus stable. Si vous ne souhaitez pas voir ce panneau à chaque ouverture d'A.C.A.S, désactivez « Floating Panel » ou utilisez Chrome.)",
+        "*[data-translation-ffs-videostream]": "Flux vidéo"
     },
     "configTranslations": {
         "engineEnabled": ["Activé", "Le moteur est-il activé ?"],

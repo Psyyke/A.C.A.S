@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variantid",
         ".realistic-engine-tag": "Realistlik",
         ".unstable-engine-tag": "Ebastabiilne",
-        ".multithread-tag": "Mitme keermega"
+        ".multithread-tag": "Mitme keermega",
+        "*[data-translation-ffs-title]": "Hõljuva paneeli seaded",
+        "*[data-translation-ffs-subtitle]": "Need on peamiselt mõeldud Firefoxi kasutajatele",
+        "*[data-translation-ffs-instructions]": "(Märkus Firefoxi kasutajatele: lubage 'Floating Panel', klõpsates alloleval videovoogul parema klahviga ja valides 'Vaata pildi-pildis'. Mobiilikasutajad saavad proovida videovoogu ühe sekundi jooksul all hoida. See võimaldab kiiremaid arvutusi ja stabiilsemat ühendust. Kui te ei soovi seda paneeli näha iga kord, kui avate A.C.A.S, keelake 'Floating Panel' või kasutage Chrome'i.)",
+        "*[data-translation-ffs-videostream]": "Videovoog"
     },
     "configTranslations": {
         "engineEnabled": ["Aktiveeritud", "Kas mootor on aktiveeritud?"],

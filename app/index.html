@@ -64,11 +64,7 @@
 			<div id="tos">
 				<!-- Introduction -->
 				<div id="tos-title">Welcome, my friend!</div>
-				<div class="tos-description">
-				We're thrilled to have you here! A.C.A.S is all set and ready to provide you with a fantastic experience. Its circuits are already powered up and functioning, thanks to the userscript that has been installed.
-				<br><br>
-				You're fully equipped to explore and enjoy all the features and benefits that A.C.A.S brings to the table. Whether it's assistance, engagement, or a touch of fun you're seeking, A.C.A.S is here to serve you.
-				</div>
+				<div class="tos-description">We're thrilled to have you here! A.C.A.S is all set and ready to provide you with a fantastic experience. Its circuits are already powered up and functioning, thanks to the userscript that has been installed.<br><br>You're fully equipped to explore and enjoy all the features and benefits that A.C.A.S brings to the table. Whether it's assistance, engagement, or a touch of fun you're seeking, A.C.A.S is here to serve you.</div>
 				<div class="language-dropdown-input"><div class="dropdown-input-container">
 					<img class="selected-language-img" src="../assets/images/flags/us.svg">
 					<div class="dropdown-list-container">
@@ -264,7 +260,7 @@
 													<p data-translation-engine-subtitle>Please select the engine you like</p>
 												</div>
 												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">👍</button>
+													<button class="floaty-close-btn acas-fancy-button">💾</button>
 												</div>
 											</section>
 											<section class="floaty-body">
@@ -365,7 +361,7 @@
 													<p data-translation-adelo-subtitle>Settings for engine behaviour fine tuning</p>
 												</div>
 												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">👍</button>
+													<button class="floaty-close-btn acas-fancy-button">💾</button>
 												</div>
 											</section>
 											<section class="floaty-body">
@@ -438,7 +434,7 @@
 													<p data-translation-rendering-subtitle>Display various metrics on the board</p>
 												</div>
 												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">👍</button>
+													<button class="floaty-close-btn acas-fancy-button">💾</button>
 												</div>
 											</section>
 											<section class="floaty-body">
@@ -497,7 +493,7 @@
 													<p data-translation-feedback-subtitle>Get feedback on your moves</p>
 												</div>
 												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">👍</button>
+													<button class="floaty-close-btn acas-fancy-button">💾</button>
 												</div>
 											</section>
 											<section class="floaty-body">
@@ -536,7 +532,7 @@
 								<div><div class="input-title" data-translation-accessibility-title>Accessibility Settings</div><div class="input-subtitle" data-translation-accessibility-subtitle>Improve your personal experience</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
-								    <dialog id="feedback-floaty">
+								    <dialog id="accessibility-floaty">
 										<div class="floaty-container">
 											<section class="floaty-header">
 												<div class="title">
@@ -544,7 +540,7 @@
 													<p data-translation-accessibility-subtitle>Improve your personal experience</p>
 												</div>
 												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">👍</button>
+													<button class="floaty-close-btn acas-fancy-button">💾</button>
 												</div>
 											</section>
 											<section class="floaty-body">
@@ -587,8 +583,33 @@
 								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
-								<div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+								<div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+									<dialog id="floating-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header">
+												<div class="title">
+													<h1 data-translation-ffs-title>Floating Panel Settings</h1>
+													<p data-translation-ffs-subtitle>These are mainly for Firefox users</p>
+												</div>
+												<div class="floaty-buttons">
+													<button class="floaty-close-btn acas-fancy-button">💾</button>
+												</div>
+											</section>
+											<section class="floaty-body">
+												<p data-translation-ffs-instructions>(Note for Firefox users: Enable the 'Floating Panel' by right clicking the videostream below and select 'Watch in Picture-in-Picture'. Mobile users can try pressing down on the videostream for a second. Doing this will allow for faster calculations and more stable connection. If you don't want to see this panel every time you open A.C.A.S, disable 'Floating Panel' or start using Chrome.)</p>
+												<div class="setting-panel">
+													<div class="setting-panel-title" data-translation-ffs-videostream>Videostream</div>
+													<div id="floating-panel-video"></div>
+												</div>
+
+												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
+											</section>
+										</div>
+									</dialog>
+								</div>
+								<div class="checkbox-container"><input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 							</div>
 						</div>
 						<div class="setting-panel">

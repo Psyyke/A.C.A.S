@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variante",
         ".realistic-engine-tag": "Realist",
         ".unstable-engine-tag": "Instabil",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Setări panou plutitor",
+        "*[data-translation-ffs-subtitle]": "Aceste opțiuni sunt pentru utilizatorii browserelor cu suport PiP",
+        "*[data-translation-ffs-instructions]": "(Notă pentru utilizatorii Firefox: Activează 'Panoul plutitor' făcând clic dreapta pe fluxul video de mai jos și selectând 'Vizualizează în imagine în imagine'. Utilizatorii de pe mobil pot încerca să țină apăsat pe video timp de o secundă. Acest lucru va permite calcule mai rapide și o conexiune mai stabilă. Dacă nu dorești să vezi acest panou de fiecare dată când deschizi A.C.A.S, dezactivează 'Panoul plutitor' sau începe să folosești Chrome.)",
+        "*[data-translation-ffs-videostream]": "Flux video"
     },
     "configTranslations": {
         "engineEnabled": ["Activat", "Este motorul activat"],

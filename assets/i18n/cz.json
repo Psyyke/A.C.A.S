@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varianty",
         ".realistic-engine-tag": "Realistický",
         ".unstable-engine-tag": "Nestabilní",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Nastavení plovoucího panelu",
+        "*[data-translation-ffs-subtitle]": "Tyto možnosti jsou především pro uživatele Firefoxu",
+        "*[data-translation-ffs-instructions]": "(Poznámka pro uživatele Firefoxu: Povolte 'Floating Panel' kliknutím pravým tlačítkem na video níže a výběrem 'Sledovat v obraze v obraze'. Uživatelé na mobilu mohou vyzkoušet podržení videa na vteřinu. To umožní rychlejší výpočty a stabilnější připojení. Pokud nechcete tento panel vidět při každém otevření A.C.A.S, deaktivujte 'Floating Panel' nebo začněte používat Chrome.)",
+        "*[data-translation-ffs-videostream]": "Videostream"
     },
     "configTranslations": {
         "engineEnabled": ["Povoleno", "Je motor povolen"],

@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varian",
         ".realistic-engine-tag": "Realistis",
         ".unstable-engine-tag": "Tidak stabil",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Pengaturan Panel Mengambang",
+        "*[data-translation-ffs-subtitle]": "Ini terutama untuk pengguna Firefox",
+        "*[data-translation-ffs-instructions]": "(Catatan untuk pengguna Firefox: Aktifkan 'Panel Mengambang' dengan klik kanan pada aliran video di bawah dan pilih 'Tonton dalam Gambar-dalam-Gambar'. Pengguna seluler dapat mencoba menekan lama aliran video selama satu detik. Melakukan ini memungkinkan perhitungan lebih cepat dan koneksi lebih stabil. Jika Anda tidak ingin melihat panel ini setiap kali membuka A.C.A.S, nonaktifkan 'Panel Mengambang' atau mulailah menggunakan Chrome.)",
+        "*[data-translation-ffs-videostream]": "Aliran Video"
     },
     "configTranslations": {
         "engineEnabled": ["Diaktifkan", "Apakah mesin diaktifkan"],

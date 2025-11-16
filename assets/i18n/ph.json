@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Mga Variant",
         ".realistic-engine-tag": "Realistic",
         ".unstable-engine-tag": "Unstable",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Mga Setting ng Lumulutang na Panel",
+        "*[data-translation-ffs-subtitle]": "Ang mga opsyong ito para sa mga browser na may suporta sa PiP",
+        "*[data-translation-ffs-instructions]": "(Tandaan para sa mga gumagamit ng Firefox: I-enable ang 'Floating Panel' sa pamamagitan ng pag-right click sa video stream sa ibaba at piliin ang 'Panoorin sa Picture-in-Picture'. Maaari subukan ng mga mobile user ang pag-hold ng video ng isang segundo. Papayagan nito ang mas mabilis na kalkulasyon at mas matatag na koneksyon. Kung ayaw mong makita ang panel na ito sa tuwing binubuksan mo ang A.C.A.S, i-disable ang 'Floating Panel' o gumamit ng Chrome.)",
+        "*[data-translation-ffs-videostream]": "Daloy ng video"
     },
     "configTranslations": {
         "engineEnabled": ["Aktibo", "Ang engine ba ay aktibo?"],

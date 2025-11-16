@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Варіанти",
         ".realistic-engine-tag": "Реалістичний",
         ".unstable-engine-tag": "Нестабільний",
-        ".multithread-tag": "Багатопотоковий"
+        ".multithread-tag": "Багатопотоковий",
+        "*[data-translation-ffs-title]": "Налаштування плаваючої панелі",
+        "*[data-translation-ffs-subtitle]": "Ці параметри для користувачів браузерів із підтримкою PiP",
+        "*[data-translation-ffs-instructions]": "(Підказка: На комп'ютері клацніть правою кнопкою по відео (або відкрийте меню ⋯) і виберіть 'Картинка в картинці'. На мобільному натисніть і утримуйте відео для цього ж меню. Якщо ваш браузер не підтримує PiP, спробуйте браузер із підтримкою PiP.)",
+        "*[data-translation-ffs-videostream]": "Відеопотік"
     },
     "configTranslations": {
         "engineEnabled": ["Увімкнено", "Чи увімкнено движок"],

@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Варианти",
         ".realistic-engine-tag": "Реалистичен",
         ".unstable-engine-tag": "Нестабилен",
-        ".multithread-tag": "Многонишков"
+        ".multithread-tag": "Многонишков",
+        "*[data-translation-ffs-title]": "Настройки на плаващия панел",
+        "*[data-translation-ffs-subtitle]": "Тези са предимно за потребители на Firefox",
+        "*[data-translation-ffs-instructions]": "(Бележка за потребителите на Firefox: Активирайте 'Floating Panel', като кликнете с десния бутон върху видеопотока по-долу и изберете 'Гледай в картина в картина'. Мобилните потребители могат да опитат да натиснат и задържат видеопотока за секунда. Това позволява по-бързи изчисления и по-стабилна връзка. Ако не искате да виждате този панел всеки път при отваряне на A.C.A.S, деактивирайте 'Floating Panel' или започнете да използвате Chrome.)",
+        "*[data-translation-ffs-videostream]": "Видео поток"
     },
     "configTranslations": {
         "engineEnabled": ["Активирано", "Двигателят активиран ли е?"],

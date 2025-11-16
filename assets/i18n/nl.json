@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varianten",
         ".realistic-engine-tag": "Realistisch",
         ".unstable-engine-tag": "Onstabiel",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Instellingen zwevend paneel",
+        "*[data-translation-ffs-subtitle]": "Deze opties zijn vooral voor gebruikers met PiP-ondersteuning",
+        "*[data-translation-ffs-instructions]": "(Opmerking voor Firefox-gebruikers: activeer het 'Zwevend paneel' door met de rechtermuisknop op de videostream hieronder te klikken en 'Bekijken in picture-in-picture' te kiezen. Mobiele gebruikers kunnen proberen de video één seconde ingedrukt te houden. Dit maakt snellere berekeningen en een stabielere verbinding mogelijk. Als je dit paneel niet elke keer wilt zien wanneer je A.C.A.S opent, schakel dan 'Zwevend paneel' uit of begin Chrome te gebruiken.)",
+        "*[data-translation-ffs-videostream]": "Videostroom"
     },
     "configTranslations": {
         "engineEnabled": ["Ingeschakeld", "Is de engine ingeschakeld"],

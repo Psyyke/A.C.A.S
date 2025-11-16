@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variantes",
         ".realistic-engine-tag": "Realista",
         ".unstable-engine-tag": "Instável",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Definições do Painel Flutuante",
+        "*[data-translation-ffs-subtitle]": "Estas opções destinam-se a utilizadores com suporte a PiP",
+        "*[data-translation-ffs-instructions]": "(Nota para usuários do Firefox: Ative o 'Painel Flutuante' clicando com o botão direito no stream de vídeo abaixo e selecionando 'Ver em imagem-in-imagem'. Usuários móveis podem tentar pressionar longamente o vídeo por um segundo. Isso permitirá cálculos mais rápidos e uma conexão mais estável. Se não quiser ver este painel cada vez que abrir o A.C.A.S, desative o 'Painel Flutuante' ou comece a usar o Chrome.)",
+        "*[data-translation-ffs-videostream]": "Transmissão de vídeo"
     },
     "configTranslations": {
         "engineEnabled": ["Habilitado", "O motor está habilitado"],

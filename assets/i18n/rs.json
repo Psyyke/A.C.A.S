@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varijante",
         ".realistic-engine-tag": "Realističan",
         ".unstable-engine-tag": "Nestabilan",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Podešavanja plutajućeg panela",
+        "*[data-translation-ffs-subtitle]": "Ove opcije su prvenstveno za korisnike pretraživača koji podržavaju PiP",
+        "*[data-translation-ffs-instructions]": "(Napomena za Firefox korisnike: Omogućite 'Plutajući panel' desnim klikom na video tok ispod i izaberite 'Gledaj u slici-u-slici'. Mobilni korisnici mogu probati da pritisnu i zadrže video tok na jednu sekundu. Ovo omogućava brže proračune i stabilnije povezivanje. Ako ne želite da vidite ovaj panel svaki put kada otvorite A.C.A.S, onemogućite 'Plutajući panel' ili počnite da koristite Chrome.)",
+        "*[data-translation-ffs-videostream]": "Video tok"
     },
     "configTranslations": {
         "engineEnabled": ["Omogućeno", "Da li je motor omogućen?"],

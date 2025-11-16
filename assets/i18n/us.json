@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variants",
         ".realistic-engine-tag": "Realistic",
         ".unstable-engine-tag": "Unstable",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Floating Panel Settings",
+        "*[data-translation-ffs-subtitle]": "These are mainly for Firefox users",
+        "*[data-translation-ffs-instructions]": "(Note for Firefox users: Enable the 'Floating Panel' by right clicking the videostream below and select 'Watch in Picture-in-Picture'. Mobile users can try pressing down on the videostream for a second. Doing this will allow for faster calculations and more stable connection. If you don't want to see this panel every time you open A.C.A.S, disable 'Floating Panel' or start using Chrome.)",
+        "*[data-translation-ffs-videostream]": "Videostream"
     },
     "configTranslations": {
         "engineEnabled": ["Enabled", "Is the engine enabled"],

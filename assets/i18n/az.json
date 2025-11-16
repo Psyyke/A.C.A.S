@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Variantlar",
         ".realistic-engine-tag": "Realistik",
         ".unstable-engine-tag": "Qeyri-sabit",
-        ".multithread-tag": "Çoxnüvəli"
+        ".multithread-tag": "Çoxnüvəli",
+        "*[data-translation-ffs-title]": "Üzən panel parametrləri",
+        "*[data-translation-ffs-subtitle]": "Bunlar əsasən Firefox istifadəçiləri üçündür",
+        "*[data-translation-ffs-instructions]": "(Firefox istifadəçiləri üçün qeyd: Aşağıdakı video axını üzərində sağ klikləyib 'Şəkildə-şəkil olaraq izləyin' seçimini seçməklə 'Floating Panel'-i aktiv edin. Mobil istifadəçilər video axınını bir saniyə basılı saxlayaraq sınaya bilərlər. Bu, daha sürətli hesablamalara və daha stabilləşmiş bağlantıya imkan verəcək. Hər dəfə A.C.A.S açdığınızda bu paneli görmək istəmirsinizsə, 'Floating Panel'-i deaktiv edin və ya Chrome istifadə edin.)",
+        "*[data-translation-ffs-videostream]": "Video axını"
     },
     "configTranslations": {
         "engineEnabled": ["Aktiv", "Mühərrik aktivdir?"],

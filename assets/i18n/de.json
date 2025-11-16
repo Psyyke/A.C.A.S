@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varianten",
         ".realistic-engine-tag": "Realistisch",
         ".unstable-engine-tag": "Instabil",
-        ".multithread-tag": "Multithread"
+        ".multithread-tag": "Multithread",
+        "*[data-translation-ffs-title]": "Einstellungen des schwebenden Panels",
+        "*[data-translation-ffs-subtitle]": "Diese Einstellungen sind hauptsächlich für Firefox-Nutzer",
+        "*[data-translation-ffs-instructions]": "(Hinweis für Firefox-Nutzer: Aktiviere das 'Floating Panel', indem du im Videostream unten mit der rechten Maustaste klickst und 'Im Bild-in-Bild anzeigen' wählst. Mobile Nutzer können den Videostream kurz gedrückt halten. Dadurch sind Berechnungen schneller und die Verbindung stabiler. Wenn du dieses Panel nicht jedes Mal sehen möchtest, wenn du A.C.A.S öffnest, deaktiviere 'Floating Panel' oder verwende Chrome.)",
+        "*[data-translation-ffs-videostream]": "Videostream"
     },
     "configTranslations": {
         "engineEnabled": ["Aktiviert", "Ist die Engine aktiviert"],

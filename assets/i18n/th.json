@@ -79,7 +79,11 @@
         ".variants-engine-tag": "รูปแบบ",
         ".realistic-engine-tag": "สมจริง",
         ".unstable-engine-tag": "ไม่เสถียร",
-        ".multithread-tag": "มัลติเธรด"
+        ".multithread-tag": "มัลติเธรด",
+        "*[data-translation-ffs-title]": "การตั้งค่าพาเนลลอย",
+        "*[data-translation-ffs-subtitle]": "ตัวเลือกนี้สำหรับผู้ใช้เบราว์เซอร์ที่รองรับ PiP",
+        "*[data-translation-ffs-instructions]": "(หมายเหตุ: บนเดสก์ท็อปคลิกขวาที่วิดีโอ (หรือเปิดเมนู ⋯) แล้วเลือก 'รูปภาพในรูปภาพ' บนมือถือให้กดค้างที่วิดีโอเพื่อเปิดเมนูเดียวกัน หากเบราว์เซอร์ของคุณไม่รองรับ PiP ให้ลองใช้เบราว์เซอร์ที่รองรับ PiP)",
+        "*[data-translation-ffs-videostream]": "สตรีมวิดีโอ"
     },
     "configTranslations": {
         "engineEnabled": ["เปิดใช้งาน", "เปิดใช้งานเครื่องยนต์หรือไม่"],

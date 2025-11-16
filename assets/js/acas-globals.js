@@ -271,7 +271,7 @@ async function getProfileNames() {
 
     if(profilesObj) return Object.keys(profilesObj);
 
-    console.error('Could not found profile names!', { ...settingFilterObj, gmConfigKey, config });
+    console.error('Could not find profile names!', { ...settingFilterObj, gmConfigKey, config });
 
     return false;
 }

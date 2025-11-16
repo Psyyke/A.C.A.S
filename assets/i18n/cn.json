@@ -79,7 +79,11 @@
         ".variants-engine-tag": "变体",
         ".realistic-engine-tag": "真实",
         ".unstable-engine-tag": "不稳定",
-        ".multithread-tag": "多线程"
+        ".multithread-tag": "多线程",
+        "*[data-translation-ffs-title]": "浮动面板设置",
+        "*[data-translation-ffs-subtitle]": "主要针对 Firefox 用户",
+        "*[data-translation-ffs-instructions]": "(对 Firefox 用户的说明：通过在下面的视频流上右键单击并选择“在画中画中观看”来启用“浮动面板”。移动用户可以尝试长按视频流一秒钟。这将允许更快的计算和更稳定的连接。如果你不希望每次打开 A.C.A.S 时都看到此面板，请禁用“Floating Panel”或改用 Chrome。)",
+        "*[data-translation-ffs-videostream]": "视频流"
     },
     "configTranslations": {
         "engineEnabled": ["启用", "引擎是否启用"],

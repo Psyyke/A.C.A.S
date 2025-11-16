@@ -79,7 +79,11 @@
         ".variants-engine-tag": "انواع",
         ".realistic-engine-tag": "واقع‌گرایانه",
         ".unstable-engine-tag": "ناپایدار",
-        ".multithread-tag": "چند رشته‌ای"
+        ".multithread-tag": "چند رشته‌ای",
+        "*[data-translation-ffs-title]": "تنظیمات پنل شناور",
+        "*[data-translation-ffs-subtitle]": "عمدتاً برای کاربران Firefox",
+        "*[data-translation-ffs-instructions]": "(توجه برای کاربران Firefox: برای فعال‌سازی 'پنل شناور' روی پخش ویدیو زیر راست‑کلیک کرده و 'تماشا در تصویر در تصویر' را انتخاب کنید. کاربران موبایل می‌توانند برای یک ثانیه پخش ویدیو را نگه دارند. این کار محاسبات سریع‌تر و اتصال پایدارتر را ممکن می‌سازد. اگر نمی‌خواهید هر بار A.C.A.S را باز می‌کنید این پنل را ببینید، 'پنل شناور' را غیرفعال کنید یا از Chrome استفاده کنید.)",
+        "*[data-translation-ffs-videostream]": "پخش ویدیو"
     },
     "configTranslations": {
         "engineEnabled": ["فعال", "آیا موتور فعال است؟"],

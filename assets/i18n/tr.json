@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Varyantlar",
         ".realistic-engine-tag": "Gerçekçi",
         ".unstable-engine-tag": "Kararsız",
-        ".multithread-tag": "Çoklu İş Parçacığı"
+        ".multithread-tag": "Çoklu İş Parçacığı",
+        "*[data-translation-ffs-title]": "Yüzen Panel Ayarları",
+        "*[data-translation-ffs-subtitle]": "Bu ayarlar öncelikle PiP destekli tarayıcı kullanıcıları içindir",
+        "*[data-translation-ffs-instructions]": "(Not: Videoyu sağ tıklayın (veya ⋯ menüsünü açın) ve 'Resim içinde resim' seçeneğini seçin. Mobilde videoya uzun basarak aynı menüyü açabilirsiniz. Tarayıcınız PiP desteklemiyorsa PiP destekli bir tarayıcı kullanmayı deneyin.)",
+        "*[data-translation-ffs-videostream]": "Video akışı"
     },
     "configTranslations": {
         "engineEnabled": ["Etkin", "Motor etkin mi"],

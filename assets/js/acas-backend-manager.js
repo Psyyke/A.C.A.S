@@ -23,7 +23,7 @@ function createInstance(domain, instanceID, chessVariant) {
 }
 
 function instanceLoaded(informationObj) {
-    console.log('Instance load confirmed:', informationObj);
+    //console.log('Instance load confirmed:', informationObj);
 
     addInstanceToSettingsDropdown(informationObj.id, informationObj.domain, informationObj.variant, informationObj.element);
 }

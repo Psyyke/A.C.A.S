@@ -79,7 +79,11 @@
         ".variants-engine-tag": "Változatok",
         ".realistic-engine-tag": "Realisztikus",
         ".unstable-engine-tag": "Instabil",
-        ".multithread-tag": "Többszálú"
+        ".multithread-tag": "Többszálú",
+        "*[data-translation-ffs-title]": "Lebegő panel beállításai",
+        "*[data-translation-ffs-subtitle]": "Elsősorban Firefox-felhasználóknak",
+        "*[data-translation-ffs-instructions]": "(Megjegyzés Firefox-felhasználóknak: Engedélyezze a 'Lebegő panel'-t az alábbi videófolyamon jobb kattintással, majd válassza a 'Kép a képben megtekintése' opciót. Mobilon próbálja meg hosszan nyomni a videót egy másodpercig. Ez gyorsabb számításokat és stabilabb kapcsolatot tesz lehetővé. Ha nem szeretné mindig látni ezt a panelt A.C.A.S megnyitásakor, kapcsolja ki a 'Lebegő panel'-t vagy kezdjen el Chrome-ot használni.)",
+        "*[data-translation-ffs-videostream]": "Videófolyam"
     },
     "configTranslations": {
         "engineEnabled": ["Engedélyezve", "Engedélyezve van a motor?"],
