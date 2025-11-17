@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Rate ang Kalaban", "Magbigay din ng feedback sa kalaban"],
         "enableMoveRatings": ["Mga Rating ng Galaw", "Ipakita ang mga iniisip ng engine tungkol sa mga galaw"],
         "feedbackOnExternalSite": ["Feedback sa Panlabas na Site", "Ipakita ang feedback sa board ng chess site (hal. sa board ng chess.com)"],
-        "pip": ["Floating Panel", "Mahalaga! Pinipigilan ang A.C.A.S na mag-freeze!"]
+        "pip": ["Floating Panel", "Mahalaga! Pinipigilan ang A.C.A.S na mag-freeze!"],
+        "pipBoard": ["Ipakita ang tabla", "Sa halip na teksto lamang, ipakita ang buong tabla"]
     },
     "translations": {
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",

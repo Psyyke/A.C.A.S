@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Rəqibi qiymətləndirin", "Rəqibin hərəkətləri haqqında da qiymətləndirmə verin"],
         "enableMoveRatings": ["Hərəkət qiymətləndirmələri", "Mühərrikin hərəkətlər haqqında düşüncələrini göstərin"],
         "feedbackOnExternalSite": ["Xarici saytdakı qiymətləndirmə", "Şahmat saytının lövhəsində hərəkət qiymətləndirmələrini göstərin (məsələn, chess.com-un lövhəsi)"],
-        "pip": ["Üzən panel", "Vacibdir! A.C.A.S-ın donmasını qarşısını alır!"]
+        "pip": ["Üzən panel", "Vacibdir! A.C.A.S-ın donmasını qarşısını alır!"],
+        "pipBoard": ["Taxtanı göstər", "Yalnız mətn əvəzinə bütün taxtanı göstər"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmək istədiyinizə əminsinizmi?\n\nBu əməliyyat geri qaytarıla bilməz.",

@@ -479,6 +479,8 @@ class BackendInstance {
                         this.renderMetric(fen, profileName);
                     });
 
+                    updatePipData({ 'moveObjects': null });
+
                     this.calculateBestMoves(fen);
                     this.displayFeedback(fen);
                 }
@@ -513,8 +515,8 @@ class BackendInstance {
     
             infoTextElem.innerText = text;
 
-            updatePiP({ 'moveProgressText': text });
-            updatePiP({ 'isWinning': status });
+            updatePipData({ 'moveProgressText': text });
+            updatePipData({ 'isWinning': status });
 
             const statusArr = ['info-text-winning', 'info-text-losing'];
 
@@ -542,7 +544,7 @@ class BackendInstance {
             if(mate)
                 advantage = centipawnEval > 0 ? 1 : 0;
 
-            updatePiP({ 'eval': advantage, playerColor, centipawnEval });
+            updatePipData({ 'eval': advantage, playerColor, centipawnEval });
 
             evalFill.style.height = `${advantage * 100}%`;
         },
@@ -770,7 +772,7 @@ class BackendInstance {
                         toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
-                    updatePiP({ 'goalDepth': null });
+                    updatePipData({ 'goalDepth': null });
 
                     if(didUserUpdateSetting)
                         toast.message(engineNoLimitations, 8000);
@@ -1405,7 +1407,7 @@ class BackendInstance {
 
                     searchCommandStr = `go nodes ${nodes}`;
 
-                    updatePiP({ 'goalNodes': nodes });
+                    updatePipData({ 'goalNodes': nodes });
                 break;
     
                 default:
@@ -1416,7 +1418,7 @@ class BackendInstance {
 
                     searchCommandStr = `go depth ${depth}`;
 
-                    updatePiP({ 'goalDepth': depth });
+                    updatePipData({ 'goalDepth': depth });
                 break;
             }
     
@@ -1424,7 +1426,7 @@ class BackendInstance {
     
             const movetime = await this.getConfigValue(this.configKeys.maxMovetime, profileName);
 
-            updatePiP({ 'startTime': Date.now(), movetime });
+            updatePipData({ 'startTime': Date.now(), movetime });
     
             if(typeof movetime == 'number') {
                 const startFen = this.currentFen;
@@ -1496,7 +1498,7 @@ class BackendInstance {
 
         this.Interface.boardUtils.markMoves(moveObjects, profile);
 
-        updatePiP({ moveObjects });
+        updatePipData({ moveObjects });
 
         if(displayMovesExternally) {
             this.CommLink.commands.markMoveToSite(moveObjects);
@@ -1567,7 +1569,7 @@ class BackendInstance {
                         this.Interface.updateMoveProgress(`${depthText} ${data.depth}`, 0);
                     }
 
-                    updatePiP({ 'depth': data?.depth, 'mate': data?.mate });
+                    updatePipData({ 'depth': data?.depth, 'mate': data?.mate });
                 }
     
                 if(data?.cp)
@@ -1581,7 +1583,7 @@ class BackendInstance {
         if(data?.wdl) {
             const [winChance, drawChance, lossChance] = data?.wdl?.split(' ');
 
-            updatePiP({ winChance, drawChance, lossChance });
+            updatePipData({ winChance, drawChance, lossChance });
         }
 
         if(data?.pv && isMessageForCurrentFen) {
@@ -1608,7 +1610,7 @@ class BackendInstance {
             const calculationStartedAt = oldestUnfinishedCalcRequestObj?.startedAt;
             const calculationTimeElapsed = Date.now() - calculationStartedAt;
 
-            updatePiP({ calculationTimeElapsed, 'nodes': data?.nodes, topMoveObjects });
+            updatePipData({ calculationTimeElapsed, 'nodes': data?.nodes, topMoveObjects });
             
             let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
@@ -1650,9 +1652,9 @@ class BackendInstance {
                 }
 
                 if(await this.getEngineType(profile) === 'lc0') {
-                    updatePiP({ 'nodes': this.pV[profile].engineNodes, 'goalDepth': null });
+                    updatePipData({ 'nodes': this.pV[profile].engineNodes, 'goalDepth': null });
                 } else {
-                    updatePiP({ 'depth': this.pV[profile].searchDepth, 'goalNodes': null });
+                    updatePipData({ 'depth': this.pV[profile].searchDepth, 'goalNodes': null });
                 }
 
                 if(isDelayActive) {
@@ -1981,7 +1983,7 @@ class BackendInstance {
             if(newInfoStr.length > 0) {
                 additionalInfoElem.innerText = newInfoStr;
 
-                updatePiP({ 'engineText': newInfoStr });
+                updatePipData({ 'engineText': newInfoStr });
             }
         }, 500);
 
@@ -2174,6 +2176,7 @@ class BackendInstance {
                 selectable: { enabled: false }, 
                 draggable: { enabled: false }, 
                 drawable: { enabled: false, eraseOnClick: false }, 
+                animation: { enabled: false },
                 dimensions: boardDimensions, 
                 orientation,
                 fen, 
@@ -2189,8 +2192,11 @@ class BackendInstance {
                 'zIndex': 500,
                 'prepend': true,
                 'debugMode': false,
+                'parentElem': document.querySelector('#board-drawings'),
                 orientation
             });
+
+            this.BoardDrawer.boardContainerElem.dataset.instanceId = this.instanceID;
 
             this.Interface.boardUtils.updateBoardOrientation(orientation);
 

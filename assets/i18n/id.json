@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Nilai Musuh", "Berikan umpan balik tentang musuh juga"],
         "enableMoveRatings": ["Peringkat Gerakan", "Tampilkan pemikiran mesin tentang gerakan"],
         "feedbackOnExternalSite": ["Umpan Balik di Situs Eksternal", "Tampilkan umpan balik gerakan di papan situs catur (misalnya papan chess.com)"],
-        "pip": ["Panel Mengambang", "Penting! Mencegah A.C.A.S membeku!"]
+        "pip": ["Panel Mengambang", "Penting! Mencegah A.C.A.S membeku!"],
+        "pipBoard": ["Tampilkan papan", "Alih-alih hanya teks, tampilkan seluruh papan"]
     },
     "translations": {
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",

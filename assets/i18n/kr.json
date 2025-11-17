@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["적 평가", "적에 대해서도 피드백 제공"],
         "enableMoveRatings": ["이동 평가", "엔진의 이동에 대한 생각 표시"],
         "feedbackOnExternalSite": ["외부 사이트에서 피드백", "체스 사이트 보드(예: chess.com 보드)에서 이동 피드백 표시"],
-        "pip": ["플로팅 패널", "중요! A.C.A.S가 동결되는 것을 방지합니다!"]
+        "pip": ["플로팅 패널", "중요! A.C.A.S가 동결되는 것을 방지합니다!"],
+        "pipBoard": ["보드 표시", "텍스트만 표시하지 않고 전체 보드를 표시"]
     },
     "translations": {
         "profileRemovalWarning": "이 프로필을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",

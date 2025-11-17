@@ -135,6 +135,7 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 * [FileSaver](http://purl.eligrey.com/github/FileSaver.js) (*for saving the config file*)
 * [bodymovin](https://github.com/airbnb/lottie-web) (*for SVG animations*)
 * [Klaro!](https://github.com/klaro-org/klaro-js) (*for legal reasons, to ask user for cookie permission*)
+* [SnapDOM](https://github.com/zumerlab/snapdom) (*for DOM screenshots (e.g. turning the board into image)*)
 * [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
 

@@ -43,6 +43,7 @@
 		<script src="../assets/js/acas-user-security-system.js"></script>
 		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
 		<script src="../assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
+		<script src="../assets/libraries/SnapDOM/snapdom.min.js"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
 		<link rel="stylesheet" type="text/css" href="../assets/css/chessground.base.css"/>
 		<link rel="stylesheet" type="text/css" href="../assets/css/chessground.brown.css"/>
@@ -582,35 +583,6 @@
 								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
-								<div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div>
-								<div class="floaty-wrapper">
-									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
-									<dialog id="floating-floaty">
-										<div class="floaty-container">
-											<section class="floaty-header">
-												<div class="title">
-													<h1 data-translation-ffs-title>Floating Panel Settings</h1>
-													<p data-translation-ffs-subtitle>These are mainly for Firefox users</p>
-												</div>
-												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">💾</button>
-												</div>
-											</section>
-											<section class="floaty-body">
-												<p data-translation-ffs-instructions>(Note for Firefox users: Enable the 'Floating Panel' by right clicking the videostream below and select 'Watch in Picture-in-Picture'. Mobile users can try pressing down on the videostream for a second. Doing this will allow for faster calculations and more stable connection. If you don't want to see this panel every time you open A.C.A.S, disable 'Floating Panel' or start using Chrome.)</p>
-												<div class="setting-panel">
-													<div class="setting-panel-title" data-translation-ffs-videostream>Videostream</div>
-													<div id="floating-panel-video"></div>
-												</div>
-
-												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
-											</section>
-										</div>
-									</dialog>
-								</div>
-								<div class="checkbox-container"><input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
-							</div>
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👁️‍🗨️</div>
@@ -696,11 +668,41 @@
 				</div>
 				<div class="setting-panel">
 					<div class="setting-panel-title"><span class="misc-panel-title">Miscellaneous</span> ❔</div>
-					<div class="color-input custom-input"><div class="input-title">Theme Color</div>
-						<input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
-					</div>
-					<div class="color-input custom-input"><div class="input-title">Board Color</div>
-						<input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
+					<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
+						<div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div>
+						<div class="floaty-wrapper">
+							<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+							<dialog id="floating-floaty">
+								<div class="floaty-container">
+									<section class="floaty-header">
+										<div class="title">
+											<h1 data-translation-ffs-title>Floating Panel Settings</h1>
+											<p data-translation-ffs-subtitle>These are mainly for Firefox users</p>
+										</div>
+										<div class="floaty-buttons">
+											<button class="floaty-close-btn acas-fancy-button">💾</button>
+										</div>
+									</section>
+									<section class="floaty-body">
+										<p data-translation-ffs-instructions>(Note for Firefox users: Enable the 'Floating Panel' by right clicking the videostream below and select 'Watch in Picture-in-Picture'. Mobile users can try pressing down on the videostream for a second. Doing this will allow for faster calculations and more stable connection. If you don't want to see this panel every time you open A.C.A.S, disable 'Floating Panel' or start using Chrome.)</p>
+										<div class="setting-panel">
+											<div class="setting-panel-title" data-translation-ffs-videostream>Videostream</div>
+											<div id="floating-panel-video"></div>
+										</div>
+										<div class="setting-panel">
+											<div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
+											<div class="checkbox-input custom-input"><div><div class="input-title">Display Board</div>
+												<div class="input-subtitle">Instead of just text, display the entire board</div></div><div class="checkbox-container">
+												<input type="checkbox" data-key="pipBoard" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+											</div>
+										</div>
+
+										<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
+									</section>
+								</div>
+							</dialog>
+						</div>
+						<div class="checkbox-container"><input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 					</div>
 					<div class="dropdown-input custom-input"><div class="input-title">Chess Font</div><div class="dropdown-input-container">
 						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="chessFont" data-default-value="staunty" placeholder="Merida"><div class="dropdown-icon"></div>
@@ -727,6 +729,12 @@
 							<div class="dropdown-item" data-value="rainbow-texture">Rainbow</div>
 						</div>
 					</div></div>
+						<div class="color-input custom-input"><div class="input-title">Theme Color</div>
+						<input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
+					</div>
+					<div class="color-input custom-input"><div class="input-title">Board Color</div>
+						<input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
+					</div>
 				</div>
 			</div>
 		</div>
@@ -743,8 +751,11 @@
 			<div id="thanks-for-using-footer-text" class="footer-small-text">Thanks for using A.C.A.S, a handcrafted project made by a solo developer.</div>
 		</div>
 
+		<div id="board-drawings"></div>
+
 		<script src="../assets/js/acas-toast.js"></script>
 		<script type="module" src="../assets/js/acas-load-modules.js"></script>
+		<script src="../assets/js/acas-backend-gui-pip.js"></script>
 		<script src="../assets/js/acas-backend-gui.js?new=true"></script>
 		<script src="index.js"></script>
 	</body>

@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Đánh Giá Đối Thủ", "Cung cấp phản hồi về đối thủ"],
         "enableMoveRatings": ["Đánh Giá Nước Đi", "Hiển thị suy nghĩ của động cơ về các nước đi"],
         "feedbackOnExternalSite": ["Phản Hồi Trên Trang Bên Ngoài", "Hiển thị phản hồi trên bàn cờ của trang cờ vua (ví dụ: bàn cờ của chess.com)"],
-        "pip": ["Bảng Nổi", "Quan trọng! Ngăn A.C.A.S bị đông cứng!"]
+        "pip": ["Bảng Nổi", "Quan trọng! Ngăn A.C.A.S bị đông cứng!"],
+        "pipBoard": ["Hiển thị bàn cờ", "Thay vì chỉ văn bản, hiển thị toàn bộ bàn cờ"]
     },
     "translations": {
         "profileRemovalWarning": "Bạn có chắc chắn muốn xóa hồ sơ này?\n\nHành động này không thể hoàn tác.",

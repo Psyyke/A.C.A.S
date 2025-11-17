@@ -112,9 +112,6 @@ if(window?.SharedArrayBuffer) {
         });
 }
 
-const pipData = {};
-
-let pipCanvas = null;
 let lastProfileID = null;
 
 (async () => {
@@ -203,208 +200,6 @@ guiBroadcastChannel.onmessage = e => {
             break;
     }
 };
-
-const headerHeight = 133;
-const evalBarWidth = 100;
-const statusBarHeight = 5;
-
-let lastPipEval = null;
-let firstTimeOpeningPip = true;
-
-function updatePiP(data) {
-    if(data) Object.assign(pipData, data);
-    if(data?.moveObjects) {
-        updatePictureInPictureView();
-
-        setTimeout(() => {
-            updatePictureInPictureView();
-        }, 1000);
-    }
-}
-
-function updatePictureInPictureView() {
-    if(!pipCanvas)
-        return;
-
-    const ctx = pipCanvas.getContext('2d');
-    const headerWidth = pipCanvas.width - evalBarWidth;
-    const noInstancesText = fullTransObj?.domTranslations?.['#no-instances-title'];
-
-    let progress = 0;
-
-    if(pipData.goalDepth) {
-        progress = pipData.depth / pipData.goalDepth;
-    } else if(pipData?.goalNodes) {
-        progress = pipData?.nodes / pipData?.goalNodes;
-    } else {
-        progress = calculateTimeProgress(pipData.startTime, pipData.movetime);
-    }
-
-    const playerColor = pipData.playerColor,
-          bestMove = pipData?.moveObjects?.[0],
-          from = bestMove?.player?.[0],
-          to = bestMove?.player?.[1],
-          winChance = pipData?.winChance,
-          drawChance = pipData?.drawChance,
-          lossChance = pipData?.lossChance;
-
-    let eval = pipData.eval;
-
-    if(!eval && lastPipEval === null) 
-        eval = 0.5;
-    else if(eval)
-        lastPipEval = eval;
-
-    // Clear the canvas
-    ctx.clearRect(0, 0, pipCanvas.width, pipCanvas.height);
-
-    // Add background color
-    ctx.fillStyle = pipData.themeColorHex;
-    ctx.fillRect(0, 0, headerWidth, pipCanvas.height);
-
-    // Create a subtle diagonal dark gradient
-    const gradient = ctx.createLinearGradient(headerWidth, 0, 0, pipCanvas.height);
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
-
-    // Overlay the gradient
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, headerWidth, pipCanvas.height);
-
-    // Add header background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(0, 0, headerWidth, headerHeight - statusBarHeight);
-
-    // Add header main title
-    ctx.fillStyle = 'white';
-    ctx.font = '800 70px Mona Sans';
-    ctx.fillText('A.C.A.S', 30, 90);
-
-    // Set regular text style
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.font = '500 70px IBM Plex Sans';
-
-    if(pipData.moveProgressText) {
-        ctx.fillText(pipData.moveProgressText, 40, headerHeight + 90);
-    } else if(noInstancesText) {
-        ctx.fillText(noInstancesText, 40, headerHeight + 100, 830);
-        ctx.fillText('ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', 40, headerHeight + 200, 830);
-    }
-    
-    if(pipData.calculationTimeElapsed) {
-        const timeMs = pipData.calculationTimeElapsed;
-        const timeFormatted = timeMs > 9999
-            ? `${(timeMs / 1000).toFixed(1)}s`
-            : `${timeMs}ms`;
-    
-        const progressPercent = (progress * 100).toFixed(0);
-    
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.font = '500 50px Mona Sans';
-        ctx.fillText(`(${timeFormatted}, ${progressPercent}%)`, 320, 80);
-    }
-
-    if(from && to) {
-        ctx.fillStyle = 'white';
-        ctx.font = '500 160px IBM Plex Sans';
-        ctx.fillText(`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 40, headerHeight + 250);
-    }
-
-    if(winChance && drawChance && lossChance) {
-        const chances = [
-            { label: 'Win', percentage: Math.round(winChance / 10) },
-            { label: 'Draw', percentage: Math.round(drawChance / 10) },
-            { label: 'Loss', percentage: Math.round(lossChance / 10) }
-        ];
-
-        const highestChance = chances.reduce((max, chance) => chance.percentage > max.percentage ? chance : max);
-    
-        const pX = 40;
-        const pY = headerHeight + 320;
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-        ctx.font = '400 50px IBM Plex Sans';
-
-        ctx.fillText(`${highestChance.label} ${highestChance.percentage}%`, pX, pY);
-    }    
-
-    // Progress bar
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-    ctx.fillRect(
-        0,
-        headerHeight,
-        (pipCanvas.width - evalBarWidth) * progress,
-        pipCanvas.height - headerHeight
-    );
-
-    if(playerColor == 'b') {
-        // Eval bar #1
-        ctx.fillStyle = 'rgba(50, 50, 50, 1)';
-        ctx.fillRect(
-            pipCanvas.width - evalBarWidth,
-            0,
-            evalBarWidth,
-            pipCanvas.height
-        );
-
-        // Eval bar #2
-        ctx.fillStyle = 'rgba(200, 200, 200, 1)';
-        ctx.fillRect(
-            pipCanvas.width - evalBarWidth,
-            0,
-            evalBarWidth,
-            pipCanvas.height * eval
-        );
-    } else {
-        // Eval bar #1
-        ctx.fillStyle = 'rgba(200, 200, 200, 1)';
-        ctx.fillRect(
-            pipCanvas.width - evalBarWidth,
-            0,
-            evalBarWidth,
-            pipCanvas.height
-        );
-
-        // Eval bar #2
-        ctx.fillStyle = 'rgba(50, 50, 50, 1)';
-        ctx.fillRect(
-            pipCanvas.width - evalBarWidth,
-            0,
-            evalBarWidth,
-            pipCanvas.height * (1 - eval)
-        );
-    }
-
-    const centipawnEval = pipData?.centipawnEval / 100;
-
-    if(!pipData?.mate && centipawnEval) {
-        let yPosition;
-
-        if(playerColor === 'w') {
-            yPosition = centipawnEval < 0 ? 60 : pipCanvas.height - 30;
-        } else {
-            yPosition = centipawnEval > 0 ? 60 : pipCanvas.height - 30;
-        }
-
-        const evalText = Math.abs(centipawnEval).toFixed(1);
-        
-        // Eval bar text
-        ctx.fillStyle = 'rgba(125, 125, 125, 1)';
-        ctx.font = '500 45px IBM Plex Sans';
-        ctx.fillText(evalText, headerWidth + [34, 27, 15, 2, 0, 0][evalText.length - 1], yPosition);
-    }
-
-    
-    if(noInstancesText) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-        ctx.font = '900 900px IBM Plex Sans';
-        ctx.fillText('☯︎', pipCanvas.width - 500, pipCanvas.height + 105);
-    }
-
-    // Status bar
-    ctx.fillStyle = ['rgba(40, 40, 40, 0.9)', 'rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)'][pipData.isWinning ?? 0];
-    ctx.fillRect(0, headerHeight - statusBarHeight, headerWidth, statusBarHeight);
-}
 
 function displayNoUserscriptNotification(isEnable) {
     if(isEnable)
@@ -612,57 +407,6 @@ function activateInputDefaultValue(elem) {
     setInputValue(elem, elem.dataset.defaultValue);
 }
 
-async function startPictureInPicture() {
-    const video = document.createElement('video');
-          video.width = 200;
-          video.height = 100;
-
-    pipCanvas = document.createElement('canvas');
-    pipCanvas.width = 1000;
-    pipCanvas.height = 500;
-
-    const stream = pipCanvas.captureStream();
-    video.srcObject = stream;
-    floatingPanelVideoElem.appendChild(video);
-
-    if(!document.pictureInPictureEnabled && floatingPanelVideoElem) {
-        floatingFloaty.showModal();
-    }
-
-    const attemptPlay = async () => {
-        try {
-            updatePictureInPictureView();
-
-            await video.play();
-            if(video?.requestPictureInPicture) await video.requestPictureInPicture();
-
-            let i = 0;
-
-            const pipUpdateInterval = setInterval(() => {
-                updatePictureInPictureView(); i++;
-    
-                if(i > 10) clearInterval(pipUpdateInterval);
-            }, 25);
-        } catch (err) {
-            if(err.name === 'NotAllowedError') {
-                const handleUserInteraction = async () => {
-                    document.removeEventListener('click', handleUserInteraction);
-                    document.removeEventListener('keydown', handleUserInteraction);
-
-                    await attemptPlay();
-                };
-
-                document.addEventListener('click', handleUserInteraction);
-                document.addEventListener('keydown', handleUserInteraction);
-            } else {
-                console.error(err);
-            }
-        }
-    };
-
-    await attemptPlay();
-}
-
 const processedElems = [];
 
 async function makeSettingChanges(inputElem) {
@@ -751,6 +495,16 @@ async function makeSettingChanges(inputElem) {
             else if(document.pictureInPictureElement)
                 await document.exitPictureInPicture();
 
+            break;
+        case 'pipBoard':
+            const hasBeenSetBefore = typeof window.pipBoardActive === 'boolean';
+            window.pipBoardActive = value;
+
+            if(hasBeenSetBefore) {
+                await document.exitPictureInPicture();
+
+                startPictureInPicture();
+            }
             break;
         case 'enableAdvancedElo':
             const normalEloInput = document.querySelector('input[data-key="engineElo"]');

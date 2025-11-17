@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Rate Enemy", "Give feedback on the enemy too"],
         "enableMoveRatings": ["Move Ratings", "Show engine's thoughts about moves"],
         "feedbackOnExternalSite": ["Feedback On External Site", "Show feedback on chess site's board (e.g. chess.com's board)"],
-        "pip": ["Floating Panel","Important! Stops A.C.A.S from freezing!"]
+        "pip": ["Floating Panel","Important! Stops A.C.A.S from freezing!"],
+        "pipBoard": ["Display Board", "Instead of just text, display the entire board"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",

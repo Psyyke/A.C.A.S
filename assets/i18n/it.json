@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Valuta avversario", "Dai feedback anche sull'avversario"],
         "enableMoveRatings": ["Valutazioni delle mosse", "Mostra i pensieri del motore sulle mosse"],
         "feedbackOnExternalSite": ["Feedback su sito esterno", "Mostra feedback delle mosse sulla scacchiera del sito di scacchi (ad esempio la scacchiera di chess.com)"],
-        "pip": ["Pannello fluttuante", "Importante! Impedisce ad A.C.A.S di bloccarsi!"]
+        "pip": ["Pannello fluttuante", "Importante! Impedisce ad A.C.A.S di bloccarsi!"],
+        "pipBoard": ["Mostra la scacchiera", "Invece di solo testo, mostra l'intera scacchiera"]
     },
     "translations": {
         "profileRemovalWarning": "Sei sicuro di voler rimuovere questo profilo?\n\nQuesta azione non può essere annullata.",

@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Oceń Przeciwnika", "Daj również opinię na temat przeciwnika"],
         "enableMoveRatings": ["Oceny Ruchów", "Pokaż myśli silnika na temat ruchów"],
         "feedbackOnExternalSite": ["Opinie Na Zewnętrznej Stronie", "Pokaż opinie na planszy strony szachowej (np. plansza chess.com)"],
-        "pip": ["Pływający Panel", "Ważne! Zapobiega zamarzaniu A.C.A.S!"]
+        "pip": ["Pływający Panel", "Ważne! Zapobiega zamarzaniu A.C.A.S!"],
+        "pipBoard": ["Pokaż szachownicę", "Zamiast samego tekstu pokaż całą szachownicę"]
     },
     "translations": {
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",

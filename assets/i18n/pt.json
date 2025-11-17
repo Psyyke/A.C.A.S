@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Avaliar Oponente", "Dar feedback também sobre o oponente"],
         "enableMoveRatings": ["Avaliações de Movimentos", "Mostrar os pensamentos do motor sobre movimentos"],
         "feedbackOnExternalSite": ["Feedback No Site Externo", "Mostrar feedback no tabuleiro do site de xadrez (ex: no tabuleiro do chess.com)"],
-        "pip": ["Painel Flutuante", "Importante! Impede que A.C.A.S congele!"]
+        "pip": ["Painel Flutuante", "Importante! Impede que A.C.A.S congele!"],
+        "pipBoard": ["Exibir Tabuleiro", "Em vez de apenas texto, exibir todo o tabuleiro"]
     },
     "translations": {
         "profileRemovalWarning": "Tem certeza de que deseja remover este perfil?\n\nEsta ação não pode ser desfeita.",

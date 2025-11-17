@@ -137,7 +137,8 @@
         "enableEnemyFeedback": ["Ellenfél értékelése", "Adj visszajelzést az ellenfélről is"],
         "enableMoveRatings": ["Lépés értékelések", "Mutasd a motor gondolatait a lépésekről"],
         "feedbackOnExternalSite": ["Visszajelzés külső oldalon", "Mutasd a lépések visszajelzését a sakkoldal tábláján (pl. chess.com tábláján)"],
-        "pip": ["Lebegő panel", "Fontos! Megakadályozza az A.C.A.S fagyását!"]
+        "pip": ["Lebegő panel", "Fontos! Megakadályozza az A.C.A.S fagyását!"],
+        "pipBoard": ["Tábla megjelenítése", "Ahelyett, hogy csak szöveg jelenne meg, jelenítse meg az egész táblát"]
     },
     "translations": {
         "profileRemovalWarning": "Biztosan el akarod távolítani ezt a profilt?\n\nEz a művelet nem vonható vissza.",
