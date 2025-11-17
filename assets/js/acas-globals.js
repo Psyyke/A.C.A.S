@@ -685,5 +685,7 @@ async function ensureSabParam() {
     if(!hasSabParam && await isEngineIncompatible(null, null, true)) {
         params.set('sab', 'true');
         window.location.href = `${url.origin}${url.pathname}?${params.toString()}`;
+    } else if(!hasSabParam && window?.SharedArrayBuffer) {
+        location.reload();
     }
 }

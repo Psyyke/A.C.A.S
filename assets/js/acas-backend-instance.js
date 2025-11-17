@@ -2107,7 +2107,7 @@ class BackendInstance {
                     </div>
                     <div class="chessground-x"></div>
                 </div>
-                <div class="gas-container">
+                <div class="gas-container" style="display:${window?.SharedArrayBuffer ? 'none' : 'block'};">
                     <div class="gas" style="width:${instanceWidth};">
                         <ins class="adsbygoogle"
                         style="display:block"
