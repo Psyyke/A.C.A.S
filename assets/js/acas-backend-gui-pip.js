@@ -284,7 +284,7 @@ async function startPictureInPicture() {
             await video.play();
             if(video?.requestPictureInPicture) await video.requestPictureInPicture();
 
-            setInterval(refreshPipView, 25);
+            setInterval(refreshPipView, 100);
         } catch (err) {
             if(err.name === 'NotAllowedError') {
                 const handleUserInteraction = async () => {
