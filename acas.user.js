@@ -1962,8 +1962,14 @@ addSupportedChessSite('chess.com', {
         const getAll = obj.getAll;
 
         if(pathname?.includes('/variants')) {
-            const filteredPieceElems = filterInvisibleElems(document.querySelectorAll('.TheBoard-layers *[data-piece]'))
-                .filter(elem => elem?.dataset?.piece?.toLowerCase() !== 'x');
+            const filteredPieceElems = filterInvisibleElems(
+                document.querySelectorAll('.TheBoard-layers *[data-piece]')
+            )
+                .filter(elem => {
+                    if(elem?.dataset?.piece?.toLowerCase() === 'x') return false;
+
+                    return !elem.closest('[class*="captured-pieces"]');
+                });
 
             return getAll ? filteredPieceElems : filteredPieceElems[0];
         }
@@ -2091,6 +2097,10 @@ addSupportedChessSite('chess.com', {
         const mutationArr = obj.mutationArr;
 
         if(pathname?.includes('/variants')) {
+            if(isUserMouseDown) {
+                return false;
+            }
+
             return mutationArr.find(m => m.type === 'childList') ? true : false;
         }
 
