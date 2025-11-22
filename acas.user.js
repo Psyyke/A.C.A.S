@@ -84,7 +84,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.3.3
+// @version     2.3.4
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -1517,7 +1517,6 @@ function isBoardDrawerNeeded() {
             const externalRenders = gP[profileName][configKeys.renderOnExternalSite];
             const externalFeedback = gP[profileName][configKeys.feedbackOnExternalSite];
 
-
             if(externalMoves || externalRenders || externalFeedback) {
                 return true;
             }
@@ -1879,6 +1878,7 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
         boardUtils.removeMarkings();
 
+        clearFeedback();
         CommLink.commands.updateBoardFen(currentFullFen);
 
         lastMoveRequestTime = Date.now();

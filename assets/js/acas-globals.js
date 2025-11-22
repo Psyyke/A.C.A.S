@@ -12,6 +12,23 @@ const log = {
     success: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67f08a;')
 };
 
+function geoGebraDotCommands(data) {
+    const { w, b } = data;
+
+    const arrToGeoList = arr => `{${arr.join(",")}}`;
+
+    const wList = arrToGeoList(w);
+    const bList  = arrToGeoList(b);
+
+    const wCmd =
+        `wPoints = Sequence((i, Element(${wList}, i)), i, 1, ${w.length})`;
+
+    const bCmd =
+        `bPoints = Sequence((i, Element(${bList}, i)), i, 1, ${b.length})`;
+
+    return { wCmd, bCmd };
+}   
+
 function objectToString(obj) {
     const parts = [];
 

@@ -489,9 +489,10 @@ async function makeSettingChanges(inputElem) {
 
             break;
         case 'pip':
+            window.pipActive = value;
+
             if(value)
                 startPictureInPicture();
-
             else if(document.pictureInPictureElement)
                 await document.exitPictureInPicture();
 
@@ -500,8 +501,9 @@ async function makeSettingChanges(inputElem) {
             const hasBeenSetBefore = typeof window.pipBoardActive === 'boolean';
             window.pipBoardActive = value;
 
-            if(hasBeenSetBefore) {
-                await document.exitPictureInPicture();
+            if(hasBeenSetBefore && window.pipActive) {
+                if(document.pictureInPictureElement)
+                    await document.exitPictureInPicture();
 
                 startPictureInPicture();
             }

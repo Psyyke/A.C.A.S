@@ -105,7 +105,7 @@ class BackendInstance {
         this.guiUpdaterActive = false;
         this.variantNotSupportedByEngineAmount;
 
-        this.MoveEval = new MoveEvaluator();
+        this.MoveEval = null;
 
         this.moveDiffHistory = [];
 
@@ -899,11 +899,17 @@ class BackendInstance {
         return await this.getConfigValue(this.configKeys.chessEngine, profile);
     }
 
+    // Activated when the board had >5 changed squares (see this.isCorrectAmountOfBoardChanges)
+    // Also on the very start on totally new games, & when variant changes.
     async engineStartNewGame(variant, profile) {
         const chessVariant = formatVariant(variant);
         const engineName = await this.getEngineType(profile);
-        
+        const playerColor = await this.getPlayerColor(profile);
+
         this.kingMoved = ''; // reset king moved check
+
+        if(this.MoveEval)
+            this.MoveEval.startNewGame(playerColor);
 
         if(!this.isEngineNotCalculating(profile)) {
             this.engineStopCalculating(profile, 'Engine was calculating while a new game was started!');
@@ -1167,6 +1173,9 @@ class BackendInstance {
         if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Changed squares:', diff, 'History:', JSON.stringify(this.moveDiffHistory));
 
         const isHistoryIndicatingPromotion = JSON.stringify(this.moveDiffHistory) === JSON.stringify([3, 1, 2]);
+
+        if(diff > 5)
+            this.engineStartNewGame();
         
         return diff === 2 || diff > 3 || isHistoryIndicatingPromotion;
     }
@@ -1246,6 +1255,41 @@ class BackendInstance {
     async displayFeedback(currentFen) {
         const profiles = await getProfiles();
 
+        const display = async (from, to, cp, category, label, profileName) => {
+            clearFeedback(profileName);
+
+            const feedbackOnExternalSite = await this.getConfigValue(this.configKeys.feedbackOnExternalSite, profileName);
+
+            const addedFeedbacks = [];
+            const BoardDrawer = this.BoardDrawer;
+
+            function addText(squareFen, size, text, style, position) {
+                const shapeType = 'text';
+                const shapeSquare = squareFen;
+                const shapeConfig = { size, text, style, position };
+    
+                const textElem = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+    
+                addedFeedbacks.push({ 'elem': textElem, 'data': { shapeType, shapeSquare, shapeConfig }});
+            }
+
+            if(typeof category === 'number') {
+                // ['Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic', 'Good Move', 'Excellent', 'Brilliancy'];
+                const emoji = ['🙂', '🤨', '😟', '😨', '💀', '😊', '😁', '🤩']?.[category] || '😐';
+
+                addText(to, 1.7, emoji, `opacity: 1;`, [0.8, 0.8]);
+            }
+    
+            this.pV[profileName].activeFeedbackDisplays.push(...addedFeedbacks);
+    
+            if(feedbackOnExternalSite) {
+                // Create a copy without modifying the original array
+                const feedbacksWithoutElem = addedFeedbacks.map(x => ({ ...x, elem: null }));
+
+                this.CommLink.commands.feedbackToSite(feedbacksWithoutElem);
+            }
+        }
+
         const clearFeedback = profileName => {
             if(!profileName) return;
 
@@ -1262,21 +1306,18 @@ class BackendInstance {
         }
 
         // Remove any existing feedback
-        profiles.filter(p => !p.config.enableMoveRatings).forEach(profileObj => {
+        profiles.filter(p => !p.config.enableMoveRatings || !p.config.enableEnemyFeedback).forEach(profileObj => {
             clearFeedback(profileObj?.name);
         });
 
         // Display new feedback
-        for(const profileObj of profiles.filter(p => p.config.enableMoveRatings)) {
+        for(const profileObj of profiles.filter(p => p.config.enableMoveRatings || p.config.enableEnemyFeedback)) {
             const profileName = profileObj.name;
-            const lastFen = this.pV[profileName].lastFeedbackFen;
-            const feedbackOnExternalSite = await this.getConfigValue(this.configKeys.feedbackOnExternalSite, profileName);
+            const lastFen = this.pV[profileName].lastFen;
             const feedbackEngineDepth = await this.getConfigValue(this.configKeys.feedbackEngineDepth, profileName);
+            const enablePlayerFeedback = await this.getConfigValue(this.configKeys.enableMoveRatings, profileName);
             const enableEnemyFeedback = await this.getConfigValue(this.configKeys.enableEnemyFeedback, profileName);
-
             const isChangeLogical = this.isFenChangeLogical(lastFen, currentFen);
-
-            if(!isChangeLogical) return;
 
             const playerColor = await this.getPlayerColor();
 
@@ -1285,60 +1326,24 @@ class BackendInstance {
                 const from = moveObj.from,
                       to = moveObj.to,
                       pieceColor = moveObj.color;
+                const isPlayerPiece = playerColor === pieceColor;
+                const shouldReturnPlayerFeedbackDisabled = isPlayerPiece && !enablePlayerFeedback && enableEnemyFeedback;
+                const shouldReturnEnemyFeedbackDisabled = !isPlayerPiece && enablePlayerFeedback && !enableEnemyFeedback;
+                const shouldReverseFen = !isPlayerPiece && enableEnemyFeedback;
 
                 let fromFen = lastFen;
-
-                // Analyze for the enemy if enemy moved piece
-                if(playerColor !== pieceColor)
-                    if(!enableEnemyFeedback) { // do not show feedback for enemies
-                        clearFeedback(profileName);
-                        return;
-                    } else { // show feedback for enemies
-                        fromFen = reverseFenPlayer(fromFen);
-                    }
+                
+                if(shouldReturnPlayerFeedbackDisabled || shouldReturnEnemyFeedbackDisabled) return;
+                if(shouldReverseFen) fromFen = reverseFenPlayer(fromFen);
+                if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
 
                 this.MoveEval.eval([from, to], { 'fen' : fromFen, 'depth': feedbackEngineDepth }, resultObj => {
                     const category = resultObj.category;
                     const cp = resultObj.cp;
                     const label = this.MoveEval.resultLabels[category];
 
-                    display(from, to, cp, category, label);
+                    display(from, to, cp, category, label, profileName);
                 });
-            }
-    
-            this.pV[profileName].lastFeedbackFen = currentFen;
-
-            const display = (from, to, cp, category, label) => {
-                clearFeedback(profileName);
-        
-                const addedFeedbacks = [];
-                const BoardDrawer = this.BoardDrawer;
-
-                function addText(squareFen, size, text, style, position) {
-                    const shapeType = 'text';
-                    const shapeSquare = squareFen;
-                    const shapeConfig = { size, text, style, position };
-        
-                    const textElem = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
-        
-                    addedFeedbacks.push({ 'elem': textElem, 'data': { shapeType, shapeSquare, shapeConfig }});
-                }
-
-                if(typeof category === 'number') {
-                    // ['Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic', 'Good Move', 'Excellent', 'Brilliancy'];
-                    const emoji = ['🙂', '🤨', '😟', '😨', '💀', '😊', '😁', '🤩']?.[category] || '😐';
-
-                    addText(to, 1.7, emoji, `opacity: 1;`, [0.8, 0.8]);
-                }
-        
-                this.pV[profileName].activeFeedbackDisplays.push(...addedFeedbacks);
-        
-                if(feedbackOnExternalSite) {
-                    // Create a copy without modifying the original array
-                    const feedbacksWithoutElem = addedFeedbacks.map(x => ({ ...x, elem: null }));
-
-                    this.CommLink.commands.feedbackToSite(feedbacksWithoutElem);
-                }
             }
         }
     }
@@ -1351,7 +1356,6 @@ class BackendInstance {
             const currentEngineName = await this.getEngineType(profileName);
 
             if(this.isPawnOnPromotionSquare(currentFen) && currentEngineName === 'lc0') return;
-
             // Engine is still calculating, do not start any new calculation since,
             // that will not give us 'bestmove' which A.C.A.S' logic EXPECTS.
             // The best moves will be calculated after we get the 'bestmove'.
@@ -1359,31 +1363,24 @@ class BackendInstance {
 
             const isFenChangeLogical = this.isFenChangeLogical(this.pV[profileName].lastFen, currentFen);
             const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
+            const isFenChanged = this.pV[profileName].lastCalculatedFen !== currentFen;
+            const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
+            const isFenChangeAllowed = !onlyCalculateOwnTurn || (isFenChangeLogical && isPlayerTurn);
 
             let reversedFen = null;
-
-            if(reverseSide) {
-                reversedFen = reverseFenPlayer(currentFen);
-            }
-
-            const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
-
             let isPlayerTurn = false;
-            
+
+            if(reverseSide) reversedFen = reverseFenPlayer(currentFen);
+
             if(isFenChangeLogical) {
                 isPlayerTurn = await this.isPlayerTurn(this.pV[profileName].lastFen, currentFen, profileName);
     
                 this.pV[profileName].lastFen = currentFen;
             }
-    
-            const isFenChanged = this.pV[profileName].lastCalculatedFen !== currentFen;
-            const isFenChangeAllowed = !onlyCalculateOwnTurn || (isFenChangeLogical && isPlayerTurn);
 
             if((isFenChanged && isFenChangeAllowed) || skipValidityChecks) {
                 this.pV[profileName].lastCalculatedFen = currentFen;
-            } else {
-                return;
-            }
+            } else return;
 
             this.pV[profileName].pendingCalculations.push({ 'fen': currentFen, 'startedAt': Date.now(), 'finished': false });
 
@@ -2203,11 +2200,11 @@ class BackendInstance {
             if(oldInstanceElem) {
                 instanceContainerElem.replaceChild(this.instanceElem, oldInstanceElem);
 
-                log.success(`Engine and GUI for variant "${variant}" updated!`);
+                if(this.debugLogsEnabled) log.success(`Engine and GUI for variant "${variant}" updated!`);
             } else {
                 instanceContainerElem.appendChild(this.instanceElem);
     
-                log.success(`Engine and GUI for variant "${variant}" loaded!`);
+                if(this.debugLogsEnabled) log.success(`Engine and GUI for variant "${variant}" loaded!`);
     
                 this.onLoadCallbackFunction({ 
                     'domain': this.domain, 
@@ -2304,6 +2301,11 @@ class BackendInstance {
         this?.killEngines();
 
         this?.CommLink?.kill();
+
+        if(this.MoveEval) {
+            this.MoveEval.terminate();
+            this.MoveEval = null;
+        }
 
         this?.BoardDrawer?.terminate();
         this?.instanceElem?.remove();
