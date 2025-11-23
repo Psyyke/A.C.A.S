@@ -603,10 +603,10 @@ const boardUtils = {
 
             if(moveAsFilledSquares) {
                 const fillType = idx === 0 ? 1 : 0,
-                      fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
-                      styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
-                      skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
-                      skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
+                        fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
+                        styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
+                        skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
+                        skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
 
                 const fromSquareStyle = `${styling} ${skipFromSquare}`;
                 const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
@@ -614,11 +614,46 @@ const boardUtils = {
                 const fromSquareFill = fillSquare(from, fromSquareStyle);
                 const toSquareFill = fillSquare(to, toSquareStyle);
 
-                markedSquares[fillType].push(from, to);
+                const markedSquareFens = [from, to];
+                const markedSquareElems = [fromSquareFill, toSquareFill];
 
+                if(oppMovesExist && showOpponentMoveGuess) {
+                    const oppFromSquareFill = fillSquare(oppFrom, fromSquareStyle + ` fill: ${opponentArrowColorHex};`);
+                    const oppToSquareFill = fillSquare(oppTo, toSquareStyle + ` fill: ${opponentArrowColorHex};`);
+
+                    markedSquareElems.push(oppFromSquareFill, oppToSquareFill);
+
+                    if(showOpponentMoveGuessConstantly) {
+                        oppFromSquareFill.style.display = 'block';
+                        oppToSquareFill.style.display = 'block';
+                    } else {
+                        oppFromSquareFill.style.display = 'none';
+                        oppToSquareFill.style.display = 'none';
+
+                        const squareListener = BoardDrawer.addSquareListener(from, type => {
+                            if(!oppFromSquareFill || !oppToSquareFill) {
+                                squareListener.remove();
+                            }
+
+                            switch(type) {
+                                case 'enter':
+                                    oppFromSquareFill.style.display = 'inherit';
+                                    oppToSquareFill.style.display = 'inherit';
+                                    break;
+                                case 'leave':
+                                    oppFromSquareFill.style.display = 'none';
+                                    oppToSquareFill.style.display = 'none';
+                                    break;
+                            }
+                        });
+                    }
+                }
+
+                markedSquares[fillType].push(...markedSquareFens);
                 activeGuiMoveMarkings.push(
-                    { 'otherElems': [fromSquareFill, toSquareFill] }, profile
+                    { 'otherElems': markedSquareElems }, profile
                 );
+
             } else {
                 let playerArrowElem = null;
                 let oppArrowElem = null;
@@ -659,6 +694,8 @@ const boardUtils = {
                     if(showOpponentMoveGuessConstantly) {
                         oppArrowElem.style.display = 'block';
                     } else {
+                        oppArrowElem.style.display = 'none';
+
                         const squareListener = BoardDrawer.addSquareListener(from, type => {
                             if(!oppArrowElem) {
                                 squareListener.remove();
@@ -2673,7 +2710,6 @@ addSupportedChessSite('worldchess.com', {
         return mutationArr.find(m => m?.attributeName === 'style') ? true : false;
     }
 });
-
 
 addSupportedChessSite('chess.net', {
     'boardElem': obj => {

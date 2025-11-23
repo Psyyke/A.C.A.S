@@ -328,10 +328,44 @@ class BackendInstance {
                         const fromSquareFill = fillSquare(from, fromSquareStyle);
                         const toSquareFill = fillSquare(to, toSquareStyle);
 
-                        markedSquares[fillType].push(from, to);
+                        const markedSquareFens = [from, to];
+                        const markedSquareElems = [fromSquareFill, toSquareFill];
 
+                        if(oppMovesExist && showOpponentMoveGuess) {
+                            const oppFromSquareFill = fillSquare(oppFrom, fromSquareStyle + ` fill: ${opponentArrowColorHex};`);
+                            const oppToSquareFill = fillSquare(oppTo, toSquareStyle + ` fill: ${opponentArrowColorHex};`);
+
+                            markedSquareElems.push(oppFromSquareFill, oppToSquareFill);
+
+                            if(showOpponentMoveGuessConstantly) {
+                                oppFromSquareFill.style.display = 'block';
+                                oppToSquareFill.style.display = 'block';
+                            } else {
+                                oppFromSquareFill.style.display = 'none';
+                                oppToSquareFill.style.display = 'none';
+
+                                const squareListener = BoardDrawer.addSquareListener(from, type => {
+                                    if(!oppFromSquareFill || !oppToSquareFill) {
+                                        squareListener.remove();
+                                    }
+
+                                    switch(type) {
+                                        case 'enter':
+                                            oppFromSquareFill.style.display = 'inherit';
+                                            oppToSquareFill.style.display = 'inherit';
+                                            break;
+                                        case 'leave':
+                                            oppFromSquareFill.style.display = 'none';
+                                            oppToSquareFill.style.display = 'none';
+                                            break;
+                                    }
+                                });
+                            }
+                        }
+
+                        markedSquares[fillType].push(...markedSquareFens);
                         this.pV[profile].activeGuiMoveMarkings.push(
-                            { 'otherElems': [fromSquareFill, toSquareFill] }
+                            { 'otherElems': markedSquareElems }
                         );
                     } else {
                         let playerArrowElem = null;
@@ -373,6 +407,8 @@ class BackendInstance {
                             if(showOpponentMoveGuessConstantly) {
                                 oppArrowElem.style.display = 'block';
                             } else {
+                                oppArrowElem.style.display = 'none';
+
                                 const squareListener = BoardDrawer.addSquareListener(from, type => {
                                     if(!oppArrowElem) {
                                         squareListener.remove();
