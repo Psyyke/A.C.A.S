@@ -1365,7 +1365,6 @@ class BackendInstance {
             const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
             const isFenChanged = this.pV[profileName].lastCalculatedFen !== currentFen;
             const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
-            const isFenChangeAllowed = !onlyCalculateOwnTurn || (isFenChangeLogical && isPlayerTurn);
 
             let reversedFen = null;
             let isPlayerTurn = false;
@@ -1378,6 +1377,8 @@ class BackendInstance {
                 this.pV[profileName].lastFen = currentFen;
             }
 
+            const isFenChangeAllowed = !onlyCalculateOwnTurn || (isFenChangeLogical && isPlayerTurn);
+            
             if((isFenChanged && isFenChangeAllowed) || skipValidityChecks) {
                 this.pV[profileName].lastCalculatedFen = currentFen;
             } else return;
