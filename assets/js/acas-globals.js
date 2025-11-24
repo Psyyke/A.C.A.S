@@ -27,7 +27,34 @@ function geoGebraDotCommands(data) {
         `bPoints = Sequence((i, Element(${bList}, i)), i, 1, ${b.length})`;
 
     return { wCmd, bCmd };
-}   
+}
+
+function getUniqueMoves(moves) {
+    const seen = new Set();
+    const cleaned = new Array(moves.length);
+    let write = 0;
+    let removedCount = 0;
+  
+    for(let i = 0; i < moves.length; i++) {
+            const m = moves[i];
+
+            const key =
+                m.player[0] + ',' + m.player[1] + '|' +
+                m.opponent[0] + ',' + m.opponent[1] + '|' +
+                m.profile;
+
+            if (!seen.has(key)) {
+                seen.add(key);
+                cleaned[write++] = m;
+            } else {
+                removedCount++;
+            }
+    }
+  
+    cleaned.length = write;
+
+    return [cleaned, removedCount];
+}
 
 function objectToString(obj) {
     const parts = [];

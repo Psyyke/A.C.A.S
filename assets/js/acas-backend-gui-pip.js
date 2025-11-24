@@ -13,7 +13,7 @@ let pipLastPipFromTo = [null, null];
 let pipLastPipBoardBitmaps = [null, null];
 let pipFirstTimeOpeningPip = true;
 let pipContextQueue = [];
-let processingBestMove = false;
+let pipProcessingBestMove = false;
 
 function updatePipData(data) {
     if(data) Object.assign(pipData, data);
@@ -54,13 +54,13 @@ async function renderPipBoards(from, to) {
 
 function updatePipContext() {
     const ctx = pipCanvas.getContext('2d');
-    const latestQueueArr = processingBestMove
-        ? pipContextQueue.find(x => x?.[0]?.[1] === processingBestMove)
+    const latestQueueArr = pipProcessingBestMove
+        ? pipContextQueue.find(x => x?.[0]?.[1] === pipProcessingBestMove)
         : pipContextQueue?.[0];
 
     if(latestQueueArr) {
-        if(processingBestMove) {
-            processingBestMove = false;
+        if(pipProcessingBestMove) {
+            pipProcessingBestMove = false;
             pipContextQueue = [];
         }
 
@@ -90,7 +90,7 @@ async function refreshPipView() {
 
     if(bestMove) {
         ctxQueue.push(['bestmove', from+to]);
-        processingBestMove = from+to;
+        pipProcessingBestMove = from+to;
     }
 
     const isBoard = window.pipBoardActive;
@@ -175,7 +175,7 @@ async function refreshPipView() {
     // TEXT BASED RENDERING
     } else {
         if(to === 'one)') {
-            ctxQueue.push(['fillText', ['"( – ⌓ – )', 16, pipHeaderHeight + 100]]);
+            ctxQueue.push(['fillText', ['≽(•⩊ •マ≼', 16, pipHeaderHeight + 100]]);
         } else if(bestMove) {
             ctxQueue.push(['fillText',
                 [`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 16, pipHeaderHeight + 100]
