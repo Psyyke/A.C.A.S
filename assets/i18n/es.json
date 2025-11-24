@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Calificaciones de movimientos", "Mostrar los pensamientos del motor sobre los movimientos"],
         "feedbackOnExternalSite": ["Retroalimentación en sitio externo", "Mostrar retroalimentación de movimientos en el tablero del sitio de ajedrez (por ejemplo, el tablero de chess.com)"],
         "pip": ["Panel flotante", "¡Importante! ¡Evita que A.C.A.S se congele!"],
-        "pipBoard": ["Mostrar tablero", "En lugar de solo texto, mostrar todo el tablero"]
+        "pipBoard": ["Mostrar tablero", "En lugar de solo texto, mostrar todo el tablero"],
+        "movesOnDemand": ["Movimientos a Demanda", "Calcula movimientos para las piezas con las que interactúas"]
     },
     "translations": {
         "profileRemovalWarning": "¿Estás seguro de que quieres eliminar este perfil?\n\nEsta acción no se puede deshacer.",

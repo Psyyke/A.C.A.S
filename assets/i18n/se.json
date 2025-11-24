@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Dragbetyg", "Visa motorns tankar om drag"],
         "feedbackOnExternalSite": ["Feedback På Extern Webbplats", "Visa feedback på schackwebbplatsens bräda (t.ex. chess.com:s bräda)"],
         "pip": ["Flytande Panel", "Viktigt! Förhindrar att A.C.A.S fryser!"],
-        "pipBoard": ["Visa brädet", "Visa hela brädet istället för bara text"]
+        "pipBoard": ["Visa brädet", "Visa hela brädet istället för bara text"],
+        "movesOnDemand": ["Drag på Begäran", "Beräknar drag för pjäser du interagerar med"]
     },
     "translations": {
         "profileRemovalWarning": "Är du säker på att du vill ta bort denna profil?\n\nDenna åtgärd kan inte ångras.",

@@ -137,8 +137,9 @@
         "enableEnemyFeedback": ["Rakibi Değerlendir", "Rakip hakkında da geri bildirim ver"],
         "enableMoveRatings": ["Hamle Değerlendirmeleri", "Motorun hamleler hakkındaki düşüncelerini göster"],
         "feedbackOnExternalSite": ["Harici Sitede Geri Bildirim", "Satranç sitesinin tahtasında geri bildirim göster (örneğin, chess.com'un tahtasında)"],
-        "pip": ["Yüzen Panel", "Önemli! A.C.A.S'in donmasını önler!"],
-        "pipBoard": ["Tahtayı Göster", "Sadece metin yerine tüm tahtayı göster"]
+        "pip": ["Yüzen Panel", "Önemli! A.C.A.S'in donmasmını önler!"],
+        "pipBoard": ["Tahtası Göster", "Sadece metin yerine tüm tahtası göster"],
+        "movesOnDemand": ["Talebe Bağlı Hamleler", "Etkileşimde bulunduğunuz tasılar için hamleleri hesaplayın"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.",

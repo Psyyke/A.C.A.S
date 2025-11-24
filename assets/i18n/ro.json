@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Evaluări de Mutări", "Arată gândurile motorului despre mutări"],
         "feedbackOnExternalSite": ["Feedback Pe Site-ul Extern", "Afișează feedback pe tabla site-ului de șah (de exemplu, tabla chess.com)"],
         "pip": ["Panou Flotant", "Important! Previne înghețarea A.C.A.S!"],
-        "pipBoard": ["Afișează tabla", "În loc de doar text, afișează întreaga tablă"]
+        "pipBoard": ["Afișează tabla", "În loc de doar text, afișează întreaga tablă"],
+        "movesOnDemand": ["Mu tări la Cerere", "Calculează mutári pentru piesele cu care interacționezi"]
     },
     "translations": {
         "profileRemovalWarning": "Ești sigur că vrei să elimini acest profil?\n\nAceastă acțiune nu poate fi inversată.",

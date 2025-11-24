@@ -137,8 +137,9 @@
         "enableEnemyFeedback": ["Ohodnotiť Súpera", "Poskytnúť spätnú väzbu aj o súperovi"],
         "enableMoveRatings": ["Hodnotenia Ťahov", "Zobraziť myšlienky motora o ťahoch"],
         "feedbackOnExternalSite": ["Spätná Väzba Na Externom Webe", "Zobraziť spätnú väzbu na šachovnici webovej stránky (napr. šachovnici chess.com)"],
-        "pip": ["Plávajúci Panel", "Dôležité! Zabráni zamrznutiu A.C.A.S!"],
-        "pipBoard": ["Zobraziť šachovnicu", "Namiesto iba textu zobraziť celú šachovnicu"]
+        "pip": ["Plávajúci Panel", "Dôležité! Zabráni zamrznutí A.C.A.S!"],
+        "pipBoard": ["Zobraziť šachovnicu", "Namiesto iba textu zobraziť celú šachovnicu"],
+        "movesOnDemand": ["Tačky na žiadosť", "Vypočîta tahy pre figury, s ktorými pracujete"]
     },
     "translations": {
         "profileRemovalWarning": "Ste si istí, že chcete odstrániť tento profil?\n\nTúto akciu nie je možné zrušiť.",

@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Ocene Poteza", "Prikaži misli motora o potezima"],
         "feedbackOnExternalSite": ["Povratne Informacije Na Spoljnom Sajtu", "Prikaži povratne informacije na tabli šahovskog sajta (npr. na tabli chess.com)"],
         "pip": ["Plutajući Panel", "Važno! Sprečava da A.C.A.S zamrzne!"],
-        "pipBoard": ["Prikaži tablu", "Umesto samo teksta, prikaži celu tablu"]
+        "pipBoard": ["Prikaži tablu", "Umesto samo teksta, prikaži celu tablu"],
+        "movesOnDemand": ["Potezi na Zahtev", "Izračunava poteze za figure sa kojima radite"]
     },
     "translations": {
         "profileRemovalWarning": "Da li ste sigurni da želite da uklonite ovaj profil?\n\nOva akcija se ne može poništiti.",

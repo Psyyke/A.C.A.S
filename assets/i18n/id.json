@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Peringkat Gerakan", "Tampilkan pemikiran mesin tentang gerakan"],
         "feedbackOnExternalSite": ["Umpan Balik di Situs Eksternal", "Tampilkan umpan balik gerakan di papan situs catur (misalnya papan chess.com)"],
         "pip": ["Panel Mengambang", "Penting! Mencegah A.C.A.S membeku!"],
-        "pipBoard": ["Tampilkan papan", "Alih-alih hanya teks, tampilkan seluruh papan"]
+        "pipBoard": ["Tampilkan papan", "Alih-alih hanya teks, tampilkan seluruh papan"],
+        "movesOnDemand": ["Gerakan Sesuai Permintaan", "Menghitung gerakan untuk bidak yang Anda interaksikan"]
     },
     "translations": {
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",

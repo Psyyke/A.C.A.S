@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Siirtojen arvioinnit", "Näytä moottorin arvio siirtojen laadusta"],
         "feedbackOnExternalSite": ["Palautetta ulkoisella sivustolla", "Näytä siirtojen palautetta shakkisivuston laudalla (esim. chess.comin laudalla)"],
         "pip": ["Kelluva paneeli", "Tärkeä! Estää A.C.A.S:n jäätymisen!"],
-        "pipBoard": ["Näytä lauta", "Näytä koko lauta pelkän tekstin sijaan"]
+        "pipBoard": ["Näytä lauta", "Näytä koko lauta pelkän tekstin sijaan"],
+        "movesOnDemand": ["Siirrot pyynnöllä", "Laskee siirtoja nappuloille, joiden kanssa vuorovaikutat"]
     },
     "translations": {
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",

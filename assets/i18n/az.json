@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Hərəkət qiymətləndirmələri", "Mühərrikin hərəkətlər haqqında düşüncələrini göstərin"],
         "feedbackOnExternalSite": ["Xarici saytdakı qiymətləndirmə", "Şahmat saytının lövhəsində hərəkət qiymətləndirmələrini göstərin (məsələn, chess.com-un lövhəsi)"],
         "pip": ["Üzən panel", "Vacibdir! A.C.A.S-ın donmasını qarşısını alır!"],
-        "pipBoard": ["Taxtanı göstər", "Yalnız mətn əvəzinə bütün taxtanı göstər"]
+        "pipBoard": ["Taxtanı göstər", "Yalnız mətn əvəzinə bütün taxtanı göstər"],
+        "movesOnDemand": ["Taleb üzrə hərəkətlər", "Sizin ilə əlaqə saxladığınız piyələr üçün hərəkətləri hesablayın"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmək istədiyinizə əminsinizmi?\n\nBu əməliyyat geri qaytarıla bilməz.",

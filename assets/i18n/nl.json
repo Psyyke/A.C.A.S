@@ -138,7 +138,8 @@
         "enableMoveRatings": ["Zet Beoordelingen", "Toon de gedachten van de engine over zetten"],
         "feedbackOnExternalSite": ["Feedback Op Externe Site", "Toon feedback op het bord van de schaaksite (bijv. chess.com's bord)"],
         "pip": ["Zwevend Paneel", "Belangrijk! Voorkomt dat A.C.A.S bevriest!"],
-        "pipBoard": ["Bord weergeven", "In plaats van alleen tekst, het volledige bord weergeven"]
+        "pipBoard": ["Bord weergeven", "In plaats van alleen tekst, het volledige bord weergeven"],
+        "movesOnDemand": ["Zetten op Aanvraag", "Berekent zetten voor de stukken waarmee je interageert"]
     },
     "translations": {
         "profileRemovalWarning": "Weet je zeker dat je dit profiel wilt verwijderen?\n\nDeze actie kan niet ongedaan worden gemaakt.",
