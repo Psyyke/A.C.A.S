@@ -83,21 +83,20 @@
 // @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
-// @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/grey-logo.png
-// @version     2.3.4
+// @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
+// @version     2.3.5
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
 // ==/UserScript==
 
 /*
-e            e88~-_            e           ,d88~~\
-d8b          d888   \          d8b          8888
-/Y88b         8888             /Y88b         `Y88b
-/  Y88b        8888            /  Y88b         `Y88b,
-/____Y88b  d88b Y888   / d88b  /____Y88b  d88b    8888
-/      Y88b Y88P  "88_-~  Y88P /      Y88b Y88P \__88P'
-
+     e            e88~-_            e           ,d88~~\
+    d8b         d888    \          d8b          8888
+   /Y88b        8888              /Y88b         `Y88b
+  /  Y88b       8888             /  Y88b         `Y88b
+ /____Y88b   d88b Y88   / d88b /____Y88b  d88b    8888
+/      Y88b  Y88P "88Y-~   Y88P/      Y88b Y88P \__88P'
 Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 
 [WARNING]
@@ -106,9 +105,7 @@ Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 - We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
 [ADDITIONAL]
-- Big fonts created with: https://www.patorjk.com/software/taag/ (Cyberlarge)
-
-JOIN THE DISCUSSION ABOUT USERSCRIPTS IN GENERAL @ https://hakorr.github.io/Userscripts/community/invite ("Userscript Hub")
+- Big fonts created with: https://www.patorjk.com/software/taag/ (Tmplr)
 
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -117,11 +114,10 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
 
 (async () => { await LOAD_LEGACY_GM_SUPPORT();
     /*
-        ______         _____  ______  _______
-        |  ____ |      |     | |_____] |_____| |
-        |_____| |_____ |_____| |_____] |     | |_____
-    
-    
+    ┏┓┓ ┏┓┳┓┏┓┓
+    ┃┓┃ ┃┃┣┫┣┫┃
+    ┗┛┗┛┗┛┻┛┛┗┗┛
+    ============
     Code below this point runs on any site, including the GUI.
     */
     
@@ -299,12 +295,15 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
         return;
     }
     
-    /*
-        _______ _     _ _______ _______ _______      _______ _____ _______ _______ _______
-        |       |_____| |______ |______ |______      |______   |      |    |______ |______
-        |_____  |     | |______ ______| ______|      ______| __|__    |    |______ ______|
+    /*ZONE CHANGE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
+    \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ////////////////////////////////////////////////////////////////////
+    /!ZONE CHANGE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING!/
     
-    
+    ┏┓┓┏┏┓┏┓┏┓  ┏┓┳┏┳┓┏┓┏┓
+    ┃ ┣┫┣ ┗┓┗┓  ┗┓┃ ┃ ┣ ┗┓
+    ┗┛┛┗┗┛┗┛┗┛  ┗┛┻ ┻ ┗┛┗┛
+    ======================
     Code below this point only runs on chess sites, not on the GUI itself.
     */
     
@@ -470,10 +469,11 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
                     boardUtils.removeMarkings();
                     return true;
                 case 'markMoveToSite':
-                    boardUtils.removeMarkings();
+                    const profile = packet.data?.[0]?.profile;
+    
+                    boardUtils.removeMarkings(profile);
                     boardUtils.markMoves(packet.data);
     
-                    const profile = packet.data?.[0]?.profile;
                     const isAutoMove = getConfigValue(configKeys.autoMove, profile);
                     const isAutoMoveAfterUser = getConfigValue(configKeys.autoMoveAfterUser, profile);
     
@@ -1181,7 +1181,7 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
         let lastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
     
         function handle(isMouseDown) {
-            if(!lastEnteredSquare.squareFen || isMovesOnDemandActive) return;
+            if(!lastEnteredSquare.squareFen || !isMovesOnDemandActive) return;
     
             if(isMouseDown && lastProcessedSquareFen !== lastEnteredSquare.squareFen) {
                 lastProcessedSquareFen = lastEnteredSquare.squareFen;
@@ -1193,22 +1193,9 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
                 const legalMovesArr = getPiecePaths(lastBoardMatrix, lastEnteredSquare.squareIndex, pieceFen, isPieceWhite)
                     ?.map(pathArr => lastProcessedSquareFen + indexToChessCoordinates(pathArr));
     
-                function fillSquare(square, style) {
-                    const shapeType = 'rectangle';
-                    const shapeConfig = { style };
-    
-                    const rect = BoardDrawer.createShape(shapeType, square, shapeConfig);
-    
-                    return rect;
-                }
-    
-                if(legalMovesArr?.length > 0)
+                if(legalMovesArr?.length > 0) {
                     CommLink.commands.calculateSpecificMoves({ 'moves': legalMovesArr, 'isOpponent': !isPlayerPiece });
-    
-                console.log('SEND', legalMovesArr, isPlayerPiece);
-    
-                if(legalMovesArr?.length > 0)
-                    legalMovesArr.forEach(x => fillSquare(x));
+                }
             }
         }
     
@@ -1237,30 +1224,28 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
     
         for (let y = 0; y < lastBoardMatrix.length; y++)
             for (let x = 0; x < lastBoardMatrix[y].length; x++) {
-                  const squareFen = indexToChessCoordinates([x, y]);
+                    const squareFen = indexToChessCoordinates([x, y]);
     
-                  const squareListener = BoardDrawer.addSquareListener(squareFen, type => {
-                      if(!isMovesOnDemandActive) return;
+                    const squareListener = BoardDrawer.addSquareListener(squareFen, type => {
+                        if(!isMovesOnDemandActive) return;
     
-                      switch(type) {
-                          case 'enter':
-                              lastEnteredSquare.pieceFen = lastBoardMatrix[y][x];
-                              lastEnteredSquare.squareFen = squareFen;
-                              lastEnteredSquare.squareIndex = [x, y];
+                        switch(type) {
+                            case 'enter':
+                                lastEnteredSquare.pieceFen = lastBoardMatrix[y][x];
+                                lastEnteredSquare.squareFen = squareFen;
+                                lastEnteredSquare.squareIndex = [x, y];
     
-                              break;
-                          case 'leave':
-                              if(lastEnteredSquare.squareFen === squareFen)
-                                  lastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
+                                break;
+                            case 'leave':
+                                if(lastEnteredSquare.squareFen === squareFen)
+                                    lastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
     
-                              console.log("leave", lastEnteredSquare, squareFen);
+                                break;
+                        }
+                    });
     
-                              break;
-                      }
-                  });
-    
-                  modDrawerListeners.push(squareListener);
-              }
+                    modDrawerListeners.push(squareListener);
+                }
     }
     
     function getRandomOwnPieceDomCoord(fenCoord, boardMatrix) {
@@ -2181,16 +2166,15 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
         }
     }
     
+    /*ZONE CHANGE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
+    \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ////////////////////////////////////////////////////////////////////
+    /!ZONE CHANGE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING!/
     
-    
-    
-    
-    
-    /*
-        _______ _____ _______ _______      _______  _____  _______ _______ _____ _______ _____ _______
-        |______   |      |    |______      |______ |_____] |______ |         |   |______   |   |
-        ______| __|__    |    |______      ______| |       |______ |_____  __|__ |       __|__ |_____
-    
+    ┏┓┳┏┳┓┏┓  ┏┓┏┓┳┓┏┓┳┏┓
+    ┗┓┃ ┃ ┣   ┃ ┃┃┃┃┣ ┃┃┓
+    ┗┛┻ ┻ ┗┛  ┗┛┗┛┛┗┻ ┻┗┛
+    =====================
     Code below this point handles chess site specific things. (e.g. which element is the board or the pieces)
     */
     
@@ -3415,11 +3399,15 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
         }
     });
     
-    /*
-        _____ __   _ _____ _______ _____ _______        _____ ______ _______ _______ _____  _____  __   _
-        |   | \  |   |      |      |   |_____| |        |    ____/ |_____|    |      |   |     | | \  |
-        __|__ |  \_| __|__    |    __|__ |     | |_____ __|__ /_____ |     |    |    __|__ |_____| |  \_|
+    /*ZONE CHANGE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
+    \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ////////////////////////////////////////////////////////////////////
+    /!ZONE CHANGE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING!/
     
+    ┳┓┏┓┏┓┏┳┓  ┏┓┏┓┏┓┳┳┏┓┳┓┏┓┏┓
+    ┣┫┃┃┃┃ ┃   ┗┓┣ ┃┃┃┃┣ ┃┃┃ ┣
+    ┻┛┗┛┗┛ ┻   ┗┛┗┛┗┻┗┛┗┛┛┗┗┛┗┛
+    ===========================
     Code below this point is related to initialization. (e.g. wait for chess board and create the instance)
     */
     
@@ -3430,13 +3418,13 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
     }
     
     async function refreshSettings() {
-          const config = GM_getValue(dbValues.AcasConfig);
-          const profiles = config?.global?.profiles;
+            const config = GM_getValue(dbValues.AcasConfig);
+            const profiles = config?.global?.profiles;
     
-          if(typeof profiles != 'object') return;
+            if(typeof profiles != 'object') return;
     
-          isMovesOnDemandActive = Object.keys(profiles).some(profileName =>
-              profiles[profileName]?.movesOnDemand === true);
+            isMovesOnDemandActive = Object.keys(profiles).some(profileName =>
+                profiles[profileName]?.movesOnDemand === true);
     }
     
     async function start() {
@@ -3467,11 +3455,11 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
             });
     
             const waitForBoardMatrix = setInterval(() => {
-              if(lastBoardMatrix) {
-                  clearInterval(waitForBoardMatrix);
+                if(lastBoardMatrix) {
+                    clearInterval(waitForBoardMatrix);
     
-                  addMovesOnDemandListeners();
-              }
+                    addMovesOnDemandListeners();
+                }
             }, 50);
         }
     
@@ -3574,3 +3562,33 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
     setInterval(refreshSettings, 2500);
     
     })(); // wraps around the whole userscript to enable async
+    
+    /*////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+    
+    ┏┓┳┓┏┓┏┓  ┏┓┳┓┳┓  ┏┓┏┓┏┓┳┓  ┏┓┏┓┳┳┳┓┏┓┏┓   ┏┓┏┓┳┓  ┓┏┏┓┳┳
+    ┣ ┣┫┣ ┣   ┣┫┃┃┃┃  ┃┃┃┃┣ ┃┃  ┗┓┃┃┃┃┣┫┃ ┣    ┣ ┃┃┣┫  ┗┫┃┃┃┃
+    ┻ ┛┗┗┛┗┛  ┛┗┛┗┻┛  ┗┛┣┛┗┛┛┗  ┗┛┗┛┗┛┛┗┗┛┗┛•  ┻ ┗┛┛┗  ┗┛┗┛┗┛•
+    ==========================================================
+    
+    Thank you for reading through this userscript! Please visit GitHub
+    Contributions are absolutely welcome >> github.com/Psyyke/A.C.A.S!
+    
+    //////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+    000000000000000000000000000000000000000000000000000000000000000000
+    777777770000000007777777777777770000000077777777700000000077777777
+    777777777000000777777777777777777700000077777777770000007777777777
+    777077777000007777777000000077777700000777777777777000007777770000
+    777077777700007777770000000000000000007777770077777000007777777777
+    770007777770077777700000000000000000077777700077777700000777777777
+    700000777777007777770000000000000000077777700007777770000000007777
+    777777777777007777770000000077777700777777777777777777077777700000
+    777777777777700777777777777777777707777777777777777777007777777777
+    000000007777770007777777777777770077777770000000077777700777777777
+    000000007777777000007777777770000077777700000000007777770000777777
+    000000000000000000000000000000000000000000000000000000000000000000
+    //////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////*/
