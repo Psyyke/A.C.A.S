@@ -1217,7 +1217,7 @@ function addMovesOnDemandListeners() {
         if((lastProcessedSquareFen !== modLastEnteredSquare.squareFen) || !modLastEnteredSquare.squareFen) {
             const lastIdx = modLastEnteredSquare.squareIndex;
 
-            if(!modLastEnteredSquare.squareFen) {
+            if(!modLastEnteredSquare.squareFen && lastIdx) {
                 const lastPieceFen = modLastEnteredSquare.pieceFen;
 
                 modLastEnteredSquare.squareFen = indexToChessCoordinates(lastIdx);
