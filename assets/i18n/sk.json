@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Spätná Väzba Na Externom Webe", "Zobraziť spätnú väzbu na šachovnici webovej stránky (napr. šachovnici chess.com)"],
         "pip": ["Plávajúci Panel", "Dôležité! Zabráni zamrznutí A.C.A.S!"],
         "pipBoard": ["Zobraziť šachovnicu", "Namiesto iba textu zobraziť celú šachovnicu"],
-        "movesOnDemand": ["Tačky na žiadosť", "Vypočîta tahy pre figury, s ktorými pracujete"]
+        "movesOnDemand": ["Tačky na žiadosť", "Vypočîta tahy pre figury, s ktorými pracujete"],
+        "onlySuggestPieces": ["Len Navrhnúť Figúry", "Navrhnúť figúry na presun, ale nedať tahy"]
     },
     "translations": {
         "profileRemovalWarning": "Ste si istí, že chcete odstrániť tento profil?\n\nTúto akciu nie je možné zrušiť.",

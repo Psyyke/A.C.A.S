@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Opinie Na Zewnętrznej Stronie", "Pokaż opinie na planszy strony szachowej (np. plansza chess.com)"],
         "pip": ["Łławęcy Panel", "Ważne! Zapobiega zamarzanıu A.C.A.S!"],
         "pipBoard": ["Pokaż szachownicę", "Zamiast samego tekstu pokaż całą szachownicę"],
-        "movesOnDemand": ["Ruchy na Żączenie", "Oblicza ruchy dla figur, z którymi współdziałasz"]
+        "movesOnDemand": ["Ruchy na Żączenie", "Oblicza ruchy dla figur, z którymi współdziałasz"],
+        "onlySuggestPieces": ["Tylko Sugeruj Figury", "Sugeruj figury do ruchu, ale nie podawaj ruchów"]
     },
     "translations": {
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",

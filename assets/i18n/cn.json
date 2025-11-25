@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["在外部网站上显示反馈", "在棋类网站的棋盘上显示走法反馈（例如 chess.com 的棋盘）"],
         "pip": ["浮动面板", "重要！防止 A.C.A.S 冻结！"],
         "pipBoard": ["显示棋盘", "不是只显示文本，而是显示整个棋盘"],
-        "movesOnDemand": ["按需移动", "为您交互的棋子计算移动"]
+        "movesOnDemand": ["按需移动", "为您交互的棋子计算移动"],
+        "onlySuggestPieces": ["仅建议棋子", "建议移动的棋子，但不提供移动"]
     },
     "translations": {
         "profileRemovalWarning": "您确定要删除这个配置文件吗？\n\n此操作无法恢复。",

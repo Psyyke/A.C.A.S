@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Tagasiside välisel saidil", "Kuva käikude tagasisidet maletahvlil (nt chess.com-i tahvlil)"],
         "pip": ["Hõljuv paneel", "Oluline! Takistab A.C.A.S-i külmumist!"],
         "pipBoard": ["Kuva lauda", "Näita kogu lauda tekstipõhise kuvamise asemel"],
-        "movesOnDemand": ["Käigud nõudmise kohaselt", "Arvutab käigud tikkudele, millega teil on suhtlemine"]
+        "movesOnDemand": ["Käigud nõudmise kohaselt", "Arvutab käigud tikkudele, millega teil on suhtlemine"],
+        "onlySuggestPieces": ["Ainult Soovita Tükke", "Soovita tükke liigutamiseks, aga ära anna käike"]
     },
     "translations": {
         "profileRemovalWarning": "Kas olete kindel, et soovite selle profiili eemaldada?\n\nSeda toimingut ei saa tühistada.",

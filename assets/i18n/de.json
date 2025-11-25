@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Feedback auf externer Seite", "Zeige Zugfeedback auf dem Brett der Schach-Website an (z.B. auf dem Brett von chess.com)"],
         "pip": ["Schwebendes Panel", "Wichtig! Verhindert das Einfrieren von A.C.A.S!"],
         "pipBoard": ["Brett anzeigen", "Anstatt nur Text das gesamte Brett anzeigen"],
-        "movesOnDemand": ["Züge auf Anfrage", "Berechnet Züge für Figuren, mit denen du interagierst"]
+        "movesOnDemand": ["Züge auf Anfrage", "Berechnet Züge für Figuren, mit denen du interagierst"],
+        "onlySuggestPieces": ["Nur Figuren vorschlagen", "Schlag Figuren vor, um zu ziehen, aber gib keine Züge"]
     },
     "translations": {
         "profileRemovalWarning": "Bist du sicher, dass du dieses Profil entfernen möchtest?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",

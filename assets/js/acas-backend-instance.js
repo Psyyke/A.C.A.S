@@ -52,7 +52,8 @@ class BackendInstance {
             'advancedEloHash': 'advancedEloHash',
             'advancedEloThreads': 'advancedEloThreads',
             'moveAsFilledSquares': 'moveAsFilledSquares',
-            'movesOnDemand': 'movesOnDemand'
+            'movesOnDemand': 'movesOnDemand',
+            'onlySuggestPieces': 'onlySuggestPieces'
         };
 
         this.config = {};
@@ -101,6 +102,8 @@ class BackendInstance {
 
         this.boardDimensions = { 'width': 8, 'height': 8 };
         this.kingMoved = '';
+
+        this.freezeEngineKilling = {};
 
         this.activeEnginesAmount = 0;
         this.guiUpdaterActive = false;
@@ -298,6 +301,8 @@ class BackendInstance {
                 const secondaryArrowColorHex = await this.getConfigValue(this.configKeys.secondaryArrowColorHex, profile);
                 const opponentArrowColorHex = await this.getConfigValue(this.configKeys.opponentArrowColorHex, profile);
                 const moveAsFilledSquares = await this.getConfigValue(this.configKeys.moveAsFilledSquares, profile);
+                const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
+                const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
 
                 const BoardDrawer = this.BoardDrawer;
 
@@ -319,7 +324,37 @@ class BackendInstance {
                     const rank = idx + 1;
                     const cp = markingObj.cp;
 
-                    if(moveAsFilledSquares) {
+                    if(onlySuggestPieces && !movesOnDemand) {
+                        const fillType = idx === 0 ? 1 : 0,
+                              fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex;
+
+                        const fromSquareMarking = fillSquare(from, `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`);
+                        let markedSquareElems = [fromSquareMarking];
+
+                        if(oppFrom) {
+                            const oppFromSquareMarking = fillSquare(oppFrom, `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; display: none; fill: ${opponentArrowColorHex};`);
+
+                            const squareListener = BoardDrawer.addSquareListener(from, type => {
+                                if(!oppFromSquareMarking) squareListener.remove();
+
+                                switch(type) {
+                                    case 'enter':
+                                        oppFromSquareMarking.style.display = 'inherit';
+                                        break;
+                                    case 'leave':
+                                        oppFromSquareMarking.style.display = 'none';
+                                        break;
+                                }
+                            });
+
+                            markedSquareElems.push(oppFromSquareMarking);
+                        }
+
+                        this.pV[profile].activeGuiMoveMarkings.push(
+                            { 'otherElems': markedSquareElems }
+                        );
+
+                    } else if(moveAsFilledSquares) {
                         const fillType = idx === 0 ? 1 : 0,
                               fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
                               styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
@@ -1034,14 +1069,14 @@ class BackendInstance {
                 speechConfig.voiceName = ttsVoiceName;
             }
 
-            console.log(`Speaking: ${spokenText} (Instance "${this.instanceID}")`);
+            //console.log(`Speaking: ${spokenText} (Instance "${this.instanceID}")`);
 
             this.pV[profile].currentSpeeches.push(speakText(spokenText, speechConfig));
         }
     }
 
     async updateSettings(updateObj) {
-        const profile = updateObj.data.profile.name;
+        const profile = updateObj.data.profile.name || updateObj?.data?.value;
         const profiles = await getProfiles();
 
         const profilesWithEnabledEngine = profiles.filter(p => p.config.engineEnabled);
@@ -1095,6 +1130,17 @@ class BackendInstance {
         const didUpdateChessEngine = findSettingKeyFromData(this.configKeys.chessEngine);
         const didUpdateEngineEnabled = findSettingKeyFromData(this.configKeys.engineEnabled);
         const didUpdateNodes = findSettingKeyFromData(this.configKeys.engineNodes);
+        const didUpdateChessEngineProfile = findSettingKeyFromData(this.configKeys.chessEngineProfile);
+
+        if(didUpdateChessEngineProfile) {
+            const profile = updateObj.data.value;
+
+            this.freezeEngineKilling[profile] = true;
+
+            setTimeout(() => {
+                this.freezeEngineKilling[profile] = false;
+            }, 1500);
+        };
 
         const chessVariant = formatVariant(await this.getConfigValue(this.configKeys.chessVariant, profile));
         const useChess960 = await this.getConfigValue(this.configKeys.useChess960, profile);
@@ -1543,14 +1589,22 @@ class BackendInstance {
 
     async displayMoves(moveObjects, profile) {
         const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
+        const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
+        const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
 
         this.Interface.boardUtils.markMoves(moveObjects, profile);
-
-        updatePipData({ moveObjects });
 
         if(displayMovesExternally) {
             this.CommLink.commands.markMoveToSite(moveObjects);
         }
+
+        if(onlySuggestPieces && !movesOnDemand) {
+            moveObjects.forEach(moveObj => {
+                moveObj.player = [moveObj.player[0], '??'];
+            });
+        }
+
+        updatePipData({ moveObjects });
 
         moveObjects.forEach(moveObj => {
             const spokenText = moveObj.player?.map(x =>
@@ -2307,6 +2361,8 @@ class BackendInstance {
         let worker = null;
 
         if(typeof i === 'string') {
+            if(this.freezeEngineKilling?.[i]) return;
+
             const engineIndex = this.engines.findIndex(obj => obj.profileName === i);
             
             if(engineIndex !== -1) {
@@ -2339,7 +2395,7 @@ class BackendInstance {
         this.sendMsgToEngine('quit', i);
 
         setTimeout(() => {
-            worker.terminate();
+            if(worker) worker.terminate();
         }, 1000);
     }
 

@@ -84,7 +84,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.3.5
+// @version     2.3.6
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -362,7 +362,8 @@ const configKeys = {
     'renderOnExternalSite': 'renderOnExternalSite',
     'feedbackOnExternalSite': 'feedbackOnExternalSite',
     'moveAsFilledSquares': 'moveAsFilledSquares',
-    'movesOnDemand': 'movesOnDemand'
+    'movesOnDemand': 'movesOnDemand',
+    'onlySuggestPieces': 'onlySuggestPieces'
 };
 
 const config = {};
@@ -577,7 +578,7 @@ function displayFeedback(addedFeedback) {
 }
 
 const boardUtils = {
-    markMoves: moveObjArr => {
+    markMoves: moveObjArr => { // needs refactoring but too lazy for now
         const maxScale = 1;
         const minScale = 0.5;
         const totalRanks = moveObjArr.length;
@@ -609,13 +610,45 @@ const boardUtils = {
             const secondaryArrowColorHex = getConfigValue(configKeys.secondaryArrowColorHex, profile);
             const opponentArrowColorHex = getConfigValue(configKeys.opponentArrowColorHex, profile);
             const moveAsFilledSquares = getConfigValue(configKeys.moveAsFilledSquares, profile);
+            const onlySuggestPieces = getConfigValue(configKeys.onlySuggestPieces, profile);
+            const movesOnDemand = getConfigValue(configKeys.movesOnDemand, profile);
 
-            if(moveAsFilledSquares) {
+            if(onlySuggestPieces && !movesOnDemand) {
                 const fillType = idx === 0 ? 1 : 0,
-                        fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
-                        styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
-                        skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
-                        skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
+                      fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex;
+
+                const fromSquareMarking = fillSquare(from, `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`);
+                let markedSquareElems = [fromSquareMarking];
+
+                if(oppFrom) {
+                    const oppFromSquareMarking = fillSquare(oppFrom, `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; display: none; fill: ${opponentArrowColorHex};`);
+
+                    const squareListener = BoardDrawer.addSquareListener(from, type => {
+                        if(!oppFromSquareMarking) squareListener.remove();
+
+                        switch(type) {
+                            case 'enter':
+                                oppFromSquareMarking.style.display = 'inherit';
+                                break;
+                            case 'leave':
+                                oppFromSquareMarking.style.display = 'none';
+                                break;
+                        }
+                    });
+
+                    markedSquareElems.push(oppFromSquareMarking);
+                }
+
+                activeGuiMoveMarkings.push(
+                    { 'otherElems': markedSquareElems }, profile
+                );
+
+            } else if(moveAsFilledSquares) {
+                const fillType = idx === 0 ? 1 : 0,
+                      fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
+                      styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
+                      skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
+                      skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
 
                 const fromSquareStyle = `${styling} ${skipFromSquare}`;
                 const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
@@ -1181,24 +1214,31 @@ function addMovesOnDemandListeners() {
     let lastProcessedSquareFen = null;
 
     function handle() {
-        if((lastProcessedSquareFen !== modLastEnteredSquare.squareFen) || !modLastEnteredSquare.pieceFen) {
+        if((lastProcessedSquareFen !== modLastEnteredSquare.squareFen) || !modLastEnteredSquare.squareFen) {
+            const lastIdx = modLastEnteredSquare.squareIndex;
+
+            if(!modLastEnteredSquare.squareFen) {
+                const lastPieceFen = modLastEnteredSquare.pieceFen;
+
+                modLastEnteredSquare.squareFen = indexToChessCoordinates(lastIdx);
+                modLastEnteredSquare.pieceFen = lastBoardMatrix?.[lastIdx?.[1]]?.[lastIdx?.[0]];
+
+                if(lastPieceFen === 1) return;
+            }
+
             lastProcessedSquareFen = modLastEnteredSquare.squareFen;
 
-            const lastIdx = modLastEnteredSquare.squareIndex;
-            const pieceFen = modLastEnteredSquare.pieceFen || lastBoardMatrix?.[lastIdx?.[1]]?.[lastIdx?.[0]];
+            const pieceFen = modLastEnteredSquare.pieceFen;
             const isPieceWhite = pieceFen >= 'A' && pieceFen <= 'Z';
             const isPlayerPiece = (lastBoardOrientation === 'w') === isPieceWhite;
 
             if(!pieceFen) return;
 
-            modLastEnteredSquare.pieceFen = pieceFen;
-
             const legalMovesArr = getPiecePaths(lastBoardMatrix, modLastEnteredSquare.squareIndex, pieceFen, isPieceWhite)
                 ?.map(pathArr => lastProcessedSquareFen + indexToChessCoordinates(pathArr));
 
-            if(legalMovesArr?.length > 0) {
+            if(legalMovesArr?.length > 0)
                 CommLink.commands.calculateSpecificMoves({ 'moves': legalMovesArr, 'isOpponent': !isPlayerPiece });
-            }
         }
     }
 
@@ -1210,8 +1250,8 @@ function addMovesOnDemandListeners() {
     modDrawerListeners.forEach(x => x?.remove());
     modDrawerListeners.length = 0;
 
-    const mouseDownHandler = handle;
-    const touchStartHandler = handle;
+    const mouseDownHandler = () => handle(true);
+    const touchStartHandler = () => handle(true);
 
     [
         ['mousedown', mouseDownHandler],
@@ -1233,11 +1273,6 @@ function addMovesOnDemandListeners() {
                             modLastEnteredSquare.pieceFen = lastBoardMatrix[y][x];
                             modLastEnteredSquare.squareFen = squareFen;
                             modLastEnteredSquare.squareIndex = [x, y];
-
-                            break;
-                        case 'leave':
-                            if(modLastEnteredSquare.squareFen === squareFen)
-                                modLastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
 
                             break;
                     }
@@ -2086,14 +2121,14 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
         const pieceAmount = getPieceAmount();
         const pieceAmountChange = Math.abs(pieceAmount - lastPieceAmount);
 
-        modLastEnteredSquare.pieceFen = null;
-
         // Possibly new match due to large piece amount change
         if(pieceAmountChange > 7) {
             matchFirstSuggestionGiven = false;
         }
 
         boardUtils.setBoardDimensions(getBoardDimensions());
+
+        modLastEnteredSquare.squareFen = null;
 
         const lastPlayerColor = getPlayerColorVariable();
 

@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Feedback su sito esterno", "Mostra feedback delle mosse sulla scacchiera del sito di scacchi (ad esempio la scacchiera di chess.com)"],
         "pip": ["Pannello fluttuante", "Importante! Impedisce ad A.C.A.S di bloccarsi!"],
         "pipBoard": ["Mostra la scacchiera", "Invece di solo testo, mostra l'intera scacchiera"],
-        "movesOnDemand": ["Mosse su Richiesta", "Calcola le mosse per i pezzi con cui interagisci"]
+        "movesOnDemand": ["Mosse su Richiesta", "Calcola le mosse per i pezzi con cui interagisci"],
+        "onlySuggestPieces": ["Suggerisci Solo Pezzi", "Suggerisci i pezzi da muovere, ma non dare mosse"]
     },
     "translations": {
         "profileRemovalWarning": "Sei sicuro di voler rimuovere questo profilo?\n\nQuesta azione non può essere annullata.",

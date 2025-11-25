@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Harici Sitede Geri Bildirim", "Satranç sitesinin tahtasında geri bildirim göster (örneğin, chess.com'un tahtasında)"],
         "pip": ["Yüzen Panel", "Önemli! A.C.A.S'in donmasmını önler!"],
         "pipBoard": ["Tahtası Göster", "Sadece metin yerine tüm tahtası göster"],
-        "movesOnDemand": ["Talebe Bağlı Hamleler", "Etkileşimde bulunduğunuz tasılar için hamleleri hesaplayın"]
+        "movesOnDemand": ["Talebe Bağlı Hamleler", "Etkileşimde bulunduğunuz tasılar için hamleleri hesaplayın"],
+        "onlySuggestPieces": ["Yalnızca Taşları Öner", "Taşları taşımak için öner ama hamle verme"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.",

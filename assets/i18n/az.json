@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Xarici saytdakı qiymətləndirmə", "Şahmat saytının lövhəsində hərəkət qiymətləndirmələrini göstərin (məsələn, chess.com-un lövhəsi)"],
         "pip": ["Üzən panel", "Vacibdir! A.C.A.S-ın donmasını qarşısını alır!"],
         "pipBoard": ["Taxtanı göstər", "Yalnız mətn əvəzinə bütün taxtanı göstər"],
-        "movesOnDemand": ["Taleb üzrə hərəkətlər", "Sizin ilə əlaqə saxladığınız piyələr üçün hərəkətləri hesablayın"]
+        "movesOnDemand": ["Taleb üzrə hərəkətlər", "Sizin ilə əlaqə saxladığınız piyələr üçün hərəkətləri hesablayın"],
+        "onlySuggestPieces": ["Yalnız Piyələri Təklif Edin", "Hərəkət etmək üçün piyələri təklif edin, ancaq hərəkət verməyin"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmək istədiyinizə əminsinizmi?\n\nBu əməliyyat geri qaytarıla bilməz.",

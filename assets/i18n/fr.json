@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Rétroaction sur site externe", "Afficher la rétroaction des mouvements sur l'échiquier du site d'échecs (par exemple, l'échiquier de chess.com)"],
         "pip": ["Panneau flottant", "Important ! Empêche A.C.A.S de geler !"],
         "pipBoard": ["Afficher le plateau", "Au lieu de texte seulement, afficher tout le plateau"],
-        "movesOnDemand": ["Coups à la Demande", "Calcule les coups pour les pièces avec lesquelles vous interagissez"]
+        "movesOnDemand": ["Coups à la Demande", "Calcule les coups pour les pièces avec lesquelles vous interagissez"],
+        "onlySuggestPieces": ["Suggérer Seulement les Pièces", "Suggérez des pièces à bouger, mais ne donnez pas les coups"]
     },
     "translations": {
         "profileRemovalWarning": "Êtes-vous sûr(e) de vouloir supprimer ce profil ?\n\nCette action est irréversible.",

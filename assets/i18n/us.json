@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Feedback On External Site", "Show feedback on chess site's board (e.g. chess.com's board)"],
         "pip": ["Floating Panel","Important! Stops A.C.A.S from freezing!"],
         "pipBoard": ["Display Board", "Instead of just text, display the entire board"],
-        "movesOnDemand": ["Moves On Demand", "Calculates moves for pieces you interact with" ]
+        "movesOnDemand": ["Moves On Demand", "Calculates moves for pieces you interact with"],
+        "onlySuggestPieces": ["Only Suggest Pieces", "Suggest pieces to move, but give no moves"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",

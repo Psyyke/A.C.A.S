@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Phản Hồi Trên Trang Bên Ngoài", "Hiển thị phản hồi trên bàn cờ của trang cờ vua (ví dụ: bàn cờ của chess.com)"],
         "pip": ["Bảng Nổi", "Quan trọng! Ngăn A.C.A.S bị đông cứng!"],
         "pipBoard": ["Hiển thị bàn cờ", "Thay vì chỉ văn bản, hiển thị toàn bộ bàn cờ"],
-        "movesOnDemand": ["Các Nước đi Théo Yêu Cầu", "Tính toán các nước đi cho những quân cờ mà bạn tương tác với"]
+        "movesOnDemand": ["Các Nước đi Théo Yêu Cầu", "Tính toán các nước đi cho những quân cờ mà bạn tương tác với"],
+        "onlySuggestPieces": ["Chỉ Gợi Ý Quân Cờ", "Gợi ý những quân cờ để di chuyển, nhưng không cung cấp nước đi"]
     },
     "translations": {
         "profileRemovalWarning": "Bạn có chắc chắn muốn xóa hồ sơ này?\n\nHành động này không thể hoàn tác.",

@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Retroalimentación en sitio externo", "Mostrar retroalimentación de movimientos en el tablero del sitio de ajedrez (por ejemplo, el tablero de chess.com)"],
         "pip": ["Panel flotante", "¡Importante! ¡Evita que A.C.A.S se congele!"],
         "pipBoard": ["Mostrar tablero", "En lugar de solo texto, mostrar todo el tablero"],
-        "movesOnDemand": ["Movimientos a Demanda", "Calcula movimientos para las piezas con las que interactúas"]
+        "movesOnDemand": ["Movimientos a Demanda", "Calcula movimientos para las piezas con las que interactúas"],
+        "onlySuggestPieces": ["Solo Sugerir Piezas", "Sugiere piezas para mover, pero no da movimientos"]
     },
     "translations": {
         "profileRemovalWarning": "¿Estás seguro de que quieres eliminar este perfil?\n\nEsta acción no se puede deshacer.",

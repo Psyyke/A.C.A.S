@@ -139,7 +139,8 @@
         "feedbackOnExternalSite": ["Visszajelzés külső oldalon", "Mutasd a lépések visszajelzését a sakkoldal tábláján (pl. chess.com tábláján)"],
         "pip": ["Lebegő panel", "Fontos! Megakadályozza az A.C.A.S fagysását!"],
         "pipBoard": ["Tábla megjelenítése", "Ahelyett, hogy csak szöveg jelenne meg, jelenítse meg az egész táblát"],
-        "movesOnDemand": ["Lépések igényre", "Számításba veszi az Ön által kezelni kívánt bábúk lépéseit"]
+        "movesOnDemand": ["Lépések igényre", "Számításba veszi az Ön által kezelni kívánt bábúk lépéseit"],
+        "onlySuggestPieces": ["Csak Bábúkat Javasol", "Javasold a bábúkat mozgatásra, de ne adj lépéseket"]
     },
     "translations": {
         "profileRemovalWarning": "Biztosan el akarod távolítani ezt a profilt?\n\nEz a művelet nem vonható vissza.",
