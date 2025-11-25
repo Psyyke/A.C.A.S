@@ -400,6 +400,7 @@ let activeAutomoves = [];
 
 let modListeners = [];
 let modDrawerListeners = [];
+let modLastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
 
 let isMovesOnDemandActive = false;
 
@@ -1178,19 +1179,21 @@ function getPiecePaths(board, piecePos, pieceFen, isPieceWhite) {
 
 function addMovesOnDemandListeners() {
     let lastProcessedSquareFen = null;
-    let lastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
 
-    function handle(isMouseDown) {
-        if(!lastEnteredSquare.squareFen || !isMovesOnDemandActive) return;
+    function handle() {
+        if((lastProcessedSquareFen !== modLastEnteredSquare.squareFen) || !modLastEnteredSquare.pieceFen) {
+            lastProcessedSquareFen = modLastEnteredSquare.squareFen;
 
-        if(isMouseDown && lastProcessedSquareFen !== lastEnteredSquare.squareFen) {
-            lastProcessedSquareFen = lastEnteredSquare.squareFen;
-
-            const pieceFen = lastEnteredSquare.pieceFen;
+            const lastIdx = modLastEnteredSquare.squareIndex;
+            const pieceFen = modLastEnteredSquare.pieceFen || lastBoardMatrix?.[lastIdx?.[1]]?.[lastIdx?.[0]];
             const isPieceWhite = pieceFen >= 'A' && pieceFen <= 'Z';
             const isPlayerPiece = (lastBoardOrientation === 'w') === isPieceWhite;
 
-            const legalMovesArr = getPiecePaths(lastBoardMatrix, lastEnteredSquare.squareIndex, pieceFen, isPieceWhite)
+            if(!pieceFen) return;
+
+            modLastEnteredSquare.pieceFen = pieceFen;
+
+            const legalMovesArr = getPiecePaths(lastBoardMatrix, modLastEnteredSquare.squareIndex, pieceFen, isPieceWhite)
                 ?.map(pathArr => lastProcessedSquareFen + indexToChessCoordinates(pathArr));
 
             if(legalMovesArr?.length > 0) {
@@ -1207,16 +1210,12 @@ function addMovesOnDemandListeners() {
     modDrawerListeners.forEach(x => x?.remove());
     modDrawerListeners.length = 0;
 
-    const mouseDownHandler = () => handle(true);
-    const mouseUpHandler = () => handle(false);
-    const touchStartHandler = () => handle(true);
-    const touchEndHandler = () => handle(false);
+    const mouseDownHandler = handle;
+    const touchStartHandler = handle;
 
     [
         ['mousedown', mouseDownHandler],
-        ['mouseup', mouseUpHandler],
-        ['touchstart', touchStartHandler],
-        ['touchend', touchEndHandler]
+        ['touchstart', touchStartHandler]
     ].forEach(([type, handler]) => {
         document.addEventListener(type, handler);
         modListeners.push({ type, handler });
@@ -1231,14 +1230,14 @@ function addMovesOnDemandListeners() {
 
                     switch(type) {
                         case 'enter':
-                            lastEnteredSquare.pieceFen = lastBoardMatrix[y][x];
-                            lastEnteredSquare.squareFen = squareFen;
-                            lastEnteredSquare.squareIndex = [x, y];
+                            modLastEnteredSquare.pieceFen = lastBoardMatrix[y][x];
+                            modLastEnteredSquare.squareFen = squareFen;
+                            modLastEnteredSquare.squareIndex = [x, y];
 
                             break;
                         case 'leave':
-                            if(lastEnteredSquare.squareFen === squareFen)
-                                lastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
+                            if(modLastEnteredSquare.squareFen === squareFen)
+                                modLastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
 
                             break;
                     }
@@ -2086,6 +2085,8 @@ function onNewMove(mutationArr, bypassFenChangeDetection) {
 
         const pieceAmount = getPieceAmount();
         const pieceAmountChange = Math.abs(pieceAmount - lastPieceAmount);
+
+        modLastEnteredSquare.pieceFen = null;
 
         // Possibly new match due to large piece amount change
         if(pieceAmountChange > 7) {
