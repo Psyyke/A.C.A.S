@@ -1775,7 +1775,7 @@ function isBoardDrawerNeeded() {
     if(gP) {
         const globalProfiles = Object.keys(gP);
 
-        for(profileName of globalProfiles) {
+        for (const profileName of globalProfiles) {
             const externalMoves = gP[profileName][configKeys.displayMovesOnExternalSite];
             const externalRenders = gP[profileName][configKeys.renderOnExternalSite];
             const externalFeedback = gP[profileName][configKeys.feedbackOnExternalSite];
@@ -1790,7 +1790,7 @@ function isBoardDrawerNeeded() {
     if(iP) {
         const instanceProfiles = Object.keys(iP);
 
-        for(profileName of instanceProfiles) {
+        for (const profileName of instanceProfiles) {
             const externalMoves = iP[profileName][configKeys.displayMovesOnExternalSite];
             const externalRenders = iP[profileName][configKeys.renderOnExternalSite];
             const externalFeedback = iP[profileName][configKeys.feedbackOnExternalSite];
@@ -3304,7 +3304,7 @@ addSupportedChessSite('simplechess.com', {
 
         let pieceName = null;
 
-        for(obj of pieceTypeCoordPercentages) {
+        for (const obj of pieceTypeCoordPercentages) {
             const isThisPiece = canvasHasPixelAt(pieceElem, obj.coords);
 
             if(isThisPiece) {
