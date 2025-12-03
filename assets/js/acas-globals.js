@@ -695,6 +695,8 @@ function getUniqueID() {
 }
 
 async function isEngineIncompatible(engineName, profileName, skipSabCheck) {
+    if(engineName === 'maia2') return window?.SharedArrayBuffer ? true : false;
+
     async function check(pN) {
         const enginesRequiringSAB = [ // Requiring SharedArrayBuffer
             'stockfish-17-wasm',

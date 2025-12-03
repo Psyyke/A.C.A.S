@@ -56,6 +56,11 @@ const floatyButtons = document.querySelectorAll('.open-floaty-btn');
 const floatingPanelVideoElem = document.querySelector('#floating-panel-video');
 const floatingFloaty = document.querySelector('#floating-floaty');
 
+const advancedEloEnableInput = document.querySelector('input[data-key="enableAdvancedElo"]');
+const advancedEloInputs = [...document.querySelectorAll('#elo-floaty .setting-panel input')];
+const normalEloInput = document.querySelector('input[data-key="engineElo"]');
+const chessEngineInput = document.querySelector('input[data-key="chessEngine"]');
+
 [...floatyButtons].forEach(btn => {
     const floatyDialog = btn?.parentElement?.querySelector('dialog');
 
@@ -471,6 +476,21 @@ async function makeSettingChanges(inputElem) {
                 engineNodesInput.classList.add('hidden');
                 lc0WeightDropdown.classList.add('hidden');
             }
+
+            if(value === 'maia2') {
+                advancedEloEnableInput.checked = false;
+                //advancedEloEnableInput.setAttribute('disabled', 'true');
+
+                advancedEloInputs.forEach(
+                    input => input.setAttribute('disabled', 'true'));
+
+                normalEloInput.removeAttribute('disabled');
+            } else {
+                advancedEloEnableInput.removeAttribute('disabled');
+
+                advancedEloInputs.forEach(
+                    input => input.removeAttribute('disabled'));
+            }
             break;
         case 'chessEngineProfile':
             settingFilterObj.profileID = value;
@@ -509,10 +529,14 @@ async function makeSettingChanges(inputElem) {
             }
             break;
         case 'enableAdvancedElo':
-            const normalEloInput = document.querySelector('input[data-key="engineElo"]');
+            if(chessEngineInput.value === 'maia2') {
+                if(advancedEloEnableInput.checked)
+                    advancedEloEnableInput.click();
+
+                advancedEloEnableInput.setAttribute('disabled', 'true');
+            }
 
             if(!normalEloInput) return;
-
             if(value)
                 normalEloInput.setAttribute('disabled', 'true');
             else

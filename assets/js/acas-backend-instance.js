@@ -808,12 +808,15 @@ class BackendInstance {
 
             this.setEngineHashSize(advancedEloHash, profile);
             this.setEngineThreads(advancedEloThreads, profile);
-
-            console.error(limitStrength, advancedEloDepth, advancedEloSkill, advancedEloMaxError, advancedEloProbability, advancedEloHash, advancedEloThreads);
         }
         
         else if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2600;
+            const engineType = await this.getEngineType(profile);
+
+            if(engineType === 'maia2' && !(1100 <= elo && elo <= 2000)) {
+                toast.warning('"Maia 2" engine only supports 1100-2000 ELO! Your ELO was converted to the closest supported ELO, but please change the setting.', 30000);
+            }
 
             this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
 
@@ -1732,7 +1735,8 @@ class BackendInstance {
         }
 
         if(data?.bestmove) {
-            oldestUnfinishedCalcRequestObj.finished = true;
+            if(oldestUnfinishedCalcRequestObj)
+                oldestUnfinishedCalcRequestObj.finished = true;
 
             // Check if the board has changed while we were finishing up a move calculation.
             if(oldestUnfinishedCalcRequestObj?.fen !== this.currentFen) {
@@ -1789,7 +1793,12 @@ class BackendInstance {
                await this.getEngineType(profile) === 'lc0'
             || await this.getEngineType(profile) === 'lozza-5'
         )) {
-            this.setupEnvironment(this.defaultStartpos, [8, 8]);
+            const waitForChessgroundLoad = setInterval(() => {
+                if(window?.ChessgroundX) {
+                    clearInterval(waitForChessgroundLoad);
+                    this.setupEnvironment(this.defaultStartpos, [8, 8]);
+                }
+            }, 5);
         }
     }
 
@@ -1807,7 +1816,7 @@ class BackendInstance {
             return;
         }
 
-        const msgHandler = msg => {
+        const processEngineMessage = msg => {
             try {
                 this.engineMessageHandler(msg, profileName);
             } catch(e) {
@@ -1815,9 +1824,9 @@ class BackendInstance {
             }
         };
 
-        if(await isEngineIncompatible(engineName, profileName)) {
+        if(await isEngineIncompatible(profileChessEngine, profileName)) {
             toast.warning(`The engine "${profileChessEngine}" you have selected on profile "${profileName}" is incompatible with the mode A.C.A.S was launched in.` 
-                + '\n\nPlease change the engine on the settings or launch A.C.A.S using ?sab=true.', 3e4);
+                + '\n\nPlease change the engine on the settings.', 3e4);
             return;
         }
 
@@ -1894,7 +1903,7 @@ class BackendInstance {
                     startGame.bind(this)();
                 }
 
-                msgHandler(e.data);
+                processEngineMessage(e.data);
             };
 
             stockfish.onerror = e => {
@@ -1922,7 +1931,7 @@ class BackendInstance {
                         ? formatVariant(this.pV[profileName].chessVariant)
                         : 'chess');
                 } else if (e.data) {
-                    msgHandler(e.data);
+                    processEngineMessage(e.data);
                 }
             };
 
@@ -1934,6 +1943,107 @@ class BackendInstance {
 
                 stockfish.postMessage({ method: 'acas_check_loaded' });
             }, 100);
+        }
+
+        function loadLc0() {
+            const lc0 = new Worker('../app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
+            let lc0_loaded = false;
+
+            lc0.onmessage = async e => {
+                if(e.data === true) {
+                    lc0_loaded = true;
+
+                    this.engines.push({
+                        'type': profileChessEngine,
+                        'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
+                        'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
+                        'worker': lc0,
+                        profileName
+                    });
+
+                    await this.setEngineWeight(this.pV[profileName].lc0WeightName, profileName);
+        
+                    this.engineStartNewGame('chess', profileName);
+                } else if (e.data) {
+                    processEngineMessage(e.data);
+                }
+            };
+
+            const waitLc0 = setInterval(() => {
+                if(lc0_loaded) {
+                    clearInterval(waitLc0);
+                    return;
+                }
+
+                lc0.postMessage({ method: 'acas_check_loaded' });
+            }, 100);
+
+            lc0.onerror = e => {
+                restartEngine.bind(this)('lc0', e);
+            };
+        }
+
+        function loadLozza() {
+            const lozza = new Worker('../app/assets/engines/Lozza/lozza-5-acas.js');
+            let lozza_loaded = false;
+
+            lozza.onmessage = async e => {
+                if(!lozza_loaded) {
+                    lozza_loaded = true;
+
+                    this.engines.push({
+                        'type': profileChessEngine,
+                        'engine': (method, a) => lozza[method](...a),
+                        'sendMsg': msg => lozza.postMessage(msg),
+                        'worker': lozza,
+                        profileName
+                    });
+
+                    startGame.bind(this)();
+                } else if (e.data) {
+                    processEngineMessage(e.data);
+                }
+            };
+
+            lozza.onerror = e => {
+                restartEngine.bind(this)('lozza-5', e);
+            };
+        }
+
+        function loadMaia2() {
+            const maia = new Worker('../app/assets/engines/Maia2/worker.js', { type: 'module' });
+            let maia_loaded = false;
+
+            maia.onmessage = async e => {
+                if(e.data === true) {
+                    maia_loaded = true;
+
+                    this.engines.push({
+                        'type': profileChessEngine,
+                        'engine': (method, a) => maia.postMessage({ method: method, args: [...a] }),
+                        'sendMsg': msg => maia.postMessage({ method: 'uci', args: [msg] }),
+                        'worker': maia,
+                        profileName
+                    });
+        
+                    this.engineStartNewGame('chess', profileName);
+                } else if (e.data) {
+                    processEngineMessage(e.data);
+                }
+            };
+
+            const waitMaia = setInterval(() => {
+                if(maia_loaded) {
+                    clearInterval(waitMaia);
+                    return;
+                }
+
+                maia.postMessage({ method: 'acas_check_loaded' });
+            }, 100);
+
+            maia.onerror = e => {
+                restartEngine.bind(this)('maia2', e);
+            };
         }
         
         // When using loadStockfish(folderName, fileName), make sure the folder name
@@ -1964,72 +2074,17 @@ class BackendInstance {
                 loadLilaStockfish.bind(this)('f14-worker');
                 break;
 
-                case 'lozza-5':
-                    const lozza = new Worker('../app/assets/engines/Lozza/lozza-5-acas.js');
-                    let lozza_loaded = false;
-    
-                    lozza.onmessage = async e => {
-                        if(!lozza_loaded) {
-                            lozza_loaded = true;
-    
-                            this.engines.push({
-                                'type': profileChessEngine,
-                                'engine': (method, a) => lozza[method](...a),
-                                'sendMsg': msg => lozza.postMessage(msg),
-                                'worker': lozza,
-                                profileName
-                            });
-    
-                            startGame.bind(this)();
-                        } else if (e.data) {
-                            msgHandler(e.data);
-                        }
-                    };
-    
-                    lozza.onerror = e => {
-                        restartEngine.bind(this)('lozza-5', e);
-                    };
-    
-                    break;
-    
-                case 'lc0':
-                    const lc0 = new Worker('../app/assets/engines/zerofish/zerofishWorker.js', { type: 'module' });
-                    let lc0_loaded = false;
-    
-                    lc0.onmessage = async e => {
-                        if(e.data === true) {
-                            lc0_loaded = true;
-    
-                            this.engines.push({
-                                'type': profileChessEngine,
-                                'engine': (method, a) => lc0.postMessage({ method: method, args: [...a] }),
-                                'sendMsg': msg => lc0.postMessage({ method: 'zero', args: [msg] }),
-                                'worker': lc0,
-                                profileName
-                            });
-    
-                            await this.setEngineWeight(this.pV[profileName].lc0WeightName, profileName);
-                
-                            this.engineStartNewGame('chess', profileName);
-                        } else if (e.data) {
-                            msgHandler(e.data);
-                        }
-                    };
-    
-                    const waitLc0 = setInterval(() => {
-                        if(lc0_loaded) {
-                            clearInterval(waitLc0);
-                            return;
-                        }
-    
-                        lc0.postMessage({ method: 'acas_check_loaded' });
-                    }, 100);
+            case 'lozza-5':
+                loadLozza.bind(this)();
+                break;
 
-                    lc0.onerror = e => {
-                        restartEngine.bind(this)('lc0', e);
-                    };
-    
-                    break;
+            case 'lc0':
+                loadLc0.bind(this)();
+                break;
+
+            case 'maia2':
+                loadMaia2.bind(this)();
+                break;
 
             default:
                 loadStockfish.bind(this)('stockfish-17-lite-single');
