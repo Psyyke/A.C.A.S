@@ -1659,7 +1659,7 @@ class BackendInstance {
         }
 
         if(msg.includes('info')) {
-            if(data?.multipv === '1' || await this.getEngineType(profile) === 'lozza-5') {
+            if(data?.multipv === '1' || ['lozza-5', 'lc0'].includes(await this.getEngineType(profile)) ) {
                 if(data?.depth) {
                     const depthText = transObj?.calculationDepth ?? 'Depth';
                     const winningText = transObj?.winning ?? 'Winning';
@@ -2342,6 +2342,16 @@ class BackendInstance {
                 fen, 
                 variant
             });
+
+            const originalCgSet = this.chessground.set;
+            this.chessground.set = (...args) => {
+                const allChessgroundElems = [...document.querySelectorAll('.chessground-x')];
+
+                allChessgroundElems.forEach(x => x.dataset.isLatestUpdated = false);
+                chessgroundElem.dataset.isLatestUpdated = true;
+
+                return originalCgSet.apply(this.chessground, args);
+            };
 
             if(this.BoardDrawer) {
                 this?.BoardDrawer?.terminate();

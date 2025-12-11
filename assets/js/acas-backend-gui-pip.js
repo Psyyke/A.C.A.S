@@ -24,7 +24,7 @@ async function renderPipBoards(from, to) {
     const isNewSuggestion = pipLastPipFromTo[0] !== from && pipLastPipFromTo[1] !== to;
 
     if(isNewSuggestion) {
-        const cgElem = document.querySelector('.chessground-x');
+        const cgElem = document.querySelector(`.chessground-x[data-is-latest-updated="true"]`);
 
         if(!cgElem) return;
         
@@ -135,12 +135,12 @@ async function refreshPipView() {
     ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.7)']);
     ctxQueue.push(['font',`500 ${pipFontSizes.medium}px IBM Plex Sans`]);
 
-    if(pipData.moveProgressText) {
+    if(pipData?.moveProgressText) {
         const headerOffset = 36;
         ctxQueue.push(['fillText',
             [pipData.moveProgressText, 12, pipHeaderHeight + headerOffset, pipMaxTextWidth]
         ]);
-    } else if(noInstancesText && to !== 'one)') {
+    } else if(noInstancesText && !pipData?.moveObjects && to !== 'one)') {
         ctxQueue.push(['font', `700 ${pipFontSizes.medium}px IBM Plex Sans`]);
         ctxQueue.push(['fillText', [noInstancesText, 12, pipHeaderHeight + 40, pipMaxTextWidth]]);
         ctxQueue.push(['fillText', ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', 12, pipHeaderHeight + 80, pipMaxTextWidth]]);
