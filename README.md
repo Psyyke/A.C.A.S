@@ -107,6 +107,34 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 > [!NOTE]
 > Browsers might cache userscripts after you've refreshed the site enough times. If you notice your userscript being cached, disable the userscript, refresh the page, then enable the userscript and refresh the page again.
 
+## JavaScript Modular Structure (v2)
+
+A.C.A.S now uses a fully modular JavaScript codebase. All core logic is split into focused ES6 modules, located in:
+
+- `assets/js/modules/`
+
+### Key Modules
+- `dom-elements.js` — DOM manipulation and UI logic
+- `profile-management.js` — Profile creation, deletion, and management
+- `settings-management.js` — Settings and configuration logic
+- `config-management.js` — Configuration utilities
+- `utilities.js` — General utility functions
+- `engine-utils.js` — Chess engine helpers and evaluation
+- `board-utils.js` — Board parsing and FEN utilities
+- `i18n-utils.js` — Internationalization helpers
+- `toast.js` — Toast notification system
+- `userscript-bridge.js` — Communication with the userscript
+- `user-security.js` — Security and anti-abuse logic
+- `multithread-status.js` — Multithreading and WASM support
+- `tag-manager.js` — Analytics and tag management
+- `site-additional-content.js` — Lottie animations, ads, and dynamic content
+- `load-modules.js` — Main entry point for loading all modules
+
+### Usage
+- All HTML files now load only the modular entry point: `assets/js/modules/load-modules.js`.
+- No old monolithic JS files are used or referenced.
+- To contribute, add or update modules in `assets/js/modules/` and update imports as needed.
+
 ## More examples
 
 ### Playing Xiangqi (Chinese Chess), Playstrategy.org
