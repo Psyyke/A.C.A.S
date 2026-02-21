@@ -1,1 +1,0 @@
-Maia 2200 and Elite Leela nets are from https://github.com/CallOn84/LeelaNets/tree/main (Credits to CallOn84)

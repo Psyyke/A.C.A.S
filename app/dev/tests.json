@@ -1,0 +1,111 @@
+[
+    {
+    "title": "Play against Maia 2",
+    "description": "Maia is set to play at approximately 2000 Elo.",
+    "script": "test-modules/live.js",
+    "type": "live",
+    "playerColor": "white",
+    "autoRestartOnEnd": true,
+    "hideLoopBtn": true,
+    "randomizeStartingPlayer": true
+  },
+  {
+    "title": "Free Move",
+    "description": "You can make any moves manually",
+    "script": "test-modules/manual-moves.js",
+    "startFen": "start",
+    "playerColor": "white"
+  },
+  {
+    "title": "Extremely Fast Match",
+    "description": "Hell for A.C.A.S",
+    "moves": "1. d4 Nf6 2. Nf3 d5 3. Bf4 { D02 Queen's Pawn Game: London System } c5 4. e3 Nc6 5. c3 Qb6 6. Qb3 c4 7. Qc2 Bf5 8. Qc1 e6 9. h3 h6 10. Nbd2 Be7 11. Be2 O-O 12. O-O Qd8 13. Bd1 b5 14. Bc2 b4 15. Re1 Bxc2 16. Qxc2 Qa5 17. e4 Rfe8 18. exd5 exd5 19. Ne5 Nxe5 20. dxe5 Nd7 21. e6 fxe6 22. Rxe6 Nc5 23. Rxh6 Nd3 24. Rh5 Nxf4 25. Qh7+ Kf7 26. Nxc4 Qc7 27. Ne5+ Ke6 28. Qf5+ Kd6 29. Qxf4 Bf6 30. Nd3+ Kc6 31. Nxb4+ Kb7 32. Qf3 Rad8 33. Rxd5 Rxd5 34. Qxd5+ Kb6 35. a4 a6 36. Qd3 Qb7 37. a5+ Ka7 38. Rd1 Re6 39. Qf5 Re5 40. Qd3 Re6 41. g3 Ka8 42. Qc4 Re8 43. Nd5 Bd8 44. b4 Rf8 45. Qc5 Re8 46. Nb6+ Bxb6 47. axb6 Rc8 48. Qd5 Qxd5 49. Rxd5 Rxc3 50. Rd7 Rb3 51. Rxg7 Rxb4 52. Ra7+ Kb8 53. Rxa6 Kb7 54. Ra2 Kxb6 55. Re2 Kc6 56. Kg2 Kd5 57. g4 Rb1 58. Kg3 Rb3+ 59. Re3 Rb8 60. Rf3 Rh8 61. h4 Ke4 62. g5 Ke5 63. Kg4 Rg8 64. Rf5+ Ke4 65. f4 Rb8 66. Re5+ Kd4 67. h5 Rb1 68. Kf5 Rg1 69. g6 Rh1 70. Kg5 Rg1+ 71. Kf6 Rh1 72. g7 Rg1 73. Rg5 Rc1 74. g8=Q Rc5 75. Rxc5 Kxc5 76. Qd8 Kc4 77. h6 Kb5 78. h7 Kb4 79. h8=Q Kc5 80. Qhe8 Kc4 81. Qdd7 Kb4 82. Qec8 Kb3 83. Qdb7+ Ka4 84. Qca8# { White wins by checkmate. } 1-0",
+    "delayRange": [1, 50]
+  },
+  {
+    "title": "Delayed Promotion",
+    "description": "The promotion is delayed for 400ms.",
+    "startFen": "4k3/8/8/2P5/8/8/8/3K4 w - - 0 1",
+    "moves": "1. c6 Ke7 2. c7 Ke6 3. c8=Q# {Promotion test}",
+    "delayRange": [10, 500],
+    "promoDelay": 400,
+    "loopDelay": 3000
+  },
+  {
+    "title": "Extremely Fast Promotion",
+    "description": "The promotion is delayed for 5ms.",
+    "startFen": "4k3/8/8/2P5/8/8/8/3K4 w - - 0 1",
+    "moves": "1. c6 Ke7 2. c7 Ke6 3. c8=Q# {Promotion test}",
+    "delayRange": [10, 500],
+    "promoDelay": 5,
+    "loopDelay": 3000
+  },
+  {
+    "title": "Instant Promotion",
+    "description": "The promotion is instant.",
+    "startFen": "4k3/8/8/2P5/8/8/8/3K4 w - - 0 1",
+    "moves": "1. c6 Ke7 2. c7 Ke6 3. c8=Q# {Promotion test}",
+    "delayRange": [10, 500],
+    "promoDelay": 0,
+    "loopDelay": 3000
+  },
+  {
+    "title": "Castling Test",
+    "description": "White castles kingside; Black castles queenside.",
+    "startFen": "r3k2r/pppq1ppp/2n5/3p4/3P4/2NQ1N2/PPP2PPP/R3K2R w KQkq - 0 1",
+    "moves": "1. a3 a6 2. O-O Qe6 3. Qe3 O-O-O 4. Qxe6 fxe6",
+    "delayRange": [200, 800]
+  },
+  {
+    "title": "En Passant Test",
+    "description": "A simple en passant capture test.",
+    "startFen": "2r3k1/6b1/8/7b/4BP1p/4BK2/6PP/3R4 w",
+    "playerColor": "black",
+    "moves": "1. g4 hxg3+ 2. Kg2",
+    "delayRange": [500, 2000]
+  },
+  {
+    "title": "Takeback Test",
+    "description": "Plays, takes it back. Plays again.",
+    "script": "test-modules/takeback.js",
+    "delayRange": [400, 900],
+    "stepDelay": 800,
+    "takebackHold": 1000
+  },
+  {
+    "title": "Buggy Vanishing Move (Edge Case)",
+    "description": "Piece disappears from its origin, then reappears on the destination.",
+    "script": "test-modules/vanish-move.js",
+    "delayRange": [300, 900],
+    "stepDelay": 700,
+    "vanishDelay": 350
+  },
+  {
+    "title": "Board Reset & Flip Demo",
+    "description": "Plays endgame moves, removes the board, recreates default start position flipped, and plays first move.",
+    "script": "test-modules/board-reset-flip.js",
+    "delayRange": [400, 1000],
+    "resetDelay": 1000,
+    "newBoardDelay": 700,
+    "flipOrientation": true,
+    "firstMove": "e4",
+    "startFen": "8/8/1k6/8/8/8/1P2K3/8 w - - 0 1"
+  },
+  {
+    "title": "Quick Board Flip (Edge Case)",
+    "description": "Loads a position, waits a short delay, then flips board orientation.",
+    "script": "test-modules/flip-only.js",
+    "delayRange": [100, 400],
+    "flipDelay": 200,
+    "startFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+  },
+  {
+    "title": "Premoves Demo",
+    "description": "Queues premoves for White and Black and executes them in batches so multiple pieces appear to move together.",
+    "script": "test-modules/premoves.js",
+    "playerColor": "white",
+    "initialDelay": 900,
+    "whitePremoves": ["e4", "Nf3", "c4"],
+    "blackPremoves": ["e5", "c5"]
+  }
+]

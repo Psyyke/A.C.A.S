@@ -53,6 +53,7 @@ if(typeof window?.USERSCRIPT !== 'object') {
         listValues: () => messageUserscript('USERSCRIPT_listValues'),
         instanceVars: {
             playerColor: createInstanceVar('playerColor'),
+            turn: createInstanceVar('turn'),
             fen: createInstanceVar('fen')
         },
         // NON-ASYNC

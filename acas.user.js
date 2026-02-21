@@ -49,21 +49,16 @@
 // @match       https://www.pychess.org/*
 // @match       https://chess.org/*
 // @match       https://papergames.io/*
-// @match       https://vole.wtf/kilobytes-gambit/
 // @match       https://chess.coolmathgames.com/*
 // @match       https://www.coolmathgames.com/0-chess/*
 // @match       https://immortal.game/*
 // @match       https://worldchess.com/*
 // @match       http://chess.net/*
 // @match       https://chess.net/*
-// @match       https://www.freechess.club/*
+// @match       https://*.freechess.club/*
 // @match       https://*.chessclub.com/*
 // @match       https://gameknot.com/*
-// @match       https://chesstempo.com/*
-// @match       https://www.redhotpawn.com/*
 // @match       https://www.chessanytime.com/*
-// @match       https://www.simplechess.com/*
-// @match       https://chessworld.net/*
 // @match       https://app.edchess.io/*
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -82,9 +77,9 @@
 // @run-at      document-start
 // @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
-// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=1
+// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.3.6
+// @version     2.3.7
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -130,7 +125,9 @@ const currentBackendUrlKey = 'currentBackendURL';
 const currentBackendUrl = typeof GM_getValue === 'function'
     ? GM_getValue(currentBackendUrlKey)
     : await GM.getValue(currentBackendUrlKey);
-const isBackendUrlUpToDate = Object.values(backendConfig.hosts).some(x => currentBackendUrl?.includes(x));
+const isBackendUrlUpToDate = Object.values(backendConfig.hosts)
+    .some(x => currentBackendUrl?.includes(x));
+const isDevPage = window?.location?.pathname?.includes('/dev');
 
 function constructBackendURL(host) {
     const protocol = window.location.protocol + '//';
@@ -142,8 +139,9 @@ function constructBackendURL(host) {
 function isRunningOnBackend(skipGM) {
     const hostsArr = Object.values(backendConfig.hosts);
 
+    const path = window?.location?.pathname;
     const foundHost = hostsArr.find(host => host === window?.location?.host);
-    const isCorrectPath = window?.location?.pathname?.includes(backendConfig.path);
+    const isCorrectPath = path?.includes(backendConfig.path);
 
     const isBackend = typeof foundHost === 'string' && isCorrectPath;
 
@@ -152,6 +150,9 @@ function isRunningOnBackend(skipGM) {
 
     return isBackend;
 }
+
+const runningOnBackend = isRunningOnBackend();
+const runningOnDevPage = runningOnBackend && isDevPage;
 
 // KEEP THESE AS FALSE ON PRODUCTION
 const debugModeActivated = false;
@@ -203,8 +204,6 @@ function createInstanceVariable(dbValue) {
     }
 }
 
-// If you modify tempValueIndicator or AcasConfig key,
-// then modify them on the GUI (acas-globals.js) as well
 const tempValueIndicator = '-temp-value-';
 const dbValues = {
     AcasConfig: 'AcasConfig',
@@ -216,6 +215,7 @@ const dbValues = {
 // decide to add more variables here
 const instanceVars = {
     playerColor: createInstanceVariable('playerColor'),
+    turn: createInstanceVariable('turn'),
     fen: createInstanceVariable('fen')
 };
 
@@ -286,7 +286,7 @@ function exposeViaUnsafe() {
     unsafeWindow.isUserscriptActive = true;
 }
 
-if(isRunningOnBackend()) {
+if(runningOnBackend && !isDevPage) {
     if(typeof unsafeWindow === 'object')
         exposeViaUnsafe();
     else
@@ -382,11 +382,19 @@ let activeGuiMoveMarkings = [];
 let activeMetricRenders = [];
 let activeFeedback = [];
 
+let boardObserver = null;
+let dumbBoardObservingInterval = null;
+let lastMutationObservationDate = 0;
+
+let lastCalculatedFullFen = null;
+
 let lastBoardRanks = null;
 let lastBoardFiles = null;
 
 let lastBoardSize = null;
 let lastPieceSize = null;
+
+let lastTurn = null;
 
 let lastBoardMatrix = null;
 let lastBoardOrientation = null;
@@ -394,7 +402,8 @@ let lastBoardOrientation = null;
 let matchFirstSuggestionGiven = false;
 
 let lastMoveRequestTime = 0;
-let lastPieceAmount = 0;
+
+let lastMutationObsProcessedTurn = null;
 
 let isUserMouseDown = false;
 let activeAutomoves = [];
@@ -416,6 +425,8 @@ const pieceNameToFen = {
     'king': 'k'
 };
 
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 function getArrowStyle(type, fill, opacity) {
     const getBaseStyleModification = (f, o) => [
         'stroke: rgb(0 0 0 / 50%);',
@@ -436,7 +447,7 @@ function getArrowStyle(type, fill, opacity) {
 };
 
 const CommLink = new CommLinkHandler(`frontend_${commLinkInstanceID}`, {
-    'singlePacketResponseWaitTime': 1500,
+    'singlePacketResponseWaitTime': 250,
     'maxSendAttempts': 3,
     'statusCheckInterval': 1,
     'silentMode': true
@@ -448,7 +459,7 @@ CommLink.commands['createInstance'] = async () => {
         'domain': domain,
         'instanceID': commLinkInstanceID,
         'chessVariant': getChessVariant(),
-        'playerColor': getPlayerColorVariable()
+        'playerColor': getBoardOrientation()
     });
 }
 
@@ -554,7 +565,6 @@ function clearFeedback() {
     });
 }
 
-
 function displayFeedback(addedFeedback) {
     clearFeedback();
 
@@ -575,6 +585,23 @@ function displayFeedback(addedFeedback) {
     }
 
     addedFeedback.forEach(processFeedback);
+}
+
+function maybeAnnounceMarkingsToPage(moveMarkings) {
+    if(!runningOnDevPage || typeof unsafeWindow === 'undefined') return;
+
+    const markings = activeGuiMoveMarkings || [];
+
+    let selectedMarking = null;
+
+    if(markings.length === 1) {
+        selectedMarking = markings[0].player;
+    } else if (markings.length > 1) {
+        const randomIndex = Math.floor(Math.random() * markings.length);
+        selectedMarking = markings[randomIndex].player;
+    }
+
+    unsafeWindow.postMessage({ name: 'bestMoveArr', value: selectedMarking });
 }
 
 const boardUtils = {
@@ -771,6 +798,8 @@ const boardUtils = {
                 );
             }
         });
+
+        maybeAnnounceMarkingsToPage(activeGuiMoveMarkings);
     },
     removeMarkings: profile => {
         let removalArr = activeGuiMoveMarkings;
@@ -804,6 +833,12 @@ const boardUtils = {
         }
     }
 };
+
+function clearVisuals() {
+    clearFeedback();
+    clearMetricRenders();
+    boardUtils.removeMarkings();
+}
 
 function displayImportantNotification(title, text) {
     if(typeof GM_notification === 'function') {
@@ -864,7 +899,7 @@ function getElemCoordinatesFromTransform(elem, config) {
     lastBoardRanks = ranks;
     lastBoardFiles = files;
 
-    const boardOrientation = getPlayerColorVariable();
+    const boardOrientation = getBoardOrientation();
 
     let [x, y] = extractElemTransformData(elem);
 
@@ -893,7 +928,7 @@ function getElemCoordinatesFromLeftBottomPercentages(elem) {
         lastBoardFiles = files;
     }
 
-    const boardOrientation = getPlayerColorVariable();
+    const boardOrientation = getBoardOrientation();
 
     const leftPercentage = parseFloat(elem.style.left?.replace('%', ''));
     const bottomPercentage = parseFloat(elem.style.bottom?.replace('%', ''));
@@ -922,7 +957,7 @@ function getElemCoordinatesFromLeftTopPixels(elem) {
     const x = Math.max(Math.round(leftPixels / pieceSize.width), 0);
     const y = Math.max(Math.round(topPixels / pieceSize.width), 0);
 
-    const boardOrientation = getPlayerColorVariable();
+    const boardOrientation = getBoardOrientation();
 
     if (boardOrientation === 'w') {
         const flippedY = lastBoardFiles - (y + 1);
@@ -1775,7 +1810,7 @@ function isBoardDrawerNeeded() {
     if(gP) {
         const globalProfiles = Object.keys(gP);
 
-        for (const profileName of globalProfiles) {
+        for(const profileName of globalProfiles) {
             const externalMoves = gP[profileName][configKeys.displayMovesOnExternalSite];
             const externalRenders = gP[profileName][configKeys.renderOnExternalSite];
             const externalFeedback = gP[profileName][configKeys.feedbackOnExternalSite];
@@ -1790,7 +1825,7 @@ function isBoardDrawerNeeded() {
     if(iP) {
         const instanceProfiles = Object.keys(iP);
 
-        for (const profileName of instanceProfiles) {
+        for(const profileName of instanceProfiles) {
             const externalMoves = iP[profileName][configKeys.displayMovesOnExternalSite];
             const externalRenders = iP[profileName][configKeys.renderOnExternalSite];
             const externalFeedback = iP[profileName][configKeys.feedbackOnExternalSite];
@@ -1817,8 +1852,10 @@ function squeezeEmptySquares(fenStr) {
     return fenStr.replace(/1+/g, match => match.length);
 }
 
-function getPlayerColorVariable() {
-    return instanceVars.playerColor.get(commLinkInstanceID);
+function getBoardOrientation() {
+    const playerColor = instanceVars.playerColor.get(commLinkInstanceID);
+
+    return playerColor;
 }
 
 function getFenPieceColor(pieceFenStr) {
@@ -1929,8 +1966,12 @@ function getSiteData(dataType, obj) {
     return result;
 }
 
-function addSupportedChessSite(domain, typeHandlerObj) {
-    supportedSites[domain] = typeHandlerObj;
+function addSupportedChessSite(domains, typeHandlerObj) {
+    const domainList = Array.isArray(domains) ? domains : [domains];
+
+    domainList.forEach(domain => {
+        supportedSites[domain] = typeHandlerObj;
+    });
 }
 
 function getBoardElem() {
@@ -1942,7 +1983,10 @@ function getBoardElem() {
 function getPieceElem(getAll) {
     const boardElem = getBoardElem();
 
-    const boardQuerySelector = (getAll ? query => [...boardElem?.querySelectorAll(query)] : boardElem?.querySelector?.bind(boardElem));
+    const boardQuerySelector = (getAll ? query => {
+      const elems = boardElem?.querySelectorAll(query);
+      return elems?.length ? [...elems] : null;
+    } : boardElem?.querySelector?.bind(boardElem));
 
     if(typeof boardQuerySelector !== 'function')
         return null;
@@ -2000,9 +2044,15 @@ function getBoardDimensions() {
 }
 
 function isMutationNewMove(mutationArr) {
-    const isNewMove = getSiteData('isMutationNewMove', { mutationArr });
+    const isNewMoveArr = getSiteData('isMutationNewMove', { mutationArr }); // [isNewMove, turn]
 
-    return isNewMove || false;
+    return isNewMoveArr || false;
+}
+
+function getMutationTurn(mutationArr) {
+    const turn = getSiteData('getMutationTurn', { mutationArr });
+
+    return turn || null;
 }
 
 function getBoardMatrix() {
@@ -2016,8 +2066,6 @@ function getBoardMatrix() {
         pieceElems.forEach(pieceElem => {
             const pieceFenCode = getPieceElemFen(pieceElem);
             const pieceCoordsArr = getPieceElemCoords(pieceElem);
-
-            //if(debugModeActivated) console.warn('pieceElem', pieceElem, 'pieceFenCode', pieceFenCode, 'pieceCoordsArr', pieceCoordsArr);
 
             try {
                 const [xIdx, yIdx] = pieceCoordsArr;
@@ -2080,7 +2128,7 @@ function getFen(onlyBasic) {
     }
 
     // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
-    const fullFen = `${basicFen} ${getPlayerColorVariable()} ${getRights()} - 0 1`;
+    const fullFen = `${basicFen} ${getBoardOrientation()} ${getRights()} - 0 1`;
 
     return fullFen;
 }
@@ -2108,84 +2156,169 @@ function fenToArray(fen) {
     return board;
 }
 
-function onNewMove(mutationArr, bypassFenChangeDetection) {
-    const currentFullFen = getFen();
-    const lastFullFen = instanceVars.fen.get(commLinkInstanceID);
+function countTotalPieces(fen) {
+    let pieceCount = 0;
+    const position = fen.split(' ')[0];
 
-    // Only compare the first part of the FENs to detect change
-    const fenChanged = currentFullFen?.split(' ', 1)?.[0] !== lastFullFen?.split(' ', 1)?.[0];
-
-    if((fenChanged || bypassFenChangeDetection)) {
-        if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
-
-        const pieceAmount = getPieceAmount();
-        const pieceAmountChange = Math.abs(pieceAmount - lastPieceAmount);
-
-        // Possibly new match due to large piece amount change
-        if(pieceAmountChange > 7) {
-            matchFirstSuggestionGiven = false;
+    for (let char of position) {
+        if (/[rnbqkpRNBQKP]/.test(char)) {
+            pieceCount += (pieceCount[char] || 0) + 1;
         }
-
-        boardUtils.setBoardDimensions(getBoardDimensions());
-
-        modLastEnteredSquare.squareFen = null;
-
-        const lastPlayerColor = getPlayerColorVariable();
-
-        updatePlayerColor();
-
-        const playerColor = getPlayerColorVariable();
-        const orientationChanged = playerColor != lastPlayerColor;
-
-        if(orientationChanged) {
-            resetCachedValues();
-
-            matchFirstSuggestionGiven = false;
-        }
-
-        boardUtils.removeMarkings();
-
-        clearFeedback();
-        CommLink.commands.updateBoardFen(currentFullFen);
-
-        lastMoveRequestTime = Date.now();
-        lastPieceAmount = pieceAmount;
-
-        if(!modListeners.length)
-            addMovesOnDemandListeners();
-
-        if(orientationChanged)
-            CommLink.commands.calculateBestMoves(currentFullFen);
     }
+
+    return pieceCount;
 }
 
+function getPieceChangeAmount(lastFen, newFen) {
+    if(!lastFen || !newFen) return 0;
+
+    const lastPieceCount = countTotalPieces(lastFen);
+    const newPieceCount = countTotalPieces(newFen);
+
+    // (need to implement fix for variants which may add pieces legally)
+    const countChange = newPieceCount - lastPieceCount;
+
+    /* Possible "countChange" value explanations,
+        (countChange < -1) -> multiple pieces have disappeared (atomic chess variant or a faulty newFen?)
+        (countChange = -1) -> piece has been eaten
+        (countChange = 0)  -> piece moved
+        (countChange = 1)  -> piece has spawned
+        (countChange > 1)  -> multiple pieces have spawned (possibly a new game?)
+    */
+
+    return countChange;
+}
+
+function getBoardSquareChangeAmount(lastFen, newFen) {
+    if(!lastFen || !newFen) return 0;
+
+    let board1 = lastFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
+    let board2 = newFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
+
+    let changedFrom = [];
+    let diff = 0;
+
+    for(let i = 0; i < board1.length; i++) {
+        if(board1[i] !== board2[i]) {
+            if(board1[i]?.trim()?.length > 0) changedFrom.push(board1[i]?.toLowerCase());
+
+            diff += 1;
+        }
+    }
+
+    /* Possible "diff" value explanations,
+        (diff = 0) -> no changes, same board layout
+        (diff = 1) -> only one tile abruptly changed, shouldn't be possible
+        (diff = 2) -> a piece moved, maybe it ate another piece
+        (diff = 3) -> three tiles had changes, shouldn't be possible (NOTE: it's possible if the fen has skipped one turn...)
+        (diff > 3) -> a lot of tiles had changes, maybe a new game started, the change is significant so allowing it
+        (diff = 4) -> takeback or castling
+    */
+
+    return diff;
+}
+
+function processBoardPosition(currentFullFen = getFen(), pieceAmountChange = 0) {
+    if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
+
+    lastCalculatedFullFen = currentFullFen;
+    lastMoveRequestTime = Date.now();
+
+    clearVisuals();
+
+    boardUtils.setBoardDimensions(getBoardDimensions());
+    modLastEnteredSquare.squareFen = null;
+
+    if(!modListeners.length)
+        addMovesOnDemandListeners();
+
+    // Most likely a new match started
+    if(checkBoardOrientationChange() || pieceAmountChange > 7) {
+        resetCachedValues();
+
+        matchFirstSuggestionGiven = false;
+    }
+
+    CommLink.commands.updateBoardFen(currentFullFen);
+}
+
+// This is called by observeNewMoves()
+async function determineBoardPositionValidity(turn) {
+    const currentFullFen = await getFen();
+    const fenChanged = currentFullFen?.split(' ', 1)?.[0] !== lastCalculatedFullFen?.split(' ', 1)?.[0]; // only compare the first part of the FENs to detect change
+
+    const pieceAmountChange = getPieceChangeAmount(lastCalculatedFullFen, currentFullFen);
+    const pieceAmount = getPieceAmount(); // this depends on the current DOM, not from FEN.
+
+    // A new board just appeared and is still loading, most likely a new match!
+    if(pieceAmount === 0) {
+        lastCalculatedFullFen = null;
+
+        await wait(100);
+
+        return determineBoardPositionValidity(getBoardOrientation());
+    }
+
+    // Do not continue if FEN did not change!
+    if(!fenChanged) return;
+    // The board position is now different, so clear any rendered visuals (move arrows, etc.)
+    //clearVisuals();
+
+    if(turn) {
+        if(lastTurn === turn) turn = getBoardOrientation();
+        lastTurn = turn;
+
+        instanceVars.turn.set(commLinkInstanceID, turn);
+    }
+
+    if(pieceAmountChange === -1) {
+        const squareChangeAmount = getBoardSquareChangeAmount(lastCalculatedFullFen, currentFullFen);
+
+        // Do not continue if a piece just disappeared, this is not possible legally!
+        // (This happens sometimes because the mutationObserver detects DOM changes so fast)
+        if(squareChangeAmount === 1) {
+            clearVisuals();
+            return;
+        }
+    }
+
+    processBoardPosition(currentFullFen, pieceAmountChange);
+}
+
+// This also updates the turn instanceVariable that the GUI uses to determine the turn!
 function observeNewMoves() {
-    const boardObserver = new MutationObserver(mutationArr => {
-        if(debugModeActivated) console.log(mutationArr);
+    if(boardObserver?.disconnect) boardObserver.disconnect();
+    if(dumbBoardObservingInterval) clearInterval(dumbBoardObservingInterval);
 
-        if(isMutationNewMove(mutationArr))
-        {
-            if(debugModeActivated) console.warn('Mutation is a new move:', mutationArr);
+    dumbBoardObservingInterval = setInterval(() => {
+        if(isUserMouseDown) return;
+        determineBoardPositionValidity(lastMutationObsProcessedTurn || getBoardOrientation());
+    }, 250);
 
-            try {
-                if(domain === 'chess.org' || domain === 'worldchess.com')
-                {
-                    setTimeout(() => onNewMove(mutationArr), 250);
-                }
-                else
-                {
-                    onNewMove(mutationArr);
-                }
-            } catch(e) {
-                if(debugModeActivated) console.error('Error while running onNewMove:', e);
-            }
+    boardObserver = new MutationObserver(mutationArr => {
+        try {
+            lastMutationObservationDate = Date.now();
+
+            const mutationMoveArr = isMutationNewMove(mutationArr); // returns [isNewMove, turn]
+            const isNewMove = mutationMoveArr?.[0];
+            let turn = mutationMoveArr?.[1];
+
+            if(turn) lastMutationObsProcessedTurn = turn;
+
+            // Do not continue if mutation was not detected as a possible new move! (Different for each chess site)
+            // We later compare FENs to detect if it was actually a new valid move!
+            if(!isNewMove) return;
+
+            determineBoardPositionValidity(turn);
+        } catch(e) {
+            if(debugModeActivated) console.error(e);
         }
     });
 
     boardObserver.observe(chessBoardElem, { childList: true, subtree: true, attributes: true });
 }
 
-async function updatePlayerColor() {
+async function checkBoardOrientationChange() {
     const boardOrientation = getBoardOrientation();
 
     const boardOrientationChanged = lastBoardOrientation !== boardOrientation;
@@ -2200,6 +2333,8 @@ async function updatePlayerColor() {
 
         await CommLink.commands.updateBoardOrientation(boardOrientation);
     }
+
+    return boardOrientationChanged;
 }
 
 /*ZONE CHANGE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
@@ -2360,35 +2495,55 @@ addSupportedChessSite('chess.com', {
         }
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            for(let i = 0; i < classList.length; i++) {
+                const cls = classList[i];
+
+                if(cls.length === 2) {
+                    const prefix = cls[0];
+
+                    if(prefix === 'b') blacks++;
+                    else if(prefix === 'w') whites++;
+                }
+            }
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const pathname = obj.pathname;
         const mutationArr = obj.mutationArr;
 
+        // Process variant boards...
         if(pathname?.includes('/variants')) {
-            if(isUserMouseDown) {
-                return false;
-            }
-
-            return mutationArr.find(m => m.type === 'childList') ? true : false;
+            if(isUserMouseDown) return [false, null];
+            return [true, getBoardOrientation()]; // allow everything, always make own turn
         }
 
-        if(mutationArr.length == 1)
-            return false;
+        // Not a variant board, processing differently...
 
-        const modifiedHoverSquare = mutationArr.find(m => m?.target?.classList?.contains('hover-square')) ? true : false;
-        const modifiedHighlight = mutationArr.find(m => m?.target?.classList?.contains('highlight')) ? true : false;
-        const modifiedElemPool = mutationArr.find(m => m?.target?.classList?.contains('element-pool')) ? true : false;
+        if(mutationArr.length === 1)
+            return [false, null];
 
         const isPremove = mutationArr.filter(m => m?.target?.classList?.contains('highlight'))
             .map(x => x?.target?.style?.['background-color'])
             .find(x => x === 'rgb(244, 42, 50)') ? true : false;
 
-        return (
-            (mutationArr.length >= 4 && !modifiedHoverSquare)
-            || mutationArr.length >= 7
-            || modifiedHighlight
-            || modifiedElemPool
-        ) && !isPremove;
+        const isNewMove = mutationArr.length >= 3 && !isPremove;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2450,12 +2605,31 @@ addSupportedChessSite('lichess.org', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('black')) blacks += 1;
+            if(classList?.contains('white')) whites += 1;
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
-            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        const isNewMove = mutationArr.length >= 3;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2497,7 +2671,7 @@ addSupportedChessSite('playstrategy.org', {
     'pieceElemFen': obj => {
         const pieceElem = obj.pieceElem;
 
-        const playerColor = getPlayerColorVariable();
+        const playerColor = getBoardOrientation();
         const pieceColor = pieceElem?.classList?.contains('ally') ? playerColor : (playerColor == 'w' ? 'b' : 'w');
 
         let pieceName = null;
@@ -2531,12 +2705,38 @@ addSupportedChessSite('playstrategy.org', {
         return getBoardDimensionsFromSize();
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let ally = 0;
+        let enemy = 0;
+
+        const boardOrientation = getBoardOrientation();
+        const isPlayerWhite = boardOrientation === 'w';
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('ally')) ally += 1;
+            if(classList?.contains('enemy')) enemy += 1;
+        });
+
+        const turn = isPlayerWhite
+          ? ally > enemy ? 'b' : 'w'
+          : ally > enemy ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 4
+        const isNewMove = mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2579,7 +2779,7 @@ addSupportedChessSite('pychess.org', {
     'pieceElemFen': obj => {
         const pieceElem = obj.pieceElem;
 
-        const playerColor = getPlayerColorVariable();
+        const playerColor = getBoardOrientation();
         const pieceColor = pieceElem?.classList?.contains('ally') ? playerColor : (playerColor == 'w' ? 'b' : 'w');
 
         let pieceName = null;
@@ -2613,12 +2813,39 @@ addSupportedChessSite('pychess.org', {
         return getBoardDimensionsFromSize();
     },
 
+
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let ally = 0;
+        let enemy = 0;
+
+        const boardOrientation = getBoardOrientation();
+        const isPlayerWhite = boardOrientation === 'w';
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('ally')) ally += 1;
+            if(classList?.contains('enemy')) enemy += 1;
+        });
+
+        const turn = isPlayerWhite
+          ? ally > enemy ? 'b' : 'w'
+          : ally > enemy ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 4
+        const isNewMove = mutationArr.length >= 4
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2664,6 +2891,24 @@ addSupportedChessSite('chess.org', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('black')) blacks += 1;
+            if(classList?.contains('white')) whites += 1;
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -2671,9 +2916,10 @@ addSupportedChessSite('chess.org', {
             return false;
         }
 
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
-            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        const isNewMove = true; // laggy but this is a non-popular site
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2723,6 +2969,24 @@ addSupportedChessSite('chess.coolmathgames.com', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('black')) blacks += 1;
+            if(classList?.contains('white')) whites += 1;
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -2730,9 +2994,14 @@ addSupportedChessSite('chess.coolmathgames.com', {
             return false;
         }
 
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
-            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        const isNewMove = true; // laggy but this is a non-popular site
+
+        // NOTE! IF YOU'RE TRYING TO FIX DISAPPEARING MOVES, IT IS CAUSED BY THE BOARD CHANGING
+        // AND THE USERSCRIPT TRIGGERING A WHOLE NEW MATCH STARTING. THIS IS A NON-POPULAR SITE
+        // SO FIX HAS NOT BEEN MADE...
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2779,57 +3048,21 @@ addSupportedChessSite('papergames.io', {
         return [8, 8];
     },
 
-    'isMutationNewMove': obj => {
+    'getMutationTurn': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 12;
-    }
-});
+        const playerColor = getBoardOrientation();
 
-addSupportedChessSite('vole.wtf', {
-    'boardElem': obj => {
-        return document.querySelector('#board');
-    },
-
-    'pieceElem': obj => {
-        return obj.boardQuerySelector('*[data-t][data-l][data-p]:not([data-p="0"]');
-    },
-
-    'chessVariant': obj => {
-        return 'chess';
-    },
-
-    'boardOrientation': obj => {
-        return 'w';
-    },
-
-    'pieceElemFen': obj => {
-        const pieceElem = obj.pieceElem;
-
-        const pieceNum = Number(pieceElem?.dataset?.p);
-        const pieceFenStr = 'pknbrq';
-
-        if(pieceNum > 8) {
-            return pieceFenStr[pieceNum - 9].toUpperCase();
-        } else {
-            return pieceFenStr[pieceNum - 1];
-        }
-    },
-
-    'pieceElemCoords': obj => {
-        const pieceElem = obj.pieceElem;
-
-        return [Number(pieceElem?.dataset?.l), 7 - Number(pieceElem?.dataset?.t)];
-    },
-
-    'boardDimensions': obj => {
-        return [8, 8];
+        return playerColor || null;
     },
 
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 12;
+        const isNewMove = mutationArr.length >= 12;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2878,6 +3111,14 @@ addSupportedChessSite('immortal.game', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        const playerColor = getBoardOrientation();
+
+        return playerColor || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -2885,7 +3126,10 @@ addSupportedChessSite('immortal.game', {
             return false;
         }
 
-        return mutationArr.length >= 5;
+        const isNewMove = mutationArr.length >= 5;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -2931,6 +3175,32 @@ addSupportedChessSite('worldchess.com', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation?.target?.classList;
+
+            for(let i = 0; i < classList.length; i++) {
+                const cls = classList[i];
+
+                if(cls.length === 2) {
+                    const prefix = cls[0];
+
+                    if(prefix === 'b') blacks++;
+                    else if(prefix === 'w') whites++;
+                }
+            }
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -2938,7 +3208,10 @@ addSupportedChessSite('worldchess.com', {
             return false;
         }
 
-        return mutationArr.find(m => m?.attributeName === 'style') ? true : false;
+        const isNewMove = mutationArr.find(m => m?.attributeName === 'style') ? true : false;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -3000,12 +3273,31 @@ addSupportedChessSite('chess.net', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('black')) blacks += 1;
+            if(classList?.contains('white')) whites += 1;
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
-            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        const isNewMove = mutationArr.length >= 3;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -3055,22 +3347,41 @@ addSupportedChessSite('freechess.club', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('black')) blacks += 1;
+            if(classList?.contains('white')) whites += 1;
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
-            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        const isNewMove = mutationArr.length >= 3;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
 addSupportedChessSite('play.chessclub.com', {
     'boardElem': obj => {
-        return document.querySelector('cg-board');
+        return document.querySelector('[data-boardid]');
     },
 
     'pieceElem': obj => {
-        return obj.boardQuerySelector('piece:not(.ghost)');
+        return obj.boardQuerySelector('[data-piece]');
     },
 
     'chessVariant': obj => {
@@ -3078,31 +3389,26 @@ addSupportedChessSite('play.chessclub.com', {
     },
 
     'boardOrientation': obj => {
-        const filesElem = document.querySelector('coords.files');
-
-        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+        return document.querySelector('[data-square]')?.dataset?.square === 'a8'
+            ? 'w' : 'b';
     },
 
     'pieceElemFen': obj => {
         const pieceElem = obj.pieceElem;
+        const [pieceColor, pieceName] = (pieceElem?.dataset?.piece || 'wp');
 
-        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
-        const elemPieceName = [...pieceElem?.classList]?.find(className => Object.keys(pieceNameToFen).includes(className));
-
-        if(pieceColor && elemPieceName) {
-            const pieceName = pieceNameToFen[elemPieceName];
-
-            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        if(pieceColor && pieceName) {
+            return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
         }
     },
 
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
+        const parentParent = pieceElem?.parentElement?.parentElement;
 
-        if(key) {
-            return chessCoordinatesToIndex(key);
+        if(parentParent) {
+            return chessCoordinatesToIndex(parentParent?.dataset?.square);
         }
     },
 
@@ -3110,12 +3416,20 @@ addSupportedChessSite('play.chessclub.com', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return getBoardOrientation() || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 4
-            || mutationArr.find(m => m.type === 'childList') ? true : false
-            || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
+        const isNewMove = mutationArr.find(mutation => mutation?.type === 'childList')
+            ? true : false;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -3158,239 +3472,20 @@ addSupportedChessSite('gameknot.com', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return getBoardOrientation() || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.find(m => m.type === 'childList') ? true : false
+        const isNewMove = mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
-    }
-});
 
-addSupportedChessSite('chesstempo.com', {
-    'boardElem': obj => {
-        return document.querySelector('.ct-board-squares');
-    },
-
-    'pieceElem': obj => {
-        return obj.boardQuerySelector('*[class*="ct-pieceClass"][class*="ct-piece-"]');
-    },
-
-    'chessVariant': obj => {
-        return 'chess';
-    },
-
-    'boardOrientation': obj => {
-        return document.querySelector('.ct-coord-column').innerText === 'a' ? 'w' : 'b';
-    },
-
-    'pieceElemFen': obj => {
-        const pieceElem = obj.pieceElem;
-
-        const pieceNameClass = [...pieceElem.classList].find(x => x?.includes('ct-piece-'));
-        const colorNameCombo = pieceNameClass?.split('ct-piece-')?.pop();
-
-        const elemPieceColor = colorNameCombo.startsWith('white') ? 'w' : 'b';
-        const elemPieceName = colorNameCombo.substring(5);
-
-        const pieceName = pieceNameToFen[elemPieceName];
-
-        return elemPieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-    },
-
-    'pieceElemCoords': obj => {
-        const pieceElem = obj.pieceElem;
-
-        return [pieceElem?.ct?.piece?.piece?.column, pieceElem?.ct?.piece?.piece?.row];
-    },
-
-    'boardDimensions': obj => {
-        return [8, 8];
-    },
-
-    'isMutationNewMove': obj => {
-        const mutationArr = obj.mutationArr;
-
-        return mutationArr.length >= 4;
-    }
-});
-
-addSupportedChessSite('redhotpawn.com', {
-    'boardElem': obj => {
-        return document.querySelector('#board-0_1');
-    },
-
-    'pieceElem': obj => {
-        return obj.boardQuerySelector('li.piece[id*="-pc-"]');
-    },
-
-    'chessVariant': obj => {
-        return 'chess';
-    },
-
-    'boardOrientation': obj => {
-        const aCoordLeftStyleNum = Number([...document.querySelectorAll('.boardCoordinate')]
-            .find(elem => elem?.innerText === 'a')
-            ?.style?.left?.replace('px', ''));
-
-        return aCoordLeftStyleNum < 200 ? 'w' : 'b';
-    },
-
-    'pieceElemFen': obj => {
-        const pieceElem = obj.pieceElem;
-
-        return (pieceElem?.id?.match(/-pc-(.*?)-/) || [])[1];
-    },
-
-    'pieceElemCoords': obj => {
-        const pieceElem = obj.pieceElem;
-
-        return getElemCoordinatesFromLeftTopPixels(pieceElem);
-    },
-
-    'boardDimensions': obj => {
-        return [8, 8];
-    },
-
-    'isMutationNewMove': obj => {
-        const mutationArr = obj.mutationArr;
-
-        if(isUserMouseDown) {
-            return false;
-        }
-
-        return mutationArr.length >= 4;
-    }
-});
-
-addSupportedChessSite('simplechess.com', {
-    'boardElem': obj => {
-        return document.querySelector('#chessboard');
-    },
-
-    'pieceElem': obj => {
-        const getAll = obj.getAll;
-
-        const pieceElems = [...document.querySelectorAll('canvas.canvas_piece')].filter(elem => canvasHasPixelAt(elem, [0.5, 0.5]));
-
-        return getAll ? pieceElems : pieceElems[0];
-    },
-
-    'chessVariant': obj => {
-        return 'chess';
-    },
-
-    'boardOrientation': obj => {
-        return document.querySelector('#chessboard_coordy0')?.innerText === '8' ? 'w' : 'b';
-    },
-
-    'pieceElemFen': obj => {
-        const pieceElem = obj.pieceElem;
-
-        const pieceTypeCoordPercentages = [
-            { 'name' : 'k', 'coords': [52/60, 26/60] },
-            { 'name' : 'q', 'coords': [8/60, 16/60] },
-            { 'name' : 'n', 'coords': [51/60, 42/60] },
-            { 'name' : 'b', 'coords': [9/60, 50/60] },
-            { 'name' : 'r', 'coords': [45/60, 15/60] },
-            { 'name' : 'p', 'coords': [0.5, 0.5] }
-        ];
-
-        const pieceColorCoordPercentages = {
-            'k': [42/60, 27/60],
-            'q': [30/60, 50/60],
-            'n': [38/60, 41/60],
-            'b': [30/60, 20/60]
-        };
-
-        let pieceName = null;
-
-        for (const obj of pieceTypeCoordPercentages) {
-            const isThisPiece = canvasHasPixelAt(pieceElem, obj.coords);
-
-            if(isThisPiece) {
-                pieceName = obj.name;
-
-                break;
-            }
-        }
-
-        if(pieceName) {
-            const colorCoords = pieceColorCoordPercentages[pieceName] || [0.5, 0.5];
-
-            const pieceColor = getCanvasPixelColor(pieceElem, colorCoords);
-
-            return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-        }
-    },
-
-    'pieceElemCoords': obj => {
-        const pieceElem = obj.pieceElem;
-
-        return getElemCoordinatesFromLeftTopPixels(pieceElem);
-    },
-
-    'boardDimensions': obj => {
-        return [8, 8];
-    },
-
-    'isMutationNewMove': obj => {
-        const mutationArr = obj.mutationArr;
-
-        if(isUserMouseDown) {
-            return false;
-        }
-
-        return mutationArr.length >= 7;
-    }
-});
-
-addSupportedChessSite('chessworld.net', {
-    'boardElem': obj => {
-        return document.querySelector('#ChessWorldChessBoard');
-    },
-
-    'pieceElem': obj => {
-        return obj.boardQuerySelector('img[src*="merida"');
-    },
-
-    'chessVariant': obj => {
-        return 'chess';
-    },
-
-    'boardOrientation': obj => {
-        return document.querySelector('div[style*="boardb.jpg"]') ? 'w' : 'b';
-    },
-
-    'pieceElemFen': obj => {
-        const pieceElem = obj.pieceElem;
-
-        const [elemPieceColor, elemPieceName] = pieceElem
-            ?.src
-            ?.split('/')
-            ?.pop()
-            ?.replace('.png', '')
-            ?.split('_');
-
-        const pieceColor = elemPieceColor === 'white' ? 'w' : 'b';
-        const pieceName = pieceNameToFen[elemPieceName];
-
-        return pieceColor === 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
-    },
-
-    'pieceElemCoords': obj => {
-        const pieceElem = obj.pieceElem;
-
-        return chessCoordinatesToIndex(pieceElem?.id);
-    },
-
-    'boardDimensions': obj => {
-        return [8, 8];
-    },
-
-    'isMutationNewMove': obj => {
-        const mutationArr = obj.mutationArr;
-
-        return mutationArr.length >= 2;
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -3428,10 +3523,89 @@ addSupportedChessSite('app.edchess.io', {
         return [8, 8];
     },
 
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        return getBoardOrientation() || null;
+    },
+
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
-        return mutationArr.length >= 2;
+        const isNewMove = mutationArr.length >= 2;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
+    }
+});
+
+addSupportedChessSite([
+    backendConfig?.hosts?.prod || 'psyyke.github.io',
+    backendConfig?.hosts?.dev || 'localhost'
+], {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        return 'chess';
+    },
+
+    'boardOrientation': obj => {
+        const filesElem = document.querySelector('coords.side');
+
+        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+
+        const elemPieceName = [...(pieceElem?.classList ?? [])]
+          .map(cls => cls.replace('-piece', ''))
+          .find(cls => Object.values(pieceNameToFen).includes(cls));
+
+        if(pieceColor && elemPieceName) {
+            return pieceColor == 'w' ? elemPieceName.toUpperCase() : elemPieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        const mutationContainsBlack = mutationArr
+            .find(mutation => mutation.target?.classList?.contains('black'));
+
+        const turn = mutationContainsBlack ? 'w' : 'b';
+
+        return turn || null;
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+        const isNewMove = mutationArr.length >= 2;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
     }
 });
 
@@ -3467,8 +3641,6 @@ async function start() {
     await CommLink.commands.createInstance(commLinkInstanceID);
 
     const pathname = window.location.pathname;
-    const adjustSizeByDimensions = domain === 'chess.com' && pathname?.includes('/variants');
-    const ignoreBodyRectLeft = domain === 'app.edchess.io';
 
     const boardOrientation = getBoardOrientation();
 
@@ -3476,18 +3648,20 @@ async function start() {
     instanceVars.fen.set(commLinkInstanceID, getFen());
 
     if(isBoardDrawerNeeded()) {
+        if(BoardDrawer) BoardDrawer?.terminate();
+
         BoardDrawer = new UniversalBoardDrawer(chessBoardElem, {
             'window': window,
             'boardDimensions': getBoardDimensions(),
-            'playerColor': getPlayerColorVariable(),
+            'playerColor': getBoardOrientation(),
             'zIndex': domain === 'worldchess.com' ? 9999 : 500,
             'prepend': true,
             'debugMode': debugModeActivated,
-            'adjustSizeByDimensions': adjustSizeByDimensions ? true : false,
+            'adjustSizeByDimensions': domain === 'chess.com' && pathname?.includes('/variants'),
             'adjustSizeConfig': {
                 'noLeftAdjustment': true
             },
-            'ignoreBodyRectLeft': ignoreBodyRectLeft
+            'ignoreBodyRectLeft': domain === 'app.edchess.io'
         });
 
         const waitForBoardMatrix = setInterval(() => {
@@ -3499,7 +3673,7 @@ async function start() {
         }, 50);
     }
 
-    await updatePlayerColor();
+    await checkBoardOrientationChange();
 
     refreshSettings();
     observeNewMoves();
@@ -3514,9 +3688,7 @@ function startWhenBackendReady() {
 
     const interval = CommLink.setIntervalAsync(async () => {
         if(await isAcasBackendReady()) {
-            setTimeout(() => {
-                start();
-            }, 100);
+            start();
 
             interval.stop();
         } else if(timesUrlForceOpened < 1) {
@@ -3524,7 +3696,7 @@ function startWhenBackendReady() {
 
             GM_openInTab(getCurrentBackendURL(), true);
         }
-    }, 1000);
+    }, 100);
 }
 
 function initializeIfSiteReady() {
@@ -3568,7 +3740,7 @@ if(typeof GM_registerMenuCommand === 'function') {
 
     GM_registerMenuCommand('[g] Get Moves Manually', e => {
         if(chessBoardElem) {
-            onNewMove(null, true);
+            processBoardPosition();
         } else {
             displayImportantNotification('Failed to get moves', 'No chessboard element found!');
         }
@@ -3593,7 +3765,7 @@ if(typeof GM_registerMenuCommand === 'function') {
     }
 }
 
-setInterval(initializeIfSiteReady, 1000);
+setInterval(initializeIfSiteReady, 100);
 // This slow rate might cause users to complain that settings aren't being applied fast enough
 setInterval(refreshSettings, 2500);
 
@@ -3602,11 +3774,6 @@ setInterval(refreshSettings, 2500);
 /*////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
-
-┏┓┳┓┏┓┏┓  ┏┓┳┓┳┓  ┏┓┏┓┏┓┳┓  ┏┓┏┓┳┳┳┓┏┓┏┓   ┏┓┏┓┳┓  ┓┏┏┓┳┳
-┣ ┣┫┣ ┣   ┣┫┃┃┃┃  ┃┃┃┃┣ ┃┃  ┗┓┃┃┃┃┣┫┃ ┣    ┣ ┃┃┣┫  ┗┫┃┃┃┃
-┻ ┛┗┗┛┗┛  ┛┗┛┗┻┛  ┗┛┣┛┗┛┛┗  ┗┛┗┛┗┛┛┗┗┛┗┛•  ┻ ┗┛┛┗  ┗┛┗┛┗┛•
-==========================================================
 
 Thank you for reading through this userscript! Please visit GitHub
 Contributions are absolutely welcome >> github.com/Psyyke/A.C.A.S!

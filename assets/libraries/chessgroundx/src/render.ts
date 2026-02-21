@@ -238,7 +238,13 @@ function computeSquareClasses(s: State): SquareClasses {
   if (selected) {
     if (isKey(selected)) addSquare(squares, selected, 'selected');
     if (s.movable.showDests) {
-      const dests = s.movable.dests?.get(isKey(selected) ? selected : dropOrigOf(selected.role));
+      const key = isKey(selected) ? selected : dropOrigOf(selected.role);
+      let dests: cg.Key[] | undefined;
+      const destsContainer = s.movable.dests as unknown;
+      if (destsContainer) {
+        if (typeof (destsContainer as any).get === 'function') dests = (destsContainer as any).get(key);
+        else dests = (destsContainer as any)[key];
+      }
       if (dests)
         for (const k of dests) {
           addSquare(squares, k, 'move-dest' + (s.boardState.pieces.has(k) ? ' oc' : ''));

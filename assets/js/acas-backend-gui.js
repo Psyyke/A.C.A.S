@@ -143,17 +143,26 @@ let lastProfileID = null;
     }
 })();
 
+function setThemeColorHex(value) {
+    document.body.style['background-color'] = value || null;
+    document.querySelectorAll('dialog').forEach(diag => {
+        diag.style['background-color'] = value || null;
+    });
+    acasInstanceContainer.style['background-color'] = value || null;
+    pipData['themeColorHex'] = value;
+    localStorage.setItem('themeColorHex', value);
+}
+
 const boardSizeModifierKey = 'boardSizeModifier';
 const instanceSizeKey = 'instanceSize';
 const defaultInstanceSize = 500;
+const storedThemeColor = localStorage.getItem('themeColorHex');
+if(storedThemeColor) setThemeColorHex(storedThemeColor);
 
-if(!localStorage.getItem(boardSizeModifierKey)) {
+if(!localStorage.getItem(boardSizeModifierKey))
     localStorage.setItem(boardSizeModifierKey, 1);
-}
-
-if(!localStorage.getItem(instanceSizeKey)) {
+if(!localStorage.getItem(instanceSizeKey))
     localStorage.setItem(instanceSizeKey, defaultInstanceSize);
-}
 
 function changeBoardSizeModifier(change) {
     const instanceSize = Number(localStorage.getItem(instanceSizeKey));
@@ -429,13 +438,7 @@ async function makeSettingChanges(inputElem) {
 
     switch(inputElem.dataset.key) {
         case 'themeColorHex':
-            document.body.style['background-color'] = value || null;
-            document.querySelectorAll('dialog').forEach(diag => {
-                diag.style['background-color'] = value || null;
-            });
-            acasInstanceContainer.style['background-color'] = value || null;
-            pipData['themeColorHex'] = value;
-
+            setThemeColorHex(value);
             console.log('[Setting Handler] Set theme color to', value || 'nothing');
 
             break;

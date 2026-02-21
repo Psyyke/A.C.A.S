@@ -1,3 +1,5 @@
+import { createInstance } from './assets/js/instanceManager.js';
+
 let started = false;
 
 async function attemptStarting() {

@@ -1,5 +1,5 @@
-import * as ort from '../../../../assets/libraries/onnxruntime-web/ort.wasm.bundle.min.js';
-import { preprocess, mirrorMove, allPossibleMovesReversed, parseSetOption, parsePosition, policyToUciLines } from './utils.js';
+import * as ort from '../libraries/onnxruntime-web/ort.wasm.bundle.min.js';
+import { preprocess, mirrorMove, allPossibleMovesReversed, parseSetOption, parseGo, parsePosition, policyToUciLines } from './utils.js';
 
 export default class Maia {
 	constructor(modelUrl, ChessLib, board) {
@@ -74,8 +74,10 @@ export default class Maia {
 				break;
 	
 			case 'go':
+				const { nodes, history, searchMoves } = parseGo(line);
 				const calculatedFen = this.board.fen();
-				const processedOutputs = await this.evaluate();
+
+				const processedOutputs = await this.evaluate(searchMoves);
 
 				policyToUciLines(calculatedFen, processedOutputs, this.options.multipv).forEach(line => this.listen(line));
 
@@ -95,7 +97,7 @@ export default class Maia {
 		return res.arrayBuffer();
 	}
 
-	async evaluate(forcedFen) {
+	async evaluate(searchMoves, forcedFen) {
 		const fen = forcedFen || this.board.fen();
 		const { boardInput, legalMoves, eloSelfCategory, eloOppoCategory } =
 			preprocess(fen, this.options.eloSelf, this.options.eloOppo, this.ChessLib);
@@ -108,14 +110,13 @@ export default class Maia {
 
 		const { logits_maia, logits_value } = await this.model.run(feeds);
 
-		return this.processOutputs(fen, logits_maia, logits_value, legalMoves);
+		return this.processOutputs(fen, logits_maia, logits_value, legalMoves, searchMoves);
 	}
 
-	processOutputs(fen, logits_maia, logits_value, legalMoves) {
+	processOutputs(fen, logits_maia, logits_value, legalMoves, searchMoves) {
 		const logits = logits_maia.data;
 		let winProb = Math.min(Math.max(logits_value.data[0]/2 + 0.5, 0), 1);
 		const blackFlag = fen.split(' ')[1]==='b';
-		if(blackFlag) winProb = 1 - winProb;
 
 		const legalIdx = [...legalMoves.entries()]
 			.filter(([i, v]) => v > 0)
@@ -130,8 +131,12 @@ export default class Maia {
 		const expLogits = legalLogits.map(l => Math.exp(l - maxLogit));
 		const sumExp = expLogits.reduce((a, b) => a + b, 0);
 
-		const policy = {};
+		let policy = {};
 		moves.forEach((m, i) => policy[m] = expLogits[i] / sumExp);
+
+		if(searchMoves)
+			policy = Object.fromEntries(
+				Object.entries(policy).filter(([key]) => searchMoves.some(sm => key.startsWith(sm[0]+sm[1]))));
 
 		return { policy, value: Math.round(winProb * 10000) / 10000 };
 	}

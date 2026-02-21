@@ -13,6 +13,21 @@ async function loadMoves() {
 	return { allPossibleMoves, allPossibleMovesReversed };
 }
 
+function parseGo(line) {
+    const tokens = line.trim().split(/\s+/);
+
+    const nodes = parseInt(tokens[tokens.indexOf('nodes') + 1]);
+    
+    let history = tokens[tokens.indexOf('history') + 1];
+    history = history === '-' ? null : history.replaceAll('#', ' ').split(',');
+
+    let searchMoves = null;
+    const smIdx = tokens.indexOf('searchmoves');
+    if(smIdx !== -1) searchMoves = tokens[smIdx + 1].split(',');
+
+    return { nodes, history, searchMoves };
+}
+
 function parseSetOption(line) {
     const tokens = line.trim().split(/\s+/);
     const idxName  = tokens.indexOf('name');
@@ -89,11 +104,26 @@ function swapColorsInRank(rank) {
 		.join('');
 }
 
+function mirrorEP(ep) {
+	if(!ep || ep === '-') return '-';
+	const file = ep[0];
+	const rank = 9 - Number(ep[1]);
+	
+	return file + rank;
+}
+
 function mirrorFEN(fen) {
 	const [pos, turn, castling, ep, hm, fm] = fen.split(' ');
-	const mirroredPos = pos.split('/').reverse().map(swapColorsInRank).join('/');
-	const mirroredTurn = turn==='w' ? 'b' : 'w';
-	return `${mirroredPos} ${mirroredTurn} ${castling} ${ep} ${hm} ${fm}`;
+
+	const mirroredPos = pos
+		.split('/')
+		.reverse()
+		.map(swapColorsInRank)
+		.join('/');
+
+	const mirroredTurn = turn === 'w' ? 'b' : 'w';
+
+	return `${mirroredPos} ${mirroredTurn} ${castling} ${mirrorEP(ep)} ${hm} ${fm}`;
 }
 
 function boardToTensor(fen) {
@@ -183,11 +213,12 @@ function policyToUciLines(fen, policyObj, multipv = 1) {
         );
     }
 
-    if(sortedMoves.length > 0) {
-        lines.push(`bestmove ${sortedMoves[0][0]}`);
-    }
-
+    if(sortedMoves.length > 0)
+    	lines.push(`bestmove ${sortedMoves[0][0]}`);
+	else if (sortedMoves.length === 0)
+        lines.push(`bestmove (none)`);
+    
     return lines;
 }
 
-export { loadMoves, preprocess, mirrorMove, allPossibleMovesReversed, parseSetOption, parsePosition, policyToUciLines };
+export { loadMoves, preprocess, mirrorMove, allPossibleMovesReversed, parseGo, parseSetOption, parsePosition, policyToUciLines };

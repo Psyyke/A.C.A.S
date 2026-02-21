@@ -1,7 +1,7 @@
 import Maia from './maia.js';
 import { loadMoves } from './utils.js';
 
-import { Chess } from '../../../../assets/libraries/chess.js/chess.js';
+import { Chess } from '../libraries/chessjs/chess.js';
 
 let board = null;
 let engine = null;

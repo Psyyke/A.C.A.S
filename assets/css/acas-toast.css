@@ -59,9 +59,9 @@
     position: absolute;
     top: 0;
     bottom: 6px;
-    font-size: 25px;
+    font-size: 15px;
     font-stretch: semi-expanded;
-    font-weight: 600;
+    font-weight: 800;
     color: transparent;
 }
 .acas-toast-icon {
@@ -93,6 +93,9 @@
 }
 .acas-toast-error {
     background-color: #ff0000;
+}
+.acas-toast-instance {
+    background-color: #5f8895;
 }
 @-webkit-keyframes fadein {
     from {

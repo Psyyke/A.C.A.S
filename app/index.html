@@ -32,15 +32,26 @@
 		gtag("config", "GTM-5499BQ4B");
 		</script>
 		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+		<link rel="modulepreload" href="./index.js">
+		<link rel="modulepreload" href="./assets/js/instanceManager.js">
+		<link rel="modulepreload" href="./assets/js/AcasInstance.js">
+		<link rel="modulepreload" href="./assets/js/MoveEvaluator.js">
+		<link rel="modulepreload" href="./assets/js/BoardAnalyzer.js">
+		<link rel="modulepreload" href="./assets/js/instance/loadEngine.js">
+		<link rel="modulepreload" href="./assets/js/instance/engineMessageProcessor.js">
+		<link rel="modulepreload" href="./assets/js/instance/renderMetric.js">
+		<link rel="modulepreload" href="./assets/js/instance/renderFeedback.js">
+		<link rel="modulepreload" href="./assets/js/instance/Interface.js">
+		<link rel="modulepreload" href="./assets/js/instance/updateSettings.js">
+		<link rel="modulepreload" href="./assets/js/instance/calculateBestMoves.js">
+		<link rel="modulepreload" href="./assets/js/instance/setupEnvironment.js">
+		<link rel="modulepreload" href="./assets/js/instance/engineStartNewGame.js">
+		<link rel="modulepreload" href="../assets/libraries/chessgroundx/chessground.js">
 		<script type="module" src="../assets/js/acas-load-modules.js"></script>
-		<script src="../assets/js/acas-globals.js"></script>
+		<script src="./assets/js/globals.js"></script>
 		<script src="../assets/libraries/CommLink/CommLink.js"></script>
 		<script src="../assets/js/acas-userscript-bridge.js"></script>
 		<script src="../assets/js/acas-i18n-processor.js"></script>
-		<script src="../assets/js/acas-board-analyzer.js"></script>
-		<script src="../assets/js/acas-move-eval.js"></script>
-		<script src="../assets/js/acas-backend-instance.js"></script>
-		<script src="../assets/js/acas-backend-manager.js"></script>
 		<script src="../assets/js/acas-user-security-system.js"></script>
 		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
 		<script src="../assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
@@ -177,7 +188,6 @@
 							<a class="chess-site-link acas-fancy-button" href="https://app.edchess.io/" target="_blank">EdChess.io</a>
 							<a class="chess-site-link acas-fancy-button" href="https://chess.org" target="_blank">Chess.org</a>
 							<a class="chess-site-link acas-fancy-button" href="https://papergames.io/en/chess" target="_blank">Papergames.io</a>
-							<a class="chess-site-link acas-fancy-button" href="https://vole.wtf/kilobytes-gambit/" target="_blank">Vole.wtf</a>
 							<a class="chess-site-link acas-fancy-button" href="https://www.coolmathgames.com/0-chess" target="_blank">Coolmathgames.com</a>
 						</div>
 					</div>
@@ -189,13 +199,10 @@
 						<div class="sites-list">
 							<a class="chess-site-link acas-fancy-button" href="https://chessarena.com/lobby" target="_blank">Chessarena.com</a>
 							<a class="chess-site-link acas-fancy-button" href="https://gameknot.com" target="_blank">Gameknot.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://redhotpawn.com" target="_blank">Redhotpawn.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://chessworld.net" target="_blank">Chessworld.net</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.simplechess.com/" target="_blank">Simplechess.com</a>
 							<a class="chess-site-link acas-fancy-button" href="https://immortal.game/" target="_blank">Immortal.game</a>
 							<a class="chess-site-link acas-fancy-button" href="https://www.freechess.club/" target="_blank">Freechess.club</a>
 							<a class="chess-site-link acas-fancy-button" href="https://www.chessclub.com" target="_blank">Chessclub.com</a>
-							<a class="chess-site-link acas-fancy-button" href="https://www.chesstempo.com" target="_blank">Chesstempo.com</a>
+							<a class="chess-site-link acas-fancy-button" href="dev" target="_blank">(Developer Page)</a>
 						</div>
 					</div>
 				</div>
@@ -270,8 +277,11 @@
 													<div class="setting-panel-title" data-translation-built-in-engine>Built-in Engine</div>
 													<div id="chess-engine-dropdown" class="dropdown-input dropdown-input-special">
 														<div class="dropdown-input-container">
-															<input disabled type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="stockfish-17-lite-single" placeholder="Fairy Stockfish NNUE WASM"><div class="dropdown-icon"></div>
+															<input disabled type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="stockfish-18-lite-single" placeholder="Stockfish 18 Lite"><div class="dropdown-icon"></div>
 															<div class="dropdown-list-container">
+																<div class="dropdown-item" data-value="stockfish-18-lite-single">
+																Stockfish 18 Lite <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(8MB)</span>
+																</div>
 																<div class="dropdown-item" data-value="stockfish-17-single">
 																Stockfish 17 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(66MB)</span>
 																</div>
@@ -288,7 +298,10 @@
 																Maia 2 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(91MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item requires-sab" data-value="lc0">
-																Lc0 29 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(900KB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="unstable-engine-tag list-tag">Unstable</span>
+																Lc0<span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(900KB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="unstable-engine-tag list-tag">Unstable</span>
+																</div>
+																<div class="dropdown-item force-hidden" data-value="acas-fusion">
+																Fusion α<span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(>15MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-11">
 																Stockfish 11 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(4MB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
@@ -768,6 +781,6 @@
 		<script src="../assets/js/acas-toast.js"></script>
 		<script src="../assets/js/acas-backend-gui-pip.js"></script>
 		<script src="../assets/js/acas-backend-gui.js?new=true"></script>
-		<script src="index.js"></script>
+		<script type="module" src="index.js"></script>
 	</body>
 </html>
