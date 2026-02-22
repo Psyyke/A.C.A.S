@@ -32,6 +32,8 @@ export default async function renderMetric(fen, profile) {
     const BoardAnal = new BoardAnalyzer(fen, { 'orientation': playerColor, 'debug': this.debugLogsEnabled });
     const BoardDrawer = this.BoardDrawer;
 
+    if(!BoardDrawer) return;
+
     function fillSquare(pos, style) {
         const shapeType = 'rectangle';
         const shapeSquare = BoardAnal.indexToFen(pos);

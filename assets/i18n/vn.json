@@ -140,7 +140,8 @@
         "pip": ["Bảng Nổi", "Quan trọng! Ngăn A.C.A.S bị đông cứng!"],
         "pipBoard": ["Hiển thị bàn cờ", "Thay vì chỉ văn bản, hiển thị toàn bộ bàn cờ"],
         "movesOnDemand": ["Các Nước đi Théo Yêu Cầu", "Tính toán các nước đi cho những quân cờ mà bạn tương tác với"],
-        "onlySuggestPieces": ["Chỉ Gợi Ý Quân Cờ", "Gợi ý những quân cờ để di chuyển, nhưng không cung cấp nước đi"]
+        "onlySuggestPieces": ["Chỉ Gợi Ý Quân Cờ", "Gợi ý những quân cờ để di chuyển, nhưng không cung cấp nước đi"],
+        "isUserscriptGhost": ["Script Ma", "Vô hiệu hóa tất cả chức năng bên ngoài có thể phát hiện (ví dụ: mũi tên nước đi) để tránh bị phát hiện"]
     },
     "translations": {
         "profileRemovalWarning": "Bạn có chắc chắn muốn xóa hồ sơ này?\n\nHành động này không thể hoàn tác.",

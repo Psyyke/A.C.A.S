@@ -140,7 +140,8 @@
         "pip": ["Flytande Panel", "Viktigt! Förhindrar att A.C.A.S fryser!"],
         "pipBoard": ["Visa brädet", "Visa hela brädet istället för bara text"],
         "movesOnDemand": ["Drag på Begäran", "Beräknar drag för pjäser du interagerar med"],
-        "onlySuggestPieces": ["Föreslå Endast Pjäser", "Föreslå pjäser att flytta, men ge inga drag"]
+        "onlySuggestPieces": ["Föreslå Endast Pjäser", "Föreslå pjäser att flytta, men ge inga drag"],
+        "isUserscriptGhost": ["Spökskript", "Inaktivera all upptäckbar extern funktionalitet (t.ex. dragpilar) för att undvika upptäckt"]
     },
     "translations": {
         "profileRemovalWarning": "Är du säker på att du vill ta bort denna profil?\n\nDenna åtgärd kan inte ångras.",

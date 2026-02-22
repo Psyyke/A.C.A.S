@@ -140,7 +140,8 @@
         "pip": ["Plovoucí panel", "Důležité! Zabrání zamrznutí A.C.A.S!"],
         "pipBoard": ["Zobrazit šachovnici", "Místo pouhého textu zobrazit celou šachovnici"],
         "movesOnDemand": ["Tahy na vybořání", "Vypočívá tahy pro figury, se kterými pracujete"],
-        "onlySuggestPieces": ["Pouze Navrhujte Figury", "Navrhnete figury k přesunutí, ale žádné tahy"]
+        "onlySuggestPieces": ["Pouze Navrhujte Figury", "Navrhnete figury k přesunutí, ale žádné tahy"],
+        "isUserscriptGhost": ["Skrytý skript", "Deaktivovat všechny detekovatelné externí funkce (např. šipky tahů), aby se zabránilo detekci"]
     },
     "translations": {
         "profileRemovalWarning": "Opravdu chcete odstranit tento profil?\n\nTuto akci nelze vrátit.",

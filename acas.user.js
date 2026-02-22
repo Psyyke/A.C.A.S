@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.3.8
+// @version     2.3.9
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -328,43 +328,26 @@ const blacklistedURLs = [
     'https://chess.net/'
 ];
 
-const configKeys = {
-    'engineElo': 'engineElo',
-    'moveSuggestionAmount': 'moveSuggestionAmount',
-    'arrowOpacity': 'arrowOpacity',
-    'displayMovesOnExternalSite': 'displayMovesOnExternalSite',
-    'showMoveGhost': 'showMoveGhost',
-    'showOpponentMoveGuess': 'showOpponentMoveGuess',
-    'showOpponentMoveGuessConstantly': 'showOpponentMoveGuessConstantly',
-    'onlyShowTopMoves': 'onlyShowTopMoves',
-    'maxMovetime': 'maxMovetime',
-    'chessVariant': 'chessVariant',
-    'chessEngine': 'chessEngine',
-    'lc0Weight': 'lc0Weight',
-    'engineNodes': 'engineNodes',
-    'chessFont': 'chessFont',
-    'useChess960': 'useChess960',
-    'onlyCalculateOwnTurn': 'onlyCalculateOwnTurn',
-    'ttsVoiceEnabled': 'ttsVoiceEnabled',
-    'ttsVoiceName': 'ttsVoiceName',
-    'ttsVoiceSpeed': 'ttsVoiceSpeed',
-    'chessEngineProfile': 'chessEngineProfile',
-    'primaryArrowColorHex': 'primaryArrowColorHex',
-    'secondaryArrowColorHex': 'secondaryArrowColorHex',
-    'opponentArrowColorHex': 'opponentArrowColorHex',
-    'reverseSide': 'reverseSide',
-    'autoMove': 'autoMove',
-    'autoMoveLegit': 'autoMoveLegit',
-    'autoMoveRandom': 'autoMoveRandom',
-    'autoMoveAfterUser': 'autoMoveAfterUser',
-    'legitModeType': 'legitModeType',
-    'moveDisplayDelay': 'moveDisplayDelay',
-    'renderOnExternalSite': 'renderOnExternalSite',
-    'feedbackOnExternalSite': 'feedbackOnExternalSite',
-    'moveAsFilledSquares': 'moveAsFilledSquares',
-    'movesOnDemand': 'movesOnDemand',
-    'onlySuggestPieces': 'onlySuggestPieces'
-};
+const configKeys = Object.freeze([
+    'engineElo', 'moveSuggestionAmount', 'arrowOpacity',
+    'displayMovesOnExternalSite', 'showMoveGhost', 'showOpponentMoveGuess',
+    'showOpponentMoveGuessConstantly', 'onlyShowTopMoves', 'maxMovetime',
+    'chessVariant', 'chessEngine', 'lc0Weight',
+    'engineNodes', 'chessFont', 'useChess960',
+    'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
+    'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
+    'secondaryArrowColorHex', 'opponentArrowColorHex', 'reverseSide',
+    'engineEnabled', 'autoMove', 'autoMoveLegit',
+    'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType',
+    'moveDisplayDelay', 'renderSquarePlayer', 'renderSquareEnemy',
+    'renderSquareContested', 'renderSquareSafe', 'renderPiecePlayerCapture',
+    'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
+    'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth',
+    'enableAdvancedElo', 'advancedElo', 'advancedEloDepth',
+    'advancedEloSkill', 'advancedEloMaxError', 'advancedEloProbability',
+    'advancedEloHash', 'advancedEloThreads', 'moveAsFilledSquares',
+    'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost'
+].reduce((o, k) => (o[k] = k, o), {}));
 
 const config = {};
 
@@ -1815,35 +1798,28 @@ function isBoardDrawerNeeded() {
     const gP = config?.global?.['profiles'];
     const iP = config?.instance?.[commLinkInstanceID]?.['profiles'];
 
-    if(gP) {
-        const globalProfiles = Object.keys(gP);
+    function check(cfg) {
+        const profiles = Object.keys(cfg);
 
-        for(const profileName of globalProfiles) {
-            const externalMoves = gP[profileName][configKeys.displayMovesOnExternalSite];
-            const externalRenders = gP[profileName][configKeys.renderOnExternalSite];
-            const externalFeedback = gP[profileName][configKeys.feedbackOnExternalSite];
-            const movesOnDemand = gP[profileName][configKeys.movesOnDemand];
+        for(const profileName of profiles) {
+            const profile = cfg[profileName];
 
-            if(externalMoves || externalRenders || externalFeedback || movesOnDemand) {
+            const isGhost = profile[configKeys.isUserscriptGhost];
+            if(isGhost) return false;
+
+            const externalMoves = profile[configKeys.displayMovesOnExternalSite];
+            const renderingNeeded = profile[configKeys.renderOnExternalSite];
+            const feedbackNeeded = profile[configKeys.feedbackOnExternalSite];
+            const movesOnDemand = profile[configKeys.movesOnDemand];
+
+            if(externalMoves || renderingNeeded || feedbackNeeded || movesOnDemand) {
                 return true;
             }
         }
     }
 
-    if(iP) {
-        const instanceProfiles = Object.keys(iP);
-
-        for(const profileName of instanceProfiles) {
-            const externalMoves = iP[profileName][configKeys.displayMovesOnExternalSite];
-            const externalRenders = iP[profileName][configKeys.renderOnExternalSite];
-            const externalFeedback = iP[profileName][configKeys.feedbackOnExternalSite];
-            const movesOnDemand = iP[profileName][configKeys.movesOnDemand];
-
-            if(externalMoves || externalRenders || externalFeedback || movesOnDemand) {
-                return true;
-            }
-        }
-    }
+    if(gP && check(gP)) return true;
+    if(iP && check(iP)) return true;
 
     return false;
 }
@@ -3649,7 +3625,6 @@ async function start() {
     await CommLink.commands.createInstance(commLinkInstanceID);
 
     const pathname = window.location.pathname;
-
     const boardOrientation = getBoardOrientation();
 
     instanceVars.playerColor.set(commLinkInstanceID, boardOrientation);
@@ -3704,7 +3679,7 @@ function startWhenBackendReady() {
 
             GM_openInTab(getCurrentBackendURL(), true);
         }
-    }, 100);
+    }, 500);
 }
 
 function initializeIfSiteReady() {

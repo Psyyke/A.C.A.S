@@ -140,7 +140,8 @@
         "pip": ["Pannello fluttuante", "Importante! Impedisce ad A.C.A.S di bloccarsi!"],
         "pipBoard": ["Mostra la scacchiera", "Invece di solo testo, mostra l'intera scacchiera"],
         "movesOnDemand": ["Mosse su Richiesta", "Calcola le mosse per i pezzi con cui interagisci"],
-        "onlySuggestPieces": ["Suggerisci Solo Pezzi", "Suggerisci i pezzi da muovere, ma non dare mosse"]
+        "onlySuggestPieces": ["Suggerisci Solo Pezzi", "Suggerisci i pezzi da muovere, ma non dare mosse"],
+        "isUserscriptGhost": ["Script Fantasma", "Disabilita tutte le funzionalità esterne rilevabili (es. frecce di movimento) per evitare il rilevamento"]
     },
     "translations": {
         "profileRemovalWarning": "Sei sicuro di voler rimuovere questo profilo?\n\nQuesta azione non può essere annullata.",

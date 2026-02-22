@@ -140,7 +140,8 @@
         "pip": ["Floating Panel","Important! Stops A.C.A.S from freezing!"],
         "pipBoard": ["Display Board", "Instead of just text, display the entire board"],
         "movesOnDemand": ["Moves On Demand", "Calculates moves for pieces you interact with"],
-        "onlySuggestPieces": ["Only Suggest Pieces", "Suggest pieces to move, but give no moves"]
+        "onlySuggestPieces": ["Only Suggest Pieces", "Suggest pieces to move, but give no moves"],
+        "isUserscriptGhost": ["Ghost Script", "Disable all detectable external functionality (e.g. move arrows) to avoid detection"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",

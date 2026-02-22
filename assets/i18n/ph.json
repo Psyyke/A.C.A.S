@@ -140,7 +140,8 @@
         "pip": ["Floating Panel", "Mahalaga! Pinipigilan ang A.C.A.S na mag-freeze!"],
         "pipBoard": ["Ipakita ang tabla", "Sa halip na teksto lamang, ipakita ang buong tabla"],
         "movesOnDemand": ["Mga Galaw sa Pangangailangan", "Kinakalkula ang mga galaw para sa mga piyesang iyong pakikipag-ugnayan"],
-        "onlySuggestPieces": ["Lamang Isinungka ang mga Piyesa", "Isinungka ang mga piyesa upang ilipat, ngunit walang galaw"]
+        "onlySuggestPieces": ["Lamang Isinungka ang mga Piyesa", "Isinungka ang mga piyesa upang ilipat, ngunit walang galaw"],
+        "isUserscriptGhost": ["Tagong Script", "Patayin ang lahat ng mga natutukoy na panlabas na functionality (hal. mga arrow ng galaw) upang maiwasan ang pagtuklas"]
     },
     "translations": {
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",

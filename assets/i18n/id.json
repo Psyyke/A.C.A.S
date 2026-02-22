@@ -140,7 +140,8 @@
         "pip": ["Panel Mengambang", "Penting! Mencegah A.C.A.S membeku!"],
         "pipBoard": ["Tampilkan papan", "Alih-alih hanya teks, tampilkan seluruh papan"],
         "movesOnDemand": ["Gerakan Sesuai Permintaan", "Menghitung gerakan untuk bidak yang Anda interaksikan"],
-        "onlySuggestPieces": ["Hanya Sarankan Bidak", "Sarankan bidak untuk dipindahkan, tetapi tidak memberikan gerakan"]
+        "onlySuggestPieces": ["Hanya Sarankan Bidak", "Sarankan bidak untuk dipindahkan, tetapi tidak memberikan gerakan"],
+        "isUserscriptGhost": ["Skrip Hantu", "Nonaktifkan semua fungsi eksternal yang dapat dideteksi (mis. panah gerakan) untuk menghindari deteksi"]
     },
     "translations": {
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",

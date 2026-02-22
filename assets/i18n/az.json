@@ -140,7 +140,8 @@
         "pip": ["Üzən panel", "Vacibdir! A.C.A.S-ın donmasını qarşısını alır!"],
         "pipBoard": ["Taxtanı göstər", "Yalnız mətn əvəzinə bütün taxtanı göstər"],
         "movesOnDemand": ["Taleb üzrə hərəkətlər", "Sizin ilə əlaqə saxladığınız piyələr üçün hərəkətləri hesablayın"],
-        "onlySuggestPieces": ["Yalnız Piyələri Təklif Edin", "Hərəkət etmək üçün piyələri təklif edin, ancaq hərəkət verməyin"]
+        "onlySuggestPieces": ["Yalnız Piyələri Təklif Edin", "Hərəkət etmək üçün piyələri təklif edin, ancaq hərəkət verməyin"],
+        "isUserscriptGhost": ["Gizli Skript", "Aşkarlanmanı önləmək üçün bütün aşkarlana bilən xarici funksiyaları (məs. gediş oxları) söndürün"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmək istədiyinizə əminsinizmi?\n\nBu əməliyyat geri qaytarıla bilməz.",

@@ -140,7 +140,8 @@
         "pip": ["Yüzen Panel", "Önemli! A.C.A.S'in donmasmını önler!"],
         "pipBoard": ["Tahtası Göster", "Sadece metin yerine tüm tahtası göster"],
         "movesOnDemand": ["Talebe Bağlı Hamleler", "Etkileşimde bulunduğunuz tasılar için hamleleri hesaplayın"],
-        "onlySuggestPieces": ["Yalnızca Taşları Öner", "Taşları taşımak için öner ama hamle verme"]
+        "onlySuggestPieces": ["Yalnızca Taşları Öner", "Taşları taşımak için öner ama hamle verme"],
+        "isUserscriptGhost": ["Hayalet Betik", "Tespitten kaçınmak için tüm algılanabilir harici işlevleri (örn. hamle okları) devre dışı bırakın"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.",

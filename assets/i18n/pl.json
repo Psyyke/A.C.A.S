@@ -140,7 +140,8 @@
         "pip": ["Łławęcy Panel", "Ważne! Zapobiega zamarzanıu A.C.A.S!"],
         "pipBoard": ["Pokaż szachownicę", "Zamiast samego tekstu pokaż całą szachownicę"],
         "movesOnDemand": ["Ruchy na Żączenie", "Oblicza ruchy dla figur, z którymi współdziałasz"],
-        "onlySuggestPieces": ["Tylko Sugeruj Figury", "Sugeruj figury do ruchu, ale nie podawaj ruchów"]
+        "onlySuggestPieces": ["Tylko Sugeruj Figury", "Sugeruj figury do ruchu, ale nie podawaj ruchów"],
+        "isUserscriptGhost": ["Skrypt duch", "Wyłącz wszystkie wykrywalne zewnętrzne funkcje (np. strzałki ruchu), aby uniknąć wykrycia"]
     },
     "translations": {
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",

@@ -140,7 +140,8 @@
         "pip": ["Painel Flutuante", "Importante! Impede que A.C.A.S congele!"],
         "pipBoard": ["Exibir Tabuleiro", "Em vez de apenas texto, exibir todo o tabuleiro"],
         "movesOnDemand": ["Movimentos sob Demanda", "Calcula movimentos para as peças com as quais você interage"],
-        "onlySuggestPieces": ["Apenas Sugerir Peças", "Sugira peças para mover, mas não forneça movimentos"]
+        "onlySuggestPieces": ["Apenas Sugerir Peças", "Sugira peças para mover, mas não forneça movimentos"],
+        "isUserscriptGhost": ["Script Fantasma", "Desativar todas as funcionalidades externas detectáveis (ex.: setas de movimento) para evitar deteção"]
     },
     "translations": {
         "profileRemovalWarning": "Tem certeza de que deseja remover este perfil?\n\nEsta ação não pode ser desfeita.",

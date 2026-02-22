@@ -888,7 +888,8 @@ function initGUI() {
                     if(
                         e?.target?.dataset?.key === 'displayMovesOnExternalSite' ||
                         e?.target?.dataset?.key === 'renderOnExternalSite' ||
-                        e?.target?.dataset?.key === 'movesOnDemand'
+                        e?.target?.dataset?.key === 'movesOnDemand' ||
+                        e?.target?.dataset?.key === 'isUserscriptGhost'
                     ) {
                         const msg = transObj?.refreshSiteNotification ?? 'Refresh the external site to see changes!';
                         toast.create('message', '👁‍🗨', msg);

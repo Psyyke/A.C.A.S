@@ -140,7 +140,8 @@
         "pip": ["Kelluva paneeli", "Tärkeä! Estää A.C.A.S:n jäätymisen!"],
         "pipBoard": ["Näytä lauta", "Näytä koko lauta pelkän tekstin sijaan"],
         "movesOnDemand": ["Siirrot pyynnöllä", "Laskee siirtoja nappuloille, joiden kanssa vuorovaikutat"],
-        "onlySuggestPieces": ["Ehdota Vain Nappuloita", "Ehdota nappuloita siirtää, mutta älä anna siirtoja"]
+        "onlySuggestPieces": ["Ehdota Vain Nappuloita", "Ehdota nappuloita siirtää, mutta älä anna siirtoja"],
+        "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstä kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"]
     },
     "translations": {
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",

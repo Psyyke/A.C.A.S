@@ -140,7 +140,8 @@
         "pip": ["Plutajući Panel", "Važno! Sprečava da A.C.A.S zamrzne!"],
         "pipBoard": ["Prikaži tablu", "Umesto samo teksta, prikaži celu tablu"],
         "movesOnDemand": ["Potezi na Zahtev", "Izračunava poteze za figure sa kojima radite"],
-        "onlySuggestPieces": ["Samo Predloži Figure", "Predloži figure za pomeranje, ali ne daj poteze"]
+        "onlySuggestPieces": ["Samo Predloži Figure", "Predloži figure za pomeranje, ali ne daj poteze"],
+        "isUserscriptGhost": ["Привидни скрипт", "Онемогући све детектујeне спољне функције (нпр. стрелице потеза) да би се избегло откривање"]
     },
     "translations": {
         "profileRemovalWarning": "Da li ste sigurni da želite da uklonite ovaj profil?\n\nOva akcija se ne može poništiti.",

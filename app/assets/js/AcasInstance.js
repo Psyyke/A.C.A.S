@@ -12,8 +12,7 @@ import { removeInstance } from './instanceManager.js';
 const logEngineMessages = false,
       debugLogsEnabled = false;
 
-const configKeys = Object.freeze(
-[
+const configKeys = Object.freeze([
     'engineElo', 'moveSuggestionAmount', 'arrowOpacity',
     'displayMovesOnExternalSite', 'showMoveGhost', 'showOpponentMoveGuess',
     'showOpponentMoveGuessConstantly', 'onlyShowTopMoves', 'maxMovetime',
@@ -31,7 +30,7 @@ const configKeys = Object.freeze(
     'enableAdvancedElo', 'advancedElo', 'advancedEloDepth',
     'advancedEloSkill', 'advancedEloMaxError', 'advancedEloProbability',
     'advancedEloHash', 'advancedEloThreads', 'moveAsFilledSquares',
-    'movesOnDemand', 'onlySuggestPieces'
+    'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost'
 ].reduce((o, k) => (o[k] = k, o), {}));
 
 export default class AcasInstance {
