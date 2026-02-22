@@ -133,7 +133,7 @@ let lastProfileID = null;
     
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
-        if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.3.0')) {
+        if(GM_info?.script?.version && isBelowVersion(GM_info?.script?.version, '2.3.7')) {
             updateYourUserscriptElem.classList.remove('hidden');
         }
         
