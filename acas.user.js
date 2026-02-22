@@ -107,7 +107,7 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 //////////////////////////////////////////////////////////////////
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
 
-(async () => { await LOAD_LEGACY_GM_SUPPORT();
+(async () => { try { await LOAD_LEGACY_GM_SUPPORT();
 /*
 ┏┓┓ ┏┓┳┓┏┓┓
 ┃┓┃ ┃┃┣┫┣┫┃
@@ -611,7 +611,7 @@ function maybeAnnounceMarkingsToPage(moveMarkings) {
 const boardUtils = {
     markMoves: moveObjArr => { // needs refactoring but too lazy for now
         if(!BoardDrawer) return;
-      
+
         const maxScale = 1;
         const minScale = 0.5;
         const totalRanks = moveObjArr.length;
@@ -3777,7 +3777,9 @@ setInterval(initializeIfSiteReady, 100);
 // This slow rate might cause users to complain that settings aren't being applied fast enough
 setInterval(refreshSettings, 2500);
 
-})(); // wraps around the whole userscript to enable async
+} catch(e) { // Attempt to catch all errors on userscript (Note: ONLY LOG DURING DEVELOPMENT. ERRORS EXPOSE USERSCRIPT TO THE PAGE!)
+    //console.warn(e);
+}})(); // Wraps around the whole userscript to enable async.
 
 /*////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
