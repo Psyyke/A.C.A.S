@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.3.7
+// @version     2.3.8
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -530,6 +530,8 @@ function clearMetricRenders() {
 }
 
 function renderMetrics(addedMetrics) {
+    if(!BoardDrawer) return;
+
     clearMetricRenders();
 
     function processMetric(metric) {
@@ -566,6 +568,8 @@ function clearFeedback() {
 }
 
 function displayFeedback(addedFeedback) {
+    if(!BoardDrawer) return;
+
     clearFeedback();
 
     function processFeedback(feedback) {
@@ -606,6 +610,8 @@ function maybeAnnounceMarkingsToPage(moveMarkings) {
 
 const boardUtils = {
     markMoves: moveObjArr => { // needs refactoring but too lazy for now
+        if(!BoardDrawer) return;
+      
         const maxScale = 1;
         const minScale = 0.5;
         const totalRanks = moveObjArr.length;
@@ -1247,6 +1253,8 @@ function getPiecePaths(board, piecePos, pieceFen, isPieceWhite) {
 
 function addMovesOnDemandListeners() {
     let lastProcessedSquareFen = null;
+
+    if(!BoardDrawer) return;
 
     function handle() {
         if((lastProcessedSquareFen !== modLastEnteredSquare.squareFen) || !modLastEnteredSquare.squareFen) {
