@@ -3662,7 +3662,7 @@ async function start() {
             'window': window,
             'boardDimensions': getBoardDimensions(),
             'playerColor': getBoardOrientation(),
-            'zIndex': domain === 'worldchess.com' ? 9999 : 500,
+            'zIndex': Math.floor(Math.random() * (99 - 10 + 1)) + 10,
             'prepend': true,
             'debugMode': debugModeActivated,
             'adjustSizeByDimensions': domain === 'chess.com' && pathname?.includes('/variants'),
