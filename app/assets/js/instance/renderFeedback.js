@@ -40,6 +40,7 @@ export default async function renderFeedback(currentFen) {
 
     const clearFeedback = profileName => {
         if(!profileName) return;
+        if(!this.pV[profileName]) return;
 
         // Remove all previous metrics
         const previousFeedbacks = this.pV[profileName].activeFeedbackDisplays;
