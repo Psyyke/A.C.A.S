@@ -6,7 +6,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
     if(isReload) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profileName);
 
-    if(engineName && attempt > 999) {
+    if(engineName && attempt > 300) {
         toast.warning(`Restarting the engine ${engineName} failed despite many attempts :(\n\nRefresh A.C.A.S!`);
         
         return;
@@ -30,10 +30,11 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         if(alreadyRestarted) return;
 
         if(!e?.message?.includes('memory access')) {
-            if(!e?.message?.includes('[object ErrorEvent]'))
-                toast.error(`Engine "${name}" crashed due to "${e?.message}"!`, 5e3);
-            else
-                return;
+            if(!e?.message?.includes('[object ErrorEvent]')) {
+                if(attempt % 10 === 0) {
+                    toast.error(`Engine "${name}" crashed due to "${e?.message}"!`, 5e3);
+                }
+            } else return;
         }
 
         console.error(`Restarting the engine "${name}" due to the error:`, e);
