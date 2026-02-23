@@ -374,8 +374,9 @@ dialog {
     color: white;
     padding: 0;
     border-color:rgb(255 255 255 / 30%);
-    max-height: 70%;
+    max-height: 85%;
 }
+
 dialog::backdrop {
     background: rgb(0 0 0 / 50%);
     backdrop-filter: blur(3px);
@@ -472,4 +473,14 @@ dialog .input-subtitle {
     background-color: rgb(0 0 0 / 15%);
     padding: 5px;
     border-radius: 5px;
+}
+@media (max-width: 700px) {
+    dialog {
+        max-width: 95% !important;
+        height: fit-content;
+        max-height: 95%;
+    }
+    .floaty-container {
+        padding: 0;
+    }
 }
