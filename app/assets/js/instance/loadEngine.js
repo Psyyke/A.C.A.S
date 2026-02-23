@@ -6,7 +6,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
     if(isReload) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profileName);
 
-    if(engineName && attempt > 9999) {
+    if(engineName && attempt > 999) {
         toast.warning(`Restarting the engine ${engineName} failed despite many attempts :(\n\nRefresh A.C.A.S!`);
         
         return;
