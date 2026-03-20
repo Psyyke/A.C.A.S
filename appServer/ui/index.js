@@ -14,10 +14,10 @@ let serverConnectionStatus = false;
 })();
 
 document.querySelectorAll('a.external')
-    .forEach(a=>{
+    .forEach(a => {
         a.addEventListener('click', e=>{
             e.preventDefault();
-            nw.Shell.openExternal(a.href);
+            window.electronAPI.openExternal(a.href);
         });
     });
 

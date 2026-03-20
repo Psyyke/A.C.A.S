@@ -146,7 +146,7 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 * [Rubik](https://fonts.google.com/specimen/Rubik) (*a sans-serif font family by Hubert & Fischer*)
 * [IBM Plex Sans](https://github.com/IBM/plex) (*IBM's official open-source typeface*)
 * [ws](https://github.com/websockets/ws) (*WebSocket library for the A.C.A.S server*)
-* [NW.js](https://nwjs.io/) (*the framework that allows A.C.A.S to be a desktop application*)
+* [Electron](https://www.electronjs.org/) (*the framework that allows A.C.A.S to be a desktop application*)
 
 ## GUI Overview
 

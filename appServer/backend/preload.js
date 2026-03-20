@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, shell } from 'electron';
 
 contextBridge.exposeInMainWorld('engineAPI', {
 	killAllEngines: () => ipcRenderer.invoke('killAllEngines'),
@@ -28,5 +28,9 @@ contextBridge.exposeInMainWorld('fileAPI', {
 });
 
 contextBridge.exposeInMainWorld('toastAPI', {
-	onMessage: (callback) => ipcRenderer.on('toast', (event, data) => callback(data)),
+	onMessage: (callback) => ipcRenderer.on('toast', (event, data) => callback(data))
+});
+
+contextBridge.exposeInMainWorld('electronAPI', {
+	openExternal: (url) => shell.openExternal(url)
 });
