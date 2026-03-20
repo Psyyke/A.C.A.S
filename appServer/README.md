@@ -1,7 +1,15 @@
 # Local Calculation Server (for A.C.A.S)
 
 Please visit the GitHub for more details: https://github.com/Psyyke/A.C.A.S
+
 This file basically just lists the LICENSE and the dependencies A.C.A.S might use.
+
+## Developing / Building
+
+1. `npm install`
+2. Run the `dev.bat`
+
+You can build the server the using `build.bat`. The files will be created to `/dist/` folder.
 
 ## Warning
 
