@@ -1,3 +1,5 @@
+<img width="2000" height="500" alt="largehero" src="assets/images/largehero.png" />
+
 # A.C.A.S (Advanced Chess Assistance System)
 
 > [!WARNING]

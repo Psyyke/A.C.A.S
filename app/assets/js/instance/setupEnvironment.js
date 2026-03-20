@@ -244,7 +244,8 @@ export default async function setupEnvironment(startpos, dimensions) {
             toast.error(msg);
         }
 
-        (adsbygoogle = window.adsbygoogle || []).push({});
+        // Disabling this for now as it's a bit annoying, I'd rather get donations than put ads anyway.
+        //(adsbygoogle = window.adsbygoogle || []).push({});
 
         this.startInterfacePolling();
 
