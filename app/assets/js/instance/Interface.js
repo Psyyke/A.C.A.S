@@ -1,3 +1,5 @@
+import { updatePipData } from '../gui/pip.js';
+
 function getArrowStyle(type, fill, opacity) {
     const getBaseStyleModification = (f, o) => [
         'stroke: rgb(0 0 0 / 50%);',
@@ -24,7 +26,7 @@ export default class Interface {
 
     async markMoves(moveObjArr, profile) {
         this.removeMarkings(profile, 'Make room for new move markings');
-    
+
         const maxScale = 1, minScale = 0.5, totalRanks = moveObjArr.length;
         const BoardDrawer = this.AcasInstance.BoardDrawer;
         const cfgKeys = this.AcasInstance.configKeys;
@@ -164,7 +166,7 @@ export default class Interface {
         // Most up to date userscript versions handle this itself, so commenting out for now.
         //if(this.AcasInstance.currentFen === fen) return;
     
-        const moveObj = extractMoveFromBoardFen(this.AcasInstance.currentFen, fen);
+        const moveObj = EXTRACT_MOVE_FROM_FEN(this.AcasInstance.currentFen, fen);
         const movedPieceLowered = moveObj?.movedPiece?.toLowerCase();
         const instanceFenElem = this?.AcasInstance?.instanceElem?.querySelector('.instance-fen');
 
@@ -192,7 +194,7 @@ export default class Interface {
             moveObj.color = playerColor.toLowerCase() === 'w' ? 'b' : 'w';
         }
     
-        fen = modifyFenCastleRights(fen, this.AcasInstance.kingMoved);
+        fen = MODIFY_FEN_CASTLE_RIGHTS(fen, this.AcasInstance.kingMoved);
     
         this.AcasInstance.currentFen = fen;
     
@@ -202,7 +204,7 @@ export default class Interface {
         if(this.AcasInstance.chessground) this.AcasInstance.chessground.set({ fen });
 
         this.AcasInstance.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
-    
+
         this.removeMarkings(null, 'New board FEN');
     
         // For each profile config
@@ -216,7 +218,7 @@ export default class Interface {
         updatePipData({ 'moveObjects': null });
     
         this.AcasInstance.renderFeedback(fen);
-        this.AcasInstance.calculateBestMoves(fen, null, null, moveObj);
+        this.AcasInstance.calculateBestMoves(fen, { moveObj });
     
         this.AcasInstance.moveHistory.push({
             'fen': fen,
@@ -279,6 +281,8 @@ export default class Interface {
         const gradualness = 8;
         const playerColor = await this.AcasInstance.getPlayerColor(profile);
     
+        if(this.AcasInstance.lastTurn !== playerColor) return;
+
         if(playerColor == 'b') {
             centipawnEval = -centipawnEval;
         }

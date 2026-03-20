@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Shakkimoottorin profiilit",
         "#chess-engine-profile-dropdown .input-subtitle": "Useita profiileja voi olla aktiivisena samanaikaisesti!",
         "#add-new-profile-button .text-content": "Lisää uusi",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Oletusprofiili",
-        "#settings-navbar-subtitle": "Asetukset vaikuttavat kaikkiin instansseihin",
+        ".tab-item[data-value=\"default\"] p": "Oletusprofiili",
         ".engine-panel-title": "Moottori",
         ".visual-panel-title": "Visuaalinen",
         ".audible-panel-title": "Kuultava",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "Ei tuettu hyvin",
         "*[data-translation-squares-text]": "Ruudut",
         "*[data-translation-pieces-text]": "Nappulat",
-        "*[data-translation-move-display-settings]": "Siirtoehdotusten asetukset",
-        ".stable-engine-tag": "Vakaa",
+        "*[data-translation-move-display-settings]": "Siirtoehdotusten asetukset",        "*[data-translation-begging-title]": "Kiitos!",
+        "*[data-translation-begging-subtitle]": "Näyttää siltä, että pidit A.C.A.S:sta :)",
+        "*[data-translation-begging-text]": "A.C.A.S:n kehittäminen vie paljon aikaa! Toivottavasti tämä työ on ollut sinulle arvokasta ja olet nauttinut sen käytöstä!",
+        "*[data-translation-begging-text-2]": "Olet käyttänyt A.C.A.S:ta",
+        "*[data-translation-begging-text-3]": "tuntia",
+        "*[data-translation-begging-text-4]": "Se on kunniallista. Haluaisitko lahjoittaa? Tuemme Monerotaa,",
+        "*[data-translation-external-engine-2]": "Asenna A.C.A.S palvelin",
+        "*[data-translation-external-engine-3]": "ulkoisten moottorien käyttämistä varten",
+        "*[data-translation-stat-ec]": "Moottorin laskelmat",
+        "*[data-translation-stat-ci]": "Luodut instanssit",
+        "*[data-translation-stat-am]": "Aktiivit minuutit",        ".stable-engine-tag": "Vakaa",
         ".variants-engine-tag": "Variantit",
         ".realistic-engine-tag": "Realistinen",
         ".unstable-engine-tag": "Epävakaa",
@@ -141,7 +149,8 @@
         "pipBoard": ["Näytä lauta", "Näytä koko lauta pelkän tekstin sijaan"],
         "movesOnDemand": ["Siirrot pyynnöllä", "Laskee siirtoja nappuloille, joiden kanssa vuorovaikutat"],
         "onlySuggestPieces": ["Ehdota Vain Nappuloita", "Ehdota nappuloita siirtää, mutta älä anna siirtoja"],
-        "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstä kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"]
+        "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstään kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"],
+        "useExternalChessEngine": ["Käytössä", "Onko ulkoinen shakin moottori käytössä"]
     },
     "translations": {
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Varoitus: Liiallista välilehtien vaihtoa havaittu. Jatkuva vaihto saattaa johtaa banniin.\n\nVältä välilehtien vaihtamista seuraavilla tavoilla:\n- Tee kaksi erillistä ikkunaa vierekkäin\n- Näytä siirrot sivulla (Tämä on helposti havaittavissa)\n- Ota TTS (Tekstistä puheeksi) käyttöön\n- Ota kelluvan paneelin asetus käyttöön",
         "instanceConnectionTermination": "Instanssi päättyi yhteyden katkeamisen vuoksi.\n\nTuliko tämä yllätyksenä? Siirry takaisin shakkivälilehdelle aktivoidaksesi A.C.A.S:in uudelleen.",
         "calculationDepth": "Syvyys",
-        "thankYouTranslator": "Kiitos kääntäjille"
+        "thankYouTranslator": "Kiitos kääntäjille",
+        "serverOpen": "Yhdistetty palvelimeen!",
+        "serverClose": "Ei voitu yhdistää ulkoisen shakin moottorin palvelimeen!\n\nAsenna/käynnistä palvelin, yritä muodostaa yhteys uudelleen...",
+        "websocketError": "WebSocket-virhe:",
+        "unknownWebsocketError": "Tuntematon virhe, mahdollisesti yhteys katkennut?",
+        "noExternalEngineAnymore": "Aiemmin valittu ULKOINEN moottori ei ole enää saatavilla. Valitse uusi."
     },
     "contributors": ["Haka"]
 }

@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Schaakengine Profielen",
         "#chess-engine-profile-dropdown .input-subtitle": "Meerdere profielen kunnen tegelijkertijd actief zijn!",
         "#add-new-profile-button .text-content": "Voeg Nieuw Toe",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Standaard Profiel",
-        "#settings-navbar-subtitle": "Instellingen beïnvloeden elke instantie",
+        ".tab-item[data-value=\"default\"] p": "Standaard Profiel",
         ".engine-panel-title": "Engine",
         ".visual-panel-title": "Visueel",
         ".audible-panel-title": "Auditief",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Vierkanten",
         "*[data-translation-pieces-text]": "Stukken",
         "*[data-translation-move-display-settings]": "Zet suggestie instellingen",
+        "*[data-translation-begging-title]": "Dank!",
+        "*[data-translation-begging-subtitle]": "Je lijkt A.C.A.S te houden :)",
+        "*[data-translation-begging-text]": "Het ontwikkelen van A.C.A.S vergt veel tijd! Hopelijk is dit werk waardevol voor je geweest en heb je ervan genoten het te gebruiken!",
+        "*[data-translation-begging-text-2]": "Je hebt A.C.A.S gebruikt voor",
+        "*[data-translation-begging-text-3]": "uren",
+        "*[data-translation-begging-text-4]": "Dat is eerbiedwaardig. Zou je geïnteresseerd zijn in doneren? We ondersteunen Monero,",
+        "*[data-translation-external-engine-2]": "Installeer de A.C.A.S-server",
+        "*[data-translation-external-engine-3]": "om externe motoren te gebruiken",
+        "*[data-translation-stat-ec]": "Motor berekeningen",
+        "*[data-translation-stat-ci]": "Gemaakte instanties",
+        "*[data-translation-stat-am]": "Actieve minuten",
         ".stable-engine-tag": "Stabiel",
         ".variants-engine-tag": "Varianten",
         ".realistic-engine-tag": "Realistisch",
@@ -141,7 +151,8 @@
         "pipBoard": ["Bord weergeven", "In plaats van alleen tekst, het volledige bord weergeven"],
         "movesOnDemand": ["Zetten op Aanvraag", "Berekent zetten voor de stukken waarmee je interageert"],
         "onlySuggestPieces": ["Alleen Stukken Voorstellen", "Stel stukken voor om te verplaatsen, maar geef geen zetten"],
-        "isUserscriptGhost": ["Spookscript", "Schakelt alle detecteerbare externe functionaliteit uit (bv. zetpijlen) om detectie te vermijden"]
+        "isUserscriptGhost": ["Spookscript", "Schakelt alle detecteerbare externe functionaliteit uit (bv. zetpijlen) om detectie te vermijden"],
+        "useExternalChessEngine": ["Ingeschakeld", "Is de externe schaakengine ingeschakeld"]
     },
     "translations": {
         "profileRemovalWarning": "Weet je zeker dat je dit profiel wilt verwijderen?\n\nDeze actie kan niet ongedaan worden gemaakt.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Waarschuwing: Overmatig tabbladwisselen gedetecteerd. Vervolg dit kan leiden tot een ban.\n\nOm niet steeds tussen tabs te schakelen, doe een van de volgende,\n- Maak twee afzonderlijke vensters naast elkaar\n- Toon zetten op de pagina (Dit wordt gemakkelijk gedetecteerd)\n- Zet TTS (Text-to-Speech) in\n- Schakel de zwevende paneel instelling in",
         "instanceConnectionTermination": "Instantie beëindigd wegens verlies van verbinding.\n\nOnverwacht? Bezoek het tabblad om A.C.A.S opnieuw te activeren.",
         "calculationDepth": "Diepte",
-        "thankYouTranslator": "Dank aan de vertalers"
+        "thankYouTranslator": "Dank aan de vertalers",
+        "serverOpen": "Verbonden met de server!",
+        "serverClose": "Kon niet verbinden met de externe schaakengine-server!\n\nInstalleer/start alstublieft het serverprogramma, opnieuw verbinden wordt geprobeerd...",
+        "websocketError": "WebSocket-fout:",
+        "unknownWebsocketError": "Onbekende fout, mogelijk verbinding verbroken?",
+        "noExternalEngineAnymore": "De eerder geselecteerde EXTERNE schaakengine is niet meer beschikbaar. Selecteer een nieuwe."
     },
     "contributors": []
 }

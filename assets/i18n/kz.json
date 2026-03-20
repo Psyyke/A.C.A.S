@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Шахмат қозғалтқышының профильдері",
         "#chess-engine-profile-dropdown .input-subtitle": "Бір уақытта бірнеше профиль белсенді болуы мүмкін!",
         "#add-new-profile-button .text-content": "Жаңа қосу",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Әдепкі профиль",
-        "#settings-navbar-subtitle": "Параметтер әр инстанцияға әсер етеді",
+        ".tab-item[data-value=\"default\"] p": "Әдепкі профиль",
         ".engine-panel-title": "Қозғалтқыш",
         ".visual-panel-title": "Көрнекі",
         ".audible-panel-title": "Дыбыстық",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Шаршылар",
         "*[data-translation-pieces-text]": "Фигуралар",
         "*[data-translation-move-display-settings]": "Жүру ұсыныстары параметрлері",
+        "*[data-translation-begging-title]": "Рахмет!",
+        "*[data-translation-begging-subtitle]": "Сіздің A.C.A.S-ты ұнатыңыз бойынша :)",
+        "*[data-translation-begging-text]": "A.C.A.S-ты дамыту көп уақыт алады! Өтінемін бұл жұмыс сіз үшін құнды болсын және оны пайдалану ұнасын!",
+        "*[data-translation-begging-text-2]": "Сіз A.C.A.S-ты пайдалана отырып",
+        "*[data-translation-begging-text-3]": "сағат",
+        "*[data-translation-begging-text-4]": "Бұл құрметті. Донация беруге қызығыңыз бар ма? Біз Monero-ды қолдаймыз,",
+        "*[data-translation-external-engine-2]": "A.C.A.S серверін орнатыңыз",
+        "*[data-translation-external-engine-3]": "сыртқы қозғалтқыштарды пайдалану үшін",
+        "*[data-translation-stat-ec]": "Қозғалтқыш есептеулері",
+        "*[data-translation-stat-ci]": "Жасалған инстанциялар",
+        "*[data-translation-stat-am]": "Белсенді минуттар",
         ".stable-engine-tag": "Тұрақты",
         ".variants-engine-tag": "Нұсқалар",
         ".realistic-engine-tag": "Реалистік",
@@ -141,7 +151,8 @@
         "pipBoard": ["Тахтаны көрсету", "Тек мәтіннің орнына барлық тахтаны көрсету"],
         "movesOnDemand": ["Орын сҳауында жүрістер", "Сіз өз гері алатын жҳна дәр дәлдандыркан әретүн ісәптетеді"],
         "onlySuggestPieces": ["Тек ғана фигураларды ұсыну", "Қозғалту үшін фигураларды ұсыныңыз, бірақ ешқандай жүрісті бермеңіз"],
-        "isUserscriptGhost": ["Фантом скрипт", "Ашылуы мүмкін барлық сыртқы функцияларды (мыс., жүріс көрсеткіштері) өшіріңіз, анықталмау үшін"]
+        "isUserscriptGhost": ["Фантом скрипт", "Ашылуы мүмкін барлық сыртқы функцияларды (мыс., жүріс көрсеткіштері) өшіріңіз, анықталмау үшін"],
+        "useExternalChessEngine": ["Қосылды", "Сыртқы шахмат қозғалтқышы қосылыбы"]
     },
     "translations": {
         "profileRemovalWarning": "Сіз бұл профильді жоюға дайынсыз ба?\n\nБұл әрекет қайтарылмайды.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Ескерту: Артық қойынды ауыстыру анықталды. Тұрақты ауыстыру тыйым салуға әкелуі мүмкін.\n\nҚойындылар арасында ауысу қажеттілігін болдырмау үшін, келесі әрекеттердің бірін жасаңыз,\n- Екі бөлек терезе жасаңыз\n- Бетте жүрістерді көрсетіңіз (бұл оңай анықталады)\n- TTS (Text to Speech) қосыңыз\n- Қалқымалы панель параметрін қосыңыз",
         "instanceConnectionTermination": "Қосылымды жоғалту себебінен инстанция тоқтатылды.\n\nКүтпеген жағдай? A.C.A.S-ты қайта қосу үшін қойындыға барыңыз.",
         "calculationDepth": "Тереңдік",
-        "thankYouTranslator": "Аудармашыларға рахмет"
+        "thankYouTranslator": "Аудармашыларға рахмет",
+        "serverOpen": "Серверге қосылды!",
+        "serverClose": "Сыртқы шахмат қозғалтқышы серверіне қосыла алмады!\n\nСервердің орнатылуын/орнатылуын, қайта қосыныңыз...",
+        "websocketError": "WebSocket қатесі:",
+        "unknownWebsocketError": "Белгісіз қате, байланыс ұзылды ма?",
+        "noExternalEngineAnymore": "Бұрын таңдалған СЫРТҚЫ шахмат қозғалтқышы енді қол жетімді емес. Жаңасын таңдаңыз."
     },
     "contributors": ["ChatGPT"]
 }

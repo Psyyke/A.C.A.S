@@ -19,6 +19,7 @@
      height: 800%;
      display: block;
      bottom: 0;
+     touch-action: pan-y !important;
 }
  cg-board {
      position: absolute;
@@ -33,6 +34,7 @@
      line-height: 0;
      background-size: cover;
      cursor: pointer;
+     border-radius: 3px;
 }
  cg-board square {
      position: absolute;

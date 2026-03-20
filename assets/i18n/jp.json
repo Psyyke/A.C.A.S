@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "チェスエンジンのプロフィール",
         "#chess-engine-profile-dropdown .input-subtitle": "複数のプロフィールが同時にアクティブになります！",
         "#add-new-profile-button .text-content": "新規追加",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "デフォルトプロフィール",
-        "#settings-navbar-subtitle": "設定はすべてのインスタンスに影響します",
+        ".tab-item[data-value=\"default\"] p": "デフォルトプロフィール",
         ".engine-panel-title": "エンジン",
         ".visual-panel-title": "ビジュアル",
         ".audible-panel-title": "音声",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "サポートが不十分",
         "*[data-translation-squares-text]": "マス",
         "*[data-translation-pieces-text]": "駒",
-        "*[data-translation-move-display-settings]": "手の提案設定",
-        ".stable-engine-tag": "安定",
+        "*[data-translation-move-display-settings]": "手の提案設定",        "*[data-translation-begging-title]": "ありがとうございました!",
+        "*[data-translation-begging-subtitle]": "A.C.A.S が好きなんですね :)",
+        "*[data-translation-begging-text]": "A.C.A.Sの開発は本当に時間がかかります。この仲間を値一歩と尊敬いていただければ幸いです。",
+        "*[data-translation-begging-text-2]": "A.C.A.S を",
+        "*[data-translation-begging-text-3]": "時間間使用しました",
+        "*[data-translation-begging-text-4]": "大変可筋を。寛欠を試してみていかがでしょうか？ずっと前 Monero をサポートです。,",
+        "*[data-translation-external-engine-2]": "A.C.A.S サーバーをインストールしてください",
+        "*[data-translation-external-engine-3]": "外部エンジンを使用する",
+        "*[data-translation-stat-ec]": "エンジン計算",
+        "*[data-translation-stat-ci]": "作成されたインスタンス",
+        "*[data-translation-stat-am]": "アクティブな分",        ".stable-engine-tag": "安定",
         ".variants-engine-tag": "バリアント",
         ".realistic-engine-tag": "リアル",
         ".unstable-engine-tag": "不安定",
@@ -141,7 +149,8 @@
         "pipBoard": ["盤を表示", "テキストだけでなく盤全体を表示する"],
         "movesOnDemand": ["オンデマンド手順", "相互作用した駒の手順を計算します"],
         "onlySuggestPieces": ["駒のみ提案", "移動する駒を提案しますが、手順は提供しません"],
-        "isUserscriptGhost": ["ゴーストスクリプト", "検出を避けるために、移動矢印などの検出可能な外部機能をすべて無効にします"]
+        "isUserscriptGhost": ["ゴーストスクリプト", "検出を避けるために、移動矢印などの検出可能な外部機能をすべて無効にします"],
+        "useExternalChessEngine": ["有効", "外部チェスエンジンは有効ですか"]
     },
     "translations": {
         "profileRemovalWarning": "このプロフィールを削除してもよろしいですか？\n\nこの操作は取り消せません。",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "警告: 過度なタブ切り替えが検出されました。継続的な切り替えは禁止される可能性があります。\n\nタブ切り替えを避けるために、以下のいずれかを実行してください、\n- 2つのウィンドウを並べて表示\n- ページに手を表示 (簡単に検出できます)\n- TTS（テキスト読み上げ）を有効にする\n- フローティングパネル設定を有効にする",
         "instanceConnectionTermination": "接続が失われたため、インスタンスは終了されました。\n\n予期しない場合は、タブを訪れてA.C.A.Sを再有効化してください。",
         "calculationDepth": "深度",
-        "thankYouTranslator": "翻訳者に感謝します"
+        "thankYouTranslator": "翻訳者に感謝します",
+        "serverOpen": "サーバーに接続しました！",
+        "serverClose": "外部チェスエンジンサーバーに接続できません!\n\nサーバーをインストール/起動してください、再接続を試みています...",
+        "websocketError": "WebSocketエラー:",
+        "unknownWebsocketError": "未知のエラー、接続が失われたのかもしれません？",
+        "noExternalEngineAnymore": "以前に選択した外部チェスエンジンはもう利用できません。新しいものを選択してください。"
     },
     "contributors": []
 }

@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "ملفات تعريف محرك الشطرنج",
         "#chess-engine-profile-dropdown .input-subtitle": "يمكن أن تكون هناك ملفات تعريف متعددة نشطة في نفس الوقت!",
         "#add-new-profile-button .text-content": "إضافة جديد",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "الملف الشخصي الافتراضي",
-        "#settings-navbar-subtitle": "الإعدادات تؤثر على جميع الحالات",
+        ".tab-item[data-value=\"default\"] p": "الملف الشخصي الافتراضي",
         ".engine-panel-title": "المحرك",
         ".visual-panel-title": "المرئي",
         ".audible-panel-title": "المسموع",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "غير مدعوم جيداً",
         "*[data-translation-squares-text]": "المربعات",
         "*[data-translation-pieces-text]": "القطع",
-        "*[data-translation-move-display-settings]": "إعدادات اقتراحات الحركة",
-        ".stable-engine-tag": "مستقر",
+        "*[data-translation-move-display-settings]": "إعدادات اقتراحات الحركة",        "*[data-translation-begging-title]": "شكراً!",
+        "*[data-translation-begging-subtitle]": "يبدو أنك تحب A.C.A.S :)",
+        "*[data-translation-begging-text]": "تطوير A.C.A.S يستغرق الكثير من الوقت! نأمل أن تكون هذه الجهود قد أضافت قيمة لك، وأنك استمتعت باستخدامه!",
+        "*[data-translation-begging-text-2]": "لقد استخدمت A.C.A.S لمدة",
+        "*[data-translation-begging-text-3]": "ساعات",
+        "*[data-translation-begging-text-4]": "هذا محترم. هل تهتم بالتبرع؟ نحن ندعم Monero،",
+        "*[data-translation-external-engine-2]": "تثبيت خادم A.C.A.S",
+        "*[data-translation-external-engine-3]": "لاستخدام محركات خارجية",
+        "*[data-translation-stat-ec]": "حسابات المحرك",
+        "*[data-translation-stat-ci]": "الحالات المنشأة",
+        "*[data-translation-stat-am]": "الدقائق النشطة",        ".stable-engine-tag": "مستقر",
         ".variants-engine-tag": "متغيرات",
         ".realistic-engine-tag": "واقعي",
         ".unstable-engine-tag": "غير مستقر",
@@ -141,7 +149,8 @@
         "pipBoard": ["عرض اللوحة", "بدلاً من عرض النص فقط، عرض اللوحة بالكامل"],
         "movesOnDemand": ["الحركات حسب الطلب", "حساب الحركات للقطع التي تتعامل معها"],
         "onlySuggestPieces": ["فقط اقترح القطع", "اقترح قطعا للتحرك، لكن لا تعطِ حركات"],
-        "isUserscriptGhost": ["سكريبت الشبح", "تعطيل جميع الوظائف الخارجية القابلة للاكتشاف (مثل أسهم الحركات) لتجنب الاكتشاف"]
+        "isUserscriptGhost": ["سكريبت الشبح", "تعطيل جميع الوظائف الخارجية القابلة للاكتشاف (مثل أسهم الحركات) لتجنب الاكتشاف"],
+        "useExternalChessEngine": ["مفعل", "هل محرك الشطرنج الخارجي مفعل"]
     },
     "translations": {
         "profileRemovalWarning": "هل أنت متأكد من أنك تريد إزالة هذا الملف الشخصي؟\n\nلا يمكن التراجع عن هذا الإجراء.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "تحذير: تم الكشف عن تبديل تبويبات مفرط. قد يؤدي التبديل المستمر إلى الحظر.\n\nلتجنب الحاجة للتبديل بين التبويبات، قم بأحد الأمور التالية,\n- اجعل نافذتين منفصلتين بجانب بعضهما\n- عرض الحركات على الصفحة (يتم اكتشافها بسهولة)\n- تفعيل TTS (النص إلى الكلام)\n- تفعيل إعداد اللوحة العائمة",
         "instanceConnectionTermination": "تم إنهاء الحالة بسبب فقدان الاتصال.\n\nهل كان غير متوقع؟ قم بزيارة التبويب لإعادة تفعيل A.C.A.S.",
         "calculationDepth": "العمق",
-        "thankYouTranslator": "شكرًا للمترجمين"
+        "thankYouTranslator": "شكرًا للمترجمين",
+        "serverOpen": "متصل بالخادم!",
+        "serverClose": "لم يتمكن من الاتصال بخادم محرك الشطرنج الخارجي!\n\nالرجاء تثبيت/بدء الخادم، جاري محاولة إعادة الاتصال...",
+        "websocketError": "خطأ WebSocket:",
+        "unknownWebsocketError": "خطأ غير معروف، قد تكون الاتصال قد فُقد؟",
+        "noExternalEngineAnymore": "محرك الشطرنج الخارجي المُختار مسبقًا لم يعد متاحًا. اختر واحدًا جديدًا."
     },
     "contributors": []
 }

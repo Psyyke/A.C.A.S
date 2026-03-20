@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:*; img-src 'self' data: blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Local chess engine WebSocket server for A.C.A.S GUI.">
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="./css/acas-toast.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/custom-scroll.css">
+    <link rel="preload" href="./fonts/Mona-Sans.woff2" as="font" type="font/woff2">
+    <link rel="preload" href="./fonts/Rubik.ttf" as="font" type="font/ttf">
+    <link rel="preload" href="./fonts/IBMPlexSans.ttf" as="font" type="font/ttf">
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico"/>
+</head>
+
+<body>
+<div id="acas-header">
+    <a id="acas-logo" class="external" href="https://psyyke.github.io/A.C.A.S/" target="_blank">
+        <img id="acas-logo-img" src="./images/logo.png">
+        <div id="acas-logo-text-container">
+            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">V2</div></div>
+            <div id="acas-logo-secondary">Calculation Server</div>
+        </div>
+    </a>
+    <div id="acas-is-free-reminder">
+        <span>(´｡• ◡ •｡`) Psst! ♡ ⤵</span>
+        <div class="acas-social-actions">
+            <a class="header-social-button github-button acas-fancy-button external" href="https://github.com/Psyyke/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
+                <i class="bi bi-github"></i>
+            </a>
+            <a class="header-social-button affiliate-button acas-fancy-button external" href="https://psyyke.github.io/A.C.A.S/contributing/" target="_blank" title="Support A.C.A.S development">
+                <i class="bi bi-heart-fill"></i>
+            </a>
+        </div>
+    </div>
+</div>
+<header>
+    <div class="header-buttons-container">
+        <div>
+            <button id="addEngineBtn" class="acas-fancy-button"><i class="bi bi-plus-lg"></i> ADD ENGINE BINARY</button>
+            <input 
+                type="file" 
+                id="filePicker" 
+                accept=".exe, .bin, .so, .dylib, application/octet-stream" 
+            />
+
+        </div>
+        <button id="stopBtn" class="acas-fancy-button"><i class="bi bi-x-lg"></i> KILL ENGINES</button>
+    </div>
+    <div class="server-info acas-fancy-button">
+        <div id="statusDot"></div>
+        <span id="portDisplay">OFFLINE</span>
+    </div>
+</header>
+
+<div class="engine-grid" id="engineGrid"></div>
+<div id="consoles-container"></div>
+
+<div id="acas-toast-container"></div>
+<script src="./libs/acasToast.js"></script>
+<script src="./libs/acasPrompt.js"></script>
+
+<script src="./js/utils.js"></script>
+<script src="./js/console.js"></script>
+<script src="./index.js"></script>
+
+</body>
+</html>

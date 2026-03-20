@@ -1,34 +1,47 @@
+import { externalChessEngineDropdown } from './gui/elementDeclarations.js'
 import AcasInstance from './AcasInstance.js';
+import { addInstanceToSettingsDropdown, removeInstanceFromSettingsDropdown } from './gui/instances.js';
 
-let instances = [];
+window.AcasInstances = [];
 let initToasts = [];
 
 export function createInstance(domain, instanceID, chessVariant) {
-    const instanceExists = instances.find(instanceObj => instanceObj.id == instanceID) ? true : false;
+    chessVariant = FORMAT_VARIANT(chessVariant);
 
-    chessVariant = formatVariant(chessVariant); // important
+    const hasExternalEnginesAdded = [...externalChessEngineDropdown?.querySelectorAll('.dropdown-item.large')]
+        ?.length > 0;
+    const isExternalReady = window.wsConnectionOpen && hasExternalEnginesAdded;
+    const isReadyToContinue = isExternalReady || !window.useExternalEngine;
 
-    if(!instanceExists) {
-        const msg = transObj?.newInstanceRequest ?? 'New match found!';
-        const initToast = toast.instance(`${msg} (${domain})`);
+    if(!isReadyToContinue) return;
 
-        instances.push({
+    setTimeout(() => {
+        
+        const instanceExists = window.AcasInstances.find(instanceObj => instanceObj.id == instanceID) ? true : false;
+
+        if(instanceExists) {
+            prelongInstanceLife(domain, instanceID, chessVariant);
+            return;
+        }
+
+        window.AcasInstances.push({
             'domain': domain,
             'id': instanceID,
             'instance': new AcasInstance(domain, instanceID, chessVariant, instanceLoaded),
             'date': Date.now()
         });
 
-        initToasts.push({ instanceID, 'toast': initToast });
+        const msg = TRANS_OBJ?.newInstanceRequest ?? 'New match found!';
+        const initToast = toast.instance(`${msg} (${domain})`);
 
-        log.success(`New engine instance created! (DOMAIN: ${domain}, ID: ${instanceID})`);
-    } else {
-        prelongInstanceLife(domain, instanceID, chessVariant);
-    }
+        initToasts.push({ instanceID, 'toast': initToast });
+        console.log(`New engine instance created! (DOMAIN: ${domain}, ID: ${instanceID})`);
+
+    }, isExternalReady ? 1000 : 0);
 }
 
 export function removeInstance(instance) {
-    instances = instances.filter(x => x.id != instance.instanceID);
+    window.AcasInstances = window.AcasInstances.filter(x => x.id != instance.instanceID);
 
     removeInstanceFromSettingsDropdown(instance.instanceID);
 }
@@ -43,7 +56,7 @@ function instanceLoaded(informationObj) {
 }
 
 function prelongInstanceLife(domain, instanceID, chessVariant) {
-    const instanceObj = instances.find(instanceObj => instanceObj.id == instanceID);
+    const instanceObj = window.AcasInstances.find(instanceObj => instanceObj.id == instanceID);
 
     if(instanceObj) {
         instanceObj.date = Date.now();
@@ -61,8 +74,8 @@ function prelongInstanceLife(domain, instanceID, chessVariant) {
         if(!chessVariant) return;
 
         currentActiveVariants.forEach(obj => {
-            const newVariantFormatted = formatVariant(chessVariant);
-            const currentVariantFormatted = formatVariant(obj.currentVariant);
+            const newVariantFormatted = FORMAT_VARIANT(chessVariant);
+            const currentVariantFormatted = FORMAT_VARIANT(obj.currentVariant);
 
             const newVariantExistsForEngine = obj.availableVariants.find(x => x === newVariantFormatted) ? true : false;
 
@@ -74,12 +87,12 @@ function prelongInstanceLife(domain, instanceID, chessVariant) {
 }
 
 setInterval(() => {
-    instances.forEach(instanceObj => {
+    window.AcasInstances.forEach(instanceObj => {
         const instanceAgeMs = Date.now() - instanceObj.date;
 
         if(instanceAgeMs > 4000) {
             if(instanceAgeMs > 10000) {
-                const warningMsg = transObj?.instanceConnectionTermination ?? 'Terminated instance due to lost connection.\n\nUnexpected? Visit the tab to reactivate A.C.A.S.';
+                const warningMsg = TRANS_OBJ?.instanceConnectionTermination ?? 'Terminated instance due to lost connection.\n\nUnexpected? Visit the tab to reactivate A.C.A.S.';
                 toast.warning(`${warningMsg} (${instanceObj.domain})`, 5000);
 
                 instanceObj.instance.close();

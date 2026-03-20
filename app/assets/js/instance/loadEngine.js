@@ -1,14 +1,22 @@
+import { setProfileBubbleStatus } from '../gui/profiles.js';
+
 export default async function loadEngine(profileName, engineName, attempt = 0) {
-    const profileObj = await getProfile(profileName);
+    const profileObj = await GET_PROFILE(profileName);
     const profileChessEngine = engineName || profileObj.config.chessEngine;
     const isReload = attempt > 0;
     let alreadyRestarted = false;
 
-    if(isReload) console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profileName);
+    if(isReload) {
+        setProfileBubbleStatus('error', profileName, 'Engine crashed and engine is trying to reload...');
 
-    if(engineName && attempt > 300) {
+        console.warn('RELOAD ATTEMPT', attempt, '-> Loading engine', engineName, profileName);
+    }
+
+    if(engineName && attempt > 10) {
         toast.warning(`Restarting the engine ${engineName} failed despite many attempts :(\n\nRefresh A.C.A.S!`);
         
+        setProfileBubbleStatus('error', profileName, 'Engine crashed, could not restart it.');
+
         return;
     }
 
@@ -20,41 +28,22 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         }
     };
 
-    if(await isEngineIncompatible(profileChessEngine, profileName)) {
+    if(await IS_ENGINE_INCOMPATIBLE(profileChessEngine, profileName)) {
         toast.warning(`The engine "${profileChessEngine}" you have selected on profile "${profileName}" is incompatible with the mode A.C.A.S was launched in.` 
             + '\n\nPlease change the engine on the settings.', 3e4);
+
+        setProfileBubbleStatus('warning', profileName, 'Incompatible engine for the launch mode. (?sab=...)');
+
         return;
     }
 
     function restartEngine(name, e) {
         if(alreadyRestarted) return;
 
-        if(!e?.message?.includes('memory access')) {
-            if(!e?.message?.includes('[object ErrorEvent]')) {
-                if(attempt % 10 === 0) {
-                    toast.error(`Engine "${name}" crashed due to "${e?.message}"!`, 5e3);
-                }
-            } else return;
-        }
+        setProfileBubbleStatus('warning', profileName, `Restarting the instance due to the error: ${e?.message}`);
+        console.error(`Restarting the instance "${name}" due to the error:`, e);
 
-        console.error(`Restarting the engine "${name}" due to the error:`, e);
-
-        alreadyRestarted = true;
-
-        const engineObjectIdx = this.engines.findIndex(x => x.type === name);
-
-        // Ask engine to quit if it can still listen
-        this.sendMsgToEngine('quit', name); 
-        // Try to terminate the engine worker
-        this.engines?.[engineObjectIdx]?.worker?.terminate();
-        // Delete previous engine object
-        delete this.engines?.[engineObjectIdx]; 
-        
-        // Filter out empty from the array
-        this.engines = this.engines.filter(x => x);
-
-        console.error('RESTARTING engine', name, profileName);
-        this.loadEngine(profileName, name, attempt + 1);
+        this.close(); // closing whole instance!
     }
 
     async function startGame(variant = 'chess') {
@@ -62,8 +51,9 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         const fen = currentFen || this.variantStartPosFen;
 
         await this.engineStartNewGame(variant, profileName);
+        await WAIT_UNTIL_VAR(() => this.instanceReady);
 
-        this.calculateBestMoves(fen, true);
+        this.calculateBestMoves(fen, { 'skipValidityChecks': true, 'specificProfileName': profileName });
     }
     
     function loadStockfish(folderName, fileName = folderName) {
@@ -110,7 +100,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
                 });
 
                 startGame.bind(this)(workerName === 'f14-worker' 
-                    ? formatVariant(this.pV[profileName].chessVariant)
+                    ? FORMAT_VARIANT(this.pV[profileName].chessVariant)
                     : 'chess');
             } else if (e.data) {
                 processEngineMessage(e.data);
@@ -132,7 +122,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let lc0_loaded = false;
 
         lc0.onmessage = async e => {
-            if(e.data === true) {
+            if(e.data === true && !lc0_loaded) {
                 lc0_loaded = true;
 
                 this.engines.push({
@@ -145,8 +135,8 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
                 await this.setEngineWeight(this.pV[profileName].lc0WeightName, profileName);
     
-                this.engineStartNewGame('chess', profileName);
-            } else if (e.data) {
+                startGame.bind(this)();
+            } else if(e.data) {
                 processEngineMessage(e.data);
             }
         };
@@ -181,7 +171,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
                     profileName
                 });
     
-                this.engineStartNewGame('chess', profileName);
+                startGame.bind(this)();
             } else if (e.data) {
                 processEngineMessage(e.data);
             }
@@ -244,7 +234,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
                     profileName
                 });
     
-                this.engineStartNewGame('chess', profileName);
+                startGame.bind(this)();
             } else if (e.data) {
                 processEngineMessage(e.data);
             }
@@ -270,10 +260,6 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     switch(profileChessEngine) {
         case 'stockfish-18-lite-single':
             loadStockfish.bind(this)('stockfish-18-lite-single');
-            break;
-
-        case 'stockfish-17-wasm':
-            loadLilaStockfish.bind(this)('17-1-worker');
             break;
 
         case 'stockfish-17-single':

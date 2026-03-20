@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Chess Engine Profiles",
         "#chess-engine-profile-dropdown .input-subtitle": "Multiple profiles can be active at the same time!",
         "#add-new-profile-button .text-content": "Add New",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Default Profile",
-        "#settings-navbar-subtitle": "Settings affect every instance",
+        ".tab-item[data-value=\"default\"] p": "Default Profile",
         ".engine-panel-title": "Engine",
         ".visual-panel-title": "Visual",
         ".audible-panel-title": "Audible",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Squares",
         "*[data-translation-pieces-text]": "Pieces",
         "*[data-translation-move-display-settings]": "Move suggestion settings",
+        "*[data-translation-begging-title]": "Thank you!",
+        "*[data-translation-begging-subtitle]": "You seem to like A.C.A.S :)",
+        "*[data-translation-begging-text]": "Developing A.C.A.S takes a lot of time! Hopefully this work has been valuable to you, and you've enjoyed using it!",
+        "*[data-translation-begging-text-2]": "You've used A.C.A.S for",
+        "*[data-translation-begging-text-3]": "hours",
+        "*[data-translation-begging-text-4]": "That's respectable. Would you be interested in donating? We support Monero,",
+        "*[data-translation-external-engine-2]": "Install the A.C.A.S server",
+        "*[data-translation-external-engine-3]": "to use external engines",
+        "*[data-translation-stat-ec]": "Engine Calculations",
+        "*[data-translation-stat-ci]": "Created instances",
+        "*[data-translation-stat-am]": "Active minutes",
         ".stable-engine-tag": "Stable",
         ".variants-engine-tag": "Variants",
         ".realistic-engine-tag": "Realistic",
@@ -141,7 +151,8 @@
         "pipBoard": ["Display Board", "Instead of just text, display the entire board"],
         "movesOnDemand": ["Moves On Demand", "Calculates moves for pieces you interact with"],
         "onlySuggestPieces": ["Only Suggest Pieces", "Suggest pieces to move, but give no moves"],
-        "isUserscriptGhost": ["Ghost Script", "Disable all detectable external functionality (e.g. move arrows) to avoid detection"]
+        "isUserscriptGhost": ["Ghost Script", "Disable all detectable external functionality (e.g. move arrows) to avoid detection"],
+        "useExternalChessEngine": ["Enabled", "Is the external engine enabled"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Warning: Excessive tab switching detected. Continued switching may result in a ban.\n\nTo avoid needing to switch between tabs, do one of the following,\n- Make two separate windows side by side\n- Display moves on the page (This is easily detectable)\n- Enable TTS (Text to Speech)\n- Enable the Floating Panel setting",
         "instanceConnectionTermination": "Terminated instance due to lost connection.\n\nUnexpected? Visit the tab to reactivate A.C.A.S.",
         "calculationDepth": "Depth",
-        "thankYouTranslator": "Thanks to the translators"
+        "thankYouTranslator": "Thanks to the translators",
+        "serverOpen": "Connected to the server!",
+        "serverClose": "Couldn't connect to the external engine server!\n\nPlease install/start the server, trying to reconnect...",
+        "websocketError": "WebSocket error:",
+        "unknownWebsocketError": "Unknown error, maybe connection lost?",
+        "noExternalEngineAnymore": "The previously selected EXTERNAL engine is not available anymore. Select a new one."
     },
     "contributors": ["Haka"]
 }

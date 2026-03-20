@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "โปรไฟล์ของเครื่องหมากรุก",
         "#chess-engine-profile-dropdown .input-subtitle": "โปรไฟล์หลายตัวสามารถทำงานพร้อมกันได้!",
         "#add-new-profile-button .text-content": "เพิ่มใหม่",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "โปรไฟล์เริ่มต้น",
-        "#settings-navbar-subtitle": "การตั้งค่ามีผลต่อทุกอินสแตนซ์",
+        ".tab-item[data-value=\"default\"] p": "โปรไฟล์เริ่มต้น",
         ".engine-panel-title": "เครื่องยนต์",
         ".visual-panel-title": "ภาพ",
         ".audible-panel-title": "เสียง",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "ช่องสี่เหลี่ยม",
         "*[data-translation-pieces-text]": "ตัวหมาก",
         "*[data-translation-move-display-settings]": "การตั้งค่าการแนะนำการเดินหมาก",
+        "*[data-translation-begging-title]": "ขอบคุณ!",
+        "*[data-translation-begging-subtitle]": "ดูเหมือนว่าคุณชอบ A.C.A.S :)",
+        "*[data-translation-begging-text]": "การพัฒนา A.C.A.S ใช้เวลามากมาย! หวังว่างานนี้จะมีค่าสำหรับคุณและคุณสนใจที่จะใช้มัน!",
+        "*[data-translation-begging-text-2]": "คุณใช้ A.C.A.S มา",
+        "*[data-translation-begging-text-3]": "ชั่วโมง",
+        "*[data-translation-begging-text-4]": "นั่นน่าเคารพ ท่านสนใจที่จะบริจาคหรือไม่ เราสนับสนุน Monero,",
+        "*[data-translation-external-engine-2]": "ติดตั้งเซิร์ฟเวอร์ A.C.A.S",
+        "*[data-translation-external-engine-3]": "เพื่อใช้เครื่องยนต์ภายนอก",
+        "*[data-translation-stat-ec]": "การคำนวณเครื่องยนต์",
+        "*[data-translation-stat-ci]": "สร้างอินสแตนซ์",
+        "*[data-translation-stat-am]": "นาทีที่ใช้งาน",
         ".stable-engine-tag": "เสถียร",
         ".variants-engine-tag": "รูปแบบ",
         ".realistic-engine-tag": "สมจริง",
@@ -141,7 +151,8 @@
         "pipBoard": ["แสดงกระดาน", "แทนที่จะเป็นแค่ข้อความ ให้แสดงกระดานทั้งหมด"],
         "movesOnDemand": ["การเคลื่อนไหวตามอุปสงค์", "คำนวณการเคลื่อนไหวสำหรับชิ้นส่วนที่คุณโต้ตอบกับ"],
         "onlySuggestPieces": ["เฉพาะแนะนำชิ้นส่วน", "แนะนำชิ้นส่วนที่จะเคลื่อนไหว แต่ไม่ให้การเคลื่อนไหว"],
-        "isUserscriptGhost": ["สคริปต์ผี", "ปิดการใช้งานฟังก์ชันภายนอกที่ตรวจจับได้ทั้งหมด (เช่น ลูกศรการเดิน) เพื่อหลีกเลี่ยงการตรวจพบ"]
+        "isUserscriptGhost": ["สคริปต์ผี", "ปิดการใช้งานฟังก์ชันภายนอกที่ตรวจจับได้ทั้งหมด (เช่น ลูกศรการเดิน) เพื่อหลีกเลี่ยงการตรวจพบ"],
+        "useExternalChessEngine": ["เปิดใช้งาน", "เปิดใช้งาน engine หมากรุกภายนอกแล้วหรือไม่"]
     },
     "translations": {
         "profileRemovalWarning": "คุณแน่ใจหรือว่าต้องการลบโปรไฟล์นี้?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "คำเตือน: ตรวจพบการเปลี่ยนแท็บมากเกินไป การเปลี่ยนแปลงอย่างต่อเนื่องอาจส่งผลให้ถูกแบน\n\nเพื่อหลีกเลี่ยงการต้องเปลี่ยนแท็บ ให้ทำหนึ่งในสิ่งต่อไปนี้\n- สร้างสองหน้าต่างแยกกันข้างๆ\n- แสดงการเคลื่อนไหวบนหน้า (สิ่งนี้สามารถตรวจจับได้ง่าย)\n- เปิดใช้งาน TTS (Text to Speech)\n- เปิดใช้งานการตั้งค่าแผงลอย",
         "instanceConnectionTermination": "ยุติการเชื่อมต่อของอินสแตนซ์เนื่องจากการขาดการเชื่อมต่อ\n\nไม่คาดคิด? ไปที่แท็บเพื่อเปิดใช้งาน A.C.A.S ใหม่อีกครั้ง",
         "calculationDepth": "ความลึก",
-        "thankYouTranslator": "ขอบคุณนักแปล"
+        "thankYouTranslator": "ขอบคุณนักแปล",
+        "serverOpen": "เชื่อมต่อกับเซิร์ฟเวอร์แล้ว!",
+        "serverClose": "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ engine หมากรุกภายนอก!\n\nโปรดติดตั้ง/เริ่มเซิร์ฟเวอร์ พยายามเชื่อมต่ออีกครั้ง...",
+        "websocketError": "ข้อผิดพลาด WebSocket:",
+        "unknownWebsocketError": "ข้อผิดพลาดที่ไม่ทราบสาเหตุ บางทีการเชื่อมต่ออาจสูญหายไป?",
+        "noExternalEngineAnymore": "คุณเครื่องหมากรุกภายนอกที่เลือกไว้ก่อนหน้านี้ไม่พร้อมใช้งานอีกต่อไป โปรดเลือกอันใหม่"
     },
     "contributors": ["ChatGPT"]
 }

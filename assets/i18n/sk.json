@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Profily šachových motorov",
         "#chess-engine-profile-dropdown .input-subtitle": "Viac profilov môže byť aktívnych súčasne!",
         "#add-new-profile-button .text-content": "Pridať nový",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Predvolený profil",
-        "#settings-navbar-subtitle": "Nastavenia ovplyvňujú každú inštanciu",
+        ".tab-item[data-value=\"default\"] p": "Predvolený profil",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Vizualizácia",
         ".audible-panel-title": "Zvuk",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Štvorce",
         "*[data-translation-pieces-text]": "Figúry",
         "*[data-translation-move-display-settings]": "Nastavenia návrhov ťahov",
+        "*[data-translation-begging-title]": "Ďakujem!",
+        "*[data-translation-begging-subtitle]": "Zdá sa, že sa ti páči A.C.A.S :)",
+        "*[data-translation-begging-text]": "Vývoj A.C.A.S zaberá veľa času! Dúfame, že táto práca bola pre teba cenná a že si si ju užil!",
+        "*[data-translation-begging-text-2]": "Používal si A.C.A.S počas",
+        "*[data-translation-begging-text-3]": "hodín",
+        "*[data-translation-begging-text-4]": "To je chválitebné. Bol by si zaujatý v darovaní? Podporujeme Monero،",
+        "*[data-translation-external-engine-2]": "Nainštalujte server A.C.A.S",
+        "*[data-translation-external-engine-3]": "aby ste mohli používať externe motory",
+        "*[data-translation-stat-ec]": "Výpočty motora",
+        "*[data-translation-stat-ci]": "Vytvorené inštancie",
+        "*[data-translation-stat-am]": "Aktívne minúty",
         ".stable-engine-tag": "Stabilné",
         ".variants-engine-tag": "Varianty",
         ".realistic-engine-tag": "Realistické",
@@ -141,7 +151,8 @@
         "pipBoard": ["Zobraziť šachovnicu", "Namiesto iba textu zobraziť celú šachovnicu"],
         "movesOnDemand": ["Tačky na žiadosť", "Vypočîta tahy pre figury, s ktorými pracujete"],
         "onlySuggestPieces": ["Len Navrhnúť Figúry", "Navrhnúť figúry na presun, ale nedať tahy"],
-        "isUserscriptGhost": ["Tajný skript", "Vypne všetky detegovateľné externé funkcie (napr. šípky ťahov) aby sa zabránilo detekcii"]
+        "isUserscriptGhost": ["Tajný skript", "Vypne všetky detegovateľné externé funkcie (napr. šípky ťahov) aby sa zabránilo detekcii"],
+        "useExternalChessEngine": ["Povolené", "Je povolený externý šachový motor"]
     },
     "translations": {
         "profileRemovalWarning": "Ste si istí, že chcete odstrániť tento profil?\n\nTúto akciu nie je možné zrušiť.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Upozornenie: Zistená nadmerná zmena kariet. Neustála zmena môže viesť k zákazu.\n\nAby ste sa vyhli potrebe meniť medzi kartami, urobte jednu z nasledujúcich vecí,\n- Vytvorte dve samostatné okná vedľa seba\n- Zobrazte ťahy na stránke (to je ľahko zistiteľné)\n- Aktivujte TTS (Text to Speech)\n- Aktivujte nastavenie plávajúceho panela",
         "instanceConnectionTermination": "Inštancia bola ukončená z dôvodu straty pripojenia.\n\nNeočekávané? Navštívte kartu, aby ste znova aktivovali A.C.A.S.",
         "calculationDepth": "Hĺbka",
-        "thankYouTranslator": "Ďakujeme prekladateľom"
+        "thankYouTranslator": "Ďakujeme prekladateľom",
+        "serverOpen": "Pripojené k serveru!",
+        "serverClose": "Nemožno sa pripojiť k serveru externého šachového motora!\n\nInštalujte/spustite server, pokúšam sa znova pripojiť...",
+        "websocketError": "Chyba protokolu WebSocket:",
+        "unknownWebsocketError": "Neznáma chyba, možno stratená komunikácia?",
+        "noExternalEngineAnymore": "Predtým vybraný EXTERNÝ šachový motor je už nedostupný. Vyberte si nový."
     },
     "contributors": ["ChatGPT"]
 }

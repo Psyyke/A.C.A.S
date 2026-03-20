@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Malemootori profiilid",
         "#chess-engine-profile-dropdown .input-subtitle": "Samal ajal võivad olla aktiivsed mitmed profiilid!",
         "#add-new-profile-button .text-content": "Lisa uus",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Vaikimisi profiil",
-        "#settings-navbar-subtitle": "Seaded mõjutavad iga instantsi",
+        ".tab-item[data-value=\"default\"] p": "Vaikimisi profiil",
         ".engine-panel-title": "Mootor",
         ".visual-panel-title": "Visuaalne",
         ".audible-panel-title": "Heliline",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "Pole hästi toetatud",
         "*[data-translation-squares-text]": "Ruudud",
         "*[data-translation-pieces-text]": "Nupud",
-        "*[data-translation-move-display-settings]": "Käigu soovituse seaded",
-        ".stable-engine-tag": "Stabiilne",
+        "*[data-translation-move-display-settings]": "Käigu soovituse seaded",        "*[data-translation-begging-title]": "Aitäh!",
+        "*[data-translation-begging-subtitle]": "Näib, et A.C.A.S sulle meeldib :)",
+        "*[data-translation-begging-text]": "A.C.A.S arendamine võtab palju aega! Loodetavasti on see töö olnud sulle väärtuslik ja sa oled selle kasutamisest naudinud!",
+        "*[data-translation-begging-text-2]": "Oled kasutanud A.C.A.S-i",
+        "*[data-translation-begging-text-3]": "tundi",
+        "*[data-translation-begging-text-4]": "See on austusväärt. Kas sul on huvi annetada? Me toetame Monero-d,",
+        "*[data-translation-external-engine-2]": "Installige A.C.A.S server",
+        "*[data-translation-external-engine-3]": "väliste mootoritega kasutamiseks",
+        "*[data-translation-stat-ec]": "Mootori arvutused",
+        "*[data-translation-stat-ci]": "Loodud juhtumid",
+        "*[data-translation-stat-am]": "Aktiivsed minutid",        ".stable-engine-tag": "Stabiilne",
         ".variants-engine-tag": "Variantid",
         ".realistic-engine-tag": "Realistlik",
         ".unstable-engine-tag": "Ebastabiilne",
@@ -141,7 +149,8 @@
         "pipBoard": ["Kuva lauda", "Näita kogu lauda tekstipõhise kuvamise asemel"],
         "movesOnDemand": ["Käigud nõudmise kohaselt", "Arvutab käigud tikkudele, millega teil on suhtlemine"],
         "onlySuggestPieces": ["Ainult Soovita Tükke", "Soovita tükke liigutamiseks, aga ära anna käike"],
-        "isUserscriptGhost": ["Kummitusskript", "Keela kõik tuvastatavad välised funktsioonid (nt käigunoole), et vältida tuvastamist"]
+        "isUserscriptGhost": ["Kummitusskript", "Keela kõik tuvastatavad välised funktsioonid (nt käigunoole), et vältida tuvastamist"],
+        "useExternalChessEngine": ["Lubatud", "Kas väline šakimäng on lubatud"]
     },
     "translations": {
         "profileRemovalWarning": "Kas olete kindel, et soovite selle profiili eemaldada?\n\nSeda toimingut ei saa tühistada.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Hoiatus: Ülemäärane vahekaartide vahetus tuvastatud. Jätkuv vahetus võib põhjustada keelu.\n\nKuna te ei pea vahetama vahekaartide vahel, tehke üks järgmistest,\n- Looge kaks eraldi akent kõrvuti\n- Kuvage käigud lehel (see on kergesti tuvastatav)\n- Aktiveerige TTS (Text to Speech)\n- Aktiveerige hõljupaneeli seade",
         "instanceConnectionTermination": "Instants lõpetati ühenduse kaotamise tõttu.\n\nOotamatu? Külastage vahekaarti, et aktiveerida A.C.A.S uuesti.",
         "calculationDepth": "Sügavus",
-        "thankYouTranslator": "Aitäh tõlkijatele"
+        "thankYouTranslator": "Aitäh tõlkijatele",
+        "serverOpen": "Ühendatud serveriga!",
+        "serverClose": "Ei saanud ühendada välise šakimängumootori serveriga!\n\nPalun installige/käivitage server, proovige uuesti ühendada...",
+        "websocketError": "WebSocket tõrge:",
+        "unknownWebsocketError": "Tundmatu tõrge, võib-olla ühendus katkestati?",
+        "noExternalEngineAnymore": "Varem valitud VÄLINE mootor pole enam saadaval. Valige uus."
     },
     "contributors": ["ChatGPT"]
 }

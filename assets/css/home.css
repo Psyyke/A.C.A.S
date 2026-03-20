@@ -251,7 +251,7 @@ h1 {
     font-stretch: expanded;
     align-items: flex-start;
     font-stretch: ultra-expanded;
-    font-weight: 800;
+    font-weight: 900;
     font-family: "Mona Sans";
     font-size: 35px;
     margin: 0;
@@ -271,8 +271,11 @@ img {
     object-position: center;
 }
 .bi {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .sidebar-toggle {
     width: 75px !important;
@@ -337,7 +340,7 @@ body {
     background-position: 0 0, 61.2px 61.2px;
 }
 .markdown-section {
-    background: linear-gradient(to bottom, transparent 200px, #fcfeff 500px);
+    background: linear-gradient(to bottom, transparent 20px, #fcfeff 300px);
 }
 .markdown-section section {
     margin: 0 50px;
@@ -531,6 +534,10 @@ header a:has(.bi) {
     display: flex;
     gap: 5px;
     width: fit-content;
+    align-items: center;
+    justify-content: center;
+    font-family: "Mona Sans";
+    font-weight: 500;
 }
 header div:nth-of-type(2) {
     display: flex;
@@ -542,6 +549,7 @@ th a {
 tr {
     display: flex;
     gap: 10px;
+    font-family: "Mona Sans";
 }
 article {
     display: flex;
@@ -736,10 +744,14 @@ ul {
         min-height: 200px;
     }
     .acas-logo-main {
-        font-size: 20px;
+        font-size: 24px;
     }
     header a {
-        font-size: 18px;
+        font-size: 20px;
+        font-weight: 500;
+    }
+    header {
+        padding: 20px 20px 2px 20px;
     }
     header a:has(.bi) {
         height: fit-content;

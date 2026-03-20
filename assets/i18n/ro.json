@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Profiluri pentru motoare de șah",
         "#chess-engine-profile-dropdown .input-subtitle": "Mai multe profiluri pot fi active simultan!",
         "#add-new-profile-button .text-content": "Adaugă nou",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Profil implicit",
-        "#settings-navbar-subtitle": "Setările afectează fiecare instanță",
+        ".tab-item[data-value=\"default\"] p": "Profil implicit",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Vizual",
         ".audible-panel-title": "Audibil",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "Nu este bine suportat",
         "*[data-translation-squares-text]": "Pătrate",
         "*[data-translation-pieces-text]": "Piese",
-        "*[data-translation-move-display-settings]": "Setări sugestii mutări",
-        ".stable-engine-tag": "Stabil",
+        "*[data-translation-move-display-settings]": "Setări sugestii mutări",        "*[data-translation-begging-title]": "Merci!",
+        "*[data-translation-begging-subtitle]": "Pare că-ți place A.C.A.S :)",
+        "*[data-translation-begging-text]": "Dezvoltarea A.C.A.S necesită mult timp! Sperăm că această muncă a fost valoroasă pentru tine și ți-a plăcut să o folosești!",
+        "*[data-translation-begging-text-2]": "Ai folosit A.C.A.S pentru",
+        "*[data-translation-begging-text-3]": "ore",
+        "*[data-translation-begging-text-4]": "Asta e vrednic. Ți-ar plăcea să donezi? Susținem Monero،",
+        "*[data-translation-external-engine-2]": "Instalează serverul A.C.A.S",
+        "*[data-translation-external-engine-3]": "pentru a folosi motoarele externe",
+        "*[data-translation-stat-ec]": "Calcule motor",
+        "*[data-translation-stat-ci]": "Instanțe create",
+        "*[data-translation-stat-am]": "Minute active",        ".stable-engine-tag": "Stabil",
         ".variants-engine-tag": "Variante",
         ".realistic-engine-tag": "Realist",
         ".unstable-engine-tag": "Instabil",
@@ -141,7 +149,8 @@
         "pipBoard": ["Afișează tabla", "În loc de doar text, afișează întreaga tablă"],
         "movesOnDemand": ["Mu tări la Cerere", "Calculează mutári pentru piesele cu care interacționezi"],
         "onlySuggestPieces": ["Doar Sugerează Piese", "Sugerează piese de mutat, dar nu da mutări"],
-        "isUserscriptGhost": ["Script fantomă", "Dezactivează orice funcționalitate externă detectabilă (de ex. săgeți de mutare) pentru a evita detectarea"]
+        "isUserscriptGhost": ["Script fantomă", "Dezactivează orice funcționalitate externă detectabilă (de ex. săgeți de mutare) pentru a evita detectarea"],
+        "useExternalChessEngine": ["Activat", "Este motorul de șah extern activat"]
     },
     "translations": {
         "profileRemovalWarning": "Ești sigur că vrei să elimini acest profil?\n\nAceastă acțiune nu poate fi inversată.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Atenție: S-a detectat schimbare excesivă a tab-urilor. Continuarea schimbării poate duce la o interdicție.\n\nPentru a evita necesitatea de a schimba între tab-uri, fă una dintre următoarele,\n- Fă două feronerie separate una lângă alta\n- Afișează mutările pe pagină (aceasta este ușor detectabilă)\n- Activează TTS (Text to Speech)\n- Activează setarea Panoului Flotant",
         "instanceConnectionTermination": "Instanța a fost terminată din cauza pierderii conexiunii.\n\nNeașteptat? Vizitează tab-ul pentru a reactiva A.C.A.S.",
         "calculationDepth": "Adâncime",
-        "thankYouTranslator": "Îți mulțumim traducătorilor"
+        "thankYouTranslator": "Îți mulțumim traducătorilor",
+        "serverOpen": "Conectat la server!",
+        "serverClose": "Nu s-a putut conecta la serverul motorului de șah extern!\n\nTe rog instalează/pornește serverul, încercând să reconectezi...",
+        "websocketError": "Eroare WebSocket:",
+        "unknownWebsocketError": "Eroare necunoscută, poate conexiunea s-a pierdut?",
+        "noExternalEngineAnymore": "Motorul de șah EXTERN selectat anterior nu mai este disponibil. Selectează o noie."
     },
     "contributors": ["ChatGPT"]
 }

@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Sakkmotor profilok",
         "#chess-engine-profile-dropdown .input-subtitle": "Több profil is aktív lehet egyszerre!",
         "#add-new-profile-button .text-content": "Új hozzáadása",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Alapértelmezett profil",
-        "#settings-navbar-subtitle": "A beállítások minden példányra hatással vannak",
+        ".tab-item[data-value=\"default\"] p": "Alapértelmezett profil",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Vizuális",
         ".audible-panel-title": "Audible",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Négyzetek",
         "*[data-translation-pieces-text]": "Bábuk",
         "*[data-translation-move-display-settings]": "Lépésjavaslat beállítások",
+        "*[data-translation-begging-title]": "Köszönjük!",
+        "*[data-translation-begging-subtitle]": "Úgy tűnik, tetszik az A.C.A.S :)",
+        "*[data-translation-begging-text]": "Az A.C.A.S fejlesztése sok időt igényel! Reméljük, hogy ez a munka értékes volt számodra, és élvezted használni!",
+        "*[data-translation-begging-text-2]": "Az A.C.A.S-t ezt az ideig használtad",
+        "*[data-translation-begging-text-3]": "óra",
+        "*[data-translation-begging-text-4]": "Ez tiszteletreméltó. Érdekelne az adományozás? Támogatjuk a Monero-t,",
+        "*[data-translation-external-engine-2]": "Telepítsd az A.C.A.S szervert",
+        "*[data-translation-external-engine-3]": "külső motorok használatához",
+        "*[data-translation-stat-ec]": "Motorszámítások",
+        "*[data-translation-stat-ci]": "Létrehozott példányok",
+        "*[data-translation-stat-am]": "Aktív percek",
         ".stable-engine-tag": "Stabil",
         ".variants-engine-tag": "Változatok",
         ".realistic-engine-tag": "Realisztikus",
@@ -141,7 +151,8 @@
         "pipBoard": ["Tábla megjelenítése", "Ahelyett, hogy csak szöveg jelenne meg, jelenítse meg az egész táblát"],
         "movesOnDemand": ["Lépések igényre", "Számításba veszi az Ön által kezelni kívánt bábúk lépéseit"],
         "onlySuggestPieces": ["Csak Bábúkat Javasol", "Javasold a bábúkat mozgatásra, de ne adj lépéseket"],
-        "isUserscriptGhost": ["Szellem script", "Letiltja az összes észlelhető külső funkciót (pl. lépés nyilak), hogy elkerülje a felismerést"]
+        "isUserscriptGhost": ["Szellem script", "Letiltja az összes észlelhető külső funkciót (pl. lépés nyilak), hogy elkerülje a felismerést"],
+        "useExternalChessEngine": ["Engedélylyezve", "Az külső sakkmotor engedélyezve van"]
     },
     "translations": {
         "profileRemovalWarning": "Biztosan el akarod távolítani ezt a profilt?\n\nEz a művelet nem vonható vissza.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Figyelmeztetés: Túlzott lapváltás észlelve. A folytatás tilalmat eredményezhet.\n\nA lapok közötti váltás elkerüléséhez tedd az alábbiakat,\n- Készíts két külön ablakot egymás mellett\n- Mutasd a lépéseket az oldalon (ez könnyen észlelhető)\n- Engedélyezd a TTS-t (Text to Speech)\n- Engedélyezd a lebegő panel beállítást",
         "instanceConnectionTermination": "Az instanciát megszüntették a kapcsolat elvesztése miatt.\n\nVáratlan? Látogass el a fülre, hogy újraaktiváld az A.C.A.S-t.",
         "calculationDepth": "Mélység",
-        "thankYouTranslator": "Köszönjük a fordítóknak"
+        "thankYouTranslator": "Köszönjük a fordítóknak",
+        "serverOpen": "Csatlakozva a szerverhez!",
+        "serverClose": "Nem sikerült csatlakozni a külső sakkmotor szerveréhez!\n\nKérlek telepítsd/indítsd el a szervert, újracsatlakozás próbálása...",
+        "websocketError": "WebSocket hiba:",
+        "unknownWebsocketError": "Ismeretlen hiba, talán a kapcsolat elveszett?",
+        "noExternalEngineAnymore": "A korábban kiválasztott KÜLSŐ sakkmotor már nem áll rendelkezésre. Válassz egy újat."
     },
     "contributors": ["ChatGPT"]
 }

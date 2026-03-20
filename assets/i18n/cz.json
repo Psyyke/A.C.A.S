@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Profily šachových motorů",
         "#chess-engine-profile-dropdown .input-subtitle": "Více profilů může být aktivních současně!",
         "#add-new-profile-button .text-content": "Přidat nový",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Výchozí profil",
-        "#settings-navbar-subtitle": "Nastavení ovlivňují každou instanci",
+        ".tab-item[data-value=\"default\"] p": "Výchozí profil",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Vizualizace",
         ".audible-panel-title": "Zvukový",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "Není dobře podporováno",
         "*[data-translation-squares-text]": "Čtverce",
         "*[data-translation-pieces-text]": "Figurky",
-        "*[data-translation-move-display-settings]": "Nastavení návrhů tahů",
-        ".stable-engine-tag": "Stabilní",
+        "*[data-translation-move-display-settings]": "Nastavení návrhů tahů",        "*[data-translation-begging-title]": "Děkuji!",
+        "*[data-translation-begging-subtitle]": "Zdá se, že se ti líbí A.C.A.S :)",
+        "*[data-translation-begging-text]": "Vývoj A.C.A.S zabere spoustu času! Doufáme, že byla tato práce pro tebe cenná a že sis vychutnala její používání!",
+        "*[data-translation-begging-text-2]": "Používal jsi A.C.A.S po dobu",
+        "*[data-translation-begging-text-3]": "hodin",
+        "*[data-translation-begging-text-4]": "To je chvályhodné. Měl bys zájem o darování? Podporujeme Monero,",
+        "*[data-translation-external-engine-2]": "Nainstalujte server A.C.A.S",
+        "*[data-translation-external-engine-3]": "pro používání externích motorů",
+        "*[data-translation-stat-ec]": "Výpočty motoru",
+        "*[data-translation-stat-ci]": "Vytvořené instance",
+        "*[data-translation-stat-am]": "Aktivní minuty",        ".stable-engine-tag": "Stabilní",
         ".variants-engine-tag": "Varianty",
         ".realistic-engine-tag": "Realistický",
         ".unstable-engine-tag": "Nestabilní",
@@ -141,7 +149,8 @@
         "pipBoard": ["Zobrazit šachovnici", "Místo pouhého textu zobrazit celou šachovnici"],
         "movesOnDemand": ["Tahy na vybořání", "Vypočívá tahy pro figury, se kterými pracujete"],
         "onlySuggestPieces": ["Pouze Navrhujte Figury", "Navrhnete figury k přesunutí, ale žádné tahy"],
-        "isUserscriptGhost": ["Skrytý skript", "Deaktivovat všechny detekovatelné externí funkce (např. šipky tahů), aby se zabránilo detekci"]
+        "isUserscriptGhost": ["Skrytý skript", "Deaktivovat všechny detectovatelne externí funkce (např. šipky tahů), aby se zabránilo detekci"],
+        "useExternalChessEngine": ["Povoleno", "Je externí šachový motor povolen"]
     },
     "translations": {
         "profileRemovalWarning": "Opravdu chcete odstranit tento profil?\n\nTuto akci nelze vrátit.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Varování: Bylo detekováno nadměrné přepínání mezi kartami. Pokračující přepínání může vést k zákazu.\n\nAby se předešlo potřebě přepínat mezi kartami, udělejte jednu z následujících věcí,\n- Udělejte dvě samostatné okna vedle sebe\n- Zobrazte tahy na stránce (to je snadno detekovatelné)\n- Aktivujte TTS (Text-to-Speech)\n- Aktivujte nastavení plovoucího panelu",
         "instanceConnectionTermination": "Instanci ukončena kvůli ztrátě připojení.\n\nNečekané? Navštivte kartu, abyste znovu aktivovali A.C.A.S.",
         "calculationDepth": "Hloubka",
-        "thankYouTranslator": "Děkujeme překladatelům"
+        "thankYouTranslator": "Děkujeme překladatelům",
+        "serverOpen": "Připojeno k serveru!",
+        "serverClose": "Nepodařilo se připojit k serveru externího šachového motoru!\n\nNainstalujte/spusťte server, pokouším se znovu připojit...",
+        "websocketError": "Chyba WebSocket:",
+        "unknownWebsocketError": "Neznámá chyba, možná ztracené připojení?",
+        "noExternalEngineAnymore": "Dříve vybraný EXTERNÍ šachový motor již není k dispozici. Vyberte si nový."
     },
     "contributors": ["ChatGPT"]
 }

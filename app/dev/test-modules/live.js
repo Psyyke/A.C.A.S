@@ -229,7 +229,7 @@ export async function init(container, { test }) {
     }
 
     function onEngineSuggestion(uciString) {
-        const data = parseUCIResponse(uciString);
+        const data = PARSE_UCI_RESPONSE(uciString);
 
         if(!data || !data.bestmove) {
             console.warn(`[${ENGINE_NAME}] No bestmove in engine response:`, uciString);

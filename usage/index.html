@@ -43,7 +43,7 @@
                 <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
         </header>
-        <section class="content">
+        <div class="content">
             <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wN.svg">
             <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
             <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../assets/images/pieces/staunty/wQ.svg">
@@ -53,7 +53,7 @@
             <article class="markdown-section-sub markdown-section" id="main">
                 <section>
                     <h1 id="usage-📖">Usage 📖</h1>
-                    <p>Using A.C.A.S is easy! Once you have the userscript installed, just keep the <a target="_about" href="../app">GUI</a> open while you're playing on a chess site. By default, the moves it suggests will show up directly on the board you're playing on.</p>
+                    <p>Using A.C.A.S is easy! Once you have the userscript installed, just keep the <a target="_blank" href="../app">GUI</a> open while you're playing on a chess site. By default, the moves it suggests will show up directly on the board you're playing on.</p>
                     <p class="tip">Press Ctrl+D (Cmd+D for Mac) to bookmark this page.</p>
                     <div id="lottie-animation"></div>
                 </section>
@@ -94,52 +94,126 @@
                     </ul>
                     
                     <blockquote class="bordered">
-                        <p>⚠️ This list might be outdated. Check out the supported sites by clicking on the <a target="_about" href="../app?hl=supportedSites">see all supported sites</a> button.</p>
+                        <p>⚠️ This list might be outdated. Check out the supported sites by clicking on the <a target="_blank" href="../app?hl=supportedSites">see all supported sites</a> button.</p>
                     </blockquote>
                 </section>
                 <section>
                     <h2 id="languages">🌐 Languages</h2><img alt="A.C.A.S translated to Japanese." height="267" src="../assets/images/example5.png">
-                    <p>You can change the language using the flag dropdown found on the top right on the <a target="_about" href="../app">GUI</a>.</p>
+                    <p>You can change the language using the flag dropdown found on the top right on the <a target="_blank" href="../app">GUI</a>.</p>
+                </section>
+                <section>
+                    <h2 id="external">🔥 Running External Engines (Beta)</h2>
+                    <blockquote class="bordered">
+                        <p>Using external engines might be more unstable or even a bit slower than running a browser WASM engine. It depends on your computing power and the chess engine you're using.</p>
+                    </blockquote>
+
+                    <p>This feature is in <b>beta</b> so please expect bugs and report them.
+                    Not every local engine has been tested so some might work worse than others.
+                    The server has currently <b>only been built for Windows</b>. Linux might be supported in the future, the server is built with NW.js which is portable to many operating systems.</p>
+
+                    <img alt="A.C.A.S Server GUI" height="600" src="../assets/images/extgui.png">
+
+                    <h3>Getting started with the server</h3>
+                    <ol>
+                        <li><p class="tweaking" style="width: fit-content;"><a target="_blank" href="https://github.com/Psyyke/A.C.A.S/releases">Download Calculation Server</a></p><small>(Or compile it yourself, then open it)</small></li>
+                        <li><p>Click "Add Engine Binary" button to add your chess engine.</p><small>(Windows users should look for .exe)</small></li>
+                        <li><p>Enable the <a target="_blank" href="../app?shl=useExternalChessEngine">External Chess Engine</a> on the GUI.</p><small>(Otherwise A.C.A.S will use a built-in engine)</small></li>
+                        <li><p>You will see your engines as list on the GUI. Click to select the engine you want to use.</p><small>(Remember to add engines using step 2 to be able to see them)</small></li>
+                    </ol>
+
+                    <h3>Meaning of the connection status circle</h3>
+                    <ul>
+                        <li>🔴 Something is wrong, the server could not start or crashed.</li>
+                        <li>🟢 The server is up, but not connected.</li>
+                        <li>🔵 Connected to the client (GUI).</li>
+                    </ul>
+
+                    <h3>Risks of hosting a server</h3>
+
+                    <p>A.C.A.S supports engines running locally on your machine. It does this by hosting a WebSocket server on localhost.
+                    Please understand that running a server is never totally risk-free. While the server is being developed with your safety in mind, it might have vulnerabilities.
+                    Never expose the server to the public internet. Thank you for your understanding.</p>
+
+                    <p>One more thing to keep in mind is that any website you visit might try to connect to the server.
+                    The server obviously blocks attempts from unknown domains (cuts off the connection without further notice) and alerts you about them. It's possible to detect that, but it would be weak evidence and most modern browsers limit making requests to localhost, so don't allow every site to make requests to your localhost, only this one.
+                    </p>
+
+                    <h3>Having issues with the external server?</h3>
+
+                    <p>You might be unable to connect to the external server if you're using the <code>?sab=true</code> mode. Remove that parameter from the URL. Then, make sure your browser allows this website to use the "Local network" and "Apps on device" permissions.</p>
+
+                    <ol>
+                        <li><strong>Google Chrome / Edge</strong>
+                            <ul>
+                                <li>Click the lock/config icon in the address bar → <a href="chrome://settings/content/siteDetails?site=https%3A%2F%2Fpsyyke.github.io" target="_blank"><strong>Site settings</strong></a>.</li>
+                                <li>Enable <strong>Local network access</strong> and <strong>Installable / Apps on device</strong> permissions.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Mozilla Firefox</strong>
+                            <ul>
+                                <li>Click the shield or lock icon → <strong>Permissions</strong>.</li>
+                                <li>Allow <strong>Local network</strong> and <strong>Device access</strong>.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Safari (macOS / iOS)</strong>
+                            <ul>
+                                <li>Open <strong>Settings → Safari → Advanced → Experimental Features</strong> (macOS) or <strong>Settings → Safari</strong> (iOS).</li>
+                                <li>Ensure <strong>Local network access</strong> is enabled.</li>
+                            </ul>
+                        </li>
+                    </ol>  
                 </section>
                 <section>
                     <h2 id="settings">⚙️ Settings</h2>
 
                     <h3 id="⚙️-floating-panel">⚙️ Floating Panel</h3>
-                    <p>The <a target="_about" href="../app?shl=pip">Floating Panel</a> setting creates a small "<em>Picture-in-Picture</em>" view you can resize to be even smaller that will stay on top of every window. It contains important information about the current match.</p>
+                    <p>The <a target="_blank" href="../app?shl=pip">Floating Panel</a> setting creates a small "<em>Picture-in-Picture</em>" view you can resize to be even smaller that will stay on top of every window. It contains important information about the current match.</p>
                     <p class="tip">This setting is very important to know because it stops A.C.A.S from freezing, and makes the engine run faster! Those that do not want to use this can just create two browser windows next to each other, so that the A.C.A.S tab is visible, even if just a little bit, which also stops A.C.A.S tab from freezing.</p>
 
                     <h3 id="⚙️-chess-engine">⚙️ Chess Engine</h3>
-                    <p>The <a target="_about" href="../app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using <strong>Stockfish 17 WASM</strong> as its the fastest and strongest engine, although it does not play like a human and has a hard time playing badly. If you want to play chess variants, use <strong>Fairy Stockfish 14</strong>. You can access Lc0 and Fairy Stockfish engines via the <code>?sab=true</code> URL parameter. It enables SharedArrayBuffer required by those engines.</p>
+                    <p>The <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using <strong>Stockfish 17 Lite</strong> as its the fastest and basically strongest engine, although it does not play like a human and has a hard time playing badly. If you want to play chess variants, use <strong>Fairy Stockfish 14</strong>. You can access Lc0 and Fairy Stockfish engines via the <code>?sab=true</code> URL parameter. It enables SharedArrayBuffer required by those engines.</p>
                     <ul>
                         <li>Stockfish &lt;17 (The strongest gameplay)</li>
                         <li>Fairy Stockfish 14 (Chess variants)</li>
-                        <li>Maia 2 (Realistic human-like gameplay)</li>
+                        <li>Maia 2 (Semi realistic human-like gameplay)</li>
                         <li>Lc0 with Maia (Semi-realistic human-like gameplay)</li>
                         <li>Lozza 5 (Quite strong engine-like gameplay)</li>
+                        <li>External engine (You choose, can be extremely realistic)</li>
                     </ul>
                     <p class="tip">A.C.A.S takes information from the engine's results to give you insights into the match. Some engines offer less of extra information which cannot then be analyzed. Use Stockfish for best results.</p>
                     <p>None of these engines will play like a human for you. Do not think you can get away playing 2500 ELO matches as a 1000 ELO player with an engine. We do not want to hear any complaining on why you got banned when you broke our ToS.</p>
 
                     <h3 id="⚙️-chess-variant">⚙️ Chess Variant</h3>
-                    <p class="tip">Most users do not play chess variants, <strong>you most likely do not need to change this nor the <a target="_about" href="../app?shl=useChess960">Chess 960</a></strong>. If you happen to play a variant, A.C.A.S should automatically detect the chess variant you're playing if its supported.</p>
-                    <p>The <a target="_about" href="../app?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_about" href="../app?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized. If you happen to play variants, you need to use Fairy Stockfish <a target="_about" href="../app?shl=chessEngine">Chess Engine</a>. You can access it via <code>?sab=true</code>.</p>
+                    <p class="tip">Most users do not play chess variants, <strong>you most likely do not need to change this nor the <a target="_blank" href="../app?shl=useChess960">Chess 960</a></strong>. If you happen to play a variant, A.C.A.S should automatically detect the chess variant you're playing if its supported.</p>
+                    <p>The <a target="_blank" href="../app?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_blank" href="../app?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized. If you happen to play variants, you need to use Fairy Stockfish <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a>. You can access it via <code>?sab=true</code>.</p>
                     
                     <h3 id="⚙️-engine-elo">⚙️ Engine Elo</h3>
-                    <p>The <a target="_about" href="../app?shl=engineElo">Engine Elo</a> setting controls how strong the engine plays (between 500-3200 ELO). Note that engines like Stockfish are <strong>very strong</strong>, playing way above human 3000 ELO. For that reason, making them play at low ELO (below 2000) might result in weird behaviour. The "Maia 2" engine is better suited for that.</p><img alt="Chart displaying the ELO depending on the engine search depth and skill level." height="441" src="../assets/images/chart.png">
+                    <p>The <a target="_blank" href="../app?shl=engineElo">Engine Elo</a> setting controls how strong the engine plays (between 500-3200 ELO). Note that engines like Stockfish are <strong>very strong</strong>, playing way above human 3000 ELO. For that reason, making them play at low ELO (below 2000) might result in weird behaviour. The "Maia 2" engine is better suited for that.</p>
+                    
+                    <img alt="Chart displaying the ELO depending on the engine search depth and skill level." height="441" src="../assets/images/chart.png">
+
+                    <h4>⚙️ Advanced Elo</h4>
+                    <p>The above chart shows a couple variables A.C.A.S changes for you automatically when you use the basic <a target="_blank" href="../app?shl=engineElo">Engine Elo</a> setting.
+                    Some users don't like it, so clicking the settings button next to the Engine ELO opens up "Advanced Elo" settings which overrides basic ELO settings. These are loaded dynamically when your engine starts, so you might not see any settings there while you have no instances running. It might also be buggy so refresh the site.
+                    </p>
+
+                    <p>Note that not every "Advanced Elo" setting does something. For example "Ponder" option won't most likely do anything as it's not implemented to A.C.A.S. If you're running a built-in engine, it's limited by your browser and might not be able to take usage of any more cores, memory, external files and so on. The setting is meant for advanced users who know what they are doing.</p>
+
+                    <p>Feel free to play around and try different things. If you notice something is not working, please understand that the dynamic nature of these settings causes bugs and not everything can be tested beforehand. If you're using a custom engine and encounter them, please feel free to report them to GitHub.</p>
             
                     <h3 id="⚙️-weights">⚙️ Weights</h3>
-                    <p>The <a target="_about" href="../app?shl=lc0Weight">Lc0 Weights</a> setting determines how the Lc0 engine plays. The weight controls the engine's playing style, influencing the decisions it makes while playing. <strong>Maia weights</strong> have the ELO they're roughly playing at marked on them. The ELO and playing style of other weights is not known, but most of them are quite weak. You can access the Lc0 engine via <code>?sab=true</code>.</p>
+                    <p>The <a target="_blank" href="../app?shl=lc0Weight">Lc0 Weights</a> setting determines how the Lc0 engine plays. The weight controls the engine's playing style, influencing the decisions it makes while playing. <strong>Maia weights</strong> have the ELO they're roughly playing at marked on them. The ELO and playing style of other weights is not known, but most of them are quite weak. You can access the Lc0 engine via <code>?sab=true</code>.</p>
                     <p class="tip">Most weights A.C.A.S has, Maia specifically, are designed to only use 1 search node. It's fine that it goes just to depth 1. Using more than 1 search node might cause weird behavior.</p>
                     
                     <h3 id="⚙️-moves-on-external-site">⚙️ Moves On External Site</h3>
-                    <p>The <a target="_about" href="../app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds details about the move (<em>such has the arrow</em>) to the external site, which could be Chess.com for example, directly on the board you're playing on.</p>
+                    <p>The <a target="_blank" href="../app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds details about the move (<em>such has the arrow</em>) to the external site, which could be Chess.com for example, directly on the board you're playing on.</p>
                     <p class="tip">Chess sites <em>could</em> implement detections to this. Right now no site seems to detect it, but if you're extra worried, disable this, it doesn't matter if you're not following the engine moves.</p>
                     
                     <h3 id="⚙️-theme-color">⚙️ Theme Color</h3>
-                    <p><a target="_about" href="../app?shl=themeColorHex">Theme Color</a> setting and the settings below it allow you to change the theme to your liking.</p>
+                    <p><a target="_blank" href="../app?shl=themeColorHex">Theme Color</a> setting and the settings below it allow you to change the theme to your liking.</p>
                     <p>🟩 Best Move, 🟦 Secondary Move, 🟥 Enemy Move</p>
                     <blockquote class="bordered">
-                        <p>Enemy move is shown if <a target="_about" href="../app?shl=showOpponentMoveGuess">Opponent Move Guess</a> setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.</p>
+                        <p>Enemy move is shown if <a target="_blank" href="../app?shl=showOpponentMoveGuess">Opponent Move Guess</a> setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.</p>
                     </blockquote>
             
                     <h2 id="render-settings">⚙️ Render Settings</h2>
@@ -153,18 +227,14 @@
                     </blockquote>
                     
                     <h3 id="⚙️-contested-squares">⚙️ Contested Squares</h3>
-                    <p>The <a target="_about" href="../app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. For clarity, fire emojis 🔥 indicate <strong>contested squares</strong> too. If two fire emojis are stacked it means there are 4 or 5 pieces attacking that square. 3 fire emojis stacked mean there are 6 or 7 pieces attacking that square, 4 fire emojis mean that 8 or 9 pieces are attacking it, and so fourth.</p>
+                    <p>The <a target="_blank" href="../app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. For clarity, fire emojis 🔥 indicate <strong>contested squares</strong> too. If two fire emojis are stacked it means there are 4 or 5 pieces attacking that square. 3 fire emojis stacked mean there are 6 or 7 pieces attacking that square, 4 fire emojis mean that 8 or 9 pieces are attacking it, and so fourth.</p>
                     <p>The fire emoji can have text, for example, 🔥 with -2 text means that the square is defended by 2 less pieces than the enemy attacks it with (e.g. you have 1 piece defending the square, the enemy has 3 pieces attacking it, so 1 - 3 = -2). +2 means that you have 2 more pieces attacking the specific square than the enemy does (e.g. you attack a square with 4 pieces and the enemy defends it with only 2, so 4 - 2 = 2).</p>
                     
                     <h3 id="⚙️-own-piece-capture">⚙️ Own Piece Capture</h3>
-                    <p>The <a target="_about" href="../app?shl=renderPiecePlayerCapture">Own Piece Capture</a> setting displays your vulnerable pieces. The teardrop emoji 💧 appears on <strong>your pieces</strong> which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, an enemy <strong>Queen</strong> attacks your <strong>Rook</strong> which is protected. However, if an enemy <strong>Rook</strong> was to attack your <strong>Queen</strong>, 💧 would appear on your <strong>Queen</strong>.</p>
+                    <p>The <a target="_blank" href="../app?shl=renderPiecePlayerCapture">Own Piece Capture</a> setting displays your vulnerable pieces. The teardrop emoji 💧 appears on <strong>your pieces</strong> which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, an enemy <strong>Queen</strong> attacks your <strong>Rook</strong> which is protected. However, if an enemy <strong>Rook</strong> was to attack your <strong>Queen</strong>, 💧 would appear on your <strong>Queen</strong>.</p>
                     
                     <h3 id="⚙️-enemy-piece-capture">⚙️ Enemy Piece Capture</h3>
-                    <p>The <a target="_about" href="../app?shl=renderPieceEnemyCapture">Enemy Piece Capture</a> setting displays vulnerable enemy pieces. The bleed emoji 🩸 appears on <strong>enemy pieces</strong> which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, your <strong>Queen</strong> attacks an enemy <strong>Rook</strong> which is protected. However, if your <strong>Rook</strong> was to attack an enemy <strong>Queen</strong>, 🩸 would appear on the enemy <strong>Queen</strong>.</p>
-            
-                    <h2 id="advanced-elo-settings">⚙️ Advanced Elo Settings</h2>
-                    <p>With our testing we didn't seem to get "maximum error" and "probability" settings to work. They don't seem to be supported by many chess engines. If you're a chess engine UCI command guru and know how to enable those settings, PRs are welcome.</p>
-                    <p>For hash memory, 16, 32, 64, 128, 256, 512MB are all great choices. Might or might not actually affect performance. Engines running on the browser have limited resources and might already be using everything they have, so increasing the hash memory might not do anything. Same with increasing the threads.</p>
+                    <p>The <a target="_blank" href="../app?shl=renderPieceEnemyCapture">Enemy Piece Capture</a> setting displays vulnerable enemy pieces. The bleed emoji 🩸 appears on <strong>enemy pieces</strong> which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, your <strong>Queen</strong> attacks an enemy <strong>Rook</strong> which is protected. However, if your <strong>Rook</strong> was to attack an enemy <strong>Queen</strong>, 🩸 would appear on the enemy <strong>Queen</strong>.</p>
                 </section>
                 <section>
                     <hr>
@@ -173,7 +243,7 @@
                 </section>
             </article>
             <!-- PAGE CONTENT ENDS -->
-        </section>
+        </div>
         <footer>
             <img style="right: -70px;bottom: -35px;width: 200px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wB.svg"/>
             <section><a href="../tos">Terms of Service</a><a href="../privacy">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>

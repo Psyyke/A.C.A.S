@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "शतरंज इंजन प्रोफाइल",
         "#chess-engine-profile-dropdown .input-subtitle": "कई प्रोफाइल एक साथ सक्रिय हो सकते हैं!",
         "#add-new-profile-button .text-content": "नया जोड़ें",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "डिफ़ॉल्ट प्रोफाइल",
-        "#settings-navbar-subtitle": "सेटिंग्स सभी इंस्टेंसेस को प्रभावित करती हैं",
+        ".tab-item[data-value=\"default\"] p": "डिफ़ॉल्ट प्रोफाइल",
         ".engine-panel-title": "इंजन",
         ".visual-panel-title": "दृश्य",
         ".audible-panel-title": "श्रव्य",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "वर्ग",
         "*[data-translation-pieces-text]": "मोहरे",
         "*[data-translation-move-display-settings]": "चाल सुझाव सेटिंग्स",
+        "*[data-translation-begging-title]": "धन्यवाद!",
+        "*[data-translation-begging-subtitle]": "लगता है कि आपको A.C.A.S पसंद है :)",
+        "*[data-translation-begging-text]": "A.C.A.S विकास में बहुत समय लगता है! उम्मीद है कि यह काम आपके लिए मूल्यवान रहा है और आपने इसका उपयोग करने का आनंद लिया है!",
+        "*[data-translation-begging-text-2]": "आपने A.C.A.S का उपयोग किया है",
+        "*[data-translation-begging-text-3]": "घंटे",
+        "*[data-translation-begging-text-4]": "यह सम्मानजनक है। क्या आप दान करने में रुचि रखते हैं? हम Monero का समर्थन करते हैं،",
+        "*[data-translation-external-engine-2]": "A.C.A.S सर्वर स्थापित करें",
+        "*[data-translation-external-engine-3]": "बाहरी इंजन का उपयोग करने के लिए",
+        "*[data-translation-stat-ec]": "इंजन गणना",
+        "*[data-translation-stat-ci]": "बनाए गए उदाहरण",
+        "*[data-translation-stat-am]": "सक्रिय मिनट",
         ".stable-engine-tag": "स्थिर",
         ".variants-engine-tag": "वेरिएंट",
         ".realistic-engine-tag": "यथार्थवादी",
@@ -141,7 +151,8 @@
         "pipBoard": ["बोर्ड दिखाएँ", "केवल टेक्स्ट के बजाय पूरा बोर्ड दिखाएँ"],
         "movesOnDemand": ["मांग पर चालें", "ऐसी चालों की गणना करता है जो आप पिछली चालों के साथ बनाते हैं"],
         "onlySuggestPieces": ["केवल टुकड़े सुझाएं", "चलने के लिए टुकड़े सुझाएं, लेकिन कोई चाल न दें"],
-        "isUserscriptGhost": ["घोस्ट स्क्रिप्ट", "सभी पहचान योग्य बाहरी कार्यक्षमता (जैसे चाल तीर) को अक्षम करें ताकि पहचान से बचा जा सके"]
+        "isUserscriptGhost": ["घोस्ट स्क्रिप्ट", "सभी पहचान योग्य बाहरी कार्यक्षमता (जैसे चाल तीर) को अक्षम करें ताकि पहचान से बचा जा सके"],
+        "useExternalChessEngine": ["सक्षम", "क्या बाहरी शतरंज इंजन सक्षम है"]
     },
     "translations": {
         "profileRemovalWarning": "क्या आप सुनिश्चित हैं कि आप इस प्रोफाइल को हटाना चाहते हैं?\n\nयह क्रिया पलटने योग्य नहीं है।",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "चेतावनी: अत्यधिक टैब स्विचिंग का पता चला। लगातार स्विचिंग से बैन हो सकता है।\n\nटैब बदलने की जरूरत से बचने के लिए निम्नलिखित में से एक करें,\n- दो अलग-अलग विंडो साइड बाय साइड बनाएं\n- पृष्ठ पर चालें दिखाएं (यह आसानी से पहचाना जा सकता है)\n- TTS (टेक्स्ट टू स्पीच) सक्षम करें\n- फ्लोटिंग पैनल सेटिंग सक्षम करें",
         "instanceConnectionTermination": "कनेक्शन खोने के कारण इंस्टेंस को समाप्त कर दिया गया।\n\nअप्रत्याशित? A.C.A.S को फिर से सक्रिय करने के लिए टैब पर जाएं।",
         "calculationDepth": "गहराई",
-        "thankYouTranslator": "अनुवादकों का धन्यवाद"
+        "thankYouTranslator": "अनुवादकों का धन्यवाद",
+        "serverOpen": "सर्वर से कनेक्ट हो गया!",
+        "serverClose": "बाहरी शतरंज इंजन सर्वर से कनेक्ट नहीं हो सके!\n\nकृपया सर्वर को इंस्टॉल करें/शुरू करें, फिर से कनेक्ट करने का प्रयास...",
+        "websocketError": "WebSocket त्रुटि:",
+        "unknownWebsocketError": "अज्ञात त्रुटि, संभवतः कनेक्शन खो गया?",
+        "noExternalEngineAnymore": "पहले चयनित बाहरी शतरंज इंजन अब उपलब्ध नहीं है। एक नया चुनें।"
     },
     "contributors": []
 }

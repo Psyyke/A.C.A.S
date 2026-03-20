@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Профілі шахового движка",
         "#chess-engine-profile-dropdown .input-subtitle": "Можна активувати кілька профілів одночасно!",
         "#add-new-profile-button .text-content": "Додати новий",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Стандартний профіль",
-        "#settings-navbar-subtitle": "Налаштування впливають на кожен екземпляр",
+        ".tab-item[data-value=\"default\"] p": "Стандартний профіль",
         ".engine-panel-title": "Движок",
         ".visual-panel-title": "Візуалізація",
         ".audible-panel-title": "Звукове",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Квадрати",
         "*[data-translation-pieces-text]": "Фігури",
         "*[data-translation-move-display-settings]": "Налаштування пропозицій ходів",
+        "*[data-translation-begging-title]": "Дякую!",
+        "*[data-translation-begging-subtitle]": "Здається, вам подобається A.C.A.S :)",
+        "*[data-translation-begging-text]": "Розробка A.C.A.S займає багато часу! Сподіваємось, ця робота була для вас цінною і вам сподобалося її використовувати!",
+        "*[data-translation-begging-text-2]": "Ви використовували A.C.A.S",
+        "*[data-translation-begging-text-3]": "годин",
+        "*[data-translation-begging-text-4]": "Це гідне поваги. Чи бажаєте ви зробити дарування? Ми підтримуємо Monero،",
+        "*[data-translation-external-engine-2]": "Встановіть сервер A.C.A.S",
+        "*[data-translation-external-engine-3]": "для використання зовнішніх механізмів",
+        "*[data-translation-stat-ec]": "Розрахунки машини",
+        "*[data-translation-stat-ci]": "Створені екземпляри",
+        "*[data-translation-stat-am]": "Активні хвилини",
         ".stable-engine-tag": "Стабільний",
         ".variants-engine-tag": "Варіанти",
         ".realistic-engine-tag": "Реалістичний",
@@ -141,7 +151,8 @@
         "pipBoard": ["Показати дошку", "Замість лише тексту показати всю дошку"],
         "movesOnDemand": ["Ходи на Замовлення", "Вичислює ходи для фігур, з якими ви взаємодіюте"],
         "onlySuggestPieces": ["Тільки Пропонуйте Фігури", "Пропонуйте фігури для ходу, але не давайте ходи"],
-        "isUserscriptGhost": ["Примарний скрипт", "Вимкнути всі виявлювані зовнішні функції (наприклад стрілки ходів), щоб уникнути виявлення"]
+        "isUserscriptGhost": ["Примарний скрипт", "Вимкнути всі виявлювані зовнішні функції (наприклад стрілки ходів), щоб уникнути виявлення"],
+        "useExternalChessEngine": ["Увімкнено", "Чи увімкнено зовнішній механізм гри в шахи"]
     },
     "translations": {
         "profileRemovalWarning": "Ви впевнені, що хочете видалити цей профіль?\n\nЦю дію не можна скасувати.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Увага: виявлено надмірне перемикання вкладок. Продовження перемикання може призвести до бана.\n\nЩоб уникнути необхідності перемикати вкладки, зробіть одне з наступного:\n- Відкрийте два окремих вікна поряд\n- Показуйте ходи на сторінці (це легко виявити)\n- Увімкніть TTS (Текст до мови)\n- Увімкніть налаштування плаваючої панелі",
         "instanceConnectionTermination": "Екземпляр припинено через втрату з'єднання.\n\nНеочікувано? Перейдіть на вкладку для повторної активації A.C.A.S.",
         "calculationDepth": "Глибина",
-        "thankYouTranslator": "Дякуємо перекладачам"
+        "thankYouTranslator": "Дякуємо перекладачам",
+        "serverOpen": "Підключено до сервера!",
+        "serverClose": "Не вдалося підключитися до сервера зовнішнього механізму гри в шахи!\n\nБудь ласка, встановіть/запустіть сервер, повторна спроба підключення...",
+        "websocketError": "Помилка WebSocket:",
+        "unknownWebsocketError": "Невідома помилка, можливо, з'єднання втрачено?",
+        "noExternalEngineAnymore": "Раніше вибраний ЗОВНІШНІЙ механізм гри в шахи більше недоступний. Виберіть новий."
     },
     "contributors": []
 }

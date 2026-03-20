@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.3.9
+// @version     2.4.0
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -154,6 +154,11 @@ function isRunningOnBackend(skipGM) {
 const runningOnBackend = isRunningOnBackend();
 const runningOnDevPage = runningOnBackend && isDevPage;
 
+const activeInputListener = {
+    targetValue: null,
+    listeners: []
+};
+
 // KEEP THESE AS FALSE ON PRODUCTION
 const debugModeActivated = false;
 const onlyUseDevelopmentBackend = false;
@@ -211,7 +216,7 @@ const dbValues = {
     turn: instanceID => 'turn' + tempValueIndicator + instanceID,
     fen: instanceID => 'fen' + tempValueIndicator + instanceID
 };
-// Add them to acas-userscript-bridge.js as well if you,
+// Add them to /js/misc/userscriptBridge.js as well if you,
 // decide to add more variables here
 const instanceVars = {
     playerColor: createInstanceVariable('playerColor'),
@@ -343,62 +348,12 @@ const configKeys = Object.freeze([
     'renderSquareContested', 'renderSquareSafe', 'renderPiecePlayerCapture',
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
     'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth',
-    'enableAdvancedElo', 'advancedElo', 'advancedEloDepth',
-    'advancedEloSkill', 'advancedEloMaxError', 'advancedEloProbability',
-    'advancedEloHash', 'advancedEloThreads', 'moveAsFilledSquares',
+    'enableAdvancedElo', 'moveAsFilledSquares',
     'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost'
 ].reduce((o, k) => (o[k] = k, o), {}));
 
 const config = {};
-
-Object.values(configKeys).forEach(key => {
-    config[key] = {
-        get:  profile => getGmConfigValue(key, commLinkInstanceID, profile),
-        set: null
-    };
-});
-
-let BoardDrawer = null;
-let chessBoardElem = null;
-let chesscomVariantPlayerColorsTable = null;
-let activeGuiMoveMarkings = [];
-let activeMetricRenders = [];
-let activeFeedback = [];
-
-let boardObserver = null;
-let dumbBoardObservingInterval = null;
-let lastMutationObservationDate = 0;
-
-let lastCalculatedFullFen = null;
-
-let lastBoardRanks = null;
-let lastBoardFiles = null;
-
-let lastBoardSize = null;
-let lastPieceSize = null;
-
-let lastTurn = null;
-
-let lastBoardMatrix = null;
-let lastBoardOrientation = null;
-
-let matchFirstSuggestionGiven = false;
-
-let lastMoveRequestTime = 0;
-
-let lastMutationObsProcessedTurn = null;
-
-let isUserMouseDown = false;
-let activeAutomoves = [];
-
-let modListeners = [];
-let modDrawerListeners = [];
-let modLastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
-
-let isMovesOnDemandActive = false;
-
 const supportedSites = {};
-
 const pieceNameToFen = {
     'pawn': 'p',
     'knight': 'n',
@@ -408,26 +363,81 @@ const pieceNameToFen = {
     'king': 'k'
 };
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+let BoardDrawer = null;
+let chessBoardElem = null;
+let chesscomVariantPlayerColorsTable = null;
+let activeGuiMoveMarkings = [];
+let activeMetricRenders = [];
+let activeFeedback = [];
+let boardObserver = null;
+let dumbBoardObservingInterval = null;
+let lastMutationObservationDate = 0;
+let lastCalculatedFullFen = null;
+let lastBoardRanks = null;
+let lastBoardFiles = null;
+let lastBoardSize = null;
+let lastPieceSize = null;
+let lastTurn = null;
+let lastBoardMatrix = null;
+let lastBoardOrientation = null;
+let matchFirstSuggestionGiven = false;
+let lastMoveRequestTime = 0;
+let lastMutationObsProcessedTurn = null;
+let isUserMouseDown = false;
+let activeAutomoves = [];
+let modListeners = [];
+let modDrawerListeners = [];
+let modLastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
+let isMovesOnDemandActive = false;
 
-function getArrowStyle(type, fill, opacity) {
-    const getBaseStyleModification = (f, o) => [
-        'stroke: rgb(0 0 0 / 50%);',
-        'stroke-width: 2px;',
-        'stroke-linejoin: round;',
-        `fill: ${fill || f};`,
-        `opacity: ${opacity || o};`
-    ].join('\n');
+Object.values(configKeys).forEach(key => {
+    config[key] = {
+        get:  profile => getGmConfigValue(key, commLinkInstanceID, profile),
+        set: null
+    };
+});
 
-    switch(type) {
-        case 'best':
-            return getBaseStyleModification('limegreen', 0.9);
-        case 'secondary':
-            return getBaseStyleModification('dodgerblue', 0.7);
-        case 'opponent':
-            return getBaseStyleModification('crimson', 0.3);
+function getGmConfigValue(key, instanceID, profileID) {
+    if(typeof profileID === 'object') {
+        profileID = profileID.name;
     }
-};
+
+    const config = GM_getValue(dbValues.AcasConfig);
+
+    const instanceValue = config?.instance?.[instanceID]?.[key];
+    const globalValue = config?.global?.[key];
+
+    if(instanceValue !== undefined) {
+        return instanceValue;
+    }
+
+    if(globalValue !== undefined) {
+        return globalValue;
+    }
+
+    if(profileID) {
+        const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
+        const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileID]?.[key];
+
+        if(instanceProfileValue !== undefined) {
+            return instanceProfileValue;
+        }
+
+        if(globalProfileValue !== undefined) {
+            return globalProfileValue;
+        }
+    }
+
+    return null;
+}
+
+function getConfigValue(key, profile) {
+    return config[key]?.get(profile);
+}
+
+function setConfigValue(key, val) {
+    return config[key]?.set(val);
+}
 
 const CommLink = new CommLinkHandler(`frontend_${commLinkInstanceID}`, {
     'singlePacketResponseWaitTime': 250,
@@ -451,8 +461,10 @@ CommLink.registerSendCommand('pingInstance', { data: 'ping' });
 CommLink.registerSendCommand('log');
 CommLink.registerSendCommand('updateBoardOrientation');
 CommLink.registerSendCommand('updateBoardFen');
+CommLink.registerSendCommand('newMatchStarted');
 CommLink.registerSendCommand('calculateBestMoves');
 CommLink.registerSendCommand('calculateSpecificMoves');
+CommLink.registerSendCommand('forceInstanceRestart');
 
 CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
     try {
@@ -500,11 +512,95 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
             case 'feedbackToSite':
                 displayFeedback(packet.data);
                 return true;
+            case 'updateRestartListener':
+                createRestartListener(packet.data, () => {
+                    CommLink.commands.forceInstanceRestart();
+                });
+                return true;
         }
     } catch(e) {
         return null;
     }
 });
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function getArrowStyle(type, fill, opacity) {
+    const getBaseStyleModification = (f, o) => [
+        'stroke: rgb(0 0 0 / 50%);',
+        'stroke-width: 2px;',
+        'stroke-linejoin: round;',
+        `fill: ${fill || f};`,
+        `opacity: ${opacity || o};`
+    ].join('\n');
+
+    switch(type) {
+        case 'best':
+            return getBaseStyleModification('limegreen', 0.9);
+        case 'secondary':
+            return getBaseStyleModification('dodgerblue', 0.7);
+        case 'opponent':
+            return getBaseStyleModification('crimson', 0.3);
+    }
+};
+
+function createRestartListener(targetValue, callback) {
+    if(typeof targetValue !== 'string' || !callback) return;
+    if(activeInputListener.targetValue === targetValue) return;
+
+    activeInputListener.listeners.forEach(({ type, fn }) => document.removeEventListener(type, fn));
+    activeInputListener.listeners.length = 0;
+    activeInputListener.targetValue = null;
+
+    let holdTimer = null;
+    let lastTapTime = 0;
+    const dblTapThreshold = 300;
+    const listeners = [];
+
+    const addListener = (type, fn) => {
+        document.addEventListener(type, fn);
+        listeners.push({ type, fn });
+    };
+
+    addListener('keydown', (e) => {
+        if(!targetValue.startsWith("Interact") && e.code === targetValue)
+            callback(e);
+    });
+
+    const startPress = (e) => {
+        if(!targetValue.startsWith("Interact")) return;
+
+        const match = targetValue.match(/^InteractLongPress(\d+)$/);
+        if(match) holdTimer = setTimeout(() => {
+            callback(e); holdTimer = null;
+        }, parseInt(match[1], 10) * 1000);
+
+        if(targetValue === "InteractDoubleClick" && e.type.startsWith("touch")) {
+            const now = performance.now();
+            if(now - lastTapTime < dblTapThreshold) {
+                callback(e);
+                lastTapTime = 0;
+            }
+            else lastTapTime = now;
+        }
+    };
+
+    const endPress = () => { if(holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+    }};
+
+    addListener('mousedown', startPress);
+    addListener('mouseup', endPress);
+    addListener('touchstart', startPress);
+    addListener('touchend', endPress);
+    addListener('dblclick', (e) => {
+        if(targetValue === "InteractDoubleClick") callback(e);
+    });
+
+    activeInputListener.targetValue = targetValue;
+    activeInputListener.listeners.push(...listeners);
+}
 
 function clearMetricRenders() {
     activeMetricRenders.forEach(elem => {
@@ -823,9 +919,9 @@ const boardUtils = {
     }
 };
 
-function clearVisuals() {
+function clearVisuals(noMetricsRemoval = false) {
+    if(!noMetricsRemoval) clearMetricRenders();
     clearFeedback();
-    clearMetricRenders();
     boardUtils.removeMarkings();
 }
 
@@ -1758,40 +1854,6 @@ async function makeMove(profile, fenMoveArr, isLegit) {
     });
 }
 
-function getGmConfigValue(key, instanceID, profileID) {
-    if(typeof profileID === 'object') {
-        profileID = profileID.name;
-    }
-
-    const config = GM_getValue(dbValues.AcasConfig);
-
-    const instanceValue = config?.instance?.[instanceID]?.[key];
-    const globalValue = config?.global?.[key];
-
-    if(instanceValue !== undefined) {
-        return instanceValue;
-    }
-
-    if(globalValue !== undefined) {
-        return globalValue;
-    }
-
-    if(profileID) {
-        const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
-        const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileID]?.[key];
-
-        if(instanceProfileValue !== undefined) {
-            return instanceProfileValue;
-        }
-
-        if(globalProfileValue !== undefined) {
-            return globalProfileValue;
-        }
-    }
-
-    return null;
-}
-
 function isBoardDrawerNeeded() {
     const config = GM_getValue(dbValues.AcasConfig);
 
@@ -1822,14 +1884,6 @@ function isBoardDrawerNeeded() {
     if(iP && check(iP)) return true;
 
     return false;
-}
-
-function getConfigValue(key, profile) {
-    return config[key]?.get(profile);
-}
-
-function setConfigValue(key, val) {
-    return config[key]?.set(val);
 }
 
 function squeezeEmptySquares(fenStr) {
@@ -1892,7 +1946,7 @@ function getCanvasPixelColor(canvas, [xPercentage, yPercentage], debug) {
 
         const dataURL = clonedCanvas.toDataURL();
 
-        console.log(canvas, pixel, dataURL);
+        //console.log(canvas, pixel, dataURL);
     }
 
     return brightness < 128 ? 'b' : 'w';
@@ -1924,7 +1978,7 @@ function canvasHasPixelAt(canvas, [xPercentage, yPercentage], debug) {
 
         const dataURL = clonedCanvas.toDataURL();
 
-        console.log(canvas, pixel, dataURL);
+        //console.log(canvas, pixel, dataURL);
     }
 
     return pixel[3] !== 0;
@@ -2105,8 +2159,6 @@ function getBasicFen() {
 function getFen(onlyBasic) {
     const basicFen = getBasicFen();
 
-    if(debugModeActivated) console.warn('basicFen', basicFen);
-
     if(onlyBasic) {
         return basicFen;
     }
@@ -2121,31 +2173,12 @@ function resetCachedValues() {
     chesscomVariantPlayerColorsTable = null;
 }
 
-function fenToArray(fen) {
-    const rows = fen.split('/');
-    const board = [];
-
-    for (let row of rows) {
-        const boardRow = [];
-        for (let char of row) {
-            if (isNaN(char)) {
-                boardRow.push(char);
-            } else {
-                boardRow.push(...Array(parseInt(char)).fill(''));
-            }
-        }
-        board.push(boardRow);
-    }
-
-    return board;
-}
-
 function countTotalPieces(fen) {
     let pieceCount = 0;
     const position = fen.split(' ')[0];
 
-    for (let char of position) {
-        if (/[rnbqkpRNBQKP]/.test(char)) {
+    for(let char of position) {
+        if(/[rnbqkpRNBQKP]/.test(char)) {
             pieceCount += (pieceCount[char] || 0) + 1;
         }
     }
@@ -2202,13 +2235,11 @@ function getBoardSquareChangeAmount(lastFen, newFen) {
     return diff;
 }
 
-function processBoardPosition(currentFullFen = getFen(), pieceAmountChange = 0) {
-    if(debugModeActivated) console.warn('NEW MOVE DETECTED!');
-
+async function processBoardPosition(currentFullFen = getFen(), squareChangeAmount = 0) {
     lastCalculatedFullFen = currentFullFen;
     lastMoveRequestTime = Date.now();
 
-    clearVisuals();
+    clearVisuals(true);
 
     boardUtils.setBoardDimensions(getBoardDimensions());
     modLastEnteredSquare.squareFen = null;
@@ -2216,11 +2247,15 @@ function processBoardPosition(currentFullFen = getFen(), pieceAmountChange = 0) 
     if(!modListeners.length)
         addMovesOnDemandListeners();
 
+    const didBoardOrientationChange = await checkBoardOrientationChange();
+
     // Most likely a new match started
-    if(checkBoardOrientationChange() || pieceAmountChange > 7) {
+    if(didBoardOrientationChange || squareChangeAmount > 5) {
         resetCachedValues();
 
         matchFirstSuggestionGiven = false;
+
+        CommLink.commands.newMatchStarted();
     }
 
     CommLink.commands.updateBoardFen(currentFullFen);
@@ -2232,6 +2267,7 @@ async function determineBoardPositionValidity(turn) {
     const fenChanged = currentFullFen?.split(' ', 1)?.[0] !== lastCalculatedFullFen?.split(' ', 1)?.[0]; // only compare the first part of the FENs to detect change
 
     const pieceAmountChange = getPieceChangeAmount(lastCalculatedFullFen, currentFullFen);
+    const squareChangeAmount = getBoardSquareChangeAmount(lastCalculatedFullFen, currentFullFen);
     const pieceAmount = getPieceAmount(); // this depends on the current DOM, not from FEN.
 
     // A new board just appeared and is still loading, most likely a new match!
@@ -2245,8 +2281,6 @@ async function determineBoardPositionValidity(turn) {
 
     // Do not continue if FEN did not change!
     if(!fenChanged) return;
-    // The board position is now different, so clear any rendered visuals (move arrows, etc.)
-    //clearVisuals();
 
     if(turn) {
         if(lastTurn === turn) turn = getBoardOrientation();
@@ -2256,8 +2290,6 @@ async function determineBoardPositionValidity(turn) {
     }
 
     if(pieceAmountChange === -1) {
-        const squareChangeAmount = getBoardSquareChangeAmount(lastCalculatedFullFen, currentFullFen);
-
         // Do not continue if a piece just disappeared, this is not possible legally!
         // (This happens sometimes because the mutationObserver detects DOM changes so fast)
         if(squareChangeAmount === 1) {
@@ -2266,7 +2298,7 @@ async function determineBoardPositionValidity(turn) {
         }
     }
 
-    processBoardPosition(currentFullFen, pieceAmountChange);
+    processBoardPosition(currentFullFen, squareChangeAmount);
 }
 
 // This also updates the turn instanceVariable that the GUI uses to determine the turn!
@@ -3664,22 +3696,30 @@ async function start() {
     CommLink.setIntervalAsync(async () => {
         await CommLink.commands.createInstance(commLinkInstanceID);
     }, 1000);
+
+    createRestartListener(
+        await getGmConfigValue('instanceRestartTriggerCode'),
+        () => { CommLink.commands.forceInstanceRestart() }
+    );
 }
 
 function startWhenBackendReady() {
     let timesUrlForceOpened = 0;
+    let i = 0;
 
     const interval = CommLink.setIntervalAsync(async () => {
+        i++;
+
         if(await isAcasBackendReady()) {
             start();
 
             interval.stop();
-        } else if(timesUrlForceOpened < 1) {
+        } else if(timesUrlForceOpened === 0 && (i % 10 === 0)) {
             timesUrlForceOpened++;
 
             GM_openInTab(getCurrentBackendURL(), true);
         }
-    }, 500);
+    }, 100);
 }
 
 function initializeIfSiteReady() {

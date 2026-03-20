@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Profil Mesin Catur",
         "#chess-engine-profile-dropdown .input-subtitle": "Beberapa profil dapat aktif pada saat yang sama!",
         "#add-new-profile-button .text-content": "Tambah Baru",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Profil Default",
-        "#settings-navbar-subtitle": "Pengaturan mempengaruhi setiap instance",
+        ".tab-item[data-value=\"default\"] p": "Profil Default",
         ".engine-panel-title": "Mesin",
         ".visual-panel-title": "Visual",
         ".audible-panel-title": "Terdengar",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Kotak",
         "*[data-translation-pieces-text]": "Bidak",
         "*[data-translation-move-display-settings]": "Pengaturan saran gerakan",
+        "*[data-translation-begging-title]": "Terima kasih!",
+        "*[data-translation-begging-subtitle]": "Sepertinya Anda menyukai A.C.A.S :)",
+        "*[data-translation-begging-text]": "Mengembangkan A.C.A.S membutuhkan banyak waktu! Semoga pekerjaan ini telah berharga bagi Anda, dan Anda telah menikmati penggunaannya!",
+        "*[data-translation-begging-text-2]": "Anda telah menggunakan A.C.A.S selama",
+        "*[data-translation-begging-text-3]": "jam",
+        "*[data-translation-begging-text-4]": "Itu patut dihargai. Apakah Anda tertarik untuk berdonasi? Kami mendukung Monero,",
+        "*[data-translation-external-engine-2]": "Instal server A.C.A.S",
+        "*[data-translation-external-engine-3]": "untuk menggunakan mesin eksternal",
+        "*[data-translation-stat-ec]": "Perhitungan Mesin",
+        "*[data-translation-stat-ci]": "Instansi yang dibuat",
+        "*[data-translation-stat-am]": "Menit aktif",
         ".stable-engine-tag": "Stabil",
         ".variants-engine-tag": "Varian",
         ".realistic-engine-tag": "Realistis",
@@ -141,7 +151,8 @@
         "pipBoard": ["Tampilkan papan", "Alih-alih hanya teks, tampilkan seluruh papan"],
         "movesOnDemand": ["Gerakan Sesuai Permintaan", "Menghitung gerakan untuk bidak yang Anda interaksikan"],
         "onlySuggestPieces": ["Hanya Sarankan Bidak", "Sarankan bidak untuk dipindahkan, tetapi tidak memberikan gerakan"],
-        "isUserscriptGhost": ["Skrip Hantu", "Nonaktifkan semua fungsi eksternal yang dapat dideteksi (mis. panah gerakan) untuk menghindari deteksi"]
+        "isUserscriptGhost": ["Skrip Hantu", "Nonaktifkan semua fungsi eksternal yang dapat dideteksi (mis. panah gerakan) untuk menghindari deteksi"],
+        "useExternalChessEngine": ["Diaktifkan", "Apakah mesin catur eksternal diaktifkan"]
     },
     "translations": {
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Peringatan: Perubahan tab berlebihan terdeteksi. Terus berpindah tab dapat menyebabkan larangan.\n\nUntuk menghindari perlu beralih tab, lakukan salah satu dari berikut,\n- Buat dua jendela terpisah berdampingan\n- Tampilkan gerakan di halaman (Ini mudah terdeteksi)\n- Aktifkan TTS (Text to Speech)\n- Aktifkan pengaturan panel mengambang",
         "instanceConnectionTermination": "Instance dihentikan karena kehilangan koneksi.\n\nTidak terduga? Kunjungi tab untuk mengaktifkan kembali A.C.A.S.",
         "calculationDepth": "Kedalaman",
-        "thankYouTranslator": "Terima kasih kepada penerjemah"
+        "thankYouTranslator": "Terima kasih kepada penerjemah",
+        "serverOpen": "Terhubung ke server!",
+        "serverClose": "Tidak dapat terhubung ke server mesin catur eksternal!\n\nHarap instal/mulai server, mencoba terhubung kembali...",
+        "websocketError": "Kesalahan WebSocket:",
+        "unknownWebsocketError": "Kesalahan tidak diketahui, mungkin koneksi hilang?",
+        "noExternalEngineAnymore": "Mesin catur EKSTERNAL yang dipilih sebelumnya tidak lagi tersedia. Pilih yang baru."
     },
     "contributors": []
 }

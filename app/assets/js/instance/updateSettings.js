@@ -1,10 +1,16 @@
-export default async function updateSettings(updateObj) {
-    const profile = updateObj.data.profile.name || updateObj?.data?.value;
-    const profiles = await getProfiles();
-    const profilesWithDisabledEngine = profiles.filter(p => !p.config.engineEnabled);
-    const nonexistingProfilesWithEngine = Object.keys(this.pV).filter(profileName => !profiles.find(p => p.name === profileName));
+import { updatePipData } from '../gui/pip.js';
 
-    const isEngineEnabled = await this.getConfigValue(this.configKeys.engineEnabled, profile);
+export default async function updateSettings(updateObj) {
+    const settingKey = updateObj?.data?.key,
+          settingValue = updateObj?.data?.value;
+    const profileName = updateObj.data.profile.name || settingValue;
+    const isDirectlyCausedByUser = updateObj.data.isDirectlyCausedByUser;
+    const isDynamicUciSetting = settingKey.startsWith('DYNAMIC_');
+
+    const profiles = await GET_PROFILES();
+    const profilesWithDisabledEngine = profiles.filter(p => p.config.engineEnabled === false);
+    const nonexistingProfilesWithEngine = Object.keys(this.pV).filter(profileName => !profiles.find(p => p.name === profileName));
+    const isEngineEnabled = await this.getConfigValue(this.configKeys.engineEnabled, profileName);
 
     // Handle profiles which engine is disabled
     for(const profileObj of profilesWithDisabledEngine) {
@@ -12,93 +18,99 @@ export default async function updateSettings(updateObj) {
         const profileVariables = this.pV[profileName];
 
         if(profileVariables) {
-            console.log('Kill engine', profileName, 'due to it being disabled');
-
             this.killEngine(profileName);
+
+            return;
         }
     }
     
     // Handle profiles which do not exist anymore
     for(const profileName of nonexistingProfilesWithEngine) {
-        console.log('Kill engine', profileName, 'due to the profile not existing anymore');
-
         this.killEngine(profileName);
+
+        return;
     }
 
-    function findSettingKeyFromData(key) {
-        return Object.values(updateObj?.data)?.includes(key);
-    }
+    const chessVariant = FORMAT_VARIANT(await this.getConfigValue(this.configKeys.chessVariant, profileName));
+    const useChess960 = await this.getConfigValue(this.configKeys.useChess960, profileName);
 
-    const advancedEloKeys = [
-        this.configKeys.enableAdvancedElo,
-        this.configKeys.advancedEloDepth,
-        this.configKeys.advancedEloSkill,
-        this.configKeys.advancedEloMaxError,
-        this.configKeys.advancedEloProbability,
-        this.configKeys.advancedEloHash,
-        this.configKeys.advancedEloThreads
-    ];
-
-    const didUpdateVariant = findSettingKeyFromData(this.configKeys.chessVariant);
-    const didUpdateElo = [this.configKeys.engineElo, ...advancedEloKeys]
-        .find(key => findSettingKeyFromData(key));
-    const didUpdateAdvancedElo = advancedEloKeys
-        .find(key => findSettingKeyFromData(key));
-    const didUpdateLc0Weight = findSettingKeyFromData(this.configKeys.lc0Weight);
-    const didUpdateChessFont = findSettingKeyFromData(this.configKeys.chessFont);
-    const didUpdateMultiPV = findSettingKeyFromData(this.configKeys.moveSuggestionAmount);
-    const didUpdate960Mode = findSettingKeyFromData(this.configKeys.useChess960);
-    const didUpdateChessEngine = findSettingKeyFromData(this.configKeys.chessEngine);
-    const didUpdateEngineEnabled = findSettingKeyFromData(this.configKeys.engineEnabled);
-    const didUpdateNodes = findSettingKeyFromData(this.configKeys.engineNodes);
-    const didUpdateChessEngineProfile = findSettingKeyFromData(this.configKeys.chessEngineProfile);
-
-    if(didUpdateChessEngineProfile) {
-        const profile = updateObj.data.value;
-
-        this.freezeEngineKilling[profile] = true;
-
-        setTimeout(() => {
-            this.freezeEngineKilling[profile] = false;
-        }, 1500);
-    };
-
-    const chessVariant = formatVariant(await this.getConfigValue(this.configKeys.chessVariant, profile));
-    const useChess960 = await this.getConfigValue(this.configKeys.useChess960, profile);
+    const findSetting = key => Object.values(updateObj?.data)?.includes(key);
+    const didUpdateVariant = findSetting(this.configKeys.chessVariant);
+    const didUpdateElo = [this.configKeys.engineElo]
+        .find(key => findSetting(key));
+    const didUpdateLc0Weight = findSetting(this.configKeys.lc0Weight);
+    const didUpdateChessFont = findSetting(this.configKeys.chessFont);
+    const didUpdateMultiPV = findSetting(this.configKeys.moveSuggestionAmount);
+    const didUpdate960Mode = findSetting(this.configKeys.useChess960);
+    const didUpdateChessEngine = findSetting(this.configKeys.chessEngine);
+    const didUpdateEngineEnabled = findSetting(this.configKeys.engineEnabled);
+    const didUpdateNodes = findSetting(this.configKeys.engineNodes);
+    const didUpdateChessEngineProfile = findSetting(this.configKeys.chessEngineProfile);
+    const didUpdateAdvancedElo = findSetting(this.configKeys.enableAdvancedElo);
+    const didUpdateAdvancedEloDepth = findSetting(this.configKeys.advancedEloDepth);
+    const didUpdateSearchNodes = findSetting(this.configKeys.engineNodes);
 
     if(didUpdateVariant || didUpdate960Mode) {
-        this.set960Mode(useChess960, profile);
+        this.set960Mode(useChess960, profileName);
+        this.engineStartNewGame(didUpdateVariant ? chessVariant : this.pV[profileName].chessVariant, profileName);
 
-        this.engineStartNewGame(didUpdateVariant ? chessVariant : this.pV[profile].chessVariant, profile);
-    } else {
-        if(didUpdateChessFont)
-            this.setChessFont(await this.getConfigValue(this.configKeys.chessFont));
-
-        if(didUpdateChessEngine || (didUpdateEngineEnabled && isEngineEnabled)) {
-            if(didUpdateChessEngine) 
-                console.log('Kill and load engine', profile, 'since the engine type was changed');
-            else if(didUpdateEngineEnabled)
-                console.log('Kill and load engine', profile, 'since the engine was enabled');
-
-            this.killEngine(profile);
-
-            this.pV[profile] = await this.profileVariables.create(this, profile);
-            this.loadEngine(profile);
-        }
-
-        if(didUpdateElo)
-            this.setEngineElo(await this.getConfigValue(this.configKeys.engineElo, profile), true, didUpdateAdvancedElo, profile);
-
-        if(didUpdateNodes)
-            this.setEngineNodes(await this.getConfigValue(this.configKeys.engineNodes, profile), profile);
-
-        if(didUpdateLc0Weight)
-            this.setEngineWeight(await this.getConfigValue(this.configKeys.lc0Weight, profile), profile);
-
-        if(didUpdateMultiPV)
-            this.setEngineMultiPV(await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile), profile);
-
-        if(didUpdate960Mode)
-            this.set960Mode(useChess960, profile);
+        return;
     }
+
+    if(didUpdateChessEngineProfile) {
+        this.freezeEngineKilling[profileName] = true;
+
+        setTimeout(() => {
+            this.freezeEngineKilling[profileName] = false;
+        }, 1500);
+    }
+
+    if(isDynamicUciSetting && isDirectlyCausedByUser) {
+        this.applyDynamicOption(
+            settingKey,
+            settingValue,
+            profileName,
+            true
+        );
+    }
+
+    if(didUpdateAdvancedElo) {
+        this.updateAdvancedModeStatus(profileName, settingValue);
+        this.createAndLoadSpecificEngine(profileName);
+    }
+
+    if((didUpdateChessEngine || (didUpdateEngineEnabled && isEngineEnabled)) && isDirectlyCausedByUser) {
+        if(didUpdateChessEngine) 
+            console.log('Kill and load engine', profileName, 'since the engine type was changed');
+        else if(didUpdateEngineEnabled)
+            console.log('(Attempt to kill) and then load engine', profileName, 'since the engine was enabled');
+
+        this.createAndLoadSpecificEngine(profileName);
+
+        return;
+    }
+
+    if(didUpdateChessFont)
+        this.setChessFont(await this.getConfigValue(this.configKeys.chessFont));
+
+    if(didUpdateElo)
+        this.setEngineElo(await this.getConfigValue(this.configKeys.engineElo, profileName), true, profileName);
+
+    if(didUpdateAdvancedEloDepth) {
+        this.pV[profileName].searchDepth = settingValue;
+    }
+
+    if(didUpdateSearchNodes) {
+        this.pV[profileName].engineNodes = settingValue;
+        updatePipData({ 'goalDepth': null });
+    }
+
+    if(didUpdateLc0Weight)
+        this.setEngineWeight(await this.getConfigValue(this.configKeys.lc0Weight, profileName), profileName);
+
+    if(didUpdateMultiPV)
+        this.setEngineMultiPV(await this.getConfigValue(this.configKeys.moveSuggestionAmount, profileName), profileName);
+
+    if(didUpdate960Mode)
+        this.set960Mode(useChess960, profileName);
 }

@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Profils du moteur d'échecs",
         "#chess-engine-profile-dropdown .input-subtitle": "Plusieurs profils peuvent être actifs simultanément !",
         "#add-new-profile-button .text-content": "Ajouter un profil",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Profil par défaut",
-        "#settings-navbar-subtitle": "Ces paramètres affectent chaque instance",
+        ".tab-item[data-value=\"default\"] p": "Profil par défaut",
         ".engine-panel-title": "Moteur",
         ".visual-panel-title": "Affichage",
         ".audible-panel-title": "Audio",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Carrés",
         "*[data-translation-pieces-text]": "Pièces",
         "*[data-translation-move-display-settings]": "Paramètres de suggestions de coups",
+        "*[data-translation-begging-title]": "Merci !",
+        "*[data-translation-begging-subtitle]": "Vous semblez aimer A.C.A.S :)",
+        "*[data-translation-begging-text]": "Développer A.C.A.S prend beaucoup de temps ! Nous espérons que ce travail vous a été utile et que vous avez apprécié l'utilisation !",
+        "*[data-translation-begging-text-2]": "Vous avez utilisé A.C.A.S pendant",
+        "*[data-translation-begging-text-3]": "heures",
+        "*[data-translation-begging-text-4]": "C'est respectable. Seriez-vous intéressé par un don ? Nous acceptons Monero,",
+        "*[data-translation-external-engine-2]": "Installez le serveur A.C.A.S",
+        "*[data-translation-external-engine-3]": "pour utiliser des moteurs externes",
+        "*[data-translation-stat-ec]": "Calculs du moteur",
+        "*[data-translation-stat-ci]": "Instances créées",
+        "*[data-translation-stat-am]": "Minutes actives",
         ".stable-engine-tag": "Stable",
         ".variants-engine-tag": "Variantes",
         ".realistic-engine-tag": "Réaliste",
@@ -140,7 +150,8 @@
         "pip": ["Panneau flottant", "Important ! Empêche A.C.A.S de geler !"],
         "pipBoard": ["Afficher le plateau", "Au lieu de texte seulement, afficher tout le plateau"],
         "movesOnDemand": ["Coups à la Demande", "Calcule les coups pour les pièces avec lesquelles vous interagissez"],
-        "onlySuggestPieces": ["Suggérer Seulement les Pièces", "Suggérez des pièces à bouger, mais ne donnez pas les coups"]
+        "onlySuggestPieces": ["Suggérer Seulement les Pièces", "Suggérez des pièces à bouger, mais ne donnez pas les coups"],
+        "useExternalChessEngine": ["Activé", "Le moteur du serveur externe est-il activé"]
     },
     "translations": {
         "profileRemovalWarning": "Êtes-vous sûr(e) de vouloir supprimer ce profil ?\n\nCette action est irréversible.",
@@ -177,7 +188,12 @@
         "excessiveTabChangeWarning": "Avertissement : Changement excessif d'onglets détecté. Un changement continu peut entraîner une interdiction.\n\nPour éviter d'avoir à passer d'un onglet à l'autre, faites l'une des choses suivantes,\n- Ouvrez deux fenêtres séparées côte à côte\n- Affichez les coups sur la page (C'est facilement détectable)\n- Activez le TTS (Texte à voix)\n- Activez le paramètre du panneau flottant",
         "instanceConnectionTermination": "Instance terminée en raison d'une perte de connexion.",
         "calculationDepth": "Profondeur",
-        "thankYouTranslator": "Merci aux traducteurs !"
+        "thankYouTranslator": "Merci aux traducteurs !",
+        "serverOpen": "Connecté au serveur !",
+        "serverClose": "Impossible de se connecter au serveur de moteur externe !\n\nVeuillez installer/lancer le serveur, tentative de reconnexion...",
+        "websocketError": "Erreur WebSocket :",
+        "unknownWebsocketError": "Erreur inconnue, peut-être une perte de connexion ?",
+        "noExternalEngineAnymore": "Le moteur EXTERNE précédemment sélectionné n'est plus disponible. Sélectionnez-en un nouveau."
     },
     "contributors": ["@PikPakPik"]
 }

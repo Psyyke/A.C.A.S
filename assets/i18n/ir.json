@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "پروفایل‌های موتور شطرنج",
         "#chess-engine-profile-dropdown .input-subtitle": "چندین پروفایل می‌توانند به طور همزمان فعال باشند!",
         "#add-new-profile-button .text-content": "اضافه کردن جدید",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "پروفایل پیش‌فرض",
-        "#settings-navbar-subtitle": "تنظیمات بر هر نمونه تأثیر می‌گذارد",
+        ".tab-item[data-value=\"default\"] p": "پروفایل پیش‌فرض",
         ".engine-panel-title": "موتور",
         ".visual-panel-title": "تصویری",
         ".audible-panel-title": "شنیداری",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "مربع‌ها",
         "*[data-translation-pieces-text]": "مهره‌ها",
         "*[data-translation-move-display-settings]": "تنظیمات پیشنهاد حرکت",
+        "*[data-translation-begging-title]": "متشکریم!",
+        "*[data-translation-begging-subtitle]": "به نظر می‌رسد A.C.A.S را دوست دارید :)",
+        "*[data-translation-begging-text]": "توسعه A.C.A.S زمان زیادی می‌برد! امیدواریم این کار برای شما ارزشمند بوده و از استفاده از آن لذت برده باشید!",
+        "*[data-translation-begging-text-2]": "شما از A.C.A.S برای",
+        "*[data-translation-begging-text-3]": "ساعت",
+        "*[data-translation-begging-text-4]": "این قابل احترام است. آیا علاقه‌مند به کمک مالی هستید؟ ما از Monero پشتیبانی می‌کنیم,",
+        "*[data-translation-external-engine-2]": "سرور A.C.A.S را نصب کنید",
+        "*[data-translation-external-engine-3]": "برای استفاده از موتورهای خارجی",
+        "*[data-translation-stat-ec]": "محاسبات موتور",
+        "*[data-translation-stat-ci]": "نمونه‌های ایجاد شده",
+        "*[data-translation-stat-am]": "دقایق فعال",
         ".stable-engine-tag": "پایدار",
         ".variants-engine-tag": "انواع",
         ".realistic-engine-tag": "واقع‌گرایانه",
@@ -141,7 +151,8 @@
         "pipBoard": ["نمایش صفحه شطرنج", "به جای فقط متن، کل صفحهٔ شطرنج را نمایش دهید"],
         "movesOnDemand": ["حرکات بر حسب جوع", "حرکاتی را برای قطعاتی که با آنها تعامل می‌کنید، محاسبه كنید"],
         "onlySuggestPieces": ["فقط قطعات را پیشنهاد دهید", "قطعاتی را برای حرکت پیشنهاد دهید، اما حرکتی را نمایش ندهید"],
-        "isUserscriptGhost": ["اسکریپت شبح", "تمام عملکردهای خارجی قابل کشف (مثلاً پیکان‌های حرکت) را غیرفعال کنید تا از شناسایی جلوگیری شود"]
+        "isUserscriptGhost": ["اسکریپت شبح", "تمام عملکردهای خارجی قابل کشف (مثلاً پیکان‌های حرکت) را غیرفعال کنید تا از شناسایی جلوگیری شود"],
+        "useExternalChessEngine": ["فعال", "آیا موتور شطرنج خارجی فعال است"]
     },
     "translations": {
         "profileRemovalWarning": "آیا مطمئن هستید که می‌خواهید این پروفایل را حذف کنید؟\n\nاین عمل غیرقابل بازگشت است.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "هشدار: تغییر بیش از حد تب‌ها شناسایی شد. تغییر مداوم ممکن است منجر به ممنوعیت شود.\n\nبرای جلوگیری از نیاز به تغییر بین تب‌ها، یکی از موارد زیر را انجام دهید,\n- دو پنجره جداگانه کنار هم ایجاد کنید\n- حرکات را در صفحه نمایش دهید (این به راحتی قابل شناسایی است)\n- TTS (متن به گفتار) را فعال کنید\n- تنظیمات پنل شناور را فعال کنید",
         "instanceConnectionTermination": "نمونه به دلیل از دست دادن اتصال خاتمه یافت.\n\nغیرمنتظره؟ برای فعال‌سازی مجدد A.C.A.S به تب مراجعه کنید.",
         "calculationDepth": "عمق",
-        "thankYouTranslator": "از مترجمان متشکریم"
+        "thankYouTranslator": "از مترجمان متشکریم",
+        "serverOpen": "متصل به سرور!",
+        "serverClose": "نتوانستم به سرور موتور شطرنج خارجی متصل شوم!\n\nلطفاً سرور را نصب کنید/راه‌اندازی کنید، تلاش برای اتصال مجدد...",
+        "websocketError": "خطای WebSocket:",
+        "unknownWebsocketError": "خطای نامشخص، شاید اتصال قطع شده؟",
+        "noExternalEngineAnymore": "موتور شطرنج خارجی انتخاب شده قبلی دیگر در دسترس نیست. یک موتور جدید انتخاب کنید."
     },
     "contributors": ["ChatGPT"]
 }

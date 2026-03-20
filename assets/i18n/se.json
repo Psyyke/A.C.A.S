@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Schackmotorprofiler",
         "#chess-engine-profile-dropdown .input-subtitle": "Flera profiler kan vara aktiva samtidigt!",
         "#add-new-profile-button .text-content": "Lägg till Ny",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Standardprofil",
-        "#settings-navbar-subtitle": "Inställningar påverkar varje instans",
+        ".tab-item[data-value=\"default\"] p": "Standardprofil",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Visuell",
         ".audible-panel-title": "Hörbar",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Rutor",
         "*[data-translation-pieces-text]": "Pjäser",
         "*[data-translation-move-display-settings]": "Inställningar för dragförslag",
+        "*[data-translation-begging-title]": "Tack!",
+        "*[data-translation-begging-subtitle]": "Det verkar som om du gillar A.C.A.S :)",
+        "*[data-translation-begging-text]": "Att utveckla A.C.A.S tar mycket tid! Förhoppningsvis har detta arbete varit värdefullt för dig och du har uppskattat att använda det!",
+        "*[data-translation-begging-text-2]": "Du har använt A.C.A.S i",
+        "*[data-translation-begging-text-3]": "timmar",
+        "*[data-translation-begging-text-4]": "Det är märkvärdigt. Skulle du vara intresserad av att donera? Vi stöder Monero،",
+        "*[data-translation-external-engine-2]": "Installera A.C.A.S-servern",
+        "*[data-translation-external-engine-3]": "för att använda externa motorer",
+        "*[data-translation-stat-ec]": "Motorberäkningar",
+        "*[data-translation-stat-ci]": "Skapade instanser",
+        "*[data-translation-stat-am]": "Aktiva minuter",
         ".stable-engine-tag": "Stabil",
         ".variants-engine-tag": "Varianter",
         ".realistic-engine-tag": "Realistisk",
@@ -141,7 +151,8 @@
         "pipBoard": ["Visa brädet", "Visa hela brädet istället för bara text"],
         "movesOnDemand": ["Drag på Begäran", "Beräknar drag för pjäser du interagerar med"],
         "onlySuggestPieces": ["Föreslå Endast Pjäser", "Föreslå pjäser att flytta, men ge inga drag"],
-        "isUserscriptGhost": ["Spökskript", "Inaktivera all upptäckbar extern funktionalitet (t.ex. dragpilar) för att undvika upptäckt"]
+        "isUserscriptGhost": ["Spökskript", "Inaktivera all upptäckbar extern funktionalitet (t.ex. dragpilar) för att undvika upptäckt"],
+        "useExternalChessEngine": ["Aktiverat", "Är den externa schackmotorn aktiverad"]
     },
     "translations": {
         "profileRemovalWarning": "Är du säker på att du vill ta bort denna profil?\n\nDenna åtgärd kan inte ångras.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Varning: Överdriven flikväxling upptäckt. Fortsatt växling kan leda till ett ban.\n\nFör att undvika att behöva växla mellan flikar, gör något av följande,\n- Gör två separata fönster bredvid varandra\n- Visa drag på sidan (Detta är lätt att upptäcka)\n- Aktivera TTS (Text till tal)\n- Aktivera inställningen för flytande panel",
         "instanceConnectionTermination": "Instans avbruten på grund av förlorad anslutning.\n\nOväntat? Besök fliken för att återaktivera A.C.A.S.",
         "calculationDepth": "Djup",
-        "thankYouTranslator": "Tack till översättarna"
+        "thankYouTranslator": "Tack till översättarna",
+        "serverOpen": "Ansluten till servern!",
+        "serverClose": "Kunde inte ansluta till extern schackmotor server!\n\nInstallera/starta servern, försökar ansluta igen...",
+        "websocketError": "WebSocket-fel:",
+        "unknownWebsocketError": "Okänt fel, kanske anslutningen förlorad?",
+        "noExternalEngineAnymore": "Den tidigare valda EXTERNA schackmotorn är inte längre tillgänglig. Välj en ny."
     },
     "contributors": []
 }

@@ -17,6 +17,7 @@
     <link rel="preconnect" href="https://pagead2.googlesyndication.com">
     <link rel="stylesheet" type="text/css" href="../assets/css/home.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+    <link rel="stylesheet" href="../assets/libraries/highlight/styles/github-dark-dimmed.min.css">
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/blog">
     <meta property="og:type" content="website">
@@ -25,7 +26,29 @@
     <script async="" type="text/javascript" src="../index.js"></script>
     <script defer="" type="text/javascript" src="../assets/libraries/klaro/config.js"></script>
     <script defer="" type="text/javascript" src="../assets/libraries/klaro/klaro.js"></script>
+    <script defer="" type="text/javascript" src="../assets/libraries/highlight/highlight.min.js"></script>
     <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+    <style>
+    article section img {
+        border: 2px solid black;
+        border-bottom-width: 5px;
+    }
+    pre code {
+        font-size: 15px;
+        border-radius: 5px;
+    }
+    pre {
+        border-radius: 5px;
+    }
+    .markdown-section blockquote, .markdown-section code {
+        color: #b7d3ee !important;
+    }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        hljs.highlightAll();
+    });
+    </script>
 </head>
 <body>
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -42,7 +65,7 @@
                 <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
         </header>
-        <section class="content">
+        <div class="content">
             <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wN.svg">
             <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
             <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../assets/images/pieces/staunty/wQ.svg">
@@ -52,44 +75,259 @@
             <article class="markdown-section-sub markdown-section" id="main">
                 <section>
                     <h1 id="faq">Blog 📝</h1>
-                    <blockquote class="bordered">
-                        <p>This blog is in development, not a proper blog yet.</p>
-                    </blockquote>
                 </section>
                 <section>
-                    <h2 id="basics">Basics</h2>
-                    <p>At first, we just wanted to see how far we could push a userscript, especially with cross-tab communication. But now, the focus has shifted—we’re trying to build a real-time chess learning tool. Instead of only reviewing games after they’re done, you can get insights as you play, helping you improve in the moment. The goal is to make learning chess free, accessible, and open source, so anyone can get better.</p>
-                    <h2 id="how-it-works">How It Works</h2>
-                    <p>Most userscripts mess with the site’s code or rely on its built-in functions, which makes them easy to detect and block. While it's understandable sites want to block such software, we believe real-time learning is extremely helpful and is not cheating if done correctly. So, we took a different route to bypass any restrictions. A.C.A.S reads the chess site to gather the data it needs but tries not to modify anything. It also doesn’t use any of the site’s own functions, keeping everything fully independent. And since it runs in a separate tab, it’s much harder to block, making it more stable and reliable over time.</p>
-                    <p class="tip">The <a target="_about" href="../app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds a simple element to the site's document to display the move information. This modifies the site and is in risk of being detectable. While the element doesn't scream "<strong>I WAS MADE BY A.C.A.S</strong>", it could be detected either way.</p>
+                    <h2 id="basics">History of A.C.A.S</h2>
+
+                    <p>I (<a href="https://github.com/Hakorr">Haka</a>) gave birth to <a href="https://greasyfork.org/en/scripts/459137-1-chess-assistant-a-c-a-s-advanced-chess-assistance-system?version=1143684" target="_blank">A.C.A.S v1.0</a> on Jan 30, 2023. It was the first of its kind userscript on GreasyFork. There had always been extensions and external programs that did the same thing, but nothing was as easy to use as A.C.A.S. The goal was to be very easy to use with clean UI. Here's a screenshot of the v1.0,</p>
+                    <img src="../assets/images/oldacas.png" height="300" alt="A.C.A.S v1.0"></img>
+                    <p>I had already developed userscripts for two years at that point, but hadn't played chess; literally <b>zero</b>, nada, experience. How do chess engines work? What's UCI or a FEN? Most importantly, how does one even play chess in the first place? Had to learn a lot and there were times when people asked for features I didn't even know were a thing in chess. "<i>En passant? Sorry, I don't speak that language.</i>"</p>
                     
-                    <h2 id="reading-the-board">Reading The Board</h2>
-                    <p>A.C.A.S first locates the chessboard element within the HTML document using <code>querySelector</code>, which varies from site to site. Once identified, it queries within that element to detect individual pieces, utilizing multiple techniques to determine their type. Some platforms encode this information in class names, while others store it in attributes like <code>data-piece</code>. For more complex cases, A.C.A.S examines inline styles or even inspects pixel colors of the piece images. After classification, it assigns each piece its standard chess notation (FEN), differentiating between white and black pieces.</p>
-                    <p>To establish piece positions, A.C.A.S maps them to a coordinate grid. Some sites provide direct chess notation (e.g., <code>e2</code>), while others rely on pixel-based coordinates, transformations, or attribute-based indexing. When dealing with pixel positions, A.C.A.S converts them by computing their relative placement on the board. Once all pieces are mapped, A.C.A.S compiles the data into a FEN string. Additionally, it monitors board orientation and move sequences, ensuring that captured pieces and new moves are accurately identified.</p>
-                    <h2 id="cross-window-communication">Cross-Window Communication</h2>
-                    <h4 id="first-tab-acas-gui">First Tab (A.C.A.S GUI)</h4>
-                    <p><img src="../assets/images/example.png" height="300" alt="A.C.A.S Tab"></p>
-                    <p>The engine runs on a completely different tab than the chess game page, completely isolated from it. This is done so that the site cannot block the usage of A.C.A.S. Since A.C.A.S is a userscript, it has certain restrictions and cannot operate in the same way as a proper browser extension. Well, why isn't A.C.A.S just a browser extension then? The challenge was fun, and still is, actually.</p>
-                    <p>A.C.A.S sends move data via <a href="https://github.com/AugmentedWeb/CommLink" target="_blank" rel="noopener">CommLink</a> (which uses the userscript manager's storage as a kind of middle man). Now imagine some data transfering to the Lichess tab below,</p>
-                    <p><em>beep boop (っ＾▿＾)っ</em></p><pre v-pre="" data-lang=""><code class="lang-">
-  0110010  
-   0001100  
-     1000110  
-                                        
-      0100110  
-    000110  
- 1000100  
-                     </code></pre>
-                    <p><em>beep boop ╰(°▽°)╯</em></p>
-                    <h4 id="second-tab-chess-site">Second Tab (Chess Site)</h4>
-                    <p><img src="../assets/images/example2.png" height="300" alt="External Tab"></p>
-                    <p>The userscript displays the data on the board using <a href="https://github.com/Hakorr/UniversalBoardDrawer" target="_blank" rel="noopener">UniversalBoardDrawer</a>. (<em>If <a target="_about" href="../app?shl=displayMovesOnExternalSite">Moves On External Site</a> is activated!</em>)</p>
+                    <p>The first version of A.C.A.S took a lot of Googling even though it was made in a weekend. It felt like there wasn't much easy to understand information about communicating with chess engines, so the engine was a black box to me. Credit where it's due, I relied heavily on <a href="https://op12no2.github.io/lozza-ui/" target="_blank">Lozza.js</a>, because it had a web GUI with the engine already running. It was written in JS, so I could see how it works behind the scenes. I learned a lot from it, and imitated a lot of what it was doing at the start. I'm lucky to have open source projects from smart people to learn from!
+                    
+                    <p>Once I got Lozza running on the userscript, I used a previous project I made called <a href="https://github.com/AugmentedWeb/UserGUI" target="_blank">UserGUI</a> as the GUI library.
+                    A.C.A.S v1 had basic settings for setting the engine ELO, and for enabling external move highlighting. It didn't have the move arrows yet since highlighting the square was easier to implement. Also, only chess.com was supported. The project gained installs organically without me having to advertise anything, and quickly gained more installs that I had ever gotten on any of my userscripts.</p>
+                    
+                    <p>Everything was working fine, but it didn't take long to realize that JS based chess engines aren't that fast to calculate deep depths. Problem was that many of the powerful engines at the time were blocked by chess.com's CORS policies.
+                    I had to find a way to calculate the moves externally. I never considered fetching the moves from a server an option since it would cost a lot, not be privacy friendly or it might've had a large latency. I considered making A.C.A.S into a browser extension, but installing an extension manually is much more difficult than just installing a userscript, so I decided not to go that route. And I just like userscripts more.</p>
+                    
+                    <p>I figured the only way to bypass the CORS policies was to run the engine on a completely different tab, on a different domain.
+                    As far as I knew, that kind of cross-tab communication had never been implemented on userscripts before, so I took it as a challenge and wrote my own library for it called <a href="https://github.com/AugmentedWeb/CommLink" target="_blank">CommLink</a>, which uses the userscript storage as a middle-man between the two tabs.
+                    Once I had made sure it was stable enough, I made a ton of changes to the userscript, and created an entirely new GUI. See a picture of the first v2 GUI below,</p>
+                
+                    <img src="../assets/images/oldgui.png" alt="A.C.A.S v2.0 GUI"></img>
+
+                    <p>A.C.A.S v2 focused on making A.C.A.S functional for any site or any chess variant so that it's future proof. With the update, I also added more features, such as move arrows via another library I created at the time, called <a href="https://github.com/Hakorr/UniversalBoardDrawer" target="_blank">UniversalBoardDrawer</a>. The time between the first release of A.C.A.S, and A.C.A.S v2 was 5 months. Most of the work was done during a summer break, at least 8 hours a day, for a couple weeks during the first weeks of summer.</p>
+                    
+                    <p>A lot has changed since then. As of writing this blog, A.C.A.S v2 came out 975 days ago, that's a lot. I've had times when I've worked hard on the project, and times when I didn't touch it for at least 6 months. Nowadays it's so much more stable with the addition of the floating panel. It has more features, but also some features are broken for a long time due to me not being the best programmer, combined with having to prioritize other things. I'm fine with not having perfect code as this is my first project of this scale, and I don't aspire to be a perfect programmer.</p>
+
+                    <img src="../assets/images/installchart.png" alt="A.C.A.S installs plotted to time"></img>
+
+                    <p>50 000 installs in 3 years means 45 people installed A.C.A.S every day during its existence. While some might've installed it multiple times, that's still a lot of people. I created a Discord server a while back and it got to 1000 members quite quickly. I decided to delete it though.  All in all I really like the project, and I'm proud of it. Hopefully people will use it for good.</p>
+
+                    <h2 id="how-it-works">How does A.C.A.S work?</h2>
+
+                    <p>
+                    Most userscripts interact directly with the site they run on. They hook into
+                    existing functions, override parts of the page's logic, or call the same
+                    internal code the website itself uses. While that works, it makes
+                    those scripts easy to detect and more unreliable for the future. As I've developed A.C.A.S I've noticed that some sites change their DOM and internal logic surprisingly often while looking visually the same.
+                    </p>
+
+                    <p>
+                    Instead of trying to integrate with the chess site, A.C.A.S simply observes what is happening on the board via <b>MutationObserver</b>. To get the board FEN, all it uses is <b>querySelector</b>. Its usage should be invisible to the chess page's code, so in theory it cannot detect A.C.A.S. The site cannot just "monkeypatch" the function since the userscript lives in another context within the browser, and should run before any of the site's own JS.
+                    </p>
+
+                    <p class="tip">
+                    The <a target="_about" href="../app?shl=displayMovesOnExternalSite">Moves On
+                    External Site</a> setting is one of the only features that actually inserts something
+                    into the page. While it doesn't yell <b>"A.C.A.S CREATED ME!"</b> (<i>since it's minimal and fairly neutral</i>), it does
+                    modify the document, which means a site could detect it if it actively
+                    looked for such changes. Enabling <a target="_about" href="../app?shl=isUserscriptGhost">Ghost Mode</a> attempts to disable all detectable external features.
+                    </p>
+
+                    <h3 id="reading-the-board">Reading the board</h3>
+
+                    <p>
+                    Everything begins by locating the chessboard element on the page. Each chess site builds its board differently and because of this, A.C.A.S includes
+                    small adapters for each supported site. An adapter simply describes how the board and pieces
+                    are structured so the userscript knows where to read from. Here's an example,
+                    </p>
+
+                    <pre><code class="language-js">
+addSupportedChessSite('lichess.org', {
+    'boardElem': obj => {
+        return document.querySelector('cg-board');
+    },
+
+    'pieceElem': obj => {
+        return obj.boardQuerySelector('piece:not(.ghost)');
+    },
+
+    'chessVariant': obj => {
+        const variantLinkElem = document.querySelector('.variant-link');
+
+        if(variantLinkElem) {
+            const variant = variantLinkElem
+                ?.innerText
+                ?.toLowerCase()
+                ?.replaceAll(' ', '-');
+
+            const replacementTable = {
+                'correspondence': 'chess',
+                'koth': 'kingofthehill',
+                'three-check': '3check'
+            };
+
+            return replacementTable[variant] || variant;
+        }
+    },
+
+    'boardOrientation': obj => {
+        const filesElem = document.querySelector('coords.files');
+
+        return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'pieceElemFen': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const pieceColor = pieceElem?.classList?.contains('white') ? 'w' : 'b';
+        const elemPieceName = [...pieceElem?.classList]
+            ?.find(className => Object.keys(pieceNameToFen).includes(className));
+
+        if(pieceColor && elemPieceName) {
+            const pieceName = pieceNameToFen[elemPieceName];
+
+            return pieceColor == 'w' ? pieceName.toUpperCase() : pieceName.toLowerCase();
+        }
+    },
+
+    'pieceElemCoords': obj => {
+        const pieceElem = obj.pieceElem;
+
+        const key = pieceElem?.cgKey;
+
+        if(key) {
+            return chessCoordinatesToIndex(key);
+        }
+    },
+
+    'boardDimensions': obj => {
+        return [8, 8];
+    },
+
+    'getMutationTurn': obj => {
+        const mutationArr = obj.mutationArr;
+
+        let blacks = 0;
+        let whites = 0;
+
+        mutationArr.forEach(mutation => {
+            const classList = mutation.target?.classList;
+
+            if(classList?.contains('black')) blacks += 1;
+            if(classList?.contains('white')) whites += 1;
+        });
+
+        const turn = blacks > whites ? 'w' : 'b';
+
+        return turn || null;
+    },
+
+    'isMutationNewMove': obj => {
+        const mutationArr = obj.mutationArr;
+
+        const isNewMove = mutationArr.length >= 3;
+
+        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
+        return [isNewMove, null];
+    }
+});
+                    </code></pre>
+
+                    <p>
+                    Once the board element is found, A.C.A.S scans it for piece elements. Different platforms encode
+                    piece information in different ways. On some sites the piece type appears in the class name,
+                    on others it is stored in attributes or dataset values. A.C.A.S reads that information and
+                    converts it into standard chess notation, using uppercase letters for white pieces and
+                    lowercase letters for black pieces.
+                    </p>
+
+                    <p>
+                    Board coordinates are resolved for each piece. Some platforms expose
+                    the square directly as attributes like <b>e4</b> or <b>a7</b>. Others position pieces
+                    using CSS transforms or pixel offsets. In those cases A.C.A.S reads values such as
+                    <b>transform: translate(3, 4)</b> and converts the horizontal and vertical offsets into
+                    board coordinates.
+                    </p>
+
+                    <p>
+                    Once every piece has a type and a square, the full board state can be reconstructed.
+                    From this state A.C.A.S generates a FEN string describing the position.
+                    </p>
+
+                    <p>
+                    The board is monitored continuously while the game is running. A.C.A.S observes the board using <b>MutationObserver</b>, which reports DOM changes whenever
+                    the site updates the board after a move. A small interval scan runs in parallel as a fallback.
+                    </p>
+
+                    <p>
+                    When a mutation or scan indicates that the board changed, A.C.A.S rebuilds the position and
+                    generates a new FEN. If the FEN differs from the previous one, the position is treated as a
+                    new move and passed to the analysis pipeline.
+                    </p>
+
+
+
+                    <h3 id="cross-window-communication">Cross-window communication</h3>
+
+                    <h4 id="first-tab-acas-gui">First tab (A.C.A.S GUI)</h4>
+
+                    <p>
+                    <img src="../assets/images/example.png" alt="A.C.A.S Tab">
+                    </p>
+
+                    <p>
+                    The chess engine runs in a completely separate browser tab! This is important to know since your browser freezes tabs it thinks are "inactive". The floating panel makes sure your browser doesn't think the tab is inactive.
+                    </p>
+
+                    <p>
+                    This engine tab acts as a control center. It receives positions, analyzes
+                    them, and sends moves back when the calculation finishes. To exchange information between the chess page and the engine tab, A.C.A.S
+                    uses <a href="https://github.com/AugmentedWeb/CommLink" target="_blank" rel="noopener">CommLink</a>, which is made by the same developer as A.C.A.S.
+                    </p>
+
+                    <p>
+                    CommLink uses the userscript manager's shared storage as a communication
+                    bridge. The chess tab writes messages into that storage, and the engine tab
+                    reads them from the other side. So when A.C.A.S detects a new position, the FEN quietly travels across that
+                    bridge to the engine tab.
+                    </p>
+
+                    <p>
+                    The engine calculates the best move for that position and sends the result
+                    back through the same channel.
+                    </p>
+
+                    <h4 id="second-tab-chess-site">Second tab (Chess site)</h4>
+
+                    <p>
+                    <img src="../assets/images/example2.png" alt="External Tab">
+                    </p>
+
+                    <p>
+                    When the move arrives back on the chess page, the userscript can display it
+                    directly on the board.
+                    A.C.A.S draws the suggested move using
+                    <a href="https://github.com/Hakorr/UniversalBoardDrawer" target="_blank"
+                    rel="noopener">UniversalBoardDrawer</a>, which overlays arrows or highlights
+                    on top of the board without interfering with the game itself.
+                    </p>
+
+                    <p>
+                    At that point the loop continues. The userscript keeps watching the board,
+                    waiting for the next move to appear. The whole process can take as little as <b>2 ms</b> (0.002 seconds). The basic flow looks like this,
+                    </p>
+                    <ol>
+                        <li>Board change</li>
+                        <li>A.C.A.S reads pieces</li>
+                        <li>Generates FEN</li>
+                        <li>Sends FEN</li>
+                        <li>A.C.A.S GUI</li>
+                        <li>Calculates best move</li>
+                        <li>Sends move</li>
+                        <li>A.C.A.S userscript</li>
+                        <li>Displays move on board</li>
+                        <li>Wait for board change (Restart loop)</li>
+                    </ol>
+
                     <hr>
                     <p><em>The <a href="../faq/">FAQ</a> page might have more answers if this wasn't enough for you.</em></p>
                 </section>
             </article>
             <!-- PAGE CONTENT ENDS -->
-        </section>
+        </div>
         <footer>
             <img style="right: -70px;bottom: -35px;width: 200px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wQ.svg"/>
             <section><a href="../tos">Terms of Service</a><a href="../privacy">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>

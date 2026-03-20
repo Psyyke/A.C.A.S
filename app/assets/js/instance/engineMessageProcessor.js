@@ -1,3 +1,8 @@
+import { setProfileBubbleStatus } from '../gui/profiles.js';
+import { fillDynamicEngineOptionContainer } from '../gui/dynamicEngineOptions.js';
+import { updatePipData } from '../gui/pip.js';
+import { setDynamicOptionsReady } from '../gui/dynamicEngineOptions.js';
+
 export default async function engineMessageProcessor(msg, profile) {
     const profileObj = this.pV[profile];
 
@@ -7,31 +12,54 @@ export default async function engineMessageProcessor(msg, profile) {
         return;
     }
 
-    const data = parseUCIResponse(msg);
+    const data = PARSE_UCI_RESPONSE(msg);
     const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
     const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
     const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant') && !msg.includes('UCI_');
     const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
+    const isMsgOption = msg.startsWith('option name ');
+
+    const finishOldestUnfinishedCalculation = () => {
+        if(oldestUnfinishedCalcRequestObj)
+            oldestUnfinishedCalcRequestObj.finished = true;
+
+        // Check if the board has changed while we were finishing up a move calculation.
+        if(oldestUnfinishedCalcRequestObj?.fen !== this.currentFen) {
+            // Finish everything
+            this.pV[profile].pendingCalculations.forEach(x => x.finished = true);
+
+            // Let's start the new move calculation since we have now received the old 'bestmove'.
+            // A.C.A.S expects 'bestmove' to appear to finish up the calculation which is why we do this.
+            // (Starting a new best move calculation while the old one was running, there would be no 'bestmove')
+            this.calculateBestMoves(this.currentFen);
+        }
+    }
 
     if(isMsgNoSuchOption) {
-        const profile = await getProfile(profile);
-        const profileChessEngine = profile.config.chessEngine;
+        const p = await GET_PROFILE(profile);
+        const profileChessEngine = p.config.chessEngine;
         const missingOptionName =  msg.split('No such option:')?.[1]?.trim();
 
-        toast.warning(`"${missingOptionName}" not supported on ${profileChessEngine} (Running on profile "${profile}")`, 4e4);
+        toast.warning(`"${missingOptionName}" not supported on ${profileChessEngine} (Running on profile "${profile}")`, 4000);
+
+        return;
     }
 
     if(isMsgFailure) {
-        const profile = await getProfile(profile);
-        const profileChessEngine = profile.config.chessEngine;
+        finishOldestUnfinishedCalculation();
+
+        const p = await GET_PROFILE(profile);
+        const profileChessEngine = p.config.chessEngine;
 
         toast.warning(`"${msg}" ("${profileChessEngine}" running on profile "${profile}")`, 4e4);
+
+        return;
     }
 
     if(!data?.currmovenumber && this.logEngineMessages) console.warn(`${profile} ->`, msg, `\n(Message is for FEN -> ${oldestUnfinishedCalcRequestObj?.fen})`);
 
     if(msg.includes('option name UCI_Variant type combo')) {
-        const chessVariants = extractVariantNames(msg);
+        const chessVariants = EXTRACT_VARIANT_NAMES(msg);
 
         this.pV[profile].chessVariants = chessVariants;
 
@@ -39,11 +67,11 @@ export default async function engineMessageProcessor(msg, profile) {
     }
 
     if(msg.includes('info')) {
-        if(data?.multipv === '1' || ['lozza-5', 'lc0'].includes(await this.getEngineType(profile)) ) {
+        if(data?.multipv === '1' || ['lozza-5', 'lc0'].includes(await this.getEngineName(profile))) {
             if(data?.depth) {
-                const depthText = transObj?.calculationDepth ?? 'Depth';
-                const winningText = transObj?.winning ?? 'Winning';
-                const losingText = transObj?.losing ?? 'Losing';
+                const depthText = TRANS_OBJ?.calculationDepth ?? 'Depth';
+                const winningText = TRANS_OBJ?.winning ?? 'Winning';
+                const losingText = TRANS_OBJ?.losing ?? 'Losing';
 
                 if(data?.mate) {
                     const isWinning = data.mate > 0;
@@ -73,7 +101,7 @@ export default async function engineMessageProcessor(msg, profile) {
 
     if(data?.pv && isMessageForCurrentFen) {
         const moveRegex = /[a-zA-Z]\d+/g;
-        const ranking = convertToCorrectType(data?.multipv) || 1;
+        const ranking = VAR_TO_CORRECT_TYPE(data?.multipv) || 1;
         let moves = data.pv.split(' ').map(move => move.match(moveRegex));
 
         if(moves?.length === 1) // if no opponent move guesses yet
@@ -88,11 +116,11 @@ export default async function engineMessageProcessor(msg, profile) {
         const isMovetimeLimited = await this.getConfigValue(this.configKeys.maxMovetime, profile) ? true : false;
         const onlyShowTopMoves = await this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
         const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
-        const markingLimit = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
         const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
+        const markingLimit = this.pV[profile].multiPV;
         const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
-        const [topMoveObjects, removedDuplicateMoveAmount] = getUniqueMoves(this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
+        const [topMoveObjects, removedDuplicateMoveAmount] = GET_UNIQUE_MOVES(this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
         const calculationStartedAt = oldestUnfinishedCalcRequestObj?.startedAt;
         const calculationTimeElapsed = Date.now() - calculationStartedAt;
 
@@ -100,7 +128,7 @@ export default async function engineMessageProcessor(msg, profile) {
         
         let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
-        if(await this.getEngineType(profile) === 'lc0') {
+        if(await this.getEngineName(profile) === 'lc0' || this.pV[profile].engineNodes > 0) {
             isSearchInfinite = this.pV[profile].engineNodes > 9e6 ? true : false;
         }
 
@@ -115,19 +143,12 @@ export default async function engineMessageProcessor(msg, profile) {
     }
 
     if(data?.bestmove) {
-        if(oldestUnfinishedCalcRequestObj)
-            oldestUnfinishedCalcRequestObj.finished = true;
+        finishOldestUnfinishedCalculation();
 
-        // Check if the board has changed while we were finishing up a move calculation.
-        if(oldestUnfinishedCalcRequestObj?.fen !== this.currentFen) {
-            // Let's start the new move calculation since we have now received the old 'bestmove'.
-            // A.C.A.S expects 'bestmove' to appear to finish up the calculation which is why we do this.
-            // (Starting a new best move calculation while the old one was running, there would be no 'bestmove')
-            this.calculateBestMoves(this.currentFen);
-        }
+        setProfileBubbleStatus('idle', profile, 'Idle, calculated best moves successfully!');
 
         if(isMessageForCurrentFen && this.pV[profile].activeGuiMoveMarkings.length === 0) {
-            const markingLimit = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+            const markingLimit = this.pV[profile].multiPV; // await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile)
             const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
             const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
@@ -137,10 +158,10 @@ export default async function engineMessageProcessor(msg, profile) {
                 topMoveObjects = [];
                 topMoveObjects.push({ 'player': [data.bestmove.slice(0,2), data.bestmove.slice(2, data.bestmove.length)], 'opponent': [null, null], 'ranking': 1  });
             } else {
-                topMoveObjects = getUniqueMoves(topMoveObjects)?.[0];
+                topMoveObjects = GET_UNIQUE_MOVES(topMoveObjects)?.[0];
             }
 
-            if(await this.getEngineType(profile) === 'lc0') {
+            if(await this.getEngineName(profile) === 'lc0' || this.pV[profile].engineNodes > 0) {
                 updatePipData({ 'nodes': this.pV[profile].engineNodes, 'goalDepth': null });
             } else {
                 updatePipData({ 'depth': this.pV[profile].searchDepth, 'goalNodes': null });
@@ -150,7 +171,7 @@ export default async function engineMessageProcessor(msg, profile) {
                 const startFen = this.currentFen;
 
                 setTimeout(() => {
-                    if(startFen == this.currentFen && this.isEngineNotCalculating(profile)) {
+                    if(startFen == this.currentFen && !this.isEngineCalculating(profile)) {
                         this.displayMoves(topMoveObjects, profile);
                     }
                 }, moveDisplayDelay);
@@ -161,10 +182,18 @@ export default async function engineMessageProcessor(msg, profile) {
         }
     }
 
+    if(isMsgOption) {
+        fillDynamicEngineOptionContainer(msg, profile);
+    }
+
+    if(msg === 'uciok') {
+        setDynamicOptionsReady(profile);
+    }
+
     const variantStartposFen = data['Fen:'];
 
     if(variantStartposFen || msg === 'uciok') {
-        const dimensions = getBoardDimensionsFromFenStr(variantStartposFen);
+        const dimensions = GET_BOARD_DIMENSIONS_FROM_FEN(variantStartposFen);
         const startPos = variantStartposFen || this.defaultStartpos;
 
         const waitForChessgroundLoad = setInterval(() => {

@@ -28,7 +28,7 @@ export default async function renderMetric(fen, profile) {
     const playerColor = await this.getPlayerColor(profile);
     const addedMetrics = [];
 
-    // BoardAnalyzer exists on the global window object, file acas-board-analyzer.js
+    // BoardAnalyzer exists on the global window object, file /js/BoardAnalyzer.js
     const BoardAnal = new BoardAnalyzer(fen, { 'orientation': playerColor, 'debug': this.debugLogsEnabled });
     const BoardDrawer = this.BoardDrawer;
 

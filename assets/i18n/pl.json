@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Profile silnika szachowego",
         "#chess-engine-profile-dropdown .input-subtitle": "Wiele profili może być aktywnych jednocześnie!",
         "#add-new-profile-button .text-content": "Dodaj nowy",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Domyślny profil",
-        "#settings-navbar-subtitle": "Ustawienia wpływają na każdą instancję",
+        ".tab-item[data-value=\"default\"] p": "Domyślny profil",
         ".engine-panel-title": "Silnik",
         ".visual-panel-title": "Wizualne",
         ".audible-panel-title": "Dźwiękowe",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Kwadraty",
         "*[data-translation-pieces-text]": "Bierki",
         "*[data-translation-move-display-settings]": "Ustawienia sugestii ruchów",
+        "*[data-translation-begging-title]": "Dziękuję!",
+        "*[data-translation-begging-subtitle]": "Wydaje się, że podoba ci się A.C.A.S :)",
+        "*[data-translation-begging-text]": "Rozwój A.C.A.S wymaga dużo czasu! Mamy nadziję, że ta praca była dla Ciebie cenna i cieszyłeś się ją używać!",
+        "*[data-translation-begging-text-2]": "Używałeś A.C.A.S przez",
+        "*[data-translation-begging-text-3]": "godzin",
+        "*[data-translation-begging-text-4]": "To godne podziwu. Czy chciałbyś wesprzeć? Obsługujemy Monero,",
+        "*[data-translation-external-engine-2]": "Zainstaluj serwer A.C.A.S",
+        "*[data-translation-external-engine-3]": "aby korzystać z silników zewnętrznych",
+        "*[data-translation-stat-ec]": "Obliczenia silnika",
+        "*[data-translation-stat-ci]": "Utworzone instancje",
+        "*[data-translation-stat-am]": "Minuty aktywne",
         ".stable-engine-tag": "Stabilny",
         ".variants-engine-tag": "Warianty",
         ".realistic-engine-tag": "Realistyczny",
@@ -141,7 +151,8 @@
         "pipBoard": ["Pokaż szachownicę", "Zamiast samego tekstu pokaż całą szachownicę"],
         "movesOnDemand": ["Ruchy na Żączenie", "Oblicza ruchy dla figur, z którymi współdziałasz"],
         "onlySuggestPieces": ["Tylko Sugeruj Figury", "Sugeruj figury do ruchu, ale nie podawaj ruchów"],
-        "isUserscriptGhost": ["Skrypt duch", "Wyłącz wszystkie wykrywalne zewnętrzne funkcje (np. strzałki ruchu), aby uniknąć wykrycia"]
+        "isUserscriptGhost": ["Skrypt duch", "Wyłącz wszystkie wykrywalne zewnętrzne funkcje (np. strzałki ruchu), aby uniknąć wykrycia"],
+        "useExternalChessEngine": ["Włączono", "Czy zewnętrzny silnik szachowy jest włączony"]
     },
     "translations": {
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Ostrzeżenie: Wykryto nadmierną zmianę zakładek. Kontynuowanie może skutkować zakazem.\n\nAby uniknąć konieczności zmiany zakładek, zrób jedno z poniższych,\n- Otwórz dwie osobne okna obok siebie\n- Wyświetlaj ruchy na stronie (Łatwe do wykrycia)\n- Włącz TTS (Tekst na mowę)\n- Włącz ustawienie pływającego panelu",
         "instanceConnectionTermination": "Instancja zakończona z powodu utraty połączenia.\n\nNieoczekiwane? Odwiedź zakładkę, aby ponownie aktywować A.C.A.S.",
         "calculationDepth": "Głębokość obliczeń",
-        "thankYouTranslator": "Dziękujemy tłumaczowi"
+        "thankYouTranslator": "Dziękujemy tłumaczowi",
+        "serverOpen": "Połączono z serwerem!",
+        "serverClose": "Nie można było połączyć się z serwerem zewnętrznego silnika szachowego!\n\nProszę zainstaluj/uruchom serwer, próbuję ponownie się połączyć...",
+        "websocketError": "Błąd WebSocket:",
+        "unknownWebsocketError": "Nieznany błąd, może połączenie zostało utracone?",
+        "noExternalEngineAnymore": "Poprzednio wybrany ZEWNĘTRZNY silnik szachowy nie jest już dostępny. Wybierz nowy."
     },
     "contributors": []
 }

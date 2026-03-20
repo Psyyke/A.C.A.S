@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Профили шахматных движков",
         "#chess-engine-profile-dropdown .input-subtitle": "Несколько профилей могут быть активными одновременно!",
         "#add-new-profile-button .text-content": "Добавить новый",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Профиль по умолчанию",
-        "#settings-navbar-subtitle": "Настройки влияют на каждый экземпляр",
+        ".tab-item[data-value=\"default\"] p": "Профиль по умолчанию",
         ".engine-panel-title": "Движок",
         ".visual-panel-title": "Визуальные",
         ".audible-panel-title": "Звуковые",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "Плохо поддерживается",
         "*[data-translation-squares-text]": "Квадраты",
         "*[data-translation-pieces-text]": "Фигуры",
-        "*[data-translation-move-display-settings]": "Настройки предложений ходов",
-        ".stable-engine-tag": "Стабильный",
+        "*[data-translation-move-display-settings]": "Настройки предложений ходов",        "*[data-translation-begging-title]": "Спасибо!",
+        "*[data-translation-begging-subtitle]": "Похоже вы любите A.C.A.S :)",
+        "*[data-translation-begging-text]": "К разработке A.C.A.S требуется большо времени! Надеемся, эта работа была дорогцена для вас!",
+        "*[data-translation-begging-text-2]": "Вы использовали A.C.A.S в течение",
+        "*[data-translation-begging-text-3]": "часов",
+        "*[data-translation-begging-text-4]": "Это респектабельно. Хотели бы вы не делать? Начинаем поддерживать Monero,",
+        "*[data-translation-external-engine-2]": "Установите сервер A.C.A.S",
+        "*[data-translation-external-engine-3]": "чтобы использовать внешние моторы",
+        "*[data-translation-stat-ec]": "Вычисления двигателя",
+        "*[data-translation-stat-ci]": "Созданные эказемпляры",
+        "*[data-translation-stat-am]": "Минуты активности",        ".stable-engine-tag": "Стабильный",
         ".variants-engine-tag": "Варианты",
         ".realistic-engine-tag": "Реалистичный",
         ".unstable-engine-tag": "Нестабильный",
@@ -141,7 +149,8 @@
         "pipBoard": ["Показать доску", "Вместо текста отображать всю доску"],
         "movesOnDemand": ["Ходы по Требованию", "Вычисляет ходы для фигур, с которыми вы взаимодействуете"],
         "onlySuggestPieces": ["Только Предлагать Фигуры", "Предлагайте фигуры для хода, но не давайте ходы"],
-        "isUserscriptGhost": ["Призрачный скрипт", "Отключить всю обнаруживаемую внешнюю функциональность (например, стрелки ходов), чтобы избежать обнаружения"]
+        "isUserscriptGhost": ["Призрачный скрипт", "Отключить всю обнаруживаемую внешнюю функциональность (например, стрелки ходов), чтобы избежать обнаружения"],
+        "useExternalChessEngine": ["Включено", "Включен ли внешний шахматный движок"]
     },
     "translations": {
         "profileRemovalWarning": "Вы уверены, что хотите удалить этот профиль?\n\nЭто действие невозможно отменить.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Предупреждение: Обнаружено чрезмерное переключение вкладок. Продолжительное переключение может привести к бану.\n\nЧтобы избежать необходимости переключаться между вкладками, сделайте следующее,\n- Разделите два окна рядом\n- Показывайте ходы на странице (это легко детектируется)\n- Включите TTS (Текст в речь)\n- Включите настройку плавающей панели",
         "instanceConnectionTermination": "Экземпляр завершен из-за потери связи.\n\nНеожиданно? Перейдите на вкладку, чтобы снова активировать A.C.A.S.",
         "calculationDepth": "Глубина вычислений",
-        "thankYouTranslator": "Спасибо переводчикам"
+        "thankYouTranslator": "Спасибо переводчикам",
+        "serverOpen": "Подключено к серверу!",
+        "serverClose": "Не удалось подключиться к серверу внешнего шахматного движка!\n\nПожалуйста, установите/запустите сервер, попытка переподключения...",
+        "websocketError": "Ошибка WebSocket:",
+        "unknownWebsocketError": "Неизвестная ошибка, возможно, соединение потеряно?",
+        "noExternalEngineAnymore": "Ранее выбранный ВНЕШНИЙ шахматный движок больше недоступен. Выберите новый."
     },
     "contributors": []
 }

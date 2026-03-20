@@ -7,7 +7,11 @@ import updateSettings from './instance/updateSettings.js';
 import calculateBestMoves from './instance/calculateBestMoves.js';
 import setupEnvironment from './instance/setupEnvironment.js';
 import engineStartNewGame from './instance/engineStartNewGame.js';
+import { sendUciToExternalEngine, closeAllExternalEnginesWithId } from './AcasWebSocketClient.js';
+import { getDynamicEngineDbKeyPrefix } from './gui/dynamicEngineOptions.js';
+import { getDynamicOption } from './gui/dynamicEngineOptions.js';
 import { removeInstance } from './instanceManager.js';
+import { updatePipData } from './gui/pip.js';
 
 const logEngineMessages = false,
       debugLogsEnabled = false;
@@ -27,10 +31,8 @@ const configKeys = Object.freeze([
     'renderSquareContested', 'renderSquareSafe', 'renderPiecePlayerCapture',
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
     'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth',
-    'enableAdvancedElo', 'advancedElo', 'advancedEloDepth',
-    'advancedEloSkill', 'advancedEloMaxError', 'advancedEloProbability',
-    'advancedEloHash', 'advancedEloThreads', 'moveAsFilledSquares',
-    'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost'
+    'enableAdvancedElo', 'advancedEloDepth', 'moveAsFilledSquares',
+    'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost', 'externalChessEngine'
 ].reduce((o, k) => (o[k] = k, o), {}));
 
 export default class AcasInstance {
@@ -51,7 +53,7 @@ export default class AcasInstance {
 
         Object.values(this.configKeys).forEach(key => { // setup config getters/setters
             this.config[key] = {
-                get: profile => getGmConfigValue(key, this.instanceID, profile),
+                get: profile => GET_GM_CFG_VALUE(key, this.instanceID, profile),
                 set: null
             };
         });
@@ -109,7 +111,9 @@ export default class AcasInstance {
                 this.lc0WeightName = null;
         
                 this.searchDepth = null;
-                this.engineNodes = 1;
+                this.engineNodes = null;
+
+                this.multiPV = 2;
         
                 this.currentMovetimeTimeout = null;
         
@@ -124,21 +128,23 @@ export default class AcasInstance {
         
                 this.lastFen = null;
                 this.lastFeedbackFen = null;
+
+                this.usingAdvancedMode = null;
         
                 this.currentSpeeches = [];
             }
         
-            static async create(t, profile) {
+            static async create(t, profileName) {
                 const instance = new this();
         
-                const variantFromConfig = await t.getConfigValue(t.configKeys.chessVariant, profile);
-                const use960FromConfig = await t.getConfigValue(t.configKeys.useChess960, profile);
+                const variantFromConfig = await t.getConfigValue(t.configKeys.chessVariant, profileName);
+                const use960FromConfig = await t.getConfigValue(t.configKeys.useChess960, profileName);
 
-                instance.chessVariant = isVariant960(chessVariant)
-                    ? formatVariant('chess')
-                    : formatVariant(chessVariant || variantFromConfig || 'chess');
-                instance.useChess960 = isVariant960(chessVariant) ? true : use960FromConfig;
-                instance.lc0WeightName = await t.getConfigValue(t.configKeys.lc0Weight, profile);
+                instance.chessVariant = IS_VARIANT_960(chessVariant)
+                    ? FORMAT_VARIANT('chess')
+                    : FORMAT_VARIANT(chessVariant || variantFromConfig || 'chess');
+                instance.useChess960 = IS_VARIANT_960(chessVariant) ? true : use960FromConfig;
+                instance.lc0WeightName = await t.getConfigValue(t.configKeys.lc0Weight, profileName);
         
                 return instance;
             }
@@ -162,6 +168,7 @@ export default class AcasInstance {
         this.CommLink.registerSendCommand('markMoveToSite');
         this.CommLink.registerSendCommand('renderMetricsToSite');
         this.CommLink.registerSendCommand('feedbackToSite');
+        this.CommLink.registerSendCommand('updateRestartListener');
 
         this.CommLinkReceiver = this.CommLink.registerListener(`frontend_${this.instanceID}`, packet => {
             try {
@@ -177,29 +184,107 @@ export default class AcasInstance {
             }
         });
 
-        this.guiBroadcastChannel = new BroadcastChannel('gui');
-        this.guiBroadcastChannel.onmessage = e => {
+        this.externalEngineStatusChannel = new BroadcastChannel(EXTERNAL_STATUS_BROADCAST_NAME);
+        this.externalEngineStatusChannel.onmessage = (event) => {
+            const { statusType, reason, fen, engineId, profileName, instanceId } = event.data;
+
+            if(this.instanceID !== instanceId) return;
+
+            switch(statusType) {
+                case 'engineDeathCertificate':
+                    this.notifyAcasAboutEngineClosing(fen, profileName);
+
+                    break;
+            }
+        };
+
+        this.externalEngineUciChannel = new BroadcastChannel(EXTERNAL_UCI_BROADCAST_NAME);
+        this.externalEngineUciChannel.onmessage = (event) => {
+            const { line, profileName, engineId, instanceId } = event.data;
+
+            if(this.instanceID !== instanceId) return;
+
+            //console.warn('Received UCI line', event?.data?.line);
+
+            this.engineMessageProcessor(line, profileName);
+        };
+
+        this.guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
+        this.guiBroadcastChannel.onmessage = async e => {
             if(!this.instanceReady || this.instanceClosed) return;
             
             const msg = e.data;
 
             switch(msg.type) {
                 case 'settingSave':
-                    this.updateSettings(msg);
+                    const isFirstTime = msg?.data?.isFirstTime;
+                    if(!isFirstTime) this.updateSettings(msg);
+
+                    break;
+                case 'newProfileMade':
+                    const profileName = msg?.data?.profileName;
+                    await this.createAndLoadSpecificEngine(profileName);
+
                     break;
             }
+        };
+
+        this.dynamicButtonPressChannel = new BroadcastChannel(DYNAMIC_BUTTONPRESS_BROADCAST_NAME);
+        this.dynamicButtonPressChannel.onmessage = async e => {
+            const { uciOptionName, profileName } = e.data;
+
+            if(typeof uciOptionName === 'string' && typeof profileName === 'string')
+                this.setEngineOption(uciOptionName, null, true, profileName);
+            else
+                toast.error('Failed to activate the button press, parsing the option failed.', 1000);
         };
 
         this.loadEngines();
     }
 
+    async updateAdvancedModeStatus(profileName, value) {
+        this.pV[profileName].usingAdvancedMode = value
+            ? value
+            : await this.getConfigValue(this.configKeys.enableAdvancedElo, profileName);
+    }
+
+    async createAndLoadSpecificEngine(profileName) {
+        this.currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
+
+        const engineIndex = this.engines.findIndex(e => e.profileName === profileName);
+
+        if(engineIndex !== -1) this.killEngine(profileName);
+
+        this.pV[profileName] = await this.profileVariables.create(this, profileName);
+
+        await this.updateAdvancedModeStatus(profileName);
+
+        this.loadEngine(profileName);
+    }
+
+    notifyAcasAboutEngineClosing(fen, profileName) {
+        this.engineMessageProcessor('error Engine closed!', profileName);
+
+        if(fen && profileName) {
+            setTimeout(() => {
+                const calculationObj = this.pV[profileName].pendingCalculations.find(x => x.fen === fen);
+                calculationObj.finished = true;
+            }, 25);
+        }
+    }
+
+    async getSelectedExternalEngineId(profileName) {
+        const externalChessEngine = await this.getConfigValue(this.configKeys.externalChessEngine, profileName);
+
+        return externalChessEngine;
+    }
+
     async loadEngines() {
-        const profiles = await getProfiles();
+        const profiles = await GET_PROFILES();
         const activeProfiles = profiles.filter(p => p.config.engineEnabled);
 
         for(const profileObj of activeProfiles) {
-            this.pV[profileObj.name] = await this.profileVariables.create(this, profileObj);
-            this.loadEngine(profileObj.name);
+            await this.createAndLoadSpecificEngine(profileObj.name);
         }
     }
 
@@ -219,51 +304,59 @@ export default class AcasInstance {
             case 'updateBoardFen':
                 this.Interface.updateBoardFen(packet.data);
                 return true;
+            case 'newMatchStarted':
+                this.engineStartNewGame();
+                return true;
             case 'calculateBestMoves':
                 this.calculateBestMoves(packet.data);
                 return true;
             case 'calculateSpecificMoves':
-                this.calculateBestMoves(this.currentFen, false, packet.data);
+                this.calculateBestMoves(this.currentFen, { 'specificMovesObj': packet.data });
+                return true;
+            case 'forceInstanceRestart':
+                FORCE_CLOSE_ALL_INSTANCES();
                 return true;
         }
     }
 
-    async setEngineElo(elo, didUserUpdateSetting, didUpdateAdvancedElo, profile) {
-        const enableAdvancedElo = await this.getConfigValue(this.configKeys.enableAdvancedElo, profile);
+    async applyDynamicOption(userscriptDbKey, optionValue, profileName, isApplyCausedByHuman) {
+        const currentEngineId = await GET_ACTIVE_ENGINE_NAME(profileName);
+        const dbPrefix = getDynamicEngineDbKeyPrefix(currentEngineId);
+        //console.log(userscriptDbKey, profileName);
+        const { name, defaultValue } = getDynamicOption(userscriptDbKey, profileName) ?? {};
 
-        if(enableAdvancedElo) {
-            const advancedElo            = await this.getConfigValue(this.configKeys.advancedElo, profile);
-            const advancedEloDepth       = await this.getConfigValue(this.configKeys.advancedEloDepth, profile);
-            const advancedEloSkill       = await this.getConfigValue(this.configKeys.advancedEloSkill, profile);
-            const advancedEloMaxError    = await this.getConfigValue(this.configKeys.advancedEloMaxError, profile);
-            const advancedEloProbability = await this.getConfigValue(this.configKeys.advancedEloProbability, profile);
-            const advancedEloHash        = await this.getConfigValue(this.configKeys.advancedEloHash, profile);
-            const advancedEloThreads     = await this.getConfigValue(this.configKeys.advancedEloThreads, profile);
+        if(name === undefined || defaultValue === undefined) return false;
 
-            this.sendMsgToEngine(`setoption name UCI_Elo value ${advancedElo}`, profile);
+        const isNotForThisEngine = !userscriptDbKey.startsWith(dbPrefix);
+        const isDefaultValue = VAR_TO_CORRECT_TYPE(optionValue) === VAR_TO_CORRECT_TYPE(defaultValue);
+        const isWeirdValue = (typeof optionValue === 'string' && (/[<>]/.test(optionValue) || optionValue === 'value'));
 
-            this.pV[profile].searchDepth = advancedEloDepth;
-
-            const limitStrength = advancedEloSkill < 40;
-
-            this.setEngineSkillLevel(advancedEloSkill - 20, profile); // Convert (0-40) to (-20-20)
-            
-            if(!limitStrength)
-                this.setEngineLimitStrength(false, profile);
-
-            if(advancedEloMaxError > 0)
-                this.setEngineMaxError(advancedEloMaxError, profile);
-
-            if(advancedEloProbability > 0)
-                this.setEngineProbability(advancedEloProbability, profile);
-
-            this.setEngineHashSize(advancedEloHash, profile);
-            this.setEngineThreads(advancedEloThreads, profile);
+        switch(name) { // name means the UCI option name
+            case 'MultiPV':
+                this.pV[profileName].multiPV = optionValue;
+                break;
+            case 'UCI_Chess960':
+                this.pV[profileName].useChess960 = optionValue;
+                break;
+            case 'UCI_Variant':
+                this.pV[profileName].chessVariant = FORMAT_VARIANT(optionValue);
+                break;
         }
-        
-        else if(typeof elo == 'number') {
+
+        if(
+            optionValue === null
+            || isNotForThisEngine
+            || (isDefaultValue && !isApplyCausedByHuman) 
+            || isWeirdValue
+        ) return false;
+
+        this.setEngineOption(name, optionValue, true, profileName);
+    }
+
+    async setEngineElo(elo, didUserUpdateSetting, profile) {
+        if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2600;
-            const engineType = await this.getEngineType(profile);
+            const engineType = await this.getEngineName(profile);
 
             if(engineType === 'maia2' && !(1100 <= elo && elo <= 2000)) {
                 toast.warning('"Maia 2" engine only supports 1100-2000 ELO! Your ELO was converted to the closest supported ELO, but please change the setting.', 30000);
@@ -271,21 +364,21 @@ export default class AcasInstance {
 
             this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
 
-            const skillLevelMsg = transObj?.engineSkillLevel ?? 'Engine skill level';
-            const searchDepthMsg = transObj?.engineSearchDepth ?? 'Search depth';
-            const engineNotLimitedSkillLevel = transObj?.engineNotLimitedSkillLevel ?? "Engine's skill level not limited";
-            const engineNoLimitations = transObj?.engineNoLimitations ?? 'Engine has no strength limitations, running infinite depth!';
+            const skillLevelMsg = TRANS_OBJ?.engineSkillLevel ?? 'Engine skill level';
+            const searchDepthMsg = TRANS_OBJ?.engineSearchDepth ?? 'Search depth';
+            const engineNotLimitedSkillLevel = TRANS_OBJ?.engineNotLimitedSkillLevel ?? "Engine's skill level not limited";
+            const engineNoLimitations = TRANS_OBJ?.engineNoLimitations ?? 'Engine has no strength limitations, running infinite depth!';
             
             if(limitStrength) {
                 this.setEngineLimitStrength(true, profile);
     
-                const skillLevel = getSkillLevelFromElo(elo);
+                const skillLevel = GET_SKILL_FROM_ELO(elo);
                 this.setEngineSkillLevel(skillLevel, profile);
     
-                const depth = getDepthFromElo(elo);
+                const depth = GET_DEPTH_FROM_ELO(elo);
                 this.pV[profile].searchDepth = depth;
 
-                if(didUserUpdateSetting && !didUpdateAdvancedElo) {
+                if(didUserUpdateSetting) {
                     toast.message(`${skillLevelMsg} ${skillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 }
             } else {
@@ -293,10 +386,10 @@ export default class AcasInstance {
                 this.setEngineSkillLevel(20, profile);
 
                 if(elo !== 3200) {
-                    const depth = getDepthFromElo(elo);
+                    const depth = GET_DEPTH_FROM_ELO(elo);
                     this.pV[profile].searchDepth = depth;
 
-                    if(didUserUpdateSetting && !didUpdateAdvancedElo)
+                    if(didUserUpdateSetting)
                         toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
@@ -309,15 +402,6 @@ export default class AcasInstance {
         }
     }
 
-    setEngineNodes(nodeAmount, profile) {
-        if(this.pV[profile].lc0WeightName.includes('maia') && nodeAmount !== 1) {
-            const msg = transObj?.maiaNodeWarning ?? 'Maia weights work best with no search, please only use one (1) search node!';
-            toast.warning(msg, 30000);
-        }
-
-        this.pV[profile].engineNodes = nodeAmount;
-    }
-
     async setEngineWeight(weightName, profile) {
         // legacy support, convert 1100 -> maia-1100.pb etc.
         if(/^\d{4}(,\d{3})*$/.test(weightName)) {
@@ -326,7 +410,15 @@ export default class AcasInstance {
 
         this.pV[profile].lc0WeightName = weightName;
 
-        this.contactEngine('setZeroWeights', [await loadFileAsUint8Array(`assets/lc0-nets/${weightName}`)], profile);
+        this.contactEngine('setZeroWeights', [await LOAD_FILE_AS_UINT8_ARRAY(`assets/lc0-nets/${weightName}`)], profile);
+    }
+
+    setEngineOption(name, value = null, isDynamicOption, profile) {
+        console.log(name, value, isDynamicOption, profile);
+
+        if(Number.isNaN(value) || value === undefined) return;
+
+        this.sendMsgToEngine(`setoption name ${name}${value === null ? '' : ' value ' + value}`, profile, isDynamicOption);
     }
 
     disableEngineElo(profile) {
@@ -335,6 +427,7 @@ export default class AcasInstance {
 
     setEngineMultiPV(amount, profile) {
         if(typeof amount == 'number') {
+            this.pV[profile].multiPV = amount;
             this.sendMsgToEngine(`setoption name MultiPV value ${amount}`, profile);
         }
     }
@@ -399,13 +492,13 @@ export default class AcasInstance {
         if(typeof variant == 'string') {
             this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`, profile);
 
-            this.pV[profile].chessVariant = formatVariant(variant);
-            this.pV[profile].useChess960 = isVariant960(variant) || await this.getConfigValue(this.configKeys.useChess960, profile);
+            this.pV[profile].chessVariant = FORMAT_VARIANT(variant);
+            this.pV[profile].useChess960 = IS_VARIANT_960(variant) || await this.getConfigValue(this.configKeys.useChess960, profile);
         }
     }
 
     setChessFont(chessFontStr) {
-        chessFontStr = formatChessFont(chessFontStr);
+        chessFontStr = FORMAT_CHESS_FONT(chessFontStr);
 
         const chessboardElems = [
             this.instanceElem.querySelector('.chessboard-components'),
@@ -423,13 +516,11 @@ export default class AcasInstance {
         });
     }
 
-    async getEngineType(profile) {
+    async getEngineName(profile) {
         return await this.getConfigValue(this.configKeys.chessEngine, profile);
     }
 
     clearHistoryVariables(profileName) {
-        // Clear previous calculations
-        this.pV[profileName].pendingCalculations = [];
         this.pV[profileName].lastFen = null;
 
         this.moveHistory = [];
@@ -437,11 +528,11 @@ export default class AcasInstance {
 
     engineStopCalculating(profile, reason) {
         const profileStopCalculating = p => {
-            if(!this.isEngineNotCalculating(p)) clearTimeout(this.pV[p].currentMovetimeTimeout);
+            if(this.isEngineCalculating(p)) clearTimeout(this.pV[p].currentMovetimeTimeout);
+
+            this.sendMsgToEngine('stop', p);
                 
             if(this.debugLogsEnabled) console.error('STOP CALCULATION ORDERED!', 'Reason:', reason, 'Profile:', profile);
-    
-            this.sendMsgToEngine('stop', p);
         }
 
         if(!profile) {
@@ -479,7 +570,7 @@ export default class AcasInstance {
                 speechConfig.voiceName = ttsVoiceName;
             }
 
-            this.pV[profile].currentSpeeches.push(speakText(spokenText, speechConfig));
+            this.pV[profile].currentSpeeches.push(SPEAK_TEXT(spokenText, speechConfig));
         }
     }
 
@@ -505,8 +596,8 @@ export default class AcasInstance {
     isAbnormalPieceChange(lastFen, newFen) {
         if(!lastFen || !newFen) return false;
     
-        const lastPieceCount = countTotalPieces(lastFen);
-        const newPieceCount = countTotalPieces(newFen);
+        const lastPieceCount = COUNT_TOTAL_PIECES_FROM_FEN(lastFen);
+        const newPieceCount = COUNT_TOTAL_PIECES_FROM_FEN(newFen);
 
         // (need to implement fix for variants which may add pieces legally)
         const countChange = newPieceCount - lastPieceCount;
@@ -561,9 +652,6 @@ export default class AcasInstance {
 
         const isHistoryIndicatingPromotion = JSON.stringify(this.moveDiffHistory) === JSON.stringify([3, 1, 2]);
         
-        if(diff > 5)
-            this.engineStartNewGame();
-        
         return diff === 2 || diff > 3 || isHistoryIndicatingPromotion;
     }
 
@@ -614,15 +702,38 @@ export default class AcasInstance {
         return this.engines[i ? i : this.engines.length - 1];
     }
 
+    getProfileName(i) {
+        if(typeof i === 'string') return i;
+
+        const keys = Object.keys(this.engines);
+
+        if(typeof i === 'object' && i !== null) {
+            return keys.find(key => key === i.name) || i.name;
+        }
+
+        const index = (typeof i === 'number') ? i : keys.length - 1;
+        return keys[index] || 'engine';
+    }
+
     contactEngine(method, args, i) {
         return this.getEngineAcasObj(i)['engine'](method, args);
     }
 
-    sendMsgToEngine(msg, i) {
-        const isProfile = typeof i == 'string' && this.pV[i];
+    async sendMsgToEngine(msg, i, isDynamicOption) {
+        const isProfile = typeof i === 'string' && this.pV[i];
         const engineExists = this.getEngineAcasObj(i)?.sendMsg;
+        const isBannedOptionSet = msg.startsWith('setoption name')
+            && (isProfile && this.pV[i].usingAdvancedMode && !isDynamicOption);
 
-        if(!engineExists && isProfile) {
+        if(isBannedOptionSet) return;
+        
+        if(IS_EXTERNAL_ENGINE_SETTING_ACTIVE?.[i] && isProfile) {
+            const profileName = this.getProfileName(i);
+            const engineId = await this.getSelectedExternalEngineId(profileName);
+
+            sendUciToExternalEngine(msg, engineId, profileName, this.instanceID);
+
+        } else if(!engineExists && isProfile) {
             let elapsed = 0;
 
             const waitForEngineToLoad = setInterval(() => {
@@ -647,12 +758,12 @@ export default class AcasInstance {
         }
     }
 
-    isEngineNotCalculating(profile) {
+    isEngineCalculating(profile) {
         const profileObj = this.pV[profile];
 
-        if(!profileObj) return true;
+        if(!profileObj) return false;
 
-        return this.pV[profile].pendingCalculations.find(x => !x.finished) ? false : true;
+        return this.pV[profile].pendingCalculations.find(x => !x.finished) ? true : false;
     }
 
     async displayMoves(moveObjects, profile) {
@@ -675,9 +786,13 @@ export default class AcasInstance {
         updatePipData({ moveObjects });
 
         moveObjects.forEach(moveObj => {
-            const spokenText = moveObj.player?.map(x =>
-                x.split('').map(x =>`"${x}"`).join(' ') // e.g a1 -> "a" "1"
-            ).join(', ');
+            const spokenText = moveObj.player
+                ?.map(x => {
+                    const [letter, number] = x.toUpperCase().split('');
+                    const spokenLetter = letter === 'A' ? 'AA' : letter;
+                    return `"${spokenLetter}"\n"${number}"`;
+                })
+                .join('\n');
 
             this.speak(spokenText, profile);
         });
@@ -704,7 +819,7 @@ export default class AcasInstance {
 
             Object.keys(this.pV).forEach(profileName => {
                 const profileVars = this.pV[profileName];
-                const profileVariant = formatVariant(profileVars.chessVariant);
+                const profileVariant = FORMAT_VARIANT(profileVars.chessVariant);
                 const profileVariants = profileVars.chessVariants;
 
                 const profileVariantExists = profileVariants.includes(profileVariant);
@@ -717,9 +832,9 @@ export default class AcasInstance {
             if(this.activeEnginesAmount !== lastActiveEnginesAmount || this.variantNotSupportedByEngineAmount !== lastVariantNotSupportedByEngineAmount) {
                 const correctedActiveAmount = this.activeEnginesAmount - this.variantNotSupportedByEngineAmount;
 
-                const engineWord = transObj?.engineWord ?? 'engine';
-                const enginesWord = transObj?.enginesWord ?? 'engines';
-                const variantNotSupportedMsg = transObj?.variantNotSupported ?? 'Variant not supported';
+                const engineWord = TRANS_OBJ?.engineWord ?? 'engine';
+                const enginesWord = TRANS_OBJ?.enginesWord ?? 'engines';
+                const variantNotSupportedMsg = TRANS_OBJ?.variantNotSupported ?? 'Variant not supported';
 
                 if(correctedActiveAmount == this.activeEnginesAmount) {
                     newInfoStr += ` (${this.activeEnginesAmount} ${this.activeEnginesAmount > 1 ? enginesWord : engineWord})`;
@@ -752,15 +867,14 @@ export default class AcasInstance {
     killEngine(i) {
         if(this.debugLogsEnabled) console.warn('Killing engine', i);
 
-        let worker = null;
-
         if(typeof i === 'string') {
             if(this.freezeEngineKilling?.[i]) return;
 
             const engineIndex = this.engines.findIndex(obj => obj.profileName === i);
             
             if(engineIndex !== -1) {
-                worker = this.engines[engineIndex].worker;
+                this.engines[engineIndex].worker?.terminate();
+                delete this.engines?.[engineIndex];
 
                 this.engines.splice(engineIndex, 1);
 
@@ -774,7 +888,8 @@ export default class AcasInstance {
             if(i >= 0 && i < this.engines.length) {
                 const profileName = this.engines[i].profile;
 
-                worker = this.engines[i].worker;
+                this.engines[i].worker?.terminate();
+                delete this.engines[i].worker;
 
                 this.engines.splice(i, 1);
 
@@ -785,22 +900,40 @@ export default class AcasInstance {
                 delete this.pV[profileName];
             }
         }
-
-        this.sendMsgToEngine('quit', i);
-
-        setTimeout(() => {
-            if(worker) worker.terminate();
-        }, 1000);
     }
 
-    killEngines() {
-        for(let i = 0; i < this.engines.length; i++) {
+    async killEngines() {
+        for(let i = this.engines.length - 1; i >= 0; i--) {
             this.killEngine(i);
         }
     }
 
     close() {
         this.instanceClosed = true;
+
+        if(this.externalEngineStatusChannel) {
+            this.externalEngineStatusChannel.onmessage = null;
+            this.externalEngineStatusChannel.close();
+            this.externalEngineStatusChannel = null;
+        }
+
+        if(this.externalEngineUciChannel) {
+            this.externalEngineUciChannel.onmessage = null;
+            this.externalEngineUciChannel.close();
+            this.externalEngineUciChannel = null;
+        }
+
+        if(this.guiBroadcastChannel) {
+            this.guiBroadcastChannel.onmessage = null;
+            this.guiBroadcastChannel.close();
+            this.guiBroadcastChannel = null;
+        }
+
+        if(this.dynamicButtonPressChannel) {
+            this.dynamicButtonPressChannel.onmessage = null;
+            this.dynamicButtonPressChannel.close();
+            this.dynamicButtonPressChannel = null;
+        }
 
         this?.killEngines();
 
@@ -813,6 +946,8 @@ export default class AcasInstance {
 
         this?.BoardDrawer?.terminate();
         this?.instanceElem?.remove();
+
+        closeAllExternalEnginesWithId(this.instanceID, 'instanceId');
 
         removeInstance(this);
     }

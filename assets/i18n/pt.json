@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Perfis do Motor de Xadrez",
         "#chess-engine-profile-dropdown .input-subtitle": "Vários perfis podem estar ativos ao mesmo tempo!",
         "#add-new-profile-button .text-content": "Adicionar Novo",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Perfil Padrão",
-        "#settings-navbar-subtitle": "As configurações afetam todas as instâncias",
+        ".tab-item[data-value=\"default\"] p": "Perfil Padrão",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Visual",
         ".audible-panel-title": "Audível",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "Não suportado bem",
         "*[data-translation-squares-text]": "Quadrados",
         "*[data-translation-pieces-text]": "Peças",
-        "*[data-translation-move-display-settings]": "Configurações de sugestões de movimento",
-        ".stable-engine-tag": "Estável",
+        "*[data-translation-move-display-settings]": "Configurações de sugestões de movimento",        "*[data-translation-begging-title]": "Obrigado!",
+        "*[data-translation-begging-subtitle]": "Parece que você gosta do A.C.A.S :)",
+        "*[data-translation-begging-text]": "Desenvolver o A.C.A.S leva muito tempo! Esperamos que este trabalho tenha sido valioso para você e que tenha gostado de usar!",
+        "*[data-translation-begging-text-2]": "Você usou o A.C.A.S por",
+        "*[data-translation-begging-text-3]": "horas",
+        "*[data-translation-begging-text-4]": "Isso é respeitável. Estaria interessado em fazer uma doação? Suportamos Monero,",
+        "*[data-translation-external-engine-2]": "Instale o servidor A.C.A.S",
+        "*[data-translation-external-engine-3]": "para usar motores externos",
+        "*[data-translation-stat-ec]": "Cálculos do motor",
+        "*[data-translation-stat-ci]": "Instâncias criadas",
+        "*[data-translation-stat-am]": "Minutos ativos",        ".stable-engine-tag": "Estável",
         ".variants-engine-tag": "Variantes",
         ".realistic-engine-tag": "Realista",
         ".unstable-engine-tag": "Instável",
@@ -141,7 +149,8 @@
         "pipBoard": ["Exibir Tabuleiro", "Em vez de apenas texto, exibir todo o tabuleiro"],
         "movesOnDemand": ["Movimentos sob Demanda", "Calcula movimentos para as peças com as quais você interage"],
         "onlySuggestPieces": ["Apenas Sugerir Peças", "Sugira peças para mover, mas não forneça movimentos"],
-        "isUserscriptGhost": ["Script Fantasma", "Desativar todas as funcionalidades externas detectáveis (ex.: setas de movimento) para evitar deteção"]
+        "isUserscriptGhost": ["Script Fantasma", "Desativar todas as funcionalidades externas detectáveis (ex.: setas de movimento) para evitar deteção"],
+        "useExternalChessEngine": ["Habilitado", "O mecanismo de xadrez externo está habilitado"]
     },
     "translations": {
         "profileRemovalWarning": "Tem certeza de que deseja remover este perfil?\n\nEsta ação não pode ser desfeita.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Aviso: Detecção de mudança excessiva de abas. Trocas contínuas podem resultar em banimento.\n\nPara evitar a necessidade de trocar entre as abas, faça uma das seguintes opções,\n- Abra duas janelas separadas lado a lado\n- Exiba os movimentos na página (Isso é facilmente detectável)\n- Habilite o TTS (Texto para Fala)\n- Ative a configuração do Painel Flutuante",
         "instanceConnectionTermination": "Instância terminada devido à perda de conexão.\n\nInesperado? Visite a aba para reativar o A.C.A.S.",
         "calculationDepth": "Profundidade",
-        "thankYouTranslator": "Obrigado aos tradutores"
+        "thankYouTranslator": "Obrigado aos tradutores",
+        "serverOpen": "Conectado ao servidor!",
+        "serverClose": "Não foi possível conectar ao servidor do motor externo!\n\nPor favor, instale/inicie o servidor, tentando reconectar...",
+        "websocketError": "Erro de WebSocket:",
+        "unknownWebsocketError": "Erro desconhecido, talvez a conexão foi perdida?",
+        "noExternalEngineAnymore": "O motor EXTERNO previamente selecionado não está mais disponível. Selecione um novo."
     },
     "contributors": []
 }

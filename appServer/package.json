@@ -1,0 +1,41 @@
+{
+	"name": "acas-local-server",
+	"version": "1.0.0",
+	"description": "A local chess server for the A.C.A.S GUI",
+	"main": "backend/main.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "electron .",
+		"build": "electron-builder --publish never"
+	},
+	"keywords": [],
+	"author": "Haka",
+	"license": "GPL-3.0",
+	"type": "module",
+	"devDependencies": {
+		"electron": "^41.0.3",
+		"electron-builder": "^26.8.1"
+	},
+	"dependencies": {
+		"electron-store": "^11.0.2",
+		"ws": "^8.19.0"
+	},
+	"build": {
+		"productName": "ACAS",
+		"artifactName": "Acas-Setup-${version}.${ext}",
+		"win": {
+			"icon": "ui/images/icon.png"
+		},
+		"extraFiles": [
+			{
+				"from": "README.md",
+				"to": "./README.md"
+			}
+		],
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": true,
+			"license": "LICENSE"
+		}
+	}
+}

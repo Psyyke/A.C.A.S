@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Profili del motore di scacchi",
         "#chess-engine-profile-dropdown .input-subtitle": "Possono essere attivi più profili contemporaneamente!",
         "#add-new-profile-button .text-content": "Aggiungi nuovo",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Profilo predefinito",
-        "#settings-navbar-subtitle": "Le impostazioni influenzano ogni istanza",
+        ".tab-item[data-value=\"default\"] p": "Profilo predefinito",
         ".engine-panel-title": "Motore",
         ".visual-panel-title": "Visivo",
         ".audible-panel-title": "Udibile",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Quadrati",
         "*[data-translation-pieces-text]": "Pezzi",
         "*[data-translation-move-display-settings]": "Impostazioni suggerimenti mosse",
+        "*[data-translation-begging-title]": "Grazie!",
+        "*[data-translation-begging-subtitle]": "Sembra che ti piaccia A.C.A.S :)",
+        "*[data-translation-begging-text]": "Sviluppare A.C.A.S richiede molto tempo! Speriamo che questo lavoro sia stato prezioso per te e che ti sia divertito usarlo!",
+        "*[data-translation-begging-text-2]": "Hai usato A.C.A.S per",
+        "*[data-translation-begging-text-3]": "ore",
+        "*[data-translation-begging-text-4]": "È rispettabile. Saresti interessato a donare? Supportiamo Monero,",
+        "*[data-translation-external-engine-2]": "Installa il server A.C.A.S",
+        "*[data-translation-external-engine-3]": "per usare motori esterni",
+        "*[data-translation-stat-ec]": "Calcoli del motore",
+        "*[data-translation-stat-ci]": "Istanze create",
+        "*[data-translation-stat-am]": "Minuti attivi",
         ".stable-engine-tag": "Stabile",
         ".variants-engine-tag": "Varianti",
         ".realistic-engine-tag": "Realistico",
@@ -141,7 +151,8 @@
         "pipBoard": ["Mostra la scacchiera", "Invece di solo testo, mostra l'intera scacchiera"],
         "movesOnDemand": ["Mosse su Richiesta", "Calcola le mosse per i pezzi con cui interagisci"],
         "onlySuggestPieces": ["Suggerisci Solo Pezzi", "Suggerisci i pezzi da muovere, ma non dare mosse"],
-        "isUserscriptGhost": ["Script Fantasma", "Disabilita tutte le funzionalità esterne rilevabili (es. frecce di movimento) per evitare il rilevamento"]
+        "isUserscriptGhost": ["Script Fantasma", "Disabilita tutte le funzionalità esterne rilevabili (es. frecce di movimento) per evitare il rilevamento"],
+        "useExternalChessEngine": ["Abilitato", "Il motore esterno del gioco degli scacchi è abilitato"]
     },
     "translations": {
         "profileRemovalWarning": "Sei sicuro di voler rimuovere questo profilo?\n\nQuesta azione non può essere annullata.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Attenzione: rilevato un cambio eccessivo di schede. Il continuo cambio potrebbe portare a un ban.\n\nPer evitare di dover cambiare scheda frequentemente, fai una delle seguenti azioni,\n- Usa due finestre separate affiancate\n- Mostra le mosse sulla pagina (Questo è facilmente rilevabile)\n- Abilita TTS (Text to Speech)\n- Abilita l'impostazione del pannello fluttuante",
         "instanceConnectionTermination": "Istanze terminate a causa di perdita di connessione.\n\nInaspettato? Visita la scheda per riattivare A.C.A.S.",
         "calculationDepth": "Profondità",
-        "thankYouTranslator": "Grazie ai traduttori"
+        "thankYouTranslator": "Grazie ai traduttori",
+        "serverOpen": "Connesso al server!",
+        "serverClose": "Impossibile connettersi al server del motore esterno!\n\nInstallare/avviare il server, tentativo di riconnessione...",
+        "websocketError": "Errore WebSocket:",
+        "unknownWebsocketError": "Errore sconosciuto, forse la connessione è stata persa?",
+        "noExternalEngineAnymore": "Il motore ESTERNO precedentemente selezionato non è più disponibile. Selezionane uno nuovo."
     },
     "contributors": []
 }

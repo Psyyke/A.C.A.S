@@ -1,5 +1,6 @@
 :root {
-    --scrollbar-width: 10px;
+    --scrollbar-width: 8px;
+    --scrollbar-height: 5px;
     --scrollbar-thumb-radius: 5px;
     --scrollbar-track-background: #ffffff2b;
     --scrollbar-thumb-background: #ffffff79;
@@ -7,12 +8,15 @@
 }
 ::-webkit-scrollbar {
     width: var(--scrollbar-width);
+    height: var(--scrollbar-height);
 }
 ::-moz-scrollbar {
     width: var(--scrollbar-width);
+    height: var(--scrollbar-height);
 }
 ::-ms-scrollbar {
     width: var(--scrollbar-width);
+    height: var(--scrollbar-height);
 }
 ::-webkit-scrollbar-track {
     background: var(--scrollbar-track-background);

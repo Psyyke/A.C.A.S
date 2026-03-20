@@ -1,26 +1,126 @@
 // If you modify these strings, modify them on the userscript as well
-const GLOBAL_VARIABLES = {
+const USERSCRIPT_SHARED_VARS = {
     gmConfigKey: 'AcasConfig',
     tempValueIndicator: '-temp-value-'
 };
 
-const enginesRequiringSAB = [ // Requiring SharedArrayBuffer
-    'stockfish-17-wasm',
+const ENGINES_REQUIRING_SAB = [ // Requiring SharedArrayBuffer
     'stockfish-16-1-wasm', 
     'stockfish-14-nnue',
     'fairy-stockfish-nnue-wasm',
     'lc0'
 ];
 
-let transObj = null; // set by acas-i18n-processor.js
-let fullTransObj = null;
+const USER_USAGE_PREFIX = 'usageStat_';
+const MINUTES_USED_STORAGE_KEY = 'minutesUsed';
+const THEME_COLOR_STORAGE_KEY = 'themeColorHex';
+const INSTANCE_SIZE_KEY = 'instanceSize';
+const BOARD_SIZE_MODIFIER_KEY = 'boardSizeModifier';
 
-const log = {
-    info: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67a9ef;'),
-    success: (...message) => console.log(`[A.C.A.S]%c ${message.join(' ')}`, 'color: #67f08a;')
+const TOS_ACCEPTED_DB_KEY = 'isTosAccepted';
+
+const GUI_BROADCAST_NAME = 'gui';
+const EXTERNAL_UCI_BROADCAST_NAME = 'externalEngineUciFeed';
+const EXTERNAL_STATUS_BROADCAST_NAME = 'externalEngineStatusFeed';
+const DYNAMIC_BUTTONPRESS_BROADCAST_NAME = 'dynamicSettingButtonFeed';
+
+// Allows for every script to quickly determine what profile it is, etc.
+const SETTING_FILTER_OBJ = { 'type': 'global', 'instanceID': null, 'profileID': null };
+
+const EE_ACTIVE_STORAGE_KEY = 'IS_EXTERNAL_ENGINE_SETTING_ACTIVE';
+const IS_EXTERNAL_ENGINE_SETTING_ACTIVE = JSON.parse(
+    localStorage.getItem(EE_ACTIVE_STORAGE_KEY) || "{}"
+);
+
+const FI_NUMBER_FORMATTER = new Intl.NumberFormat('fi-FI');
+const ACTIVE_INPUT_LISTENER = {
+    targetValue: null,
+    listeners: []
 };
 
-function geoGebraDotCommands(data) {
+let TRANS_OBJ = null; // set by translationProcessor.js
+let FULL_TRANS_OBJ = null; // set by translationProcessor.js
+let IS_INSTANCE_SETTING_BTN_DISABLED = false;
+let LAST_FORCE_CLOSE_TIME = 0;
+
+function FORCE_CLOSE_ALL_INSTANCES() {
+    const now = Date.now();
+    
+    if(now - LAST_FORCE_CLOSE_TIME < 3000) return;
+    LAST_FORCE_CLOSE_TIME = now;
+
+    window.AcasInstances.forEach(iObj => {
+        if(iObj.instance && typeof iObj.instance.close === "function") {
+            iObj.instance.close();
+        }
+    });
+}
+
+function CREATE_INPUT_LISTENER(targetValue, callback) {
+    if(typeof targetValue !== 'string' || !callback) return;
+    if(ACTIVE_INPUT_LISTENER.targetValue === targetValue) return;
+
+    ACTIVE_INPUT_LISTENER.listeners.forEach(({ type, fn }) => document.removeEventListener(type, fn));
+    ACTIVE_INPUT_LISTENER.listeners.length = 0;
+    ACTIVE_INPUT_LISTENER.targetValue = null;
+
+    let holdTimer = null;
+    let lastTapTime = 0;
+    const dblTapThreshold = 300;
+    const listeners = [];
+
+    const addListener = (type, fn) => {
+        document.addEventListener(type, fn);
+        listeners.push({ type, fn });
+    };
+
+    addListener('keydown', (e) => {
+        if(!targetValue.startsWith("Interact") && e.code === targetValue)
+            callback(e);
+    });
+
+    const startPress = (e) => {
+        if(!targetValue.startsWith("Interact")) return;
+
+        const match = targetValue.match(/^InteractLongPress(\d+)$/);
+
+        if(match) holdTimer = setTimeout(() => {
+            callback(e);
+            holdTimer = null;
+        }, parseInt(match[1], 10) * 1000);
+
+        if(targetValue === "InteractDoubleClick" && e.type.startsWith("touch")) {
+            const now = performance.now();
+            if(now - lastTapTime < dblTapThreshold) {
+                callback(e);
+                lastTapTime = 0;
+            }
+            else lastTapTime = now;
+        }
+    };
+
+    const endPress = () => { if(holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+    }};
+
+    addListener('mousedown', startPress);
+    addListener('mouseup', endPress);
+    addListener('touchstart', startPress);
+    addListener('touchend', endPress);
+    addListener('dblclick', (e) => {
+        if(targetValue === "InteractDoubleClick") callback(e);
+    });
+
+    ACTIVE_INPUT_LISTENER.targetValue = targetValue;
+    ACTIVE_INPUT_LISTENER.listeners.push(...listeners);
+}
+
+function GET_EXTERNAL_PARAM_DB_KEY(engineId) {
+    return 'EXTERNAL_PARAMS_' + engineId;
+}
+
+function GEOGEBRA_DOT_COMMANDS(data) {
     const { w, b } = data;
 
     const arrToGeoList = arr => `{${arr.join(",")}}`;
@@ -37,7 +137,7 @@ function geoGebraDotCommands(data) {
     return { wCmd, bCmd };
 }
 
-function getUniqueMoves(moves) {
+function GET_UNIQUE_MOVES(moves) {
     const seen = new Set();
     const cleaned = new Array(moves.length);
     let write = 0;
@@ -51,7 +151,7 @@ function getUniqueMoves(moves) {
                 m.opponent[0] + ',' + m.opponent[1] + '|' +
                 m.profile;
 
-            if (!seen.has(key)) {
+            if(!seen.has(key)) {
                 seen.add(key);
                 cleaned[write++] = m;
             } else {
@@ -64,18 +164,18 @@ function getUniqueMoves(moves) {
     return [cleaned, removedCount];
 }
 
-function objectToString(obj) {
+function OBJECT_TO_STRING(obj) {
     const parts = [];
 
-    for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
+    for(const key in obj) {
+        if(obj.hasOwnProperty(key)) {
             const value = obj[key];
 
-            if (Array.isArray(value)) {
-                const innerValues = value.map(item => objectToString(item)).join(', ');
+            if(Array.isArray(value)) {
+                const innerValues = value.map(item => OBJECT_TO_STRING(item)).join(', ');
                 parts.push(`${key}: ${innerValues}`);
-            } else if (typeof value === 'object' && value !== null) {
-                const innerObject = objectToString(value);
+            } else if(typeof value === 'object' && value !== null) {
+                const innerObject = OBJECT_TO_STRING(value);
                 parts.push(`${key}: { ${innerObject} }`);
             } else {
                 parts.push(`${key}: ${value}`);
@@ -86,35 +186,7 @@ function objectToString(obj) {
     return parts.join(', ');
 }
 
-function highlightSetting(targetElem, cb) {
-    if(!targetElem) return;
-
-    const subtleElems = ['#settings-header', '#settings-panels', '#setting-container']
-        .map(x => document.querySelector(x))
-        .filter(x => x);
-
-    const targetInput = targetElem.querySelector('input');
-
-    if(targetInput?.dataset?.renderSetting) {
-        const renderDialog = document.querySelector('.floaty-wrapper > #rendering-floaty');
-
-        if(renderDialog) renderDialog.showModal();
-    }
-
-    targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    targetElem.classList.add('setting-highlight');
-    subtleElems.forEach(elem => elem.classList.add('setting-panel-highlight'));
-
-    setTimeout(() => {
-        targetElem.classList.remove('setting-highlight');
-        subtleElems.forEach(elem => elem.classList.remove('setting-panel-highlight'));
-
-        if(cb) cb();
-    }, 5000);
-}
-
-function removeParamFromUrl(paramName) {
+function REMOVE_PARAM_FROM_URL(paramName) {
     const newParams = new URLSearchParams(window.location.search);
     newParams.delete(paramName);
 
@@ -122,17 +194,19 @@ function removeParamFromUrl(paramName) {
     window.history.replaceState({}, '', newUrl);
 }
 
-function speakText(text, config = {}) {
+function SPEAK_TEXT(text, config = {}) {
     const speechConfig = {
-        pitch: config.pitch || 1, // [0, 2]
-        rate: config.rate || 1, // [0.1, 10]
+        pitch: config.pitch || 1,   // [0, 2]
+        rate: config.rate || 1,     // [0.1, 10]
         volume: config.volume || 1, // [0, 1]
         voiceName: config.voiceName || undefined,
     };
-  
+
+    const cleanedText = text.replace(/[^a-zA-Z0-9\s]/g, '');
+
     if('speechSynthesis' in window) {
         const synthesis = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance(text);
+        const utterance = new SpeechSynthesisUtterance(cleanedText);
 
         utterance.pitch = speechConfig.pitch;
         utterance.rate = speechConfig.rate;
@@ -140,27 +214,27 @@ function speakText(text, config = {}) {
 
         if(speechConfig.voiceName) {
             const voices = synthesis.getVoices();
-            const selectedVoice = voices.find(voice => voice.name === speechConfig.voiceName);
+            const selectedVoice = voices.find(
+                voice => voice.name === speechConfig.voiceName
+            );
 
             if(selectedVoice) {
                 utterance.voice = selectedVoice;
             } else {
                 toast.error('TTS voice not found!');
-
                 return;
             }
         }
 
         synthesis.speak(utterance);
-
         return synthesis;
     } else {
         toast.error('Web Speech API is not supported in this browser!');
     }
 }
 
-function getAvailableTTSVoices() {
-    if ('speechSynthesis' in window) {
+function GET_TTS_VOICES() {
+    if('speechSynthesis' in window) {
         const synthesis = window.speechSynthesis;
         const voices = synthesis.getVoices();
 
@@ -170,12 +244,12 @@ function getAvailableTTSVoices() {
     } else return false;
 }
 
-function getSkillLevelFromElo(elo) {
-    if (elo <= 500) {
+function GET_SKILL_FROM_ELO(elo) {
+    if(elo <= 500) {
         return -20;
-    } else if (elo >= 2850) {
+    } else if(elo >= 2850) {
         return 19;
-    } else if (elo >= 2900) {
+    } else if(elo >= 2900) {
         return 20;
     } else {
         const range = (elo - 500) / (2850 - 500);
@@ -185,7 +259,7 @@ function getSkillLevelFromElo(elo) {
 }
 
 // maybe should start using math to calculate it... oh well
-function getDepthFromElo(elo) {
+function GET_DEPTH_FROM_ELO(elo) {
     return elo >= 3100 ? 18
     : elo >= 3000 ? 16
     : elo >= 2900 ? 14
@@ -202,20 +276,16 @@ function getDepthFromElo(elo) {
     : 1;
 }
 
-function allowOnlyNumbers(e) {
-    return e.charCode >= 48 && e.charCode <= 57;
-}
-
-function getBasicFenLowerCased(fenStr) {
+function GET_BASIC_FEN_LOWERCASED(fenStr) {
     return fenStr
         ?.replace(/\[.*?\]/g, '') // remove [] (and anything between) 
         ?.split(' ')?.[0]
         ?.toLowerCase();
 }
 
-function getBoardDimensionsFromFenStr(fenStr) {
+function GET_BOARD_DIMENSIONS_FROM_FEN(fenStr) {
     try {
-        const formattedFen = getBasicFenLowerCased(fenStr);
+        const formattedFen = GET_BASIC_FEN_LOWERCASED(fenStr);
         const extendedFen = formattedFen.replace(/\d/g, (match) => ' '.repeat(Number(match)));
     
         const files = extendedFen.split('/');
@@ -230,7 +300,7 @@ function getBoardDimensionsFromFenStr(fenStr) {
     }
 }
 
-function generateHistoryString(moveHistory, playerColor) {
+function GENERATE_HISTORY_STR(moveHistory, playerColor) {
     /* History move (e.g.)
     moveHistory.move = {
         "from": "g2",
@@ -257,26 +327,58 @@ function generateHistoryString(moveHistory, playerColor) {
         .join(',');
 }
 
-function convertToCorrectType(data) {
-    if (typeof data === 'string') {
-        if (!isNaN(data)) {
+function WAIT_UNTIL_VAR(fn, timeout = 100000, interval = 100) {
+    if(fn()) return fn();
+
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
+        const timer = setInterval(() => {
+            if(fn()) {
+                clearInterval(timer);
+                resolve(fn());
+            } else if(Date.now() - start >= timeout) {
+                clearInterval(timer);
+                reject(new Error("timeout"));
+            }
+        }, interval);
+    });
+}
+
+function VAR_TO_CORRECT_TYPE(data) {
+    if(typeof data === 'string') {
+        if(data === 'NaN' || data.trim() === '') return '';
+
+        if(!isNaN(data)) {
             return parseFloat(data);
         }
         
-        if (data.toLowerCase() === 'true' || data.toLowerCase() === 'false') {
-            return data.toLowerCase() === 'true'; // Convert to boolean
+        const lowerData = data.toLowerCase();
+
+        if(lowerData === 'true' || lowerData === 'false') {
+            return lowerData === 'true';
         }
     }
     
     return data;
 }
 
-function countPieces(fen) {
+function PARSE_MINMAX_FROM_STR(input) {
+    if(typeof input === 'number') return [input, input];
+
+    const parts = input.toString().split(/(?<=\d)-(?=-?\d)/);
+
+    const min = VAR_TO_CORRECT_TYPE(parts[0]);
+    const max = parts[1] !== undefined ? VAR_TO_CORRECT_TYPE(parts[1]) : min;
+
+    return [min, max];
+}
+
+function COUNT_PIECES_FROM_FEN(fen) {
     const pieceCount = {};
     const position = fen.split(' ')[0];
 
-    for (let char of position) {
-        if (/[rnbqkpRNBQKP]/.test(char)) {
+    for(let char of position) {
+        if(/[rnbqkpRNBQKP]/.test(char)) {
             pieceCount[char] = (pieceCount[char] || 0) + 1;
         }
     }
@@ -284,12 +386,12 @@ function countPieces(fen) {
     return pieceCount;
 }
 
-function countTotalPieces(fen) {
+function COUNT_TOTAL_PIECES_FROM_FEN(fen) {
     let pieceCount = 0;
     const position = fen.split(' ')[0];
 
-    for (let char of position) {
-        if (/[rnbqkpRNBQKP]/.test(char)) {
+    for(let char of position) {
+        if(/[rnbqkpRNBQKP]/.test(char)) {
             pieceCount += (pieceCount[char] || 0) + 1;
         }
     }
@@ -297,14 +399,14 @@ function countTotalPieces(fen) {
     return pieceCount;
 }
 
-function fenToArray(fen) {
+function FEN_TO_ARRAYS(fen) {
     const rows = fen.split('/');
     const board = [];
 
-    for (let row of rows) {
+    for(let row of rows) {
         const boardRow = [];
-        for (let char of row) {
-            if (isNaN(char)) {
+        for(let char of row) {
+            if(isNaN(char)) {
                 boardRow.push(char);
             } else {
                 boardRow.push(...Array(parseInt(char)).fill(''));
@@ -316,18 +418,84 @@ function fenToArray(fen) {
     return board;
 }
 
-function capitalize(s) {
-    return s && s[0].toUpperCase() + s.slice(1);
+function IS_PLAYER_ATTACKING_KING(currentFen, turn) {
+    if(!currentFen) return false;
+
+    const boardPart = currentFen.split(' ')[0];
+    const rows = boardPart.split('/');
+    const board = [];
+
+    for(let i = 0; i < 8; i++) {
+        const row = [];
+
+        for(let char of rows[i]) {
+            if(isNaN(char)) {
+                row.push(char);
+            } else {
+                for(let j = 0; j < parseInt(char); j++) row.push(1);
+            }
+        }
+
+        board.push(row);
+    }
+
+    const isWhiteAttacking = turn === 'w';
+    const enemyKing = isWhiteAttacking ? 'k' : 'K';
+
+    let kX = -1, kY = -1;
+    
+    for(let y = 0; y < 8; y++) {
+        for(let x = 0; x < 8; x++) {
+            if(board[y][x] === enemyKing) { kX = x; kY = y; break; }
+        }
+        if(kX !== -1) break;
+    }
+
+    if(kX === -1) return false;
+
+    const atk = isWhiteAttacking
+        ? { p: 'P', n: 'N', b: 'B', r: 'R', q: 'Q' }
+        : { p: 'p', n: 'n', b: 'b', r: 'r', q: 'q' };
+
+    const kn = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+
+    for(let i = 0; i < 8; i++) {
+        const p = board[kY + kn[i][1]]?.[kX + kn[i][0]];
+        if(p === atk.n) return true;
+    }
+
+    const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0], [1, -1], [-1, -1], [1, 1], [-1, 1]];
+
+    for(let i = 0; i < 8; i++) {
+        const dx = dirs[i][0], dy = dirs[i][1];
+        const isDiagonal = i > 3;
+
+        for(let j = 1; j < 8; j++) {
+            const x = kX + dx * j, y = kY + dy * j;
+            const p = board[y]?.[x];
+            if(p === undefined) break;
+            if(p !== 1) {
+                if(p === atk.q || (isDiagonal ? p === atk.b : p === atk.r)) return true;
+                break;
+            }
+        }
+    }
+
+    const pY = kY + (isWhiteAttacking ? 1 : -1);
+
+    if(board[pY]?.[kX - 1] === atk.p || board[pY]?.[kX + 1] === atk.p) return true;
+
+    return false;
 }
 
-async function getProfile(profileName) {
-    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+async function GET_PROFILE(profileName) {
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
 
     let profile = { 'name': profileName, 'config': null };
 
-    const instanceProfileObj = config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles']?.[profileName];
-    const profileObj = config?.[settingFilterObj.type]?.['profiles']?.[profileName];
+    const instanceProfileObj = config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileName];
+    const profileObj = config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileName];
     const globalProfileObj = config?.['global']?.['profiles']?.[profileName];
 
     if(instanceProfileObj) {
@@ -342,43 +510,53 @@ async function getProfile(profileName) {
     return profile;
 }
 
-async function getProfileNames() {
-    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+async function GET_PROFILE_NAMES() {
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
 
-    const instanceProfilesObj = config?.[settingFilterObj.type]?.[settingFilterObj.instanceID]?.['profiles'];
+    const instanceProfilesObj = config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles'];
 
     if(instanceProfilesObj) return Object.keys(instanceProfilesObj);
 
-    const profilesObj = config?.[settingFilterObj.type]?.['profiles'];
+    const profilesObj = config?.[SETTING_FILTER_OBJ.type]?.['profiles'];
 
     if(profilesObj) return Object.keys(profilesObj);
 
-    console.error('Could not find profile names!', { ...settingFilterObj, gmConfigKey, config });
+    console.error('Could not find profile names!', { ...SETTING_FILTER_OBJ, gmConfigKey, config });
 
     return false;
 }
 
-async function getProfiles() {
-    const profileNameArr = await getProfileNames();
+async function GET_PROFILES() {
+    const profileNameArr = await GET_PROFILE_NAMES();
 
     if(!profileNameArr) {
-        console.error('getProfiles() failed, did not find any profile names!');
+        console.error('GET_PROFILES() failed, did not find any profile names!');
 
         return [];
     }
 
-    const profileArr = await Promise.all(profileNameArr.map(profileName => getProfile(profileName)));
+    const profileArr = await Promise.all(profileNameArr.map(profileName => GET_PROFILE(profileName)));
 
     return profileArr;
 }
 
-async function getGmConfigValue(key, instanceID, profileID) {
+async function GET_ACTIVE_ENGINE_NAME(profileName) {
+    const usesExternalEngine = await GET_GM_CFG_VALUE('useExternalChessEngine', SETTING_FILTER_OBJ.instanceID, profileName);
+    const chessEngineName = await GET_GM_CFG_VALUE('chessEngine', SETTING_FILTER_OBJ.instanceID, profileName);
+    const externalChessEngineId = await GET_GM_CFG_VALUE('externalChessEngine', SETTING_FILTER_OBJ.instanceID, profileName);
+
+    const name = String(usesExternalEngine ? externalChessEngineId : chessEngineName);
+
+    return name.trim().replace(/\s+/g, '-');
+}
+
+async function GET_GM_CFG_VALUE(key, instanceID, profileID) {
     if(typeof profileID === 'object') {
         profileID = profileID.name;
     }
 
-    const gmConfigKey = GLOBAL_VARIABLES.gmConfigKey;
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
 
     if(profileID) {
@@ -408,50 +586,43 @@ async function getGmConfigValue(key, instanceID, profileID) {
     return null;
 }
 
-const hide = elem => elem.classList.add('hidden');
-const show = elem => elem.classList.remove('hidden');
+async function GET_GM_VALUES_STARTS_WITH(prefix, instanceID, profileID) {
+    if(typeof profileID === 'object') {
+        profileID = profileID.name;
+    }
 
-function eloToTitle(elo) {
-    return elo >= 2900 ? "Cheater"
-    : elo >= 2500 ? "Grandmaster"
-    : elo >= 2400 ? "International Master"
-    : elo >= 2300 ? "Fide Master"
-    : elo >= 2200 ? "National Master"
-    : elo >= 2000 ? "Expert"
-    : elo >= 1800 ? "Tournament Player"
-    : elo >= 1600 ? "Experienced"
-    : elo >= 1400 ? "Intermediate"
-    : elo >= 1200 ? "Average"
-    : elo >= 1000 ? "Casual"
-    : "Beginner";
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
+
+    const result = {};
+
+    function collectMatching(obj) {
+        if(!obj) return;
+        for(const k in obj) {
+            if(k.startsWith(prefix)) {
+                result[k] = obj[k];
+            }
+        }
+    }
+
+    if(profileID) {
+        const globalProfile = config?.global?.['profiles']?.[profileID];
+        const instanceProfile = config?.instance?.[instanceID]?.['profiles']?.[profileID];
+
+        collectMatching(globalProfile);
+        collectMatching(instanceProfile);
+    }
+
+    const instanceObj = config?.instance?.[instanceID];
+    const globalObj = config?.global;
+
+    collectMatching(instanceObj);
+    collectMatching(globalObj);
+
+    return Object.keys(result).length ? result : null;
 }
 
-const getEloDescription = elo => `Approx. ${elo} (${eloToTitle(elo)})`;
-
-const engineEloArr = [
-    { elo: 1200, data: 'go depth 1' },
-    { elo: 1300, data: 'go depth 2' },
-    { elo: 1450, data: 'go depth 3' },
-    { elo: 1750, data: 'go depth 4' },
-    { elo: 2000, data: 'go depth 5' },
-    { elo: 2200, data: 'go depth 6' },
-    { elo: 2300, data: 'go depth 7' },
-    { elo: 2400, data: 'go depth 8' },
-    { elo: 2500, data: 'go depth 9' },
-    { elo: 2600, data: 'go depth 10' },
-    { elo: 2700, data: 'go movetime 1500' },
-    { elo: 2800, data: 'go movetime 3000' },
-    { elo: 2900, data: 'go movetime 5000' },
-    { elo: 3000, data: 'go movetime 10000' }
-];
-
-function removeUciPrefix(str) {
-    const index = str.indexOf(': ');
-
-    return str.substring(index + 2);
-}
-
-function addStyles(styles, id) {
+function ADD_STYLES_TO_DOC(styles, id) {
     const cssById = document.querySelector(`#${id}`);
 
     const css = cssById ? cssById : document.createElement('style');
@@ -470,12 +641,12 @@ function addStyles(styles, id) {
     document.querySelector('head')?.appendChild(css);
 }
 
-function calculateTimeProgress(startTime, movetime) {
+function CALC_TIME_PROGRESS(startTime, movetime) {
     let progress = (Date.now() - startTime) / movetime;
     return Math.max(0, Math.min(1, progress));
 }
 
-function modifyFenCastleRights(fen, rights) {
+function MODIFY_FEN_CASTLE_RIGHTS(fen, rights) {
     let parts = fen.split(' ');
     if(parts.length < 4) return fen;
 
@@ -497,15 +668,15 @@ function modifyFenCastleRights(fen, rights) {
     return parts.join(' ');
 }
 
-function extractMoveFromBoardFen(lastFen, currentFen, boardDimensions = [8, 8]) {
+function EXTRACT_MOVE_FROM_FEN(lastFen, currentFen, boardDimensions = [8, 8]) {
     if(!(lastFen && currentFen)) return { from: null, to: null, color: null };
 
     const [cols, rows] = boardDimensions;
     lastFen = lastFen.split(' ')[0];
     currentFen = currentFen.split(' ')[0];
 
-    let lastBoard = fenToArray(lastFen);
-    let currentBoard = fenToArray(currentFen);
+    let lastBoard = FEN_TO_ARRAYS(lastFen);
+    let currentBoard = FEN_TO_ARRAYS(currentFen);
 
     let moveFrom = null;
     let moveTo = null;
@@ -543,7 +714,7 @@ function extractMoveFromBoardFen(lastFen, currentFen, boardDimensions = [8, 8]) 
     return { from: moveFrom, to: moveTo, color, movedPiece };
 }
 
-function reverseFenPlayer(fen) {
+function REVERSE_FEN_TURN(fen) {
     const fenSplit = fen.split(' ');
 
     if(fenSplit[1] === 'w')
@@ -554,31 +725,113 @@ function reverseFenPlayer(fen) {
     return fenSplit.join(' ');
 }
 
-function parseUCIResponse(response) {
+function PARSE_UCI_OPTION(line) {
+    if(typeof line !== 'string') return null;
+
+    const prefix = 'option name ';
+
+    if(line.startsWith(prefix)) {
+        line = line.slice(prefix.length);
+    }
+
+    if(line.length > 10000) {
+        throw new Error("UCI option line too long");
+    }
+
+    const tokens = line.trim().split(/\s+/);
+
+    if(tokens.length === 0) return null;
+
+    let i = 0;
+    const nameParts = [];
+
+    while(i < tokens.length && tokens[i] !== 'type') {
+        nameParts.push(tokens[i]);
+        i++;
+
+        if(nameParts.length > 100) {
+            throw new Error("UCI option name too long");
+        }
+    }
+
+    if(i >= tokens.length) {
+        return null;
+    }
+
+    const name = nameParts.join(' ');
+    i++; // skip "type"
+
+    if(i >= tokens.length) return null;
+    const type = tokens[i++];
+
+    let def;
+    let min;
+    let max;
+    let vars;
+
+    while(i < tokens.length) {
+        const t = tokens[i++];
+
+        if(t === 'default' && i < tokens.length) {
+            def = tokens[i++];
+        } 
+        else if(t === 'min' && i < tokens.length) {
+            const v = Number(tokens[i++]);
+            if (!Number.isNaN(v)) min = v;
+        } 
+        else if(t === 'max' && i < tokens.length) {
+            const v = Number(tokens[i++]);
+            if (!Number.isNaN(v)) max = v;
+        } 
+        else if(t === 'var' && i < tokens.length) {
+            if(!vars) vars = [];
+
+            if(vars.length < 1000) { // prevent unlimited growth
+                vars.push(tokens[i]);
+            }
+
+            i++;
+        }
+    }
+
+    if(type === 'check' && def === '<empty>') def = false;
+    if(type !== 'check' && (def === undefined || def === null)) def = '';
+
+    return {
+        'name': VAR_TO_CORRECT_TYPE(name),
+        'type': VAR_TO_CORRECT_TYPE(type),
+        'def': VAR_TO_CORRECT_TYPE(def),
+        'min': VAR_TO_CORRECT_TYPE(min),
+        'max': VAR_TO_CORRECT_TYPE(max),
+        'vars': VAR_TO_CORRECT_TYPE(vars)
+    };
+}
+
+function PARSE_UCI_RESPONSE(response) {
     const keywords = ['id', 'name', 'author', 'uciok', 'readyok', 
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',
         'wdl', 'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
         'currmove', 'currmovenumber', 'hashfull', 'multipv',
         'refutation', 'line', 'stop', 'ponderhit', 'ucs',
         'position', 'startpos', 'moves', 'files', 'ranks',
-        'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc'];
+        'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc', 'error'];
 
     const data = {};
     let currentKeyword = null;
     
     response.split(/\s+/).forEach(token => {
-        if (keywords.includes(token) || token.startsWith('info')) {
-            if (token.startsWith('info')) {
+        if(keywords.includes(token) || token.startsWith('info')) {
+            if(token.startsWith('info')) {
                 return;
             }
 
             currentKeyword = token;
             data[currentKeyword] = '';
 
-        } else if (currentKeyword !== null) {
-            if (!isNaN(token) && !/^[rnbqkpRNBQKP\d]+$/.test(token)) {
+        } else if(currentKeyword !== null) {
+            if(!isNaN(token) && !/^[rnbqkpRNBQKP\d]+$/.test(token)) {
                 data[currentKeyword] = parseInt(token);
-            } else if (data[currentKeyword] !== '') {
+            } else if(data[currentKeyword] !== '') {
                 data[currentKeyword] += ' ';
                 data[currentKeyword] += token;
             } else {
@@ -590,37 +843,37 @@ function parseUCIResponse(response) {
     return data;
 }
 
-function extractVariantNames(str) {
+function EXTRACT_VARIANT_NAMES(str) {
     const regex = /var\s+([\w-]+)/g;
     const matches = str.match(regex);
 
-    if (matches) {
+    if(matches) {
         return matches.map(match => match.split(' ')[1]);
     }
 
     return [];
 }
 
-const isVariant960 = v => v?.toLowerCase() == 'chess960';
+const IS_VARIANT_960 = v => v?.toLowerCase() == 'chess960';
 
-function formatVariant(str) {
+function FORMAT_VARIANT(str) {
     return str
         ?.replaceAll(' ', '')
         ?.replaceAll('-', '')
         ?.toLowerCase();
 }
 
-function formatChessFont(str) {
+function FORMAT_CHESS_FONT(str) {
     return str
         ?.replaceAll(' ', '')
         ?.toLowerCase();
 }
 
-function getBoardDimensionPercentages(boardDimensionsObj) {
+function GET_BOARD_DIMENSION_PERCENTAGES(boardDimensionsObj) {
     const { width, height } = boardDimensionsObj;
     const isSquare = width === height;
 
-    if (isSquare) {
+    if(isSquare) {
         return { 'width': 100, 'height': 100 };
     }
 
@@ -628,26 +881,26 @@ function getBoardDimensionPercentages(boardDimensionsObj) {
     const newHeight = height/width * 100;
 
     return width > height 
-        ? { 'width': 100, 'height': newHeight } 
+        ? { 'width': 100, 'height': newHeight }
         : { 'width': newWidth, 'height': 100 };
 }
 
-function getBoardHeightFromWidth(widthPx, boardDimensionsObj) {
+function GET_BOARD_HEIGHT_FROM_WIDTH(widthPx, boardDimensionsObj) {
     return widthPx * (boardDimensionsObj.height / boardDimensionsObj.width);
 }
 
-function getPieceStyleDimensions(boardDimensionsObj) {
+function GET_PIECE_STYLE_DIMENSIONS(boardDimensionsObj) {
     const width = 100 / boardDimensionsObj.width;
     const height = 100 / boardDimensionsObj.height;
 
     return { width, height };
 }
 
-function getBackgroundStyleDimension(boardDimensionsObj) {
+function GET_BACKGROUND_STYLE_DIMENSION(boardDimensionsObj) {
     return (100 / boardDimensionsObj.width) / (100 / 8) * 100;
 }
 
-function startHeartBeatLoop(key) {
+function START_HEARTBEAT_LOOP(key) {
     if(USERSCRIPT) {
         return setInterval(() => {
             USERSCRIPT.GM_setValue(key, true);
@@ -657,7 +910,7 @@ function startHeartBeatLoop(key) {
     }
 }
 
-function setIntervalAsync(callback, interval) {
+function SET_INTERVAL_ASYNC(callback, interval) {
     let running = true;
 
     async function loop() {
@@ -676,20 +929,20 @@ function setIntervalAsync(callback, interval) {
     return { stop: () => running = false };
 }
 
-function getCookie(name) {
+function GET_COOKIE(name) {
     const cookies = document.cookie ? document.cookie.split('; ') : [];
-    for (let i = 0; i < cookies.length; i++) {
+    for(let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i].split('=');
-        if (cookie[0] === name) return decodeURIComponent(cookie.slice(1).join('='));
+        if(cookie[0] === name) return decodeURIComponent(cookie.slice(1).join('='));
     }
     return null;
 }
 
-async function waitForElement(selector, maxWaitTime = 10000000) {
+async function WAIT_FOR_ELEMENT(selector, maxWaitTime = 10000000) {
     const startTime = Date.now();
     while (Date.now() - startTime < maxWaitTime) {
         const element = document.querySelector(selector);
-        if (element) {
+        if(element) {
             return element;
         }
         await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before checking again
@@ -698,7 +951,7 @@ async function waitForElement(selector, maxWaitTime = 10000000) {
     return null;
 }
 
-async function loadFileAsUint8Array(url) {
+async function LOAD_FILE_AS_UINT8_ARRAY(url) {
     try {
         const response = await fetch(url);
         const buffer = await response.arrayBuffer();
@@ -709,60 +962,67 @@ async function loadFileAsUint8Array(url) {
     }
 }
 
-function isBelowVersion(versionStr, targetVersion) {
+function GET_NICE_PATH(path, limit = 60) {
+    if(!path) return path;
+
+    const lastSeparatorIndex = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    let dirPath = lastSeparatorIndex === -1 ? path : path.substring(0, lastSeparatorIndex);
+
+    if(dirPath.length <= limit) {
+        return dirPath;
+    }
+
+    const truncated = dirPath.slice(-limit);
+    const firstSeparatorIndex = truncated.search(/[/\\]/);
+
+    if(firstSeparatorIndex !== -1 && firstSeparatorIndex < limit - 5) {
+        return '...' + truncated.substring(firstSeparatorIndex);
+    }
+
+    return '...' + truncated;
+}
+
+function IS_BELOW_VERSION(versionStr, targetVersion) {
     return versionStr.localeCompare(targetVersion, undefined, {numeric: true}) === -1;
 }
 
-function formatProfileName(profileNameStr) {
+function FORMAT_PROFILE_NAME(profileNameStr) {
     return profileNameStr
         .trim()
         .replace(/[^a-zA-Z0-9]/g, '')
         .replace(/\s+/g, '');
 }
 
-function initNestedObject(obj, keys) {
+function INIT_NESTED_OBJECT(obj, keys) {
     keys.reduce((acc, key) => {
-        if (!acc[key]) acc[key] = {};
+        if(!acc[key]) acc[key] = {};
         return acc[key];
     }, obj);
 }
 
-function getUniqueID() {
+function GET_UNIQUE_ID() {
     return ([1e7]+-1e3+4e3+-8e3+-1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     )
 }
 
-async function isEngineIncompatible(engineName, profileName, skipSabCheck) {
+async function IS_ENGINE_INCOMPATIBLE(engineName, profileName, skipSabCheck) {
     if(engineName === 'maia2') return window?.SharedArrayBuffer ? true : false;
 
     async function check(pN) {
-        const profileObj = await getProfile(pN);
+        const profileObj = await GET_PROFILE(pN);
         const profileChessEngine = engineName || profileObj.config.chessEngine;
 
-        return (skipSabCheck || !window?.SharedArrayBuffer) && enginesRequiringSAB.includes(profileChessEngine);
+        return (skipSabCheck || !window?.SharedArrayBuffer) && ENGINES_REQUIRING_SAB.includes(profileChessEngine);
     }
 
     if(profileName) return await check(profileName);
 
-    const profiles = await getProfiles();
+    const profiles = await GET_PROFILES();
 
     for(const profile of profiles.filter(p => p.config.engineEnabled)) {
         const profileName = profile.name;
 
         return await check(profileName);
-    }
-}
-
-async function ensureSabParam() {
-    const url = new URL(window.location.href);
-    const params = new URLSearchParams(url.search);
-    const hasSabParam = params.has('sab');
-
-    if(!hasSabParam && await isEngineIncompatible(null, null, true)) {
-        params.set('sab', 'true');
-        window.location.href = `${url.origin}${url.pathname}?${params.toString()}`;
-    } else if(!hasSabParam && window?.SharedArrayBuffer) {
-        location.reload();
     }
 }

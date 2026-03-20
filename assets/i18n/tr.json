@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Satranç Motoru Profilleri",
         "#chess-engine-profile-dropdown .input-subtitle": "Birden fazla profil aynı anda aktif olabilir!",
         "#add-new-profile-button .text-content": "Yeni Ekle",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Varsayılan Profil",
-        "#settings-navbar-subtitle": "Ayarlar her örneği etkiler",
+        ".tab-item[data-value=\"default\"] p": "Varsayılan Profil",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Görsel",
         ".audible-panel-title": "Duyusal",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "İyi desteklenmiyor",
         "*[data-translation-squares-text]": "Kareler",
         "*[data-translation-pieces-text]": "Taşlar",
-        "*[data-translation-move-display-settings]": "Hamle önerisi ayarları",
-        ".stable-engine-tag": "Stabil",
+        "*[data-translation-move-display-settings]": "Hamle önerisi ayarları",        "*[data-translation-begging-title]": "Teşekkürler!",
+        "*[data-translation-begging-subtitle]": "A.C.A.S'ı sevdiğin anlaşılıyor :)",
+        "*[data-translation-begging-text]": "A.C.A.S geliştirmek çok zaman alıyor! Umarız bu çalışma senin için değerli olmuştur ve onu kullanmaktan zevk almışsındır!",
+        "*[data-translation-begging-text-2]": "A.C.A.S'ı",
+        "*[data-translation-begging-text-3]": "saat boyunca kullandın",
+        "*[data-translation-begging-text-4]": "Saygıdeğer. Bağış yapmak isteyebilir misin? Monero'yu destekliyoruz،",
+        "*[data-translation-external-engine-2]": "A.C.A.S sunucusunu yükle",
+        "*[data-translation-external-engine-3]": "harici motorları kullanmak için",
+        "*[data-translation-stat-ec]": "Motor Hesaplamaları",
+        "*[data-translation-stat-ci]": "Oluşturulan örnekler",
+        "*[data-translation-stat-am]": "Aktif dakikalar",        ".stable-engine-tag": "Stabil",
         ".variants-engine-tag": "Varyantlar",
         ".realistic-engine-tag": "Gerçekçi",
         ".unstable-engine-tag": "Kararsız",
@@ -141,7 +149,8 @@
         "pipBoard": ["Tahtası Göster", "Sadece metin yerine tüm tahtası göster"],
         "movesOnDemand": ["Talebe Bağlı Hamleler", "Etkileşimde bulunduğunuz tasılar için hamleleri hesaplayın"],
         "onlySuggestPieces": ["Yalnızca Taşları Öner", "Taşları taşımak için öner ama hamle verme"],
-        "isUserscriptGhost": ["Hayalet Betik", "Tespitten kaçınmak için tüm algılanabilir harici işlevleri (örn. hamle okları) devre dışı bırakın"]
+        "isUserscriptGhost": ["Hayalet Betik", "Tespitten kaçınmak için tüm algılanabilir harici işlevleri (örn. hamle okları) devre dışı bırakın"],
+        "useExternalChessEngine": ["Etkinleştirildi", "Harici satranç motoru etkinleştirildi mi"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Uyarı: Aşırı sekme değişikliği tespit edildi. Sürekli sekme değiştirme, yasaklanmaya neden olabilir.\n\nSekmeler arasında geçiş yapmanız gerektiğinde, şunlardan birini yapın,\n- İki ayrı pencereyi yan yana açın\n- Hamleleri sayfada görüntüleyin (Bu kolayca tespit edilir)\n- TTS (Metinden Sese) etkinleştirin\n- Yüzen Panel ayarını etkinleştir",
         "instanceConnectionTermination": "Bağlantı kaybolduğu için örnek sonlandırıldı.\n\nBeklenmedik mi? A.C.A.S'i yeniden etkinleştirmek için sekmeyi ziyaret edin.",
         "calculationDepth": "Derinlik",
-        "thankYouTranslator": "Çevirmenlere teşekkür ederiz"
+        "thankYouTranslator": "Çevirmenlere teşekkür ederiz",
+        "serverOpen": "Sunucuya bağlandı!",
+        "serverClose": "Harici satranç motoru sunucusuna bağlanılamadı!\n\nLütfen sunucuyu kurun/başlatın, yeniden bağlanmayı deneyin...",
+        "websocketError": "WebSocket hatası:",
+        "unknownWebsocketError": "Bilinmeyen hata, belki bağlantı kayboldu?",
+        "noExternalEngineAnymore": "Daha önce seçilen DIŞ satranç motoru artık kullanılamıyor. Yeni bir tane seç."
     },
     "contributors": []
 }

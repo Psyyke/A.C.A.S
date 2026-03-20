@@ -1,3 +1,5 @@
+import { incrementUserUsageStat } from './gui/stats.js';
+
 /* [A.C.A.S MoveEvaluator]
  * - License: GPLv3
  * - Version: 0.2
@@ -122,7 +124,8 @@ export default class MoveEvaluator {
 
             // Once ready, send the UCI command
             this.uci(`go depth ${this.searchDepth} searchmoves ${from + to}`, msg => {
-                const result = parseUCIResponse(msg);
+                const result = PARSE_UCI_RESPONSE(msg);
+                incrementUserUsageStat('engineCalculations');
 
                 if(result?.cp !== undefined && result.cp !== 0)
                     this.cpHistory[playerColor].push(Number(result.cp));
@@ -156,7 +159,7 @@ export default class MoveEvaluator {
                         'cp': relativeCp
                     });
 
-                    // console.log(geoGebraDotCommands(this.cpHistory));
+                    // console.log(GEOGEBRA_DOT_COMMANDS(this.cpHistory));
                     // this.cpRelativeHistory[playerColor].push(relativeCp);
                 }
 

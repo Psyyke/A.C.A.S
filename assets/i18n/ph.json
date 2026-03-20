@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Mga Profile ng Chess Engine",
         "#chess-engine-profile-dropdown .input-subtitle": "Maraming profile ang maaaring aktibo nang sabay-sabay!",
         "#add-new-profile-button .text-content": "Magdagdag ng Bago",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Default na Profile",
-        "#settings-navbar-subtitle": "Ang mga setting ay nakakaapekto sa bawat instance",
+        ".tab-item[data-value=\"default\"] p": "Default na Profile",
         ".engine-panel-title": "Engine",
         ".visual-panel-title": "Visual",
         ".audible-panel-title": "Audible",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Mga Square",
         "*[data-translation-pieces-text]": "Mga Piraso",
         "*[data-translation-move-display-settings]": "Mga setting ng move suggestion",
+        "*[data-translation-begging-title]": "Salamat!",
+        "*[data-translation-begging-subtitle]": "Tila gusto mo ang A.C.A.S :)",
+        "*[data-translation-begging-text]": "Ang pag-develop ng A.C.A.S ay tumatagal ng maraming oras! Sana ang ganitong trabaho ay mahalaga sa iyo at nag-enjoy ka sa paggamit nito!",
+        "*[data-translation-begging-text-2]": "Gumamit ka ng A.C.A.S para sa",
+        "*[data-translation-begging-text-3]": "oras",
+        "*[data-translation-begging-text-4]": "Yan ay karapat-dapat. Interesado ka bang mag-donate? Sinusuportahan namin ang Monero,",
+        "*[data-translation-external-engine-2]": "I-install ang A.C.A.S server",
+        "*[data-translation-external-engine-3]": "upang gamitin ang mga external engine",
+        "*[data-translation-stat-ec]": "Kalkulasi ng Engine",
+        "*[data-translation-stat-ci]": "Mga instance na likha",
+        "*[data-translation-stat-am]": "Aktibong minuto",
         ".stable-engine-tag": "Stable",
         ".variants-engine-tag": "Mga Variant",
         ".realistic-engine-tag": "Realistic",
@@ -141,7 +151,8 @@
         "pipBoard": ["Ipakita ang tabla", "Sa halip na teksto lamang, ipakita ang buong tabla"],
         "movesOnDemand": ["Mga Galaw sa Pangangailangan", "Kinakalkula ang mga galaw para sa mga piyesang iyong pakikipag-ugnayan"],
         "onlySuggestPieces": ["Lamang Isinungka ang mga Piyesa", "Isinungka ang mga piyesa upang ilipat, ngunit walang galaw"],
-        "isUserscriptGhost": ["Tagong Script", "Patayin ang lahat ng mga natutukoy na panlabas na functionality (hal. mga arrow ng galaw) upang maiwasan ang pagtuklas"]
+        "isUserscriptGhost": ["Tagong Script", "Patayin ang lahat ng mga natutukoy na panlabas na functionality (hal. mga arrow ng galaw) upang maiwasan ang pagtuklas"],
+        "useExternalChessEngine": ["Pinagana", "Ang external na engine ng chess ay pinagana na"]
     },
     "translations": {
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Babala: Napansin ang labis na pagbabago ng tab. Ang patuloy na pagbabago ay maaaring humantong sa pagbabawal.\n\nUpang maiwasan ang pangangailangan na lumipat sa pagitan ng mga tab, gawin ang isa sa mga sumusunod,\n- Lumikha ng dalawang hiwalay na bintana na magkatabi\n- Ipakita ang mga galaw sa pahina (madaling matutukoy ito)\n- I-enable ang TTS (Text to Speech)\n- I-enable ang setting ng floating panel",
         "instanceConnectionTermination": "Ang instance ay tinapos dahil sa pagkawala ng koneksyon.\n\nHindi inaasahan? Bisitahin ang tab upang muling i-activate ang A.C.A.S.",
         "calculationDepth": "Lalim",
-        "thankYouTranslator": "Salamat sa mga tagasalin"
+        "thankYouTranslator": "Salamat sa mga tagasalin",
+        "serverOpen": "Nakonekta sa server!",
+        "serverClose": "Hindi makonnect sa external na engine server!\n\nMangyaring i-install/simulan ang server, sinisikap na muling kumonekta...",
+        "websocketError": "WebSocket error:",
+        "unknownWebsocketError": "Unknown error, maaring nawala ang koneksyon?",
+        "noExternalEngineAnymore": "Ang nakaraang napiling EXTERNAL chess engine ay hindi na available. Pumili ng bago."
     },
     "contributors": ["ChatGPT"]
 }

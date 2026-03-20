@@ -34,6 +34,27 @@
 	#instance-size-change-container {
 		display: none !important;
 	}
+	#settings-navbar-container {
+		display: none !important;
+	}
+	#settings-header {
+		justify-content: center !important;
+	}
+}
+@media (pointer: coarse) {
+    .external-engine-setting-panel {
+		display: none !important;
+	}
+	#acas-settings-container #settings-header,
+	#acas-settings-container #setting-container,
+	#settings-panels {
+		opacity: 1 !important;
+	}
+	#chess-engine-dropdown {
+		filter: none !important;
+        pointer-events: unset !important;
+        cursor: unset !important;
+	}
 }
 @media (max-width: 550px) {
 	#acas-is-free-reminder span {
@@ -143,6 +164,7 @@ cg-container {
     top: 0;
 	backdrop-filter: blur(10px);
 	border-bottom: 4px solid rgb(0 0 0 / 35%);
+	overflow-y: clip;
 }
 #acas-logo {
 	font-size: 30px;
@@ -165,13 +187,15 @@ cg-container {
 	cursor: pointer;
 }
 #acas-logo-img {
-	width: 100px;
-	position: absolute;
-	opacity: 0.1;
+    width: 150px;
+    position: absolute;
+    opacity: 0.2;
+    margin-left: -10px;
+    margin-top: 30px;
 }
 #acas-logo-text-container {
 	z-index: 1;
-	margin-left: 40px;
+	margin-left: 30px;
 }
 #acas-version-tag {
 	font-size: 15px;
@@ -231,6 +255,7 @@ cg-container {
 	bottom: 20px;
 	left: 4.5px;
 	top: 10px;
+	border-radius: 3px;
 }
 .eval-bar.reversed {
 	transform: rotate(180deg);
@@ -242,6 +267,7 @@ cg-container {
 	width: 100%;
 	background-color: #ffffff;
 	transition: height 0.5s ease;
+	border-radius: 3px;
 }
 .instance-header {
 	padding: 10px;
@@ -371,6 +397,33 @@ cg-container {
     background-size: 20px 20px;
 	z-index: -1;
 	pointer-events: none;
+}
+#install-notification::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 999vh;
+    height: 999vh;
+    background: linear-gradient(
+        45deg,
+        rgb(255 0 0 / 17%) 25%,
+        rgb(129 0 0 / 17%) 25%,
+        rgb(129 0 0 / 17%) 50%,
+        rgb(255 0 0 / 17%) 50%,
+        rgb(255 0 0 / 17%) 75%,
+        rgb(129 0 0 / 17%) 75%,
+        rgb(129 0 0 / 17%)
+    );
+    background-size: 20px 20px;
+    z-index: -1;
+    pointer-events: none;
+}
+body:has(#install-notification:not(.hidden)) {
+    background-color: rgb(24, 24, 24) !important;
+}
+body:has(#install-notification:not(.hidden)) #acas-instance-container {
+    background-color: rgb(48, 48, 48) !important;
 }
 .install-description {
 	color: rgb(159 159 159);
@@ -503,6 +556,11 @@ cg-container {
     margin-bottom: 20px;
     text-shadow: 0px 2px 0px #000;
 }
+#install-acas-server-text {
+	display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 @media (max-width: 600px) {
 	.tos-link {
 		font-size: 14px;
@@ -621,8 +679,26 @@ cg-container {
 .violentmonkey-btn:hover {
 	background-image: linear-gradient(#faca44, #d49801);
 }
+.tampermonkey-btn {
+    background-color: #cb9e2c;
+    background-image: linear-gradient(#efbe3c, #bd8700);
+}
+.tampermonkey-btn:hover {
+	background-image: linear-gradient(#faca44, #d49801);
+}
 .hidden {
 	display: none !important;
+}
+.blurred {
+	filter: blur(5px);
+	pointer-events: none;
+	cursor: not-allowed;
+}
+.disabled {
+	filter: blur(1px);
+	opacity: 0.15;
+	pointer-events: none;
+	cursor: not-allowed;
 }
 .force-hidden {
 	display: none !important;
@@ -642,7 +718,7 @@ cg-container {
 	text-align: center;
 	z-index: 5;
 	backdrop-filter: blur(20px);
-	border: 2px solid rgb(255 255 255 / 10%);
+	border: 2px solid rgb(255 255 255 / 20%);
 }
 #no-instances-title {
     font-size: 28px;
@@ -673,7 +749,7 @@ cg-container {
     position: absolute;
     width: 100%;
     height: 100%;
-	background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.3));
+    background: linear-gradient(to bottom, rgb(14 14 14), rgba(0, 0, 0, 0.3));
     border-radius: inherit;
     z-index: 3;
     display: flex;
@@ -682,7 +758,7 @@ cg-container {
     align-content: center;
     flex-direction: column;
     text-align: center;
-    backdrop-filter: blur(1px);
+    backdrop-filter: blur(2px);
 }
 .connection-warning-title {
 	animation: pulsate 0.5s infinite;
@@ -737,7 +813,6 @@ cg-container {
 	color: white;
 	flex-direction: column;
 	align-items: flex-start;
-	backdrop-filter: blur(2px);
 	flex-grow: 1;
 	z-index: 10;
 	border-bottom: 3px solid rgb(255 255 255 / 5%);
@@ -817,11 +892,24 @@ cg-container {
     box-sizing: border-box;
     width: 100%;
     flex-wrap: wrap;
-    grid-gap: 10px;
+    gap: 10px;
     padding-top: 10px;
     margin-top: 10px;
-    border-top: 3px solid rgba(255, 255, 255, 0.05);
+    border-top: 2px solid rgba(255, 255, 255, 0.05);
 }
+.profile-status-bubble {
+	width: 10px;
+    height: 10px;
+    background: rgb(255 255 255 / 5%);
+    border-radius: 100%;
+	margin: 10px;
+	margin-left: 20px;
+}
+.pbs-idle { background: rgb(204, 204, 204); }
+.pbs-calculating { background: rgb(75, 255, 135); }
+.pbs-warning { background: rgb(255, 216, 42); }
+.pbs-error { background: rgb(236, 49, 49); }
+
 .unstable-setting-panel {
 	background-color: rgba(50, 0, 0, 0.2) !important;
 	border: 2px solid rgba(150, 0, 0, 0.4) !important;
@@ -843,7 +931,7 @@ cg-container {
 .setting-panel>*:not(:last-child) {
 	margin-bottom: 10px;
 	padding-bottom: 10px;
-	border-bottom: 3px solid rgba(255, 255, 255, 0.05);
+	border-bottom: 2px solid rgba(255, 255, 255, 0.05);
 }
 #acas-settings-container:hover #settings-header,
 #acas-settings-container:hover #setting-container {
@@ -1110,6 +1198,14 @@ cg-container {
 .affiliate-button:hover {
 	background-color: #8a0000;
 }
+#des-no-result-text {
+	max-width: 400px;
+	text-align: center;
+	opacity: 0.5;
+	padding: 50px 0;
+	border-bottom: 0 !important;
+	align-self: center;
+}
 #userscript-info-small {
 	text-transform: capitalize;
 	text-align: center;
@@ -1117,6 +1213,7 @@ cg-container {
 	font-size: 12.5px;
 	font-weight: 100;
 	margin: 10px 10px 0 10px;
+	min-height: 30px;
 }
 #instance-size-change-container {
 	width: 100%;
@@ -1217,17 +1314,20 @@ cg-container {
     padding: 10px;
     border: 2px solid rgb(255 255 255 / 10%);
 	border-bottom-width: 5px;
+	max-width: calc(100% - 25px);
+    width: fit-content;
 }
 #setting-container {
     margin: 10px;
-    width: inherit;
     display: flex;
     justify-content: flex-start;
     transition: all 0.1s ease;
     box-sizing: border-box;
     flex-wrap: wrap;
-    grid-gap: 10px;
+    gap: 10px;
     opacity: 0.4;
+    max-width: 100%;
+    width: calc(100% - 20px);
 }
 #main-setting-panel:hover #settings-panels {
 	opacity: 1;
@@ -1254,14 +1354,69 @@ cg-container {
     opacity: 0.6;
 }
 #add-new-profile-button {
-	background-color: #ffffff0a;
-    border-top: 2px solid #ffffff29;
-    transform: scale(1);
+	padding: 15px 20px;
 	color: #616161;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	border-right: 1px solid rgb(255 255 255 / 5%);
+	font-size: 20px;
 }
 #add-new-profile-button:hover {
-	background-color: #ffffff1f;
+	background-color: rgb(255 255 255 / 10%);
 	color: #c0c0c0;
+	cursor: pointer;
+	font-weight: 700;
+}
+.selected-tab-item:hover .profile-removal-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+	cursor: pointer;
+}
+#user-stats-container {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    border-top: 2px solid rgb(255 255 255 / 10%);
+}
+.user-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+	border-bottom: 1px solid rgb(255 255 255 / 5%);
+	padding: 14px;
+	gap: 10px;
+}
+.user-stat h5 { text-align: left; }
+.user-stat p  { text-align: right; }
+.user-stat h5, .user-stat p {
+	margin: 0;
+	word-break: keep-all;
+	font-size: 15px;
+	font-weight: 400;
+}
+.profile-removal-button {
+    position: absolute;
+    top: -2px;
+    right: -10px;
+    background: rgb(0 0 0 / 80%);
+    border-radius: 4px;
+    width: 30px;
+    height: 30px;
+    display: none;
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    opacity: 0.35;
+    border-bottom-width: 5px;
+}
+.profile-removal-button:hover {
+    background: rgb(65, 0, 0);
+	border: 1px solid red;
+	color: red;
+	opacity: 1;
+	border-bottom-width: 5px;
 }
 .dropdown-input-container:hover > .reversed-dropdown-list {
 	display: flex !important;
@@ -1515,6 +1670,10 @@ input[disabled] {
 	opacity: 0.25;
 	filter: blur(1px);
 }
+*:has(> input[type="checkbox"][disabled]) {
+    opacity: 0.5;
+    filter: blur(3px);
+}
 .cg-wrap coords {
 	font-size: 13px !important;
 }
@@ -1528,15 +1687,66 @@ input[disabled] {
 	min-width: 50%;
     max-width: 90%;
 }
+#begging-floaty {
+    max-width: 350px;
+}
+#begging-floaty .floaty-body {
+	word-wrap: break-word;
+}
+#begging-floaty small {
+	padding: 30px;
+}
+.direct-ees-input {
+	text-transform: none !important;
+}
+#dynamic-setting-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+#dynamic-setting-panel .textfield-input input {
+    min-width: 40px !important;
+	width: 125px;
+}
+#dynamic-engine-settings, .dynamic-setting-profile-container {
+	gap: 10px;
+    display: flex;
+    flex-direction: column;
+}
+.dynamic-param-input {
+	display: flex !important;
+    flex-direction: column !important;
+    align-items: baseline !important;
+	margin-left: 10px;
+    margin-bottom: 10px;
+}
+.dynamic-param-input input {
+	background-color: rgb(0 0 0 / 10%) !important;
+    color: rgb(255 255 255 / 80%) !important;
+}
+.dynamic-param-input * {
+	font-size: 13px !important;
+}
+.dynamic-setting-button {
+	padding: 4px;
+    border-radius: 5px;
+    font-size: 23px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
+}
 .list-tag {
     padding: 7px;
     border-radius: 5px;
     color: #ffffff;
     font-size: 0.8em;
     background-color: rgb(255 255 255 / 6%);
-}
-.list-tag:hover {
-	transform: scale(1.1);
 }
 .unstable-engine-tag {
 	background-color: rgb(255 0 0 / 22%);
@@ -1570,4 +1780,10 @@ p[data-translation-ffs-instructions] {
 }
 video {
 	border-radius: 5px;
+}
+.disable-elo:not(disabled) {
+    opacity: 0.25;
+    filter: blur(1px);
+	pointer-events: none;
+    user-select: none;
 }

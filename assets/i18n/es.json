@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Perfiles de Motor de Ajedrez",
         "#chess-engine-profile-dropdown .input-subtitle": "¡Pueden estar activos múltiples perfiles al mismo tiempo!",
         "#add-new-profile-button .text-content": "Agregar Nuevo",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Perfil Predeterminado",
-        "#settings-navbar-subtitle": "Los ajustes afectan a cada instancia",
+        ".tab-item[data-value=\"default\"] p": "Perfil Predeterminado",
         ".engine-panel-title": "Motor",
         ".visual-panel-title": "Visual",
         ".audible-panel-title": "Audible",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Cuadrados",
         "*[data-translation-pieces-text]": "Piezas",
         "*[data-translation-move-display-settings]": "Configuración de sugerencias de movimiento",
+        "*[data-translation-begging-title]": "¡Gracias!",
+        "*[data-translation-begging-subtitle]": "Parece que te gusta A.C.A.S :)",
+        "*[data-translation-begging-text]": "¡Desarrollar A.C.A.S toma mucho tiempo! Esperamos que este trabajo haya sido valioso para ti y que hayas disfrutado usarlo.",
+        "*[data-translation-begging-text-2]": "Has usado A.C.A.S durante",
+        "*[data-translation-begging-text-3]": "horas",
+        "*[data-translation-begging-text-4]": "Eso es respetable. ¿Te interesaría donar? Soportamos Monero,",
+        "*[data-translation-external-engine-2]": "Instala el servidor A.C.A.S",
+        "*[data-translation-external-engine-3]": "para usar motores externos",
+        "*[data-translation-stat-ec]": "Cálculos del motor",
+        "*[data-translation-stat-ci]": "Instancias creadas",
+        "*[data-translation-stat-am]": "Minutos activos",
         ".stable-engine-tag": "Estable",
         ".variants-engine-tag": "Variantes",
         ".realistic-engine-tag": "Realista",
@@ -141,7 +151,8 @@
         "pipBoard": ["Mostrar tablero", "En lugar de solo texto, mostrar todo el tablero"],
         "movesOnDemand": ["Movimientos a Demanda", "Calcula movimientos para las piezas con las que interactúas"],
         "onlySuggestPieces": ["Solo Sugerir Piezas", "Sugiere piezas para mover, pero no da movimientos"],
-        "isUserscriptGhost": ["Script Fantasma", "Desactivar toda funcionalidad externa detectable (p. ej. flechas de movimiento) para evitar la detección"]
+        "isUserscriptGhost": ["Script Fantasma", "Desactivar toda funcionalidad externa detectable (p. ej. flechas de movimiento) para evitar la detección"],
+        "useExternalChessEngine": ["Habilitado", "¿Está habilitado el motor de ajedrez externo?"]
     },
     "translations": {
         "profileRemovalWarning": "¿Estás seguro de que quieres eliminar este perfil?\n\nEsta acción no se puede deshacer.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Advertencia: Se detectó cambio excesivo de pestañas. Continuar cambiando podría resultar en una prohibición.\n\nPara evitar tener que cambiar entre pestañas, haz lo siguiente,\n- Haz dos ventanas separadas lado a lado\n- Muestra los movimientos en la página (esto es fácilmente detectable)\n- Activa TTS (Texto a voz)\n- Activa la configuración del panel flotante",
         "instanceConnectionTermination": "Instancia terminada debido a pérdida de conexión.\n\n¿Inesperado? Visita la pestaña para reactivar A.C.A.S.",
         "calculationDepth": "Profundidad",
-        "thankYouTranslator": "Gracias a los traductores"
+        "thankYouTranslator": "Gracias a los traductores",
+        "serverOpen": "¡Conectado al servidor!",
+        "serverClose": "¡No se pudo conectar al servidor del motor de ajedrez externo!\n\n¡Por favor instala/inicia el servidor, intentando reconectar...",
+        "websocketError": "Error de WebSocket:",
+        "unknownWebsocketError": "Error desconocido, ¿quizás se perdió la conexión?",
+        "noExternalEngineAnymore": "El motor de ajedrez EXTERNO seleccionado anteriormente ya no está disponible. Selecciona uno nuevo."
     },
     "contributors": []
 }

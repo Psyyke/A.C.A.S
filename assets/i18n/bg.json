@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Профили на шахматни двигатели",
         "#chess-engine-profile-dropdown .input-subtitle": "Множество профили могат да бъдат активни едновременно!",
         "#add-new-profile-button .text-content": "Добави нов",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Профил по подразбиране",
-        "#settings-navbar-subtitle": "Настройките влияят на всяка инстанция",
+        ".tab-item[data-value=\"default\"] p": "Профил по подразбиране",
         ".engine-panel-title": "Двигател",
         ".visual-panel-title": "Визуално",
         ".audible-panel-title": "Аудио",
@@ -74,8 +73,17 @@
         "*[data-translation-not-supported-well]": "Не се поддържа добре",
         "*[data-translation-squares-text]": "Квадрати",
         "*[data-translation-pieces-text]": "Фигури",
-        "*[data-translation-move-display-settings]": "Настройки за предложения на ходове",
-        ".stable-engine-tag": "Стабилен",
+        "*[data-translation-move-display-settings]": "Настройки за предложения на ходове",        "*[data-translation-begging-title]": "Спасибо!",
+        "*[data-translation-begging-subtitle]": "Изглежда, че ти харесва A.C.A.S :)",
+        "*[data-translation-begging-text]": "Разработката на A.C.A.S отнема много време! Надяваме се, че работата е била ценна за теб и че си се наслаждавал на използването му!",
+        "*[data-translation-begging-text-2]": "Използвал си A.C.A.S за",
+        "*[data-translation-begging-text-3]": "часа",
+        "*[data-translation-begging-text-4]": "Това е достойно. Интересуват ли те дарения? Поддържаме Monero،",
+        "*[data-translation-external-engine-2]": "Инсталирайте сервъра на A.C.A.S",
+        "*[data-translation-external-engine-3]": "за използване на външни двигатели",
+        "*[data-translation-stat-ec]": "Изчисления на двигателя",
+        "*[data-translation-stat-ci]": "Създадени инстанции",
+        "*[data-translation-stat-am]": "Активни минути",        ".stable-engine-tag": "Стабилен",
         ".variants-engine-tag": "Варианти",
         ".realistic-engine-tag": "Реалистичен",
         ".unstable-engine-tag": "Нестабилен",
@@ -141,7 +149,8 @@
         "pipBoard": ["Покажи дъската", "Вместо само текст, покажи цялата дъска"],
         "movesOnDemand": ["Ходи по Заявка", "Навичва ходи за бройеве, с които взаимодействате"],
         "onlySuggestPieces": ["Само Предложи Бройеве", "Предложи бройеве за движение, но не давай ходи"],
-        "isUserscriptGhost": ["Призрачен скрипт", "Деактивира всички откриваеми външни функции (напр. стрелки за ходове), за да избегне засичане"]
+        "isUserscriptGhost": ["Призрачен скрипт", "Деактивира всички събираеми външни функции (напр. стрелки за ходове), за да избегне засичане"],
+        "useExternalChessEngine": ["Включено", "Е ли включен външният шахматен двигател"]
     },
     "translations": {
         "profileRemovalWarning": "Сигурни ли сте, че искате да премахнете този профил?\n\nТази операция не може да бъде отменена.",
@@ -178,7 +187,12 @@
         "excessiveTabChangeWarning": "Предупреждение: Открито е прекомерно превключване на раздели. Продължаващото превключване може да доведе до забрана.\n\nЗа да избегнете необходимостта да превключвате между раздели, направете едно от следните,\n- Направете два отделни прозореца един до друг\n- Показвайте ходовете на страницата (това е лесно откриваемо)\n- Активирайте TTS (Text to Speech)\n- Активирайте настройката за плаващ панел",
         "instanceConnectionTermination": "Инстанцията е прекратена поради загуба на връзка.\n\nНеочаквано? Посетете раздела, за да активирате A.C.A.S отново.",
         "calculationDepth": "Дълбочина",
-        "thankYouTranslator": "Благодарим на преводачите"
+        "thankYouTranslator": "Благодарим на преводачите",
+        "serverOpen": "Свързан със сървъра!",
+        "serverClose": "Не можах да се свържа със сървъра на външния шахматен двигател!\n\nМолю, инсталирайте/стартирайте сървъра, опитайте повторно...",
+        "websocketError": "Грешка на WebSocket:",
+        "unknownWebsocketError": "Неизвестна грешка, може би връзката е загубена?",
+        "noExternalEngineAnymore": "Предварително избраният ВЪНШЕН шахматен двигател вече не е достъпен. Изберете нов."
     },
     "contributors": ["ChatGPT"]
 }

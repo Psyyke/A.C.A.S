@@ -13,8 +13,6 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (**
 * Supports multiple move suggestions, move arrow markings, chess variants & fonts
 * Translated to 30+ languages
 
-<a href="https://liberapay.com/Haka/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
-
 > [!CAUTION]
 > Please be advised that the use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. The developers of A.C.A.S and related systems will NOT be held accountable for any consequences resulting from its use. We strongly advise to use A.C.A.S only in a controlled environment ethically.
 
@@ -141,6 +139,12 @@ Developing the userscript is easy, simply develop it as you'd any other userscri
 * [SnapDOM](https://github.com/zumerlab/snapdom) (*for DOM screenshots (e.g. turning the board into image)*)
 * [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) (*for drawing arrows on the GUI and the chess site chessboards*)
 * [CommLink](https://github.com/AugmentedWeb/CommLink) (*for cross-window communication between the GUI tab and chess sites*)
+* [Bootstrap Icons](https://getbootstrap.com/) (*for the icons*)
+* [Mona Sans](https://github.com/github/mona-sans) (*GitHub's open-source variable font*)
+* [Rubik](https://fonts.google.com/specimen/Rubik) (*a sans-serif font family by Hubert & Fischer*)
+* [IBM Plex Sans](https://github.com/IBM/plex) (*IBM's official open-source typeface*)
+* [ws](https://github.com/websockets/ws) (*WebSocket library for the A.C.A.S server*)
+* [NW.js](https://nwjs.io/) (*the framework that allows A.C.A.S to be a desktop application*)
 
 ## GUI Overview
 

@@ -32,7 +32,7 @@
 		gtag("config", "GTM-5499BQ4B");
 		</script>
 		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
-		<link rel="modulepreload" href="./index.js">
+		<link rel="modulepreload" href="./assets/js/init.js">
 		<link rel="modulepreload" href="./assets/js/instanceManager.js">
 		<link rel="modulepreload" href="./assets/js/AcasInstance.js">
 		<link rel="modulepreload" href="./assets/js/MoveEvaluator.js">
@@ -47,15 +47,17 @@
 		<link rel="modulepreload" href="./assets/js/instance/setupEnvironment.js">
 		<link rel="modulepreload" href="./assets/js/instance/engineStartNewGame.js">
 		<link rel="modulepreload" href="../assets/libraries/chessgroundx/chessground.js">
-		<script type="module" src="../assets/js/acas-load-modules.js"></script>
-		<script src="./assets/js/globals.js"></script>
+		<link rel="modulepreload" href="./assets/js/AcasWebSocketClient.js">
+		<link rel="modulepreload" href="./assets/js/gui.js">
 		<script src="../assets/libraries/CommLink/CommLink.js"></script>
-		<script src="../assets/js/acas-userscript-bridge.js"></script>
-		<script src="../assets/js/acas-i18n-processor.js"></script>
-		<script src="../assets/js/acas-user-security-system.js"></script>
 		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
 		<script src="../assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
 		<script src="../assets/libraries/SnapDOM/snapdom.min.js"></script>
+		<script type="module" src="./assets/js/misc/exposeModules.js"></script>
+		<script src="./assets/js/globals.js"></script>
+		<script src="./assets/js/misc/userscriptBridge.js"></script>
+		<script src="./assets/js/misc/translationProcessor.js"></script>
+		<script src="./assets/js/misc/userSecuritySystem.js"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
 		<link rel="stylesheet" type="text/css" href="../assets/css/chessground.base.css"/>
 		<link rel="stylesheet" type="text/css" href="../assets/css/chessground.brown.css"/>
@@ -108,7 +110,7 @@
 					<a class="install-open-home-btn" href="../install" title="Open Documentation">( ╹ -╹)?</a>
 				</div>
 				<div id="install-buttons-inner-container">
-					<a href="https://violentmonkey.github.io/get-it/" class="install-notification-btn violentmonkey-btn" target="_about">Get Violentmonkey</a>
+					<a href="https://www.tampermonkey.net/" class="install-notification-btn tampermonkey-btn" target="_about">Tampermonkey</a>
 					<a href="https://greasyfork.org/en/scripts/459137" class="install-notification-btn install-userscript-btn" target="_about">Install Userscript</a>
 				</div>
 			</div>
@@ -124,7 +126,7 @@
 		<!-- ACAS HEADER CONTAINER-->
 		<div id="acas-header">
 			<a id="acas-logo" href="../" target="_blank">
-				<img id="acas-logo-img" src="../assets/images/grey-logo.png">
+				<img id="acas-logo-img" src="../assets/images/logo.png">
 				<div id="acas-logo-text-container">
 					<div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">V2</div></div>
 					<div id="acas-logo-secondary">Chess Assistance</div>
@@ -145,7 +147,7 @@
 					<a class="header-social-button github-button acas-fancy-button" href="https://github.com/Psyyke/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
 						<i class="bi bi-github"></i>
 					</a>
-					<a class="header-social-button affiliate-button acas-fancy-button" href="../contributing" target="_blank" title="We really got A.C.A.S theme song before GTA 6">
+					<a class="header-social-button affiliate-button acas-fancy-button" href="../contributing" target="_blank" title="Support A.C.A.S development">
 						<i class="bi bi-heart-fill"></i>
 					</a>
 				</div>
@@ -206,8 +208,39 @@
 						</div>
 					</div>
 				</div>
+				<div id="user-stats-container">
+					<div class="user-stat" data-key="engineCalculations">
+						<h5 data-translation-stat-ec>Engine Calculations</h5>
+						<p>0</p>
+					</div>
+					<div class="user-stat" data-key="createdInstances">
+						<h5 data-translation-stat-ci>Created instances</h5>
+						<p>0</p>
+					</div>
+					<div class="user-stat" data-key="minutesUsed">
+						<h5 data-translation-stat-am>Active minutes</h5>
+						<p>0</p>
+					</div>
+				</div>
 			</div>
 		</div>
+
+		<dialog id="begging-floaty">
+			<div class="floaty-container">
+				<section class="floaty-header">
+					<div class="title">
+						<h1 data-translation-begging-title>Thank you!</h1>
+						<p data-translation-begging-subtitle>You seem to like A.C.A.S :)</p>
+					</div>
+				</section>
+				<section class="floaty-body">
+					<p data-translation-begging-text>Developing A.C.A.S takes a lot of time! Hopefully this work has been valuable to you, and you've enjoyed using it!</p>
+					<p><span data-translation-begging-text-2>You've used A.C.A.S for</span> <span><b>54.3</b></span> <span data-translation-begging-text-3>hours</span>. <span data-translation-begging-text-4>That's respectable. Would you be interested in donating? We support Monero,</span></p>
+					<a href="monero:85gtuipg7CgXgWLgnPyQUy3babkJXEhRRP3JtZfBWBhPR2TrJaNwSgKVQ9UkeVW7sFS33Dpgj2B5iajtyxcEbJNDC2SUdNY"><img alt="Donate using Monero" src="../assets/images/supportus.png"></a>
+					<small>monero:85gtuipg7CgXgWLgnPyQUy3babkJXEhRRP3JtZfBWBhPR2TrJaNwSgKVQ9UkeVW7sFS33Dpgj2B5iajtyxcEbJNDC2SUdNY</small>
+				</section>
+			</div>
+		</dialog>
 		
 		<!-- ACAS SETTINGS CONTAINER-->
 		<div id="acas-settings-container">
@@ -236,18 +269,13 @@
 			<div id="userscript-info-small"></div>
 			<div id="setting-container">
 				<div id="main-setting-panel">
-					<div id="profile-panel">
-						<div id="delete-profile-button" class="control-panel-btn no-select acas-fancy-button" title="Delete Profile">🔥</div>
-						<div id="chess-engine-profile-dropdown" class="wrap dropdown-input custom-input">
-							<div><div class="input-title">Chess Engine Profiles</div>
-							<div class="input-subtitle">Multiple profiles can be active at the same time!</div></div><div class="dropdown-input-container">
-							<input class="wide-text-input" type="text" additional-type="dropdown" data-no-profile="true" data-key="chessEngineProfile" data-default-value="default" placeholder="Default"><div class="dropdown-icon"></div>
-							<div class="dropdown-list-container reversed-dropdown-list">
-								<div id="add-new-profile-button" class="dropdown-item">( <span class="text-content">Add New</span> )</div>
-								<div class="dropdown-item" data-value="default">Default Profile</div>
-							</div>
+					<div id="chess-engine-profile-tabs" class="custom-input tabs-input">
+						<input class="hidden" type="text" data-no-profile="true" data-key="chessEngineProfile" data-default-value="default" placeholder="Default">
+						<div class="tabs-list-container">
+							<div id="add-new-profile-button">+</div>
 						</div>
-					</div></div>
+					</div>
+					
 					<div id="settings-navbar-subtitle">Settings affect every instance</div>
 					<div id="settings-panels">
 						<div class="setting-panel">
@@ -298,7 +326,10 @@
 																Maia 2 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(91MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item requires-sab" data-value="lc0">
-																Lc0<span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(900KB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="unstable-engine-tag list-tag">Unstable</span>
+																Lc0<span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(900KB)</span> <span class="realistic-engine-tag list-tag">Realistic</span>
+																</div>
+																<div class="dropdown-item" data-value="lozza-5">
+																Lozza 5 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(400KB)</span>
 																</div>
 																<div class="dropdown-item force-hidden" data-value="acas-fusion">
 																Fusion α<span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(>15MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span>
@@ -307,22 +338,27 @@
 																Stockfish 11 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(4MB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-8">
-																Stockfish 8 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(1MB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
+																Stockfish 8 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(1MB)</span> <span class="needs-fixing-engine-tag list-tag" data-translation-needs-fixing-tag="">Needs fixing</span>
 																</div>
-																<div class="dropdown-item" data-value="lozza-5">
-																Lozza 5 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(400KB)</span> <span class="unstable-engine-tag list-tag">Unstable</span>
-																</div>
-																<div class="dropdown-item requires-sab" data-value="stockfish-17-wasm">
-																Stockfish 17.1 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="needs-fixing-engine-tag list-tag" data-translation-needs-fixing-tag>Needs fixing</span> <span class="engine-size-tag list-tag">(79MB)</span>
-																</div>				  
 															</div>
 														</div>
 													</div>
 												</div>
 
-												<div class="setting-panel">
+												<div class="setting-panel external-engine-setting-panel">
 													<div class="setting-panel-title" data-translation-external-engine>External Engine</div>
-													<p data-translation-todo-text>To be developed...</p>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Enabled</div>
+														<div class="input-subtitle">Is the external engine enabled</div></div><div class="checkbox-container">
+														<input type="checkbox" data-engine-setting="true" data-key="useExternalChessEngine" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+													</div>
+													<div id="external-engine-dropdown" class="dropdown-input dropdown-input-special">
+														<div class="dropdown-input-container">
+															<input disabled type="text" additional-type="dropdown" data-key="externalChessEngine" data-default-value="" placeholder="None"><div class="dropdown-icon"></div>
+															<div class="dropdown-list-container hidden" style="height: fit-content; max-height: 300px;"></div>
+															<p id="install-acas-server-text"><a href="/A.C.A.S/usage/#external" target="_blank"><span data-translation-external-engine-2>Install the A.C.A.S server</span></a> <span data-translation-external-engine-3>to use external engines</span></p>
+														</div>
+													</div>
+													<p>This is a <b>BETA</b> (work in progress) feature!</p>
 												</div>
 
 												<a target="_blank" href="../usage/" data-translation-more-engines>More engines might be available with a different launch mode.</a>
@@ -330,6 +366,50 @@
 										</div>
 									</dialog>
 								</div>
+							</div>
+							<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO</div>
+								<div class="input-subtitle">Higher number, stronger engine</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
+								    <dialog id="elo-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header">
+												<div class="title">
+													<h1 data-translation-adelo-title>Advanced Elo</h1>
+													<p data-translation-adelo-subtitle>Settings for engine behaviour fine tuning</p>
+												</div>
+												<div class="floaty-buttons">
+													<button class="floaty-close-btn acas-fancy-button">💾</button>
+												</div>
+											</section>
+											<section class="floaty-body">
+												<div class="checkbox-input custom-input"><div><div class="input-title">Enable</div>
+													<div class="input-subtitle">Enable the advanced elo settings</div></div><div class="checkbox-container">
+													<input type="checkbox" data-key="enableAdvancedElo" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+												</div>
+												<div id="basic-advanced-settings-panel" class="setting-panel">
+													<div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Depth (1 - 500)</div>
+														<div class="input-subtitle">How deep will the engine calculate</div></div>
+														<input type="textfield" data-key="advancedEloDepth" data-default-value="1" data-between="1-500" placeholder="1">
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Search Nodes</div>
+														<div class="input-subtitle">More nodes means more thinking of the move by the engine</div></div>
+														<input type="textfield" data-key="engineNodes" data-default-value="0" data-between="0-99999999" placeholder="0">
+													</div>
+												</div>
+												<div id="dynamic-setting-panel" class="setting-panel">
+													<div id="dynamic-engine-settings">
+														<p id="des-no-result-text" class="hidden">Some settings are parsed dynamically from the engine's UCI output. Please open a chess board to start your engine and load the dynamic settings.</p>
+													</div>
+												</div>
+
+												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
+											</section>
+										</div>
+									</dialog>
+								</div>
+								<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
 							</div>
 							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
 								<a href="../usage/" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
@@ -358,7 +438,7 @@
 								<div class="input-subtitle">More nodes means more thinking of the move by the engine</div></div>
 								<input type="textfield" data-key="engineNodes" data-default-value="1" data-between="1-99999999">
 							</div>
-							<div id="chess-variant-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Chess Variant</div>
+							<div id="chess-variant-dropdown" class="dropdown-input custom-input hidden"><div><div class="input-title">Chess Variant</div>
 								<a href="../usage/" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
 								<input disabled type="text" additional-type="dropdown" data-key="chessVariant" data-default-value="Chess" placeholder="Chess"><div class="dropdown-icon"></div>
 								<div class="dropdown-list-container"></div>
@@ -367,67 +447,9 @@
 								<div class="input-subtitle">Make engine use Chess960 chess variant</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 							</div>
-							<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO</div>
-								<div class="input-subtitle">Higher number, stronger engine</div></div>
-								<div class="floaty-wrapper">
-									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
-								    <dialog id="elo-floaty">
-										<div class="floaty-container">
-											<section class="floaty-header">
-												<div class="title">
-													<h1 data-translation-adelo-title>Advanced Elo</h1>
-													<p data-translation-adelo-subtitle>Settings for engine behaviour fine tuning</p>
-												</div>
-												<div class="floaty-buttons">
-													<button class="floaty-close-btn acas-fancy-button">💾</button>
-												</div>
-											</section>
-											<section class="floaty-body">
-												<div class="checkbox-input custom-input"><div><div class="input-title">Enable</div>
-													<div class="input-subtitle">Enable the advanced elo settings</div></div><div class="checkbox-container">
-													<input type="checkbox" data-key="enableAdvancedElo" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-												</div>
-												<div class="setting-panel">
-													<div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
-													<div class="textfield-input custom-input"><div><div class="input-title">Elo (1320 - 3190)</div>
-														<div class="input-subtitle">Engine tries to play at this level</div></div>
-														<input type="textfield" data-key="advancedElo" data-default-value="1500" data-between="1320-3190">
-													</div>
-													<div class="textfield-input custom-input"><div><div class="input-title">Depth (1 - 500)</div>
-														<div class="input-subtitle">How deep will the engine calculate</div></div>
-														<input type="textfield" data-key="advancedEloDepth" data-default-value="2" data-between="1-500">
-													</div>
-													<div class="textfield-input custom-input"><div><div class="input-title">Skill Level (0 - 40)</div>
-														<div class="input-subtitle">Sets the skill level of the engine</div></div>
-														<input type="textfield" data-key="advancedEloSkill" data-default-value="15" data-between="0-40">
-													</div>
-													<div class="textfield-input custom-input"><div><div class="input-title">Threads (1 - 32)</div>
-														<div class="input-subtitle">Sets how many threads a multithreaded engine will use</div></div>
-														<input type="textfield" data-key="advancedEloThreads" data-default-value="5" data-between="1-32">
-													</div>
-													<div class="textfield-input custom-input"><div><div class="input-title">Hash (1 - 33554432MB)</div>
-														<div class="input-subtitle">Memory limit of the hashtable</div></div>
-														<input type="textfield" data-key="advancedEloHash" data-default-value="1" data-between="1-33554432">
-													</div>
-												</div>
-												<div class="setting-panel">
-													<div class="setting-panel-title" data-translation-not-supported-well>Not supported well</div>
-													<div class="textfield-input custom-input"><div><div class="input-title">Maximum Error (0 - 1000)</div>
-														<div class="input-subtitle">(No engines seem to support this)</div></div>
-														<input type="textfield" data-key="advancedEloMaxError" data-default-value="0" data-between="0-1000">
-													</div>
-													<div class="textfield-input custom-input"><div><div class="input-title">Probability (0 - 1000)</div>
-														<div class="input-subtitle">(No engines seem to support this)</div></div>
-														<input type="textfield" data-key="advancedEloProbability" data-default-value="0" data-between="0-1000">
-													</div>
-												</div>
-
-												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
-											</section>
-										</div>
-									</dialog>
-								</div>
-								<input type="textfield" data-key="engineElo" data-default-value="1500" data-between="500-3200">
+							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
+								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
 							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions</div>
 								<div class="input-subtitle">How many arrows will show up</div></div>
@@ -596,10 +618,6 @@
 								<div class="input-subtitle">Show the move suggestions after this time</div></div>
 								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
 							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
-								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Moves On Demand</div>
 								<div class="input-subtitle">Calculates moves for pieces you interact with</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="movesOnDemand" data-default-value="false"><div class="checkbox-fill">✓</div></div>
@@ -731,8 +749,63 @@
 								</div>
 							</dialog>
 						</div>
-						<div class="checkbox-container"><input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✓</div></div>
+						<div class="checkbox-container"><input type="checkbox" data-key="pip" data-no-profile="true" data-default-value="true"><div class="checkbox-fill">✓</div></div>
 					</div>
+					<div id="restart-keybind-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Restart Trigger</div>
+						<div class="input-subtitle">Restarts all instances, useful if they crash</div></div><div class="dropdown-input-container">
+						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="instanceRestartTriggerCode" data-default-value="KeyR" placeholder="Key R"><div class="dropdown-icon"></div>
+						<div class="dropdown-list-container">
+							<div class="dropdown-item" data-value="InteractLongPress1">Mouse Press (1 s)</div>
+							<div class="dropdown-item" data-value="InteractLongPress2">Mouse Press (2 s)</div>
+							<div class="dropdown-item" data-value="InteractLongPress3">Mouse Press (3 s)</div>
+							<div class="dropdown-item" data-value="InteractDoubleClick">Double Click</div>
+							<div class="dropdown-item" data-value="KeyA">A</div>
+							<div class="dropdown-item" data-value="KeyB">B</div>
+							<div class="dropdown-item" data-value="KeyC">C</div>
+							<div class="dropdown-item" data-value="KeyD">D</div>
+							<div class="dropdown-item" data-value="KeyE">E</div>
+							<div class="dropdown-item" data-value="KeyF">F</div>
+							<div class="dropdown-item" data-value="KeyG">G</div>
+							<div class="dropdown-item" data-value="KeyH">H</div>
+							<div class="dropdown-item" data-value="KeyI">I</div>
+							<div class="dropdown-item" data-value="KeyJ">J</div>
+							<div class="dropdown-item" data-value="KeyK">K</div>
+							<div class="dropdown-item" data-value="KeyL">L</div>
+							<div class="dropdown-item" data-value="KeyM">M</div>
+							<div class="dropdown-item" data-value="KeyN">N</div>
+							<div class="dropdown-item" data-value="KeyO">O</div>
+							<div class="dropdown-item" data-value="KeyP">P</div>
+							<div class="dropdown-item" data-value="KeyQ">Q</div>
+							<div class="dropdown-item" data-value="KeyR">R</div>
+							<div class="dropdown-item" data-value="KeyS">S</div>
+							<div class="dropdown-item" data-value="KeyT">T</div>
+							<div class="dropdown-item" data-value="KeyU">U</div>
+							<div class="dropdown-item" data-value="KeyV">V</div>
+							<div class="dropdown-item" data-value="KeyW">W</div>
+							<div class="dropdown-item" data-value="KeyX">X</div>
+							<div class="dropdown-item" data-value="KeyY">Y</div>
+							<div class="dropdown-item" data-value="KeyZ">Z</div>
+							<div class="dropdown-item" data-value="Digit0">0</div>
+							<div class="dropdown-item" data-value="Digit1">1</div>
+							<div class="dropdown-item" data-value="Digit2">2</div>
+							<div class="dropdown-item" data-value="Digit3">3</div>
+							<div class="dropdown-item" data-value="Digit4">4</div>
+							<div class="dropdown-item" data-value="Digit5">5</div>
+							<div class="dropdown-item" data-value="Digit6">6</div>
+							<div class="dropdown-item" data-value="Digit7">7</div>
+							<div class="dropdown-item" data-value="Digit8">8</div>
+							<div class="dropdown-item" data-value="Digit9">9</div>
+							<div class="dropdown-item" data-value="Space">Space</div>
+							<div class="dropdown-item" data-value="Enter">Enter</div>
+							<div class="dropdown-item" data-value="Tab">Tab</div>
+							<div class="dropdown-item" data-value="Backspace">Backspace</div>
+							<div class="dropdown-item" data-value="Escape">Escape</div>
+							<div class="dropdown-item" data-value="ArrowUp">Arrow Up</div>
+							<div class="dropdown-item" data-value="ArrowDown">Arrow Down</div>
+							<div class="dropdown-item" data-value="ArrowLeft">Arrow Left</div>
+							<div class="dropdown-item" data-value="ArrowRight">Arrow Right</div>
+						</div>
+					</div></div>
 					<div class="dropdown-input custom-input"><div class="input-title">Chess Font</div><div class="dropdown-input-container">
 						<input type="text" additional-type="dropdown" data-no-profile="true" data-key="chessFont" data-default-value="staunty" placeholder="Merida"><div class="dropdown-icon"></div>
 						<div class="dropdown-list-container">
@@ -782,9 +855,7 @@
 
 		<div id="board-drawings"></div>
 
-		<script src="../assets/js/acas-toast.js"></script>
-		<script src="../assets/js/acas-backend-gui-pip.js"></script>
-		<script src="../assets/js/acas-backend-gui.js?new=true"></script>
-		<script type="module" src="index.js"></script>
+		<script src="./assets/js/misc/toastMessage.js"></script>
+		<script type="module" src="./assets/js/init.js"></script>
 	</body>
 </html>

@@ -1,7 +1,7 @@
 import MoveEvaluator from '../MoveEvaluator.js';
 
 export default async function renderFeedback(currentFen) {
-    const profiles = await getProfiles();
+    const profiles = await GET_PROFILES();
 
     const display = async (from, to, cp, category, label, profileName) => {
         clearFeedback(profileName);
@@ -71,10 +71,10 @@ export default async function renderFeedback(currentFen) {
         const playerColor = await this.getPlayerColor();
 
         if(isChangeLogical && lastFen && currentFen) {
-            const moveObj = extractMoveFromBoardFen(lastFen, currentFen);
+            const moveObj = EXTRACT_MOVE_FROM_FEN(lastFen, currentFen);
             const from = moveObj.from,
-                    to = moveObj.to,
-                    pieceColor = moveObj.color;
+                  to = moveObj.to,
+                  pieceColor = moveObj.color;
             const isPlayerPiece = playerColor === pieceColor;
             const shouldReturnPlayerFeedbackDisabled = isPlayerPiece && !enablePlayerFeedback && enableEnemyFeedback;
             const shouldReturnEnemyFeedbackDisabled = !isPlayerPiece && enablePlayerFeedback && !enableEnemyFeedback;
@@ -83,7 +83,7 @@ export default async function renderFeedback(currentFen) {
             let fromFen = lastFen;
             
             if(shouldReturnPlayerFeedbackDisabled || shouldReturnEnemyFeedbackDisabled) return;
-            if(shouldReverseFen) fromFen = reverseFenPlayer(fromFen);
+            if(shouldReverseFen) fromFen = REVERSE_FEN_TURN(fromFen);
             if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
 
             this.MoveEval.eval([from, to], { 'fen' : fromFen, 'depth': feedbackEngineDepth }, resultObj => {

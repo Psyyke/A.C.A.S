@@ -16,8 +16,7 @@
         "#chess-engine-profile-dropdown .input-title": "Προφίλ Σκακιού",
         "#chess-engine-profile-dropdown .input-subtitle": "Πολλαπλά προφίλ μπορούν να είναι ενεργά ταυτόχρονα!",
         "#add-new-profile-button .text-content": "Προσθήκη Νέου",
-        "#chess-engine-profile-dropdown div[data-value=\"default\"]": "Προεπιλεγμένο Προφίλ",
-        "#settings-navbar-subtitle": "Οι ρυθμίσεις επηρεάζουν κάθε παράδειγμα",
+        ".tab-item[data-value=\"default\"] p": "Προεπιλεγμένο Προφίλ",
         ".engine-panel-title": "Μηχανή",
         ".visual-panel-title": "Οπτικό",
         ".audible-panel-title": "Ακουστικό",
@@ -75,6 +74,17 @@
         "*[data-translation-squares-text]": "Τετράγωνα",
         "*[data-translation-pieces-text]": "Κομμάτια",
         "*[data-translation-move-display-settings]": "Ρυθμίσεις προτάσεων κινήσεων",
+        "*[data-translation-begging-title]": "Ευχαριστώ!",
+        "*[data-translation-begging-subtitle]": "Φαίνεται ότι σου αρέσει το A.C.A.S :)",
+        "*[data-translation-begging-text]": "Η ανάπτυξη του A.C.A.S παίρει πολλή χρόνο! Ελπίζουμε ότι αυτή η δουλειά ήταν πολύτιμη για σένα και ότι απόλαυσες τη χρήση του!",
+        "*[data-translation-begging-text-2]": "Έχεις χρησιμοποιήσει το A.C.A.S για",
+        "*[data-translation-begging-text-3]": "ώρες",
+        "*[data-translation-begging-text-4]": "Αυτό είναι αξιοσέβαστο. Θα ήσουν ενδιαφερόμενος για δωρεά; Υποστηρίζουμε Monero,",
+        "*[data-translation-external-engine-2]": "Εγκαταστήστε τον εξυπηρετητή A.C.A.S",
+        "*[data-translation-external-engine-3]": "για χρήση εξωτερικών κινητήρων",
+        "*[data-translation-stat-ec]": "Υπολογισμοί κινητήρα",
+        "*[data-translation-stat-ci]": "Δημιουργημένες παρουσίες",
+        "*[data-translation-stat-am]": "Ενεργα λεπτά",
         ".stable-engine-tag": "Σταθερό",
         ".variants-engine-tag": "Παραλλαγές",
         ".realistic-engine-tag": "Ρεαλιστικό",
@@ -141,7 +151,8 @@
         "pipBoard": ["Εμφάνιση σκακιέρας", "Αντί μόνο κειμένου, εμφάνιση ολόκληρης της σκακιέρας"],
         "movesOnDemand": ["Κινήσεις Καταπεμύιτι", "Υπολογίζει κινήσεις για κομμάτια με τα οποία αλληλενδράεις"],
         "onlySuggestPieces": ["Μόνο Πρότεινε Κομμάτια", "Προτείνετε κομμάτια προς μετακίνηση αλλά δώστε καμία κίνηση"],
-        "isUserscriptGhost": ["Σενάριο-φάντασμα", "Απενεργοποιεί όλες τις ανιχνεύσιμες εξωτερικές λειτουργίες (π.χ. βέλη κινήσεων) για να αποφευχθεί ο εντοπισμός"]
+        "isUserscriptGhost": ["Σενάριο-φάντασμα", "Απενεργοποιεί όλες τις ανιχνεύσιμες εξωτερικές λειτουργίες (π.χ. βέλη κινήσεων) για να αποφευχθεί ο εντοπισμός"],
+        "useExternalChessEngine": ["Ενεργοποιημένο", "Είναι ενεργοποιημένη η εξωτερική μηχανή σκακιού"]
     },
     "translations": {
         "profileRemovalWarning": "Είσαι σίγουρος ότι θέλεις να αφαιρέσεις αυτό το προφίλ;\n\nΑυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
@@ -178,7 +189,12 @@
         "excessiveTabChangeWarning": "Προειδοποίηση: Ανιχνεύθηκε υπερβολική αλλαγή καρτελών. Η συνεχής αλλαγή μπορεί να οδηγήσει σε απαγόρευση.\n\nΓια να αποφύγεις την ανάγκη να αλλάξεις μεταξύ καρτελών, κάνε ένα από τα εξής,\n- Δημιούργησε δύο ξεχωριστά παράθυρα δίπλα-δίπλα\n- Εμφάνισε τις κινήσεις στην σελίδα (αυτό είναι εύκολα ανιχνεύσιμο)\n- Ενεργοποίησε το TTS (Text to Speech)\n- Ενεργοποίησε τη ρύθμιση του πλωτού πάνελ",
         "instanceConnectionTermination": "Η παραδείγματα τερματίστηκε λόγω απώλειας σύνδεσης.\n\nΑναπάντεχο; Επισκέψου την καρτέλα για να επαναδραστηριοποιήσεις το A.C.A.S.",
         "calculationDepth": "Βάθος",
-        "thankYouTranslator": "Ευχαριστούμε τους μεταφραστές"
+        "thankYouTranslator": "Ευχαριστούμε τους μεταφραστές",
+        "serverOpen": "Συνδέθηκε με τον διακομιστή!",
+        "serverClose": "Δεν ήταν δυνατή η σύνδεση στον διακομιστή εξωτερικής μηχανής σκακιού!\n\nΠαρακαλώ εγκαταστήστε/ξεκινήστε τον διακομιστή, προσπάθεια επανασύνδεσης...",
+        "websocketError": "Σφάλμα WebSocket:",
+        "unknownWebsocketError": "Άγνωστο σφάλμα, ίσως χάθηκε η σύνδεση;",
+        "noExternalEngineAnymore": "Η προηγουμένως επιλεγμένη ΕΞΩΤΕΡΙΚΗ μηχανή σκακιού δεν είναι πλέον διαθέσιμη. Επιλέξτε μια νέα."
     },
     "contributors": ["ChatGPT"]
 }
