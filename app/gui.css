@@ -164,7 +164,6 @@ cg-container {
     top: 0;
 	backdrop-filter: blur(10px);
 	border-bottom: 4px solid rgb(0 0 0 / 35%);
-	overflow-y: clip;
 }
 #acas-logo {
 	font-size: 30px;
@@ -187,11 +186,15 @@ cg-container {
 	cursor: pointer;
 }
 #acas-logo-img {
-    width: 150px;
+	width: 150px;
     position: absolute;
     opacity: 0.2;
     margin-left: -10px;
-    margin-top: 30px;
+    margin-top: -13px;
+    max-height: 110px;
+    overflow-y: clip;
+    object-fit: cover;
+    object-position: center top;
 }
 #acas-logo-text-container {
 	z-index: 1;
