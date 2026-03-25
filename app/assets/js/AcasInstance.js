@@ -464,7 +464,7 @@ export default class AcasInstance {
 
     setEngineSkillLevel(amount, profile) {
         if(typeof amount == 'number' && -20 <= amount && amount <= 20) {
-            this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${amount}`, profile);
+            this.sendMsgToEngine(`setoption name Skill Level value ${amount}`, profile);
         }
     }
 
