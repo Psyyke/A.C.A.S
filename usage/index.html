@@ -140,7 +140,7 @@
 
                     <h3>Having issues with the external server?</h3>
 
-                    <p>You might be unable to connect to the external server if you're using the <code>?sab=true</code> mode. Remove that parameter from the URL. Then, make sure your browser allows this website to use the "Local network" and "Apps on device" permissions.</p>
+                    <p>Make sure your browser allows this website to use the "Local network" and "Apps on device" permissions.</p>
 
                     <ol>
                         <li><strong>Google Chrome / Edge</strong>
@@ -171,7 +171,7 @@
                     <p class="tip">This setting is very important to know because it stops A.C.A.S from freezing, and makes the engine run faster! Those that do not want to use this can just create two browser windows next to each other, so that the A.C.A.S tab is visible, even if just a little bit, which also stops A.C.A.S tab from freezing.</p>
 
                     <h3 id="⚙️-chess-engine">⚙️ Chess Engine</h3>
-                    <p>The <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using <strong>Stockfish 17 Lite</strong> as its the fastest and basically strongest engine, although it does not play like a human and has a hard time playing badly. If you want to play chess variants, use <strong>Fairy Stockfish 14</strong>. You can access Lc0 and Fairy Stockfish engines via the <code>?sab=true</code> URL parameter. It enables SharedArrayBuffer required by those engines.</p>
+                    <p>The <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using <strong>Stockfish 17 Lite</strong> as its the fastest and basically strongest engine, although it does not play like a human and has a hard time playing badly. If you want to play chess variants, use <strong>Fairy Stockfish 14</strong>.</p>
                     <ul>
                         <li>Stockfish &lt;17 (The strongest gameplay)</li>
                         <li>Fairy Stockfish 14 (Chess variants)</li>
@@ -185,7 +185,7 @@
 
                     <h3 id="⚙️-chess-variant">⚙️ Chess Variant</h3>
                     <p class="tip">Most users do not play chess variants, <strong>you most likely do not need to change this nor the <a target="_blank" href="../app?shl=useChess960">Chess 960</a></strong>. If you happen to play a variant, A.C.A.S should automatically detect the chess variant you're playing if its supported.</p>
-                    <p>The <a target="_blank" href="../app?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_blank" href="../app?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized. If you happen to play variants, you need to use Fairy Stockfish <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a>. You can access it via <code>?sab=true</code>.</p>
+                    <p>The <a target="_blank" href="../app?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_blank" href="../app?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized. If you happen to play variants, you need to use Fairy Stockfish <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a>.</p>
                     
                     <h3 id="⚙️-engine-elo">⚙️ Engine Elo</h3>
                     <p>The <a target="_blank" href="../app?shl=engineElo">Engine Elo</a> setting controls how strong the engine plays (between 500-3200 ELO). Note that engines like Stockfish are <strong>very strong</strong>, playing way above human 3000 ELO. For that reason, making them play at low ELO (below 2000) might result in weird behaviour. The "Maia 2" engine is better suited for that.</p>
@@ -202,7 +202,7 @@
                     <p>Feel free to play around and try different things. If you notice something is not working, please understand that the dynamic nature of these settings causes bugs and not everything can be tested beforehand. If you're using a custom engine and encounter them, please feel free to report them to GitHub.</p>
             
                     <h3 id="⚙️-weights">⚙️ Weights</h3>
-                    <p>The <a target="_blank" href="../app?shl=lc0Weight">Lc0 Weights</a> setting determines how the Lc0 engine plays. The weight controls the engine's playing style, influencing the decisions it makes while playing. <strong>Maia weights</strong> have the ELO they're roughly playing at marked on them. The ELO and playing style of other weights is not known, but most of them are quite weak. You can access the Lc0 engine via <code>?sab=true</code>.</p>
+                    <p>The <a target="_blank" href="../app?shl=lc0Weight">Lc0 Weights</a> setting determines how the Lc0 engine plays. The weight controls the engine's playing style, influencing the decisions it makes while playing. <strong>Maia weights</strong> have the ELO they're roughly playing at marked on them. The ELO and playing style of other weights is not known, but most of them are quite weak.</p>
                     <p class="tip">Most weights A.C.A.S has, Maia specifically, are designed to only use 1 search node. It's fine that it goes just to depth 1. Using more than 1 search node might cause weird behavior.</p>
                     
                     <h3 id="⚙️-moves-on-external-site">⚙️ Moves On External Site</h3>

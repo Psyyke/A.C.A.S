@@ -4,6 +4,8 @@ import { updatePipData } from '../gui/pip.js';
 import { setDynamicOptionsReady } from '../gui/dynamicEngineOptions.js';
 
 export default async function engineMessageProcessor(msg, profile) {
+    msg = msg?.trim();
+
     const profileObj = this.pV[profile];
 
     if(!profileObj) {
@@ -67,7 +69,7 @@ export default async function engineMessageProcessor(msg, profile) {
     }
 
     if(msg.includes('info')) {
-        if(data?.multipv === '1' || ['lozza-5', 'lc0'].includes(await this.getEngineName(profile))) {
+        if(data?.multipv === '1' || ['lozza-5', 'lozza-9', 'lc0'].includes(await this.getEngineName(profile))) {
             if(data?.depth) {
                 const depthText = TRANS_OBJ?.calculationDepth ?? 'Depth';
                 const winningText = TRANS_OBJ?.winning ?? 'Winning';

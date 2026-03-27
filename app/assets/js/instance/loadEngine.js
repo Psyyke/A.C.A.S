@@ -182,31 +182,21 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         };
     }
 
-    function loadLozza() {
-        const lozza = new Worker('../app/assets/engines/Lozza/lozza-5-acas.js');
-        let lozza_loaded = false;
+    function loadLozza(version) {
+        const lozza = new Worker(`../app/assets/engines/Lozza/lozza-${version}.js`);
 
-        lozza.onmessage = async e => {
-            if(!lozza_loaded) {
-                lozza_loaded = true;
+        lozza.onmessage = e => processEngineMessage(e.data);
+        lozza.onerror = e => restartEngine('lozza-' + version, e);
 
-                this.engines.push({
-                    'type': profileChessEngine,
-                    'engine': (method, a) => lozza[method](...a),
-                    'sendMsg': msg => lozza.postMessage(msg),
-                    'worker': lozza,
-                    profileName
-                });
+        this.engines.push({
+            'type': profileChessEngine,
+            'engine': (method, a) => lozza[method](...a),
+            'sendMsg': msg => lozza.postMessage(msg),
+            'worker': lozza,
+            profileName
+        });
 
-                startGame.bind(this)();
-            } else if (e.data) {
-                processEngineMessage(e.data);
-            }
-        };
-
-        lozza.onerror = e => {
-            restartEngine.bind(this)('lozza-5', e);
-        };
+        startGame.bind(this)();
     }
 
     function loadMaia2() {
@@ -274,7 +264,11 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             break;
 
         case 'lozza-5':
-            loadLozza.bind(this)();
+            loadLozza.bind(this)(5);
+            break;
+
+        case 'lozza-9':
+            loadLozza.bind(this)(9);
             break;
 
         case 'lc0':
