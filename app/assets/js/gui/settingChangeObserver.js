@@ -7,7 +7,9 @@ import { setIsExternalEngineSettingActive } from './externalEngine.js';
 import { setProfileBubbleStatus } from './profiles.js';
 import { startPictureInPicture } from './pip.js';
 import { getInputValue } from './domInputs.js';
+import { initMediaSession } from './media.js';
 import { setThemeColorHex } from '../gui.js';
+
 
 const processedElems = [];
 
@@ -123,13 +125,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             break;
         case 'pip':
-            if(wasCalledByUpdateLoop) return;
-
-            if(value) startPictureInPicture();
-            else if(document.pictureInPictureElement) await document.exitPictureInPicture();
+            if(value && !document.pictureInPictureElement) startPictureInPicture();
+            else if(!value) initMediaSession();
 
             break;
         case 'pipBoard':
+            if(wasCalledByUpdateLoop) return;
+
             startPictureInPicture();
 
             break;

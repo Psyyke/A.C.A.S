@@ -51,6 +51,8 @@
 		<link rel="icon" type="image/x-icon" href="../favicon.ico"/>
 	</head>
 	<body>
+		<audio id="silence-audio" class="hidden" src="assets/audio/sound_of_silence.wav" autoplay loop controls></audio>
+
 		<!-- TOS CONTAINER-->
 		<div id="tos-container" class="hidden">
 			<div id="tos">
@@ -609,10 +611,6 @@
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👁️‍🗨️</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Ghost Script</div>
-								<div class="input-subtitle">Disable all detectable external functionality (e.g. move arrows) to avoid detection</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="isUserscriptGhost" data-default-value="false"><div class="checkbox-fill">✓</div></div>
-							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
 								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✓</div></div>
@@ -695,6 +693,10 @@
 				</div>
 				<div class="setting-panel">
 					<div class="setting-panel-title"><span class="misc-panel-title">Miscellaneous</span> ❔</div>
+					<div class="checkbox-input custom-input"><div><div class="input-title">Ghost Script</div>
+						<div class="input-subtitle">Disable all detectable external functionality (e.g. move arrows) to avoid detection</div></div><div class="checkbox-container">
+						<input type="checkbox" data-key="isUserscriptGhost" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✓</div></div>
+					</div>
 					<div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
 						<div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div>
 						<div class="floaty-wrapper">

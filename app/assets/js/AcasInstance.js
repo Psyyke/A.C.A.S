@@ -32,7 +32,7 @@ const configKeys = Object.freeze([
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
     'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth',
     'enableAdvancedElo', 'advancedEloDepth', 'moveAsFilledSquares',
-    'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost', 'externalChessEngine'
+    'movesOnDemand', 'onlySuggestPieces', 'externalChessEngine'
 ].reduce((o, k) => (o[k] = k, o), {}));
 
 export default class AcasInstance {

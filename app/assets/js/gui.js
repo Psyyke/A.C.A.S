@@ -146,7 +146,7 @@ async function updateUserscriptInfoText() {
     
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
-        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.0')) {
+        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.1')) {
             updateYourUserscriptElem.classList.remove('hidden');
         }
         

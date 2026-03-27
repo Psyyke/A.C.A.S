@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.0
+// @version     2.4.1
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -1860,14 +1860,14 @@ function isBoardDrawerNeeded() {
     const gP = config?.global?.['profiles'];
     const iP = config?.instance?.[commLinkInstanceID]?.['profiles'];
 
+    const isGhost = config?.global?.[configKeys.isUserscriptGhost];
+    if(isGhost) return false;
+
     function check(cfg) {
         const profiles = Object.keys(cfg);
 
         for(const profileName of profiles) {
             const profile = cfg[profileName];
-
-            const isGhost = profile[configKeys.isUserscriptGhost];
-            if(isGhost) return false;
 
             const externalMoves = profile[configKeys.displayMovesOnExternalSite];
             const renderingNeeded = profile[configKeys.renderOnExternalSite];

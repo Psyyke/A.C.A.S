@@ -1,4 +1,5 @@
 import { floatingPanelVideoElem, floatingFloaty, pipBoardInput } from './elementDeclarations.js';
+import { setMediaMetadata } from './media.js';
 
 export const pipData = {};
 const pipFontSizes = { large: 64, mlarge: 35, medium: 26, small: 18, esmall: 18 };
@@ -86,8 +87,6 @@ function updatePipContext() {
 }
 
 async function refreshPipView() {
-    if(!pipCanvas) return;
-
     const ctxQueue = [];
     const playerColor = pipData.playerColor,
           bestMove = pipData?.moveObjects?.[0],
@@ -100,20 +99,17 @@ async function refreshPipView() {
           tFrom = tMove?.player?.[0],
           tTo = tMove?.player?.[1];
 
-    if(bestMove) {
-        ctxQueue.push(['bestmove', from+to]);
-        pipProcessingBestMove = from+to;
-    }
+    const centipawnEval = pipData?.centipawnEval / 100;
+    const mediaTitle = from
+        ? `${from?.toUpperCase()} ➔ ${to?.toUpperCase()}`
+        : `Hold on, I'm thinking...`;
 
-    const isBoard = pipBoardInput.checked;
-    if(isBoard && bestMove) await renderPipBoards();
-
-    const headerWidth = pipCanvas.width - pipEvalBarWidth;
-    const noInstancesText = FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
-
+    let engineEvaluation = pipData?.eval;
     let progress = 0;
-    let engineEvaluation = pipData.eval;
 
+    if(!engineEvaluation && pipLastPipEval === null) engineEvaluation = 0.5;
+    else if(engineEvaluation) pipLastPipEval = engineEvaluation;
+    
     if((pipData.goalDepth && pipData.goalDepth < 100) || (pipData.depth === null)) {
         const depth = pipData.depth || pipData.goalDepth
 
@@ -124,8 +120,23 @@ async function refreshPipView() {
         progress = CALC_TIME_PROGRESS(pipData.startTime, pipData.movetime);
     }
 
-    if(!engineEvaluation && pipLastPipEval === null) engineEvaluation = 0.5;
-    else if(engineEvaluation) pipLastPipEval = engineEvaluation;
+    setMediaMetadata({
+        title: mediaTitle,
+        artist: `Depth ${pipData.depth} (${(progress * 100)?.toFixed(0)}%) | Eval ${centipawnEval?.toFixed(2)}`
+    });
+
+    if(!pipCanvas) return; // do not continue if pip is not enabled
+
+    if(bestMove) {
+        ctxQueue.push(['bestmove', from+to]);
+        pipProcessingBestMove = from+to;
+    }
+
+    const isBoard = pipBoardInput.checked;
+    if(isBoard && bestMove) await renderPipBoards();
+
+    const headerWidth = pipCanvas.width - pipEvalBarWidth;
+    const noInstancesText = FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
 
     // CLEAR CANVAS
     ctxQueue.push(['clearRect', [0, 0, pipCanvas.width, pipCanvas.height]]);
@@ -233,9 +244,6 @@ async function refreshPipView() {
             [pipCanvas.width - pipEvalBarWidth, 0, pipEvalBarWidth, pipCanvas.height * (1 - engineEvaluation)]
         ]);
     }
-
-    // EVAL TEXT
-    const centipawnEval = pipData?.centipawnEval / 100;
 
     if(!pipData?.mate && centipawnEval) {
         let yPosition =
