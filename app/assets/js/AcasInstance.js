@@ -192,7 +192,7 @@ export default class AcasInstance {
 
             switch(statusType) {
                 case 'engineDeathCertificate':
-                    this.notifyAcasAboutEngineClosing(fen, profileName);
+                    this.notifyAcasAboutEngineClosing(profileName);
 
                     break;
             }
@@ -262,13 +262,12 @@ export default class AcasInstance {
         this.loadEngine(profileName);
     }
 
-    notifyAcasAboutEngineClosing(fen, profileName) {
+    notifyAcasAboutEngineClosing(profileName) {
         this.engineMessageProcessor('error Engine closed!', profileName);
 
-        if(fen && profileName) {
+        if(profileName) {
             setTimeout(() => {
-                const calculationObj = this.pV[profileName].pendingCalculations.find(x => x.fen === fen);
-                calculationObj.finished = true;
+                this.pV[profileName].pendingCalculations.forEach(x => x.finished = true);
             }, 25);
         }
     }
