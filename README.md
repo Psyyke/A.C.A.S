@@ -32,6 +32,7 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (**
 * No anti-features on userscript
 
 <details>
+  
 <summary>Used Libraries ❤️</summary>
 
 | Library | Description | License |
@@ -63,12 +64,13 @@ There might be more, please let us know if anything is missing, thank you!
 
 </details>
 
-If you're having issues, please visit the [troubleshoot](https://psyyke.github.io/A.C.A.S/troubleshoot/) page.
-Developers can visit the [development](https://psyyke.github.io/A.C.A.S/development/) page.
+![281683276-af4af26b-d5e9-4502-ac6a-8921d34c3cfa](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318)
 
 | A.C.A.S (Tab #1)    | Chess Website (Tab #2)  |
 |----------------------|----------------------|
 | ![A.C.A.S Tab](https://github.com/user-attachments/assets/4d5d80ac-3a1a-4529-889d-64403dd2adbe) | ![Lichess.org Tab](https://github.com/user-attachments/assets/97cb9650-19d5-41dc-bfbf-f071ee39eb92) |
 | The engine runs on a completely different tab than the chess game page, completely isolated from it. The site cannot block the usage of A.C.A.S. | A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink) and the userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If "Display Moves On External Site" setting is activated!*) |
+
+If you're having issues, please visit the [troubleshoot](https://psyyke.github.io/A.C.A.S/troubleshoot/) page. Developers can visit the [development](https://psyyke.github.io/A.C.A.S/development/) page. Thank you!
 
 <img width="1903" height="1676" alt="acas" src="https://github.com/user-attachments/assets/cbb510f0-5083-4a6b-9bd5-a7b91d390e68" />
