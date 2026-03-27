@@ -154,19 +154,6 @@ function startCommLink() {
     });
 }
 
-async function ensureSabParam() {
-    const url = new URL(window.location.href);
-    const params = new URLSearchParams(url.search);
-    const hasSabParam = params.has('sab');
-
-    if(!hasSabParam && await IS_ENGINE_INCOMPATIBLE(null, null, true)) {
-        params.set('sab', 'true');
-        window.location.href = `${url.origin}${url.pathname}?${params.toString()}`;
-    } else if(!hasSabParam && window?.SharedArrayBuffer) {
-        location.reload();
-    }
-}
-
 async function attemptStarting() {
     if(started)
         return;
@@ -204,7 +191,6 @@ async function attemptStarting() {
     }
 }
 
-ensureSabParam();
 await attemptStarting();
 
 const userscriptSearchInterval = SET_INTERVAL_ASYNC(async () => {

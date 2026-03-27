@@ -197,6 +197,7 @@ cg-container {
     overflow-y: clip;
     object-fit: cover;
     object-position: center top;
+	filter: grayscale(0.5);
 }
 #acas-logo-text-container {
 	z-index: 1;

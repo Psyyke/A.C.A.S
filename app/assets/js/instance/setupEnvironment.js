@@ -114,16 +114,6 @@ export default async function setupEnvironment(startpos, dimensions) {
                 </div>
                 <div class="chessground-x"></div>
             </div>
-            <div class="gas-container" style="display:${window?.SharedArrayBuffer ? 'none' : 'none'};">
-                <div class="gas" style="width:${instanceWidth};">
-                    <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="ca-pub-7248123202489335"
-                    data-ad-slot="4278138469"
-                    data-ad-format="auto"
-                    data-full-width-responsive="true"></ins>
-                </div>
-            </div>
             <div><div class="pseudoground-x"></div></div>
             `;
 
@@ -243,9 +233,6 @@ export default async function setupEnvironment(startpos, dimensions) {
             const msg = TRANS_OBJ?.emptyBoardChesscomWarning ?? 'Oh, the board seems to be empty. This is most likely caused by the site displaying the board as an image which A.C.A.S cannot parse.\n\nPlease disable "Piece Animations: Arcade" on Chess.com settings! (Set to "None")';
             toast.error(msg);
         }
-
-        // Disabling this for now as it's a bit annoying, I'd rather get donations than put ads anyway.
-        //(adsbygoogle = window.adsbygoogle || []).push({});
 
         this.startInterfacePolling();
 

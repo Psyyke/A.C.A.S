@@ -1,37 +1,16 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>App / A.C.A.S</title>
+		<title>A.C.A.S</title>
 		<link rel="stylesheet" type="text/css" href="gui.css"/>
 		<meta charset="UTF-8">
 		<meta name="description" content="Real-time chess assistant and move suggestions for Chess.com, Lichess, and more. Works on Android, Windows, and on so many other devices!">
 		<meta name="keywords" content="chess gui, chess assistant dashboard, stockfish settings, lichess helper, chess.com helper, board overlays, chess variants, engine elo">
-		<meta property="og:title" content="App / A.C.A.S">
+		<meta property="og:title" content="Advanced Chess Assist">
 		<meta property="og:description" content="A.C.A.S allows you to configure engines, visuals, and other assistance features for real‑time chess assistance on popular sites such as Chess.com.">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="coi-serviceworker.js"></script>
 		<link rel="manifest" href="manifest.json" />
-		<script>
-		const s = document.createElement('script');s.src='coi-serviceworker.js';new URLSearchParams(location.search).get('sab')==='true'?document.head.appendChild(s):'serviceWorker'in navigator&&navigator.serviceWorker.getRegistrations().then(r=>r.forEach(e=>e.unregister()));
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		// Deny personalization by default <3
-        gtag('consent', 'default', {
-            'ad_storage': 'denied',
-            'ad_user_data': 'denied',
-            'ad_personalization': 'denied',
-            'analytics_storage': 'denied',
-            'wait_for_update': 500
-        });
-		</script>
-		<script defer type="text/javascript" src="../assets/libraries/klaro/config.js"></script>
-		<script defer type="text/javascript" src="../assets/libraries/klaro/klaro.js"></script>
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5499BQ4B');</script>
-        <script>
-		gtag("js", new Date);
-		gtag('set', 'url_passthrough', true);
-		gtag("config", "GTM-5499BQ4B");
-		</script>
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
 		<link rel="modulepreload" href="./assets/js/init.js">
 		<link rel="modulepreload" href="./assets/js/instanceManager.js">
 		<link rel="modulepreload" href="./assets/js/AcasInstance.js">
@@ -72,8 +51,6 @@
 		<link rel="icon" type="image/x-icon" href="../favicon.ico"/>
 	</head>
 	<body>
-		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-
 		<!-- TOS CONTAINER-->
 		<div id="tos-container" class="hidden">
 			<div id="tos">
@@ -358,7 +335,7 @@
 															<p id="install-acas-server-text"><a href="/A.C.A.S/usage/#external" target="_blank"><span data-translation-external-engine-2>Install the A.C.A.S server</span></a> <span data-translation-external-engine-3>to use external engines</span></p>
 														</div>
 													</div>
-													<p>This is a <b>BETA</b> (work in progress) feature!</p>
+													<p data-translation-experimental-warning>This feature is experimental, it might not work well!</p>
 												</div>
 
 												<a target="_blank" href="../usage/" data-translation-more-engines>More engines might be available with a different launch mode.</a>

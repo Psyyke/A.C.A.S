@@ -1005,24 +1005,3 @@ function GET_UNIQUE_ID() {
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     )
 }
-
-async function IS_ENGINE_INCOMPATIBLE(engineName, profileName, skipSabCheck) {
-    if(engineName === 'maia2') return window?.SharedArrayBuffer ? true : false;
-
-    async function check(pN) {
-        const profileObj = await GET_PROFILE(pN);
-        const profileChessEngine = engineName || profileObj.config.chessEngine;
-
-        return (skipSabCheck || !window?.SharedArrayBuffer) && ENGINES_REQUIRING_SAB.includes(profileChessEngine);
-    }
-
-    if(profileName) return await check(profileName);
-
-    const profiles = await GET_PROFILES();
-
-    for(const profile of profiles.filter(p => p.config.engineEnabled)) {
-        const profileName = profile.name;
-
-        return await check(profileName);
-    }
-}

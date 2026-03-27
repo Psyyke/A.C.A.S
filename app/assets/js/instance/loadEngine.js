@@ -28,15 +28,6 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         }
     };
 
-    if(await IS_ENGINE_INCOMPATIBLE(profileChessEngine, profileName)) {
-        toast.warning(`The engine "${profileChessEngine}" you have selected on profile "${profileName}" is incompatible with the mode A.C.A.S was launched in.` 
-            + '\n\nPlease change the engine on the settings.', 3e4);
-
-        setProfileBubbleStatus('warning', profileName, 'Incompatible engine for the launch mode. (?sab=...)');
-
-        return;
-    }
-
     function restartEngine(name, e) {
         if(alreadyRestarted) return;
 
