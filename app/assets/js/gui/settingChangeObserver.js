@@ -82,13 +82,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
                 lc0WeightDropdown.classList.add('hidden');
             }
 
-            if(value === 'maia2') {
+            if(value === 'maia2' || value === 'fairy-stockfish-nnue-wasm') {
                 disableAdvancedEloCheckbox(false);
 
                 normalEloInput.removeAttribute('disabled');
             }
             
-            if(value !== 'lc0' && value !== 'maia2') {
+            if(value !== 'lc0' && value !== 'maia2' && value !== 'fairy-stockfish-nnue-wasm') {
                 advancedEloEnableInput.removeAttribute('disabled');
             }
 

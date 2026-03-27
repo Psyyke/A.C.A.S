@@ -339,7 +339,7 @@ export default class AcasInstance {
                 this.pV[profileName].useChess960 = optionValue;
                 break;
             case 'UCI_Variant':
-                this.pV[profileName].chessVariant = FORMAT_VARIANT(optionValue);
+                //this.pV[profileName].chessVariant = FORMAT_VARIANT(optionValue);
                 break;
         }
 
@@ -414,8 +414,6 @@ export default class AcasInstance {
     }
 
     setEngineOption(name, value = null, isDynamicOption, profile) {
-        console.log(name, value, isDynamicOption, profile);
-
         if(Number.isNaN(value) || value === undefined) return;
 
         this.sendMsgToEngine(`setoption name ${name}${value === null ? '' : ' value ' + value}`, profile, isDynamicOption);

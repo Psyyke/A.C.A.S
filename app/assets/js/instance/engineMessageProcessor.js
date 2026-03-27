@@ -3,6 +3,8 @@ import { fillDynamicEngineOptionContainer } from '../gui/dynamicEngineOptions.js
 import { updatePipData } from '../gui/pip.js';
 import { setDynamicOptionsReady } from '../gui/dynamicEngineOptions.js';
 
+const variantStartposMap = new Map();
+
 export default async function engineMessageProcessor(msg, profile) {
     msg = msg?.trim();
 
@@ -184,26 +186,27 @@ export default async function engineMessageProcessor(msg, profile) {
         }
     }
 
-    if(isMsgOption) {
-        fillDynamicEngineOptionContainer(msg, profile);
-    }
+    if(isMsgOption) fillDynamicEngineOptionContainer(msg, profile);
+
+    const variantStartposFen = data['Fen:'];
+    if(variantStartposFen) variantStartposMap.set(profile, variantStartposFen);
 
     if(msg === 'uciok') {
         setDynamicOptionsReady(profile);
-    }
 
-    const variantStartposFen = data['Fen:'];
+        setTimeout(() => { // wait a bit for potential variantStartposfen
+            const startPosFen = variantStartposMap.get(profile);
+            const dimensions = startPosFen ? GET_BOARD_DIMENSIONS_FROM_FEN(startPosFen) : [8, 8];
+            const startPos = startPosFen || this.defaultStartpos;
 
-    if(variantStartposFen || msg === 'uciok') {
-        const dimensions = GET_BOARD_DIMENSIONS_FROM_FEN(variantStartposFen);
-        const startPos = variantStartposFen || this.defaultStartpos;
+            const waitForChessgroundLoad = setInterval(() => {
+                if(window?.ChessgroundX) {
+                    clearInterval(waitForChessgroundLoad);
 
-        const waitForChessgroundLoad = setInterval(() => {
-            if(window?.ChessgroundX) {
-                clearInterval(waitForChessgroundLoad);
-
-                this.setupEnvironment(startPos, dimensions);
-            }
-        }, 5);
+                    this.setupEnvironment(startPos, dimensions);
+                    variantStartposMap.delete(profile);
+                }
+            }, 5);
+        }, 50);
     }
 }

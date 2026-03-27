@@ -74,7 +74,43 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         };
     }
 
-    function loadLilaStockfish(workerName) {
+    function loadFairyStockfish() {
+        const stockfish = new Worker(`../app/assets/engines/fairy-stockfish-nnue.wasm/stockfishWorker.js`);
+        let stockfish_loaded = false;
+
+        stockfish.onmessage = async e => {
+            if(e.data === true) {
+                stockfish_loaded = true;
+
+                this.engines.push({
+                    'type': profileChessEngine,
+                    'engine': (method, a) => stockfish.postMessage({ method: method, args: [...a] }),
+                    'sendMsg': msg => stockfish.postMessage({ method: 'postMessage', args: [msg] }),
+                    'worker': stockfish,
+                    profileName
+                });
+
+                startGame.bind(this)(FORMAT_VARIANT(this.pV[profileName].chessVariant));
+            } else if(e.data) {
+                processEngineMessage(e.data);
+            }
+        };
+
+        const waitStockfish = setInterval(() => {
+            if(stockfish_loaded) {
+                clearInterval(waitStockfish);
+                return;
+            }
+
+            stockfish.postMessage({ method: 'acas_check_loaded' });
+        }, 100);
+
+        stockfish.onerror = e => {
+            restartEngine.bind(this)('fairy-stockfish-nnue-wasm', e);
+        };
+    }
+
+    function loadLilaStockfish(workerName, engineName) {
         const stockfish = new Worker(`../app/assets/engines/lila-stockfish/${workerName}.js`, { type: 'module' });
         let stockfish_loaded = false;
 
@@ -90,10 +126,8 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
                     profileName
                 });
 
-                startGame.bind(this)(workerName === 'f14-worker' 
-                    ? FORMAT_VARIANT(this.pV[profileName].chessVariant)
-                    : 'chess');
-            } else if (e.data) {
+                startGame.bind(this)('chess');
+            } else if(e.data) {
                 processEngineMessage(e.data);
             }
         };
@@ -106,6 +140,10 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
             stockfish.postMessage({ method: 'acas_check_loaded' });
         }, 100);
+
+        stockfish.onerror = e => {
+            restartEngine.bind(this)(engineName, e);
+        };
     }
 
     function loadLc0() {
@@ -248,7 +286,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             break;
 
         case 'stockfish-16-1-wasm':
-            loadLilaStockfish.bind(this)('16-0-worker');
+            loadLilaStockfish.bind(this)('16-0-worker', 'stockfish-16-1-wasm');
             break;
 
         case 'stockfish-11':
@@ -259,8 +297,8 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             loadStockfish.bind(this)('stockfish-8');
             break;
 
-        case 'fairy-stockfish-nnue-wasm': 
-            loadLilaStockfish.bind(this)('f14-worker');
+        case 'fairy-stockfish-nnue-wasm':
+            loadFairyStockfish.bind(this)();
             break;
 
         case 'lozza-5':

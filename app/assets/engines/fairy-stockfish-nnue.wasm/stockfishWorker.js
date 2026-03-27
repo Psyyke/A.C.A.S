@@ -9,7 +9,7 @@ let engine = null;
 onmessage = e => {
     const { method, args } = e.data;
 
-    if (!engine) {
+    if(!engine) {
         postMessage(false);
         return;
     }
@@ -22,7 +22,7 @@ onmessage = e => {
         return;
     }
 
-    if (engine[method] && typeof engine[method] === 'function') {
+    if(engine[method] && typeof engine[method] === 'function') {
         engine[method](...args);
     }
 };

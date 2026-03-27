@@ -58,8 +58,6 @@ export default async function setupEnvironment(startpos, dimensions) {
 
         this.currentFen = fen;
 
-        if(this.debugLogsEnabled) console.log(`Variant: "${variantText}"\n\nFen: "${fen}"\n\nDimension: "${boardDimensions.width}x${boardDimensions.height}"`);
-
         const boardPieceDimensions = GET_PIECE_STYLE_DIMENSIONS(boardDimensions);
         const backgroundSize = GET_BACKGROUND_STYLE_DIMENSION(boardDimensions);
 

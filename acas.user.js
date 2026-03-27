@@ -2293,7 +2293,6 @@ async function determineBoardPositionValidity(turn) {
         // Do not continue if a piece just disappeared, this is not possible legally!
         // (This happens sometimes because the mutationObserver detects DOM changes so fast)
         if(squareChangeAmount === 1) {
-            clearVisuals();
             return;
         }
     }
