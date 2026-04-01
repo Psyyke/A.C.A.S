@@ -49,10 +49,10 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (**
 | [bodymovin (lottie-web)](https://github.com/airbnb/lottie-web) | SVG animations | MIT |
 | [chess.js](https://github.com/jhlywa/chess.js) | Game logic (Maia 2) | BSD-2-Clause |
 | [onnxruntime-web](https://github.com/Microsoft/onnxruntime) | Run ML models in browser | MIT |
-| [Klaro!](https://github.com/klaro-org/klaro-js) | Cookie consent manager | MIT |
+| [Klaro!](https://github.com/klaro-org/klaro-js) | Cookie consent manager | BSD 3-Clause |
 | [SnapDOM](https://github.com/zumerlab/snapdom) | DOM → image screenshots | MIT |
-| [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) | Draw arrows on boards | MIT |
-| [CommLink](https://github.com/AugmentedWeb/CommLink) | Cross-window communication | MIT |
+| [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) | Draw arrows on boards | GPL-3.0 |
+| [CommLink](https://github.com/AugmentedWeb/CommLink) | Cross-window communication | GPL-3.0 |
 | [Bootstrap Icons](https://getbootstrap.com/) | Icon set | MIT |
 | [Mona Sans](https://github.com/github/mona-sans) | Font (GitHub) | SIL Open Font License |
 | [Rubik](https://fonts.google.com/specimen/Rubik) | Sans-serif font | SIL Open Font License |
