@@ -152,7 +152,9 @@
         "movesOnDemand": ["Mga Galaw sa Pangangailangan", "Kinakalkula ang mga galaw para sa mga piyesang iyong pakikipag-ugnayan"],
         "onlySuggestPieces": ["Lamang Isinungka ang mga Piyesa", "Isinungka ang mga piyesa upang ilipat, ngunit walang galaw"],
         "isUserscriptGhost": ["Tagong Script", "Patayin ang lahat ng mga natutukoy na panlabas na functionality (hal. mga arrow ng galaw) upang maiwasan ang pagtuklas"],
-        "useExternalChessEngine": ["Pinagana", "Ang external na engine ng chess ay pinagana na"]
+        "useExternalChessEngine": ["Pinagana", "Ang external na engine ng chess ay pinagana na"],
+        "instanceRestartTriggerCode": ["Pindong Mag-restart", "Muling simulan ang lahat ng mga pagkakataon, kapaki-pakinabang kung sila ay magsara"],
+        "concealAssistanceTriggerCode": ["Pindong Itago", "Ipakita/itago ang mga feature ng tulong (tulad ng mga palang galaw)"]
     },
     "translations": {
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",
@@ -194,7 +196,9 @@
         "serverClose": "Hindi makonnect sa external na engine server!\n\nMangyaring i-install/simulan ang server, sinisikap na muling kumonekta...",
         "websocketError": "WebSocket error:",
         "unknownWebsocketError": "Unknown error, maaring nawala ang koneksyon?",
-        "noExternalEngineAnymore": "Ang nakaraang napiling EXTERNAL chess engine ay hindi na available. Pumili ng bago."
+        "noExternalEngineAnymore": "Ang nakaraang napiling EXTERNAL chess engine ay hindi na available. Pumili ng bago.",
+        "concealmentActive": "Nakatagong aktibo!",
+        "playingSilentAudio": "Nire-record ang tahimik na audio track para sa katatagan!"
     },
-    "contributors": ["ChatGPT"]
+    "contributors": ["Artipisyal na Intelihensiya"]
 }

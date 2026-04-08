@@ -152,7 +152,9 @@
         "movesOnDemand": ["Gerakan Sesuai Permintaan", "Menghitung gerakan untuk bidak yang Anda interaksikan"],
         "onlySuggestPieces": ["Hanya Sarankan Bidak", "Sarankan bidak untuk dipindahkan, tetapi tidak memberikan gerakan"],
         "isUserscriptGhost": ["Skrip Hantu", "Nonaktifkan semua fungsi eksternal yang dapat dideteksi (mis. panah gerakan) untuk menghindari deteksi"],
-        "useExternalChessEngine": ["Diaktifkan", "Apakah mesin catur eksternal diaktifkan"]
+        "useExternalChessEngine": ["Diaktifkan", "Apakah mesin catur eksternal diaktifkan"],
+        "instanceRestartTriggerCode": ["Tombol Mulai ulang", "Memulai ulang semua instance, berguna jika mogok"],
+        "concealAssistanceTriggerCode": ["Tombol Penyembunyian", "Tampilkan/sembunyikan fitur bantuan (mis. panah gerakan)"]
     },
     "translations": {
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",
@@ -194,7 +196,9 @@
         "serverClose": "Tidak dapat terhubung ke server mesin catur eksternal!\n\nHarap instal/mulai server, mencoba terhubung kembali...",
         "websocketError": "Kesalahan WebSocket:",
         "unknownWebsocketError": "Kesalahan tidak diketahui, mungkin koneksi hilang?",
-        "noExternalEngineAnymore": "Mesin catur EKSTERNAL yang dipilih sebelumnya tidak lagi tersedia. Pilih yang baru."
+        "noExternalEngineAnymore": "Mesin EKSTERNAL yang dipilih sebelumnya tidak lagi tersedia. Pilih yang baru.",
+        "concealmentActive": "Penyembunyian aktif!",
+        "playingSilentAudio": "Memutar trek audio senyap demi stabilitas!"
     },
-    "contributors": []
+    "contributors": ["Kecerdasan Buatan"]
 }

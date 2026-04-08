@@ -8,7 +8,7 @@
             "sizes": "192x192"
         },
         {
-            "src": "../assets/images/logo.png",
+            "src": "../assets/images/favicon/icon-512.png",
             "type": "image/png",
             "sizes": "512x512"
         }

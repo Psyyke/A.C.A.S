@@ -146,7 +146,7 @@ async function updateUserscriptInfoText() {
     
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
-        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.1')) {
+        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.2')) {
             updateYourUserscriptElem.classList.remove('hidden');
         }
         
@@ -223,8 +223,15 @@ export async function initGUI() {
     updateUserscriptInfoText();
 
     CREATE_INPUT_LISTENER(
+        'instanceRestart',
         await GET_GM_CFG_VALUE('instanceRestartTriggerCode'),
         FORCE_CLOSE_ALL_INSTANCES
+    );
+
+    CREATE_INPUT_LISTENER(
+        'concealAssistance',
+        await GET_GM_CFG_VALUE('concealAssistanceTriggerCode'),
+        TOGGLE_CONCEAL_ASSISTANCE
     );
 
     initialized = true;

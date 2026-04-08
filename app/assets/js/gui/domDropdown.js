@@ -48,13 +48,22 @@ export function initializeDropdown(dropdownElem) {
         );
             
         const options = showAll ? optionsArr : filteredOptions;
+        const selectedClass = 'selected-list-item';
+        const currentValue = inputElem.value?.toLowerCase()?.trim();
 
         listItems.forEach(elem => {
-            if(options.includes(elem.dataset.value?.toLowerCase()) 
-            || options.includes(elem.dataset.value)) {
+            const elemValue = elem.dataset.value?.toLowerCase();
+            
+            if(options.includes(elemValue) || options.includes(elem.dataset.value)) {
                 elem.classList.remove('hidden');
             } else {
                 elem.classList.add('hidden');
+            }
+
+            if(currentValue && elemValue === currentValue) {
+                elem.classList.add(selectedClass);
+            } else {
+                elem.classList.remove(selectedClass);
             }
         });
 

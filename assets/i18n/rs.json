@@ -149,8 +149,10 @@
         "pipBoard": ["Prikaži tablu", "Umesto samo teksta, prikaži celu tablu"],
         "movesOnDemand": ["Potezi na Zahtev", "Izračunava poteze za figure sa kojima radite"],
         "onlySuggestPieces": ["Samo Predloži Figure", "Predloži figure za pomeranje, ali ne daj poteze"],
-        "isUserscriptGhost": ["Привидни скрипт", "Онемогући све детектујуће спољне функције (нпр. стрелице потеза) да би се избегло откривање"],
-        "useExternalChessEngine": ["Омогућено", "Да ли је омогућен спољни шахмат"]
+        "isUserscriptGhost": ["Prividni skript", "Onemogući sve detektujuće spoljne funkcije (npr. strelice poteza) da bi se izbeglo otkrivanje"],
+        "useExternalChessEngine": ["Omogućeno", "Da li je omogućen spoljni šahovski motor"],
+        "instanceRestartTriggerCode": ["Dugme za ponovo pokretanje", "Ponovo pokreće sve instance, korisno ako se zaustave"],
+        "concealAssistanceTriggerCode": ["Dugme za skrivanje", "Prikaži/sakrij funkcije pomoći (npr. strelice poteza)" ]
     },
     "translations": {
         "profileRemovalWarning": "Da li ste sigurni da želite da uklonite ovaj profil?\n\nOva akcija se ne može poništiti.",
@@ -187,7 +189,11 @@
         "excessiveTabChangeWarning": "Upozorenje: Detektovana je prekomerna promena kartica. Kontinuirana promena može rezultirati zabranom.\n\nDa biste izbegli potrebu da menjate između kartica, uradite jedno od sledećeg,\n- Napravite dva odvojena prozora jedan pored drugog\n- Prikazujte poteze na stranici (ovo je lako detektovati)\n- Omogućite TTS (Text to Speech)\n- Omogućite podešavanje plutajućeg panela",
         "instanceConnectionTermination": "Instanca je prekinuta zbog gubitka veze.\n\nNeočekivano? Posetite karticu da ponovo aktivirate A.C.A.S.",
         "calculationDepth": "Dubina",
-        "thankYouTranslator": "Hvala prevodiocima"
+        "thankYouTranslator": "Hvala prevodiocima",
+        "unknownWebsocketError": "Nepoznata greška, možda je veza izgubljena?",
+        "noExternalEngineAnymore": "Prethodno odabrani SPOLJNI šahovski motor više nije dostupan. Izaberite novi.",
+        "concealmentActive": "Skrivanje je aktivno!",
+        "playingSilentAudio": "Pušta se tiha audio traka radi stabilnosti!"
     },
-    "contributors": ["ChatGPT"]
+    "contributors": ["Veštačka inteligencija"]
 }

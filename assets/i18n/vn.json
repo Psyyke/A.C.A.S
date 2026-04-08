@@ -152,7 +152,9 @@
         "movesOnDemand": ["Các Nước đi Théo Yêu Cầu", "Tính toán các nước đi cho những quân cờ mà bạn tương tác với"],
         "onlySuggestPieces": ["Chỉ Gợi Ý Quân Cờ", "Gợi ý những quân cờ để di chuyển, nhưng không cung cấp nước đi"],
         "isUserscriptGhost": ["Script Ma", "Vô hiệu hóa tất cả chức năng bên ngoài có thể phát hiện (ví dụ: mũi tên nước đi) để tránh bị phát hiện"],
-        "useExternalChessEngine": ["Đã bật", "Động cơ cờ vua bên ngoài có được bật hay không"]
+        "useExternalChessEngine": ["Đã bật", "Công cụ cờ vua bên ngoài được bật chưa"],
+        "instanceRestartTriggerCode": ["Nút khởi động lại", "Khởi động lại tất cả các phiên bản, hữu ích nếu bị sự cố"],
+        "concealAssistanceTriggerCode": ["Nút ẩn", "Hiển thị/ẩn các tính năng hỗ trợ (ví dụ mũi tên di chuyển)"]
     },
     "translations": {
         "profileRemovalWarning": "Bạn có chắc chắn muốn xóa hồ sơ này?\n\nHành động này không thể hoàn tác.",
@@ -189,7 +191,11 @@
         "excessiveTabChangeWarning": "Cảnh báo: Phát hiện chuyển tab quá nhiều. Việc chuyển đổi liên tục có thể dẫn đến việc bị cấm.\n\nĐể tránh việc cần phải chuyển giữa các tab, hãy làm một trong những điều sau,\n- Mở hai cửa sổ riêng biệt cạnh nhau\n- Hiển thị các nước đi trên trang (Điều này dễ dàng phát hiện)\n- Kích hoạt TTS (Văn bản thành Giọng nói)\n- Kích hoạt cài đặt Bảng Nổi",
         "instanceConnectionTermination": "Đã kết thúc phiên bản do mất kết nối.\n\nCó gì bất ngờ không? Truy cập lại tab để kích hoạt lại A.C.A.S.",
         "calculationDepth": "Độ sâu tính toán",
-        "thankYouTranslator": "Cảm ơn các dịch giả"
+        "thankYouTranslator": "Cảm ơn các dịch giả",
+        "unknownWebsocketError": "Lỗi không xác định, có thể mất kết nối?",
+        "noExternalEngineAnymore": "Công cụ BÊN NGOÀI đã chọn trước đó không còn khả dụng. Hãy chọn một công cụ mới.",
+        "concealmentActive": "Ẩn được kích hoạt!",
+        "playingSilentAudio": "Đang phát bản âm thanh im lặng để ổn định!"
     },
-    "contributors": []
+    "contributors": ["Trí tuệ nhân tạo"]
 }

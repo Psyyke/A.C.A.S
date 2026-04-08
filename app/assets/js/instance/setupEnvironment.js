@@ -205,6 +205,8 @@ export default async function setupEnvironment(startpos, dimensions) {
 
         this.Interface.updateBoardOrientation(orientation);
 
+        APPLY_ASSISTANCE_CONCEALMENT(await GET_GM_CFG_VALUE(CONCEAL_ASSISTANCE_ACTIVE_KEY));
+        
         if(oldInstanceElem) {
             acasInstanceContainer.replaceChild(this.instanceElem, oldInstanceElem);
 

@@ -152,7 +152,9 @@
         "movesOnDemand": ["Moves On Demand", "Calculates moves for pieces you interact with"],
         "onlySuggestPieces": ["Only Suggest Pieces", "Suggest pieces to move, but give no moves"],
         "isUserscriptGhost": ["Ghost Script", "Disable all detectable external functionality (e.g. move arrows) to avoid detection"],
-        "useExternalChessEngine": ["Enabled", "Is the external engine enabled"]
+        "useExternalChessEngine": ["Enabled", "Is the external engine enabled"],
+        "instanceRestartTriggerCode": ["Restart Trigger", "Restarts all instances, useful if they crash"],
+        "concealAssistanceTriggerCode": ["Concealment Trigger", "Hide/show assist features (e.g. move arrows)"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",
@@ -194,7 +196,9 @@
         "serverClose": "Couldn't connect to the external engine server!\n\nPlease install/start the server, trying to reconnect...",
         "websocketError": "WebSocket error:",
         "unknownWebsocketError": "Unknown error, maybe connection lost?",
-        "noExternalEngineAnymore": "The previously selected EXTERNAL engine is not available anymore. Select a new one."
+        "noExternalEngineAnymore": "The previously selected EXTERNAL engine is not available anymore. Select a new one.",
+        "concealmentActive": "Concealment active!",
+        "playingSilentAudio": "Playing a silent audiotrack for stability!"
     },
     "contributors": ["Haka"]
 }

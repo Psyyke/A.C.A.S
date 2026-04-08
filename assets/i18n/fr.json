@@ -151,7 +151,9 @@
         "pipBoard": ["Afficher le plateau", "Au lieu de texte seulement, afficher tout le plateau"],
         "movesOnDemand": ["Coups à la Demande", "Calcule les coups pour les pièces avec lesquelles vous interagissez"],
         "onlySuggestPieces": ["Suggérer Seulement les Pièces", "Suggérez des pièces à bouger, mais ne donnez pas les coups"],
-        "useExternalChessEngine": ["Activé", "Le moteur du serveur externe est-il activé"]
+        "useExternalChessEngine": ["Activé", "Le moteur d'échecs externe est-il activé"],
+        "instanceRestartTriggerCode": ["Bouton Redémarrage", "Redémarre toutes les instances, utile si elles planent"],
+        "concealAssistanceTriggerCode": ["Bouton Dissimulation", "Masquer/afficher les fonctionnalités d'assistance (p.ex. flèches de coup)"]
     },
     "translations": {
         "profileRemovalWarning": "Êtes-vous sûr(e) de vouloir supprimer ce profil ?\n\nCette action est irréversible.",
@@ -193,7 +195,9 @@
         "serverClose": "Impossible de se connecter au serveur de moteur externe !\n\nVeuillez installer/lancer le serveur, tentative de reconnexion...",
         "websocketError": "Erreur WebSocket :",
         "unknownWebsocketError": "Erreur inconnue, peut-être une perte de connexion ?",
-        "noExternalEngineAnymore": "Le moteur EXTERNE précédemment sélectionné n'est plus disponible. Sélectionnez-en un nouveau."
+        "noExternalEngineAnymore": "Le moteur EXTERNE précédemment sélectionné n'est plus disponible. Sélectionnez-en un nouveau.",
+        "concealmentActive": "Dissimulation active!",
+        "playingSilentAudio": "Lecture d'une piste audio silencieuse pour la stabilité !"
     },
-    "contributors": ["@PikPakPik"]
+    "contributors": ["@PikPakPik", "Intelligence Artificielle"]
 }

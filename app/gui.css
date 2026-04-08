@@ -18,6 +18,7 @@
     font-weight: 200 900;
     font-stretch: 75% 125%;
 }
+
 @media (max-width: 800px) {
 	#settings-panels {
 		flex-direction: column !important;

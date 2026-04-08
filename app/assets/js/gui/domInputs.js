@@ -17,7 +17,7 @@ export function setInputValue(elem, val, min, max) {
             const dropdownElems = [...parentElem?.querySelectorAll('.dropdown-item')];
 
             dropdownElems.forEach(elem => {
-                if(elem?.dataset?.value === val)
+                if(elem.dataset.value === val)
                     elem.classList.add(selectedItemKey);
                 else
                     elem.classList.remove(selectedItemKey);

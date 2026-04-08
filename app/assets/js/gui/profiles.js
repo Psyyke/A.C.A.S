@@ -25,33 +25,35 @@ function settingPanelTransitionAnimation(duration = 400) {
 }
 
 async function deleteProfile(profileName) {
-    const warningText = `(${profileName?.toUpperCase()}) `
+    const actualProfileName = GET_RAW_PROFILE_NAME(profileName);
+    const warningText = `(${actualProfileName?.toUpperCase()}) `
         + (TRANS_OBJ?.profileRemovalWarning ?? 'Are you sure you want to remove this profile?\n\nThis action cannot be reversed.');
 
     if(confirm(warningText)) {
         const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
 
-        selectNearestProfileTab(profileTabs, profileName);
-        removeProfileTabItem(profileTabs, profileName);
+        selectNearestProfileTab(profileTabs, actualProfileName);
+        removeProfileTabItem(profileTabs, actualProfileName);
 
         const config = await USERSCRIPT.getValue(gmConfigKey);
+        const profileKey = GET_PROFILE_STORAGE_KEY(actualProfileName);
 
         if(SETTING_FILTER_OBJ.instanceID) {
-            delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileName];
+            delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey];
         } else {
-            delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileName];
+            delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey];
         }
 
         USERSCRIPT.setValue(gmConfigKey, config);
 
-        closeAllExternalEnginesWithId(profileName, 'profileName');
+        closeAllExternalEnginesWithId(actualProfileName, 'profileName');
     }
 }
 
 function selectNearestProfileTab(tabsElem, profileName) {
     const listContainerElem = tabsElem.querySelector('.tabs-list-container');
     const listTabItems = [...listContainerElem.children].filter(x => x?.dataset?.value);
-    const formattedName = FORMAT_PROFILE_NAME(profileName);
+    const formattedName = GET_PROFILE_DOM_VALUE(profileName);
     const indexOfCurrentTab = listTabItems.findIndex(x => x.dataset.value === formattedName);
 
     if(indexOfCurrentTab && indexOfCurrentTab >= 1) {
@@ -71,7 +73,7 @@ export function setProfileBubbleStatus(status, profileName, title = status) {
         return;
     }
 
-    const bubble = document.querySelector(`.profile-status-bubble[data-value="${profileName}"]`);
+    const bubble = document.querySelector(`.profile-status-bubble[data-value="${GET_PROFILE_DOM_VALUE(profileName)}"]`);
 
     if(!bubble || typeof status !== 'string') return;
 
@@ -83,22 +85,24 @@ export function setProfileBubbleStatus(status, profileName, title = status) {
     bubble.parentElement.title = 'Engine status: ' + title;
 }
 
-function addProfileTabItem(tabsElem, itemValue, isDefault) {
+function addProfileTabItem(tabsElem, profileName, isDefault) {
+    const actualProfileName = GET_RAW_PROFILE_NAME(profileName);
+    const encodedProfileName = GET_PROFILE_DOM_VALUE(actualProfileName);
     const listContainerElem = tabsElem.querySelector('.tabs-list-container');
     const inputElem = tabsElem.querySelector('input');
 
     const statusBubble = document.createElement('div');
           statusBubble.classList.add('profile-status-bubble')
-          statusBubble.dataset.value = itemValue;
+          statusBubble.dataset.value = encodedProfileName;
 
     const itemElem = document.createElement('div');
           itemElem.classList.add('tab-item');
           itemElem.classList.add('profile-tab');
           itemElem.classList.add('no-select');
-          itemElem.dataset.value = itemValue;
+          itemElem.dataset.value = encodedProfileName;
         
     const textElem = document.createElement('p');
-          textElem.innerText = itemValue;
+          textElem.innerText = actualProfileName;
 
     itemElem.appendChild(statusBubble);
     itemElem.appendChild(textElem);
@@ -111,14 +115,14 @@ function addProfileTabItem(tabsElem, itemValue, isDefault) {
               removalButton.title = 'Remove profile';
 
         removalButton.onclick = () => {
-            deleteProfile(itemValue);
+            deleteProfile(actualProfileName);
         };
 
         itemElem.appendChild(removalButton);
     }
 
     itemElem.onclick = e => {
-        inputElem.value = itemValue;
+        inputElem.value = actualProfileName;
 
         const listItems = [...listContainerElem.querySelectorAll('.tab-item')]
             .filter(x => x?.dataset?.value);
@@ -134,13 +138,13 @@ function addProfileTabItem(tabsElem, itemValue, isDefault) {
         const didClickOnRemovalBtn = e?.target?.classList?.contains('profile-removal-button');
 
         if(!didClickOnRemovalBtn) {
-            SETTING_FILTER_OBJ.profileID = itemValue;
+            SETTING_FILTER_OBJ.profileID = actualProfileName;
 
             saveSetting(inputElem, true); // save the profile setting
             loopThroughAndUpdateSettingsValues(e.isTrusted); // update values since profile changed
 
             setTimeout(async () => {
-                const engineId = await GET_ACTIVE_ENGINE_NAME(SETTING_FILTER_OBJ.profileID);
+                const engineId = await GET_ACTIVE_ENGINE_NAME(actualProfileName);
                 ensureOneDynamicEngineSettingVisible(engineId);
             }, 250);
         }
@@ -156,14 +160,15 @@ function addProfileTabItem(tabsElem, itemValue, isDefault) {
 }
 
 function removeProfileTabItem(tabsElem, itemValue, newValue) {
-    const dropdownItem = tabsElem.querySelector(`*[data-value="${itemValue}"]`);
+    const encodedName = GET_PROFILE_DOM_VALUE(itemValue);
+    const dropdownItem = tabsElem.querySelector(`*[data-value="${encodedName}"]`);
     const dropdownInput = tabsElem.querySelector('input[data-default-value]');
 
-    dropdownInput.value = newValue || dropdownInput.dataset.defaultValue;
+    dropdownInput.value = GET_RAW_PROFILE_NAME(newValue || dropdownInput.dataset.defaultValue);
 
     dropdownItem?.remove();
 
-    console.log(dropdownInput, newValue || dropdownInput.dataset.defaultValue);
+    console.log(dropdownInput, dropdownInput.value);
 
     dropdownInput.dispatchEvent(new Event('change'));
 }
@@ -180,7 +185,7 @@ export async function fillProfileTabs() {
     setInstanceSelectionStatus(profileNames.length > 1);
 
     for(const profileName of profileNames) {
-        const formattedName = FORMAT_PROFILE_NAME(profileName);
+        const formattedName = GET_PROFILE_DOM_VALUE(profileName);
 
         const nameExists = [...profileTabs.querySelectorAll('.tab-item')].find(
             elem => elem.dataset.value === formattedName
@@ -188,8 +193,8 @@ export async function fillProfileTabs() {
 
         if(!nameExists) {
             const isDefault = profileName?.toLowerCase() === defaultValue?.toLowerCase();
-            const itemElem = addProfileTabItem(profileTabs, formattedName, isDefault);
-            const currentActiveProfileName = await GET_GM_CFG_VALUE('chessEngineProfile', SETTING_FILTER_OBJ.instanceID, false);
+            const itemElem = addProfileTabItem(profileTabs, profileName, isDefault);
+            const currentActiveProfileName = GET_RAW_PROFILE_NAME(await GET_GM_CFG_VALUE('chessEngineProfile', SETTING_FILTER_OBJ.instanceID, false));
 
             if(profileName === currentActiveProfileName) {
                 setTimeout(() => {
@@ -207,9 +212,9 @@ export function createNewProfile() {
 
         if(!profileName) break;
 
-        const formattedName = FORMAT_PROFILE_NAME(profileName);
+        const formattedName = GET_PROFILE_DOM_VALUE(profileName);
         const nameExists = [...profileTabs.querySelectorAll('.tab-item')]
-            .find(elem => elem.dataset.value?.toLowerCase() === formattedName?.toLowerCase());
+            .find(elem => elem.dataset.value === formattedName);
 
         if(nameExists) {
             const msg = TRANS_OBJ?.profileNameExists ?? 'That name already exists!';
@@ -217,7 +222,7 @@ export function createNewProfile() {
         }
 
         if(profileName.length > 0 && !nameExists) {
-            const itemElem = addProfileTabItem(profileTabs, formattedName);
+            const itemElem = addProfileTabItem(profileTabs, profileName);
 
             setTimeout(() => {
                 itemElem.click();
@@ -226,7 +231,7 @@ export function createNewProfile() {
             setTimeout(() => {
                 guiBroadcastChannel.postMessage({
                     'type': 'newProfileMade',
-                    'data' : { 'profileName': formattedName }
+                    'data' : { 'profileName': profileName }
                 });
             }, 1000);
 

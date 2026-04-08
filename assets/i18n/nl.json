@@ -152,7 +152,9 @@
         "movesOnDemand": ["Zetten op Aanvraag", "Berekent zetten voor de stukken waarmee je interageert"],
         "onlySuggestPieces": ["Alleen Stukken Voorstellen", "Stel stukken voor om te verplaatsen, maar geef geen zetten"],
         "isUserscriptGhost": ["Spookscript", "Schakelt alle detecteerbare externe functionaliteit uit (bv. zetpijlen) om detectie te vermijden"],
-        "useExternalChessEngine": ["Ingeschakeld", "Is de externe schaakengine ingeschakeld"]
+        "useExternalChessEngine": ["Ingeschakeld", "Is de externe schaakengine ingeschakeld"],
+        "instanceRestartTriggerCode": ["Herstart knop", "Herstart alle exemplaren, handig als ze crashen"],
+        "concealAssistanceTriggerCode": ["Verbergknop", "Hulpfuncties weergeven/verbergen (bijv. bewegingspijlen)"]
     },
     "translations": {
         "profileRemovalWarning": "Weet je zeker dat je dit profiel wilt verwijderen?\n\nDeze actie kan niet ongedaan worden gemaakt.",
@@ -194,7 +196,9 @@
         "serverClose": "Kon niet verbinden met de externe schaakengine-server!\n\nInstalleer/start alstublieft het serverprogramma, opnieuw verbinden wordt geprobeerd...",
         "websocketError": "WebSocket-fout:",
         "unknownWebsocketError": "Onbekende fout, mogelijk verbinding verbroken?",
-        "noExternalEngineAnymore": "De eerder geselecteerde EXTERNE schaakengine is niet meer beschikbaar. Selecteer een nieuwe."
+        "noExternalEngineAnymore": "De eerder geselecteerde EXTERNE schaakengine is niet meer beschikbaar. Selecteer een nieuwe.",
+        "concealmentActive": "Verbergen is actief!",
+        "playingSilentAudio": "Een stille audiotrack wordt afgespeeld voor stabiliteit!"
     },
-    "contributors": []
+    "contributors": ["Kunstmatige intelligentie"]
 }

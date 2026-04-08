@@ -122,6 +122,7 @@ export default class AcasInstance {
                 this.activeGuiMoveMarkings = [];
                 this.activeMetrics = [];
                 this.activeFeedbackDisplays = [];
+                this.pendingMoveDisplay = null;
         
                 this.lastCalculatedFen = null;
                 this.pendingCalculations = [];
@@ -169,6 +170,8 @@ export default class AcasInstance {
         this.CommLink.registerSendCommand('renderMetricsToSite');
         this.CommLink.registerSendCommand('feedbackToSite');
         this.CommLink.registerSendCommand('updateRestartListener');
+        this.CommLink.registerSendCommand('updateConcealAssistanceListener');
+        this.CommLink.registerSendCommand('applyAssistanceConcealment');
 
         this.CommLinkReceiver = this.CommLink.registerListener(`frontend_${this.instanceID}`, packet => {
             try {
@@ -314,6 +317,9 @@ export default class AcasInstance {
                 return true;
             case 'forceInstanceRestart':
                 FORCE_CLOSE_ALL_INSTANCES();
+                return true;
+            case 'toggleConcealAssistance':
+                TOGGLE_CONCEAL_ASSISTANCE();
                 return true;
         }
     }
@@ -763,7 +769,14 @@ export default class AcasInstance {
         return this.pV[profile].pendingCalculations.find(x => !x.finished) ? true : false;
     }
 
-    async displayMoves(moveObjects, profile) {
+    async displayMoves(moveObjects, profile, bypassConcealmentCheck) {
+        if(CONCEAL_ASSISTANCE_ACTIVE && !bypassConcealmentCheck) {
+            this.pV[profile].pendingMoveDisplay = [moveObjects, profile, true];
+            return;
+        }
+
+        this.pV[profile].pendingMoveDisplay = null;
+        
         const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
         const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
         const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);

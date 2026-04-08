@@ -16,7 +16,6 @@ export function createInstance(domain, instanceID, chessVariant) {
     if(!isReadyToContinue) return;
 
     setTimeout(() => {
-        
         const instanceExists = window.AcasInstances.find(instanceObj => instanceObj.id == instanceID) ? true : false;
 
         if(instanceExists) {
@@ -36,6 +35,11 @@ export function createInstance(domain, instanceID, chessVariant) {
 
         initToasts.push({ instanceID, 'toast': initToast });
         console.log(`New engine instance created! (DOMAIN: ${domain}, ID: ${instanceID})`);
+
+        setTimeout(() => {
+            if(CONCEAL_ASSISTANCE_ACTIVE) toast.message(
+                TRANS_OBJ?.concealmentActive ?? 'Concealment active!', 2000);
+        }, 1000);
 
     }, isExternalReady ? 1000 : 0);
 }

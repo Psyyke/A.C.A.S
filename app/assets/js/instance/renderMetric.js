@@ -21,6 +21,9 @@ export default async function renderMetric(fen, profile) {
     const renderPieceEnemyCapture   = await this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
     const renderOnExternalSite      = await this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
 
+    const onlyRenderSquarePlayer = renderSquarePlayer && !(renderSquareEnemy || renderSquareContested || renderSquareSafe);
+    const onlyRenderSquareEnemy = renderSquareEnemy && !(renderSquarePlayer || renderSquareContested || renderSquareSafe);
+
     // If none exist, do not analyze
     if(!(renderSquarePlayer || renderSquareEnemy || renderSquareContested || renderSquareSafe || renderPieceEnemyCapture))
         return;
@@ -108,13 +111,23 @@ export default async function renderMetric(fen, profile) {
         analResult.enemy
             .forEach(piece => renderDanger(piece, '🩸'));
 
-    if(renderSquarePlayer)
+    if(renderSquarePlayer) {
         analResult.squares.playerOnly
             .forEach(pos => renderPlayerOnly(pos));
 
-    if(renderSquareEnemy)
+        if(onlyRenderSquarePlayer)
+            analResult.squares.contested
+                .forEach(obj => renderPlayerOnly(obj.square));
+    }
+
+    if(renderSquareEnemy) {
         analResult.squares.enemyOnly
             .forEach(pos => renderEnemyOnly(pos));
+
+        if(onlyRenderSquareEnemy)
+            analResult.squares.contested
+                .forEach(obj => renderEnemyOnly(obj.square));
+    }
 
     if(renderSquareContested)
         analResult.squares.contested

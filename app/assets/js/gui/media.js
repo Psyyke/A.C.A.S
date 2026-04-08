@@ -19,7 +19,7 @@ export function initMediaSession() {
 
     function startAudio() {
         audio.play().then(() => {
-            toast.message('Playing a silent audiotrack in loop for stability.', 1500);
+            toast.message(TRANS_OBJ?.playingSilentAudio ?? 'Playing a silent audiotrack for stability!', 1500);
 
             window.removeEventListener('click', startAudio);
             window.removeEventListener('keydown', startAudio);

@@ -152,7 +152,10 @@
         "movesOnDemand": ["Movimientos a Demanda", "Calcula movimientos para las piezas con las que interactúas"],
         "onlySuggestPieces": ["Solo Sugerir Piezas", "Sugiere piezas para mover, pero no da movimientos"],
         "isUserscriptGhost": ["Script Fantasma", "Desactivar toda funcionalidad externa detectable (p. ej. flechas de movimiento) para evitar la detección"],
-        "useExternalChessEngine": ["Habilitado", "¿Está habilitado el motor de ajedrez externo?"]
+        "useExternalChessEngine": ["Habilitado", "¿Está habilitado el motor de ajedrez externo"],
+        "instanceRestartTriggerCode": ["Botón de reinicio", "Reinicia todas las instancias, útil si se bloquean"],
+        "concealAssistanceTriggerCode": ["Botón de ocultación", "Ocultar/mostrar funciones de asistencia (p.ej. flechas de movimiento)"]
+
     },
     "translations": {
         "profileRemovalWarning": "¿Estás seguro de que quieres eliminar este perfil?\n\nEsta acción no se puede deshacer.",
@@ -194,7 +197,9 @@
         "serverClose": "¡No se pudo conectar al servidor del motor de ajedrez externo!\n\n¡Por favor instala/inicia el servidor, intentando reconectar...",
         "websocketError": "Error de WebSocket:",
         "unknownWebsocketError": "Error desconocido, ¿quizás se perdió la conexión?",
-        "noExternalEngineAnymore": "El motor de ajedrez EXTERNO seleccionado anteriormente ya no está disponible. Selecciona uno nuevo."
+        "noExternalEngineAnymore": "El motor EXTERNO seleccionado anteriormente ya no está disponible. Selecciona uno nuevo.",
+        "concealmentActive": "¡Ocultación activa!",
+        "playingSilentAudio": "Reproduciendo una pista de audio silenciosa para estabilidad!"
     },
-    "contributors": []
+    "contributors": ["Inteligencia Artificial"]
 }

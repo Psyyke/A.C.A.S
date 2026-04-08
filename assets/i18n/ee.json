@@ -150,7 +150,10 @@
         "movesOnDemand": ["Käigud nõudmise kohaselt", "Arvutab käigud tikkudele, millega teil on suhtlemine"],
         "onlySuggestPieces": ["Ainult Soovita Tükke", "Soovita tükke liigutamiseks, aga ära anna käike"],
         "isUserscriptGhost": ["Kummitusskript", "Keela kõik tuvastatavad välised funktsioonid (nt käigunoole), et vältida tuvastamist"],
-        "useExternalChessEngine": ["Lubatud", "Kas väline šakimäng on lubatud"]
+        "useExternalChessEngine": ["Lubatud", "Kas väline male mootor on lubatud"],
+        "instanceRestartTriggerCode": ["Taaskäivitamise nupp", "Käivitab kõik instantsid uuesti, kasulik kui need seiskuvad"],
+        "concealAssistanceTriggerCode": ["Peitmine nupp", "Näita/peida abistavaid funktsioone (nt käigupooled)"]
+
     },
     "translations": {
         "profileRemovalWarning": "Kas olete kindel, et soovite selle profiili eemaldada?\n\nSeda toimingut ei saa tühistada.",
@@ -192,7 +195,9 @@
         "serverClose": "Ei saanud ühendada välise šakimängumootori serveriga!\n\nPalun installige/käivitage server, proovige uuesti ühendada...",
         "websocketError": "WebSocket tõrge:",
         "unknownWebsocketError": "Tundmatu tõrge, võib-olla ühendus katkestati?",
-        "noExternalEngineAnymore": "Varem valitud VÄLINE mootor pole enam saadaval. Valige uus."
+        "noExternalEngineAnymore": "Varem valitud VÄLINE mootor pole enam saadaval. Valige uus.",
+        "concealmentActive": "Varjamine on aktiivne!",
+        "playingSilentAudio": "Mängitakse vaikset helirada stabiilsuse tagamiseks!"
     },
-    "contributors": ["ChatGPT"]
+    "contributors": ["Tehisintellekt"]
 }

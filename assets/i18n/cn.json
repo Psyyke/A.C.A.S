@@ -150,7 +150,10 @@
         "movesOnDemand": ["按需移动", "为您交互的棋子计算移动"],
         "onlySuggestPieces": ["仅建议棋子", "建议移动的棋子，但不提供移动"],
         "isUserscriptGhost": ["幽灵脚本", "禁用所有可检测的外部功能（例如行棋箭头）以避免被检测"],
-        "useExternalChessEngine": ["已启用", "是否启用了外部国际象棋引擎"]
+        "useExternalChessEngine": ["已启用", "是否启用了外部国际象棋引擎"],
+        "instanceRestartTriggerCode": ["重启触发键", "重启所有实例，如果崩溃时有用"],
+        "concealAssistanceTriggerCode": ["隐藏触发键", "隐藏/显示辅助功能（例如移动箭头）"]
+
     },
     "translations": {
         "profileRemovalWarning": "您确定要删除这个配置文件吗？\n\n此操作无法恢复。",
@@ -193,7 +196,9 @@
         "websocketError": "WebSocket 错误：",
         "unknownWebsocketError": "未知错误，可能连接丢失？",
         "noExternalEngineAnymore": "之前选择的外部国际象棋引擎不再可用。请选择一个新的。",
-        "thankYouTranslator": "感谢翻译人员"
+        "thankYouTranslator": "感谢翻译人员",
+        "concealmentActive": "隐藏已启用！",
+        "playingSilentAudio": "正在播放静音音轨以保持稳定！"
     },
-    "contributors": []
+    "contributors": ["人工智能"]
 }

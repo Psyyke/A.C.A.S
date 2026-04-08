@@ -182,12 +182,27 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             if(wasCalledByUpdateLoop) return;
             
             CREATE_INPUT_LISTENER(
+                'instanceRestart',
                 value,
                 FORCE_CLOSE_ALL_INSTANCES
             );
 
             window.AcasInstances.forEach(iObj => {
                 iObj.instance.CommLink.commands.updateRestartListener(value);
+            });
+
+            break;
+        case 'concealAssistanceTriggerCode':
+            if(wasCalledByUpdateLoop) return;
+
+            CREATE_INPUT_LISTENER(
+                'concealAssistance',
+                value,
+                TOGGLE_CONCEAL_ASSISTANCE
+            );
+
+            window.AcasInstances.forEach(iObj => {
+                iObj.instance.CommLink.commands.updateConcealAssistanceListener(value);
             });
 
             break;

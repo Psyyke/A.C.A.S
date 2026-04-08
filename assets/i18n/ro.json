@@ -150,7 +150,9 @@
         "movesOnDemand": ["Mu tări la Cerere", "Calculează mutári pentru piesele cu care interacționezi"],
         "onlySuggestPieces": ["Doar Sugerează Piese", "Sugerează piese de mutat, dar nu da mutări"],
         "isUserscriptGhost": ["Script fantomă", "Dezactivează orice funcționalitate externă detectabilă (de ex. săgeți de mutare) pentru a evita detectarea"],
-        "useExternalChessEngine": ["Activat", "Este motorul de șah extern activat"]
+        "useExternalChessEngine": ["Activat", "Este motorul de șah extern activat"],
+        "instanceRestartTriggerCode": ["Buton Repornire", "Repornește toate instanțele, util dacă se blochează"],
+        "concealAssistanceTriggerCode": ["Buton Ascundere", "Afișează/ascunde funcții de asistență (de ex. săgeți de mișcare)"]
     },
     "translations": {
         "profileRemovalWarning": "Ești sigur că vrei să elimini acest profil?\n\nAceastă acțiune nu poate fi inversată.",
@@ -192,7 +194,9 @@
         "serverClose": "Nu s-a putut conecta la serverul motorului de șah extern!\n\nTe rog instalează/pornește serverul, încercând să reconectezi...",
         "websocketError": "Eroare WebSocket:",
         "unknownWebsocketError": "Eroare necunoscută, poate conexiunea s-a pierdut?",
-        "noExternalEngineAnymore": "Motorul de șah EXTERN selectat anterior nu mai este disponibil. Selectează o noie."
+        "noExternalEngineAnymore": "Motorul de șah EXTERN selectat anterior nu mai este disponibil. Selectează o noie.",
+        "concealmentActive": "Ascunderea este activă!",
+        "playingSilentAudio": "Redarea unei piste audio silențioase pentru stabilitate!"
     },
-    "contributors": ["ChatGPT"]
+    "contributors": ["Inteligență Artificială"]
 }

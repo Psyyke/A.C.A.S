@@ -75,20 +75,15 @@ export async function resetSettings() {
 
     if(confirm(warningText)) {
         const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
-        const config = await USERSCRIPT.getValue(gmConfigKey);
 
-        config.global = {};
-        config.instance = {};
-
-        USERSCRIPT.setValue(gmConfigKey, config);
+        USERSCRIPT.setValue(gmConfigKey, { 'global': { 'chessEngineProfile': 'default' } });
 
         for(let i = localStorage.length - 1; i >= 0; i--) {
             const key = localStorage.key(i);
 
-            if(!key.startsWith('usageStat_')) localStorage.removeItem(key);
+            if(!key.startsWith('usageStat_') && key !== 'selectedLanguage') localStorage.removeItem(key);
         }
-
-        toggleSelectedNavbarItem(settingsNavbarGlobalElem);
+        
         location.reload();
     }
 }
@@ -105,31 +100,41 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
 
     if(SETTING_FILTER_OBJ.instanceID) {
         let base = config[SETTING_FILTER_OBJ.type];
-        
+        const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
+
         // Initialize the instanceID object
         INIT_NESTED_OBJECT(base, [SETTING_FILTER_OBJ.instanceID]);
     
         if (noProfile) {
-            config[SETTING_FILTER_OBJ.type][SETTING_FILTER_OBJ.instanceID][settingObj.key] = settingObj.value;
+            const valueToSave = settingObj.key === 'chessEngineProfile'
+                ? GET_PROFILE_STORAGE_KEY(settingObj.value)
+                : settingObj.value;
+
+            config[SETTING_FILTER_OBJ.type][SETTING_FILTER_OBJ.instanceID][settingObj.key] = valueToSave;
         } else {
             // Initialize profiles and profileID objects
-            INIT_NESTED_OBJECT(base[SETTING_FILTER_OBJ.instanceID], ['profiles', SETTING_FILTER_OBJ.profileID]);
+            INIT_NESTED_OBJECT(base[SETTING_FILTER_OBJ.instanceID], ['profiles', profileKey]);
     
-            config[SETTING_FILTER_OBJ.type][SETTING_FILTER_OBJ.instanceID]['profiles'][SETTING_FILTER_OBJ.profileID][settingObj.key] = settingObj.value;
+            config[SETTING_FILTER_OBJ.type][SETTING_FILTER_OBJ.instanceID]['profiles'][profileKey][settingObj.key] = settingObj.value;
         }
     } else {
         let base = config[SETTING_FILTER_OBJ.type];
+        const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
         
         if (noProfile) {
             // Initialize the type object
             INIT_NESTED_OBJECT(config, [SETTING_FILTER_OBJ.type]);
     
-            config[SETTING_FILTER_OBJ.type][settingObj.key] = settingObj.value;
+            const valueToSave = settingObj.key === 'chessEngineProfile'
+                ? GET_PROFILE_STORAGE_KEY(settingObj.value)
+                : settingObj.value;
+
+            config[SETTING_FILTER_OBJ.type][settingObj.key] = valueToSave;
         } else {
             // Initialize profiles and profileID objects
-            INIT_NESTED_OBJECT(base, ['profiles', SETTING_FILTER_OBJ.profileID]);
+            INIT_NESTED_OBJECT(base, ['profiles', profileKey]);
     
-            config[SETTING_FILTER_OBJ.type]['profiles'][SETTING_FILTER_OBJ.profileID][settingObj.key] = settingObj.value;
+            config[SETTING_FILTER_OBJ.type]['profiles'][profileKey][settingObj.key] = settingObj.value;
         }
     }
 
@@ -160,17 +165,19 @@ export async function removeSetting(settingElem) {
 
     const noProfile = settingElem.dataset.noProfile;
 
+    const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
+
     if(SETTING_FILTER_OBJ.instanceID) {
         if(noProfile) {
             delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.[settingObj.key];
         } else {
-            delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[SETTING_FILTER_OBJ.profileID]?.[settingObj.key];
+            delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey]?.[settingObj.key];
         }
     } else {
         if(noProfile) {
             delete config?.[SETTING_FILTER_OBJ.type]?.[settingObj.key];
         } else {
-            delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[SETTING_FILTER_OBJ.profileID]?.[settingObj.key];
+            delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey]?.[settingObj.key];
         }
     }
 

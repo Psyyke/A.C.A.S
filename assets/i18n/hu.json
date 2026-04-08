@@ -152,7 +152,9 @@
         "movesOnDemand": ["Lépések igényre", "Számításba veszi az Ön által kezelni kívánt bábúk lépéseit"],
         "onlySuggestPieces": ["Csak Bábúkat Javasol", "Javasold a bábúkat mozgatásra, de ne adj lépéseket"],
         "isUserscriptGhost": ["Szellem script", "Letiltja az összes észlelhető külső funkciót (pl. lépés nyilak), hogy elkerülje a felismerést"],
-        "useExternalChessEngine": ["Engedélylyezve", "Az külső sakkmotor engedélyezve van"]
+        "useExternalChessEngine": ["Engedélylyezve", "Az külső sakkmotor engedélyezve van"],
+        "instanceRestartTriggerCode": ["Újraindítás gomb", "Újraindítja az összes példányt, hasznos ha összeomolnak"],
+        "concealAssistanceTriggerCode": ["Rejtés gomb", "Segítségfunkciók megjelenítése/elrejtése (pl. mozdulat nyilak)"]
     },
     "translations": {
         "profileRemovalWarning": "Biztosan el akarod távolítani ezt a profilt?\n\nEz a művelet nem vonható vissza.",
@@ -194,7 +196,9 @@
         "serverClose": "Nem sikerült csatlakozni a külső sakkmotor szerveréhez!\n\nKérlek telepítsd/indítsd el a szervert, újracsatlakozás próbálása...",
         "websocketError": "WebSocket hiba:",
         "unknownWebsocketError": "Ismeretlen hiba, talán a kapcsolat elveszett?",
-        "noExternalEngineAnymore": "A korábban kiválasztott KÜLSŐ sakkmotor már nem áll rendelkezésre. Válassz egy újat."
+        "noExternalEngineAnymore": "A korábban kiválasztott KÜLSŐ sakkmotor már nem áll rendelkezésre. Válassz egy újat.",
+        "concealmentActive": "Rejtés aktív!",
+        "playingSilentAudio": "Néma hangsáv lejátszása a stabilitásért!"
     },
-    "contributors": ["ChatGPT"]
+    "contributors": ["Mesterséges intelligencia"]
 }

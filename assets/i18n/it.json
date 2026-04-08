@@ -152,7 +152,9 @@
         "movesOnDemand": ["Mosse su Richiesta", "Calcola le mosse per i pezzi con cui interagisci"],
         "onlySuggestPieces": ["Suggerisci Solo Pezzi", "Suggerisci i pezzi da muovere, ma non dare mosse"],
         "isUserscriptGhost": ["Script Fantasma", "Disabilita tutte le funzionalità esterne rilevabili (es. frecce di movimento) per evitare il rilevamento"],
-        "useExternalChessEngine": ["Abilitato", "Il motore esterno del gioco degli scacchi è abilitato"]
+        "useExternalChessEngine": ["Abilitato", "Il motore esterno del gioco degli scacchi è abilitato"],
+        "instanceRestartTriggerCode": ["Pulsante Riavvio", "Riavvia tutte le istanze, utile se si bloccano"],
+        "concealAssistanceTriggerCode": ["Pulsante Occultamento", "Mostra/nascondi le funzioni di assistenza (es. frecce di mossa)"]
     },
     "translations": {
         "profileRemovalWarning": "Sei sicuro di voler rimuovere questo profilo?\n\nQuesta azione non può essere annullata.",
@@ -194,7 +196,9 @@
         "serverClose": "Impossibile connettersi al server del motore esterno!\n\nInstallare/avviare il server, tentativo di riconnessione...",
         "websocketError": "Errore WebSocket:",
         "unknownWebsocketError": "Errore sconosciuto, forse la connessione è stata persa?",
-        "noExternalEngineAnymore": "Il motore ESTERNO precedentemente selezionato non è più disponibile. Selezionane uno nuovo."
+        "noExternalEngineAnymore": "Il motore ESTERNO precedentemente selezionato non è più disponibile. Selezionane uno nuovo.",
+        "concealmentActive": "Occultamento attivo!",
+        "playingSilentAudio": "Riproduzione di una traccia audio silenziosa per stabilità!"
     },
-    "contributors": []
+    "contributors": ["Intelligenza Artificiale"]
 }

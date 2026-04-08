@@ -150,7 +150,9 @@
         "movesOnDemand": ["Talebe Bağlı Hamleler", "Etkileşimde bulunduğunuz tasılar için hamleleri hesaplayın"],
         "onlySuggestPieces": ["Yalnızca Taşları Öner", "Taşları taşımak için öner ama hamle verme"],
         "isUserscriptGhost": ["Hayalet Betik", "Tespitten kaçınmak için tüm algılanabilir harici işlevleri (örn. hamle okları) devre dışı bırakın"],
-        "useExternalChessEngine": ["Etkinleştirildi", "Harici satranç motoru etkinleştirildi mi"]
+        "useExternalChessEngine": ["Etkinleştirildi", "Harici satranç motoru etkinleştirildi mi"],
+        "instanceRestartTriggerCode": ["Yeniden Başlat Düğmesi", "Tüm örnekleri yeniden başlatır, kilitlenirse faydalıdır"],
+        "concealAssistanceTriggerCode": ["Gizle Düğmesi", "Yardım özelliklerini göster/gizle (ör. hareket okları)"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.",
@@ -192,7 +194,9 @@
         "serverClose": "Harici satranç motoru sunucusuna bağlanılamadı!\n\nLütfen sunucuyu kurun/başlatın, yeniden bağlanmayı deneyin...",
         "websocketError": "WebSocket hatası:",
         "unknownWebsocketError": "Bilinmeyen hata, belki bağlantı kayboldu?",
-        "noExternalEngineAnymore": "Daha önce seçilen DIŞ satranç motoru artık kullanılamıyor. Yeni bir tane seç."
+        "noExternalEngineAnymore": "Daha önce seçilen HARICI satranç motoru artık kullanılamıyor. Yeni bir tane seçin.",
+        "concealmentActive": "Gizleme aktif!",
+        "playingSilentAudio": "Kararlılık için sessiz bir ses parçası çalınıyor!"
     },
-    "contributors": []
+    "contributors": ["Yapay Zeka"]
 }

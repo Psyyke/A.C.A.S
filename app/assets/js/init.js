@@ -51,6 +51,8 @@ async function initializeDatabase() {
     // add AcasConfig value if it doesn't exist already
     await initDbValue(gmConfigKey, { 'global': { 'chessEngineProfile': 'default' } });
 
+    await MIGRATE_OUTDATED_PROFILE_KEYS(); // migrates old profile keys to new format if necessary
+
     const gmStorageKeys = await USERSCRIPT.listValues();
     const tempValueKeys = gmStorageKeys.filter(key => key.includes(tempValueIndicator));
     const config = await USERSCRIPT.getValue(gmConfigKey);

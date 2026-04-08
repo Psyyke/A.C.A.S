@@ -152,7 +152,9 @@
         "movesOnDemand": ["Züge auf Anfrage", "Berechnet Züge für Figuren, mit denen du interagierst"],
         "onlySuggestPieces": ["Nur Figuren vorschlagen", "Schlag Figuren vor, um zu ziehen, aber gib keine Züge"],
         "isUserscriptGhost": ["Geister-Skript", "Deaktiviert alle erkennbaren externen Funktionen (z. B. Zugpfeile), um eine Erkennung zu vermeiden"],
-        "useExternalChessEngine": ["Aktiviert", "Ist der externe Motor aktiviert"]
+        "useExternalChessEngine": ["Aktiviert", "Ist der externe Motor aktiviert"],
+        "instanceRestartTriggerCode": ["Neustart-Taste", "Startet alle Instanzen neu, nützlich wenn sie abstürzen"],
+        "concealAssistanceTriggerCode": ["Verbergungs-Taste", "Hilfsfunktionen anzeigen/verbergen (z.B. Zugpfeile)"]
     },
     "translations": {
         "profileRemovalWarning": "Bist du sicher, dass du dieses Profil entfernen möchtest?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
@@ -194,7 +196,9 @@
         "serverClose": "Konnte sich nicht mit dem externen Motor-Server verbinden!\n\nBitte installiere/starte den Server, versuche erneut zu verbinden...",
         "websocketError": "WebSocket-Fehler:",
         "unknownWebsocketError": "Unbekannter Fehler, vielleicht Verbindung verloren?",
-        "noExternalEngineAnymore": "Der vorher ausgewählte externe Motor ist nicht mehr verfügbar. Wähle einen neuen aus."
+        "noExternalEngineAnymore": "Der vorher ausgewählte externe Motor ist nicht mehr verfügbar. Wähle einen neuen aus.",
+        "concealmentActive": "Ausblendung ist aktiv!",
+        "playingSilentAudio": "Stille Audiospur wird zur Stabilität abgespielt!"
     },
-    "contributors": []
+    "contributors": ["Künstliche Intelligenz"]
 }

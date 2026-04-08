@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.1
+// @version     2.4.2
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -154,10 +154,7 @@ function isRunningOnBackend(skipGM) {
 const runningOnBackend = isRunningOnBackend();
 const runningOnDevPage = runningOnBackend && isDevPage;
 
-const activeInputListener = {
-    targetValue: null,
-    listeners: []
-};
+const activeInputListeners = [];
 
 // KEEP THESE AS FALSE ON PRODUCTION
 const debugModeActivated = false;
@@ -465,6 +462,7 @@ CommLink.registerSendCommand('newMatchStarted');
 CommLink.registerSendCommand('calculateBestMoves');
 CommLink.registerSendCommand('calculateSpecificMoves');
 CommLink.registerSendCommand('forceInstanceRestart');
+CommLink.registerSendCommand('toggleConcealAssistance');
 
 CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
     try {
@@ -513,9 +511,15 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 displayFeedback(packet.data);
                 return true;
             case 'updateRestartListener':
-                createRestartListener(packet.data, () => {
+                createInputListener('instanceRestart', packet.data, () => {
                     CommLink.commands.forceInstanceRestart();
                 });
+                return true;
+            case 'updateConcealAssistanceListener':
+                createInputListener('concealAssistance', packet.data, toggleConcealAssistance);
+                return true;
+            case 'applyAssistanceConcealment':
+                applyAssistanceConcealment(packet.data);
                 return true;
         }
     } catch(e) {
@@ -544,13 +548,19 @@ function getArrowStyle(type, fill, opacity) {
     }
 };
 
-function createRestartListener(targetValue, callback) {
-    if(typeof targetValue !== 'string' || !callback) return;
-    if(activeInputListener.targetValue === targetValue) return;
+function createInputListener(listenerType, targetValue, callback) {
+    if(typeof listenerType !== 'string' || typeof targetValue !== 'string' || !callback) return;
+    
+    const existingIndex = activeInputListeners
+        .findIndex(l => l.listenerType === listenerType);
 
-    activeInputListener.listeners.forEach(({ type, fn }) => document.removeEventListener(type, fn));
-    activeInputListener.listeners.length = 0;
-    activeInputListener.targetValue = null;
+    if(existingIndex !== -1) {
+        const existing = activeInputListeners[existingIndex];
+        if(existing.targetValue === targetValue) return;
+        
+        existing.listeners.forEach(({ type, fn }) => document.removeEventListener(type, fn));
+        activeInputListeners.splice(existingIndex, 1);
+    }
 
     let holdTimer = null;
     let lastTapTime = 0;
@@ -598,8 +608,12 @@ function createRestartListener(targetValue, callback) {
         if(targetValue === "InteractDoubleClick") callback(e);
     });
 
-    activeInputListener.targetValue = targetValue;
-    activeInputListener.listeners.push(...listeners);
+    activeInputListeners.push({
+        listenerType,
+        targetValue,
+        callback,
+        listeners
+    });
 }
 
 function clearMetricRenders() {
@@ -3696,10 +3710,29 @@ async function start() {
         await CommLink.commands.createInstance(commLinkInstanceID);
     }, 1000);
 
-    createRestartListener(
+    createInputListener(
+        'concealAssistance',
+        await getGmConfigValue('concealAssistanceTriggerCode'),
+        toggleConcealAssistance
+    );
+
+    createInputListener(
+        'instanceRestart',
         await getGmConfigValue('instanceRestartTriggerCode'),
         () => { CommLink.commands.forceInstanceRestart() }
     );
+}
+
+function applyAssistanceConcealment(isConcealed = false) {
+    const BoardDrawerSvg = BoardDrawer?.boardContainerElem;
+    if(!BoardDrawerSvg) return;
+
+    if(isConcealed) BoardDrawerSvg.style.display = 'none';
+    else BoardDrawerSvg.style.display = 'block';
+}
+
+function toggleConcealAssistance() {
+    CommLink.commands.toggleConcealAssistance();
 }
 
 function startWhenBackendReady() {
@@ -3716,7 +3749,10 @@ function startWhenBackendReady() {
         } else if(timesUrlForceOpened === 0 && (i % 10 === 0)) {
             timesUrlForceOpened++;
 
-            GM_openInTab(getCurrentBackendURL(), true);
+            const config = GM_getValue(dbValues.AcasConfig);
+            const isGhost = config?.global?.[configKeys.isUserscriptGhost];
+
+            if(!isGhost) GM_openInTab(getCurrentBackendURL(), true);
         }
     }, 100);
 }

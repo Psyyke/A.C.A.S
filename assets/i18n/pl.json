@@ -152,7 +152,9 @@
         "movesOnDemand": ["Ruchy na Żączenie", "Oblicza ruchy dla figur, z którymi współdziałasz"],
         "onlySuggestPieces": ["Tylko Sugeruj Figury", "Sugeruj figury do ruchu, ale nie podawaj ruchów"],
         "isUserscriptGhost": ["Skrypt duch", "Wyłącz wszystkie wykrywalne zewnętrzne funkcje (np. strzałki ruchu), aby uniknąć wykrycia"],
-        "useExternalChessEngine": ["Włączono", "Czy zewnętrzny silnik szachowy jest włączony"]
+        "useExternalChessEngine": ["Włączono", "Czy zewnętrzny silnik szachowy jest włączony"],
+        "instanceRestartTriggerCode": ["Przycisk ponownego uruchomienia", "Uruchamia ponownie wszystkie instancje, przydatne jeśli się zawieszą"],
+        "concealAssistanceTriggerCode": ["Przycisk ukrywania", "Pokaż/ukryj funkcje wsparcia (np. strzałki ruchów)"]
     },
     "translations": {
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",
@@ -194,7 +196,9 @@
         "serverClose": "Nie można było połączyć się z serwerem zewnętrznego silnika szachowego!\n\nProszę zainstaluj/uruchom serwer, próbuję ponownie się połączyć...",
         "websocketError": "Błąd WebSocket:",
         "unknownWebsocketError": "Nieznany błąd, może połączenie zostało utracone?",
-        "noExternalEngineAnymore": "Poprzednio wybrany ZEWNĘTRZNY silnik szachowy nie jest już dostępny. Wybierz nowy."
+        "noExternalEngineAnymore": "Poprzednio wybrany ZEWNĘTRZNY silnik nie jest już dostępny. Wybierz nowy.",
+        "concealmentActive": "Ukrywanie jest aktywne!",
+        "playingSilentAudio": "Odtwarzanie cichej ścieżki audio dla stabilności!"
     },
-    "contributors": []
+    "contributors": ["Sztuczna inteligencja"]
 }

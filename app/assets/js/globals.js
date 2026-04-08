@@ -11,11 +11,13 @@ const ENGINES_REQUIRING_SAB = [ // Requiring SharedArrayBuffer
     'lc0'
 ];
 
+const PROFILE_STORAGE_KEY_PREFIX = '__B64__';
 const USER_USAGE_PREFIX = 'usageStat_';
 const MINUTES_USED_STORAGE_KEY = 'minutesUsed';
 const THEME_COLOR_STORAGE_KEY = 'themeColorHex';
 const INSTANCE_SIZE_KEY = 'instanceSize';
 const BOARD_SIZE_MODIFIER_KEY = 'boardSizeModifier';
+const CONCEAL_ASSISTANCE_ACTIVE_KEY = 'concealAssistanceActive';
 
 const TOS_ACCEPTED_DB_KEY = 'isTosAccepted';
 
@@ -33,15 +35,13 @@ const IS_EXTERNAL_ENGINE_SETTING_ACTIVE = JSON.parse(
 );
 
 const FI_NUMBER_FORMATTER = new Intl.NumberFormat('fi-FI');
-const ACTIVE_INPUT_LISTENER = {
-    targetValue: null,
-    listeners: []
-};
+const ACTIVE_INPUT_LISTENERS = [];
 
 let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js
 let IS_INSTANCE_SETTING_BTN_DISABLED = false;
 let LAST_FORCE_CLOSE_TIME = 0;
+let CONCEAL_ASSISTANCE_ACTIVE = false;
 
 function FORCE_CLOSE_ALL_INSTANCES() {
     const now = Date.now();
@@ -56,13 +56,60 @@ function FORCE_CLOSE_ALL_INSTANCES() {
     });
 }
 
-function CREATE_INPUT_LISTENER(targetValue, callback) {
-    if(typeof targetValue !== 'string' || !callback) return;
-    if(ACTIVE_INPUT_LISTENER.targetValue === targetValue) return;
+function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
+    console.log(isConcealed ? 'Applying assistance concealment...' : 'Removing assistance concealment...');
 
-    ACTIVE_INPUT_LISTENER.listeners.forEach(({ type, fn }) => document.removeEventListener(type, fn));
-    ACTIVE_INPUT_LISTENER.listeners.length = 0;
-    ACTIVE_INPUT_LISTENER.targetValue = null;
+    CONCEAL_ASSISTANCE_ACTIVE = isConcealed;
+
+    window.AcasInstances.forEach(iObj => {
+        if(iObj.instance && typeof iObj.instance.close === "function") {
+            const BoardDrawerSvg = iObj.instance.BoardDrawer.boardContainerElem;
+
+            if('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+
+            if(isConcealed) BoardDrawerSvg.style.display = 'none';
+            else {
+                BoardDrawerSvg.style.display = 'block';
+
+                Object.keys(iObj.instance.pV).forEach(profileName => {
+                    const pending = iObj.instance.pV[profileName]?.pendingMoveDisplay;
+                    if(Array.isArray(pending)) iObj.instance.displayMoves(...pending);
+                });
+            }
+
+            iObj.instance.CommLink.commands.applyAssistanceConcealment(isConcealed);
+        }
+    });
+}
+
+async function TOGGLE_CONCEAL_ASSISTANCE() {
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
+
+    const newValue = !(config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY] ?? false);
+    config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY] = newValue;
+    
+    console.log('Toggling conceal assistance to', config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY]);
+    USERSCRIPT.setValue(gmConfigKey, config);
+
+    APPLY_ASSISTANCE_CONCEALMENT(newValue);
+}
+
+function CREATE_INPUT_LISTENER(listenerType, targetValue, callback) {
+    if(typeof listenerType !== 'string' || typeof targetValue !== 'string' || !callback) return;
+    
+    const existingIndex = ACTIVE_INPUT_LISTENERS
+        .findIndex(l => l.listenerType === listenerType);
+
+    if(existingIndex !== -1) {
+        const existing = ACTIVE_INPUT_LISTENERS[existingIndex];
+        if(existing.targetValue === targetValue) return;
+        
+        existing.listeners.forEach(({ type, fn }) => document.removeEventListener(type, fn));
+        ACTIVE_INPUT_LISTENERS.splice(existingIndex, 1);
+    }
 
     let holdTimer = null;
     let lastTapTime = 0;
@@ -112,8 +159,12 @@ function CREATE_INPUT_LISTENER(targetValue, callback) {
         if(targetValue === "InteractDoubleClick") callback(e);
     });
 
-    ACTIVE_INPUT_LISTENER.targetValue = targetValue;
-    ACTIVE_INPUT_LISTENER.listeners.push(...listeners);
+    ACTIVE_INPUT_LISTENERS.push({
+        listenerType,
+        targetValue,
+        callback,
+        listeners
+    });
 }
 
 function GET_EXTERNAL_PARAM_DB_KEY(engineId) {
@@ -492,11 +543,13 @@ async function GET_PROFILE(profileName) {
     const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
 
-    let profile = { 'name': profileName, 'config': null };
+    const profileKey = GET_PROFILE_STORAGE_KEY(profileName);
 
-    const instanceProfileObj = config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileName];
-    const profileObj = config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileName];
-    const globalProfileObj = config?.['global']?.['profiles']?.[profileName];
+    let profile = { 'name': GET_RAW_PROFILE_NAME(profileName), 'config': null };
+
+    const instanceProfileObj = config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey];
+    const profileObj = config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey];
+    const globalProfileObj = config?.['global']?.['profiles']?.[profileKey];
 
     if(instanceProfileObj) {
         profile.config = { ...globalProfileObj, ...instanceProfileObj };
@@ -516,11 +569,11 @@ async function GET_PROFILE_NAMES() {
 
     const instanceProfilesObj = config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles'];
 
-    if(instanceProfilesObj) return Object.keys(instanceProfilesObj);
+    if(instanceProfilesObj) return [...new Set(Object.keys(instanceProfilesObj).map(GET_RAW_PROFILE_NAME))];
 
     const profilesObj = config?.[SETTING_FILTER_OBJ.type]?.['profiles'];
 
-    if(profilesObj) return Object.keys(profilesObj);
+    if(profilesObj) return [...new Set(Object.keys(profilesObj).map(GET_RAW_PROFILE_NAME))];
 
     console.error('Could not find profile names!', { ...SETTING_FILTER_OBJ, gmConfigKey, config });
 
@@ -560,8 +613,10 @@ async function GET_GM_CFG_VALUE(key, instanceID, profileID) {
     const config = await USERSCRIPT.getValue(gmConfigKey);
 
     if(profileID) {
-        const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
-        const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileID]?.[key];
+        const profileKey = GET_PROFILE_STORAGE_KEY(profileID);
+
+        const globalProfileValue = config?.global?.['profiles']?.[profileKey]?.[key];
+        const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileKey]?.[key];
 
         if(instanceProfileValue !== undefined) {
             return instanceProfileValue;
@@ -606,8 +661,10 @@ async function GET_GM_VALUES_STARTS_WITH(prefix, instanceID, profileID) {
     }
 
     if(profileID) {
-        const globalProfile = config?.global?.['profiles']?.[profileID];
-        const instanceProfile = config?.instance?.[instanceID]?.['profiles']?.[profileID];
+        const profileKey = GET_PROFILE_STORAGE_KEY(profileID);
+
+        const globalProfile = config?.global?.['profiles']?.[profileKey];
+        const instanceProfile = config?.instance?.[instanceID]?.['profiles']?.[profileKey];
 
         collectMatching(globalProfile);
         collectMatching(instanceProfile);
@@ -777,11 +834,11 @@ function PARSE_UCI_OPTION(line) {
         } 
         else if(t === 'min' && i < tokens.length) {
             const v = Number(tokens[i++]);
-            if (!Number.isNaN(v)) min = v;
+            if(!Number.isNaN(v)) min = v;
         } 
         else if(t === 'max' && i < tokens.length) {
             const v = Number(tokens[i++]);
-            if (!Number.isNaN(v)) max = v;
+            if(!Number.isNaN(v)) max = v;
         } 
         else if(t === 'var' && i < tokens.length) {
             if(!vars) vars = [];
@@ -940,7 +997,7 @@ function GET_COOKIE(name) {
 
 async function WAIT_FOR_ELEMENT(selector, maxWaitTime = 10000000) {
     const startTime = Date.now();
-    while (Date.now() - startTime < maxWaitTime) {
+    while(Date.now() - startTime < maxWaitTime) {
         const element = document.querySelector(selector);
         if(element) {
             return element;
@@ -991,6 +1048,94 @@ function FORMAT_PROFILE_NAME(profileNameStr) {
         .trim()
         .replace(/[^a-zA-Z0-9]/g, '')
         .replace(/\s+/g, '');
+}
+
+function IS_BASE64_PROFILE_NAME(value) {
+    return typeof value === 'string'
+        && value.length > 0
+        && value.length % 4 === 0
+        && /^[A-Za-z0-9+/]+={0,2}$/.test(value);
+}
+
+function BASE64_ENCODE_UNICODE(value) {
+    const utf8 = new TextEncoder().encode(String(value));
+    let binary = '';
+
+    for(const byte of utf8) {
+        binary += String.fromCharCode(byte);
+    }
+
+    return btoa(binary);
+}
+
+function BASE64_DECODE_UNICODE(value) {
+    const binary = atob(value);
+    const bytes = new Uint8Array([...binary].map(char => char.charCodeAt(0)));
+    return new TextDecoder().decode(bytes);
+}
+
+function GET_RAW_PROFILE_NAME(profileName) {
+    if(typeof profileName !== 'string' || !profileName) return profileName;
+    if(profileName === 'default') return 'default';
+    if(!profileName.startsWith(PROFILE_STORAGE_KEY_PREFIX)) return profileName;
+
+    const encodedValue = profileName.slice(PROFILE_STORAGE_KEY_PREFIX.length);
+
+    if(!IS_BASE64_PROFILE_NAME(encodedValue)) return profileName;
+
+    try {
+        const decoded = BASE64_DECODE_UNICODE(encodedValue);
+
+        if(`${PROFILE_STORAGE_KEY_PREFIX}${BASE64_ENCODE_UNICODE(decoded)}` === profileName) {
+            return decoded;
+        }
+    } catch (error) {}
+
+    return profileName;
+}
+
+function GET_PROFILE_STORAGE_KEY(profileName) {
+    if(profileName === 'default') return 'default';
+    const rawName = String(GET_RAW_PROFILE_NAME(profileName));
+    return `${PROFILE_STORAGE_KEY_PREFIX}${BASE64_ENCODE_UNICODE(rawName)}`;
+}
+
+function GET_PROFILE_DOM_VALUE(profileName) {
+    return GET_PROFILE_STORAGE_KEY(profileName);
+}
+
+async function MIGRATE_OUTDATED_PROFILE_KEYS() {
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
+    let hasChanges = false;
+
+    // Migrate profile keys that aren't default and don't start with __B64__
+    function migrateProfiles(profilesObj) {
+        if(!profilesObj) return false;
+        let changed = false;
+        Object.keys(profilesObj).forEach(key => {
+            if(key !== 'default' && !key.startsWith(PROFILE_STORAGE_KEY_PREFIX)) {
+                const newKey = GET_PROFILE_STORAGE_KEY(GET_RAW_PROFILE_NAME(key));
+                if(key !== newKey) {
+                    profilesObj[newKey] = profilesObj[key];
+                    delete profilesObj[key];
+                    changed = true;
+                }
+            }
+        });
+        return changed;
+    }
+
+    // Migrate global and instance profiles
+    if(config?.global?.profiles && migrateProfiles(config.global.profiles)) hasChanges = true;
+    if(config?.instance) {
+        Object.values(config.instance).forEach(inst => {
+            if(inst?.profiles && migrateProfiles(inst.profiles)) hasChanges = true;
+        });
+    }
+
+    if(hasChanges) await USERSCRIPT.setValue(gmConfigKey, config);
+    return hasChanges;
 }
 
 function INIT_NESTED_OBJECT(obj, keys) {

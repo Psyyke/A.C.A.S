@@ -150,7 +150,9 @@
         "movesOnDemand": ["Siirrot pyynnöllä", "Laskee siirtoja nappuloille, joiden kanssa vuorovaikutat"],
         "onlySuggestPieces": ["Ehdota Vain Nappuloita", "Ehdota nappuloita siirtää, mutta älä anna siirtoja"],
         "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstään kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"],
-        "useExternalChessEngine": ["Käytössä", "Onko ulkoinen shakin moottori käytössä"]
+        "useExternalChessEngine": ["Käytössä", "Onko ulkoinen šakkimoottori käytössä"],
+        "instanceRestartTriggerCode": ["Käynnistys-painike", "Käynnistää kaikki instanssit uudelleen, hyödyllinen jos ne kaatuvat"],
+        "concealAssistanceTriggerCode": ["Piilotus-painike", "Näytä/piilota avustajatoiminnot (esim. liikkumisnuolet)"]
     },
     "translations": {
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",
@@ -192,7 +194,9 @@
         "serverClose": "Ei voitu yhdistää ulkoisen shakin moottorin palvelimeen!\n\nAsenna/käynnistä palvelin, yritä muodostaa yhteys uudelleen...",
         "websocketError": "WebSocket-virhe:",
         "unknownWebsocketError": "Tuntematon virhe, mahdollisesti yhteys katkennut?",
-        "noExternalEngineAnymore": "Aiemmin valittu ULKOINEN moottori ei ole enää saatavilla. Valitse uusi."
+        "noExternalEngineAnymore": "Aiemmin valittu ULKOINEN moottori ei ole enää saatavilla. Valitse uusi.",
+        "concealmentActive": "Piilotus on aktiivinen!",
+        "playingSilentAudio": "Toistetaan hiljaista ääniraitaa vakauden vuoksi!"
     },
     "contributors": ["Haka"]
 }

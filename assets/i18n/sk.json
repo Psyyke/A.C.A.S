@@ -152,7 +152,9 @@
         "movesOnDemand": ["Tačky na žiadosť", "Vypočîta tahy pre figury, s ktorými pracujete"],
         "onlySuggestPieces": ["Len Navrhnúť Figúry", "Navrhnúť figúry na presun, ale nedať tahy"],
         "isUserscriptGhost": ["Tajný skript", "Vypne všetky detegovateľné externé funkcie (napr. šípky ťahov) aby sa zabránilo detekcii"],
-        "useExternalChessEngine": ["Povolené", "Je povolený externý šachový motor"]
+        "useExternalChessEngine": ["Povolené", "Je povolený externý šachový engine"],
+        "instanceRestartTriggerCode": ["Tlačítko reštartu", "Reštartuje všetky inštancie, užitočné ak sa zrútia"],
+        "concealAssistanceTriggerCode": ["Tlačítko skrývania", "Zobrazit/skryť funkcie pomoci (napr. šipky ťahov)"]
     },
     "translations": {
         "profileRemovalWarning": "Ste si istí, že chcete odstrániť tento profil?\n\nTúto akciu nie je možné zrušiť.",
@@ -194,7 +196,9 @@
         "serverClose": "Nemožno sa pripojiť k serveru externého šachového motora!\n\nInštalujte/spustite server, pokúšam sa znova pripojiť...",
         "websocketError": "Chyba protokolu WebSocket:",
         "unknownWebsocketError": "Neznáma chyba, možno stratená komunikácia?",
-        "noExternalEngineAnymore": "Predtým vybraný EXTERNÝ šachový motor je už nedostupný. Vyberte si nový."
+        "noExternalEngineAnymore": "Predtým vybraný EXTERNÝ šachový motor je už nedostupný. Vyberte si nový.",
+        "concealmentActive": "Skrývania je aktívne!",
+        "playingSilentAudio": "Prehrávanie tichého zvukového záznamu pre stabilitu!"
     },
-    "contributors": ["ChatGPT"]
+    "contributors": ["Umelá inteligencia"]
 }
