@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "Podešavanja plutajućeg panela",
         "*[data-translation-ffs-subtitle]": "Ove opcije su prvenstveno za korisnike pretraživača koji podržavaju PiP",
         "*[data-translation-ffs-instructions]": "(Napomena za Firefox korisnike: Omogućite 'Plutajući panel' desnim klikom na video tok ispod i izaberite 'Gledaj u slici-u-slici'. Mobilni korisnici mogu probati da pritisnu i zadrže video tok na jednu sekundu. Ovo omogućava brže proračune i stabilnije povezivanje. Ako ne želite da vidite ovaj panel svaki put kada otvorite A.C.A.S, onemogućite 'Plutajući panel' ili počnite da koristite Chrome.)",
-        "*[data-translation-ffs-videostream]": "Video tok"
+        "*[data-translation-ffs-videostream]": "Video tok",
+        "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
     },
     "configTranslations": {
         "engineEnabled": ["Omogućeno", "Da li je motor omogućen?"],
@@ -193,7 +194,8 @@
         "unknownWebsocketError": "Nepoznata greška, možda je veza izgubljena?",
         "noExternalEngineAnymore": "Prethodno odabrani SPOLJNI šahovski motor više nije dostupan. Izaberite novi.",
         "concealmentActive": "Skrivanje je aktivno!",
-        "playingSilentAudio": "Pušta se tiha audio traka radi stabilnosti!"
+        "playingSilentAudio": "Pušta se tiha audio traka radi stabilnosti!",
+        "desInputSubtitle": "Dinamički dodano podešavanje"
     },
     "contributors": ["Veštačka inteligencija"]
 }

@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "Setări panou plutitor",
         "*[data-translation-ffs-subtitle]": "Aceste opțiuni sunt pentru utilizatorii browserelor cu suport PiP",
         "*[data-translation-ffs-instructions]": "(Notă pentru utilizatorii Firefox: Activează 'Panoul plutitor' făcând clic dreapta pe fluxul video de mai jos și selectând 'Vizualizează în imagine în imagine'. Utilizatorii de pe mobil pot încerca să țină apăsat pe video timp de o secundă. Acest lucru va permite calcule mai rapide și o conexiune mai stabilă. Dacă nu dorești să vezi acest panou de fiecare dată când deschizi A.C.A.S, dezactivează 'Panoul plutitor' sau începe să folosești Chrome.)",
-        "*[data-translation-ffs-videostream]": "Flux video"
+        "*[data-translation-ffs-videostream]": "Flux video",
+        "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice."
     },
     "configTranslations": {
         "engineEnabled": ["Activat", "Este motorul activat"],
@@ -196,7 +197,8 @@
         "unknownWebsocketError": "Eroare necunoscută, poate conexiunea s-a pierdut?",
         "noExternalEngineAnymore": "Motorul de șah EXTERN selectat anterior nu mai este disponibil. Selectează o noie.",
         "concealmentActive": "Ascunderea este activă!",
-        "playingSilentAudio": "Redarea unei piste audio silențioase pentru stabilitate!"
+        "playingSilentAudio": "Redarea unei piste audio silențioase pentru stabilitate!",
+        "desInputSubtitle": "Setare adăugată dinamic"
     },
     "contributors": ["Inteligență Artificială"]
 }

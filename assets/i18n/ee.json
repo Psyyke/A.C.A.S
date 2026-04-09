@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "Hõljuva paneeli seaded",
         "*[data-translation-ffs-subtitle]": "Need on peamiselt mõeldud Firefoxi kasutajatele",
         "*[data-translation-ffs-instructions]": "(Märkus Firefoxi kasutajatele: lubage 'Floating Panel', klõpsates alloleval videovoogul parema klahviga ja valides 'Vaata pildi-pildis'. Mobiilikasutajad saavad proovida videovoogu ühe sekundi jooksul all hoida. See võimaldab kiiremaid arvutusi ja stabiilsemat ühendust. Kui te ei soovi seda paneeli näha iga kord, kui avate A.C.A.S, keelake 'Floating Panel' või kasutage Chrome'i.)",
-        "*[data-translation-ffs-videostream]": "Videovoog"
+        "*[data-translation-ffs-videostream]": "Videovoog",
+        "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
     },
     "configTranslations": {
         "engineEnabled": ["Aktiveeritud", "Kas mootor on aktiveeritud?"],
@@ -197,7 +198,8 @@
         "unknownWebsocketError": "Tundmatu tõrge, võib-olla ühendus katkestati?",
         "noExternalEngineAnymore": "Varem valitud VÄLINE mootor pole enam saadaval. Valige uus.",
         "concealmentActive": "Varjamine on aktiivne!",
-        "playingSilentAudio": "Mängitakse vaikset helirada stabiilsuse tagamiseks!"
+        "playingSilentAudio": "Mängitakse vaikset helirada stabiilsuse tagamiseks!",
+        "desInputSubtitle": "Dünaamiliselt lisatud seade"
     },
     "contributors": ["Tehisintellekt"]
 }

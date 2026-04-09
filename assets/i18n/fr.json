@@ -93,7 +93,8 @@
         "*[data-translation-ffs-title]": "Paramètres du panneau flottant",
         "*[data-translation-ffs-subtitle]": "Principalement pour les utilisateurs de Firefox",
         "*[data-translation-ffs-instructions]": "(Remarque pour les utilisateurs de Firefox : activez le « Panneau flottant » en cliquant avec le bouton droit sur le flux vidéo ci-dessous et en sélectionnant « Regarder en image dans l'image ». Les utilisateurs mobiles peuvent essayer d'appuyer longuement sur le flux vidéo. Cela permettra des calculs plus rapides et une connexion plus stable. Si vous ne souhaitez pas voir ce panneau à chaque ouverture d'A.C.A.S, désactivez « Floating Panel » ou utilisez Chrome.)",
-        "*[data-translation-ffs-videostream]": "Flux vidéo"
+        "*[data-translation-ffs-videostream]": "Flux vidéo",
+        "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
     },
     "configTranslations": {
         "engineEnabled": ["Activé", "Le moteur est-il activé ?"],
@@ -197,7 +198,8 @@
         "unknownWebsocketError": "Erreur inconnue, peut-être une perte de connexion ?",
         "noExternalEngineAnymore": "Le moteur EXTERNE précédemment sélectionné n'est plus disponible. Sélectionnez-en un nouveau.",
         "concealmentActive": "Dissimulation active!",
-        "playingSilentAudio": "Lecture d'une piste audio silencieuse pour la stabilité !"
+        "playingSilentAudio": "Lecture d'une piste audio silencieuse pour la stabilité !",
+        "desInputSubtitle": "Paramètre ajouté dynamiquement"
     },
     "contributors": ["@PikPakPik", "Intelligence Artificielle"]
 }

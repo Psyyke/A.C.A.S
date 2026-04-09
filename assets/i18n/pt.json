@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "Definições do Painel Flutuante",
         "*[data-translation-ffs-subtitle]": "Estas opções destinam-se a utilizadores com suporte a PiP",
         "*[data-translation-ffs-instructions]": "(Nota para usuários do Firefox: Ative o 'Painel Flutuante' clicando com o botão direito no stream de vídeo abaixo e selecionando 'Ver em imagem-in-imagem'. Usuários móveis podem tentar pressionar longamente o vídeo por um segundo. Isso permitirá cálculos mais rápidos e uma conexão mais estável. Se não quiser ver este painel cada vez que abrir o A.C.A.S, desative o 'Painel Flutuante' ou comece a usar o Chrome.)",
-        "*[data-translation-ffs-videostream]": "Transmissão de vídeo"
+        "*[data-translation-ffs-videostream]": "Transmissão de vídeo",
+        "#des-no-result-text": "Algumas configurações são analisadas dinamicamente a partir da saída UCI do motor. Por favor, abra um tabuleiro de xadrez para iniciar o seu motor e carregar as configurações dinâmicas."
     },
     "configTranslations": {
         "engineEnabled": ["Habilitado", "O motor está habilitado"],
@@ -196,7 +197,8 @@
         "unknownWebsocketError": "Erro desconhecido, talvez a conexão foi perdida?",
         "noExternalEngineAnymore": "O motor EXTERNO previamente selecionado não está mais disponível. Selecione um novo.",
         "concealmentActive": "Ocultação ativa!",
-        "playingSilentAudio": "Reproduzindo uma faixa de áudio silenciosa para estabilidade!"
+        "playingSilentAudio": "Reproduzindo uma faixa de áudio silenciosa para estabilidade!",
+        "desInputSubtitle": "Configuração adicionada dinamicamente"
     },
     "contributors": ["Inteligência Artificial"]
 }

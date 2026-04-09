@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "Yüzen Panel Ayarları",
         "*[data-translation-ffs-subtitle]": "Bu ayarlar öncelikle PiP destekli tarayıcı kullanıcıları içindir",
         "*[data-translation-ffs-instructions]": "(Not: Videoyu sağ tıklayın (veya ⋯ menüsünü açın) ve 'Resim içinde resim' seçeneğini seçin. Mobilde videoya uzun basarak aynı menüyü açabilirsiniz. Tarayıcınız PiP desteklemiyorsa PiP destekli bir tarayıcı kullanmayı deneyin.)",
-        "*[data-translation-ffs-videostream]": "Video akışı"
+        "*[data-translation-ffs-videostream]": "Video akışı",
+        "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
     },
     "configTranslations": {
         "engineEnabled": ["Etkin", "Motor etkin mi"],
@@ -196,7 +197,8 @@
         "unknownWebsocketError": "Bilinmeyen hata, belki bağlantı kayboldu?",
         "noExternalEngineAnymore": "Daha önce seçilen HARICI satranç motoru artık kullanılamıyor. Yeni bir tane seçin.",
         "concealmentActive": "Gizleme aktif!",
-        "playingSilentAudio": "Kararlılık için sessiz bir ses parçası çalınıyor!"
+        "playingSilentAudio": "Kararlılık için sessiz bir ses parçası çalınıyor!",
+        "desInputSubtitle": "Dinamik olarak eklenen ayar"
     },
     "contributors": ["Yapay Zeka"]
 }

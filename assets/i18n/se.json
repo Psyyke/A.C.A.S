@@ -93,7 +93,8 @@
         "*[data-translation-ffs-title]": "Inställningar för flytande panel",
         "*[data-translation-ffs-subtitle]": "Dessa inställningar är främst för användare med PiP-stöd",
         "*[data-translation-ffs-instructions]": "(Obs för Firefox-användare: Aktivera 'Flytande panel' genom att högerklicka på videoströmmen nedan och välj 'Titta i bild-i-bild'. Mobila användare kan prova att trycka länge på videon i en sekund. Detta ger snabbare beräkningar och en mer stabil anslutning. Om du inte vill se den här panelen varje gång du öppnar A.C.A.S, avaktivera 'Flytande panel' eller börja använda Chrome.)",
-        "*[data-translation-ffs-videostream]": "Videoström"
+        "*[data-translation-ffs-videostream]": "Videoström",
+        "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
     },
     "configTranslations": {
         "engineEnabled": ["Aktiverad", "Är motorn aktiverad"],
@@ -198,7 +199,8 @@
         "unknownWebsocketError": "Okänt fel, kanske anslutningen förlorad?",
         "noExternalEngineAnymore": "Den tidigare valda EXTERNA schackmotorn är inte längre tillgänglig. Välj en ny.",
         "concealmentActive": "Dölj är aktiv!",
-        "playingSilentAudio": "Spelar en tyst ljudspår för stabilitet!"
+        "playingSilentAudio": "Spelar en tyst ljudspår för stabilitet!",
+        "desInputSubtitle": "Dynamiskt tillagd inställning"
     },
     "contributors": ["Artificiell intelligens"]
 }

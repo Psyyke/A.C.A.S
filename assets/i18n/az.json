@@ -93,7 +93,8 @@
         "*[data-translation-ffs-title]": "Üzən panel parametrləri",
         "*[data-translation-ffs-subtitle]": "Bunlar əsasən Firefox istifadəçiləri üçündür",
         "*[data-translation-ffs-instructions]": "(Firefox istifadəçiləri üçün qeyd: Aşağıdakı video axını üzərində sağ klikləyib 'Şəkildə-şəkil olaraq izləyin' seçimini seçməklə 'Floating Panel'-i aktiv edin. Mobil istifadəçilər video axınını bir saniyə basılı saxlayaraq sınaya bilərlər. Bu, daha sürətli hesablamalara və daha stabilləşmiş bağlantıya imkan verəcək. Hər dəfə A.C.A.S açdığınızda bu paneli görmək istəmirsinizsə, 'Floating Panel'-i deaktiv edin və ya Chrome istifadə edin.)",
-        "*[data-translation-ffs-videostream]": "Video axını"
+        "*[data-translation-ffs-videostream]": "Video axını",
+        "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
     },
     "configTranslations": {
         "engineEnabled": ["Aktiv", "Mühərrik aktivdir?"],
@@ -195,7 +196,8 @@
         "unknownWebsocketError": "Bilinməyən xəta, bəlkə əlaqə əylənib",
         "noExternalEngineAnymore": "Əvvəl seçilən XARİCİ motor artıq mövcud deyil. Yeni seçin.",
         "concealmentActive": "Gizləmə aktiv!",
-        "playingSilentAudio": "Sabitlik üçün səssiz audio parçası çalınır!"
+        "playingSilentAudio": "Sabitlik üçün səssiz audio parçası çalınır!",
+        "desInputSubtitle": "Dinamik olaraq əlavə edilmiş parametr"
     },
     "contributors": ["Süni İntellekt"]
 }

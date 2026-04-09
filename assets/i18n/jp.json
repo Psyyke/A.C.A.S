@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "フローティングパネルの設定",
         "*[data-translation-ffs-subtitle]": "主に Firefox ユーザー向けです",
         "*[data-translation-ffs-instructions]": "(Firefox ユーザー向けの注意：下のビデオストリームを右クリックして「ピクチャー・イン・ピクチャーで再生」を選択すると「Floating Panel」を有効にできます。モバイルの方はビデオストリームを1秒間長押ししてみてください。これにより計算が速くなり、接続が安定します。A.C.A.S を開くたびにこのパネルを表示したくない場合は、「Floating Panel」を無効にするか Chrome を使用してください。)",
-        "*[data-translation-ffs-videostream]": "ビデオストリーム"
+        "*[data-translation-ffs-videostream]": "ビデオストリーム",
+        "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。"
     },
     "configTranslations": {
         "engineEnabled": ["有効", "エンジンは有効ですか"],
@@ -196,7 +197,8 @@
         "unknownWebsocketError": "不明なエラー、接続が失われたのかもしれません？",
         "noExternalEngineAnymore": "以前に選択した外部エンジンは利用できなくなりました。新しいものを選択してください。",
         "concealmentActive": "非表示が有効です！",
-        "playingSilentAudio": "安定のためにサイレントオーディオトラックを再生しています！"
+        "playingSilentAudio": "安定のためにサイレントオーディオトラックを再生しています！",
+        "desInputSubtitle": "動的に追加された設定"
     },
     "contributors": ["人工知能"]
 }

@@ -93,7 +93,8 @@
         "*[data-translation-ffs-title]": "Cài đặt Bảng Nổi",
         "*[data-translation-ffs-subtitle]": "Tùy chọn này dành cho trình duyệt hỗ trợ PiP (Hình ảnh trong hình)",
         "*[data-translation-ffs-instructions]": "(Lưu ý cho người dùng Firefox: Bật 'Bảng nổi' bằng cách nhấp chuột phải vào luồng video bên dưới và chọn 'Xem ở hình ảnh trong hình'. Người dùng di động có thể thử nhấn giữ vào luồng video trong một giây. Việc này giúp phép tính nhanh hơn và kết nối ổn định hơn. Nếu bạn không muốn thấy bảng này mỗi lần mở A.C.A.S, tắt 'Bảng nổi' hoặc bắt đầu dùng Chrome.)",
-        "*[data-translation-ffs-videostream]": "Luồng video"
+        "*[data-translation-ffs-videostream]": "Luồng video",
+        "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của động cơ. Vui lòng mở bảng cờ vua để khởi động động cơ của bạn và tải các cài đặt động."
     },
     "configTranslations": {
         "engineEnabled": ["Đã bật", "Động cơ đã được bật"],
@@ -195,7 +196,8 @@
         "unknownWebsocketError": "Lỗi không xác định, có thể mất kết nối?",
         "noExternalEngineAnymore": "Công cụ BÊN NGOÀI đã chọn trước đó không còn khả dụng. Hãy chọn một công cụ mới.",
         "concealmentActive": "Ẩn được kích hoạt!",
-        "playingSilentAudio": "Đang phát bản âm thanh im lặng để ổn định!"
+        "playingSilentAudio": "Đang phát bản âm thanh im lặng để ổn định!",
+        "desInputSubtitle": "Cài đặt được thêm động"
     },
     "contributors": ["Trí tuệ nhân tạo"]
 }

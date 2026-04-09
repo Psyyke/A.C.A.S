@@ -93,7 +93,8 @@
         "*[data-translation-ffs-title]": "Einstellungen des schwebenden Panels",
         "*[data-translation-ffs-subtitle]": "Diese Einstellungen sind hauptsächlich für Firefox-Nutzer",
         "*[data-translation-ffs-instructions]": "(Hinweis für Firefox-Nutzer: Aktiviere das 'Floating Panel', indem du im Videostream unten mit der rechten Maustaste klickst und 'Im Bild-in-Bild anzeigen' wählst. Mobile Nutzer können den Videostream kurz gedrückt halten. Dadurch sind Berechnungen schneller und die Verbindung stabiler. Wenn du dieses Panel nicht jedes Mal sehen möchtest, wenn du A.C.A.S öffnest, deaktiviere 'Floating Panel' oder verwende Chrome.)",
-        "*[data-translation-ffs-videostream]": "Videostream"
+        "*[data-translation-ffs-videostream]": "Videostream",
+        "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
     },
     "configTranslations": {
         "engineEnabled": ["Aktiviert", "Ist die Engine aktiviert"],
@@ -198,7 +199,8 @@
         "unknownWebsocketError": "Unbekannter Fehler, vielleicht Verbindung verloren?",
         "noExternalEngineAnymore": "Der vorher ausgewählte externe Motor ist nicht mehr verfügbar. Wähle einen neuen aus.",
         "concealmentActive": "Ausblendung ist aktiv!",
-        "playingSilentAudio": "Stille Audiospur wird zur Stabilität abgespielt!"
+        "playingSilentAudio": "Stille Audiospur wird zur Stabilität abgespielt!",
+        "desInputSubtitle": "Dynamisch hinzugefügte Einstellung"
     },
     "contributors": ["Künstliche Intelligenz"]
 }

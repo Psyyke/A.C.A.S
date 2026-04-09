@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "浮动面板设置",
         "*[data-translation-ffs-subtitle]": "主要针对 Firefox 用户",
         "*[data-translation-ffs-instructions]": "(对 Firefox 用户的说明：通过在下面的视频流上右键单击并选择“在画中画中观看”来启用“浮动面板”。移动用户可以尝试长按视频流一秒钟。这将允许更快的计算和更稳定的连接。如果你不希望每次打开 A.C.A.S 时都看到此面板，请禁用“Floating Panel”或改用 Chrome。)",
-        "*[data-translation-ffs-videostream]": "视频流"
+        "*[data-translation-ffs-videostream]": "视频流",
+        "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
     },
     "configTranslations": {
         "engineEnabled": ["启用", "引擎是否启用"],
@@ -198,7 +199,8 @@
         "noExternalEngineAnymore": "之前选择的外部国际象棋引擎不再可用。请选择一个新的。",
         "thankYouTranslator": "感谢翻译人员",
         "concealmentActive": "隐藏已启用！",
-        "playingSilentAudio": "正在播放静音音轨以保持稳定！"
+        "playingSilentAudio": "正在播放静音音轨以保持稳定！",
+        "desInputSubtitle": "动态添加的设置"
     },
     "contributors": ["人工智能"]
 }

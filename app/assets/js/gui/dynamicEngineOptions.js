@@ -147,7 +147,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
         title.innerText = name;
 
         subtitle.classList.add('input-subtitle');
-        subtitle.innerText = 'Dynamically added setting';
+        subtitle.innerText = TRANS_OBJ?.desInputSubtitle ?? 'Dynamically added setting';
     
         input.dataset.key = dbKey;
         input.dataset.defaultValue = defaultValue;

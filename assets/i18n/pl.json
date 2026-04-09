@@ -93,7 +93,8 @@
         "*[data-translation-ffs-title]": "Ustawienia panelu pływającego",
         "*[data-translation-ffs-subtitle]": "Opcje dla użytkowników przeglądarek z obsługą PiP",
         "*[data-translation-ffs-instructions]": "(Uwaga dla użytkowników Firefox: włącz 'Panel pływający', klikając prawym przyciskiem na transmisję wideo poniżej i wybierając 'Obraz w obrazie'. Użytkownicy mobilni mogą spróbować przytrzymać wideo przez sekundę. To umożliwi szybsze obliczenia i stabilniejsze połączenie. Jeśli nie chcesz widzieć tego panelu za każdym razem, gdy otwierasz A.C.A.S, wyłącz 'Panel pływający' lub zacznij używać Chrome.)",
-        "*[data-translation-ffs-videostream]": "Strumień wideo"
+        "*[data-translation-ffs-videostream]": "Strumień wideo",
+        "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia."
     },
     "configTranslations": {
         "engineEnabled": ["Włączony", "Czy silnik jest włączony"],
@@ -198,7 +199,8 @@
         "unknownWebsocketError": "Nieznany błąd, może połączenie zostało utracone?",
         "noExternalEngineAnymore": "Poprzednio wybrany ZEWNĘTRZNY silnik nie jest już dostępny. Wybierz nowy.",
         "concealmentActive": "Ukrywanie jest aktywne!",
-        "playingSilentAudio": "Odtwarzanie cichej ścieżki audio dla stabilności!"
+        "playingSilentAudio": "Odtwarzanie cichej ścieżki audio dla stabilności!",
+        "desInputSubtitle": "Ustawienie dodane dynamicznie"
     },
     "contributors": ["Sztuczna inteligencja"]
 }

@@ -91,7 +91,8 @@
         "*[data-translation-ffs-title]": "Kelluvan paneelin asetukset",
         "*[data-translation-ffs-subtitle]": "Nämä ovat pääasiassa Firefox-käyttäjille",
         "*[data-translation-ffs-instructions]": "(Huom: Firefox-käyttäjille: ota 'Kelluva paneeli' käyttöön klikkaamalla alla olevaa videovirtaa hiiren oikealla ja valitsemalla 'Katso kuva kuvassa'. Mobiilikäyttäjät voivat kokeilla pitää videovirtaa painettuna sekunnin. Tämä mahdollistaa nopeammat laskelmat ja vakaamman yhteyden. Jos et halua nähdä tätä paneelia aina avatessasi A.C.A.S, poista 'Kelluva paneeli' käytöstä tai käytä Chromea.)",
-        "*[data-translation-ffs-videostream]": "Videovirta"
+        "*[data-translation-ffs-videostream]": "Videovirta",
+        "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset."
     },
     "configTranslations": {
         "engineEnabled": ["Päällä", "Onko moottori päällä"],
@@ -107,7 +108,7 @@
         "autoMoveLegit": ["Legiitti-tila", "Yritä tehdä automaattinen siirto uskottavammaksi"],
         "autoMoveRandom": ["Satunnainen tila", "Pelaa muita siirtoja kuin paras mahdollinen"],
         "displayMovesOnExternalSite": ["Siirrot ulkoisella sivustolla", "Näytä siirron nuolia shakin sivustolla (esim. chess.comin laudalla)"],
-        "engineNodes": ["Haku solmut", "Enemmän solmuja tarkoittaa enemmän pohdintaa siirroista moottorilta"],
+        "engineNodes": ["Hakusolmut", "Enemmän solmuja tarkoittaa enemmän pohdintaa siirroista moottorilta"],
         "lc0Weight": ["Lc0 painot", "Lue lisää täältä"],
         "legitModeType": ["Legiitti-tilan tyyppi", "Millainen pelaaja Auto Move -toiminnon pitäisi olla"],
         "moveDisplayDelay": ["Siirron viive (ms)", "Näytä siirtonuolet tämän ajan kuluttua"],
@@ -121,7 +122,7 @@
         "showOpponentMoveGuess": ["Vastustajan siirron arvaus", "Näytä moottorin arvaus siitä, mitä siirtoa vastustaja todennäköisesti tekee, kun pelaat ehdotetun siirron"],
         "showOpponentMoveGuessConstantly": ["Näytä jatkuvasti", "Näytä vastustajan siirron arvaus jatkuvasti"],
         "ttsVoiceEnabled": ["Siirtojen TTS", "Kuule parhaat siirrot"],
-        "ttsVoiceSpeed": ["TTS:n nopeus (1 - 100)", "Korkeampi luku, nopeampi nopeus"],
+        "ttsVoiceSpeed": ["TTS nopeus (1 - 100)", "Korkeampi luku, nopeampi nopeus"],
         "themeColorHex": ["Teeman väri"],
         "boardColorHex": ["Laudan väri"],
         "chessFont": ["Shakkiteema"],
@@ -151,8 +152,8 @@
         "onlySuggestPieces": ["Ehdota Vain Nappuloita", "Ehdota nappuloita siirtää, mutta älä anna siirtoja"],
         "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstään kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"],
         "useExternalChessEngine": ["Käytössä", "Onko ulkoinen šakkimoottori käytössä"],
-        "instanceRestartTriggerCode": ["Käynnistys-painike", "Käynnistää kaikki instanssit uudelleen, hyödyllinen jos ne kaatuvat"],
-        "concealAssistanceTriggerCode": ["Piilotus-painike", "Näytä/piilota avustajatoiminnot (esim. liikkumisnuolet)"]
+        "instanceRestartTriggerCode": ["Käynnistyspainike", "Käynnistää kaikki instanssit uudelleen, hyödyllinen jos ne kaatuvat"],
+        "concealAssistanceTriggerCode": ["Piilotuspainike", "Näytä/piilota avustajatoiminnot (esim. liikkumisnuolet)"]
     },
     "translations": {
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",
@@ -196,7 +197,8 @@
         "unknownWebsocketError": "Tuntematon virhe, mahdollisesti yhteys katkennut?",
         "noExternalEngineAnymore": "Aiemmin valittu ULKOINEN moottori ei ole enää saatavilla. Valitse uusi.",
         "concealmentActive": "Piilotus on aktiivinen!",
-        "playingSilentAudio": "Toistetaan hiljaista ääniraitaa vakauden vuoksi!"
+        "playingSilentAudio": "Toistetaan hiljaista ääniraitaa vakauden vuoksi!",
+        "desInputSubtitle": "Dynaamisesti lisätty asetus"
     },
     "contributors": ["Haka"]
 }
