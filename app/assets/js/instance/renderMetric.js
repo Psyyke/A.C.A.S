@@ -21,8 +21,8 @@ export default async function renderMetric(fen, profile) {
     const renderPieceEnemyCapture   = await this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
     const renderOnExternalSite      = await this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
 
-    const onlyRenderSquarePlayer = renderSquarePlayer && !(renderSquareEnemy || renderSquareContested || renderSquareSafe);
-    const onlyRenderSquareEnemy = renderSquareEnemy && !(renderSquarePlayer || renderSquareContested || renderSquareSafe);
+    const onlyRenderSquarePlayer = renderSquarePlayer && !(renderSquareEnemy || renderSquareContested);
+    const onlyRenderSquareEnemy = renderSquareEnemy && !(renderSquarePlayer || renderSquareContested);
 
     // If none exist, do not analyze
     if(!(renderSquarePlayer || renderSquareEnemy || renderSquareContested || renderSquareSafe || renderPieceEnemyCapture))
