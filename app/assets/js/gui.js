@@ -1,6 +1,6 @@
 import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exportSettingsBtn, resetSettingsBtn,
     noInstancesSitesElem, seeSupportedSitesBtn, ttsNameDropdownElem, userscriptInfoElem, updateYourUserscriptElem,
-    decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, floatyButtons, beggingFloaty } from './gui/elementDeclarations.js';
+    decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, floatyButtons, beggingFloaty, profileListContainerElem } from './gui/elementDeclarations.js';
 import { importSettings, exportSettings, resetSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
 import { monitorInstances, monitorInstanceTabs, toggleSelectedNavbarItem } from './gui/instances.js';
@@ -194,6 +194,12 @@ export async function initGUI() {
     beggingFloaty.onclick = e => {
         if(e.target === beggingFloaty) beggingFloaty.close();
     };
+    profileListContainerElem.addEventListener('wheel', (e) => {
+        if(Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            profileListContainerElem.scrollLeft += e.deltaY;
+        }
+    });
 
     guiBroadcastChannel.onmessage = e => {
         const msg = e.data;
