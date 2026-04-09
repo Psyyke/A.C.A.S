@@ -57,8 +57,6 @@ function FORCE_CLOSE_ALL_INSTANCES() {
 }
 
 function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
-    console.log(isConcealed ? 'Applying assistance concealment...' : 'Removing assistance concealment...');
-
     CONCEAL_ASSISTANCE_ACTIVE = isConcealed;
 
     window.AcasInstances.forEach(iObj => {
@@ -91,7 +89,6 @@ async function TOGGLE_CONCEAL_ASSISTANCE() {
     const newValue = !(config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY] ?? false);
     config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY] = newValue;
     
-    console.log('Toggling conceal assistance to', config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY]);
     USERSCRIPT.setValue(gmConfigKey, config);
 
     APPLY_ASSISTANCE_CONCEALMENT(newValue);
@@ -545,7 +542,7 @@ async function GET_PROFILE(profileName) {
 
     const profileKey = GET_PROFILE_STORAGE_KEY(profileName);
 
-    let profile = { 'name': GET_RAW_PROFILE_NAME(profileName), 'config': null };
+    let profile = { 'name': profileName, 'config': null };
 
     const instanceProfileObj = config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey];
     const profileObj = config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey];
@@ -569,11 +566,11 @@ async function GET_PROFILE_NAMES() {
 
     const instanceProfilesObj = config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles'];
 
-    if(instanceProfilesObj) return [...new Set(Object.keys(instanceProfilesObj).map(GET_RAW_PROFILE_NAME))];
+    if(instanceProfilesObj) return [...new Set(Object.keys(instanceProfilesObj))];
 
     const profilesObj = config?.[SETTING_FILTER_OBJ.type]?.['profiles'];
 
-    if(profilesObj) return [...new Set(Object.keys(profilesObj).map(GET_RAW_PROFILE_NAME))];
+    if(profilesObj) return [...new Set(Object.keys(profilesObj))];
 
     console.error('Could not find profile names!', { ...SETTING_FILTER_OBJ, gmConfigKey, config });
 
@@ -605,6 +602,7 @@ async function GET_ACTIVE_ENGINE_NAME(profileName) {
 }
 
 async function GET_GM_CFG_VALUE(key, instanceID, profileID) {
+    if(profileID === null) return null;
     if(typeof profileID === 'object') {
         profileID = profileID.name;
     }
@@ -1074,7 +1072,7 @@ function BASE64_DECODE_UNICODE(value) {
     return new TextDecoder().decode(bytes);
 }
 
-function GET_RAW_PROFILE_NAME(profileName) {
+function GET_HUMAN_READABLE_PROFILE_NAME(profileName) {
     if(typeof profileName !== 'string' || !profileName) return profileName;
     if(profileName === 'default') return 'default';
     if(!profileName.startsWith(PROFILE_STORAGE_KEY_PREFIX)) return profileName;
@@ -1096,12 +1094,8 @@ function GET_RAW_PROFILE_NAME(profileName) {
 
 function GET_PROFILE_STORAGE_KEY(profileName) {
     if(profileName === 'default') return 'default';
-    const rawName = String(GET_RAW_PROFILE_NAME(profileName));
+    const rawName = String(GET_HUMAN_READABLE_PROFILE_NAME(profileName));
     return `${PROFILE_STORAGE_KEY_PREFIX}${BASE64_ENCODE_UNICODE(rawName)}`;
-}
-
-function GET_PROFILE_DOM_VALUE(profileName) {
-    return GET_PROFILE_STORAGE_KEY(profileName);
 }
 
 async function MIGRATE_OUTDATED_PROFILE_KEYS() {
@@ -1109,29 +1103,30 @@ async function MIGRATE_OUTDATED_PROFILE_KEYS() {
     const config = await USERSCRIPT.getValue(gmConfigKey);
     let hasChanges = false;
 
-    // Migrate profile keys that aren't default and don't start with __B64__
-    function migrateProfiles(profilesObj) {
+    async function migrateProfiles(profilesObj) {
         if(!profilesObj) return false;
         let changed = false;
-        Object.keys(profilesObj).forEach(key => {
+
+        for(const key of Object.keys(profilesObj)) {
             if(key !== 'default' && !key.startsWith(PROFILE_STORAGE_KEY_PREFIX)) {
-                const newKey = GET_PROFILE_STORAGE_KEY(GET_RAW_PROFILE_NAME(key));
+                const newKey = GET_PROFILE_STORAGE_KEY(key);
                 if(key !== newKey) {
                     profilesObj[newKey] = profilesObj[key];
                     delete profilesObj[key];
                     changed = true;
                 }
             }
-        });
+        }
+
         return changed;
     }
 
-    // Migrate global and instance profiles
-    if(config?.global?.profiles && migrateProfiles(config.global.profiles)) hasChanges = true;
+    if(config?.global?.profiles && await migrateProfiles(config.global.profiles)) hasChanges = true;
+
     if(config?.instance) {
-        Object.values(config.instance).forEach(inst => {
-            if(inst?.profiles && migrateProfiles(inst.profiles)) hasChanges = true;
-        });
+        for(const inst of Object.values(config.instance)) {
+            if(inst?.profiles && await migrateProfiles(inst.profiles)) hasChanges = true;
+        }
     }
 
     if(hasChanges) await USERSCRIPT.setValue(gmConfigKey, config);

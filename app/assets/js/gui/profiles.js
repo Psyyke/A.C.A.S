@@ -25,18 +25,17 @@ function settingPanelTransitionAnimation(duration = 400) {
 }
 
 async function deleteProfile(profileName) {
-    const actualProfileName = GET_RAW_PROFILE_NAME(profileName);
-    const warningText = `(${actualProfileName?.toUpperCase()}) `
+    const warningText = `(${GET_HUMAN_READABLE_PROFILE_NAME(profileName)?.toUpperCase()}) `
         + (TRANS_OBJ?.profileRemovalWarning ?? 'Are you sure you want to remove this profile?\n\nThis action cannot be reversed.');
 
     if(confirm(warningText)) {
         const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
 
-        selectNearestProfileTab(profileTabs, actualProfileName);
-        removeProfileTabItem(profileTabs, actualProfileName);
+        selectNearestProfileTab(profileTabs, profileName);
+        removeProfileTabItem(profileTabs, profileName);
 
         const config = await USERSCRIPT.getValue(gmConfigKey);
-        const profileKey = GET_PROFILE_STORAGE_KEY(actualProfileName);
+        const profileKey = GET_PROFILE_STORAGE_KEY(profileName);
 
         if(SETTING_FILTER_OBJ.instanceID) {
             delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey];
@@ -46,14 +45,14 @@ async function deleteProfile(profileName) {
 
         USERSCRIPT.setValue(gmConfigKey, config);
 
-        closeAllExternalEnginesWithId(actualProfileName, 'profileName');
+        closeAllExternalEnginesWithId(profileName, 'profileName');
     }
 }
 
 function selectNearestProfileTab(tabsElem, profileName) {
     const listContainerElem = tabsElem.querySelector('.tabs-list-container');
     const listTabItems = [...listContainerElem.children].filter(x => x?.dataset?.value);
-    const formattedName = GET_PROFILE_DOM_VALUE(profileName);
+    const formattedName = GET_PROFILE_STORAGE_KEY(profileName);
     const indexOfCurrentTab = listTabItems.findIndex(x => x.dataset.value === formattedName);
 
     if(indexOfCurrentTab && indexOfCurrentTab >= 1) {
@@ -73,7 +72,7 @@ export function setProfileBubbleStatus(status, profileName, title = status) {
         return;
     }
 
-    const bubble = document.querySelector(`.profile-status-bubble[data-value="${GET_PROFILE_DOM_VALUE(profileName)}"]`);
+    const bubble = document.querySelector(`.profile-status-bubble[data-value="${GET_PROFILE_STORAGE_KEY(profileName)}"]`);
 
     if(!bubble || typeof status !== 'string') return;
 
@@ -86,8 +85,7 @@ export function setProfileBubbleStatus(status, profileName, title = status) {
 }
 
 function addProfileTabItem(tabsElem, profileName, isDefault) {
-    const actualProfileName = GET_RAW_PROFILE_NAME(profileName);
-    const encodedProfileName = GET_PROFILE_DOM_VALUE(actualProfileName);
+    const encodedProfileName = GET_PROFILE_STORAGE_KEY(profileName);
     const listContainerElem = tabsElem.querySelector('.tabs-list-container');
     const inputElem = tabsElem.querySelector('input');
 
@@ -102,7 +100,7 @@ function addProfileTabItem(tabsElem, profileName, isDefault) {
           itemElem.dataset.value = encodedProfileName;
         
     const textElem = document.createElement('p');
-          textElem.innerText = actualProfileName;
+          textElem.innerText = GET_HUMAN_READABLE_PROFILE_NAME(profileName);
 
     itemElem.appendChild(statusBubble);
     itemElem.appendChild(textElem);
@@ -115,14 +113,14 @@ function addProfileTabItem(tabsElem, profileName, isDefault) {
               removalButton.title = 'Remove profile';
 
         removalButton.onclick = () => {
-            deleteProfile(actualProfileName);
+            deleteProfile(profileName);
         };
 
         itemElem.appendChild(removalButton);
     }
 
     itemElem.onclick = e => {
-        inputElem.value = actualProfileName;
+        inputElem.value = profileName;
 
         const listItems = [...listContainerElem.querySelectorAll('.tab-item')]
             .filter(x => x?.dataset?.value);
@@ -138,13 +136,13 @@ function addProfileTabItem(tabsElem, profileName, isDefault) {
         const didClickOnRemovalBtn = e?.target?.classList?.contains('profile-removal-button');
 
         if(!didClickOnRemovalBtn) {
-            SETTING_FILTER_OBJ.profileID = actualProfileName;
+            SETTING_FILTER_OBJ.profileID = profileName;
 
             saveSetting(inputElem, true); // save the profile setting
             loopThroughAndUpdateSettingsValues(e.isTrusted); // update values since profile changed
 
             setTimeout(async () => {
-                const engineId = await GET_ACTIVE_ENGINE_NAME(actualProfileName);
+                const engineId = await GET_ACTIVE_ENGINE_NAME(profileName);
                 ensureOneDynamicEngineSettingVisible(engineId);
             }, 250);
         }
@@ -160,11 +158,11 @@ function addProfileTabItem(tabsElem, profileName, isDefault) {
 }
 
 function removeProfileTabItem(tabsElem, itemValue, newValue) {
-    const encodedName = GET_PROFILE_DOM_VALUE(itemValue);
+    const encodedName = GET_PROFILE_STORAGE_KEY(itemValue);
     const dropdownItem = tabsElem.querySelector(`*[data-value="${encodedName}"]`);
     const dropdownInput = tabsElem.querySelector('input[data-default-value]');
 
-    dropdownInput.value = GET_RAW_PROFILE_NAME(newValue || dropdownInput.dataset.defaultValue);
+    dropdownInput.value = (newValue || dropdownInput.dataset.defaultValue);
 
     dropdownItem?.remove();
 
@@ -185,7 +183,7 @@ export async function fillProfileTabs() {
     setInstanceSelectionStatus(profileNames.length > 1);
 
     for(const profileName of profileNames) {
-        const formattedName = GET_PROFILE_DOM_VALUE(profileName);
+        const formattedName = GET_PROFILE_STORAGE_KEY(profileName);
 
         const nameExists = [...profileTabs.querySelectorAll('.tab-item')].find(
             elem => elem.dataset.value === formattedName
@@ -194,7 +192,7 @@ export async function fillProfileTabs() {
         if(!nameExists) {
             const isDefault = profileName?.toLowerCase() === defaultValue?.toLowerCase();
             const itemElem = addProfileTabItem(profileTabs, profileName, isDefault);
-            const currentActiveProfileName = GET_RAW_PROFILE_NAME(await GET_GM_CFG_VALUE('chessEngineProfile', SETTING_FILTER_OBJ.instanceID, false));
+            const currentActiveProfileName = await GET_GM_CFG_VALUE('chessEngineProfile', SETTING_FILTER_OBJ.instanceID, false);
 
             if(profileName === currentActiveProfileName) {
                 setTimeout(() => {
@@ -208,11 +206,14 @@ export async function fillProfileTabs() {
 export function createNewProfile() {
     while(true) {
         const msg = TRANS_OBJ?.profileNamePrompt ?? 'Enter the profile name:';
-        const profileName = prompt(`${msg} `);
+        const userInput = prompt(`${msg} `);
+        const trimmedUserInput = userInput?.trim();
 
-        if(!profileName) break;
+        if(!userInput || trimmedUserInput.length === 0) break;
 
-        const formattedName = GET_PROFILE_DOM_VALUE(profileName);
+        const profileName = GET_PROFILE_STORAGE_KEY(trimmedUserInput);
+
+        const formattedName = GET_PROFILE_STORAGE_KEY(profileName);
         const nameExists = [...profileTabs.querySelectorAll('.tab-item')]
             .find(elem => elem.dataset.value === formattedName);
 
