@@ -56,3 +56,34 @@ const observer = new MutationObserver((mutations, obs) => {
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
+
+(() => {
+    function secureLink(a) {
+        if(!a || a.tagName !== 'A') return;
+
+        a.setAttribute('rel', 'noopener noreferrer');
+        a.setAttribute('referrerpolicy', 'no-referrer');
+    }
+
+    function secureAllLinks(root = document) {
+        const links = root.querySelectorAll('a[href]');
+        links.forEach(secureLink);
+    }
+
+    secureAllLinks();
+
+    const observer = new MutationObserver((mutations) => {
+        for(const mutation of mutations) {
+            mutation.addedNodes.forEach((node) => {
+                if(node.nodeType !== 1) return;
+                if(node.tagName === 'A') secureLink(node);
+                if(node.querySelectorAll) secureAllLinks(node);
+            });
+        }
+    });
+
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+})();
