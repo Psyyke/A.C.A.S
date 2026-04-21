@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.2
+// @version     2.4.3
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -3164,7 +3164,7 @@ addSupportedChessSite('immortal.game', {
 
 addSupportedChessSite('worldchess.com', {
     'boardElem': obj => {
-        return document.querySelector('*[data-component="GameLayoutBoard"] cg-board');
+        return document.querySelector('*[data-component="GameBoard"] cg-board');
     },
 
     'pieceElem': obj => {
