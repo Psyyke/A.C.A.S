@@ -237,6 +237,33 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         startGame.bind(this)();
     }
 
+    function loadMaia3() {
+        const maia = new Worker('../app/assets/engines/Maia3/acasWorker.js', { type: 'module' });
+        let maia_loaded = false;
+
+        maia.onmessage = async e => {
+            if(e.data === true) {
+                maia_loaded = true;
+
+                this.engines.push({
+                    'type': profileChessEngine,
+                    'engine': (method, a) => maia.postMessage({ method: method, args: [...a] }),
+                    'sendMsg': msg => maia.postMessage({ method: 'uci', args: [msg] }),
+                    'worker': maia,
+                    profileName
+                });
+    
+                startGame.bind(this)();
+            } else if (e.data) {
+                processEngineMessage(e.data);
+            }
+        };
+
+        maia.onerror = e => {
+            restartEngine.bind(this)('maia3', e);
+        };
+    }
+
     function loadMaia2() {
         const maia = new Worker('../app/assets/engines/Maia2/worker.js', { type: 'module' });
         let maia_loaded = false;
@@ -315,6 +342,10 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
         case 'acas-fusion':
             loadFusion.bind(this)();
+            break;
+
+        case 'maia3':
+            loadMaia3.bind(this)();
             break;
 
         case 'maia2':

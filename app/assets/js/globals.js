@@ -80,6 +80,12 @@ function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
             iObj.instance.CommLink.commands.applyAssistanceConcealment(isConcealed);
         }
     });
+
+    const chessboardComponents = document.querySelectorAll('.chessboard-components');
+
+    chessboardComponents.forEach(elem => {
+        elem.classList.toggle('assistance-concealment-active', isConcealed);
+    });
 }
 
 async function TOGGLE_CONCEAL_ASSISTANCE() {
@@ -866,7 +872,7 @@ function PARSE_UCI_RESPONSE(response) {
     const keywords = ['id', 'name', 'author', 'uciok', 'readyok', 
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',
         'wdl', 'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
-        'currmove', 'currmovenumber', 'hashfull', 'multipv',
+        'currmove', 'currmovenumber', 'hashfull', 'multipv', 'prob',
         'refutation', 'line', 'stop', 'ponderhit', 'ucs',
         'position', 'startpos', 'moves', 'files', 'ranks',
         'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc', 'error'];

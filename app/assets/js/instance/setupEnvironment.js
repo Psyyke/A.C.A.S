@@ -30,6 +30,7 @@ export default async function setupEnvironment(startpos, dimensions) {
         let variantText = variant;
         let chessFont = FORMAT_CHESS_FONT(await this.getConfigValue(this.configKeys.chessFont));
 
+        const isConcealAssistanceActive = await GET_GM_CFG_VALUE(CONCEAL_ASSISTANCE_ACTIVE_KEY);
         const formattedChessVariant = FORMAT_VARIANT(variant);
         const shouldSwitchFont = chessFont === 'staunty' && ![
             // Chess variants which don't have special pieces
@@ -64,7 +65,7 @@ export default async function setupEnvironment(startpos, dimensions) {
         const oldInstanceElem = this.instanceElem ? this.instanceElem : null;
 
         const instanceWidth = `${Number(localStorage.getItem(INSTANCE_SIZE_KEY)) * Number(localStorage.getItem(BOARD_SIZE_MODIFIER_KEY))}px`;
-
+    
         // To avoid XSS do not put data from external sites directly inside the innerHTML string using templates!
         // InstanceIdQuery, boardPieceDimensions and such are safe since they don't contain external data.
         const acasInstanceElem = document.createElement('div');
@@ -106,7 +107,7 @@ export default async function setupEnvironment(startpos, dimensions) {
                     <div class="instance-info-text"></div>
                 </div>
             </div>
-            <div class="chessboard-components">
+            <div class="chessboard-components ${isConcealAssistanceActive ? 'assistance-concealment-active' : ''}">
                 <div class="eval-bar">
                     <div class="eval-fill"></div>
                 </div>
@@ -204,8 +205,8 @@ export default async function setupEnvironment(startpos, dimensions) {
         this.BoardDrawer.boardContainerElem.dataset.instanceId = this.instanceID;
 
         this.Interface.updateBoardOrientation(orientation);
-
-        APPLY_ASSISTANCE_CONCEALMENT(await GET_GM_CFG_VALUE(CONCEAL_ASSISTANCE_ACTIVE_KEY));
+        
+        APPLY_ASSISTANCE_CONCEALMENT(isConcealAssistanceActive);
         
         if(oldInstanceElem) {
             acasInstanceContainer.replaceChild(this.instanceElem, oldInstanceElem);

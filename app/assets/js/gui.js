@@ -59,13 +59,21 @@ export function highlightSettingElem(targetElem, cb) {
 function changeBoardSizeModifier(change) {
     const instanceSize = Number(localStorage.getItem(INSTANCE_SIZE_KEY));
     const boardSizeModifier = Number(localStorage.getItem(BOARD_SIZE_MODIFIER_KEY));
-    const newBoardSizeModifier = boardSizeModifier + change;
+    
+    const MIN_MODIFIER = 0.3;
+
+    const newBoardSizeModifier = Math.max(
+        MIN_MODIFIER,
+        boardSizeModifier + change
+    );
 
     localStorage.setItem(BOARD_SIZE_MODIFIER_KEY, newBoardSizeModifier);
 
     const instanceElems = [...document.querySelectorAll('.acas-instance')];
 
-    instanceElems.forEach(elem => elem.style.width = `${instanceSize * newBoardSizeModifier}px`);
+    instanceElems.forEach(elem => {
+        elem.style.width = `${instanceSize * newBoardSizeModifier}px`;
+    });
 }
 
 function fillChessVariantDropdowns(arr) {

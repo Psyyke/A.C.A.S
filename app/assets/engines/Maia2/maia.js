@@ -15,7 +15,18 @@ export default class Maia {
 
 	async init() {
 		const buffer = await this.getCachedModel(this.modelUrl);
-		this.model = await ort.InferenceSession.create(buffer);
+		this.model = await ort.InferenceSession.create(buffer, {
+			executionProviders: ['webgpu', 'wasm'],
+			webgpu: {
+				devicePreference: 'high-performance',
+				pipelineHint: 'fastest'
+			},
+			wasm: {
+				threads: navigator.hardwareConcurrency || 4,
+				simd: true
+			}
+		});
+
 		this.ready = true;
 	}
 
@@ -136,7 +147,7 @@ export default class Maia {
 
 		if(searchMoves)
 			policy = Object.fromEntries(
-				Object.entries(policy).filter(([key]) => searchMoves.some(sm => key.startsWith(sm[0]+sm[1]))));
+				Object.entries(policy).filter(([key]) => searchMoves.some(sm => sm === key)));
 
 		return { policy, value: Math.round(winProb * 10000) / 10000 };
 	}

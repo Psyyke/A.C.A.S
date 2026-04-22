@@ -36,7 +36,7 @@ export default async function updateSettings(updateObj) {
 
     const findSetting = key => Object.values(updateObj?.data)?.includes(key);
     const didUpdateVariant = findSetting(this.configKeys.chessVariant);
-    const didUpdateElo = [this.configKeys.engineElo]
+    const didUpdateElo = [this.configKeys.engineElo, this.configKeys.engineEnemyElo]
         .find(key => findSetting(key));
     const didUpdateLc0Weight = findSetting(this.configKeys.lc0Weight);
     const didUpdateChessFont = findSetting(this.configKeys.chessFont);

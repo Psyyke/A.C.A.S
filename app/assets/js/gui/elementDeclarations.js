@@ -45,7 +45,8 @@ export const increaseInstanceSizeBtn = document.querySelector('#increase-instanc
 export const chessVariantDropdown = document.querySelector('#chess-variant-dropdown');
 export const engineEloInput = document.querySelector('#engine-elo-input');
 export const lc0WeightDropdown = document.querySelector('#lc0-weight-dropdown');
-
+export const chess960Checkbox = document.querySelector('#chess960-checkbox');
+export const enemyEloInputContainer = document.querySelector('#enemy-elo-input');
 export const addNewProfileBtn = document.querySelector('#add-new-profile-button');
 export const profileTabs = document.querySelector('#chess-engine-profile-tabs');
 

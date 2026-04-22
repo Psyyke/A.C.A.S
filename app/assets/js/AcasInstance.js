@@ -17,7 +17,7 @@ const logEngineMessages = false,
       debugLogsEnabled = false;
 
 const configKeys = Object.freeze([
-    'engineElo', 'moveSuggestionAmount', 'arrowOpacity',
+    'engineElo', 'engineEnemyElo', 'moveSuggestionAmount', 'arrowOpacity',
     'displayMovesOnExternalSite', 'showMoveGhost', 'showOpponentMoveGuess',
     'showOpponentMoveGuessConstantly', 'onlyShowTopMoves', 'maxMovetime',
     'chessVariant', 'chessEngine', 'lc0Weight',
@@ -360,14 +360,33 @@ export default class AcasInstance {
 
     async setEngineElo(elo, didUserUpdateSetting, profile) {
         if(typeof elo == 'number') {
-            const limitStrength = 0 < elo && elo <= 2600;
+            const limitStrength = 0 < elo && elo <= 2300;
             const engineType = await this.getEngineName(profile);
 
-            if(engineType === 'maia2' && !(1100 <= elo && elo <= 2000)) {
-                toast.warning('"Maia 2" engine only supports 1100-2000 ELO! Your ELO was converted to the closest supported ELO, but please change the setting.', 30000);
-            }
+            const isMaiaEngine = engineType.includes('maia');
+            const engineEnemyElo = await this.getConfigValue(this.configKeys.engineEnemyElo, profile);
+            const maiaEloRanges = {
+                maia2: [1100, 2000],
+                maia3: [600, 2600]
+            };
 
-            this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
+            if(isMaiaEngine) {
+                const [min, max] = maiaEloRanges[engineType];
+
+                const clampedEngineElo = Math.max(min, Math.min(max, elo));
+                const clampedEnemyElo = Math.max(min, Math.min(max, engineEnemyElo));
+
+                if(clampedEngineElo !== elo || clampedEnemyElo !== engineEnemyElo) {
+                    toast.warning(`"Maia ${engineType === 'maia3' ? 3 : 2}" ELO: ${min}–${max}`, 30000);
+                }
+
+                this.sendMsgToEngine(`setoption name Enemy_Elo value ${clampedEnemyElo}`, profile);
+                this.sendMsgToEngine(`setoption name UCI_Elo value ${clampedEngineElo}`, profile);
+
+                if(didUserUpdateSetting) {
+                    toast.message(`Maia ELO: ${clampedEngineElo} (${clampedEnemyElo})`, 3000);
+                }
+            } else this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
 
             const skillLevelMsg = TRANS_OBJ?.engineSkillLevel ?? 'Engine skill level';
             const searchDepthMsg = TRANS_OBJ?.engineSearchDepth ?? 'Search depth';
@@ -383,9 +402,9 @@ export default class AcasInstance {
                 const depth = GET_DEPTH_FROM_ELO(elo);
                 this.pV[profile].searchDepth = depth;
 
-                if(didUserUpdateSetting) {
+                if(didUserUpdateSetting && !isMaiaEngine)
                     toast.message(`${skillLevelMsg} ${skillLevel} | ${searchDepthMsg} ${depth}`, 8000);
-                }
+
             } else {
                 this.setEngineLimitStrength(false, profile);
                 this.setEngineSkillLevel(20, profile);
@@ -394,13 +413,13 @@ export default class AcasInstance {
                     const depth = GET_DEPTH_FROM_ELO(elo);
                     this.pV[profile].searchDepth = depth;
 
-                    if(didUserUpdateSetting)
+                    if(didUserUpdateSetting && !isMaiaEngine)
                         toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
                     updatePipData({ 'goalDepth': null });
 
-                    if(didUserUpdateSetting)
+                    if(didUserUpdateSetting && !isMaiaEngine)
                         toast.message(engineNoLimitations, 8000);
                 }
             }

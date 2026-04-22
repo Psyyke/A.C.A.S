@@ -1,7 +1,7 @@
 /* * Chessground base css properties. * * You need to include the css files in themes folder in order to have the * board and pieces displayed! */
  .cg-wrap {
-     width: 640px;
-     height: 640px;
+     width: 2000px;
+     height: 2000px;
      position: relative;
      display: block;
 }

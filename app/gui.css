@@ -56,6 +56,9 @@
         pointer-events: unset !important;
         cursor: unset !important;
 	}
+    #install-notification {
+        flex-direction: column !important;
+    }
 }
 @media (max-width: 550px) {
 	#acas-is-free-reminder span {
@@ -198,7 +201,7 @@ cg-container {
     overflow-y: clip;
     object-fit: cover;
     object-position: center top;
-	filter: grayscale(0.5);
+	filter: grayscale(1);
 }
 #acas-logo-text-container {
 	z-index: 1;
@@ -231,7 +234,7 @@ cg-container {
 	height: fit-content;
 	position: relative;
 	flex-direction: column;
-	border-radius: 5px;
+	border-radius: 10px;
 	transition: all 150ms ease;
 	z-index: 10;
 	border: 2px solid rgb(255 255 255 / 25%);
@@ -254,6 +257,10 @@ cg-container {
 	background-color: rgb(0 0 0 / 56%);
 	padding: 10px 20px 20px 20px;
 	border-radius: 0 0 5px 5px;
+}
+.assistance-concealment-active {
+    opacity: 0.8 !important;
+    filter: blur(1px);
 }
 .eval-bar {
 	background-color: rgb(255 255 255 / 10%);
@@ -452,7 +459,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     background-color: #00000069;
     border-color: rgb(0 0 0);
 }
-#install-buttons .dropdown-input-container img {
+#install-buttons .dropdown-input-container .selected-language-img {
 	width: 30px;
 	height: 30px;
 	background-color: rgb(0 0 0 / 0%);
@@ -1178,7 +1185,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	border: 2px solid #3b434f;
 }
 .github-button:hover {
-	background-color: #373f4b;
+	background-color: #3f4955;
 }
 .github-button:focus {
 	outline: none;
@@ -1202,12 +1209,17 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	background-color: #ffffff28;
 }
 .affiliate-button {
-	color: #C9D1D9;
-    background-color: #720000;
-    border: 2px solid #a90000;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    color: rgb(255 255 255 / 75%);
+    font-size: var(--settings-input-font-size);
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
 }
 .affiliate-button:hover {
 	background-color: #8a0000;
+    border: 2px solid #a82121;
 }
 #des-no-result-text {
 	max-width: 400px;

@@ -1,5 +1,5 @@
-import { acasInstanceContainer, ttsNameDropdownElem, ttsSpeedRangeElem, chessVariantDropdown,
-  engineEloInput, lc0WeightDropdown, advancedEloEnableInput, normalEloInput, basicAdvancedSettingsPanel,
+import { acasInstanceContainer, ttsNameDropdownElem, ttsSpeedRangeElem, chessVariantDropdown, enemyEloInputContainer,
+  engineEloInput, lc0WeightDropdown, chess960Checkbox, advancedEloEnableInput, normalEloInput, basicAdvancedSettingsPanel,
   chessEngineInput, externalChessEngineDropdown, engineNodesInput, advancedEloDepthInput, chessEngineDropdown } from './elementDeclarations.js';
 import { connectAcasToServer, disconnectAcasFromServer } from '../AcasWebSocketClient.js';
 import { ensureOneDynamicEngineSettingVisible } from './dynamicEngineOptions.js';
@@ -68,9 +68,19 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             break;
         case 'chessEngine':
             const eloInput = engineEloInput.querySelector('input[data-key="engineElo"]');
-            
+            const isMaiaEngine = value && value.includes('maia');
+            const enginesWithoutAdvancedElo = ['maia2', 'maia3', 'fairy-stockfish-nnue-wasm'];
+
             if(value !== 'fairy-stockfish-nnue-wasm') chessVariantDropdown.classList.add('hidden');
             else chessVariantDropdown.classList.remove('hidden');
+
+            if(isMaiaEngine) {
+                chess960Checkbox.classList.add('hidden');
+                enemyEloInputContainer.classList.remove('hidden');
+            } else {
+                chess960Checkbox.classList.remove('hidden');
+                enemyEloInputContainer.classList.add('hidden');
+            }
 
             if(value === 'lc0') {
                 eloInput.classList.add('disable-elo');
@@ -82,16 +92,12 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
                 lc0WeightDropdown.classList.add('hidden');
             }
 
-            if(value === 'maia2' || value === 'fairy-stockfish-nnue-wasm') {
+            if(enginesWithoutAdvancedElo.includes(value)) {
                 disableAdvancedEloCheckbox(false);
-
                 normalEloInput.removeAttribute('disabled');
-            }
-            
-            if(value !== 'lc0' && value !== 'maia2' && value !== 'fairy-stockfish-nnue-wasm') {
+            } else if (value !== 'lc0') {
                 advancedEloEnableInput.removeAttribute('disabled');
             }
-
             ensureOneDynamicEngineSettingVisible(value);
 
             break;
