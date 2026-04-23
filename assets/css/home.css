@@ -413,7 +413,6 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 0 0 0;
     margin-bottom: 30px;
     margin-bottom: 0;
     font-family: 'Mona Sans';
@@ -447,12 +446,13 @@ header {
 }
 .large-intro-desc {
     font-size: 40px;
-    font-weight: 300;
+    font-weight: 500;
     font-stretch: normal;
     text-align: center;
-    font-family: "Mona Sans";
+    font-family: "Rubik";
     margin-top: 0;
     padding-top: 0;
+    font-stretch: ultra-expanded;
 }
 .large-intro span {
     font-weight: 900;
@@ -485,6 +485,7 @@ header a {
     flex-wrap: wrap;
     align-items: center;
     gap: 50px;
+    justify-content: space-around;
 }
 .stats-container div div {
     display: flex;
@@ -736,7 +737,7 @@ ul {
         display: none;    
     }
     .mock-img {
-        min-width: 50%;
+        min-width: 100vw;
         min-height: 50%;
     }
     .showcase img {

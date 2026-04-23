@@ -179,7 +179,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
                 const checkboxContainer = document.createElement('div');
                 const checkboxFillElem = document.createElement('div');
 
-                checkboxFillElem.innerText = '✓';
+                checkboxFillElem.innerText = '✔';
                 checkboxFillElem.classList.add('checkbox-fill');
                 checkboxContainer.classList.add('checkbox-container');
                 container.classList.add('checkbox-input');

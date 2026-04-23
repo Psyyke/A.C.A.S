@@ -725,7 +725,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	display: none !important;
 }
 #no-instances-container {
-    background: linear-gradient(to bottom, rgb(0 0 0 / 20%), rgb(0 0 0 / 25%));
+    background: linear-gradient(to bottom, rgb(0 0 0 / 15%), rgb(0 0 0 / 35%));
 	color: rgb(255 255 255 / 75%);
 	padding: 30px 10px 10px 10px;
 	display: flex;
@@ -736,7 +736,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	text-align: center;
 	z-index: 5;
 	backdrop-filter: blur(20px);
-	border: 2px solid rgb(255 255 255 / 20%);
+	border: 2px solid rgb(255 255 255 / 33%);
 }
 #no-instances-title {
     font-size: 28px;
