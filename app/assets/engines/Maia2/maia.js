@@ -53,11 +53,13 @@ export default class Maia {
 				const option = parseSetOption(line);
 	
 				if(!option) break;
-				if(option.name === 'UCI_Elo') {
-					this.options.eloSelf = parseInt(option.value);
-					this.options.eloOppo = parseInt(option.value);
-				}
-				if(option.name === 'MultiPV') this.options.multipv = parseInt(option.value);
+
+				if(option.name === 'UCI_Elo')
+                    this.options.eloSelf = parseInt(option.value);
+                else if(option.name === 'Enemy_Elo')
+                    this.options.eloOppo = parseInt(option.value);
+                else if(option.name === 'MultiPV')
+                    this.options.multipv = parseInt(option.value);
 
 				break;
 	
