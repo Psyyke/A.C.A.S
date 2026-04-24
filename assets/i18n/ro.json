@@ -199,6 +199,7 @@
         "noExternalEngineAnymore": "Motorul de șah EXTERN selectat anterior nu mai este disponibil. Selectează o noie.",
         "concealmentActive": "Ascunderea este activă!",
         "playingSilentAudio": "Redarea unei piste audio silențioase pentru stabilitate!",
+        "dependingOnNetworkSpeed": "În funcție de viteza rețelei, prima încărcare a motorului poate dura mai mult. Dacă nu este prima dată și pare blocat sau nu se încarcă după un timp, încercați să reîncărcați pagina.",
         "desInputSubtitle": "Setare adăugată dinamic"
     },
     "contributors": ["Inteligență Artificială"]

@@ -201,6 +201,7 @@
         "noExternalEngineAnymore": "A korábban kiválasztott KÜLSŐ sakkmotor már nem áll rendelkezésre. Válassz egy újat.",
         "concealmentActive": "Rejtés aktív!",
         "playingSilentAudio": "Néma hangsáv lejátszása a stabilitásért!",
+        "dependingOnNetworkSpeed": "A hálózati sebességtől függően az első használatkor a motor betöltése tovább tarthat. Ha nem először használja és úgy tűnik, hogy beragadt vagy egy idő után sem tölt be, próbálja meg újratölteni az oldalt.",
         "desInputSubtitle": "Dinamikusan hozzáadott beállítás"
     },
     "contributors": ["Mesterséges intelligencia"]

@@ -168,6 +168,7 @@
         "profileNamePrompt": "Profil adını daxil edin:",
         "profileNameExists": "Bu ad artıq mövcuddur!",
         "newInstanceRequest": "Yeni matç tapıldı!",
+        "dependingOnNetworkSpeed": "Şəbəkə sürətinizdən asılı olaraq, ilk istifadə zamanı mühərrikin yüklənməsi daha uzun çəkə bilər. Əgər bu, ilk dəfə deyilsə və ilişib qalıb kimi görünürsə və ya bir müddətdən sonra yüklənmirsə, səhifəni yenidən yükləyin.",
         "engineSkillLevel": "Mühərrikin bacarıq səviyyəsi",
         "engineSearchDepth": "Axtarış dərinliyi",
         "engineNotLimitedSkillLevel": "Mühərrikin bacarıq səviyyəsi məhdud deyil",

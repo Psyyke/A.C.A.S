@@ -201,6 +201,7 @@
         "noExternalEngineAnymore": "De eerder geselecteerde EXTERNE schaakengine is niet meer beschikbaar. Selecteer een nieuwe.",
         "concealmentActive": "Verbergen is actief!",
         "playingSilentAudio": "Een stille audiotrack wordt afgespeeld voor stabiliteit!",
+        "dependingOnNetworkSpeed": "Afhankelijk van je netwerksnelheid kan het de eerste keer langer duren voordat de engine is geladen. Als dit niet de eerste keer is en het lijkt vast te lopen of niet laadt na een tijdje, probeer de pagina opnieuw te laden.",
         "desInputSubtitle": "Dynamisch toegevoegde instelling"
     },
     "contributors": ["Kunstmatige intelligentie"]

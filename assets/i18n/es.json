@@ -202,6 +202,7 @@
         "noExternalEngineAnymore": "El motor EXTERNO seleccionado anteriormente ya no está disponible. Selecciona uno nuevo.",
         "concealmentActive": "¡Ocultación activa!",
         "playingSilentAudio": "Reproduciendo una pista de audio silenciosa para estabilidad!",
+        "dependingOnNetworkSpeed": "El motor puede tardar más en cargarse la primera vez según tu conexión. Si no es la primera vez y parece que se ha quedado bloqueado o no carga después de un rato, intenta recargar la página.",
         "desInputSubtitle": "Configuración añadida dinámicamente"
     },
     "contributors": ["Inteligencia Artificial"]

@@ -200,6 +200,7 @@
         "noExternalEngineAnymore": "Varem valitud VÄLINE mootor pole enam saadaval. Valige uus.",
         "concealmentActive": "Varjamine on aktiivne!",
         "playingSilentAudio": "Mängitakse vaikset helirada stabiilsuse tagamiseks!",
+        "dependingOnNetworkSpeed": "Sõltuvalt teie võrgu kiirusest võib mootori esmakordne laadimine võtta kauem aega. Kui see pole esimene kord ja tundub, et see on kinni jäänud või ei laadi mõne aja pärast, proovige lehte uuesti laadida.",
         "desInputSubtitle": "Dünaamiliselt lisatud seade"
     },
     "contributors": ["Tehisintellekt"]

@@ -201,6 +201,7 @@
         "noExternalEngineAnymore": "Poprzednio wybrany ZEWNĘTRZNY silnik nie jest już dostępny. Wybierz nowy.",
         "concealmentActive": "Ukrywanie jest aktywne!",
         "playingSilentAudio": "Odtwarzanie cichej ścieżki audio dla stabilności!",
+        "dependingOnNetworkSpeed": "W zależności od prędkości sieci, przy pierwszym użyciu ładowanie silnika może potrwać dłużej. Jeśli to nie pierwszy raz i wygląda na zawieszony lub nie ładuje się po chwili, spróbuj odświeżyć stronę.",
         "desInputSubtitle": "Ustawienie dodane dynamicznie"
     },
     "contributors": ["Sztuczna inteligencja"]

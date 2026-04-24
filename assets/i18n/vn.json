@@ -198,6 +198,7 @@
         "noExternalEngineAnymore": "Công cụ BÊN NGOÀI đã chọn trước đó không còn khả dụng. Hãy chọn một công cụ mới.",
         "concealmentActive": "Ẩn được kích hoạt!",
         "playingSilentAudio": "Đang phát bản âm thanh im lặng để ổn định!",
+        "dependingOnNetworkSpeed": "Tùy vào tốc độ mạng của bạn, lần tải đầu tiên có thể mất nhiều thời gian hơn. Nếu đây không phải lần đầu và có vẻ bị treo hoặc không tải sau một lúc, hãy thử tải lại trang.",
         "desInputSubtitle": "Cài đặt được thêm động"
     },
     "contributors": ["Trí tuệ nhân tạo"]

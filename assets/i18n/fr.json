@@ -200,6 +200,7 @@
         "noExternalEngineAnymore": "Le moteur EXTERNE précédemment sélectionné n'est plus disponible. Sélectionnez-en un nouveau.",
         "concealmentActive": "Dissimulation active!",
         "playingSilentAudio": "Lecture d'une piste audio silencieuse pour la stabilité !",
+        "dependingOnNetworkSpeed": "Le moteur peut mettre plus de temps à se charger lors de la première utilisation selon votre connexion. Si ce n’est pas votre première fois et qu’il semble bloqué ou ne se charge pas après un moment, essayez de recharger la page.",
         "desInputSubtitle": "Paramètre ajouté dynamiquement"
     },
     "contributors": ["@PikPakPik", "Intelligence Artificielle"]

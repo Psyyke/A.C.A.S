@@ -97,6 +97,7 @@
 }
 .acas-toast-instance {
     background-color: #5f8895;
+    transition: all 0.5s ease;
 }
 @-webkit-keyframes fadein {
     from {

@@ -201,6 +201,7 @@
         "noExternalEngineAnymore": "Der vorher ausgewählte externe Motor ist nicht mehr verfügbar. Wähle einen neuen aus.",
         "concealmentActive": "Ausblendung ist aktiv!",
         "playingSilentAudio": "Stille Audiospur wird zur Stabilität abgespielt!",
+        "dependingOnNetworkSpeed": "Je nach Netzwerk kann das Laden der Engine beim ersten Mal länger dauern. Wenn es nicht dein erster Versuch ist und es hängen bleibt oder nach einer Weile nicht lädt, versuche die Seite neu zu laden.",
         "desInputSubtitle": "Dynamisch hinzugefügte Einstellung"
     },
     "contributors": ["Künstliche Intelligenz"]

@@ -199,6 +199,7 @@
         "noExternalEngineAnymore": "Dříve vybraný EXTERNÍ šachový motor již není k dispozici. Vyberte si nový.",
         "concealmentActive": "Skrytí je aktivní!",
         "playingSilentAudio": "Přehrávání tiché audio stopy pro stabilitu!",
+        "dependingOnNetworkSpeed": "V závislosti na rychlosti sítě může první načtení enginu trvat déle. Pokud to není poprvé a zdá se, že se zasekl nebo se po chvíli nenačítá, zkuste stránku znovu načíst.",
         "desInputSubtitle": "Dynamicky přidané nastavení"
     },
     "contributors": ["Umělá inteligence"]

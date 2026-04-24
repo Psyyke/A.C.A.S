@@ -196,6 +196,7 @@
         "noExternalEngineAnymore": "Prethodno odabrani SPOLJNI šahovski motor više nije dostupan. Izaberite novi.",
         "concealmentActive": "Skrivanje je aktivno!",
         "playingSilentAudio": "Pušta se tiha audio traka radi stabilnosti!",
+        "dependingOnNetworkSpeed": "У зависности од брзине мреже, прво учитавање мотора може потрајати дуже. Ако ово није први пут и изгледа да је заглављен или се не учитава након неког времена, покушајте да поново учитате страницу.",
         "desInputSubtitle": "Dinamički dodano podešavanje"
     },
     "contributors": ["Veštačka inteligencija"]

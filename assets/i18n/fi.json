@@ -199,6 +199,7 @@
         "noExternalEngineAnymore": "Aiemmin valittu ULKOINEN moottori ei ole enää saatavilla. Valitse uusi.",
         "concealmentActive": "Piilotus on aktiivinen!",
         "playingSilentAudio": "Toistetaan hiljaista ääniraitaa vakauden vuoksi!",
+        "dependingOnNetworkSpeed": "Verkkoyhteytesi nopeudesta riippuen moottorin lataaminen voi kestää pidempään ensimmäisellä käyttökerralla. Jos tämä ei ole ensimmäinen kerta ja se näyttää jumittuneen tai ei lataudu hetkeen, kokeile ladata sivu uudelleen.",
         "desInputSubtitle": "Dynaamisesti lisätty asetus"
     },
     "contributors": ["Haka"]

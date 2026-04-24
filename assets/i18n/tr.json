@@ -199,6 +199,7 @@
         "noExternalEngineAnymore": "Daha önce seçilen HARICI satranç motoru artık kullanılamıyor. Yeni bir tane seçin.",
         "concealmentActive": "Gizleme aktif!",
         "playingSilentAudio": "Kararlılık için sessiz bir ses parçası çalınıyor!",
+        "dependingOnNetworkSpeed": "Ağ hızınıza bağlı olarak, ilk kullanımda motorun yüklenmesi daha uzun sürebilir. Bu ilk kez değilse ve takılmış gibi görünüyorsa veya bir süre sonra yüklenmezse sayfayı yeniden yüklemeyi deneyin.",
         "desInputSubtitle": "Dinamik olarak eklenen ayar"
     },
     "contributors": ["Yapay Zeka"]

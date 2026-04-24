@@ -38,7 +38,7 @@ const toast = {
         const closeBtn = document.createElement('div');
         closeBtn.classList.add(`acas-toast-${type}`);
         closeBtn.classList.add('acas-toast-close-btn');
-        closeBtn.innerText = `X`;
+        closeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
         closeBtn.onclick = () => toastElem.remove();
 
         const iconElem = document.createElement('div');
@@ -71,8 +71,6 @@ const toast = {
             isHovered = false;
         });
 
-        toastContainer.prepend(toastElem);
-
         const customTimeout = setInterval(() => {
             if(!document.body.contains(toastElem)) {
                 clearInterval(customTimeout);
@@ -96,6 +94,8 @@ const toast = {
         if(type === 'instance') {
             const spinner = ['🕛','🕐','🕑','🕒','🕓','🕔','🕕','🕖','🕗','🕘','🕙','🕚'];
             let spinnerIndex = 0;
+            let elapsed = 0;
+            
             loadingSpinnerInterval = setInterval(() => {
                 if(!document.body.contains(toastElem)) {
                     clearInterval(loadingSpinnerInterval);
@@ -103,8 +103,22 @@ const toast = {
                 }
                 iconElem.innerText = spinner[spinnerIndex];
                 spinnerIndex = (spinnerIndex + 1) % spinner.length;
+                elapsed += 200;
+
+                if(elapsed === (200 * 40)) {
+                    const sMsg = TRANS_OBJ?.dependingOnNetworkSpeed ?? 'Depending on your network speed, it might take a while for the engine to load...';
+                    const small = document.createElement('small');
+                          small.style = 'opacity: 0.8;';
+                          small.innerText = `\n(${sMsg})`;
+
+                    closeBtn.style.backgroundColor = 'rgb(255 149 41)';
+
+                    contentElem.appendChild(small);
+                }
             }, 200);
         }
+
+        toastContainer.prepend(toastElem);
 
         return { 'close': triggerFadeOut };
     },

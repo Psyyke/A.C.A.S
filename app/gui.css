@@ -725,7 +725,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	display: none !important;
 }
 #no-instances-container {
-    background: linear-gradient(to bottom, rgb(0 0 0 / 15%), rgb(0 0 0 / 35%));
+    background: linear-gradient(to bottom, rgb(0 0 0 / 5%), rgb(0 0 0 / 20%));
 	color: rgb(255 255 255 / 75%);
 	padding: 30px 10px 10px 10px;
 	display: flex;

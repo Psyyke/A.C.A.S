@@ -201,6 +201,7 @@
         "noExternalEngineAnymore": "Ang nakaraang napiling EXTERNAL chess engine ay hindi na available. Pumili ng bago.",
         "concealmentActive": "Nakatagong aktibo!",
         "playingSilentAudio": "Nire-record ang tahimik na audio track para sa katatagan!",
+        "dependingOnNetworkSpeed": "Depende sa bilis ng iyong network, maaaring mas matagal mag-load ang engine sa unang paggamit. Kung hindi ito ang unang beses at mukhang natigil o hindi naglo-load pagkalipas ng ilang sandali, subukang i-reload ang page.",
         "desInputSubtitle": "Dinamikong idinagdag na setting"
     },
     "contributors": ["Artipisyal na Intelihensiya"]

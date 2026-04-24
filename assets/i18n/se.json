@@ -201,6 +201,7 @@
         "noExternalEngineAnymore": "Den tidigare valda EXTERNA schackmotorn är inte längre tillgänglig. Välj en ny.",
         "concealmentActive": "Dölj är aktiv!",
         "playingSilentAudio": "Spelar en tyst ljudspår för stabilitet!",
+        "dependingOnNetworkSpeed": "Beroende på din nätverkshastighet kan det ta längre tid att ladda motorn första gången. Om det inte är första gången och det verkar ha fastnat eller inte laddar efter ett tag, prova att ladda om sidan.",
         "desInputSubtitle": "Dynamiskt tillagd inställning"
     },
     "contributors": ["Artificiell intelligens"]

@@ -167,6 +167,7 @@
         "profileNamePrompt": "أدخل اسم الملف الشخصي:",
         "profileNameExists": "الاسم موجود بالفعل!",
         "newInstanceRequest": "تم العثور على مباراة جديدة!",
+        "dependingOnNetworkSpeed": "قد يستغرق المحرك وقتًا أطول للتحميل عند الاستخدام لأول مرة حسب سرعة الشبكة لديك. إذا لم تكن هذه المرة الأولى ويبدو أنه عالق أو لا يتم التحميل بعد فترة، حاول إعادة تحميل الصفحة.",
         "engineSkillLevel": "مستوى مهارة المحرك",
         "engineSearchDepth": "عمق البحث",
         "engineNotLimitedSkillLevel": "مستوى مهارة المحرك غير محدود",

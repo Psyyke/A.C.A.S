@@ -169,6 +169,7 @@
         "profileNamePrompt": "Enter the profile name:",
         "profileNameExists": "That name already exists!",
         "newInstanceRequest": "New match found!",
+        "dependingOnNetworkSpeed": "The engine may take longer to load on first use depending on your network. If this isn't your first time and it seems stuck or doesn't load after a while, try refreshing the page.",
         "engineSkillLevel": "Engine skill level",
         "engineSearchDepth": "Search depth",
         "engineNotLimitedSkillLevel": "Engine's skill level not limited",

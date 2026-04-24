@@ -167,6 +167,7 @@
         "profileNamePrompt": "请输入配置文件名称：",
         "profileNameExists": "该名称已存在！",
         "newInstanceRequest": "发现新对局！",
+        "dependingOnNetworkSpeed": "根据您的网络速度，首次使用时引擎加载可能需要更长时间。如果这不是您第一次使用，但似乎卡住或长时间未加载，请尝试刷新页面。",
         "engineSkillLevel": "引擎技能水平",
         "engineSearchDepth": "搜索深度",
         "engineNotLimitedSkillLevel": "引擎的技能水平不受限制",

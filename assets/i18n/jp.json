@@ -199,6 +199,7 @@
         "noExternalEngineAnymore": "以前に選択した外部エンジンは利用できなくなりました。新しいものを選択してください。",
         "concealmentActive": "非表示が有効です！",
         "playingSilentAudio": "安定のためにサイレントオーディオトラックを再生しています！",
+        "dependingOnNetworkSpeed": "ネットワークの速度によっては、初回使用時にエンジンの読み込みに時間がかかる場合があります。初めてでないのに動かない、またはしばらくしても読み込まれない場合は、ページを再読み込みしてください。",
         "desInputSubtitle": "動的に追加された設定"
     },
     "contributors": ["人工知能"]

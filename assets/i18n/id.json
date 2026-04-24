@@ -201,6 +201,7 @@
         "noExternalEngineAnymore": "Mesin EKSTERNAL yang dipilih sebelumnya tidak lagi tersedia. Pilih yang baru.",
         "concealmentActive": "Penyembunyian aktif!",
         "playingSilentAudio": "Memutar trek audio senyap demi stabilitas!",
+        "dependingOnNetworkSpeed": "Bergantung pada kecepatan jaringan Anda, mesin mungkin memerlukan waktu lebih lama untuk dimuat saat pertama kali digunakan. Jika ini bukan pertama kalinya dan terlihat macet atau tidak memuat setelah beberapa saat, coba muat ulang halaman.",
         "desInputSubtitle": "Pengaturan yang ditambahkan secara dinamis"
     },
     "contributors": ["Kecerdasan Buatan"]
