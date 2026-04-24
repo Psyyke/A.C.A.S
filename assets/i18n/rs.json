@@ -153,7 +153,8 @@
         "isUserscriptGhost": ["Prividni skript", "Onemogući sve detektujuće spoljne funkcije (npr. strelice poteza) da bi se izbeglo otkrivanje"],
         "useExternalChessEngine": ["Omogućeno", "Da li je omogućen spoljni šahovski motor"],
         "instanceRestartTriggerCode": ["Dugme za ponovo pokretanje", "Ponovo pokreće sve instance, korisno ako se zaustave"],
-        "concealAssistanceTriggerCode": ["Dugme za skrivanje", "Prikaži/sakrij funkcije pomoći (npr. strelice poteza)" ]
+        "concealAssistanceTriggerCode": ["Dugme za skrivanje", "Prikaži/sakrij funkcije pomoći (npr. strelice poteza)" ],
+        "engineEnemyElo": ["ELO Neprijatelja", "Za ljudskiju igru motora"]
     },
     "translations": {
         "profileRemovalWarning": "Da li ste sigurni da želite da uklonite ovaj profil?\n\nOva akcija se ne može poništiti.",

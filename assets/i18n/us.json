@@ -155,7 +155,8 @@
         "isUserscriptGhost": ["Ghost Script", "Disable all detectable external functionality (e.g. move arrows) to avoid detection"],
         "useExternalChessEngine": ["Enabled", "Is the external engine enabled"],
         "instanceRestartTriggerCode": ["Restart Trigger", "Restarts all instances, useful if they crash"],
-        "concealAssistanceTriggerCode": ["Concealment Trigger", "Hide/show assist features (e.g. move arrows)"]
+        "concealAssistanceTriggerCode": ["Concealment Trigger", "Hide/show assist features (e.g. move arrows)"],
+        "engineEnemyElo": ["Enemy ELO", "For more human-like engine"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",

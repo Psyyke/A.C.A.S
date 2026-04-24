@@ -155,7 +155,8 @@
         "isUserscriptGhost": ["Script Ma", "Vô hiệu hóa tất cả chức năng bên ngoài có thể phát hiện (ví dụ: mũi tên nước đi) để tránh bị phát hiện"],
         "useExternalChessEngine": ["Đã bật", "Công cụ cờ vua bên ngoài được bật chưa"],
         "instanceRestartTriggerCode": ["Nút khởi động lại", "Khởi động lại tất cả các phiên bản, hữu ích nếu bị sự cố"],
-        "concealAssistanceTriggerCode": ["Nút ẩn", "Hiển thị/ẩn các tính năng hỗ trợ (ví dụ mũi tên di chuyển)"]
+        "concealAssistanceTriggerCode": ["Nút ẩn", "Hiển thị/ẩn các tính năng hỗ trợ (ví dụ mũi tên di chuyển)"],
+        "engineEnemyElo": ["ELO Kẻ Thù", "Để công cụ chơi giống con người hơn"]
     },
     "translations": {
         "profileRemovalWarning": "Bạn có chắc chắn muốn xóa hồ sơ này?\n\nHành động này không thể hoàn tác.",

@@ -153,7 +153,8 @@
         "isUserscriptGhost": ["Kummitusskript", "Keela kõik tuvastatavad välised funktsioonid (nt käigunoole), et vältida tuvastamist"],
         "useExternalChessEngine": ["Lubatud", "Kas väline male mootor on lubatud"],
         "instanceRestartTriggerCode": ["Taaskäivitamise nupp", "Käivitab kõik instantsid uuesti, kasulik kui need seiskuvad"],
-        "concealAssistanceTriggerCode": ["Peitmine nupp", "Näita/peida abistavaid funktsioone (nt käigupooled)"]
+        "concealAssistanceTriggerCode": ["Peitmine nupp", "Näita/peida abistavaid funktsioone (nt käigupooled)"],
+        "engineEnemyElo": ["Vastase ELO", "Inimlikumaks mängu tegemiseks"]
 
     },
     "translations": {

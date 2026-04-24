@@ -153,7 +153,8 @@
         "isUserscriptGhost": ["ゴーストスクリプト", "検出を避けるために、移動矢印などの検出可能な外部機能をすべて無効にします"],
         "useExternalChessEngine": ["有効", "外部チェスエンジンは有効ですか"],
         "instanceRestartTriggerCode": ["再起動ボタン", "すべてのインスタンスを再起動します。クラッシュした場合に便利です"],
-        "concealAssistanceTriggerCode": ["非表示ボタン", "支援機能を表示/非表示（例：移動矢印）"]
+        "concealAssistanceTriggerCode": ["非表示ボタン", "支援機能を表示/非表示（例：移動矢印）"],
+        "engineEnemyElo": ["敵のELO", "より人間的なエンジン動作のために"]
     },
     "translations": {
         "profileRemovalWarning": "このプロフィールを削除してもよろしいですか？\n\nこの操作は取り消せません。",

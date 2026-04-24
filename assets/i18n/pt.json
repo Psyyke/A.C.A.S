@@ -153,7 +153,8 @@
         "isUserscriptGhost": ["Script Fantasma", "Desativar todas as funcionalidades externas detectáveis (ex.: setas de movimento) para evitar deteção"],
         "useExternalChessEngine": ["Ativado", "O mecanismo de xadrez externo está ativado"],
         "instanceRestartTriggerCode": ["Botão de reinicialização", "Reinicia todas as instâncias, útil se travarem"],
-        "concealAssistanceTriggerCode": ["Botão de ocultação", "Mostrar/ocultar recursos de assistência (por ex. setas de movimento)"]
+        "concealAssistanceTriggerCode": ["Botão de ocultação", "Mostrar/ocultar recursos de assistência (por ex. setas de movimento)"],
+        "engineEnemyElo": ["ELO do Inimigo", "Para um jogo mais humano do motor"]
     },
     "translations": {
         "profileRemovalWarning": "Tem certeza de que deseja remover este perfil?\n\nEsta ação não pode ser desfeita.",

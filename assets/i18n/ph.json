@@ -155,7 +155,8 @@
         "isUserscriptGhost": ["Tagong Script", "Patayin ang lahat ng mga natutukoy na panlabas na functionality (hal. mga arrow ng galaw) upang maiwasan ang pagtuklas"],
         "useExternalChessEngine": ["Pinagana", "Ang external na engine ng chess ay pinagana na"],
         "instanceRestartTriggerCode": ["Pindong Mag-restart", "Muling simulan ang lahat ng mga pagkakataon, kapaki-pakinabang kung sila ay magsara"],
-        "concealAssistanceTriggerCode": ["Pindong Itago", "Ipakita/itago ang mga feature ng tulong (tulad ng mga palang galaw)"]
+        "concealAssistanceTriggerCode": ["Pindong Itago", "Ipakita/itago ang mga feature ng tulong (tulad ng mga palang galaw)"],
+        "engineEnemyElo": ["ELO ng Kaaway", "Para sa mas natural na laro ng engine"]
     },
     "translations": {
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",

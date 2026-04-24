@@ -155,7 +155,8 @@
         "isUserscriptGhost": ["Spookscript", "Schakelt alle detecteerbare externe functionaliteit uit (bv. zetpijlen) om detectie te vermijden"],
         "useExternalChessEngine": ["Ingeschakeld", "Is de externe schaakengine ingeschakeld"],
         "instanceRestartTriggerCode": ["Herstart knop", "Herstart alle exemplaren, handig als ze crashen"],
-        "concealAssistanceTriggerCode": ["Verbergknop", "Hulpfuncties weergeven/verbergen (bijv. bewegingspijlen)"]
+        "concealAssistanceTriggerCode": ["Verbergknop", "Hulpfuncties weergeven/verbergen (bijv. bewegingspijlen)"],
+        "engineEnemyElo": ["Tegenstander ELO", "Voor menselijker spel van de motor"]
     },
     "translations": {
         "profileRemovalWarning": "Weet je zeker dat je dit profiel wilt verwijderen?\n\nDeze actie kan niet ongedaan worden gemaakt.",

@@ -155,7 +155,8 @@
         "isUserscriptGhost": ["Tajný skript", "Vypne všetky detegovateľné externé funkcie (napr. šípky ťahov) aby sa zabránilo detekcii"],
         "useExternalChessEngine": ["Povolené", "Je povolený externý šachový engine"],
         "instanceRestartTriggerCode": ["Tlačítko reštartu", "Reštartuje všetky inštancie, užitočné ak sa zrútia"],
-        "concealAssistanceTriggerCode": ["Tlačítko skrývania", "Zobrazit/skryť funkcie pomoci (napr. šipky ťahov)"]
+        "concealAssistanceTriggerCode": ["Tlačítko skrývania", "Zobrazit/skryť funkcie pomoci (napr. šipky ťahov)"],
+        "engineEnemyElo": ["ELO Nepriateľa", "Pre ľudskejší hrací motor"]
     },
     "translations": {
         "profileRemovalWarning": "Ste si istí, že chcete odstrániť tento profil?\n\nTúto akciu nie je možné zrušiť.",

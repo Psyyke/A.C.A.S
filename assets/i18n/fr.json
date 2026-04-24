@@ -154,7 +154,8 @@
         "onlySuggestPieces": ["Suggérer Seulement les Pièces", "Suggérez des pièces à bouger, mais ne donnez pas les coups"],
         "useExternalChessEngine": ["Activé", "Le moteur d'échecs externe est-il activé"],
         "instanceRestartTriggerCode": ["Bouton Redémarrage", "Redémarre toutes les instances, utile si elles planent"],
-        "concealAssistanceTriggerCode": ["Bouton Dissimulation", "Masquer/afficher les fonctionnalités d'assistance (p.ex. flèches de coup)"]
+        "concealAssistanceTriggerCode": ["Bouton Dissimulation", "Masquer/afficher les fonctionnalités d'assistance (p.ex. flèches de coup)"],
+        "engineEnemyElo": ["ELO de l'Adversaire", "Pour un jeu plus humain du moteur"]
     },
     "translations": {
         "profileRemovalWarning": "Êtes-vous sûr(e) de vouloir supprimer ce profil ?\n\nCette action est irréversible.",

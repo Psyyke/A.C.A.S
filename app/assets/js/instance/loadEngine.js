@@ -302,7 +302,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     
     // When using loadStockfish(folderName, fileName), make sure the folder name
     // is exactly the same as the switch case string, since otherwise reloading wont work
-    // Stockfish 17 singlethreaded lite is the default
+    // "Maia 2" is the default
     switch(profileChessEngine) {
         case 'stockfish-18-lite-single':
             loadStockfish.bind(this)('stockfish-18-lite-single');
@@ -310,6 +310,10 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
         case 'stockfish-17-single':
             loadStockfish.bind(this)('stockfish-17-single');
+            break;
+
+        case 'stockfish-17-lite-single':
+            loadStockfish.bind(this)('stockfish-17-lite-single');
             break;
 
         case 'stockfish-16-1-wasm':
@@ -348,12 +352,8 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             loadMaia3.bind(this)();
             break;
 
-        case 'maia2':
-            loadMaia2.bind(this)();
-            break;
-
         default:
-            loadStockfish.bind(this)('stockfish-17-lite-single');
+            loadMaia2.bind(this)();
             break;
     }
 }

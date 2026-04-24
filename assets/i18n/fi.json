@@ -153,7 +153,8 @@
         "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstään kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"],
         "useExternalChessEngine": ["Käytössä", "Onko ulkoinen šakkimoottori käytössä"],
         "instanceRestartTriggerCode": ["Käynnistyspainike", "Käynnistää kaikki instanssit uudelleen, hyödyllinen jos ne kaatuvat"],
-        "concealAssistanceTriggerCode": ["Piilotuspainike", "Näytä/piilota avustajatoiminnot (esim. liikkumisnuolet)"]
+        "concealAssistanceTriggerCode": ["Piilotuspainike", "Näytä/piilota avustajatoiminnot (esim. liikkumisnuolet)"],
+        "engineEnemyElo": ["Vastustajan ELO", "Tekee moottorin pelaamisen realistisemmaksi"]
     },
     "translations": {
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",

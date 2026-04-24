@@ -155,7 +155,8 @@
         "isUserscriptGhost": ["Skrip Hantu", "Nonaktifkan semua fungsi eksternal yang dapat dideteksi (mis. panah gerakan) untuk menghindari deteksi"],
         "useExternalChessEngine": ["Diaktifkan", "Apakah mesin catur eksternal diaktifkan"],
         "instanceRestartTriggerCode": ["Tombol Mulai ulang", "Memulai ulang semua instance, berguna jika mogok"],
-        "concealAssistanceTriggerCode": ["Tombol Penyembunyian", "Tampilkan/sembunyikan fitur bantuan (mis. panah gerakan)"]
+        "concealAssistanceTriggerCode": ["Tombol Penyembunyian", "Tampilkan/sembunyikan fitur bantuan (mis. panah gerakan)"],
+        "engineEnemyElo": ["ELO Musuh", "Untuk permainan mesin yang lebih manusia"]
     },
     "translations": {
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",

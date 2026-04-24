@@ -153,7 +153,8 @@
         "isUserscriptGhost": ["고스트 스크립트", "감지를 피하기 위해 이동 화살표 등 감지 가능한 모든 외부 기능을 비활성화합니다"],
         "useExternalChessEngine": ["활성화됨", "외부 체스 엔진이 활성화되어 있습니까"],
         "instanceRestartTriggerCode": ["재시작 버튼", "모든 인스턴스를 재시작합니다. 충돌할 때 유용합니다"],
-        "concealAssistanceTriggerCode": ["숨김 버튼", "지원 기능 표시/숨기기 (예: 움직임 화살표)"]
+        "concealAssistanceTriggerCode": ["숨김 버튼", "지원 기능 표시/숨기기 (예: 움직임 화살표)"],
+        "engineEnemyElo": ["적 ELO", "더 인간다운 엔진 플레이를 위해"]
     },
     "translations": {
         "profileRemovalWarning": "이 프로필을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",

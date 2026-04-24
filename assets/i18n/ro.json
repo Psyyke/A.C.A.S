@@ -153,7 +153,8 @@
         "isUserscriptGhost": ["Script fantomă", "Dezactivează orice funcționalitate externă detectabilă (de ex. săgeți de mutare) pentru a evita detectarea"],
         "useExternalChessEngine": ["Activat", "Este motorul de șah extern activat"],
         "instanceRestartTriggerCode": ["Buton Repornire", "Repornește toate instanțele, util dacă se blochează"],
-        "concealAssistanceTriggerCode": ["Buton Ascundere", "Afișează/ascunde funcții de asistență (de ex. săgeți de mișcare)"]
+        "concealAssistanceTriggerCode": ["Buton Ascundere", "Afișează/ascunde funcții de asistență (de ex. săgeți de mișcare)"],
+        "engineEnemyElo": ["ELO Dușman", "Pentru un joc mai uman al motorului"]
     },
     "translations": {
         "profileRemovalWarning": "Ești sigur că vrei să elimini acest profil?\n\nAceastă acțiune nu poate fi inversată.",
