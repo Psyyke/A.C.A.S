@@ -44,7 +44,7 @@ export default async function engineMessageProcessor(msg, profile) {
         const profileChessEngine = p.config.chessEngine;
         const missingOptionName =  msg.split('No such option:')?.[1]?.trim();
 
-        toast.warning(`"${missingOptionName}" not supported on ${profileChessEngine} (Running on profile "${profile}")`, 4000);
+        toast.warning(`"${missingOptionName}" not supported on ${profileChessEngine} (Running on profile "${GET_HUMAN_READABLE_PROFILE_NAME(profile)}")`, 4000);
 
         return;
     }
@@ -55,7 +55,7 @@ export default async function engineMessageProcessor(msg, profile) {
         const p = await GET_PROFILE(profile);
         const profileChessEngine = p.config.chessEngine;
 
-        toast.warning(`"${msg}" ("${profileChessEngine}" running on profile "${profile}")`, 4e4);
+        toast.warning(`"${msg}" ("${profileChessEngine}" running on profile "${GET_HUMAN_READABLE_PROFILE_NAME(profile)}")`, 4e4);
 
         return;
     }
