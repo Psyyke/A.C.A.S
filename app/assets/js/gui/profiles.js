@@ -80,6 +80,9 @@ export function setProfileBubbleStatus(status, profileName, title = status) {
         if(c.includes('pbs-')) bubble.classList.remove(c);
     });
 
+    if(status !== 'disabled') bubble.parentElement.style.opacity = '1';
+    else if(status === 'disabled') bubble.parentElement.style.opacity = '0.5';
+
     bubble.classList.add(`pbs-${status}`);
     bubble.parentElement.title = 'Engine status: ' + title;
 }

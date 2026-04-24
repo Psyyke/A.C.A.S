@@ -543,7 +543,8 @@ dialog .input-subtitle {
     position: relative;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     background-color: rgb(255 255 255 / 3%);
-    flex-shrink: 0
+    flex-shrink: 0;
+    opacity: 0.5;
 }
 .tab-item:hover {
 	cursor: pointer;
