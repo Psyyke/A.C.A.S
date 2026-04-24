@@ -352,8 +352,11 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             loadMaia3.bind(this)();
             break;
 
-        default:
+        case 'maia2':
             loadMaia2.bind(this)();
+
+        default:
+            loadFairyStockfish.bind(this)();
             break;
     }
 }
