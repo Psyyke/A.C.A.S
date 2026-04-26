@@ -165,17 +165,8 @@ async function updateUserscriptInfoText() {
 }
 
 function updateSabRequiringElems() {
-    if(window?.SharedArrayBuffer) {
+    if(window?.SharedArrayBuffer)
         [...document.querySelectorAll('.requires-sab')].forEach(x => x.classList.remove('requires-sab'));
-    } else {
-        if('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then((registrations) => {
-                registrations.forEach((registration) => {
-                    registration.unregister();
-                });
-            });
-        }
-    }
 }
 
 export async function initGUI() {
