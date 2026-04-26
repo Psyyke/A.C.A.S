@@ -260,7 +260,7 @@ cg-container {
 }
 .assistance-concealment-active {
     opacity: 0.8 !important;
-    filter: blur(1px);
+    filter: blur(2px);
 }
 .eval-bar {
 	background-color: rgb(255 255 255 / 10%);

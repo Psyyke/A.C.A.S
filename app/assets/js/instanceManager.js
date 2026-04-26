@@ -38,7 +38,7 @@ export function createInstance(domain, instanceID, chessVariant) {
 
         setTimeout(() => {
             if(CONCEAL_ASSISTANCE_ACTIVE) toast.warning(
-                TRANS_OBJ?.concealmentActive ?? 'Concealment active!', 1000);
+                TRANS_OBJ?.concealmentActive ?? 'Concealment active!', 10000);
         }, 1000);
 
     }, isExternalReady ? 1000 : 0);
