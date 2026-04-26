@@ -98,10 +98,13 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
 
     const noProfile = settingElem.dataset.noProfile;
 
-    if(SETTING_FILTER_OBJ.instanceID) {
-        let base = config[SETTING_FILTER_OBJ.type];
-        const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
+    const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
 
+    if(SETTING_FILTER_OBJ.instanceID) {
+        // Initialize the type object first
+        INIT_NESTED_OBJECT(config, [SETTING_FILTER_OBJ.type]);
+        let base = config[SETTING_FILTER_OBJ.type];
+        
         // Initialize the instanceID object
         INIT_NESTED_OBJECT(base, [SETTING_FILTER_OBJ.instanceID]);
     
@@ -119,7 +122,6 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
         }
     } else {
         let base = config[SETTING_FILTER_OBJ.type];
-        const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
         
         if (noProfile) {
             // Initialize the type object
