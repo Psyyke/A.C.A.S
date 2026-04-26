@@ -38,7 +38,7 @@ const toast = {
         const closeBtn = document.createElement('div');
         closeBtn.classList.add(`acas-toast-${type}`);
         closeBtn.classList.add('acas-toast-close-btn');
-        closeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+        closeBtn.innerHTML = '✕';
         closeBtn.onclick = () => toastElem.remove();
 
         const iconElem = document.createElement('div');
