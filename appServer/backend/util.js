@@ -12,7 +12,7 @@ export async function createEngineID(filePath) {
 }
 
 export function verifyLaunchParams(params) {
-    if(params === null) return [];
+    if(params === null || params === undefined) return [];
 
     if(typeof params === "string") {
         const trimmed = params.trim();
@@ -25,7 +25,7 @@ export function verifyLaunchParams(params) {
     }
 
     if(!Array.isArray(params)) {
-        toast.error('"launchParams" must be a string or array', 4000);
+        toast('error', '"launchParams" must be a string or array', 4000);
         return [];
     }
 
@@ -33,7 +33,7 @@ export function verifyLaunchParams(params) {
 
     for(const arg of params) {
         if(typeof arg !== "string") {
-            toast.error('Invalid launch parameter type', 4000);
+            toast('error', 'Invalid launch parameter type', 4000);
             return [];
         }
 
@@ -44,7 +44,7 @@ export function verifyLaunchParams(params) {
         }
 
         if(!/^[a-zA-Z0-9._\-=/+:]*$/.test(trimmed)) {
-            toast.error(`Invalid launch parameter: ${trimmed}`, 4000);
+            toast('error', `Invalid launch parameter: ${trimmed}`, 4000);
             return [];
         }
 
