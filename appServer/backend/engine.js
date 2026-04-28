@@ -88,40 +88,19 @@ function killSpecificEngine(identifierObj, code) {
     }
 }
 
-function findAliveEngineObjectsById(engineId) {
-    return aliveEngineProcesses.filter(ep => ep.identifierObj.engineId === engineId);
+const KILLABLE_FIELDS = new Set(['engineId', 'instanceId', 'profileName']);
+
+function findAliveBy(field, value) {
+    return aliveEngineProcesses.filter(ep => ep.identifierObj[field] === value);
 }
 
-function findAliveEngineObjectsByInstanceId(instanceId) {
-    return aliveEngineProcesses.filter(ep => ep.identifierObj.instanceId === instanceId);
-}
+export function killAllBy(field, value, reason) {
+    if(!KILLABLE_FIELDS.has(field)) {
+        console.warn(`[engine] killAllBy: unknown field "${field}"`);
+        return;
+    }
 
-function findAliveEngineObjectsByProfileName(profileName) {
-    return aliveEngineProcesses.filter(ep => ep.identifierObj.profileName === profileName);
-}
-
-export function killAllEngineIds(engineId, reason) {
-    const allEngineObjs = findAliveEngineObjectsById(engineId);
-
-    allEngineObjs.forEach(o => {
-        killSpecificEngine(o.identifierObj, reason);
-    });
-}
-
-export function killAllEngineInstanceIds(instanceId, reason) {
-    const allEngineObjs = findAliveEngineObjectsByInstanceId(instanceId);
-
-    allEngineObjs.forEach(o => {
-        killSpecificEngine(o.identifierObj, reason);
-    });
-}
-
-export function killAllEngineProfileNames(profileName, reason) {
-    const allEngineObjs = findAliveEngineObjectsByProfileName(profileName);
-
-    allEngineObjs.forEach(o => {
-        killSpecificEngine(o.identifierObj, reason);
-    });
+    findAliveBy(field, value).forEach(o => killSpecificEngine(o.identifierObj, reason));
 }
 
 export function killAllEngines() {
@@ -300,6 +279,7 @@ async function startEngineProcess(enginePath, identifierObj) {
 
 export async function addEngine(fileInfo, title = fileInfo?.name) {
     if(!fileInfo?.path) return 'Missing file path';
+    if(!fs.existsSync(fileInfo.path)) return `Engine file not found: ${fileInfo.path}`;
 
     const isDuplicate = savedEngines.some(engine => engine.path === fileInfo.path);
     if(isDuplicate) return `Engine already exists: ${fileInfo.name}`;
@@ -321,14 +301,19 @@ export async function addEngine(fileInfo, title = fileInfo?.name) {
 }
 
 export function removeEngine(index) {
+    if(!Number.isInteger(index) || index < 0 || index >= savedEngines.length)
+        return `Invalid engine index: ${index}`;
+
+    const savedEngineObj = savedEngines[index];
+
     try {
-        const savedEngineObj = savedEngines[index];
         savedEngines.splice(index, 1);
         store.set(chessEnginesStorageKey, savedEngines);
 
-        killAllEngineIds(savedEngineObj.engineId, 'Engine was removed');
+        killAllBy('engineId', savedEngineObj.engineId, 'Engine was removed');
         renderEngineGrid();
     } catch(e) {
+        console.error('[engine] removeEngine failed:', e);
         return 'Something went wrong while removing the engine, please restart the software.';
     }
 
