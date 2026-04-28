@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Engedélylyezve", "Az külső sakkmotor engedélyezve van"],
         "instanceRestartTriggerCode": ["Újraindítás gomb", "Újraindítja az összes példányt, hasznos ha összeomolnak"],
         "concealAssistanceTriggerCode": ["Rejtés gomb", "Segítségfunkciók megjelenítése/elrejtése (pl. mozdulat nyilak)"],
-        "engineEnemyElo": ["Ellenfél ELO", "Emberléhez közelebb álló játékhoz"]
+        "engineEnemyElo": ["Ellenfél ELO", "Emberléhez közelebb álló játékhoz"],
+        "concealAssistanceAutoDelayMs": ["Automatikus elrejtés (ms)", "Rejtse el automatikusan a segítségfunkciókat ezen idő után"]
     },
     "translations": {
         "profileRemovalWarning": "Biztosan el akarod távolítani ezt a profilt?\n\nEz a művelet nem vonható vissza.",

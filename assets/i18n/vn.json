@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Đã bật", "Engine bên ngoài có được bật hay không"],
         "instanceRestartTriggerCode": ["Phím khởi động lại", "Khởi động lại tất cả các phiên, hữu ích khi bị lỗi"],
         "concealAssistanceTriggerCode": ["Phím ẩn trợ giúp", "Hiện/ẩn các tính năng trợ giúp (ví dụ: mũi tên nước đi)"],
-        "engineEnemyElo": ["ELO của đối thủ", "Giúp engine chơi giống người hơn"]
+        "engineEnemyElo": ["ELO của đối thủ", "Giúp engine chơi giống người hơn"],
+        "concealAssistanceAutoDelayMs": ["Tự động ẩn (ms)", "Tự động ẩn các tính năng trợ giúp sau khoảng thời gian này"]
     },
     "translations": {
         "profileRemovalWarning": "Bạn có chắc muốn xóa hồ sơ này không?\n\nHành động này không thể hoàn tác.",

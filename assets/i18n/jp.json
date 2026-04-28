@@ -154,7 +154,8 @@
         "useExternalChessEngine": ["有効", "外部チェスエンジンは有効ですか"],
         "instanceRestartTriggerCode": ["再起動ボタン", "すべてのインスタンスを再起動します。クラッシュした場合に便利です"],
         "concealAssistanceTriggerCode": ["非表示ボタン", "支援機能を表示/非表示（例：移動矢印）"],
-        "engineEnemyElo": ["敵のELO", "より人間的なエンジン動作のために"]
+        "engineEnemyElo": ["敵のELO", "より人間的なエンジン動作のために"],
+        "concealAssistanceAutoDelayMs": ["自動非表示（ミリ秒）", "この時間後に自動的に支援機能を非表示"]
     },
     "translations": {
         "profileRemovalWarning": "このプロフィールを削除してもよろしいですか？\n\nこの操作は取り消せません。",

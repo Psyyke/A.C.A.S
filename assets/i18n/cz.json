@@ -154,7 +154,8 @@
         "useExternalChessEngine": ["Povoleno", "Je externí šachový motor povolen"],
         "instanceRestartTriggerCode": ["Tlačítko Restartování", "Restartuje všechny instance, užitečné když se zhroutnou"],
         "concealAssistanceTriggerCode": ["Tlačítko Skrytí", "Zobrazit/skrýt funkce pomoci (např. šipky tahů)"],
-        "engineEnemyElo": ["Nepřátelský ELO", "Pro humánnější hru motoru"]
+        "engineEnemyElo": ["Nepřátelský ELO", "Pro humánnější hru motoru"],
+        "concealAssistanceAutoDelayMs": ["Automatické skrytí (ms)", "Automaticky skrýt funkce pomoci po této době"]
     },
     "translations": {
         "profileRemovalWarning": "Opravdu chcete odstranit tento profil?\n\nTuto akci nelze vrátit.",

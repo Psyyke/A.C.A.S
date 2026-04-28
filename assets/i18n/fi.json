@@ -154,7 +154,8 @@
         "useExternalChessEngine": ["Käytössä", "Onko ulkoinen šakkimoottori käytössä"],
         "instanceRestartTriggerCode": ["Käynnistyspainike", "Käynnistää kaikki instanssit uudelleen, hyödyllinen jos ne kaatuvat"],
         "concealAssistanceTriggerCode": ["Piilotuspainike", "Näytä/piilota avustajatoiminnot (esim. liikkumisnuolet)"],
-        "engineEnemyElo": ["Vastustajan ELO", "Tekee moottorin pelaamisen realistisemmaksi"]
+        "engineEnemyElo": ["Vastustajan ELO", "Tekee moottorin pelaamisen realistisemmaksi"],
+        "concealAssistanceAutoDelayMs": ["Automaattinen piilotus (ms)", "Piilota avustajatoiminnot automaattisesti tämän ajan jälkeen"]
     },
     "translations": {
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",

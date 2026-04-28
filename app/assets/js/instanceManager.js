@@ -36,11 +36,6 @@ export function createInstance(domain, instanceID, chessVariant) {
         initToasts.push({ instanceID, 'toast': initToast });
         console.log(`New engine instance created! (DOMAIN: ${domain}, ID: ${instanceID})`);
 
-        setTimeout(() => {
-            if(CONCEAL_ASSISTANCE_ACTIVE) toast.warning(
-                TRANS_OBJ?.concealmentActive ?? 'Concealment active!', 10000);
-        }, 1000);
-
     }, isExternalReady ? 1000 : 0);
 }
 

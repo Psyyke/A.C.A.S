@@ -155,7 +155,9 @@
         "isUserscriptGhost": ["Gizli Skript", "Aşkarlanmanı əngəlləmə üçün bütün aşkarlana biləcək xarici funksiyaları (məs. gediş oxları) söndürün"],
         "useExternalChessEngine": ["Aktivləşdirildi", "Xarici cəngəl mühərriki aktivləşdirilibmi"],
         "instanceRestartTriggerCode": ["Yenidən Başlatma Düyməsi", "Bütün nümunələri yenidən başlatır, qırılsa faydalıdır"],
-        "concealAssistanceTriggerCode": ["Gizləmə Düyməsi", "Yardım xüsusiyyətlərini göstər/gizlət (məs. hərəkət oxları)"]
+        "concealAssistanceTriggerCode": ["Gizləmə Düyməsi", "Yardım xüsusiyyətlərini göstər/gizlət (məs. hərəkət oxları)"],
+        "engineEnemyElo": ["Rəqib ELO", "Daha insani motor oyunu üçün"],
+        "concealAssistanceAutoDelayMs": ["Avtomatik Gizlət (ms)", "Bu vaxtdan sonra avtomatik olaraq yardım xüsusiyyətlərini gizlət"]
     },
     "translations": {
         "profileRemovalWarning": "Bu profili silmək istədiyinizə əminsinizmi?\n\nBu əməliyyat geri qaytarıla bilməz.",

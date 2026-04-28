@@ -206,8 +206,6 @@ export default async function setupEnvironment(startpos, dimensions) {
 
         this.Interface.updateBoardOrientation(orientation);
         
-        APPLY_ASSISTANCE_CONCEALMENT(isConcealAssistanceActive);
-        
         if(oldInstanceElem) {
             acasInstanceContainer.replaceChild(this.instanceElem, oldInstanceElem);
 
@@ -238,6 +236,8 @@ export default async function setupEnvironment(startpos, dimensions) {
         this.startInterfacePolling();
 
         incrementUserUsageStat('createdInstances');
+
+        APPLY_ASSISTANCE_CONCEALMENT(isConcealAssistanceActive);
     } catch(e) { 
         console.error(e);
     }

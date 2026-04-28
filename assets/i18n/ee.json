@@ -154,7 +154,8 @@
         "useExternalChessEngine": ["Lubatud", "Kas väline male mootor on lubatud"],
         "instanceRestartTriggerCode": ["Taaskäivitamise nupp", "Käivitab kõik instantsid uuesti, kasulik kui need seiskuvad"],
         "concealAssistanceTriggerCode": ["Peitmine nupp", "Näita/peida abistavaid funktsioone (nt käigupooled)"],
-        "engineEnemyElo": ["Vastase ELO", "Inimlikumaks mängu tegemiseks"]
+        "engineEnemyElo": ["Vastase ELO", "Inimlikumaks mängu tegemiseks"],
+        "concealAssistanceAutoDelayMs": ["Automaatne peitmine (ms)", "Peida abistavaid funktsioone automaatselt pärast selle aja möödumist"]
 
     },
     "translations": {

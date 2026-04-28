@@ -18,6 +18,7 @@ const THEME_COLOR_STORAGE_KEY = 'themeColorHex';
 const INSTANCE_SIZE_KEY = 'instanceSize';
 const BOARD_SIZE_MODIFIER_KEY = 'boardSizeModifier';
 const CONCEAL_ASSISTANCE_ACTIVE_KEY = 'concealAssistanceActive';
+const CONCEAL_ASSISTANCE_DELAY_KEY = 'concealAssistanceAutoDelayMs';
 
 const TOS_ACCEPTED_DB_KEY = 'isTosAccepted';
 
@@ -41,7 +42,8 @@ let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js
 let IS_INSTANCE_SETTING_BTN_DISABLED = false;
 let LAST_FORCE_CLOSE_TIME = 0;
-let CONCEAL_ASSISTANCE_ACTIVE = false;
+let CONCEAL_ASSISTANCE_ACTIVE = null;
+let CONCEAL_TIMEOUT = null;
 
 function FORCE_CLOSE_ALL_INSTANCES() {
     const now = Date.now();
@@ -57,15 +59,18 @@ function FORCE_CLOSE_ALL_INSTANCES() {
 }
 
 function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
+    // Concealed right at instance creation
+    if(CONCEAL_ASSISTANCE_ACTIVE === null && isConcealed)
+        toast.warning(TRANS_OBJ?.concealmentActive ?? 'Concealment active!', 5000);
+
     CONCEAL_ASSISTANCE_ACTIVE = isConcealed;
 
-    window.AcasInstances.forEach(iObj => {
+    window.AcasInstances.forEach(async iObj => {
         if(iObj.instance && typeof iObj.instance.close === "function") {
+            await WAIT_UNTIL_VAR(() => iObj.instance.BoardDrawer?.boardContainerElem);
             const BoardDrawerSvg = iObj.instance.BoardDrawer.boardContainerElem;
-
-            if('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-            }
+            
+            if('speechSynthesis' in window) window.speechSynthesis.cancel();
 
             if(isConcealed) BoardDrawerSvg.style.display = 'none';
             else {
@@ -86,18 +91,42 @@ function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
     chessboardComponents.forEach(elem => {
         elem.classList.toggle('assistance-concealment-active', isConcealed);
     });
+
+    if(typeof REFRESH_PIP_DISPLAY === 'function') REFRESH_PIP_DISPLAY();
+
+    RUN_CONCEAL_ASSISTANCE_AUTO_DELAY();
+}
+
+async function RUN_CONCEAL_ASSISTANCE_AUTO_DELAY() {
+    const delay = await GET_GM_CFG_VALUE(CONCEAL_ASSISTANCE_DELAY_KEY, false, false);
+
+    if(delay && !CONCEAL_ASSISTANCE_ACTIVE) {
+        CONCEAL_TIMEOUT = setTimeout(() => {
+            SET_CONCEAL_ASSISTANCE(true);
+        }, delay);
+    }
+}
+
+async function SET_CONCEAL_ASSISTANCE(isConcealed) {
+    clearTimeout(CONCEAL_TIMEOUT);
+
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
+    const config = await USERSCRIPT.getValue(gmConfigKey);
+
+    config.global[CONCEAL_ASSISTANCE_ACTIVE_KEY] = isConcealed;
+
+    await USERSCRIPT.setValue(gmConfigKey, config);
+
+    APPLY_ASSISTANCE_CONCEALMENT(isConcealed);
 }
 
 async function TOGGLE_CONCEAL_ASSISTANCE() {
     const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
 
-    const newValue = !(config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY] ?? false);
-    config['global'][CONCEAL_ASSISTANCE_ACTIVE_KEY] = newValue;
-    
-    USERSCRIPT.setValue(gmConfigKey, config);
+    const currentState = config?.global?.[CONCEAL_ASSISTANCE_ACTIVE_KEY] ?? false;
 
-    APPLY_ASSISTANCE_CONCEALMENT(newValue);
+    return SET_CONCEAL_ASSISTANCE(!currentState);
 }
 
 function CREATE_INPUT_LISTENER(listenerType, targetValue, callback) {

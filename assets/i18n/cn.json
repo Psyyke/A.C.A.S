@@ -154,7 +154,8 @@
         "useExternalChessEngine": ["已启用", "是否启用了外部国际象棋引擎"],
         "instanceRestartTriggerCode": ["重启触发键", "重启所有实例，如果崩溃时有用"],
         "concealAssistanceTriggerCode": ["隐藏触发键", "隐藏/显示辅助功能（例如移动箭头）"],
-        "engineEnemyElo": ["对手ELO", "使引擎的棋力计算更加真实人性化"]
+        "engineEnemyElo": ["对手ELO", "使引擎的棋力计算更加真实人性化"],
+        "concealAssistanceAutoDelayMs": ["自动隐藏（毫秒）", "此时间后自动隐藏辅助功能"]
     },
     "translations": {
         "profileRemovalWarning": "您确定要删除这个配置文件吗？\n\n此操作无法恢复。",

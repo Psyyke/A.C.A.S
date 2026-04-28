@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Habilitado", "¿Está habilitado el motor de ajedrez externo"],
         "instanceRestartTriggerCode": ["Botón de reinicio", "Reinicia todas las instancias, útil si se bloquean"],
         "concealAssistanceTriggerCode": ["Botón de ocultación", "Ocultar/mostrar funciones de asistencia (p.ej. flechas de movimiento)"],
-        "engineEnemyElo": ["ELO del Enemigo", "Para un juego más humano del motor"]
+        "engineEnemyElo": ["ELO del Enemigo", "Para un juego más humano del motor"],
+        "concealAssistanceAutoDelayMs": ["Ocultación automática (ms)", "Ocultar automáticamente las funciones de asistencia después de este tiempo"]
 
     },
     "translations": {

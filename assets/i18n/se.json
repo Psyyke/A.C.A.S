@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Aktiverad", "Är den externa schackmotorn aktiverad"],
         "instanceRestartTriggerCode": ["Omstartsknapp", "Startar om alla instanser, användbart om de kraschar"],
         "concealAssistanceTriggerCode": ["Dölj-knapp", "Visa/dölj assistansfunktioner (t.ex. dragniglar)"],
-        "engineEnemyElo": ["Fiendens ELO", "För mer mänsklig motorspel"]
+        "engineEnemyElo": ["Fiendens ELO", "För mer mänsklig motorspel"],
+        "concealAssistanceAutoDelayMs": ["Automatisk dölj (ms)", "Dölj automatiskt assistansfunktioner efter denna tid"]
     },
     "translations": {
         "profileRemovalWarning": "Är du säker på att du vill ta bort denna profil?\n\nDenna åtgärd kan inte ångras.",

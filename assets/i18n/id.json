@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Diaktifkan", "Apakah mesin catur eksternal diaktifkan"],
         "instanceRestartTriggerCode": ["Tombol Mulai ulang", "Memulai ulang semua instance, berguna jika mogok"],
         "concealAssistanceTriggerCode": ["Tombol Penyembunyian", "Tampilkan/sembunyikan fitur bantuan (mis. panah gerakan)"],
-        "engineEnemyElo": ["ELO Musuh", "Untuk permainan mesin yang lebih manusia"]
+        "engineEnemyElo": ["ELO Musuh", "Untuk permainan mesin yang lebih manusia"],
+        "concealAssistanceAutoDelayMs": ["Sembunyikan Otomatis (ms)", "Secara otomatis sembunyikan fitur bantuan setelah waktu ini"]
     },
     "translations": {
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",

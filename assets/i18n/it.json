@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Abilitato", "Il motore esterno del gioco degli scacchi è abilitato"],
         "instanceRestartTriggerCode": ["Pulsante Riavvio", "Riavvia tutte le istanze, utile se si bloccano"],
         "concealAssistanceTriggerCode": ["Pulsante Occultamento", "Mostra/nascondi le funzioni di assistenza (es. frecce di mossa)"],
-        "engineEnemyElo": ["ELO Nemico", "Per un gioco del motore più umano"]
+        "engineEnemyElo": ["ELO Nemico", "Per un gioco del motore più umano"],
+        "concealAssistanceAutoDelayMs": ["Occultamento automatico (ms)", "Nascondi automaticamente le funzioni di assistenza dopo questo tempo"]
     },
     "translations": {
         "profileRemovalWarning": "Sei sicuro di voler rimuovere questo profilo?\n\nQuesta azione non può essere annullata.",

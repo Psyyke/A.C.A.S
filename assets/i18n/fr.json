@@ -155,7 +155,8 @@
         "useExternalChessEngine": ["Activé", "Le moteur d'échecs externe est-il activé"],
         "instanceRestartTriggerCode": ["Bouton Redémarrage", "Redémarre toutes les instances, utile si elles planent"],
         "concealAssistanceTriggerCode": ["Bouton Dissimulation", "Masquer/afficher les fonctionnalités d'assistance (p.ex. flèches de coup)"],
-        "engineEnemyElo": ["ELO de l'Adversaire", "Pour un jeu plus humain du moteur"]
+        "engineEnemyElo": ["ELO de l'Adversaire", "Pour un jeu plus humain du moteur"],
+        "concealAssistanceAutoDelayMs": ["Dissimulation automatique (ms)", "Dissimuler automatiquement les fonctionnalités après ce délai"]
     },
     "translations": {
         "profileRemovalWarning": "Êtes-vous sûr(e) de vouloir supprimer ce profil ?\n\nCette action est irréversible.",

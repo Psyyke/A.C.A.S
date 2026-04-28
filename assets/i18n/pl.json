@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Włączono", "Czy zewnętrzny silnik szachowy jest włączony"],
         "instanceRestartTriggerCode": ["Przycisk ponownego uruchomienia", "Uruchamia ponownie wszystkie instancje, przydatne jeśli się zawieszą"],
         "concealAssistanceTriggerCode": ["Przycisk ukrywania", "Pokaż/ukryj funkcje wsparcia (np. strzałki ruchów)"],
-        "engineEnemyElo": ["ELO Przeciwnika", "Aby gra silnika była bardziej ludzka"]
+        "engineEnemyElo": ["ELO Przeciwnika", "Aby gra silnika byla bardziej ludzka"],
+        "concealAssistanceAutoDelayMs": ["Automatyczne ukrywanie (ms)", "Automatycznie ukryj funkcje wsparcia po tym czasie"]
     },
     "translations": {
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",

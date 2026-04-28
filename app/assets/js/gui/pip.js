@@ -33,6 +33,11 @@ export function updatePipData(data) {
     }
 }
 
+window.REFRESH_PIP_DISPLAY = () => {
+    clearTimeout(pipRefreshTimeout);
+    refreshPipView(true);
+};
+
 async function renderPipBoards(from, to) {
     const isNewSuggestion = pipLastPipFromTo[0] !== from && pipLastPipFromTo[1] !== to;
 
@@ -122,7 +127,9 @@ async function refreshPipView() {
 
     setMediaMetadata({
         title: mediaTitle,
-        artist: `Depth ${pipData.depth} (${(progress * 100)?.toFixed(0)}%) | Eval ${centipawnEval?.toFixed(2)}`
+        artist: `Depth ${pipData?.depth ?? 0} (${Math.round((progress ?? 0) * 100)}%) | Eval ${
+            Number.isFinite(centipawnEval) ? centipawnEval.toFixed(2) : "0.00"
+        }`
     });
 
     if(!pipCanvas) return; // do not continue if pip is not enabled
@@ -138,10 +145,10 @@ async function refreshPipView() {
     const headerWidth = pipCanvas.width - pipEvalBarWidth;
     const noInstancesText = FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
 
-    // CLEAR CANVAS
+    // Clear canvas
     ctxQueue.push(['clearRect', [0, 0, pipCanvas.width, pipCanvas.height]]);
 
-    // BACKGROUND
+    // Background
     ctxQueue.push(['fillStyle', pipData.themeColorHex]);
     ctxQueue.push(['fillRect', [0, 0, headerWidth, pipCanvas.height]]);
 
@@ -169,7 +176,7 @@ async function refreshPipView() {
         ctxQueue.push(['fillText', ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', 12, pipHeaderHeight + 80, pipMaxTextWidth]]);
     }
 
-    // Time + Progress
+    // Time + progress
     if(pipData.calculationTimeElapsed) {
         const timeMs = pipData.calculationTimeElapsed;
         const timeFormatted =
@@ -187,7 +194,7 @@ async function refreshPipView() {
     ctxQueue.push(['fillStyle', 'white']);
     ctxQueue.push(['font', `900 ${pipFontSizes.large}px Mona Sans`]);
 
-    // BOARD RENDERING
+    // Board rendering
     if(isBoard) {
         let [bitmap, bitmap2] = pipLastPipBoardBitmaps;
 
@@ -195,17 +202,17 @@ async function refreshPipView() {
             ctxQueue.push(['drawImage', [bitmap, ...pipBoardConfig, pipBoardSize - 4]]);
             ctxQueue.push(['drawImage', [bitmap2, ...pipBoardConfig, pipBoardSize]]);
         }
-    // TEXT BASED RENDERING
+    // Text based rendering
     } else {
         if(to === 'one)') {
             ctxQueue.push(['fillText', ['≽(•⩊ •マ≼', 16, pipHeaderHeight + 100]]);
-        } else if(bestMove) {
+        } else if(bestMove && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['fillText',
                 [`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 16, pipHeaderHeight + 100]
             ]);
         }
 
-        if(sFrom && sTo) {
+        if(sFrom && sTo && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
             ctxQueue.push(['font', `500 ${pipFontSizes.medium}px Mona Sans`]);
             ctxQueue.push(['fillText',
@@ -213,20 +220,20 @@ async function refreshPipView() {
             ]);
         }
 
-        if(tFrom && tTo) {
+        if(tFrom && tTo && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['fillText',
                 [`3. (${tFrom.toUpperCase()} ➔ ${tTo.toUpperCase()})`, 180, pipHeaderHeight + 135]
             ]);
         }
     }
 
-    // PROGRESS BAR
+    // Progress bar
     ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.1)']);
     ctxQueue.push(['fillRect',
         [0, pipHeaderHeight, (pipCanvas.width - pipEvalBarWidth) * progress, pipCanvas.height - pipHeaderHeight]
     ]);
 
-    // EVAL BAR BACKGROUND + FOREGROUND
+    // Eval bar background + foreground
     if(playerColor === 'b') {
         ctxQueue.push(['fillStyle', 'rgba(50, 50, 50, 1)']);
         ctxQueue.push(['fillRect', [pipCanvas.width - pipEvalBarWidth, 0, pipEvalBarWidth, pipCanvas.height]]);
@@ -262,7 +269,7 @@ async function refreshPipView() {
         ]);
     }
 
-    // STATUS BAR
+    // Status bar
     ctxQueue.push(['fillStyle',
         ['rgba(40, 40, 40, 0.9)', 'rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)'][pipData.isWinning ?? 0]
     ]);

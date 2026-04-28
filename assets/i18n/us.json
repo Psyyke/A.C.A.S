@@ -156,7 +156,8 @@
         "useExternalChessEngine": ["Enabled", "Is the external engine enabled"],
         "instanceRestartTriggerCode": ["Restart Trigger", "Restarts all instances, useful if they crash"],
         "concealAssistanceTriggerCode": ["Concealment Trigger", "Hide/show assist features (e.g. move arrows)"],
-        "engineEnemyElo": ["Enemy ELO", "For more human-like engine"]
+        "engineEnemyElo": ["Enemy ELO", "For more human-like engine"],
+        "concealAssistanceAutoDelayMs": ["Auto Conceal (ms)", "Automatically conceal after this time"]
     },
     "translations": {
         "profileRemovalWarning": "Are you sure you want to remove this profile?\n\nThis action cannot be reversed.",
