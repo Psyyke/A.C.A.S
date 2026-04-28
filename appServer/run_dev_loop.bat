@@ -7,7 +7,9 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
+:loop
 cd /d "%~dp0"
-
-call npm run build
-pause
+call npm start
+echo Dev server stopped. Restarting...
+timeout /t 1 >nul
+goto loop

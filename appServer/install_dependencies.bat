@@ -9,5 +9,5 @@ if %errorLevel% neq 0 (
 
 cd /d "%~dp0"
 
-call npm run build
-pause
+call npm install
+call pause
