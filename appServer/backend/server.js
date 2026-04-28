@@ -3,8 +3,8 @@ import { mainWindow } from './main.js';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 
-import { findAliveEngineObj, updateAliveEngineObjFen, killAllEngineIds, killAllEngineInstanceIds,
-    killAllEngineProfileNames, saveEngineOptions, sendToProcess, startEngine, savedEngines } from './engine.js';
+import { findAliveEngineObj, updateAliveEngineObjFen, killAllBy,
+    saveEngineOptions, sendToProcess, startEngine, savedEngines } from './engine.js';
 
 const PORT = 2800;
 const ALLOWED_ORIGIN = [
@@ -32,11 +32,12 @@ async function handleClientUciCommand(cmdObj) {
     if(command.length > 512)
         throw new Error('Command too long');
 
-    // savedEngineObj = e.g. { "title": "custom", "name": "lc0.exe", "path": "C:\\Users\\Acas\\Downloads\\lc0\\lc0.exe", "engineId": 1659824228 }
+    // savedEngineObj = e.g. { "title": "custom", "name": "lc0.exe", "path": "...", "engineId": "<sha256 hex>" }
     // Different from aliveEngineObj!
     const savedEngineObj = savedEngines.find(e => e.engineId === engineId);
 
     if(!savedEngineObj) {
+        console.warn(`[server] Unknown engineId received from client: "${engineId}"`);
         toast('warning', `Web command ignored, such engine does not exist!\n(EngineID: "${engineId}")`, 1000);
         return;
     }
@@ -90,23 +91,11 @@ function onCommandReceived(remoteCommand) {
                 sendEnginesList();
                 break;
 
-            case 'closeEnginesByIdentifier':
-                const identifier = msg.identifier;
-                const identifierType = msg.type;
-
-                switch(identifierType) {
-                    case 'engineId':
-                        killAllEngineIds(identifier, `All engines with engineId "${identifier}" were closed by client`);
-                        break;
-                    case 'profileName':
-                        killAllEngineProfileNames(identifier, `All engines with profileName "${identifier}" were closed by client`);
-                        break;
-                    case 'instanceId':
-                        killAllEngineInstanceIds(identifier, `All engines with instanceId "${identifier}" were closed by client`);
-                        break;
-                }
-                
+            case 'closeEnginesByIdentifier': {
+                const { identifier, type: field } = msg;
+                killAllBy(field, identifier, `All engines with ${field} "${identifier}" were closed by client`);
                 break;
+            }
 
             default:
                 throw new Error(`Unknown type: ${type}`);
