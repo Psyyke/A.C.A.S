@@ -554,7 +554,6 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     border: 2px solid rgb(81 150 109);
     border-bottom-width: 5px;
     border-radius: 4px;
-	overflow-y: auto;
 }
 #tos-title {
 	font-size: 40px;
