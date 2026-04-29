@@ -20,7 +20,7 @@ const configKeys = Object.freeze([
     'engineElo', 'engineEnemyElo', 'moveSuggestionAmount', 'arrowOpacity',
     'displayMovesOnExternalSite', 'showMoveGhost', 'showOpponentMoveGuess',
     'showOpponentMoveGuessConstantly', 'onlyShowTopMoves', 'maxMovetime',
-    'chessVariant', 'chessEngine', 'lc0Weight',
+    'chessVariant', 'chessEngine', 'useExternalChessEngine', 'lc0Weight',
     'engineNodes', 'chessFont', 'useChess960',
     'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
     'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
@@ -351,7 +351,7 @@ export default class AcasInstance {
         if(
             optionValue === null
             || isNotForThisEngine
-            || (isDefaultValue && !isApplyCausedByHuman) 
+            || (isDefaultValue && !isApplyCausedByHuman)
             || isWeirdValue
         ) return false;
 
@@ -362,6 +362,7 @@ export default class AcasInstance {
         if(typeof elo == 'number') {
             const limitStrength = 0 < elo && elo <= 2300;
             const engineType = await this.getEngineName(profile);
+            const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[profile];
 
             const isMaiaEngine = engineType.includes('maia');
             const engineEnemyElo = await this.getConfigValue(this.configKeys.engineEnemyElo, profile);
@@ -370,7 +371,7 @@ export default class AcasInstance {
                 maia3: [600, 2600]
             };
 
-            if(isMaiaEngine) {
+            if(isMaiaEngine && !isExternal) {
                 const [min, max] = maiaEloRanges[engineType];
 
                 const clampedEngineElo = Math.max(min, Math.min(max, elo));

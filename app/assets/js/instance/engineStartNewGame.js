@@ -17,8 +17,9 @@ async function startWithDynamicOptions(variant, engineName, profile) {
     const advancedEloDepth = await this.getConfigValue(this.configKeys.advancedEloDepth, profile);
     const engineNodes = await this.getConfigValue(this.configKeys.engineNodes, profile);
     const allSavedOptions = await GET_GM_VALUES_STARTS_WITH('DYNAMIC_', this.instanceID, profile);
+    const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[profile];
 
-    if(engineName === 'lc0' && this.pV[profile].lc0WeightName.includes('maia') && engineNodes > 1) {
+    if(engineName === 'lc0' && !isExternal && this.pV[profile].lc0WeightName.includes('maia') && engineNodes > 1) {
         const msg = TRANS_OBJ?.maiaNodeWarning ?? 'Maia weights work best with no search, please only use one (1) search node!';
         toast.warning(msg, 5000);
     }

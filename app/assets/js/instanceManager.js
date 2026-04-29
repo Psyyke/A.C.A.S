@@ -1,42 +1,83 @@
-import { externalChessEngineDropdown } from './gui/elementDeclarations.js'
+import { externalChessEngineDropdown } from './gui/elementDeclarations.js';
 import AcasInstance from './AcasInstance.js';
 import { addInstanceToSettingsDropdown, removeInstanceFromSettingsDropdown } from './gui/instances.js';
 
 window.AcasInstances = [];
+
 let initToasts = [];
+let instanceLock = Promise.resolve();
 
 export function createInstance(domain, instanceID, chessVariant) {
-    chessVariant = FORMAT_VARIANT(chessVariant);
+    instanceLock = instanceLock.then(() =>
+        _createInstanceSafe(domain, instanceID, chessVariant)
+    ).catch(err => {
+        console.error('createInstance chain error:', err);
+    });
 
-    const hasExternalEnginesAdded = [...externalChessEngineDropdown?.querySelectorAll('.dropdown-item.large')]
-        ?.length > 0;
-    const isExternalReady = window.wsConnectionOpen && hasExternalEnginesAdded;
-    const isReadyToContinue = isExternalReady || !window.useExternalEngine;
+    return instanceLock;
+}
 
-    if(!isReadyToContinue) return;
+async function _createInstanceSafe(domain, instanceID, chessVariant) {
+    try {
+        chessVariant = FORMAT_VARIANT(chessVariant);
 
-    setTimeout(() => {
-        const instanceExists = window.AcasInstances.find(instanceObj => instanceObj.id == instanceID) ? true : false;
+        if(!domain) {
+            console.error('Failed to create instance: Domain is required!');
+            return;
+        }
+
+        if(!instanceID) {
+            console.error('Failed to create instance: Instance ID is required!');
+            return;
+        }
+
+        const hasExternalEnginesAdded =
+            [...externalChessEngineDropdown?.querySelectorAll('.dropdown-item.large') || []]
+                .length > 0;
+
+        const isExternalReady = window.wsConnectionOpen && hasExternalEnginesAdded;
+        const isReadyToContinue = isExternalReady || !window.useExternalEngine;
+
+        if(!isReadyToContinue) {
+            console.warn('Instance creation deferred: external engine not ready');
+            return;
+        }
+
+        if(isExternalReady) await new Promise(res => setTimeout(res, 1000));
+
+        const instanceExists = window.AcasInstances.find(instanceObj => instanceObj.id === instanceID);
 
         if(instanceExists) {
             prelongInstanceLife(domain, instanceID, chessVariant);
             return;
         }
 
+        const instance = new AcasInstance(
+            domain,
+            instanceID,
+            chessVariant,
+            instanceLoaded
+        );
+
         window.AcasInstances.push({
-            'domain': domain,
-            'id': instanceID,
-            'instance': new AcasInstance(domain, instanceID, chessVariant, instanceLoaded),
-            'date': Date.now()
+            domain,
+            id: instanceID,
+            instance,
+            date: Date.now()
         });
 
         const msg = TRANS_OBJ?.newInstanceRequest ?? 'New match found!';
         const initToast = toast.instance(`${msg} (${domain})`);
 
-        initToasts.push({ instanceID, 'toast': initToast });
-        console.log(`New engine instance created! (DOMAIN: ${domain}, ID: ${instanceID})`);
+        initToasts.push({ instanceID, toast: initToast });
 
-    }, isExternalReady ? 1000 : 0);
+        console.log(
+            `New engine instance created! (DOMAIN: ${domain}, ID: ${instanceID})`
+        );
+
+    } catch (err) {
+        console.error('Error during instance creation:', err);
+    }
 }
 
 export function removeInstance(instance) {

@@ -109,34 +109,64 @@ export function killAllEngines() {
     }
 }
 
+export function clearCache() {
+    savedEngineOptions = {};
+    store.delete(seoStorageKey);
+}
+
 export function saveEngineOptions(command, identifierObj) {
     const engineIndex = identifierObj.savedOptionsIdentifierKey;
 
-    if(!savedEngineOptions[engineIndex]) savedEngineOptions[engineIndex] = {};
+    if(!savedEngineOptions[engineIndex]) {
+        savedEngineOptions[engineIndex] = {};
+    }
 
     const text = command.trim();
     if(!text.startsWith('setoption')) return false;
 
-    const nameStart = text.indexOf(' name ');
-    if(nameStart === -1) return false;
+    const tokens = text.split(/\s+/);
 
-    const valueStart = text.indexOf(' value ', nameStart + 6);
+    if(tokens[0] !== 'setoption') return false;
 
-    let name, value;
+    const nameIndex = tokens.indexOf('name');
+    const valueIndex = tokens.indexOf('value');
 
-    if(valueStart === -1) {
-        name = text.slice(nameStart + 6).trim();
+    if(nameIndex === -1) return false;
+
+    let nameTokens, valueTokens;
+
+    if(valueIndex === -1 || valueIndex < nameIndex) {
+        nameTokens = tokens.slice(nameIndex + 1);
+        valueTokens = [];
+    } else {
+        nameTokens = tokens.slice(nameIndex + 1, valueIndex);
+        valueTokens = tokens.slice(valueIndex + 1);
+    }
+
+    if(valueTokens[0] === 'value') {
+        valueTokens.shift();
+    }
+
+    let name = nameTokens.join(' ').trim();
+    let value;
+
+    if(valueTokens.length === 0) {
         value = true;
     } else {
-        name = text.slice(nameStart + 6, valueStart).trim();
-        value = text.slice(valueStart + 7).trim();
+        value = valueTokens.join(' ').trim();
 
         if(value === 'true') value = true;
         else if(value === 'false') value = false;
         else if(!isNaN(value)) value = Number(value);
     }
 
-    if(typeof value === 'string') value = value.replace('<empty>', '');
+    if(typeof value === 'string') {
+        value = value.replace('<empty>', '');
+
+        if(value.trim().toLowerCase() === 'value') return false;
+    }
+    if(!name) return false;
+
     savedEngineOptions[engineIndex][name] = value;
 
     try {

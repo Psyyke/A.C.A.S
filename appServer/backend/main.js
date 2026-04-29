@@ -4,7 +4,7 @@ import Store from 'electron-store';
 import path from 'path';
 import os from 'os';
 
-import { killAllEngines, addEngine, getSavedEngines, renderEngineGrid,
+import { killAllEngines, clearCache, addEngine, getSavedEngines, renderEngineGrid,
 	removeEngine, sendManualUciToEngine } from './engine.js';
 import { startLocalWSS, sendEnginesList } from './server.js';
 
@@ -56,6 +56,9 @@ app.whenReady().then(() => {
 	ipcMain.handle('killAllEngines',
 		async (event) => killAllEngines());
 
+    ipcMain.handle('clearCache',
+		async (event) => clearCache());
+
 	ipcMain.handle('getSavedEngines',
 		async (event) => getSavedEngines());
 
@@ -89,6 +92,8 @@ app.whenReady().then(() => {
 		startLocalWSS();
 		renderEngineGrid();
 	});
+
+    console.log('Ready!');
 });
 
 app.on('window-all-closed', () => {

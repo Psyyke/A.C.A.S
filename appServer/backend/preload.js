@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, shell } from 'electron';
 
 contextBridge.exposeInMainWorld('engineAPI', {
 	killAllEngines: () => ipcRenderer.invoke('killAllEngines'),
+    clearCache: () => ipcRenderer.invoke('clearCache'),
 	getSavedEngines: () => ipcRenderer.invoke('getSavedEngines'),
 	sendManualUciToEngine: (cmd, identifierObj) => ipcRenderer.invoke('sendManualUciToEngine', cmd, identifierObj),
 	addEngine: (fileInfo, title) => ipcRenderer.invoke('addEngine', fileInfo, title),

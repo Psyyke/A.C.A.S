@@ -13,7 +13,10 @@ import { setThemeColorHex } from '../gui.js';
 
 const processedElems = [];
 
-function disableAdvancedEloCheckbox(isChecked) {
+function setAdvancedEloCheckboxChecked(isChecked) {
+    const isUsingExternalEngine = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
+    if(isUsingExternalEngine) return;
+
     const shouldDispatchEvent = advancedEloEnableInput.checked !== isChecked;
 
     advancedEloEnableInput.checked = isChecked;
@@ -70,6 +73,17 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             const eloInput = engineEloInput.querySelector('input[data-key="engineElo"]');
             const isMaiaEngine = value && value.includes('maia');
             const enginesWithoutAdvancedElo = ['maia2', 'maia3', 'fairy-stockfish-nnue-wasm'];
+            const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
+
+            ensureOneDynamicEngineSettingVisible(value);
+
+            if(isExternal) {
+                chess960Checkbox.classList.remove('hidden');
+                enemyEloInputContainer.classList.add('hidden');
+                lc0WeightDropdown.classList.add('hidden');
+
+                break;
+            }
 
             if(value !== 'fairy-stockfish-nnue-wasm') chessVariantDropdown.classList.add('hidden');
             else chessVariantDropdown.classList.remove('hidden');
@@ -85,20 +99,20 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             if(value === 'lc0') {
                 eloInput.classList.add('disable-elo');
                 lc0WeightDropdown.classList.remove('hidden');
-
-                disableAdvancedEloCheckbox(true);
+                chess960Checkbox.classList.add('hidden');
+                
+                setAdvancedEloCheckboxChecked(true);
             } else {
                 eloInput.classList.remove('disable-elo');
                 lc0WeightDropdown.classList.add('hidden');
             }
 
             if(enginesWithoutAdvancedElo.includes(value)) {
-                disableAdvancedEloCheckbox(false);
+                setAdvancedEloCheckboxChecked(false);
                 normalEloInput.removeAttribute('disabled');
-            } else if (value !== 'lc0') {
+            } else if(value !== 'lc0') {
                 advancedEloEnableInput.removeAttribute('disabled');
             }
-            ensureOneDynamicEngineSettingVisible(value);
 
             break;
         case 'externalChessEngine':

@@ -94,7 +94,7 @@ export default async function updateSettings(updateObj) {
         this.setChessFont(await this.getConfigValue(this.configKeys.chessFont));
 
     if(didUpdateElo)
-        this.setEngineElo(await this.getConfigValue(this.configKeys.engineElo, profileName), true, profileName);
+        this.setEngineElo(await this.getConfigValue(this.configKeys.engineElo, profileName), isDirectlyCausedByUser, profileName);
 
     if(didUpdateAdvancedEloDepth) {
         this.pV[profileName].searchDepth = settingValue;

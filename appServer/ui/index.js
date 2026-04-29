@@ -1,4 +1,5 @@
 const stopBtn = document.getElementById('stopBtn');
+const clearBtn = document.getElementById('clearBtn');
 const engineUiGrid = document.getElementById('engineGrid');
 const portDisplay = document.getElementById('portDisplay');
 const statusDot = document.getElementById('statusDot');
@@ -32,6 +33,10 @@ document.querySelectorAll('a.external')
     });
 
 stopBtn.onclick = () => window.engineAPI.killAllEngines();
+clearBtn.onclick = () => {
+    window.engineAPI.clearCache();
+    toast.success('Cache cleared!', 1000);
+};
 addEngineBtn.onclick = async () => {
     const filePath = await window.fileAPI.pickFile();
     if(!filePath) return;

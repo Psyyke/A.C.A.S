@@ -306,6 +306,11 @@ button { cursor: pointer; border: none; border-radius: 4px; transition: 0.2s; }
     background-color: #501919 !important;
     border-color: #ff5252 !important;
 }
+#clearBtn:hover {
+    color: #ff5252 !important;
+    background-color: #501919 !important;
+    border-color: #ff5252 !important;
+}
 .clearBtn:hover {
     color: #ffa652 !important;
     background-color: #613b18 !important;
