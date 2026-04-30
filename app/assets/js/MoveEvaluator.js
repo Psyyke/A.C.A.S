@@ -70,7 +70,7 @@ export default class MoveEvaluator {
 
             console.warn('[MoveEvaluator] Hold on, rebooting! Attempt:', this.rebootAttempts);
 
-            setTimeout(this.loadStockfish(this.engineName), 100);
+            setTimeout(() => this.loadStockfish(this.engineName), 100);
         }
     }
 

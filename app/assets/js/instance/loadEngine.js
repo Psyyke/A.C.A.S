@@ -224,7 +224,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         const lozza = new Worker(`../app/assets/engines/Lozza/lozza-${version}.js`);
 
         lozza.onmessage = e => processEngineMessage(e.data);
-        lozza.onerror = e => restartEngine('lozza-' + version, e);
+        lozza.onerror = e => restartEngine.bind(this)('lozza-' + version, e);
 
         this.engines.push({
             'type': profileChessEngine,
