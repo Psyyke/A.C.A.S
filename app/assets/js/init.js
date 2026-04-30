@@ -78,6 +78,9 @@ async function initializeDatabase() {
     const expiredKeys = await Promise.all(
         tempValueKeys.map(async key => {
             const configValue = await USERSCRIPT.getValue(key);
+            // Treat malformed/missing entries as expired so they get cleaned up,
+            // and avoid crashing initializeDatabase() on a TypeError.
+            if(!configValue || typeof configValue.date !== 'number') return key;
             const isExpired = Date.now() - configValue.date > 6e4 * 60;
             return isExpired ? key : null;
         })
