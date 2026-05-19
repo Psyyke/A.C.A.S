@@ -836,9 +836,10 @@ export default class AcasInstance {
                 clearInterval(g);
 
                 this.interfacePollingActive = false;
+                return;
             }
 
-            const additionalInfoElem = this.instanceElem.querySelector('.instance-additional-info');
+            const additionalInfoElem = this.instanceElem?.querySelector('.instance-additional-info');
             const lastActiveEnginesAmount = this.activeEnginesAmount;
             const lastVariantNotSupportedByEngineAmount = this.variantNotSupportedByEngineAmount;
 
@@ -877,7 +878,7 @@ export default class AcasInstance {
             }
 
             if(newInfoStr.length > 0) {
-                additionalInfoElem.innerText = newInfoStr;
+                if(additionalInfoElem) additionalInfoElem.innerText = newInfoStr;
 
                 updatePipData({ 'engineText': newInfoStr });
             }
