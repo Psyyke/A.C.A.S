@@ -1,7 +1,9 @@
 import { beggingFloaty, userStatElements } from './elementDeclarations.js';
 
 function showBeggingFloaty(minutes) {
-    const hoursText = beggingFloaty.querySelector('b');
+    const hoursText = beggingFloaty?.querySelector('b');
+    if(!hoursText) return;
+
     hoursText.innerText = Math.round(minutes / 60);
 
     beggingFloaty.showModal();
