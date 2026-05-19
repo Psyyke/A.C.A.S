@@ -51,14 +51,14 @@ async function deleteProfile(profileName) {
 
 function selectNearestProfileTab(tabsElem, profileName) {
     const listContainerElem = tabsElem.querySelector('.tabs-list-container');
+    if(!listContainerElem) return;
+
     const listTabItems = [...listContainerElem.children].filter(x => x?.dataset?.value);
     const formattedName = GET_PROFILE_STORAGE_KEY(profileName);
     const indexOfCurrentTab = listTabItems.findIndex(x => x.dataset.value === formattedName);
 
     if(indexOfCurrentTab && indexOfCurrentTab >= 1) {
         const nearestTabToLeft = listTabItems[indexOfCurrentTab - 1];
-
-        console.log(nearestTabToLeft);
 
         setTimeout(() => {
             nearestTabToLeft?.click();
@@ -165,11 +165,14 @@ function removeProfileTabItem(tabsElem, itemValue, newValue) {
     const dropdownItem = tabsElem.querySelector(`*[data-value="${encodedName}"]`);
     const dropdownInput = tabsElem.querySelector('input[data-default-value]');
 
+    if(!dropdownInput) {
+        dropdownItem?.remove();
+        return;
+    }
+
     dropdownInput.value = (newValue || dropdownInput.dataset.defaultValue);
 
     dropdownItem?.remove();
-
-    console.log(dropdownInput, dropdownInput.value);
 
     dropdownInput.dispatchEvent(new Event('change'));
 }
