@@ -5,7 +5,7 @@
             let timeoutId;
 
             const listener = (event) => {
-                if(event.data.messageId === messageId && event.data.sender !== 'GUI') {
+                if(event?.data?.messageId === messageId && event.data.sender !== 'GUI') {
                     clearTimeout(timeoutId);
                     window.removeEventListener('message', listener);
 

@@ -475,10 +475,10 @@ function COUNT_TOTAL_PIECES_FROM_FEN(fen) {
 
     for(let char of position) {
         if(/[rnbqkpRNBQKP]/.test(char)) {
-            pieceCount += (pieceCount[char] || 0) + 1;
+            pieceCount++;
         }
     }
-    
+
     return pieceCount;
 }
 
