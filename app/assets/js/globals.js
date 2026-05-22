@@ -794,10 +794,10 @@ function EXTRACT_MOVE_FROM_FEN(lastFen, currentFen, boardDimensions = [8, 8]) {
 
         if(color === 'w' && toRank === rows) {
             moveFrom = `${toFile}${toRank - 1}`;
-            movedPiece = movedPiece.toUpperCase() ? 'P' : movedPiece;
+            movedPiece = 'P';
         } else if(color === 'b' && toRank === 1) {
             moveFrom = `${toFile}${toRank + 1}`;
-            movedPiece = movedPiece.toLowerCase() ? 'p' : movedPiece;
+            movedPiece = 'p';
         }
     }
 
