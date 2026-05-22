@@ -12,7 +12,7 @@ export default class BoardAnalyzer {
         this.isPlayerBlack = (config?.orientation || (fen && fen.split(' ')[1]) || 'w').toLowerCase() === 'b';
         this.board = this.parseFEN();
         this.boardHeight = this.board.length;  // Number of rows in the board
-        this.boardWidth = this.board[0].length;  // Number of columns in the board
+        this.boardWidth = this.board[0]?.length ?? 0;  // Number of columns in the board
 
         this.fenToValue = c => ({ P:1, N:3, B:3, R:5, Q:9, K:100 })[c.toUpperCase()] || 0;
 
@@ -54,6 +54,7 @@ export default class BoardAnalyzer {
     }
 
     parseFEN() {
+        if(!this.fen || typeof this.fen !== 'string') return [];
         if(this.isPlayerBlack) this.flipFen();
 
         const rows = this.fen.split(' ')[0].split('/');
