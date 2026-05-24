@@ -104,16 +104,33 @@ export default async function engineMessageProcessor(msg, profile) {
     }
 
     if(data?.pv && isMessageForCurrentFen) {
-        const moveRegex = /[a-zA-Z]\d+/g;
+        const moveRegex = /^([a-zA-Z]\d+)([a-zA-Z]\d+)([qrbnQRBN])?$/;
         const ranking = VAR_TO_CORRECT_TYPE(data?.multipv) || 1;
-        let moves = data.pv.split(' ').map(move => move.match(moveRegex));
+
+        let moves = data.pv.split(' ').map(move => {
+            const moveRegexResult = move.match(moveRegex);
+            if(!moveRegexResult) return null;
+
+            return {
+                from: moveRegexResult[1],
+                to: moveRegexResult[2],
+                promotion: moveRegexResult[3] || null,
+                uci: move
+            };
+        });
 
         if(moves?.length === 1) // if no opponent move guesses yet
-            moves = [...moves, [null, null]];
+            moves = [...moves, null];
 
         const cp = data?.cp;
-        const [[from, to], [opponentFrom, opponentTo]] = moves;
-        const moveObj = { 'player': [from, to], 'opponent': [opponentFrom, opponentTo], cp, profile, ranking };
+        const [playerMove, opponentMove] = moves;
+        const moveObj = {
+            'player': [playerMove?.from ?? null, playerMove?.to ?? null],
+            'opponent': [opponentMove?.from ?? null, opponentMove?.to ?? null],
+            'playerPromotion': playerMove?.promotion ?? null,
+            'opponentPromotion': opponentMove?.promotion ?? null,
+            cp, profile, ranking
+        };
 
         this.pV[profile].pastMoveObjects.push(moveObj);
 

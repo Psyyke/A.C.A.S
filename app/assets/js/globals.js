@@ -794,10 +794,10 @@ function EXTRACT_MOVE_FROM_FEN(lastFen, currentFen, boardDimensions = [8, 8]) {
 
         if(color === 'w' && toRank === rows) {
             moveFrom = `${toFile}${toRank - 1}`;
-            movedPiece = movedPiece.toUpperCase() ? 'P' : movedPiece;
+            movedPiece = 'P';
         } else if(color === 'b' && toRank === 1) {
             moveFrom = `${toFile}${toRank + 1}`;
-            movedPiece = movedPiece.toLowerCase() ? 'p' : movedPiece;
+            movedPiece = 'p';
         }
     }
 
@@ -902,9 +902,11 @@ function PARSE_UCI_RESPONSE(response) {
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',
         'wdl', 'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
         'currmove', 'currmovenumber', 'hashfull', 'multipv', 'prob',
-        'refutation', 'line', 'stop', 'ponderhit', 'ucs',
+        'refutation', 'line', 'stop', 'ponderhit', 'ucs', 'baseTurn',
         'position', 'startpos', 'moves', 'files', 'ranks',
         'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc', 'error'];
+
+    keywords.push(...keywords.map(k => k + 'San'));
 
     const data = {};
     let currentKeyword = null;
