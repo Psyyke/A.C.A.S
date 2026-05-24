@@ -113,7 +113,7 @@ export default class MoveEvaluator {
         this.searchDepth = configObj?.depth || this.searchDepth;
 
         const [from, to] = moveObj; // e.g. ['a1', 'a2']
-        const playerColor = this.currentFen.split(' ')[1] || 'w';
+        const playerColor = this.currentFen.split(' ')[1];
         const enemyColor = playerColor === 'w' ? 'b' : 'w';
 
         let isMate = 0;
