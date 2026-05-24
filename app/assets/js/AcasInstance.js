@@ -141,10 +141,12 @@ export default class AcasInstance {
                 const variantFromConfig = await t.getConfigValue(t.configKeys.chessVariant, profileName);
                 const use960FromConfig = await t.getConfigValue(t.configKeys.useChess960, profileName);
 
-                instance.chessVariant = IS_VARIANT_960(chessVariant)
+                const detectedVariant = chessVariant || variantFromConfig;
+
+                instance.chessVariant = IS_VARIANT_960(detectedVariant)
                     ? FORMAT_VARIANT('chess')
-                    : FORMAT_VARIANT(chessVariant || variantFromConfig || 'chess');
-                instance.useChess960 = IS_VARIANT_960(chessVariant) ? true : use960FromConfig;
+                    : FORMAT_VARIANT(detectedVariant || 'chess');
+                instance.useChess960 = IS_VARIANT_960(detectedVariant) ? true : use960FromConfig;
                 instance.lc0WeightName = await t.getConfigValue(t.configKeys.lc0Weight, profileName);
         
                 return instance;

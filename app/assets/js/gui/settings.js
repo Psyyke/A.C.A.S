@@ -22,7 +22,7 @@ export function importSettings() {
                 const jsonString = event.target.result;
                 const jsonData = JSON.parse(jsonString);
 
-                if(!'instance' in jsonData) {
+                if(!('instance' in jsonData)) {
                     jsonData['instance'] = {};
                 }
 
