@@ -902,9 +902,11 @@ function PARSE_UCI_RESPONSE(response) {
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',
         'wdl', 'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
         'currmove', 'currmovenumber', 'hashfull', 'multipv', 'prob',
-        'refutation', 'line', 'stop', 'ponderhit', 'ucs',
+        'refutation', 'line', 'stop', 'ponderhit', 'ucs', 'baseTurn',
         'position', 'startpos', 'moves', 'files', 'ranks',
         'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc', 'error'];
+
+    keywords.push(...keywords.map(k => k + 'San'));
 
     const data = {};
     let currentKeyword = null;

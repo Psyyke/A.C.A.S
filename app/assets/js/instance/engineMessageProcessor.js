@@ -106,9 +106,17 @@ export default async function engineMessageProcessor(msg, profile) {
     if(data?.pv && isMessageForCurrentFen) {
         const moveRegex = /^([a-zA-Z]\d+)([a-zA-Z]\d+)([qrbnQRBN])?$/;
         const ranking = VAR_TO_CORRECT_TYPE(data?.multipv) || 1;
+
         let moves = data.pv.split(' ').map(move => {
-            const m = move.match(moveRegex);
-            return m ? { from: m[1], to: m[2], promotion: m[3] || null, uci: move } : null;
+            const moveRegexResult = move.match(moveRegex);
+            if(!moveRegexResult) return null;
+
+            return {
+                from: moveRegexResult[1],
+                to: moveRegexResult[2],
+                promotion: moveRegexResult[3] || null,
+                uci: move
+            };
         });
 
         if(moves?.length === 1) // if no opponent move guesses yet
