@@ -304,6 +304,10 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     // is exactly the same as the switch case string, since otherwise reloading wont work
     // "Maia 3" is the default
     switch(profileChessEngine) {
+        case 'stockfish-18-single':
+            loadStockfish.bind(this)('stockfish-18-single');
+            break;
+
         case 'stockfish-18-lite-single':
             loadStockfish.bind(this)('stockfish-18-lite-single');
             break;
