@@ -270,8 +270,15 @@ async function startEngineProcess(enginePath, identifierObj) {
                     }, 100);
                 });
 
+                let stdoutBuffer = '';
+
                 engineProcess.stdout.on('data', (data) => {
-                    data.toString().split(/\r?\n/).forEach(line => {
+                    stdoutBuffer += data.toString();
+
+                    const lines = stdoutBuffer.split(/\r?\n/);
+                    stdoutBuffer = lines.pop(); // keep the trailing incomplete line for the next chunk
+
+                    lines.forEach(line => {
                         if(line.trim()) sendUciLineToClient(line, engineId, profileName, instanceId);
                         log(line, 'engine', identifierObj);
                     });
