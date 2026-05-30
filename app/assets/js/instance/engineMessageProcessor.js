@@ -175,7 +175,7 @@ export default async function engineMessageProcessor(msg, profile) {
                 const startFen = this.currentFen;
 
                 setTimeout(() => {
-                    if(startFen == this.currentFen && !this.isEngineCalculating(profile)) {
+                    if(startFen === this.currentFen && !this.isEngineCalculating(profile)) {
                         this.displayMoves(topMoveObjects, profile);
                     }
                 }, moveDisplayDelay);

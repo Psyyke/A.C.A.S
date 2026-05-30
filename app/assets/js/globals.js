@@ -944,7 +944,7 @@ function EXTRACT_VARIANT_NAMES(str) {
     return [];
 }
 
-const IS_VARIANT_960 = v => v?.toLowerCase() == 'chess960';
+const IS_VARIANT_960 = v => v?.toLowerCase() === 'chess960';
 
 function FORMAT_VARIANT(str) {
     return str

@@ -19,7 +19,7 @@ export default async function setupEnvironment(startpos, dimensions) {
 
             const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
 
-            if(!warnedAboutOnlyOwnTurn && variant != 'chess' && onlyCalculateOwnTurn) {
+            if(!warnedAboutOnlyOwnTurn && variant !== 'chess' && onlyCalculateOwnTurn) {
                 const msg = TRANS_OBJ?.ownTurnMightNotWorkVariants ?? "'Only Own Turn' setting might not work for variants!"
                 toast.warning(`${msg} (todo)`, 5000);
 

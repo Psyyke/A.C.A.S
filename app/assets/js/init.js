@@ -37,7 +37,7 @@ function displayTOS() {
 async function initDbValue(name, value) {
     const dbValue = await USERSCRIPT.getValue(name);
 
-    if(dbValue == undefined) {
+    if(dbValue === undefined) {
         USERSCRIPT.setValue(name, value);
     }
 

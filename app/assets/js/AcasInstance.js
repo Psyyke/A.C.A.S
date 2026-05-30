@@ -359,7 +359,7 @@ export default class AcasInstance {
     }
 
     async setEngineElo(elo, didUserUpdateSetting, profile) {
-        if(typeof elo == 'number') {
+        if(typeof elo === 'number') {
             const limitStrength = 0 < elo && elo <= 2300;
             const engineType = await this.getEngineName(profile);
             const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[profile];
@@ -449,56 +449,56 @@ export default class AcasInstance {
     }
 
     setEngineMultiPV(amount, profile) {
-        if(typeof amount == 'number') {
+        if(typeof amount === 'number') {
             this.pV[profile].multiPV = amount;
             this.sendMsgToEngine(`setoption name MultiPV value ${amount}`, profile);
         }
     }
 
     setEngineThreads(amount, profile) {
-        if(typeof amount == 'number') {
+        if(typeof amount === 'number') {
             this.sendMsgToEngine(`setoption name Threads value ${amount}`, profile);
         }
     }
 
     setEngineNodesTime(amount, profile) {
-        if(typeof amount == 'number') {
+        if(typeof amount === 'number') {
             this.sendMsgToEngine(`setoption name nodestime value ${amount}`, profile);
         }
     }
 
     setEngineMaxError(amount, profile) {
-        if(typeof amount == 'number') {
+        if(typeof amount === 'number') {
             this.sendMsgToEngine(`setoption name Skill Level Maximum Error value ${amount}`, profile);
         }
     }
 
     setEngineProbability(amount, profile) {
-        if(typeof amount == 'number') {
+        if(typeof amount === 'number') {
             this.sendMsgToEngine(`setoption name Skill Level Probability value ${amount}`, profile);
         }
     }
     
     setEngineHashSize(amount, profile) {
-        if(typeof amount == 'number') {
+        if(typeof amount === 'number') {
             this.sendMsgToEngine(`setoption name Hash value ${amount}`, profile);
         }
     }
 
     setEngineSkillLevel(amount, profile) {
-        if(typeof amount == 'number' && -20 <= amount && amount <= 20) {
+        if(typeof amount === 'number' && -20 <= amount && amount <= 20) {
             this.sendMsgToEngine(`setoption name Skill Level value ${amount}`, profile);
         }
     }
 
     setEngineLimitStrength(bool, profile) {
-        if(typeof bool == 'boolean') {
+        if(typeof bool === 'boolean') {
             this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${bool}`, profile);
         }
     }
 
     setEngineShowWDL(bool, profile) {
-        if(typeof bool == 'boolean') {
+        if(typeof bool === 'boolean') {
             this.sendMsgToEngine(`setoption name UCI_ShowWDL value ${bool}`, profile);
         }
     }
@@ -512,7 +512,7 @@ export default class AcasInstance {
     }
 
     async setEngineVariant(variant, profile) {
-        if(typeof variant == 'string') {
+        if(typeof variant === 'string') {
             this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`, profile);
 
             this.pV[profile].chessVariant = FORMAT_VARIANT(variant);
@@ -531,7 +531,7 @@ export default class AcasInstance {
         const chessFonts = ['merida', 'cburnett', 'staunty', 'letters'];
 
         chessFonts.forEach(str => {
-            if(str == chessFontStr) {
+            if(str === chessFontStr) {
                 chessboardElems.forEach(x => x?.classList?.add(str));
             } else {
                 chessboardElems.forEach(x => x?.classList?.remove(str));
@@ -589,7 +589,7 @@ export default class AcasInstance {
                 volume: 1
             };
 
-            if(ttsVoiceName?.toLowerCase() != 'default') {
+            if(ttsVoiceName?.toLowerCase() !== 'default') {
                 speechConfig.voiceName = ttsVoiceName;
             }
 
@@ -714,12 +714,12 @@ export default class AcasInstance {
     }
 
     getEngineAcasObj(i) {
-        if(typeof i == 'object') {
-            return this.engines.find(obj => obj.profileName == i.name);
+        if(typeof i === 'object') {
+            return this.engines.find(obj => obj.profileName === i.name);
         }
-        
-        else if(typeof i == 'string') {
-            return this.engines.find(obj => obj.profileName == i);
+
+        else if(typeof i === 'string') {
+            return this.engines.find(obj => obj.profileName === i);
         }
 
         return this.engines[i ? i : this.engines.length - 1];
@@ -866,7 +866,7 @@ export default class AcasInstance {
                 const enginesWord = TRANS_OBJ?.enginesWord ?? 'engines';
                 const variantNotSupportedMsg = TRANS_OBJ?.variantNotSupported ?? 'Variant not supported';
 
-                if(correctedActiveAmount == this.activeEnginesAmount) {
+                if(correctedActiveAmount === this.activeEnginesAmount) {
                     newInfoStr += ` (${this.activeEnginesAmount} ${this.activeEnginesAmount > 1 ? enginesWord : engineWord})`;
                 }
                 else if(correctedActiveAmount > 0) {
@@ -890,7 +890,7 @@ export default class AcasInstance {
         for(let packet of this.unprocessedPackets) {
             await this.processPacket(packet);
 
-            this.unprocessedPackets = this.unprocessedPackets.filter(p => p != packet);
+            this.unprocessedPackets = this.unprocessedPackets.filter(p => p !== packet);
         }
     }
 

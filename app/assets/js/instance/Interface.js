@@ -235,11 +235,11 @@ export default class Interface {
             this.AcasInstance.pV[profileName].lastCalculatedFen = null;
         });
     
-        const orientationWord = orientation == 'b' ? 'black' : 'white';
+        const orientationWord = orientation === 'b' ? 'black' : 'white';
     
         const evalBarElem = this.AcasInstance.instanceElem.querySelector('.eval-bar');
     
-        if(orientation == 'b')
+        if(orientation === 'b')
             evalBarElem.classList.add('reversed');
         else
             evalBarElem.classList.remove('reversed');
@@ -283,7 +283,7 @@ export default class Interface {
     
         if(this.AcasInstance.lastTurn !== playerColor) return;
 
-        if(playerColor == 'b') {
+        if(playerColor === 'b') {
             centipawnEval = -centipawnEval;
         }
     
