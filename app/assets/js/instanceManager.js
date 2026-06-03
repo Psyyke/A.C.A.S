@@ -81,7 +81,7 @@ async function _createInstanceSafe(domain, instanceID, chessVariant) {
 }
 
 export function removeInstance(instance) {
-    window.AcasInstances = window.AcasInstances.filter(x => x.id != instance.instanceID);
+    window.AcasInstances = window.AcasInstances.filter(x => x.id !== instance.instanceID);
 
     removeInstanceFromSettingsDropdown(instance.instanceID);
 }
@@ -96,7 +96,7 @@ function instanceLoaded(informationObj) {
 }
 
 function prelongInstanceLife(domain, instanceID, chessVariant) {
-    const instanceObj = window.AcasInstances.find(instanceObj => instanceObj.id == instanceID);
+    const instanceObj = window.AcasInstances.find(instanceObj => instanceObj.id === instanceID);
 
     if(instanceObj) {
         instanceObj.date = Date.now();

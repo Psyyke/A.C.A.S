@@ -210,27 +210,27 @@ export default class BoardAnalyzer {
             return this.coordinatesFromMoves(piecePos, direction);
         }
 
-        if(pieceType == 'N') {
+        if(pieceType === 'N') {
             return this.coordinatesFromMoves(piecePos, [
                 [-2, -1], [-2, 1], [2, -1], [2, 1],
                 [-1, -2], [-1, 2], [1, -2], [1, 2]]);
         }
 
-        if(pieceType == 'K') {
+        if(pieceType === 'K') {
             return this.coordinatesFromMoves(piecePos, [
                 [-1, 0], [1, 0], [0, -1], [0, 1],
                 [-1, -1], [1, 1], [-1, 1], [1, -1]]);
         }
 
-        if(pieceType == 'B') {
+        if(pieceType === 'B') {
             return castDiagonal();
         }
 
-        if(pieceType == 'R') {
+        if(pieceType === 'R') {
             return castStraight();
         }
 
-        if(pieceType == 'Q') {
+        if(pieceType === 'Q') {
             return [
                 ...castDiagonal(),
                 ...castStraight()

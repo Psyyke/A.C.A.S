@@ -33,9 +33,9 @@ export function setInputValue(elem, val, min, max) {
 export function getInputValue(elem) {
     let value = elem.value;
 
-    if(elem.type == 'checkbox') {
+    if(elem.type === 'checkbox') {
         value = elem.checked;
-    } else if(elem.getAttribute('additional-type') == 'dropdown') {
+    } else if(elem.getAttribute('additional-type') === 'dropdown') {
         value = doesDropdownItemExist(elem, elem.value) ? elem.value : elem.dataset.defaultValue;
     }
 

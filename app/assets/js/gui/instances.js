@@ -22,7 +22,7 @@ export function toggleSelectedNavbarItem(selectedElem, instanceID) {
     }
     
     options.forEach(elem => {
-        if(elem == selectedElem) 
+        if(elem === selectedElem) 
             elem.classList.add('selected');
         else 
             elem.classList.remove('selected');
@@ -67,7 +67,7 @@ export function addInstanceToSettingsDropdown(instanceID, domain, chessVariant, 
 }
 
 export function removeInstanceFromSettingsDropdown(instanceID) {
-    const elem = [...settingsInstanceDropdownContentElem.children].find(elem => elem.dataset.instanceId == instanceID);
+    const elem = [...settingsInstanceDropdownContentElem.children].find(elem => elem.dataset.instanceId === instanceID);
 
     elem?.remove();
 }
