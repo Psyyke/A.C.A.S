@@ -77,9 +77,11 @@ function killSpecificEngine(identifierObj, code) {
     const engineObjToKill = findAliveEngineObj(identifierObj);
 
     if(engineObjToKill) {
-        toast('message', `Killing some engines! (${code || 'Manually/Externally'})`, 4000);
-
         engineObjToKill.engineProcess.kill();
+
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
+        toast('message', `Killed specific engine! (${code || 'Manually/Externally'})`, 4000);
 
         removeAliveEngineObj(identifierObj);
         refreshEngineCards(aliveEngineProcesses);

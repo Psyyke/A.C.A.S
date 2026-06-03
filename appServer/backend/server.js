@@ -14,9 +14,15 @@ const ALLOWED_ORIGIN = [
 
 const clients = new Set();
 let wssRef = null;
+let warnedAboutMultipleClients = false;
 
-function broadcast(payloadObj) {
+function broadcastToClients(payloadObj) {
     const data = JSON.stringify(payloadObj);
+
+    if(clients.size > 1 && !warnedAboutMultipleClients) {
+        warnedAboutMultipleClients = true;
+        toast('error', `Multiple GUI tabs connected! Please only use one at a time.`, 60000);
+    }
 
     for(const ws of clients) {
         if(ws.readyState === WebSocket.OPEN) {
@@ -162,6 +168,8 @@ export function startLocalWSS() {
     });
 
     wss.httpServer.on('listening', () => {
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
         const addressObj = wss.httpServer.address();
 
         mainWindow.webContents.send('serverListening', {
@@ -172,6 +180,8 @@ export function startLocalWSS() {
     });
 
     wss.onClientChange = (isConnected, origin) => {
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
         mainWindow.webContents.send('serverClientChange', {
             isConnected,
             origin
@@ -179,6 +189,8 @@ export function startLocalWSS() {
     };
 
     wss.onUnauthorized = (origin) => {
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
         mainWindow.webContents.send('serverUnauthorized', {
             origin
         });
@@ -208,7 +220,7 @@ export function stopLocalWSS() {
 // This doesnt use instanceId, so it will be sent to every A.C.A.S instance
 // might cause issues later on but right now doesn't seem to be a big deal!
 export function sendEnginesList() {
-    broadcast({ type: 'enginesList', msg: savedEngines });
+    broadcastToClients({ type: 'enginesList', msg: savedEngines });
 }
 
 // Called from engine.js
@@ -221,7 +233,7 @@ export function sendUciLineToClient(line, engineId, profileName, instanceId) {
         console.error('No instanceId given to send UCI line function, cannot send!'); return; }
 
     // Expects e.g. { "type": "uci", "msg": { "line": "info depth 12...", "engineId": 12345, "profileName": "default", "instanceId": "100" } }
-    broadcast({
+    broadcastToClients({
         type: 'uci', msg: { line, engineId, profileName, instanceId }
     });
 }
@@ -234,7 +246,7 @@ export function sendEngineDeathCertificateToClient(reason = 'not given', fen, en
     if(!instanceId){
         console.error('No instanceId given to sendEngineDeathCertificate function, cannot send!'); return; }
 
-    broadcast({
+    broadcastToClients({
         'type': 'engineStatusUpdate',
         'msg': {
             'statusType': 'engineDeathCertificate',
