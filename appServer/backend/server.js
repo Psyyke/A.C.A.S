@@ -1,6 +1,6 @@
 import { toast } from './util.js';
 import { mainWindow } from './main.js';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
 
 import { findAliveEngineObj, updateAliveEngineObjFen, killAllBy,
@@ -12,7 +12,28 @@ const ALLOWED_ORIGIN = [
     'https://psyyke.github.io'
 ];
 
-let sendToClient = null;
+const clients = new Set();
+let wssRef = null;
+let warnedAboutMultipleClients = false;
+
+function broadcastToClients(payloadObj) {
+    const data = JSON.stringify(payloadObj);
+
+    if(clients.size > 1 && !warnedAboutMultipleClients) {
+        warnedAboutMultipleClients = true;
+        toast('error', `Multiple GUI tabs connected! Please only use one at a time.`, 60000);
+    }
+
+    for(const ws of clients) {
+        if(ws.readyState === WebSocket.OPEN) {
+            try {
+                ws.send(data);
+            } catch (e) {
+                console.error('Failed to send to a client:', e?.message);
+            }
+        }
+    }
+}
 
 function getIdentifierKey(identifierObj) {
     return identifierObj.engineId + identifierObj.profileName + identifierObj.instanceId;
@@ -131,6 +152,8 @@ export function startLocalWSS() {
     });
 
     wss.on('connection', (ws, request) => {
+        clients.add(ws);
+
         if(wss.onClientChange) wss.onClientChange(true, request.headers.origin);
 
         ws.on('message', (msg) => {
@@ -138,13 +161,15 @@ export function startLocalWSS() {
         });
 
         ws.on('close', () => {
+            clients.delete(ws);
+
             if(wss.onClientChange) wss.onClientChange(false);
         });
-
-        sendToClient = ws.send.bind(ws);
     });
 
     wss.httpServer.on('listening', () => {
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
         const addressObj = wss.httpServer.address();
 
         mainWindow.webContents.send('serverListening', {
@@ -155,6 +180,8 @@ export function startLocalWSS() {
     });
 
     wss.onClientChange = (isConnected, origin) => {
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
         mainWindow.webContents.send('serverClientChange', {
             isConnected,
             origin
@@ -162,6 +189,8 @@ export function startLocalWSS() {
     };
 
     wss.onUnauthorized = (origin) => {
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
         mainWindow.webContents.send('serverUnauthorized', {
             origin
         });
@@ -169,23 +198,33 @@ export function startLocalWSS() {
 
     server.listen(PORT, '127.0.0.1');
 
+    wssRef = wss;
+
     return wss;
+}
+
+export function stopLocalWSS() {
+    if(!wssRef) return;
+
+    for(const ws of clients) {
+        try { ws.close(); } catch (e) {}
+    }
+
+    clients.clear();
+
+    wssRef.close();
+    wssRef.httpServer?.close();
+    wssRef = null;
 }
 
 // This doesnt use instanceId, so it will be sent to every A.C.A.S instance
 // might cause issues later on but right now doesn't seem to be a big deal!
 export function sendEnginesList() {
-    if(!sendToClient) return;
-
-    const engines = savedEngines;
-
-    sendToClient(JSON.stringify({ type: 'enginesList', msg: engines }));
+    broadcastToClients({ type: 'enginesList', msg: savedEngines });
 }
 
 // Called from engine.js
 export function sendUciLineToClient(line, engineId, profileName, instanceId) {
-    if(!sendToClient) {
-        console.error('No sendToClient function found while trying to send UCI line!'); return; }
     if(!profileName) {
         console.error('No profileName given to send UCI line function, cannot send!'); return; }
     if(!engineId) {
@@ -194,26 +233,24 @@ export function sendUciLineToClient(line, engineId, profileName, instanceId) {
         console.error('No instanceId given to send UCI line function, cannot send!'); return; }
 
     // Expects e.g. { "type": "uci", "msg": { "line": "info depth 12...", "engineId": 12345, "profileName": "default", "instanceId": "100" } }
-    sendToClient(JSON.stringify({
+    broadcastToClients({
         type: 'uci', msg: { line, engineId, profileName, instanceId }
-    }));
+    });
 }
 
 // Called from engine.js
 // Expected death certificate includes reason, fen, profileName, engineId and instanceId
 export function sendEngineDeathCertificateToClient(reason = 'not given', fen, engineId, profileName, instanceId) {
-    if(!sendToClient) {
-        console.error('No sendToClient function found while trying to send engine death certificate!'); return; }
     if(!profileName) {
         console.error('No profileName given to sendEngineDeathCertificate function, cannot send!'); return; }
     if(!instanceId){
         console.error('No instanceId given to sendEngineDeathCertificate function, cannot send!'); return; }
 
-    sendToClient(JSON.stringify({
+    broadcastToClients({
         'type': 'engineStatusUpdate',
         'msg': {
             'statusType': 'engineDeathCertificate',
             reason, fen, engineId, profileName, instanceId
         }
-    }));
+    });
 }

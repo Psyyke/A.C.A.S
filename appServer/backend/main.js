@@ -6,7 +6,7 @@ import os from 'os';
 
 import { killAllEngines, clearCache, addEngine, getSavedEngines, renderEngineGrid,
 	removeEngine, sendManualUciToEngine } from './engine.js';
-import { startLocalWSS, sendEnginesList } from './server.js';
+import { startLocalWSS, stopLocalWSS, sendEnginesList } from './server.js';
 
 export let mainWindow = null;
 
@@ -94,6 +94,11 @@ app.whenReady().then(() => {
 	});
 
     console.log('Ready!');
+});
+
+app.on('before-quit', () => {
+	killAllEngines();
+	stopLocalWSS();
 });
 
 app.on('window-all-closed', () => {

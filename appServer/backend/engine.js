@@ -77,9 +77,11 @@ function killSpecificEngine(identifierObj, code) {
     const engineObjToKill = findAliveEngineObj(identifierObj);
 
     if(engineObjToKill) {
-        toast('message', `Killing some engines! (${code || 'Manually/Externally'})`, 4000);
-
         engineObjToKill.engineProcess.kill();
+
+        if(!mainWindow || mainWindow.isDestroyed()) return;
+
+        toast('message', `Killed specific engine! (${code || 'Manually/Externally'})`, 4000);
 
         removeAliveEngineObj(identifierObj);
         refreshEngineCards(aliveEngineProcesses);
@@ -270,8 +272,15 @@ async function startEngineProcess(enginePath, identifierObj) {
                     }, 100);
                 });
 
+                let stdoutBuffer = '';
+
                 engineProcess.stdout.on('data', (data) => {
-                    data.toString().split(/\r?\n/).forEach(line => {
+                    stdoutBuffer += data.toString();
+
+                    const lines = stdoutBuffer.split(/\r?\n/);
+                    stdoutBuffer = lines.pop(); // keep the trailing incomplete line for the next chunk
+
+                    lines.forEach(line => {
                         if(line.trim()) sendUciLineToClient(line, engineId, profileName, instanceId);
                         log(line, 'engine', identifierObj);
                     });
