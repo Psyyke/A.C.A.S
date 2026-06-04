@@ -49,14 +49,15 @@ export default async function engineStartNewGame(variant, profile) {
     resetDynamicOptionsReady();
     this.kingMoved = ''; // reset king moved check
 
+    // MoveEval is shared across the instance, so reset it once with the
+    // instance-level player color (not per-profile) to avoid parallel stomping.
+    if(this.MoveEval) this.MoveEval.startNewGame(await this.getPlayerColor());
+
     const startForProfile = async profileName => {
         const engineName = await this.getEngineName(profileName);
-        const playerColor = await this.getPlayerColor(profileName);
         const isAdvancedElo = await this.getConfigValue(this.configKeys.enableAdvancedElo, profileName);
 
         this.clearHistoryVariables(profileName);
-
-        if(this.MoveEval) this.MoveEval.startNewGame(playerColor);
 
         if(this.isEngineCalculating(profileName))
             this.engineStopCalculating(profileName, 'Engine was calculating while a new game was started!');
