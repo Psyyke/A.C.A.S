@@ -103,7 +103,10 @@ class MaiaEngine {
 					moves = moves.filter(m => set.has(m));
 				}
 
-				if(moves.length === 0) return;
+				if(moves.length === 0) {
+					this.listen('bestmove (none)');
+					break;
+				}
 
 				for(let i = 0; i < Math.min(this.options.multipv, moves.length); i++) {
 					const move = moves[i];
