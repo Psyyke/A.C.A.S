@@ -119,20 +119,15 @@ export async function updateEnginesList(engines) {
         initializeSettingInputElem(paramsInput, true);
     }
 
-    if(foundSelectedEngineID) {
-        // The previously selected engine is present and was already marked/clicked.
-    } else if(selectedEngineID) {
-        const notAvailableText = TRANS_OBJ?.noExternalEngineAnymore ?? 'The previously selected EXTERNAL engine is not available anymore. Select a new one.';
+    if(!foundSelectedEngineID) {
+        // If a previously selected engine was stored but is no longer available, warn the user.
+        if(selectedEngineID) {
+            const notAvailableText = TRANS_OBJ?.noExternalEngineAnymore ?? 'The previously selected EXTERNAL engine is not available anymore. Select a new one.';
 
-        toast.warning(`${notAvailableText}${selectedEngineID ? `\n\n(ID: ${selectedEngineID})` : ''}`, 5000);
-        input.value = '';
+            toast.warning(`${notAvailableText}\n\n(ID: ${selectedEngineID})`, 5000);
+        }
 
-        toggleDropdown();
-
-        setTimeout(() => {
-            input.dispatchEvent(new Event('change'));
-        }, 100);
-    } else {
+        // Fall back to the first available engine so one stays active after a refresh.
         setTimeout(() => {
             dropdownListContainer?.firstChild?.click();
         }, 100);
