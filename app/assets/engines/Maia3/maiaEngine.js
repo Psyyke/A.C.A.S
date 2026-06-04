@@ -1,5 +1,6 @@
 import Maia from './maia.js';
 import { parseGo } from './utils.js';
+import { Chess } from '../libraries/chessjs/chess.js';
 
 class MaiaEngine {
   constructor(options = {}) {
@@ -81,6 +82,23 @@ class MaiaEngine {
 				} else if(line.includes('fen')) {
 					const parts = line.split('fen ');
 					this.currentFen = parts[1].split(' moves')[0];
+				}
+
+				if(line.includes(' moves ')) {
+					const moveList = line.split(' moves ')[1].trim().split(/\s+/);
+					const board = new Chess(this.currentFen);
+
+					for(const move of moveList) {
+						if(!move) continue;
+
+						board.move({
+							from: move.slice(0, 2),
+							to: move.slice(2, 4),
+							promotion: move.length > 4 ? move[4] : undefined
+						});
+					}
+
+					this.currentFen = board.fen();
 				}
 				break;
 
