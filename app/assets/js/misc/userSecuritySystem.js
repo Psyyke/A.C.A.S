@@ -22,7 +22,7 @@
                 if (tabSwitchCount >= tabSwitchThreshold) {
                     tabSwitchCount = 0;
 
-                    const msg = TRANS_OBJ?.excessiveTabChangeWarning;
+                    const msg = TRANS_OBJ?.excessiveTabChangeWarning ?? 'You are switching tabs frequently. This may look suspicious.';
                     toast.warning(msg, 25000);
                 }
 

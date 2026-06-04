@@ -187,7 +187,7 @@ async function attemptStarting() {
         displayNoUserscriptNotification(true); // failsafe
         started = true; // failsafe
 
-        initializeDatabase();
+        await initializeDatabase();
         initGUI();
         processUrlParams();
         startCommLink();
@@ -201,4 +201,4 @@ await attemptStarting();
 const userscriptSearchInterval = SET_INTERVAL_ASYNC(async () => {
     if(!started) await attemptStarting();
     else userscriptSearchInterval.stop();
-}, 1);
+}, 250);

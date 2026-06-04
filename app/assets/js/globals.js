@@ -330,10 +330,10 @@ function GET_TTS_VOICES() {
 function GET_SKILL_FROM_ELO(elo) {
     if(elo <= 500) {
         return -20;
-    } else if(elo >= 2850) {
-        return 19;
     } else if(elo >= 2900) {
         return 20;
+    } else if(elo >= 2850) {
+        return 19;
     } else {
         const range = (elo - 500) / (2850 - 500);
 
