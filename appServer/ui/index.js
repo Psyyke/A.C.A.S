@@ -59,11 +59,10 @@ addEngineBtn.onclick = async () => {
 };
 
 function refreshEngineCards(aliveEngineProcesses) {
-    console.log(aliveEngineProcesses);
-    const aliveIds = aliveEngineProcesses.map(ep => ep.identifierObj.engineId);
+    const aliveIds = aliveEngineProcesses.map(ep => String(ep.identifierObj.engineId));
 
     [...document.querySelectorAll('.card')]
-        .filter(x => !aliveIds.includes(Number(x.dataset.engineId || 0)))
+        .filter(x => !aliveIds.includes(x.dataset.engineId))
         .forEach(x => x.classList.remove('active'));
 }
 
@@ -75,7 +74,7 @@ async function renderEngineGrid(savedEngines) {
         if(!engineIds.includes(card.dataset.engineId)) card.remove();
     });
 
-    savedEngines.forEach((engine, index) => {
+    savedEngines.forEach(engine => {
         if(engineUiGrid.querySelector(`[data-engine-id="${engine.engineId}"]`)) return;
 
         const card = document.createElement('div');
@@ -94,7 +93,7 @@ async function renderEngineGrid(savedEngines) {
         removeBtn.onclick = async (e) => {
             e.stopPropagation();
 
-            const result = await window.engineAPI.removeEngine(index);
+            const result = await window.engineAPI.removeEngine(engine.engineId);
 
             if(typeof result === 'string') toast.error(result, 5000);
         };
