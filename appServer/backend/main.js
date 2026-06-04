@@ -72,7 +72,7 @@ app.whenReady().then(() => {
 		async (event, fileInfo, title) => addEngine(fileInfo, title));
 
 	ipcMain.handle('removeEngine',
-		async (event, engineId) => removeEngine(engineId));
+		async (event, enginePath) => removeEngine(enginePath));
 	
 	ipcMain.handle('pickFile', async () => {
 		const result = await dialog.showOpenDialog(mainWindow, {

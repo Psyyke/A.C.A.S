@@ -93,7 +93,7 @@ async function renderEngineGrid(savedEngines) {
         removeBtn.onclick = async (e) => {
             e.stopPropagation();
 
-            const result = await window.engineAPI.removeEngine(engine.engineId);
+            const result = await window.engineAPI.removeEngine(engine.path);
 
             if(typeof result === 'string') toast.error(result, 5000);
         };

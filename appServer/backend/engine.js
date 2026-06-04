@@ -345,11 +345,13 @@ export async function addEngine(fileInfo, title = fileInfo?.name) {
     return true;
 }
 
-export function removeEngine(engineId) {
-    const index = savedEngines.findIndex(engine => String(engine.engineId) === String(engineId));
+export function removeEngine(enginePath) {
+    // path is the unique key enforced by addEngine; engineId (sha256 of the file)
+    // can collide when the same binary is added from two different paths.
+    const index = savedEngines.findIndex(engine => engine.path === enginePath);
 
     if(index === -1)
-        return `Invalid engine id: ${engineId}`;
+        return `Invalid engine path: ${enginePath}`;
 
     const savedEngineObj = savedEngines[index];
 
