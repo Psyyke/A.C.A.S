@@ -187,7 +187,17 @@ async function attemptStarting() {
         displayNoUserscriptNotification(true); // failsafe
         started = true; // failsafe
 
-        await initializeDatabase();
+        try {
+            await initializeDatabase();
+        } catch(e) {
+            // If migration fails, don't leave the app half-initialized: clear the
+            // started flag so the polling loop retries instead of giving up.
+            console.error('Database initialization failed, will retry:', e);
+            started = false;
+
+            return;
+        }
+
         initGUI();
         processUrlParams();
         startCommLink();
