@@ -14,21 +14,22 @@ export default async function updateSettings(updateObj) {
 
     // Handle profiles which engine is disabled
     for(const profileObj of profilesWithDisabledEngine) {
-        const profileName = profileObj.name;
-        const profileVariables = this.pV[profileName];
+        const disabledProfileName = profileObj.name;
 
-        if(profileVariables) {
-            this.killEngine(profileName);
+        if(this.pV[disabledProfileName]) {
+            this.killEngine(disabledProfileName);
 
-            return;
+            // Only stop here if the changed profile is the one being disabled; killing
+            // an unrelated profile's engine must not abort this profile's update.
+            if(disabledProfileName === profileName) return;
         }
     }
-    
-    // Handle profiles which do not exist anymore
-    for(const profileName of nonexistingProfilesWithEngine) {
-        this.killEngine(profileName);
 
-        return;
+    // Handle profiles which do not exist anymore
+    for(const deadProfileName of nonexistingProfilesWithEngine) {
+        this.killEngine(deadProfileName);
+
+        if(deadProfileName === profileName) return;
     }
 
     const chessVariant = FORMAT_VARIANT(await this.getConfigValue(this.configKeys.chessVariant, profileName));
