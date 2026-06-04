@@ -93,7 +93,7 @@ function fillChessVariantDropdowns(arr) {
 function fillTextToSpeechVoices() {
     const waitForTTSVoices = setInterval(() => {
         const ttsVoices = GET_TTS_VOICES();
-        if(ttsVoices?.length === 0) return;
+        if(!ttsVoices?.length) return;
 
         ttsVoices.forEach(x => addDropdownItem(ttsNameDropdownElem, x));
 
@@ -119,7 +119,7 @@ function initializeFloatyButtons() {
             }
         
             btn.onclick = () => (floatyDialog.open ? close() : open());
-            closeBtn.onclick = () => close();
+            if(closeBtn) closeBtn.onclick = () => close();
         
             floatyDialog.onclick = (e) => {
                 const selection = window.getSelection().toString();

@@ -1,5 +1,5 @@
 export function doesDropdownItemExist(dropdownInputElem, itemValue) {
-    return dropdownInputElem.parentElement.querySelector(`*[data-value="${itemValue}"`) ? true : false;
+    return dropdownInputElem.parentElement.querySelector(`*[data-value="${itemValue}"]`) ? true : false;
 }
 
 export function addDropdownItem(dropdownElem, itemValue, itemText) {

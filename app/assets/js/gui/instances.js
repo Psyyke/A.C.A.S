@@ -57,11 +57,13 @@ export function addInstanceToSettingsDropdown(instanceID, domain, chessVariant, 
 
     const highlightedElem = instanceElem.querySelector('.highlight-indicator');
 
-    dropmenuItem.ontouchstart = () => highlightedElem.classList.remove('hidden');
-    dropmenuItem.ontouchend = () => highlightedElem.classList.add('hidden');
+    if(highlightedElem) {
+        dropmenuItem.ontouchstart = () => highlightedElem.classList.remove('hidden');
+        dropmenuItem.ontouchend = () => highlightedElem.classList.add('hidden');
 
-    dropmenuItem.onmouseenter = () => highlightedElem.classList.remove('hidden');
-    dropmenuItem.onmouseleave = () => highlightedElem.classList.add('hidden');
+        dropmenuItem.onmouseenter = () => highlightedElem.classList.remove('hidden');
+        dropmenuItem.onmouseleave = () => highlightedElem.classList.add('hidden');
+    }
 
     settingsInstanceDropdownContentElem.append(dropmenuItem);
 }

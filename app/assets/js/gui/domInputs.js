@@ -23,7 +23,11 @@ export function setInputValue(elem, val, min, max) {
                     elem.classList.remove(selectedItemKey);
             });
         } else {
-            if(min && max) val = Math.max(min, Math.min(max, val)) || min;
+            if(min != null && max != null) {
+                const clamped = Math.max(min, Math.min(max, val));
+
+                val = Number.isNaN(clamped) ? min : clamped;
+            }
         }
 
         elem.value = VAR_TO_CORRECT_TYPE(val);
@@ -75,7 +79,9 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
 
     elem.onchange = e => {
         if(isRange && elem.dataset?.between) {
-            e.target.value = Math.max(min, Math.min(max, e.target.value)) || min;
+            const clamped = Math.max(min, Math.min(max, e.target.value));
+
+            e.target.value = Number.isNaN(clamped) ? min : clamped;
         }
 
         if(e.target.value || e.target.checked || e.target.value === '') {
