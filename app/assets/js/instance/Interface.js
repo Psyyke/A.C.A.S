@@ -163,9 +163,6 @@ export default class Interface {
     }
     
     async updateBoardFen(fen) {
-        // Most up to date userscript versions handle this itself, so commenting out for now.
-        //if(this.AcasInstance.currentFen === fen) return;
-    
         const moveObj = EXTRACT_MOVE_FROM_FEN(this.AcasInstance.currentFen, fen);
         const movedPieceLowered = moveObj?.movedPiece?.toLowerCase();
         const instanceFenElem = this?.AcasInstance?.instanceElem?.querySelector('.instance-fen');
@@ -216,7 +213,7 @@ export default class Interface {
         });
     
         updatePipData({ 'moveObjects': null });
-    
+
         this.AcasInstance.renderFeedback(fen);
         this.AcasInstance.calculateBestMoves(fen, { moveObj });
     

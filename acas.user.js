@@ -79,7 +79,7 @@
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.3
+// @version     2.4.4
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -2268,6 +2268,8 @@ async function processBoardPosition(currentFullFen = getFen(), squareChangeAmoun
         resetCachedValues();
 
         matchFirstSuggestionGiven = false;
+        lastTurn = getBoardOrientation();
+        instanceVars.turn.set(commLinkInstanceID, lastTurn);
 
         CommLink.commands.newMatchStarted();
     }
@@ -2531,22 +2533,30 @@ addSupportedChessSite('chess.com', {
         let whites = 0;
 
         mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
+            const target = mutation?.target;
+            if(!target || !target.getBoundingClientRect) return;
+
+            const rect = target.getBoundingClientRect();
+            if(rect.width === 0 || rect.height === 0) return;
+
+            const classList = target.classList;
+            if(!classList) return;
 
             for(let i = 0; i < classList.length; i++) {
                 const cls = classList[i];
 
-                if(cls.length === 2) {
+                if(cls && cls.length === 2) {
                     const prefix = cls[0];
 
-                    if(prefix === 'b') blacks++;
-                    else if(prefix === 'w') whites++;
+                    if (prefix === 'b') blacks++;
+                    else if (prefix === 'w') whites++;
                 }
             }
         });
 
-        const turn = blacks > whites ? 'w' : 'b';
+        if(blacks === 0 && whites === 0) return null;
 
+        const turn = blacks > whites ? 'w' : 'b';
         return turn || null;
     },
 
