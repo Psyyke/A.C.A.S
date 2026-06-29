@@ -55,5 +55,7 @@ export function verifyLaunchParams(params) {
 }
 
 export function toast(type, text, ms) {
+    if(!mainWindow || mainWindow.isDestroyed()) return;
+
     mainWindow.webContents.send('toast', { type, text, ms });
 }
