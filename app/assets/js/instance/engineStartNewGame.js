@@ -43,32 +43,40 @@ async function startWithDynamicOptions(variant, engineName, profile) {
     3.) When the chess variant changes. */
 export default async function engineStartNewGame(variant, profile) {
     const chessVariant = FORMAT_VARIANT(variant);
-    const engineName = await this.getEngineName(profile);
-    const playerColor = await this.getPlayerColor(profile);
-    const isAdvancedElo = await this.getConfigValue(this.configKeys.enableAdvancedElo, profile);
 
+    // Global resets run once, before any per-profile work, so looping over
+    // profiles below does not wipe another profile's dynamic-options state.
     resetDynamicOptionsReady();
-
-    if(!profile) {
-        Object.keys(this.pV).forEach(profileName => {
-            this.clearHistoryVariables(profileName);
-        });
-    } else this.clearHistoryVariables(profile);
-
     this.kingMoved = ''; // reset king moved check
 
-    if(this.MoveEval) this.MoveEval.startNewGame(playerColor);
+    // MoveEval is shared across the instance, so reset it once with the
+    // instance-level player color (not per-profile) to avoid parallel stomping.
+    if(this.MoveEval) this.MoveEval.startNewGame(await this.getPlayerColor());
 
-    if(this.isEngineCalculating(profile))
-        this.engineStopCalculating(profile, 'Engine was calculating while a new game was started!');
+    const startForProfile = async profileName => {
+        const engineName = await this.getEngineName(profileName);
+        const isAdvancedElo = await this.getConfigValue(this.configKeys.enableAdvancedElo, profileName);
 
-    this.sendMsgToEngine('isready', profile); // not really necessary but not bad to have
-    this.sendMsgToEngine('uci', profile); // to display variants and other details
-    this.sendMsgToEngine('ucinewgame', profile); // very important to be before setting variant and so forth
-        
-    if(isAdvancedElo) await startWithDynamicOptions.bind(this)(chessVariant, engineName, profile);
-    else await startWithBasicOptions.bind(this)(chessVariant, engineName, profile);
+        this.clearHistoryVariables(profileName);
 
-    this.sendMsgToEngine('position startpos', profile);
-    if(engineName !== 'lc0') this.sendMsgToEngine('d', profile);
+        if(this.isEngineCalculating(profileName))
+            this.engineStopCalculating(profileName, 'Engine was calculating while a new game was started!');
+
+        this.sendMsgToEngine('isready', profileName); // not really necessary but not bad to have
+        this.sendMsgToEngine('uci', profileName); // to display variants and other details
+        this.sendMsgToEngine('ucinewgame', profileName); // very important to be before setting variant and so forth
+
+        if(isAdvancedElo) await startWithDynamicOptions.bind(this)(chessVariant, engineName, profileName);
+        else await startWithBasicOptions.bind(this)(chessVariant, engineName, profileName);
+
+        this.sendMsgToEngine('position startpos', profileName);
+        if(engineName !== 'lc0') this.sendMsgToEngine('d', profileName);
+    };
+
+    // When no profile is given (e.g. on a new match) start a new game for every profile.
+    if(!profile) {
+        await Promise.all(Object.keys(this.pV).map(startForProfile));
+    } else {
+        await startForProfile(profile);
+    }
 }
