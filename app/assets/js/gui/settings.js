@@ -121,12 +121,11 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
             config[SETTING_FILTER_OBJ.type][SETTING_FILTER_OBJ.instanceID]['profiles'][profileKey][settingObj.key] = settingObj.value;
         }
     } else {
+        // Initialize the type object first so `base` is always defined
+        INIT_NESTED_OBJECT(config, [SETTING_FILTER_OBJ.type]);
         let base = config[SETTING_FILTER_OBJ.type];
-        
+
         if (noProfile) {
-            // Initialize the type object
-            INIT_NESTED_OBJECT(config, [SETTING_FILTER_OBJ.type]);
-    
             const valueToSave = settingObj.key === 'chessEngineProfile'
                 ? GET_PROFILE_STORAGE_KEY(settingObj.value)
                 : settingObj.value;
@@ -135,7 +134,7 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
         } else {
             // Initialize profiles and profileID objects
             INIT_NESTED_OBJECT(base, ['profiles', profileKey]);
-    
+
             config[SETTING_FILTER_OBJ.type]['profiles'][profileKey][settingObj.key] = settingObj.value;
         }
     }

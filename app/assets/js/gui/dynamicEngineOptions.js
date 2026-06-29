@@ -31,20 +31,24 @@ export function onDynamicOptionsReady(profileName, timeout = 5000) {
         dynamicOptionsWaiters[profileName] = [];
 
     return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-            dynamicOptionsWaiters[profileName] = dynamicOptionsWaiters[profileName]
-                .filter(w => w.resolve !== resolve);
+        let timer;
 
-            reject(new Error(`Timeout waiting for profile "${profileName}", did not receive UCI options from engine!`));
-        }, timeout);
-
-        dynamicOptionsWaiters[profileName].push({
+        const waiter = {
             resolve: () => {
                 clearTimeout(timer);
                 resolve();
             },
             reject
-        });
+        };
+
+        timer = setTimeout(() => {
+            dynamicOptionsWaiters[profileName] = dynamicOptionsWaiters[profileName]
+                .filter(w => w !== waiter);
+
+            reject(new Error(`Timeout waiting for profile "${profileName}", did not receive UCI options from engine!`));
+        }, timeout);
+
+        dynamicOptionsWaiters[profileName].push(waiter);
     });
 }
 
