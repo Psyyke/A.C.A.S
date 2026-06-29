@@ -65,6 +65,10 @@ export default class MoveEvaluator {
         if(this.rebootAttempts < 3) {
             this.rebootAttempts++;
 
+            // The old worker is gone, so block eval() from posting to it until the
+            // new worker reports ready again (engineReady sets this back to true).
+            this.readyok = false;
+
             this.engine?.terminate();
             this.engine = null;
 
@@ -99,13 +103,13 @@ export default class MoveEvaluator {
     categorize(relativeCp) {
         if(relativeCp >= 250) return 7;   // Brilliancy
         if(relativeCp >= 100) return 6;   // Excellent
-        if(relativeCp >= 25) return 5;   // Good Move
-        if(relativeCp > -15 && relativeCp < 15) return 0; // Neutral
+        if(relativeCp >= 25) return 5;    // Good Move
         if(relativeCp <= -250) return 4;  // Catastrophic
         if(relativeCp <= -100) return 3;  // Blunder
-        if(relativeCp <= -25) return 2;  // Mistake
+        if(relativeCp <= -25) return 2;   // Mistake
+        if(relativeCp <= -15) return 1;   // Inaccuracy
 
-        return 1; // Inaccuracy
+        return 0; // Neutral
     }
 
     eval(moveObj, configObj, callback) {
