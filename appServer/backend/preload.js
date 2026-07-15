@@ -6,7 +6,7 @@ contextBridge.exposeInMainWorld('engineAPI', {
 	getSavedEngines: () => ipcRenderer.invoke('getSavedEngines'),
 	sendManualUciToEngine: (cmd, identifierObj) => ipcRenderer.invoke('sendManualUciToEngine', cmd, identifierObj),
 	addEngine: (fileInfo, title) => ipcRenderer.invoke('addEngine', fileInfo, title),
-	removeEngine: (index) => ipcRenderer.invoke('removeEngine', index),
+	removeEngine: (enginePath) => ipcRenderer.invoke('removeEngine', enginePath),
 	onRenderEngineGrid: (callback) => ipcRenderer.on('renderEngineGrid', (event, data) => callback(data)),
 	onAddConsoleView: (callback) => ipcRenderer.on('addConsoleView', (event, data) => callback(data)),
 	onRemoveConsoleView: (callback) => ipcRenderer.on('removeConsoleView', (event, data) => callback(data)),

@@ -17,16 +17,23 @@ export let savedEngines = store.get(chessEnginesStorageKey, []);
 let aliveEngineProcesses = [];
 let savedEngineOptions = localStoredEngineOptions || {};
 
+function sendToRenderer(channel, payload) {
+    // mainWindow may be gone during shutdown; sending to a destroyed window throws.
+    if(!mainWindow || mainWindow.isDestroyed()) return;
+
+    mainWindow.webContents.send(channel, payload);
+}
+
 export function renderEngineGrid() {
-    mainWindow.webContents.send('renderEngineGrid', { savedEngines });
+    sendToRenderer('renderEngineGrid', { savedEngines });
 }
 
 export function addConsoleView(identifierObj) {
-    mainWindow.webContents.send('addConsoleView', { identifierObj });
+    sendToRenderer('addConsoleView', { identifierObj });
 }
 
 export function removeConsoleView(identifierObj) {
-    mainWindow.webContents.send('removeConsoleView', { identifierObj });
+    sendToRenderer('removeConsoleView', { identifierObj });
 }
 
 export function refreshEngineCards(aliveEngineProcesses) {
@@ -36,11 +43,11 @@ export function refreshEngineCards(aliveEngineProcesses) {
         return safeData;
     });
 
-    mainWindow.webContents.send('refreshEngineCards', { aliveEngineProcesses: safeObjects });
+    sendToRenderer('refreshEngineCards', { aliveEngineProcesses: safeObjects });
 }
 
 export function log(text, type, identifierObj) {
-    mainWindow.webContents.send('log', { text, type, identifierObj });
+    sendToRenderer('log', { text, type, identifierObj });
 }
 
 function addAliveEngineObj(engineObj) {
@@ -85,8 +92,6 @@ function killSpecificEngine(identifierObj, code) {
 
         removeAliveEngineObj(identifierObj);
         refreshEngineCards(aliveEngineProcesses);
-        
-        removeConsoleView(identifierObj);
     }
 }
 
@@ -301,6 +306,7 @@ async function startEngineProcess(enginePath, identifierObj) {
                     sendEngineDeathCertificateToClient('Engine process closed', fen, engineId, profileName, instanceId);
 
                     removeAliveEngineObj(identifierObj);
+                    refreshEngineCards(aliveEngineProcesses);
 
                     toast('warning', `Engine ID ${engineId} closed. ${code ? '('+code+')' : ''}`, 3000);
                 });
@@ -339,9 +345,13 @@ export async function addEngine(fileInfo, title = fileInfo?.name) {
     return true;
 }
 
-export function removeEngine(index) {
-    if(!Number.isInteger(index) || index < 0 || index >= savedEngines.length)
-        return `Invalid engine index: ${index}`;
+export function removeEngine(enginePath) {
+    // path is the unique key enforced by addEngine; engineId (sha256 of the file)
+    // can collide when the same binary is added from two different paths.
+    const index = savedEngines.findIndex(engine => engine.path === enginePath);
+
+    if(index === -1)
+        return `Invalid engine path: ${enginePath}`;
 
     const savedEngineObj = savedEngines[index];
 
