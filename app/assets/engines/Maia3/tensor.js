@@ -1,140 +1,7 @@
 import { Chess } from '../libraries/chessjs/chess.js';
 
-const allPossibleMoves = await fetch('./data/all_moves.json').then(r => r.json());
-const allPossibleMovesReversed = await fetch('./data/all_moves_reversed.json').then(r => r.json());
 const allPossibleMovesMaia3 = await fetch('./data/all_moves_maia3.json').then(r => r.json());
 const allPossibleMovesMaia3Reversed = await fetch('./data/all_moves_maia3_reversed.json').then(r => r.json());
-
-const eloDict = createEloDict();
-
-function boardToTensor(fen) {
-	const tokens = fen.split(' ');
-	const piecePlacement = tokens[0];
-	const activeColor = tokens[1];
-	const castlingAvailability = tokens[2];
-	const enPassantTarget = tokens[3];
-
-	const pieceTypes = [
-		'P','N','B','R','Q','K',
-		'p','n','b','r','q','k'
-	];
-
-	const tensor = new Float32Array((12 + 6) * 8 * 8);
-	const rows = piecePlacement.split('/');
-
-	for(let rank = 0; rank < 8; rank++) {
-		const row = 7 - rank;
-		let file = 0;
-
-		for(const char of rows[rank]) {
-			if(isNaN(parseInt(char))) {
-				const index = pieceTypes.indexOf(char);
-				const tensorIndex = index * 64 + row * 8 + file;
-				tensor[tensorIndex] = 1.0;
-				file += 1;
-			}else{
-				file += parseInt(char);
-			}
-		}
-	}
-
-	const turnChannelStart = 12 * 64;
-	const turnChannelEnd = turnChannelStart + 64;
-	const turnValue = activeColor === 'w' ? 1.0 : 0.0;
-	tensor.fill(turnValue, turnChannelStart, turnChannelEnd);
-
-	const castlingRights = [
-		castlingAvailability.includes('K'),
-		castlingAvailability.includes('Q'),
-		castlingAvailability.includes('k'),
-		castlingAvailability.includes('q')
-	];
-
-	for(let i = 0; i < 4; i++) {
-		if(castlingRights[i]) {
-			const channelStart = (13 + i) * 64;
-			const channelEnd = channelStart + 64;
-			tensor.fill(1.0, channelStart, channelEnd);
-		}
-	}
-
-	const epChannel = 17 * 64;
-	if(enPassantTarget !== '-') {
-		const file = enPassantTarget.charCodeAt(0) - 'a'.charCodeAt(0);
-		const rank = parseInt(enPassantTarget[1], 10) - 1;
-		const index = epChannel + rank * 8 + file;
-		tensor[index] = 1.0;
-	}
-
-	return tensor;
-}
-
-function preprocess(fen, eloSelf, eloOppo) {
-	let board = new Chess(fen);
-
-	if(fen.split(' ')[1] === 'b') {
-		board = new Chess(mirrorFEN(board.fen()));
-	}else if(fen.split(' ')[1] !== 'w') {
-		throw new Error(`Invalid FEN: ${fen}`);
-	}
-
-	const boardInput = boardToTensor(board.fen());
-
-	const eloSelfCategory = mapToCategory(eloSelf, eloDict);
-	const eloOppoCategory = mapToCategory(eloOppo, eloDict);
-
-	const legalMoves = new Float32Array(Object.keys(allPossibleMoves).length);
-
-	for(const move of board.moves({ verbose: true })) {
-		const promotion = move.promotion ? move.promotion : '';
-		const moveIndex = allPossibleMoves[move.from + move.to + promotion];
-
-		if(moveIndex !== undefined) legalMoves[moveIndex] = 1.0;
-	}
-
-	return {
-		boardInput,
-		eloSelfCategory,
-		eloOppoCategory,
-		legalMoves
-	};
-}
-
-function mapToCategory(elo, eloDict) {
-	const interval = 100;
-	const start = 1100;
-	const end = 2000;
-
-	if(elo < start) return eloDict[`<${start}`];
-	if(elo >= end) return eloDict[`>=${end}`];
-
-	for(let lowerBound = start; lowerBound < end; lowerBound += interval) {
-		const upperBound = lowerBound + interval;
-		if(elo >= lowerBound && elo < upperBound)
-			return eloDict[`${lowerBound}-${upperBound - 1}`];
-	}
-
-	throw new Error('Elo value is out of range.');
-}
-
-function createEloDict() {
-	const interval = 100;
-	const start = 1100;
-	const end = 2000;
-
-	const eloDict = { [`<${start}`]: 0 };
-	let rangeIndex = 1;
-
-	for(let lowerBound = start; lowerBound < end; lowerBound += interval) {
-		const upperBound = lowerBound + interval;
-		eloDict[`${lowerBound}-${upperBound - 1}`] = rangeIndex;
-		rangeIndex += 1;
-	}
-
-	eloDict[`>=${end}`] = rangeIndex;
-
-	return eloDict;
-}
 
 function mirrorMove(moveUci) {
 	const isPromotion = moveUci.length > 4;
@@ -258,9 +125,7 @@ function preprocessMaia3(fen) {
 }
 
 export {
-	preprocess,
 	preprocessMaia3,
 	mirrorMove,
-	allPossibleMovesReversed,
 	allPossibleMovesMaia3Reversed
 };
