@@ -39,7 +39,7 @@ window.REFRESH_PIP_DISPLAY = () => {
 };
 
 async function renderPipBoards(from, to) {
-    const isNewSuggestion = pipLastPipFromTo[0] !== from && pipLastPipFromTo[1] !== to;
+    const isNewSuggestion = pipLastPipFromTo[0] !== from || pipLastPipFromTo[1] !== to;
 
     if(isNewSuggestion) {
         const cgElem = document.querySelector(`.chessground-x[data-is-latest-updated="true"]`);
@@ -112,8 +112,13 @@ async function refreshPipView() {
     let engineEvaluation = pipData?.eval;
     let progress = 0;
 
-    if(!engineEvaluation && pipLastPipEval === null) engineEvaluation = 0.5;
-    else if(engineEvaluation) pipLastPipEval = engineEvaluation;
+    if(engineEvaluation == null) {
+        // Fall back to the last known eval (or an even 0.5 on the very first refresh).
+        // Use == null so a legitimate 0 (a lost position) is treated as a real value.
+        engineEvaluation = pipLastPipEval === null ? 0.5 : pipLastPipEval;
+    } else {
+        pipLastPipEval = engineEvaluation;
+    }
     
     if((pipData.goalDepth && pipData.goalDepth < 100) || (pipData.depth === null)) {
         const depth = pipData.depth || pipData.goalDepth
@@ -140,7 +145,7 @@ async function refreshPipView() {
     }
 
     const isBoard = pipBoardInput.checked;
-    if(isBoard && bestMove) await renderPipBoards();
+    if(isBoard && bestMove) await renderPipBoards(from, to);
 
     const headerWidth = pipCanvas.width - pipEvalBarWidth;
     const noInstancesText = FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];

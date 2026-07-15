@@ -73,7 +73,7 @@ export async function updateEnginesList(engines) {
         const alreadyExistingItem = dropdownListContainer.querySelector(`[data-value="${engineId}"]`);
 
         if(alreadyExistingItem) {
-            if(engine.engineId === selectedEngineID) {
+            if(engineId === String(selectedEngineID)) {
                 alreadyExistingItem.click();
                 foundSelectedEngineID = true;
             }
@@ -85,7 +85,7 @@ export async function updateEnginesList(engines) {
         item.className = 'dropdown-item large';
         item.dataset.value = engineId;
 
-        if(engine.engineId === selectedEngineID) {
+        if(engineId === String(selectedEngineID)) {
             item.classList.add(selectedItemClass);
             foundSelectedEngineID = true;
         }
@@ -120,19 +120,16 @@ export async function updateEnginesList(engines) {
     }
 
     if(!foundSelectedEngineID) {
+        // If a previously selected engine was stored but is no longer available, warn the user.
+        if(selectedEngineID) {
+            const notAvailableText = TRANS_OBJ?.noExternalEngineAnymore ?? 'The previously selected EXTERNAL engine is not available anymore. Select a new one.';
+
+            toast.warning(`${notAvailableText}\n\n(ID: ${selectedEngineID})`, 5000);
+        }
+
+        // Fall back to the first available engine so one stays active after a refresh.
         setTimeout(() => {
             dropdownListContainer?.firstChild?.click();
-        }, 100);
-    } else if(!foundSelectedEngineID && selectedEngineID) {
-        const notAvailableText = TRANS_OBJ?.noExternalEngineAnymore ?? 'The previously selected EXTERNAL engine is not available anymore. Select a new one.';
-
-        toast.warning(`${notAvailableText}${selectedEngineID ? `\n\n(ID: ${selectedEngineID})` : ''}`, 5000);
-        input.value = '';
-
-        toggleDropdown();
-
-        setTimeout(() => {
-            input.dispatchEvent(new Event('change'));
         }, 100);
     }
 }
