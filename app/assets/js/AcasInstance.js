@@ -272,7 +272,7 @@ export default class AcasInstance {
 
         if(profileName) {
             setTimeout(() => {
-                this.pV[profileName].pendingCalculations.forEach(x => x.finished = true);
+                this.pV[profileName]?.pendingCalculations?.forEach(x => x.finished = true);
             }, 25);
         }
     }
@@ -301,9 +301,6 @@ export default class AcasInstance {
                 return true;
             case 'updateBoardOrientation':
                 this.Interface.updateBoardOrientation(packet.data);
-                return true;
-            case 'reloadChessEngine':
-                reloadChessEngine();
                 return true;
             case 'updateBoardFen':
                 this.Interface.updateBoardFen(packet.data);

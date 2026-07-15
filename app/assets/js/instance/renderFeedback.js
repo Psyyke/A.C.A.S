@@ -82,7 +82,7 @@ export default async function renderFeedback(currentFen) {
 
             let fromFen = lastFen;
             
-            if(shouldReturnPlayerFeedbackDisabled || shouldReturnEnemyFeedbackDisabled) return;
+            if(shouldReturnPlayerFeedbackDisabled || shouldReturnEnemyFeedbackDisabled) continue;
             if(shouldReverseFen) fromFen = REVERSE_FEN_TURN(fromFen);
             if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
 
