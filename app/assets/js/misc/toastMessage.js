@@ -1,6 +1,9 @@
 const toast = {
     'create': (type, icon, content, duration) => {
         const intervalRate = 100;
+        // "instance" toasts are intentionally persistent; everything else defaults to 5s
+        // so a missing duration doesn't leave the toast on screen forever (NaN comparison).
+        if(duration === undefined && type !== 'instance') duration = 5000;
         const toastTotalDuration = duration;
         let toastContainer = document.querySelector('#acas-toast-container');
         let fadeTime = 500;

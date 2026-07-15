@@ -45,6 +45,8 @@ class AcasWebSocketClient {
         };
 
         this.socket.onclose = (event) => {
+            window.wsConnectionOpen = false;
+
             const isAnyProfileUsingExternal = Object.values(IS_EXTERNAL_ENGINE_SETTING_ACTIVE)
                 .find(v => v) ? true : false;
             const shouldReconnect = isAnyProfileUsingExternal
@@ -59,10 +61,12 @@ class AcasWebSocketClient {
 
             this.reconnectionAttempts += 1;
 
-            window.wsConnectionOpen = false;
+            if(this.reconnectionAttempts < 9999) {
+                // Back off between attempts so a refused connection doesn't busy-spin.
+                const delay = Math.min(5000, this.reconnectionAttempts * 250);
 
-            if(this.reconnectionAttempts < 9999)
-                this.connect();
+                setTimeout(() => this.connect(), delay);
+            }
         };
 
         this.socket.onerror = (error) => {

@@ -120,6 +120,8 @@
 			const parentElement = await WAIT_FOR_ELEMENT(`[data-key="${key}"]`);
 			const customInputElem = parentElement?.closest('.custom-input');
 
+			if(!customInputElem) return;
+
 			const titleElement = customInputElem.querySelector('.input-title');
 			const subtitleElement = customInputElem.querySelector('.input-subtitle');
 
