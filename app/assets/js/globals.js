@@ -31,9 +31,17 @@ const DYNAMIC_BUTTONPRESS_BROADCAST_NAME = 'dynamicSettingButtonFeed';
 const SETTING_FILTER_OBJ = { 'type': 'global', 'instanceID': null, 'profileID': null };
 
 const EE_ACTIVE_STORAGE_KEY = 'IS_EXTERNAL_ENGINE_SETTING_ACTIVE';
-const IS_EXTERNAL_ENGINE_SETTING_ACTIVE = JSON.parse(
-    localStorage.getItem(EE_ACTIVE_STORAGE_KEY) || "{}"
-);
+// Top level in a plain script every other file depends on, so a corrupt value (or a
+// context where localStorage itself throws) took the whole app down before it rendered,
+// and it stayed down on every reload until storage was cleared by hand.
+const IS_EXTERNAL_ENGINE_SETTING_ACTIVE = (() => {
+    try {
+        return JSON.parse(localStorage.getItem(EE_ACTIVE_STORAGE_KEY) || "{}") ?? {};
+    } catch(e) {
+        console.warn('Could not read stored external engine state, starting fresh:', e?.message);
+        return {};
+    }
+})();
 
 const FI_NUMBER_FORMATTER = new Intl.NumberFormat('fi-FI');
 const ACTIVE_INPUT_LISTENERS = [];

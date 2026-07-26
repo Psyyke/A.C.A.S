@@ -97,7 +97,21 @@ export function ensureOneDynamicEngineSettingVisible(engineId) {
 }
 
 export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
-    let { name, type, def, min, max, vars } = PARSE_UCI_OPTION(uciMsg);
+    // PARSE_UCI_OPTION returns null for a line with no type token and throws on
+    // over-long ones. The caller doesn't await this, so either used to escape as an
+    // unhandled rejection and leave the settings panel half built.
+    let parsedOption = null;
+
+    try {
+        parsedOption = PARSE_UCI_OPTION(uciMsg);
+    } catch(e) {
+        console.warn('Skipping unparsable UCI option:', uciMsg, e?.message);
+        return;
+    }
+
+    if(!parsedOption?.name) return;
+
+    let { name, type, def, min, max, vars } = parsedOption;
     const currentEngineId = await GET_ACTIVE_ENGINE_NAME(profileName);
     const dbKey = getDynamicEngineDbKeyPrefix(currentEngineId) + name.replaceAll(' ', '-');
 
@@ -170,7 +184,9 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
 
                 input.dataset.spin = true;
 
-                if(min && max) {
+                // A spin option can legitimately start at 0, which is falsy and used to
+                // drop both the clamp and the range label
+                if(min != null && max != null) {
                     input.dataset.between = `${min}-${max}`;
                     title.innerText = title.innerText + ` (${min} - ${max})`;
                 }
@@ -208,7 +224,8 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
                 dropdownContainer.appendChild(dropdownIcon);
                 dropdownContainer.appendChild(dropdownListContainer);
 
-                vars.forEach(v => {
+                // A combo option without any var tokens leaves vars undefined
+                (vars ?? []).forEach(v => {
                     dropdownListContainer.appendChild(createDropdownItem(v.replaceAll(' ', '')));
                 });
 

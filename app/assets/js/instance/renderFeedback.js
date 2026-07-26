@@ -28,6 +28,8 @@ export default async function renderFeedback(currentFen) {
             addText(to, 1.7, emoji, `opacity: 1;`, [0.8, 0.8]);
         }
 
+        if(!this.pV[profileName]) return;
+
         this.pV[profileName].activeFeedbackDisplays.push(...addedFeedbacks);
 
         if(feedbackOnExternalSite) {
@@ -62,6 +64,12 @@ export default async function renderFeedback(currentFen) {
     // Display new feedback
     for(const profileObj of profiles.filter(p => p.config.enableMoveRatings || p.config.enableEnemyFeedback)) {
         const profileName = profileObj.name;
+
+        // GET_PROFILES() returns every configured profile, but pV only holds the ones
+        // whose engine actually loaded. A profile with the engine off and move ratings
+        // on used to throw here and kill feedback for every other profile too.
+        if(!this.pV[profileName]) continue;
+
         const lastFen = this.pV[profileName].lastFen;
         const feedbackEngineDepth = await this.getConfigValue(this.configKeys.feedbackEngineDepth, profileName);
         const enablePlayerFeedback = await this.getConfigValue(this.configKeys.enableMoveRatings, profileName);

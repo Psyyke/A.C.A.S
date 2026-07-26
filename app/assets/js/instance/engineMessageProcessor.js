@@ -89,10 +89,12 @@ export default async function engineMessageProcessor(msg, profile) {
                 updatePipData({ 'depth': data?.depth, 'mate': data?.mate });
             }
 
-            if(data?.cp)
+            // A dead even score is 0, which is falsy, so the eval bar used to keep showing
+            // the previous advantage whenever the engine found an equalisation
+            if(data?.cp != null)
                 this.Interface.updateEval(data.cp, false, profile);
 
-            if(data?.mate) 
+            if(data?.mate != null)
                 this.Interface.updateEval(data.mate, true, profile);
         }
     }

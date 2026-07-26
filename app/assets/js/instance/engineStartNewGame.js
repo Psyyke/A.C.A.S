@@ -12,14 +12,20 @@ async function startWithBasicOptions(variant, engineName, profile) {
 }
 
 async function startWithDynamicOptions(variant, engineName, profile) {
-    await onDynamicOptionsReady(profile) //.catch(err => toast.error(`onDynamicOptionsReady failed: "${err.message}"`, 5000));
-    
+    // This rejects after a 5s timeout. With the catch commented out the rejection escaped
+    // all the way past loadEngine's await, so calculateBestMoves was never reached and the
+    // profile sat there with a loaded engine that analysed nothing.
+    await onDynamicOptionsReady(profile)
+        .catch(err => toast.warning(`Engine options timed out: "${err.message}"`, 5000));
+
+
     const advancedEloDepth = await this.getConfigValue(this.configKeys.advancedEloDepth, profile);
     const engineNodes = await this.getConfigValue(this.configKeys.engineNodes, profile);
     const allSavedOptions = await GET_GM_VALUES_STARTS_WITH('DYNAMIC_', this.instanceID, profile);
     const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[profile];
 
-    if(engineName === 'lc0' && !isExternal && this.pV[profile].lc0WeightName.includes('maia') && engineNodes > 1) {
+    // lc0WeightName is null when no weight is picked yet, which threw before reaching the toast
+    if(engineName === 'lc0' && !isExternal && this.pV[profile]?.lc0WeightName?.includes('maia') && engineNodes > 1) {
         const msg = TRANS_OBJ?.maiaNodeWarning ?? 'Maia weights work best with no search, please only use one (1) search node!';
         toast.warning(msg, 5000);
     }
