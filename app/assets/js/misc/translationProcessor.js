@@ -87,17 +87,28 @@
 			translateConfig();
 
 			if(firstLoad) {
-				const observer = new MutationObserver(m => {
-					if(mutationCounter<25) {
-						updateTextContent();
-					}
-	
-					document.querySelectorAll('.language-dropdown-input')
-						.forEach(initializeLanguageDropdown);
-	
-					mutationCounter++;
+				let retranslateTimeout = null;
+
+				// updateTextContent() writes innerText, which is itself a childList mutation,
+				// so this observer re-triggers itself. The counter alone still allowed 25 full
+				// document sweeps per second, and Chessground mutates the DOM on every board
+				// update. Coalesce the bursts into one pass instead.
+				const observer = new MutationObserver(() => {
+					if(retranslateTimeout !== null) return;
+
+					retranslateTimeout = setTimeout(() => {
+						retranslateTimeout = null;
+
+						if(mutationCounter < 25) {
+							updateTextContent();
+							mutationCounter++;
+						}
+
+						document.querySelectorAll('.language-dropdown-input')
+							.forEach(initializeLanguageDropdown);
+					}, 100);
 				});
-	
+
 				observer.observe(document, { childList: true, subtree: true });
 			}
 		} catch(error){
@@ -117,7 +128,9 @@
 
 	function translateConfig() {
 		Object.keys(configTranslations).map(async key => {
-			const parentElement = await WAIT_FOR_ELEMENT(`[data-key="${key}"]`);
+			// The default timeout is ~2.8 hours, so every key without a matching element
+			// left a 100ms poll running for the rest of the session
+			const parentElement = await WAIT_FOR_ELEMENT(`[data-key="${key}"]`, 10000);
 			const customInputElem = parentElement?.closest('.custom-input');
 
 			if(!customInputElem) return;
