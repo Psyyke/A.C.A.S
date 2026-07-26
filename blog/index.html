@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Blog / A.C.A.S</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,6 @@
     <meta property="og:type" content="website">
     <script type="text/javascript"src="../assets/js/tag-manager.js"></script>
     <script async="" type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-5499BQ4B"></script>
-    <script async="" type="text/javascript" src="../index.js"></script>
     <script defer="" type="text/javascript" src="../assets/libraries/klaro/config.js"></script>
     <script defer="" type="text/javascript" src="../assets/libraries/klaro/klaro.js"></script>
     <script defer="" type="text/javascript" src="../assets/libraries/highlight/highlight.min.js"></script>
@@ -62,15 +61,15 @@
                 <a href="../faq/" aria-label="Frequently Asked Questions" class="fancy-btn"><i class="bi bi-chat-square-quote"></i>FAQ</a>
                 <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
                 <a href="../contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
-                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
+                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github" rel="noopener noreferrer"><i class="bi bi-github"></i></a>
             </div>
         </header>
         <div class="content">
-            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wN.svg">
-            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
-            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../assets/images/pieces/staunty/wQ.svg">
-            <img style="right: -130px;width: 120px;top: 75px;filter: blur(4px);transform: rotate(-26deg);opacity: 0.65;" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
-            <img style="right: -40px;width: 90px;top: 220px;transform: rotate(15deg);" class="floaty-piece floaty-subpage" src="../assets/images/pieces/staunty/bR.svg">
+            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wN.svg" alt="">
+            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg" alt="">
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../assets/images/pieces/staunty/wQ.svg" alt="">
+            <img style="right: -130px;width: 120px;top: 75px;filter: blur(4px);transform: rotate(-26deg);opacity: 0.65;" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg" alt="">
+            <img style="right: -40px;width: 90px;top: 220px;transform: rotate(15deg);" class="floaty-piece floaty-subpage" src="../assets/images/pieces/staunty/bR.svg" alt="">
             <!-- PAGE CONTENT -->
             <article class="markdown-section-sub markdown-section" id="main">
                 <section>
@@ -79,25 +78,25 @@
                 <section>
                     <h2 id="basics">History of A.C.A.S</h2>
 
-                    <p>I (<a href="https://github.com/Hakorr">Haka</a>) gave birth to <a href="https://greasyfork.org/en/scripts/459137-1-chess-assistant-a-c-a-s-advanced-chess-assistance-system?version=1143684" target="_blank">A.C.A.S v1.0</a> on Jan 30, 2023. It was the first of its kind userscript on GreasyFork. There had always been extensions and external programs that did the same thing, but nothing was as easy to use as A.C.A.S. The goal was to be very easy to use with clean UI. Here's a screenshot of the v1.0,</p>
+                    <p>I (<a href="https://github.com/Hakorr">Haka</a>) gave birth to <a href="https://greasyfork.org/en/scripts/459137-1-chess-assistant-a-c-a-s-advanced-chess-assistance-system?version=1143684" target="_blank" rel="noopener noreferrer">A.C.A.S v1.0</a> on Jan 30, 2023. It was the first of its kind userscript on GreasyFork. There had always been extensions and external programs that did the same thing, but nothing was as easy to use as A.C.A.S. The goal was to be very easy to use with clean UI. Here's a screenshot of the v1.0,</p>
                     <img src="../assets/images/oldacas.png" height="300" alt="A.C.A.S v1.0"></img>
                     <p>I had already developed userscripts for two years at that point, but hadn't played chess; literally <b>zero</b>, nada, experience. How do chess engines work? What's UCI or a FEN? Most importantly, how does one even play chess in the first place? Had to learn a lot and there were times when people asked for features I didn't even know were a thing in chess. "<i>En passant? Sorry, I don't speak that language.</i>"</p>
                     
-                    <p>The first version of A.C.A.S took a lot of Googling even though it was made in a weekend. It felt like there wasn't much easy to understand information about communicating with chess engines, so the engine was a black box to me. Credit where it's due, I relied heavily on <a href="https://op12no2.github.io/lozza-ui/" target="_blank">Lozza.js</a>, because it had a web GUI with the engine already running. It was written in JS, so I could see how it works behind the scenes. I learned a lot from it, and imitated a lot of what it was doing at the start. I'm lucky to have open source projects from smart people to learn from!
+                    <p>The first version of A.C.A.S took a lot of Googling even though it was made in a weekend. It felt like there wasn't much easy to understand information about communicating with chess engines, so the engine was a black box to me. Credit where it's due, I relied heavily on <a href="https://op12no2.github.io/lozza-ui/" target="_blank" rel="noopener noreferrer">Lozza.js</a>, because it had a web GUI with the engine already running. It was written in JS, so I could see how it works behind the scenes. I learned a lot from it, and imitated a lot of what it was doing at the start. I'm lucky to have open source projects from smart people to learn from!
                     
-                    <p>Once I got Lozza running on the userscript, I used a previous project I made called <a href="https://github.com/AugmentedWeb/UserGUI" target="_blank">UserGUI</a> as the GUI library.
+                    <p>Once I got Lozza running on the userscript, I used a previous project I made called <a href="https://github.com/AugmentedWeb/UserGUI" target="_blank" rel="noopener noreferrer">UserGUI</a> as the GUI library.
                     A.C.A.S v1 had basic settings for setting the engine ELO, and for enabling external move highlighting. It didn't have the move arrows yet since highlighting the square was easier to implement. Also, only chess.com was supported. The project gained installs organically without me having to advertise anything, and quickly gained more installs that I had ever gotten on any of my userscripts.</p>
                     
                     <p>Everything was working fine, but it didn't take long to realize that JS based chess engines aren't that fast to calculate deep depths. Problem was that many of the powerful engines at the time were blocked by chess.com's CORS policies.
                     I had to find a way to calculate the moves externally. I never considered fetching the moves from a server an option since it would cost a lot, not be privacy friendly or it might've had a large latency. I considered making A.C.A.S into a browser extension, but installing an extension manually is much more difficult than just installing a userscript, so I decided not to go that route. And I just like userscripts more.</p>
                     
                     <p>I figured the only way to bypass the CORS policies was to run the engine on a completely different tab, on a different domain.
-                    As far as I knew, that kind of cross-tab communication had never been implemented on userscripts before, so I took it as a challenge and wrote my own library for it called <a href="https://github.com/AugmentedWeb/CommLink" target="_blank">CommLink</a>, which uses the userscript storage as a middle-man between the two tabs.
+                    As far as I knew, that kind of cross-tab communication had never been implemented on userscripts before, so I took it as a challenge and wrote my own library for it called <a href="https://github.com/AugmentedWeb/CommLink" target="_blank" rel="noopener noreferrer">CommLink</a>, which uses the userscript storage as a middle-man between the two tabs.
                     Once I had made sure it was stable enough, I made a ton of changes to the userscript, and created an entirely new GUI. See a picture of the first v2 GUI below,</p>
                 
                     <img src="../assets/images/oldgui.png" alt="A.C.A.S v2.0 GUI"></img>
 
-                    <p>A.C.A.S v2 focused on making A.C.A.S functional for any site or any chess variant so that it's future proof. With the update, I also added more features, such as move arrows via another library I created at the time, called <a href="https://github.com/Hakorr/UniversalBoardDrawer" target="_blank">UniversalBoardDrawer</a>. The time between the first release of A.C.A.S, and A.C.A.S v2 was 5 months. Most of the work was done during a summer break, at least 8 hours a day, for a couple weeks during the first weeks of summer.</p>
+                    <p>A.C.A.S v2 focused on making A.C.A.S functional for any site or any chess variant so that it's future proof. With the update, I also added more features, such as move arrows via another library I created at the time, called <a href="https://github.com/Hakorr/UniversalBoardDrawer" target="_blank" rel="noopener noreferrer">UniversalBoardDrawer</a>. The time between the first release of A.C.A.S, and A.C.A.S v2 was 5 months. Most of the work was done during a summer break, at least 8 hours a day, for a couple weeks during the first weeks of summer.</p>
                     
                     <p>A lot has changed since then. As of writing this blog, A.C.A.S v2 came out 975 days ago, that's a lot. I've had times when I've worked hard on the project, and times when I didn't touch it for at least 6 months. Nowadays it's so much more stable with the addition of the floating panel. It has more features, but also some features are broken for a long time due to me not being the best programmer, combined with having to prioritize other things. I'm fine with not having perfect code as this is my first project of this scale, and I don't aspire to be a perfect programmer.</p>
 
@@ -119,11 +118,11 @@
                     </p>
 
                     <p class="tip">
-                    The <a target="_about" href="../app?shl=displayMovesOnExternalSite">Moves On
+                    The <a target="_blank" href="../app?shl=displayMovesOnExternalSite" rel="noopener noreferrer">Moves On
                     External Site</a> setting is one of the only features that actually inserts something
                     into the page. While it doesn't yell <b>"A.C.A.S CREATED ME!"</b> (<i>since it's minimal and fairly neutral</i>), it does
                     modify the document, which means a site could detect it if it actively
-                    looked for such changes. Enabling <a target="_about" href="../app?shl=isUserscriptGhost">Ghost Mode</a> attempts to disable all detectable external features.
+                    looked for such changes. Enabling <a target="_blank" href="../app?shl=isUserscriptGhost" rel="noopener noreferrer">Ghost Mode</a> attempts to disable all detectable external features.
                     </p>
 
                     <h3 id="reading-the-board">Reading the board</h3>
@@ -329,11 +328,10 @@ addSupportedChessSite('lichess.org', {
             <!-- PAGE CONTENT ENDS -->
         </div>
         <footer>
-            <img style="right: -70px;bottom: -35px;width: 200px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wQ.svg"/>
+            <img style="right: -70px;bottom: -35px;width: 200px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wQ.svg" alt=""/>
             <section><a href="../tos">Terms of Service</a><a href="../privacy">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>
         </footer>
     </main>
     <script async="" src="../assets/js/site-additional-content.js"></script>
-    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
 </body>
 </html>
