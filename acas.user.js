@@ -368,7 +368,6 @@ let activeMetricRenders = [];
 let activeFeedback = [];
 let boardObserver = null;
 let dumbBoardObservingInterval = null;
-let lastMutationObservationDate = 0;
 let lastCalculatedFullFen = null;
 let lastBoardRanks = null;
 let lastBoardFiles = null;
@@ -841,7 +840,6 @@ const boardUtils = {
                     lineWidth = lineWidth * arrowScale;
                     arrowheadWidth = arrowheadWidth * arrowScale;
                     arrowheadHeight = arrowheadHeight * arrowScale;
-                    startOffset = startOffset;
                 }
 
                 playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
@@ -988,7 +986,6 @@ function extractElemTransformData(elem) {
 }
 
 function getElemCoordinatesFromTransform(elem, config) {
-    const onlyFlipX = config?.onlyFlipX;
     const onlyFlipY = config?.onlyFlipY;
 
     lastBoardSize = getElementSize(chessBoardElem);
@@ -1016,32 +1013,6 @@ function getElemCoordinatesFromTransform(elem, config) {
         const flippedX = lastBoardRanks - normalizedX - 1;
 
         return [flippedX, normalizedY];
-    }
-}
-
-function getElemCoordinatesFromLeftBottomPercentages(elem) {
-    if(!lastBoardRanks || !lastBoardFiles) {
-        const [files, ranks] = getBoardDimensions();
-
-        lastBoardRanks = ranks;
-        lastBoardFiles = files;
-    }
-
-    const boardOrientation = getBoardOrientation();
-
-    const leftPercentage = parseFloat(elem.style.left?.replace('%', ''));
-    const bottomPercentage = parseFloat(elem.style.bottom?.replace('%', ''));
-
-    const x = Math.max(Math.round(leftPercentage / (100 / lastBoardRanks)), 0);
-    const y = Math.max(Math.round(bottomPercentage / (100 / lastBoardFiles)), 0);
-
-    if (boardOrientation === 'w') {
-        return [x, y];
-    } else {
-        const flippedX = lastBoardRanks - (x + 1);
-        const flippedY = lastBoardFiles - (y + 1);
-
-        return [flippedX, flippedY];
     }
 }
 
@@ -1910,14 +1881,6 @@ function getBoardOrientation() {
     return playerColor;
 }
 
-function getFenPieceColor(pieceFenStr) {
-    return pieceFenStr == pieceFenStr.toUpperCase() ? 'w' : 'b';
-}
-
-function getFenPieceOppositeColor(pieceFenStr) {
-    return getFenPieceColor(pieceFenStr) == 'w' ? 'b' : 'w';
-}
-
 function convertPieceStrToFen(str) {
     if(!str || str.length !== 2) {
         return null;
@@ -1933,69 +1896,6 @@ function convertPieceStrToFen(str) {
     }
 
     return null;
-}
-
-function getCanvasPixelColor(canvas, [xPercentage, yPercentage], debug) {
-    const ctx = canvas.getContext('2d');
-
-    const x = xPercentage * canvas.width;
-    const y = yPercentage * canvas.height;
-
-    const imageData = ctx.getImageData(x, y, 1, 1);
-    const pixel = imageData.data;
-    const brightness = (pixel[0] + pixel[1] + pixel[2]) / 3;
-
-    if(debug) {
-        const clonedCanvas = document.createElement('canvas');
-                clonedCanvas.width = canvas.width;
-                clonedCanvas.height = canvas.height;
-
-        const clonedCtx = clonedCanvas.getContext('2d');
-                clonedCtx.drawImage(canvas, 0, 0);
-
-        clonedCtx.fillStyle = 'red';
-        clonedCtx.beginPath();
-        clonedCtx.arc(x, y, 1, 0, Math.PI * 2);
-        clonedCtx.fill();
-
-        const dataURL = clonedCanvas.toDataURL();
-
-        //console.log(canvas, pixel, dataURL);
-    }
-
-    return brightness < 128 ? 'b' : 'w';
-}
-
-function canvasHasPixelAt(canvas, [xPercentage, yPercentage], debug) {
-    xPercentage = Math.min(Math.max(xPercentage, 0), 100);
-    yPercentage = Math.min(Math.max(yPercentage, 0), 100);
-
-    const ctx = canvas.getContext('2d');
-    const x = xPercentage * canvas.width;
-    const y = yPercentage * canvas.height;
-
-    const imageData = ctx.getImageData(x, y, 1, 1);
-    const pixel = imageData.data;
-
-    if(debug) {
-        const clonedCanvas = document.createElement('canvas');
-                clonedCanvas.width = canvas.width;
-                clonedCanvas.height = canvas.height;
-
-        const clonedCtx = clonedCanvas.getContext('2d');
-                clonedCtx.drawImage(canvas, 0, 0);
-
-        clonedCtx.fillStyle = 'red';
-        clonedCtx.beginPath();
-        clonedCtx.arc(x, y, 1, 0, Math.PI * 2);
-        clonedCtx.fill();
-
-        const dataURL = clonedCanvas.toDataURL();
-
-        //console.log(canvas, pixel, dataURL);
-    }
-
-    return pixel[3] !== 0;
 }
 
 function getSiteData(dataType, obj) {
@@ -2046,12 +1946,6 @@ function getPieceElem(getAll) {
     const pieceElem = getSiteData('pieceElem', { boardQuerySelector, getAll });
 
     return pieceElem || null;
-}
-
-function getSquareElems(element) {
-    const squareElems = getSiteData('squareElems', { element });
-
-    return squareElems || null;
 }
 
 function getChessVariant() {
@@ -2328,8 +2222,6 @@ function observeNewMoves() {
 
     boardObserver = new MutationObserver(mutationArr => {
         try {
-            lastMutationObservationDate = Date.now();
-
             const mutationMoveArr = isMutationNewMove(mutationArr); // returns [isNewMove, turn]
             const isNewMove = mutationMoveArr?.[0];
             let turn = mutationMoveArr?.[1];

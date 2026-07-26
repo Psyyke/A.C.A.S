@@ -456,19 +456,6 @@ function PARSE_MINMAX_FROM_STR(input) {
     return [min, max];
 }
 
-function COUNT_PIECES_FROM_FEN(fen) {
-    const pieceCount = {};
-    const position = fen.split(' ')[0];
-
-    for(let char of position) {
-        if(/[rnbqkpRNBQKP]/.test(char)) {
-            pieceCount[char] = (pieceCount[char] || 0) + 1;
-        }
-    }
-    
-    return pieceCount;
-}
-
 function COUNT_TOTAL_PIECES_FROM_FEN(fen) {
     let pieceCount = 0;
     const position = fen.split(' ')[0];
@@ -961,22 +948,6 @@ function FORMAT_CHESS_FONT(str) {
         ?.toLowerCase();
 }
 
-function GET_BOARD_DIMENSION_PERCENTAGES(boardDimensionsObj) {
-    const { width, height } = boardDimensionsObj;
-    const isSquare = width === height;
-
-    if(isSquare) {
-        return { 'width': 100, 'height': 100 };
-    }
-
-    const newWidth = width/height * 100;
-    const newHeight = height/width * 100;
-
-    return width > height 
-        ? { 'width': 100, 'height': newHeight }
-        : { 'width': newWidth, 'height': 100 };
-}
-
 function GET_BOARD_HEIGHT_FROM_WIDTH(widthPx, boardDimensionsObj) {
     return widthPx * (boardDimensionsObj.height / boardDimensionsObj.width);
 }
@@ -990,16 +961,6 @@ function GET_PIECE_STYLE_DIMENSIONS(boardDimensionsObj) {
 
 function GET_BACKGROUND_STYLE_DIMENSION(boardDimensionsObj) {
     return (100 / boardDimensionsObj.width) / (100 / 8) * 100;
-}
-
-function START_HEARTBEAT_LOOP(key) {
-    if(USERSCRIPT) {
-        return setInterval(() => {
-            USERSCRIPT.GM_setValue(key, true);
-        }, 1);
-    } else {
-        console.error("USERSCRIPT variable not found, can't start heart beat loop!");
-    }
 }
 
 function SET_INTERVAL_ASYNC(callback, interval) {
@@ -1019,15 +980,6 @@ function SET_INTERVAL_ASYNC(callback, interval) {
     loop();
 
     return { stop: () => running = false };
-}
-
-function GET_COOKIE(name) {
-    const cookies = document.cookie ? document.cookie.split('; ') : [];
-    for(let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].split('=');
-        if(cookie[0] === name) return decodeURIComponent(cookie.slice(1).join('='));
-    }
-    return null;
 }
 
 async function WAIT_FOR_ELEMENT(selector, maxWaitTime = 10000000) {
@@ -1076,13 +1028,6 @@ function GET_NICE_PATH(path, limit = 60) {
 
 function IS_BELOW_VERSION(versionStr, targetVersion) {
     return versionStr.localeCompare(targetVersion, undefined, {numeric: true}) === -1;
-}
-
-function FORMAT_PROFILE_NAME(profileNameStr) {
-    return profileNameStr
-        .trim()
-        .replace(/[^a-zA-Z0-9]/g, '')
-        .replace(/\s+/g, '');
 }
 
 function IS_BASE64_PROFILE_NAME(value) {
