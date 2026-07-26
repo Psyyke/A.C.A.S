@@ -375,6 +375,8 @@ let lastBoardFiles = null;
 let lastBoardSize = null;
 let lastPieceSize = null;
 let lastTurn = null;
+let emptyBoardRetries = 0;
+let createInstanceInterval = null;
 let lastBoardMatrix = null;
 let lastBoardOrientation = null;
 let matchFirstSuggestionGiven = false;
@@ -766,7 +768,7 @@ const boardUtils = {
                 }
 
                 activeGuiMoveMarkings.push(
-                    { 'otherElems': markedSquareElems }, profile
+                    { 'otherElems': markedSquareElems, profile }
                 );
 
             } else if(moveAsFilledSquares) {
@@ -819,7 +821,7 @@ const boardUtils = {
 
                 markedSquares[fillType].push(...markedSquareFens);
                 activeGuiMoveMarkings.push(
-                    { 'otherElems': markedSquareElems }, profile
+                    { 'otherElems': markedSquareElems, profile }
                 );
 
             } else {
@@ -1483,7 +1485,10 @@ class AutomaticMove {
         this.isPromotingPawn = false;
 
         this.onFinished = function(...args) {
-            activeAutomoves.filter(x => x.id !== this.id); // remove the move from the active automove list
+            // filter() returns a new array, so this never actually removed anything. The
+            // list grew per move, and triggerPieceClick's "is this automove still active"
+            // guard stayed true forever, letting a stopped move still dispatch clicks.
+            activeAutomoves = activeAutomoves.filter(x => x.id !== this.id);
 
             this.active = false;
 
@@ -2290,10 +2295,22 @@ async function determineBoardPositionValidity(turn) {
     if(pieceAmount === 0) {
         lastCalculatedFullFen = null;
 
+        // This used to retry forever with no attempt counter while the 250ms poller kept
+        // starting fresh chains, so leaving a game piled up hundreds of concurrent loops
+        // and froze the tab. Give up and let the next tick try instead.
+        if(emptyBoardRetries >= 10) {
+            emptyBoardRetries = 0;
+            return;
+        }
+
+        emptyBoardRetries++;
+
         await wait(100);
 
         return determineBoardPositionValidity(getBoardOrientation());
     }
+
+    emptyBoardRetries = 0;
 
     // Do not continue if FEN did not change!
     if(!fenChanged) return;
@@ -2704,7 +2721,8 @@ addSupportedChessSite('playstrategy.org', {
     'boardOrientation': obj => {
         const cgWrapElem = document.querySelector('.cg-wrap');
 
-        return cgWrapElem.classList?.contains('orientation-p1') ? 'w' : 'b';
+        // The ?. was on the wrong side, querySelector returning null threw before reaching it
+        return cgWrapElem?.classList?.contains('orientation-p1') ? 'w' : 'b';
     },
 
     'pieceElemFen': obj => {
@@ -2812,7 +2830,8 @@ addSupportedChessSite('pychess.org', {
     'boardOrientation': obj => {
         const cgWrapElem = document.querySelector('.cg-wrap');
 
-        return cgWrapElem.classList?.contains('orientation-black') ? 'b' : 'w';
+        // The ?. was on the wrong side, querySelector returning null threw before reaching it
+        return cgWrapElem?.classList?.contains('orientation-black') ? 'b' : 'w';
     },
 
     'pieceElemFen': obj => {
@@ -3061,9 +3080,12 @@ addSupportedChessSite('papergames.io', {
         const boardElem = getBoardElem();
 
         if(boardElem) {
-            const firstRankText = [...boardElem.querySelector('.coordinates').childNodes]?.[0].textContent;
+            // .coordinates can be missing entirely, and the trailing .textContent was
+            // left unguarded even though the ?.[0] shows an empty list was expected
+            const coordsElem = boardElem.querySelector('.coordinates');
+            const firstRankText = [...(coordsElem?.childNodes ?? [])]?.[0]?.textContent;
 
-            return firstRankText == 'h' ? 'b' : 'w';
+            return firstRankText === 'h' ? 'b' : 'w';
         }
     },
 
@@ -3716,7 +3738,11 @@ async function start() {
     refreshSettings();
     observeNewMoves();
 
-    CommLink.setIntervalAsync(async () => {
+    // SPA navigation recreates the board element, so start() runs again per game. The
+    // handle used to be dropped, leaving one more createInstance loop running each time.
+    createInstanceInterval?.stop?.();
+
+    createInstanceInterval = CommLink.setIntervalAsync(async () => {
         await CommLink.commands.createInstance(commLinkInstanceID);
     }, 1000);
 
