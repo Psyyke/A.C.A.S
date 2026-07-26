@@ -36,7 +36,10 @@ function broadcastToClients(payloadObj) {
 }
 
 function getIdentifierKey(identifierObj) {
-    return identifierObj.engineId + identifierObj.profileName + identifierObj.instanceId;
+    // Straight concatenation collides: {profileName:'a', instanceId:'b1'} and
+    // {profileName:'ab', instanceId:'1'} produced the same key, which made two
+    // instances share an engine start lock and a console view.
+    return JSON.stringify([identifierObj.engineId, identifierObj.profileName, identifierObj.instanceId]);
 }
 
 async function handleClientUciCommand(cmdObj) {
@@ -127,7 +130,29 @@ function onCommandReceived(remoteCommand) {
     }
 }
 
+function emitListeningState(wss) {
+    if(!mainWindow || mainWindow.isDestroyed()) return;
+
+    const addressObj = wss.httpServer?.address();
+
+    if(!addressObj) return;
+
+    mainWindow.webContents.send('serverListening', {
+        address: addressObj.address,
+        family: addressObj.family,
+        port: addressObj.port
+    });
+}
+
 export function startLocalWSS() {
+    // A recreated window (macOS activate) missed the one-shot 'listening' event and
+    // would sit on OFFLINE forever, so just re-announce instead of binding twice
+    if(wssRef) {
+        emitListeningState(wssRef);
+
+        return wssRef;
+    }
+
     const server = http.createServer((req, res) => {
         req.socket.destroy();
     });
@@ -167,17 +192,7 @@ export function startLocalWSS() {
         });
     });
 
-    wss.httpServer.on('listening', () => {
-        if(!mainWindow || mainWindow.isDestroyed()) return;
-
-        const addressObj = wss.httpServer.address();
-
-        mainWindow.webContents.send('serverListening', {
-            address: addressObj.address,
-            family: addressObj.family,
-            port: addressObj.port
-        });
-    });
+    wss.httpServer.on('listening', () => emitListeningState(wss));
 
     wss.onClientChange = (isConnected, origin) => {
         if(!mainWindow || mainWindow.isDestroyed()) return;

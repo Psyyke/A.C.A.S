@@ -61,12 +61,19 @@ addEngineBtn.onclick = async () => {
 function refreshEngineCards(aliveEngineProcesses) {
     const aliveIds = aliveEngineProcesses.map(ep => String(ep.identifierObj.engineId));
 
+    // This only ever removed the class, and nothing anywhere added it, so the running
+    // indicator styled in main.css could never light up. Now that startEngineProcess
+    // refreshes after registering, toggling it gives the user actual feedback.
     [...document.querySelectorAll('.card')]
-        .filter(x => !aliveIds.includes(x.dataset.engineId))
-        .forEach(x => x.classList.remove('active'));
+        .forEach(x => x.classList.toggle('active', aliveIds.includes(x.dataset.engineId)));
 }
 
-async function renderEngineGrid(savedEngines) {
+async function renderEngineGrid(engines) {
+    // This parameter used to be called savedEngines and shadowed the module-level list,
+    // so the IPC refresh never reached it and console.js kept reading a stale (often
+    // empty) array, showing every engine as "Unknown" until restart.
+    savedEngines = engines;
+
     const existingCards = Array.from(engineUiGrid.children);
     const engineIds = savedEngines.map(e => String(e.engineId));
 
