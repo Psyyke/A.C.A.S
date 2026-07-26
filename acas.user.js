@@ -375,6 +375,10 @@ let lastBoardFiles = null;
 let lastBoardSize = null;
 let lastPieceSize = null;
 let lastTurn = null;
+let lostCastlingRights = new Set(); // rights are sticky once lost, placement alone can't tell
+let enPassantTarget = '-';
+let halfmoveClock = 0;
+let fullmoveNumber = 1;
 let lastBoardMatrix = null;
 let lastBoardOrientation = null;
 let matchFirstSuggestionGiven = false;
@@ -993,20 +997,21 @@ function getElemCoordinatesFromTransform(elem, config) {
 
     lastBoardSize = getElementSize(chessBoardElem);
 
-    const [files, ranks] = getBoardDimensions();
-
-    lastBoardRanks = ranks;
-    lastBoardFiles = files;
+    // getBoardDimensions() already keeps lastBoardRanks/lastBoardFiles in sync.
+    // This used to reassign them from a swapped destructure, which flipped the
+    // convention every other caller relies on.
+    getBoardDimensions();
 
     const boardOrientation = getBoardOrientation();
 
     let [x, y] = extractElemTransformData(elem);
 
     const boardDimensions = lastBoardSize;
-    let squareDimensions = boardDimensions.width / lastBoardRanks;
+    const squareWidth = boardDimensions.width / lastBoardRanks;
+    const squareHeight = boardDimensions.height / lastBoardFiles;
 
-    const normalizedX = Math.round(x / squareDimensions);
-    const normalizedY = Math.round(y / squareDimensions);
+    const normalizedX = Math.round(x / squareWidth);
+    const normalizedY = Math.round(y / squareHeight);
 
     if(onlyFlipY || boardOrientation === 'w') {
         const flippedY = lastBoardFiles - normalizedY - 1;
@@ -1020,12 +1025,7 @@ function getElemCoordinatesFromTransform(elem, config) {
 }
 
 function getElemCoordinatesFromLeftBottomPercentages(elem) {
-    if(!lastBoardRanks || !lastBoardFiles) {
-        const [files, ranks] = getBoardDimensions();
-
-        lastBoardRanks = ranks;
-        lastBoardFiles = files;
-    }
+    if(!lastBoardRanks || !lastBoardFiles) getBoardDimensions();
 
     const boardOrientation = getBoardOrientation();
 
@@ -1050,11 +1050,15 @@ function getElemCoordinatesFromLeftTopPixels(elem) {
 
     lastPieceSize = pieceSize;
 
+    // Unlike its siblings this never seeded the board dimensions, so lastBoardFiles
+    // could still be null below and turn the flip into a negative index
+    if(!lastBoardRanks || !lastBoardFiles) getBoardDimensions();
+
     const leftPixels = parseFloat(elem.style.left?.replace('px', ''));
     const topPixels = parseFloat(elem.style.top?.replace('px', ''));
 
     const x = Math.max(Math.round(leftPixels / pieceSize.width), 0);
-    const y = Math.max(Math.round(topPixels / pieceSize.width), 0);
+    const y = Math.max(Math.round(topPixels / pieceSize.height), 0);
 
     const boardOrientation = getBoardOrientation();
 
@@ -1169,18 +1173,14 @@ function chessCoordinatesToDomIndex(coord) {
 
 function indexToChessCoordinates(coord) {
     const [boardRanks, boardFiles] = getBoardDimensions();
-    const boardOrientation = getBoardOrientation();
 
     const [x, y] = coord;
     const file = String.fromCharCode('a'.charCodeAt(0) + x);
 
-    let rank;
-
-    if (boardOrientation === 'w') {
-        rank = boardRanks - y;
-    } else {
-        rank = boardRanks - y;
-    }
+    // Inverse of chessCoordinatesToMatrixIndex, which counts rows off boardFiles.
+    // Both orientation branches were identical, and using boardRanks here put every
+    // rank off by the difference whenever a board isn't square.
+    const rank = boardFiles - y;
 
     return `${file}${rank}`;
 }
@@ -1192,8 +1192,9 @@ function isPawnPromotion(bestMove) {
     if(typeof piece !== 'string' || piece.toLowerCase() !== 'p')
         return false;
 
-    // Determine the row from the ending coordinate (assumes standard algebraic notation, e.g., 'e8')
-    const endingRow = parseInt(fenCoordTo[1], 10);
+    // Read the rank through the same helper the rest of the script uses, so rank 10
+    // (encoded as ':') doesn't get truncated to 1 by taking a single character
+    const endingRow = chessCoordinatesToIndex(fenCoordTo)[1] + 1;
 
     // Check if the pawn reaches the promotion row
     if ((piece === 'P' && endingRow === (lastBoardFiles ?? 8)) || (piece === 'p' && endingRow === 1)) {
@@ -1904,11 +1905,6 @@ function squeezeEmptySquares(fenStr) {
     return fenStr.replace(/1+/g, match => match.length);
 }
 
-function getBoardOrientation() {
-    const playerColor = instanceVars.playerColor.get(commLinkInstanceID);
-
-    return playerColor;
-}
 
 function getFenPieceColor(pieceFenStr) {
     return pieceFenStr == pieceFenStr.toUpperCase() ? 'w' : 'b';
@@ -2116,10 +2112,16 @@ function getBoardMatrix() {
 
     if(isValidPieceElemsArray) {
         pieceElems.forEach(pieceElem => {
-            const pieceFenCode = getPieceElemFen(pieceElem);
-            const pieceCoordsArr = getPieceElemCoords(pieceElem);
-
             try {
+                // These two read the site's DOM and are the ones that actually throw,
+                // so they belong inside the guard
+                const pieceFenCode = getPieceElemFen(pieceElem);
+                const pieceCoordsArr = getPieceElemCoords(pieceElem);
+
+                // An unrecognised piece used to be written in as null, which joins to an
+                // empty string and silently makes the rank one square too narrow
+                if(typeof pieceFenCode !== 'string' || !pieceFenCode) return;
+
                 const [xIdx, yIdx] = pieceCoordsArr;
 
                 board[boardFiles - (yIdx + 1)][xIdx] = pieceFenCode;
@@ -2134,57 +2136,161 @@ function getBoardMatrix() {
     return board;
 }
 
-function getBoardPiece(fenCoord) {
+function getBoardPiece(fenCoord, boardMatrix) {
     const [boardRanks, boardFiles] = getBoardDimensions();
     const indexArr = chessCoordinatesToIndex(fenCoord);
 
-    return getBoardMatrix()?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
+    // Callers that already hold a matrix pass it in, otherwise getRights alone
+    // rebuilds the whole board six times per FEN
+    const matrix = boardMatrix ?? getBoardMatrix();
+
+    return matrix?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
 }
 
 // Works on 8x8 boards only
-function getRights() {
+function getRights(boardMatrix) {
+    const pieceAt = coord => getBoardPiece(coord, boardMatrix);
+
+    // Placement tells us a right is definitely gone, never that it still exists:
+    // Rh1-g1-h1 puts the rook back but the right is spent. So once a right drops
+    // out of the placement check we remember it and never hand it back.
     let rights = '';
 
-    // check for white
-    const e1 = getBoardPiece('e1'),
-            h1 = getBoardPiece('h1'),
-            a1 = getBoardPiece('a1');
+    const e1 = pieceAt('e1'), h1 = pieceAt('h1'), a1 = pieceAt('a1');
+    const e8 = pieceAt('e8'), h8 = pieceAt('h8'), a8 = pieceAt('a8');
 
-    if(e1 == 'K' && h1 == 'R') rights += 'K';
-    if(e1 == 'K' && a1 == 'R') rights += 'Q';
+    if(e1 === 'K' && h1 === 'R') rights += 'K';
+    if(e1 === 'K' && a1 === 'R') rights += 'Q';
+    if(e8 === 'k' && h8 === 'r') rights += 'k';
+    if(e8 === 'k' && a8 === 'r') rights += 'q';
 
-    //check for black
-    const e8 = getBoardPiece('e8'),
-            h8 = getBoardPiece('h8'),
-            a8 = getBoardPiece('a8');
+    // Only trust the placement once both kings are on the board. A half-rendered board
+    // would otherwise burn every right permanently.
+    const flat = (boardMatrix ?? []).flat();
+    const boardLooksReady = flat.includes('K') && flat.includes('k');
 
-    if(e8 == 'k' && h8 == 'r') rights += 'k';
-    if(e8 == 'k' && a8 == 'r') rights += 'q';
+    if(boardLooksReady) {
+        for(const right of ['K', 'Q', 'k', 'q']) {
+            if(!rights.includes(right)) lostCastlingRights.add(right);
+        }
+    }
 
-    return rights ? rights : '-';
+    const finalRights = [...rights].filter(right => !lostCastlingRights.has(right)).join('');
+
+    return finalRights || '-';
 }
 
-function getBasicFen() {
+// A double pawn push is the only thing that creates an en passant target, and we can
+// spot it by diffing the previous board against the current one.
+function getEnPassantTarget(previousBasicFen, currentBasicFen) {
+    if(!previousBasicFen || !currentBasicFen) return '-';
+
+    const toRows = fen => fen.split('/')
+        .map(row => [...(row.match(/\d+|\D/g) ?? [])]
+            .flatMap(token => isNaN(token) ? [token] : Array(Number(token)).fill('')));
+
+    const before = toRows(previousBasicFen);
+    const after = toRows(currentBasicFen);
+
+    if(before.length !== after.length) return '-';
+
+    const rowCount = before.length;
+
+    for(let x = 0; x < (before[0]?.length ?? 0); x++) {
+        for(let y = 0; y < rowCount; y++) {
+            const pawn = before[y]?.[x];
+
+            if(pawn !== 'P' && pawn !== 'p') continue;
+            if(after[y]?.[x] === pawn) continue;
+
+            const step = pawn === 'P' ? -2 : 2; // white moves up the matrix, black down
+            const landing = y + step;
+
+            if(after[landing]?.[x] !== pawn) continue;
+            if(before[landing]?.[x] === pawn) continue;
+
+            const skippedRank = rowCount - (y + step / 2);
+
+            return `${String.fromCharCode(97 + x)}${skippedRank}`;
+        }
+    }
+
+    return '-';
+}
+
+function updateFenCounters(previousFullFen, currentBasicFen, turn) {
+    const previousBasicFen = previousFullFen?.split(' ')?.[0];
+
+    if(!previousBasicFen) return;
+
+    const expand = fen => fen.replace(/\d+/g, d => ' '.repeat(Number(d))).split('/').join('');
+
+    const before = expand(previousBasicFen);
+    const after = expand(currentBasicFen);
+
+    const captured = countTotalPieces(currentBasicFen) < countTotalPieces(previousBasicFen);
+
+    let pawnMoved = false;
+
+    if(before.length === after.length) {
+        for(let i = 0; i < before.length; i++) {
+            if(before[i] === after[i]) continue;
+
+            if('Pp'.includes(before[i]) || 'Pp'.includes(after[i])) {
+                pawnMoved = true;
+                break;
+            }
+        }
+    }
+
+    halfmoveClock = (captured || pawnMoved) ? 0 : halfmoveClock + 1;
+
+    // A full move completes once it swings back around to white
+    if(turn === 'w') fullmoveNumber++;
+}
+
+function resetFenState() {
+    lostCastlingRights = new Set();
+    enPassantTarget = '-';
+    halfmoveClock = 0;
+    fullmoveNumber = 1;
+}
+
+function getBasicFen(boardMatrix) {
+    const matrix = boardMatrix ?? getBoardMatrix();
+
+    return squeezeEmptySquares(matrix.map(x => x.join('')).join('/'));
+}
+
+function getFen(onlyBasic, turn) {
+    // Read the board once and reuse it, so the placement the rights are derived from
+    // is guaranteed to be the same position we're describing
     const boardMatrix = getBoardMatrix();
-
-    return squeezeEmptySquares(boardMatrix.map(x => x.join('')).join('/'));
-}
-
-function getFen(onlyBasic) {
-    const basicFen = getBasicFen();
+    const basicFen = getBasicFen(boardMatrix);
 
     if(onlyBasic) {
         return basicFen;
     }
 
-    // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
-    const fullFen = `${basicFen} ${getBoardOrientation()} ${getRights()} - 0 1`;
+    const previousBasicFen = lastCalculatedFullFen?.split(' ')?.[0];
 
-    return fullFen;
+    // This field is whose turn it is, not which way the board is facing. Those are
+    // the same thing only when the player happens to be on move.
+    const sideToMove = turn || lastTurn || getBoardOrientation();
+
+    if(previousBasicFen && previousBasicFen !== basicFen) {
+        enPassantTarget = getEnPassantTarget(previousBasicFen, basicFen);
+        updateFenCounters(lastCalculatedFullFen, basicFen, sideToMove);
+    }
+
+    // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
+    return `${basicFen} ${sideToMove} ${getRights(boardMatrix)} ${enPassantTarget} ${halfmoveClock} ${fullmoveNumber}`;
 }
 
 function resetCachedValues() {
     chesscomVariantPlayerColorsTable = null;
+
+    resetFenState();
 }
 
 function countTotalPieces(fen) {
@@ -2193,7 +2299,7 @@ function countTotalPieces(fen) {
 
     for(let char of position) {
         if(/[rnbqkpRNBQKP]/.test(char)) {
-            pieceCount += (pieceCount[char] || 0) + 1;
+            pieceCount++;
         }
     }
 
@@ -2223,8 +2329,12 @@ function getPieceChangeAmount(lastFen, newFen) {
 function getBoardSquareChangeAmount(lastFen, newFen) {
     if(!lastFen || !newFen) return 0;
 
-    let board1 = lastFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
-    let board2 = newFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
+    // Expand digit runs, not single digits, otherwise a rank holding "10" empty squares
+    // becomes 1 character and the two boards go out of sync from that rank onwards
+    const expand = fen => fen.split(' ')[0].replace(/\d+/g, d => ' '.repeat(Number(d))).split('/').join('');
+
+    let board1 = expand(lastFen);
+    let board2 = expand(newFen);
 
     let changedFrom = [];
     let diff = 0;
@@ -2279,7 +2389,11 @@ async function processBoardPosition(currentFullFen = getFen(), squareChangeAmoun
 
 // This is called by observeNewMoves()
 async function determineBoardPositionValidity(turn) {
-    const currentFullFen = await getFen();
+    // Resolve the side to move before building the FEN, it used to be settled further
+    // down and the FEN was left carrying the board orientation instead
+    const resolvedTurn = (turn && lastTurn !== turn) ? turn : getBoardOrientation();
+
+    const currentFullFen = await getFen(false, resolvedTurn);
     const fenChanged = currentFullFen?.split(' ', 1)?.[0] !== lastCalculatedFullFen?.split(' ', 1)?.[0]; // only compare the first part of the FENs to detect change
 
     const pieceAmountChange = getPieceChangeAmount(lastCalculatedFullFen, currentFullFen);
@@ -2299,10 +2413,9 @@ async function determineBoardPositionValidity(turn) {
     if(!fenChanged) return;
 
     if(turn) {
-        if(lastTurn === turn) turn = getBoardOrientation();
-        lastTurn = turn;
+        lastTurn = resolvedTurn;
 
-        instanceVars.turn.set(commLinkInstanceID, turn);
+        instanceVars.turn.set(commLinkInstanceID, resolvedTurn);
     }
 
     if(pieceAmountChange === -1) {
