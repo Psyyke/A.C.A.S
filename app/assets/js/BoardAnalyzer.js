@@ -42,7 +42,9 @@ export default class BoardAnalyzer {
     }
 
     flipFen() {
-        const firstSpace = this.fen.indexOf(' ');
+        const spaceIndex = this.fen.indexOf(' ');
+        // A board-only FEN has no fields after it, so keep the whole string
+        const firstSpace = spaceIndex === -1 ? this.fen.length : spaceIndex;
         const board = this.fen.slice(0, firstSpace);
 
         const flippedBoard = board.split('/')
@@ -64,11 +66,12 @@ export default class BoardAnalyzer {
             const row = [];
             const rowString = rows[i];
 
-            for(let char of rowString) {
-                if(parseInt(char))
-                    row.push(...Array(parseInt(char)).fill(null));
+            // Digit runs, so "10" empty squares on a wide board stays 10 and not 1
+            for(const token of rowString.match(/\d+|\D/g) ?? []) {
+                if(isNaN(token))
+                    row.push(token);
                 else
-                    row.push(char);
+                    row.push(...Array(parseInt(token, 10)).fill(null));
             }
 
             // Ensure that the board has a consistent number of columns
