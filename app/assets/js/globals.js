@@ -488,13 +488,16 @@ function FEN_TO_ARRAYS(fen) {
 
     for(let row of rows) {
         const boardRow = [];
-        for(let char of row) {
-            if(isNaN(char)) {
-                boardRow.push(char);
+
+        // Match digit runs, not single digits, so wide boards ("10" empty squares) don't collapse
+        for(const token of row.match(/\d+|\D/g) ?? []) {
+            if(isNaN(token)) {
+                boardRow.push(token);
             } else {
-                boardRow.push(...Array(parseInt(char)).fill(''));
+                boardRow.push(...Array(parseInt(token, 10)).fill(''));
             }
         }
+
         board.push(boardRow);
     }
 
@@ -508,14 +511,15 @@ function IS_PLAYER_ATTACKING_KING(currentFen, turn) {
     const rows = boardPart.split('/');
     const board = [];
 
-    for(let i = 0; i < 8; i++) {
+    // Variant boards are not always 8x8, so follow the FEN instead of assuming
+    for(const rowString of rows) {
         const row = [];
 
-        for(let char of rows[i]) {
-            if(isNaN(char)) {
-                row.push(char);
+        for(const token of rowString.match(/\d+|\D/g) ?? []) {
+            if(isNaN(token)) {
+                row.push(token);
             } else {
-                for(let j = 0; j < parseInt(char); j++) row.push(1);
+                for(let j = 0; j < parseInt(token, 10); j++) row.push(1);
             }
         }
 
@@ -525,10 +529,13 @@ function IS_PLAYER_ATTACKING_KING(currentFen, turn) {
     const isWhiteAttacking = turn === 'w';
     const enemyKing = isWhiteAttacking ? 'k' : 'K';
 
+    const boardHeight = board.length;
+    const boardWidth = board.reduce((max, row) => Math.max(max, row.length), 0);
+
     let kX = -1, kY = -1;
-    
-    for(let y = 0; y < 8; y++) {
-        for(let x = 0; x < 8; x++) {
+
+    for(let y = 0; y < boardHeight; y++) {
+        for(let x = 0; x < board[y].length; x++) {
             if(board[y][x] === enemyKing) { kX = x; kY = y; break; }
         }
         if(kX !== -1) break;
@@ -542,18 +549,19 @@ function IS_PLAYER_ATTACKING_KING(currentFen, turn) {
 
     const kn = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
 
-    for(let i = 0; i < 8; i++) {
+    for(let i = 0; i < kn.length; i++) {
         const p = board[kY + kn[i][1]]?.[kX + kn[i][0]];
         if(p === atk.n) return true;
     }
 
     const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0], [1, -1], [-1, -1], [1, 1], [-1, 1]];
+    const maxRayLength = Math.max(boardWidth, boardHeight);
 
-    for(let i = 0; i < 8; i++) {
+    for(let i = 0; i < dirs.length; i++) {
         const dx = dirs[i][0], dy = dirs[i][1];
         const isDiagonal = i > 3;
 
-        for(let j = 1; j < 8; j++) {
+        for(let j = 1; j < maxRayLength; j++) {
             const x = kX + dx * j, y = kY + dy * j;
             const p = board[y]?.[x];
             if(p === undefined) break;
@@ -772,18 +780,43 @@ function EXTRACT_MOVE_FROM_FEN(lastFen, currentFen, boardDimensions = [8, 8]) {
     let moveTo = null;
     let movedPiece = null;
 
+    // Castling and en passant change more than two squares, so collect every change
+    // first instead of letting the last one seen win.
+    const vacated = [];
+    const filled = [];
+
     for(let i = 0; i < rows; i++) {
         for(let j = 0; j < cols; j++) {
-            if(lastBoard[i][j] !== currentBoard[i][j]) {
-                if(lastBoard[i][j] !== '' && currentBoard[i][j] === '') {
-                    moveFrom = `${String.fromCharCode(97 + j)}${rows - i}`;
-                }
-                if(currentBoard[i][j] !== '') {
-                    moveTo = `${String.fromCharCode(97 + j)}${rows - i}`;
-                    movedPiece = currentBoard[i][j];
-                }
+            if(lastBoard[i]?.[j] === currentBoard[i]?.[j]) continue;
+
+            const square = `${String.fromCharCode(97 + j)}${rows - i}`;
+
+            if(lastBoard[i][j] !== '' && currentBoard[i][j] === '') {
+                vacated.push({ square, 'piece': lastBoard[i][j] });
+            }
+            if(currentBoard[i][j] !== '') {
+                filled.push({ square, 'piece': currentBoard[i][j] });
             }
         }
+    }
+
+    // Castling fills two squares; the king is the piece that identifies the move.
+    const kingTo = filled.find(sq => sq.piece.toLowerCase() === 'k');
+    const kingFrom = vacated.find(sq => sq.piece.toLowerCase() === 'k');
+
+    const to = (kingTo && kingFrom) ? kingTo : filled[0];
+
+    if(to) {
+        moveTo = to.square;
+        movedPiece = to.piece;
+
+        // The origin is the square that held this very piece. For en passant that
+        // separates the capturing pawn from the captured one; for a promotion no
+        // square matches, so fall back to the only square that was vacated.
+        const from = vacated.find(sq => sq.piece === to.piece)
+            ?? (vacated.length === 1 ? vacated[0] : null);
+
+        moveFrom = from?.square ?? null;
     }
 
     let color = movedPiece ? (movedPiece === movedPiece.toUpperCase() ? 'w' : 'b') : null;

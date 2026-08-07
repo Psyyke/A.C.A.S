@@ -71,7 +71,8 @@ export default async function renderFeedback(currentFen) {
         const playerColor = await this.getPlayerColor();
 
         if(isChangeLogical && lastFen && currentFen) {
-            const moveObj = EXTRACT_MOVE_FROM_FEN(lastFen, currentFen);
+            const moveObj = EXTRACT_MOVE_FROM_FEN(lastFen, currentFen,
+                [this.boardDimensions.width, this.boardDimensions.height]);
             const from = moveObj.from,
                   to = moveObj.to,
                   pieceColor = moveObj.color;

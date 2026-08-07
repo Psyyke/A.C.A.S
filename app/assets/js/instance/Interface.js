@@ -163,7 +163,9 @@ export default class Interface {
     }
     
     async updateBoardFen(fen) {
-        const moveObj = EXTRACT_MOVE_FROM_FEN(this.AcasInstance.currentFen, fen);
+        const instanceDimensions = this.AcasInstance.boardDimensions;
+        const moveObj = EXTRACT_MOVE_FROM_FEN(this.AcasInstance.currentFen, fen,
+            [instanceDimensions.width, instanceDimensions.height]);
         const movedPieceLowered = moveObj?.movedPiece?.toLowerCase();
         const instanceFenElem = this?.AcasInstance?.instanceElem?.querySelector('.instance-fen');
 
