@@ -736,28 +736,6 @@ function CALC_TIME_PROGRESS(startTime, movetime) {
     return Math.max(0, Math.min(1, progress));
 }
 
-function MODIFY_FEN_CASTLE_RIGHTS(fen, rights) {
-    let parts = fen.split(' ');
-    if(parts.length < 4) return fen;
-
-    let cr = parts[2];
-    let newCr = cr;
-
-    const wMoved = rights.includes('w');
-    const bMoved = rights.includes('b');
-
-    if(wMoved && bMoved) {
-        newCr = '-';
-    } else {
-        if(wMoved) newCr = newCr.replace(/[KQ]/g, '');
-        if(bMoved) newCr = newCr.replace(/[kq]/g, '');
-        if(newCr === '') newCr = '-';
-    }
-
-    parts[2] = newCr;
-    return parts.join(' ');
-}
-
 function EXTRACT_MOVE_FROM_FEN(lastFen, currentFen, boardDimensions = [8, 8]) {
     if(!(lastFen && currentFen)) return { from: null, to: null, color: null };
 

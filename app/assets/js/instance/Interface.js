@@ -177,21 +177,11 @@ export default class Interface {
             console.warn('%c[ NEW FEN RECEIVED! ]', 'color: neon; font-weight: bold; font-size: 50px;');
             console.warn('[Logical Change Detection] New board FEN received:', `${origin}/A.C.A.S/board/?fens=${fensString}&o=${this.AcasInstance.lastOrientation}`, { fen, moveObj });
         }
-    
-        if(movedPieceLowered === 'k') {
-            const kingColor = moveObj?.movedPiece === movedPieceLowered
-                ? 'b' : 'w';
-    
-            if(!this.AcasInstance.kingMoved.includes(kingColor))
-                this.AcasInstance.kingMoved += kingColor;
-        }
 
         if(!moveObj?.color) {
             const playerColor = await this.AcasInstance.getPlayerColor();
             moveObj.color = playerColor.toLowerCase() === 'w' ? 'b' : 'w';
         }
-    
-        fen = MODIFY_FEN_CASTLE_RIGHTS(fen, this.AcasInstance.kingMoved);
     
         this.AcasInstance.currentFen = fen;
     
