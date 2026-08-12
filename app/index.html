@@ -28,9 +28,9 @@
 		<link rel="modulepreload" href="../assets/libraries/chessgroundx/chessground.js">
 		<link rel="modulepreload" href="./assets/js/AcasWebSocketClient.js">
 		<link rel="modulepreload" href="./assets/js/gui.js">
-		<script src="../assets/libraries/CommLink/CommLink.js"></script>
+		<script src="../userscript-components/CommLink.js"></script>
 		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
-		<script src="../assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
+		<script src="../userscript-components/UniversalBoardDrawer.js"></script>
 		<script src="../assets/libraries/SnapDOM/snapdom.min.js"></script>
 		<script type="module" src="./assets/js/misc/exposeModules.js"></script>
 		<script src="./assets/js/globals.js"></script>
@@ -438,13 +438,13 @@
 								<div class="input-subtitle">Make engine use Chess960 chess variant</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
-								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions</div>
 								<div class="input-subtitle">How many arrows will show up</div></div>
 								<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="0-500">
+							</div>
+                            <div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
+								<div class="input-subtitle">Show the move suggestions after this time</div></div>
+								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
 							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Max Movetime (ms)</div>
 								<div class="input-subtitle" title="Ms means millisecond. 1000 milliseconds is 1 second.">1000ms is 1 second</div></div>
@@ -605,10 +605,6 @@
 									</dialog>
 								</div>
 							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
-								<div class="input-subtitle">Show the move suggestions after this time</div></div>
-								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
-							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Moves On Demand</div>
 								<div class="input-subtitle">Calculates moves for pieces you interact with</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="movesOnDemand" data-default-value="false"><div class="checkbox-fill">✔</div></div>
@@ -616,6 +612,16 @@
 							<div class="checkbox-input custom-input"><div><div class="input-title">Only Suggest Pieces</div>
 								<div class="input-subtitle">Suggest pieces to move, but give no moves</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="onlySuggestPieces" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+							</div>
+                            <div class="input-combination-box">
+                                <div class="checkbox-input custom-input"><div><div class="input-title">Always My Turn</div>
+									<div class="input-subtitle">Force turn to be your turn</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="alwaysMyTurn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+								</div>
+                                <div class="checkbox-input sub-input custom-input"><div><div class="input-title">Reverse Side</div>
+                                    <div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
+                                    <input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                </div>
 							</div>
 						</div>
 						<div class="setting-panel">

@@ -21,7 +21,7 @@ const configKeys = Object.freeze([
     'displayMovesOnExternalSite', 'showMoveGhost', 'showOpponentMoveGuess',
     'showOpponentMoveGuessConstantly', 'onlyShowTopMoves', 'maxMovetime',
     'chessVariant', 'chessEngine', 'useExternalChessEngine', 'lc0Weight',
-    'engineNodes', 'chessFont', 'useChess960',
+    'engineNodes', 'chessFont', 'useChess960', 'alwaysMyTurn',
     'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
     'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
     'secondaryArrowColorHex', 'opponentArrowColorHex', 'reverseSide',

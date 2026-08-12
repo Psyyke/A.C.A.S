@@ -805,14 +805,13 @@ function EXTRACT_MOVE_FROM_FEN(lastFen, currentFen, boardDimensions = [8, 8]) {
 }
 
 function REVERSE_FEN_TURN(fen) {
-    const fenSplit = fen.split(' ');
+    const parts = fen.split(' ');
 
-    if(fenSplit[1] === 'w')
-        fenSplit[1] = 'b';
-    else
-        fenSplit[1] = 'w';
+    parts[1] = parts[1] === 'w' ? 'b' : 'w';
+    // Reset en-passant field (tied to the move that just happened, reversing turn makes the history inconsistent)
+    parts[3] = '-';
 
-    return fenSplit.join(' ');
+    return parts.join(' ');
 }
 
 function PARSE_UCI_OPTION(line) {

@@ -78,8 +78,9 @@
 // @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
+// @require     https://update.greasyfork.org/scripts/591079/1900946/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.4
+// @version     2.4.5
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -315,6 +316,41 @@ function getUniqueID() {
     )
 }
 
+function createNewGameState() {
+    return {
+        fen: { 'full': null, 'basic': null },
+        turn: null,
+
+        pieceAmountChange: 0,
+
+        boardChanges: {
+            changedSquaresAmount: 0,
+            movedPieces: [],
+            from: null,
+            to: null,
+            movedPiece: null,
+            capturedPiece: null,
+            capturedSquare: null
+        },
+
+        movedPiece: null,
+
+        enPassantTarget: '-',
+        castlingRights: 'KQkq',
+        lostCastlingRights: new Set(),
+
+        isCapture: false,
+        isPawnMove: false,
+        isCastling: false,
+        castlingSide: null,
+        isTakeback: false,
+
+        halfmoveClock: -1,
+        plyCount: -1,
+        fullmoveNumber: 1
+    };
+}
+
 const commLinkInstanceID = getUniqueID();
 
 const blacklistedURLs = [
@@ -368,24 +404,23 @@ let activeMetricRenders = [];
 let activeFeedback = [];
 let boardObserver = null;
 let dumbBoardObservingInterval = null;
+
 let lastMutationObservationDate = 0;
-let lastCalculatedFullFen = null;
+let gameStateHistory = [];
+let lastIsTakebackState = false;
 let lastBoardRanks = null;
 let lastBoardFiles = null;
 let lastBoardSize = null;
 let lastPieceSize = null;
-let lastTurn = null;
-let lostCastlingRights = new Set(); // rights are sticky once lost, placement alone can't tell
-let enPassantTarget = '-';
-let halfmoveClock = 0;
-let fullmoveNumber = 1;
 let lastBoardMatrix = null;
 let lastBoardOrientation = null;
-let matchFirstSuggestionGiven = false;
 let lastMoveRequestTime = 0;
 let lastMutationObsProcessedTurn = null;
+
+let gameState = createNewGameState();
+
+let matchFirstSuggestionGiven = false;
 let isUserMouseDown = false;
-let activeAutomoves = [];
 let modListeners = [];
 let modDrawerListeners = [];
 let modLastEnteredSquare = { 'squareIndex': null, 'squareFen': null, 'pieceFen': null };
@@ -476,24 +511,19 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
             case 'getFen':
                 return getFen();
             case 'removeSiteMoveMarkings':
-                boardUtils.removeMarkings();
+                removeMarkingsFromBoard();
                 return true;
             case 'markMoveToSite':
                 const profile = packet.data?.[0]?.profile;
 
-                boardUtils.removeMarkings(profile);
-                boardUtils.markMoves(packet.data);
+                removeMarkingsFromBoard(profile);
+                addMarkingsToBoard(packet.data);
 
                 const isAutoMove = getConfigValue(configKeys.autoMove, profile);
                 const isAutoMoveAfterUser = getConfigValue(configKeys.autoMoveAfterUser, profile);
 
                 if(isAutoMove && (!isAutoMoveAfterUser || matchFirstSuggestionGiven)) {
-                    const existingAutomoves = activeAutomoves.filter(x => x.move.active);
-
-                    // Stop all existing automoves
-                    for(const x of existingAutomoves) {
-                        x.move.stop();
-                    }
+                    AutomaticMove.stopAll(); // stop all active automoves before starting a new one
 
                     const isLegit = getConfigValue(configKeys.autoMoveLegit, profile);
                     const isRandom = getConfigValue(configKeys.autoMoveRandom, profile);
@@ -622,8 +652,10 @@ function createInputListener(listenerType, targetValue, callback) {
 
 function clearMetricRenders() {
     activeMetricRenders.forEach(elem => {
-        if(elem) elem?.remove();
+        if(elem?.remove) elem.remove();
     });
+
+    activeMetricRenders.length = 0;
 }
 
 function renderMetrics(addedMetrics) {
@@ -659,9 +691,8 @@ function renderMetrics(addedMetrics) {
 }
 
 function clearFeedback() {
-    activeFeedback.forEach(elem => {
-        if(elem) elem?.remove();
-    });
+    activeFeedback.forEach(elem => elem?.remove());
+    activeFeedback.length = 0;
 }
 
 function displayFeedback(addedFeedback) {
@@ -705,242 +736,250 @@ function maybeAnnounceMarkingsToPage(moveMarkings) {
     unsafeWindow.postMessage({ name: 'bestMoveArr', value: selectedMarking });
 }
 
-const boardUtils = {
-    markMoves: moveObjArr => { // needs refactoring but too lazy for now
-        if(!BoardDrawer) return;
+function addMarkingsToBoard(moveObjArr) {
+    if(!BoardDrawer) return;
 
-        const maxScale = 1;
-        const minScale = 0.5;
-        const totalRanks = moveObjArr.length;
+    const maxScale = 1;
+    const minScale = 0.5;
+    const totalRanks = moveObjArr.length;
+    const markedSquares = { 0: [], 1: [] };
 
-        function fillSquare(square, style) {
-            const shapeType = 'rectangle';
-            const shapeConfig = { style };
+    function fillSquare(square, style) {
+        const shapeType = 'rectangle';
+        const shapeConfig = { style };
 
-            const rect = BoardDrawer.createShape(shapeType, square, shapeConfig);
+        const rect = BoardDrawer.createShape(shapeType, square, shapeConfig);
 
-            return rect;
+        return rect;
+    }
+
+    function processMarkingObj(markingObj, idx) {
+        const profile = markingObj.profile;
+
+        const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess, profile);
+        const showOpponentMoveGuessConstantly = getConfigValue(configKeys.showOpponentMoveGuessConstantly, profile);
+        const arrowOpacity = getConfigValue(configKeys.arrowOpacity, profile) / 100;
+        const primaryArrowColorHex = getConfigValue(configKeys.primaryArrowColorHex, profile);
+        const secondaryArrowColorHex = getConfigValue(configKeys.secondaryArrowColorHex, profile);
+        const opponentArrowColorHex = getConfigValue(configKeys.opponentArrowColorHex, profile);
+        const moveAsFilledSquares = getConfigValue(configKeys.moveAsFilledSquares, profile);
+        const onlySuggestPieces = getConfigValue(configKeys.onlySuggestPieces, profile);
+        const movesOnDemand = getConfigValue(configKeys.movesOnDemand, profile);
+
+        const [from, to] = markingObj.player;
+        const [oppFrom, oppTo] = markingObj.opponent;
+        const oppMovesExist = oppFrom && oppTo;
+        const rank = idx + 1;
+        const cp = markingObj?.cp;
+
+        function markSuggestedPieces() {
+            const fillType = idx === 0 ? 1 : 0,
+                  fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex;
+
+            const fromSquareMarking =
+                fillSquare(
+                    from,
+                    `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`
+                );
+                
+            let markedSquareElems = [fromSquareMarking];
+
+            if(oppFrom) {
+                const oppFromSquareMarking =
+                    fillSquare(
+                        oppFrom,
+                        `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; display: none; fill: ${opponentArrowColorHex};`
+                    );
+
+                const squareListener = BoardDrawer.addSquareListener(from, type => {
+                    if(!oppFromSquareMarking) squareListener.remove();
+
+                    switch(type) {
+                        case 'enter':
+                            oppFromSquareMarking.style.display = 'inherit';
+                            break;
+                        case 'leave':
+                            oppFromSquareMarking.style.display = 'none';
+                            break;
+                    }
+                });
+
+                markedSquareElems.push(oppFromSquareMarking);
+            }
+
+            activeGuiMoveMarkings.push(
+                { 'otherElems': markedSquareElems }, profile
+            );
         }
 
-        const markedSquares = { 0: [], 1: [] };
+        function markFilledSquares() {
+            const fillType = idx === 0 ? 1 : 0,
+                    fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
+                    styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
+                    skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
+                    skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
 
-        moveObjArr.forEach((markingObj, idx) => {
-            const profile = markingObj.profile;
+            const fromSquareStyle = `${styling} ${skipFromSquare}`;
+            const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
 
-            const [from, to] = markingObj.player;
-            const [oppFrom, oppTo] = markingObj.opponent;
-            const oppMovesExist = oppFrom && oppTo;
-            const rank = idx + 1;
-            const cp = markingObj?.cp;
+            const fromSquareFill = fillSquare(from, fromSquareStyle);
+            const toSquareFill = fillSquare(to, toSquareStyle);
 
-            const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess, profile);
-            const showOpponentMoveGuessConstantly = getConfigValue(configKeys.showOpponentMoveGuessConstantly, profile);
-            const arrowOpacity = getConfigValue(configKeys.arrowOpacity, profile) / 100;
-            const primaryArrowColorHex = getConfigValue(configKeys.primaryArrowColorHex, profile);
-            const secondaryArrowColorHex = getConfigValue(configKeys.secondaryArrowColorHex, profile);
-            const opponentArrowColorHex = getConfigValue(configKeys.opponentArrowColorHex, profile);
-            const moveAsFilledSquares = getConfigValue(configKeys.moveAsFilledSquares, profile);
-            const onlySuggestPieces = getConfigValue(configKeys.onlySuggestPieces, profile);
-            const movesOnDemand = getConfigValue(configKeys.movesOnDemand, profile);
+            const markedSquareFens = [from, to];
+            const markedSquareElems = [fromSquareFill, toSquareFill];
 
-            if(onlySuggestPieces && !movesOnDemand) {
-                const fillType = idx === 0 ? 1 : 0,
-                      fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex;
+            if(oppMovesExist && showOpponentMoveGuess) {
+                const oppFromSquareFill = fillSquare(oppFrom, fromSquareStyle + ` fill: ${opponentArrowColorHex};`);
+                const oppToSquareFill = fillSquare(oppTo, toSquareStyle + ` fill: ${opponentArrowColorHex};`);
 
-                const fromSquareMarking = fillSquare(from, `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`);
-                let markedSquareElems = [fromSquareMarking];
+                markedSquareElems.push(oppFromSquareFill, oppToSquareFill);
 
-                if(oppFrom) {
-                    const oppFromSquareMarking = fillSquare(oppFrom, `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; display: none; fill: ${opponentArrowColorHex};`);
+                if(showOpponentMoveGuessConstantly) {
+                    oppFromSquareFill.style.display = 'block';
+                    oppToSquareFill.style.display = 'block';
+                } else {
+                    oppFromSquareFill.style.display = 'none';
+                    oppToSquareFill.style.display = 'none';
 
                     const squareListener = BoardDrawer.addSquareListener(from, type => {
-                        if(!oppFromSquareMarking) squareListener.remove();
+                        if(!oppFromSquareFill || !oppToSquareFill) {
+                            squareListener.remove();
+                        }
 
                         switch(type) {
                             case 'enter':
-                                oppFromSquareMarking.style.display = 'inherit';
+                                oppFromSquareFill.style.display = 'inherit';
+                                oppToSquareFill.style.display = 'inherit';
                                 break;
                             case 'leave':
-                                oppFromSquareMarking.style.display = 'none';
+                                oppFromSquareFill.style.display = 'none';
+                                oppToSquareFill.style.display = 'none';
                                 break;
                         }
                     });
-
-                    markedSquareElems.push(oppFromSquareMarking);
                 }
+            }
 
-                activeGuiMoveMarkings.push(
-                    { 'otherElems': markedSquareElems }, profile
-                );
+            markedSquares[fillType].push(...markedSquareFens);
 
-            } else if(moveAsFilledSquares) {
-                const fillType = idx === 0 ? 1 : 0,
-                      fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
-                      styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
-                      skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
-                      skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
+            activeGuiMoveMarkings.push(
+                { 'otherElems': markedSquareElems }, profile
+            );
+        }
 
-                const fromSquareStyle = `${styling} ${skipFromSquare}`;
-                const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
+        function markArrows() {
+            let playerArrowElem = null;
+            let oppArrowElem = null;
+            let arrowStyle = getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
+            let lineWidth = 30;
+            let arrowheadWidth = 80;
+            let arrowheadHeight = 60;
+            let startOffset = 30;
 
-                const fromSquareFill = fillSquare(from, fromSquareStyle);
-                const toSquareFill = fillSquare(to, toSquareStyle);
+            if(idx !== 0) {
+                arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
 
-                const markedSquareFens = [from, to];
-                const markedSquareElems = [fromSquareFill, toSquareFill];
+                const arrowScale = totalRanks === 2
+                    ? 0.75
+                    : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
 
-                if(oppMovesExist && showOpponentMoveGuess) {
-                    const oppFromSquareFill = fillSquare(oppFrom, fromSquareStyle + ` fill: ${opponentArrowColorHex};`);
-                    const oppToSquareFill = fillSquare(oppTo, toSquareStyle + ` fill: ${opponentArrowColorHex};`);
+                lineWidth = lineWidth * arrowScale;
+                arrowheadWidth = arrowheadWidth * arrowScale;
+                arrowheadHeight = arrowheadHeight * arrowScale;
+                startOffset = startOffset;
+            }
 
-                    markedSquareElems.push(oppFromSquareFill, oppToSquareFill);
-
-                    if(showOpponentMoveGuessConstantly) {
-                        oppFromSquareFill.style.display = 'block';
-                        oppToSquareFill.style.display = 'block';
-                    } else {
-                        oppFromSquareFill.style.display = 'none';
-                        oppToSquareFill.style.display = 'none';
-
-                        const squareListener = BoardDrawer.addSquareListener(from, type => {
-                            if(!oppFromSquareFill || !oppToSquareFill) {
-                                squareListener.remove();
-                            }
-
-                            switch(type) {
-                                case 'enter':
-                                    oppFromSquareFill.style.display = 'inherit';
-                                    oppToSquareFill.style.display = 'inherit';
-                                    break;
-                                case 'leave':
-                                    oppFromSquareFill.style.display = 'none';
-                                    oppToSquareFill.style.display = 'none';
-                                    break;
-                            }
-                        });
-                    }
+            playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
+                {
+                    style: arrowStyle,
+                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                 }
+            );
 
-                markedSquares[fillType].push(...markedSquareFens);
-                activeGuiMoveMarkings.push(
-                    { 'otherElems': markedSquareElems }, profile
-                );
-
-            } else {
-                let playerArrowElem = null;
-                let oppArrowElem = null;
-                let arrowStyle = getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
-                let lineWidth = 30;
-                let arrowheadWidth = 80;
-                let arrowheadHeight = 60;
-                let startOffset = 30;
-
-                if(idx !== 0) {
-                    arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
-
-                    const arrowScale = totalRanks === 2
-                        ? 0.75
-                        : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
-
-                    lineWidth = lineWidth * arrowScale;
-                    arrowheadWidth = arrowheadWidth * arrowScale;
-                    arrowheadHeight = arrowheadHeight * arrowScale;
-                    startOffset = startOffset;
-                }
-
-                playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
+            if(oppMovesExist && showOpponentMoveGuess) {
+                oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
                     {
-                        style: arrowStyle,
+                        style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
                         lineWidth, arrowheadWidth, arrowheadHeight, startOffset
                     }
                 );
 
-                if(oppMovesExist && showOpponentMoveGuess) {
-                    oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
-                        {
-                            style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
-                            lineWidth, arrowheadWidth, arrowheadHeight, startOffset
+                if(showOpponentMoveGuessConstantly) {
+                    oppArrowElem.style.display = 'block';
+                } else {
+                    oppArrowElem.style.display = 'none';
+
+                    const squareListener = BoardDrawer.addSquareListener(from, type => {
+                        if(!oppArrowElem) {
+                            squareListener.remove();
                         }
-                    );
 
-                    if(showOpponentMoveGuessConstantly) {
-                        oppArrowElem.style.display = 'block';
-                    } else {
-                        oppArrowElem.style.display = 'none';
-
-                        const squareListener = BoardDrawer.addSquareListener(from, type => {
-                            if(!oppArrowElem) {
-                                squareListener.remove();
-                            }
-
-                            switch(type) {
-                                case 'enter':
-                                    oppArrowElem.style.display = 'inherit';
-                                    break;
-                                case 'leave':
-                                    oppArrowElem.style.display = 'none';
-                                    break;
-                            }
-                        });
-                    }
+                        switch(type) {
+                            case 'enter':
+                                oppArrowElem.style.display = 'inherit';
+                                break;
+                            case 'leave':
+                                oppArrowElem.style.display = 'none';
+                                break;
+                        }
+                    });
                 }
-
-                if(idx === 0 && playerArrowElem) {
-                    const parentElem = playerArrowElem.parentElement;
-
-                    // move best arrow element on top (multiple same moves can hide the best move)
-                    parentElem.appendChild(playerArrowElem);
-
-                    if(oppArrowElem) {
-                        parentElem.appendChild(oppArrowElem);
-                    }
-                }
-
-                activeGuiMoveMarkings.push(
-                    { ...markingObj, playerArrowElem, oppArrowElem, profile }
-                );
             }
-        });
 
-        maybeAnnounceMarkingsToPage(activeGuiMoveMarkings);
-    },
-    removeMarkings: profile => {
-        let removalArr = activeGuiMoveMarkings;
+            if(idx === 0 && playerArrowElem) {
+                const parentElem = playerArrowElem.parentElement;
 
-        if(profile) {
-            removalArr = removalArr.filter(obj => obj.profile === profile);
+                // move best arrow element on top (multiple same moves can hide the best move)
+                parentElem.appendChild(playerArrowElem);
 
-            activeGuiMoveMarkings =  activeGuiMoveMarkings.filter(obj => obj.profile !== profile);
+                if(oppArrowElem) {
+                    parentElem.appendChild(oppArrowElem);
+                }
+            }
+
+            activeGuiMoveMarkings.push(
+                { ...markingObj, playerArrowElem, oppArrowElem, profile }
+            );
+        }
+
+        if(onlySuggestPieces && !movesOnDemand) {
+            markSuggestedPieces();
+        } else if(moveAsFilledSquares) {
+            markFilledSquares();
         } else {
-            activeGuiMoveMarkings = [];
-        }
-
-        removalArr.forEach(markingObj => {
-            markingObj.oppArrowElem?.remove();
-            markingObj.playerArrowElem?.remove();
-            markingObj?.otherElems?.forEach(x => x?.remove());
-        });
-    },
-    setBoardOrientation: orientation => {
-        if(BoardDrawer) {
-            if(debugModeActivated) console.warn('setBoardOrientation', orientation);
-
-            BoardDrawer.setOrientation(orientation);
-        }
-    },
-    setBoardDimensions: dimensionArr => {
-        if(BoardDrawer) {
-            if(debugModeActivated) console.warn('setBoardDimensions', dimensionArr);
-
-            BoardDrawer.setBoardDimensions(dimensionArr);
+            markArrows();
         }
     }
-};
+
+    moveObjArr.forEach(processMarkingObj);
+
+    maybeAnnounceMarkingsToPage(activeGuiMoveMarkings);
+}
+
+function removeMarkingsFromBoard(profile) {
+    let removalArr = activeGuiMoveMarkings;
+
+    if(profile) {
+        removalArr =
+            removalArr.filter(obj => obj.profile === profile);
+
+        activeGuiMoveMarkings =
+            activeGuiMoveMarkings.filter(obj => obj.profile !== profile);
+    } else {
+        activeGuiMoveMarkings = [];
+    }
+
+    removalArr.forEach(markingObj => {
+        markingObj.oppArrowElem?.remove();
+        markingObj.playerArrowElem?.remove();
+        markingObj?.otherElems?.forEach(x => x?.remove());
+    });
+}
 
 function clearVisuals(noMetricsRemoval = false) {
     if(!noMetricsRemoval) clearMetricRenders();
     clearFeedback();
-    boardUtils.removeMarkings();
+    removeMarkingsFromBoard();
 }
 
 function displayImportantNotification(title, text) {
@@ -997,10 +1036,7 @@ function getElemCoordinatesFromTransform(elem, config) {
 
     lastBoardSize = getElementSize(chessBoardElem);
 
-    // getBoardDimensions() already keeps lastBoardRanks/lastBoardFiles in sync.
-    // This used to reassign them from a swapped destructure, which flipped the
-    // convention every other caller relies on.
-    getBoardDimensions();
+    getBoardDimensions(); // getBoardDimensions() keeps lastBoardRanks/lastBoardFiles in sync.
 
     const boardOrientation = getBoardOrientation();
 
@@ -1050,8 +1086,6 @@ function getElemCoordinatesFromLeftTopPixels(elem) {
 
     lastPieceSize = pieceSize;
 
-    // Unlike its siblings this never seeded the board dimensions, so lastBoardFiles
-    // could still be null below and turn the flip into a negative index
     if(!lastBoardRanks || !lastBoardFiles) getBoardDimensions();
 
     const leftPixels = parseFloat(elem.style.left?.replace('px', ''));
@@ -1177,9 +1211,6 @@ function indexToChessCoordinates(coord) {
     const [x, y] = coord;
     const file = String.fromCharCode('a'.charCodeAt(0) + x);
 
-    // Inverse of chessCoordinatesToMatrixIndex, which counts rows off boardFiles.
-    // Both orientation branches were identical, and using boardRanks here put every
-    // rank off by the difference whenever a board isn't square.
     const rank = boardFiles - y;
 
     return `${file}${rank}`;
@@ -1192,8 +1223,6 @@ function isPawnPromotion(bestMove) {
     if(typeof piece !== 'string' || piece.toLowerCase() !== 'p')
         return false;
 
-    // Read the rank through the same helper the rest of the script uses, so rank 10
-    // (encoded as ':') doesn't get truncated to 1 by taking a single character
     const endingRow = chessCoordinatesToIndex(fenCoordTo)[1] + 1;
 
     // Check if the pawn reaches the promotion row
@@ -1469,403 +1498,27 @@ function getPieceAmount() {
     return getPieceElem(true)?.length ?? 0;
 }
 
-class AutomaticMove {
-    constructor(profile, fenMoveArr, isLegit, callback) {
-        this.id = getUniqueID();
-
-        // activeAutomoves is an external variable, not a child of AutomaticMove
-        activeAutomoves.push({ 'id': this.id, 'move': this });
-
-        this.profile = profile;
-        this.fenMoveArr = fenMoveArr;
-        this.isLegit = isLegit;
-
-        this.active = true;
-        this.isPromotingPawn = false;
-
-        this.onFinished = function(...args) {
-            activeAutomoves.filter(x => x.id !== this.id); // remove the move from the active automove list
-
-            this.active = false;
-
-            callback(...args);
-        };
-
-        this.moveDomCoords = fenCoordArrToDomCoord(fenMoveArr);
-        this.isPromotion = isPawnPromotion(fenMoveArr);
-
-        if(this.isLegit) {
-            const legitModeType = getConfigValue(configKeys.legitModeType, this.profile) ?? 'casual';
-
-            const pieceRanges = [
-                { minPieces: 30, maxPieces: Infinity }, // Opening (60+ pieces)
-                { minPieces: 23, maxPieces: 29 },       // Early Middlegame (48 to 64 pieces)
-                { minPieces: 16, maxPieces: 22 },       // Mid Middlegame (32 to 48 pieces)
-                { minPieces: 10, maxPieces: 15 },       // Late Middlegame (16 to 32 pieces)
-                { minPieces: 6, maxPieces: 9 },         // Endgame (8 to 16 pieces)
-                { minPieces: 3, maxPieces: 5 },         // Very Endgame (2 to 8 pieces)
-                { minPieces: 1, maxPieces: 2 },         // Extremely Few Pieces (1 piece)
-            ];
-
-            const timeRanges = {
-                beginner: [
-                    [2000, 4000],
-                    [3000, 15000],
-                    [5000, 25000],
-                    [4000, 30000],
-                    [3000, 15000],
-                    [2000, 10000],
-                    [1000, 4000],
-                ],
-                casual: [
-                    [900, 3000],    // Opening
-                    [1000, 15000],  // Early Middlegame
-                    [3000, 20000],  // Mid Middlegame
-                    [2000, 13000],  // Late Middlegame
-                    [1500, 10000],  // Endgame
-                    [1000, 9000],   // Very Endgame
-                    [500, 3000],    // Extremely Few Pieces
-                ],
-                intermediate: [
-                    [750, 2000],
-                    [1000, 10000],
-                    [2000, 15000],
-                    [1500, 12000],
-                    [1000, 8000],
-                    [750, 7000],
-                    [500, 2000],
-                ],
-                advanced: [
-                    [500, 1500],
-                    [1000, 8000],
-                    [750, 8000],
-                    [750, 12000],
-                    [750, 5000],
-                    [750, 3000],
-                    [500, 1200],
-                ],
-                master: [
-                    [333, 999],
-                    [400, 2000],
-                    [400, 3000],
-                    [400, 2500],
-                    [400, 2000],
-                    [400, 1500],
-                    [333, 750],
-                ],
-                professional: [
-                    [333, 666],
-                    [333, 666],
-                    [333, 1000],
-                    [333, 1500],
-                    [333, 1000],
-                    [333, 666],
-                    [333, 666],
-                ],
-                god: [
-                    [50, 333],
-                    [50, 233],
-                    [50, 300],
-                    [50, 250],
-                    [50, 200],
-                    [50, 150],
-                    [50, 100],
-                ]
-            };
-
-            this.timeRanges = pieceRanges.map((range, index) => ({
-                ...range,
-                timeRange: timeRanges[legitModeType][index],
-            }));
-
-            this.shouldHesitate = this.isLegit && Math.random() < 0.15;
-            this.shouldHesitateTwice = this.isLegit && Math.random() < 0.25;
-            this.hesitationTypeOne = this.isLegit && Math.random() < 0.35;
-
-            const legitTotalMoveTime = this.calculateMoveTime(getPieceAmount());
-            const elapsedMoveTime = (Date.now() - lastMoveRequestTime); // How long did it take for the engine to calculate the move
-            const remainingTime = Math.max(legitTotalMoveTime - elapsedMoveTime, 500);
-
-            const delays = this.generateDelaysForDesiredTime(remainingTime);
-
-            for(const key of Object.keys(delays)) {
-                this[key] = delays[key];
-            }
-        }
-
-        this.start();
-    }
-
-    generateDelaysForDesiredTime(desiredTotalTime) {
-        // Fixed minimum values
-        const PROMOTION_DELAY = this.getRandomIntegerBetween(1000, 1111); // just can't be done very fast for some reason at least on Chess.com
-
-        if(desiredTotalTime > 6000) {
-            const timelines = [
-                { move: .4, to: .2, hesitation: .15, hesitationResolve: .15, secondHesitationResolve: .15 },
-                { move: .1, to: .3, hesitation: .25, hesitationResolve: .15, secondHesitationResolve: .2 },
-                { move: .2, to: .25, hesitation: .2, hesitationResolve: .2, secondHesitationResolve: .15 }
-            ];
-
-            const timeline = timelines[Math.floor(Math.random() * timelines.length)];
-
-            return {
-                promotionDelay: PROMOTION_DELAY,
-                moveDelay: desiredTotalTime * timeline.move,
-                toSquareSelectDelay: desiredTotalTime * timeline.to,
-                hesitationDelay: desiredTotalTime * timeline.hesitation,
-                hesitationResolveDelay: desiredTotalTime * timeline.hesitationResolve,
-                secondHesitationResolveDelay: desiredTotalTime * timeline.secondHesitationResolve
-            };
-        }
-        // There is time for one hesitation
-        if(desiredTotalTime > 3000) {
-            const timelines = [
-                { move: .3, to: .2, hesitation: .25, hesitationResolve: .25 },
-                { move: .1, to: .3, hesitation: .45, hesitationResolve: .15 },
-                { move: .2, to: .25, hesitation: .2, hesitationResolve: .35 }
-            ];
-
-            const timeline = timelines[Math.floor(Math.random() * timelines.length)];
-
-            return {
-                promotionDelay: PROMOTION_DELAY,
-                moveDelay: desiredTotalTime * timeline.move,
-                toSquareSelectDelay: desiredTotalTime * timeline.to,
-                hesitationDelay: desiredTotalTime * timeline.hesitation,
-                hesitationResolveDelay: desiredTotalTime * timeline.hesitationResolve,
-                secondHesitationResolveDelay: -1
-            };
-        }
-        // There is not enough time to hesitate
-        else {
-            const timelines = [
-                { move: .9, to: .1 },
-                { move: .45, to: .55 },
-                { move: .6, to: .4 },
-                { move: .4, to: .6 },
-                { move: .1, to: .9 }
-            ];
-
-            const timeline = timelines[Math.floor(Math.random() * timelines.length)];
-
-            return {
-                promotionDelay: PROMOTION_DELAY,
-                moveDelay: desiredTotalTime * timeline.move,
-                toSquareSelectDelay: desiredTotalTime * timeline.to,
-                hesitationDelay: -1, hesitationResolveDelay: -1, secondHesitationResolveDelay: -1
-            };
-        }
-    }
-
-    calculateMoveTime(pieceCount) {
-        for(let range of this.timeRanges) {
-            if(pieceCount >= range.minPieces && pieceCount <= range.maxPieces) {
-                return this.getRandomIntegerBetween(range.timeRange[0], range.timeRange[1]);
-            }
-        }
-
-        return 500;
-    }
-
-    getRandomIntegerBetween(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    getRandomIntegerNearAverage(min, max) {
-        const mid = (min + max) / 2;
-        const range = (max - min) / 2;
-
-        let value = Math.floor(mid + (Math.random() - 0.5) * range * 1.5);
-
-        return Math.max(min, Math.min(max, value));
-    }
-
-    delay(ms) {
-        return this.active ? new Promise(resolve => setTimeout(resolve, ms)) : true;
-    }
-
-    async triggerPieceClick(input) {
-        const parentExists = activeAutomoves.find(x => x.move === this) ? true : false;
-
-        if(!parentExists) {
-            return;
-        }
-
-        let clientX, clientY;
-
-        if(input instanceof Element) {
-            const rect = input.getBoundingClientRect();
-            clientX = rect.left + rect.width / 2;
-            clientY = rect.top + rect.height / 2;
-        } else if (typeof input === 'object') {
-            clientX = input[0];
-            clientY = input[1];
-        } else {
-            return;
-        }
-
-        const xDivider = Math.random() < 0.85 ? 4 : Math.random() < 0.15 ? 3 : 2;
-        const yDivider = Math.random() < 0.65 ? 3 : Math.random() < 0.35 ? 2 : 4;
-
-        const randomVariationX = (lastPieceSize?.width - 4) / xDivider;
-        const randomVariationY = (lastPieceSize?.height - 4) / yDivider;
-
-        const randomOffsetX = (Math.random() - 0.5) * 2 * randomVariationX;
-        const randomOffsetY = (Math.pow(Math.random(), 0.5) - 0.5) * 2 * randomVariationY;
-
-        const randomizedX = clientX + randomOffsetX;
-        const randomizedY = clientY + randomOffsetY;
-
-        const pointerEventOptions = {
-            bubbles: true,
-            cancelable: true,
-            clientX: randomizedX,
-            clientY: randomizedY,
-        };
-
-        const elementToTrigger = (input instanceof Element) ? input : document.elementFromPoint(clientX, clientY);
-
-        if(elementToTrigger) {
-            switch(domain) {
-                case 'chess.com':
-                    elementToTrigger.dispatchEvent(new PointerEvent('pointerdown', pointerEventOptions));
-
-                    if(this.isLegit) await this.delay(this.getRandomIntegerNearAverage(35, 125));
-
-                    elementToTrigger.dispatchEvent(new PointerEvent('pointerup', pointerEventOptions));
-
-                    break;
-                case 'lichess.org':
-                    elementToTrigger.dispatchEvent(new MouseEvent('mousedown', pointerEventOptions));
-
-                    if(this.isLegit) await this.delay(this.getRandomIntegerNearAverage(35, 125));
-
-                    elementToTrigger.dispatchEvent(new MouseEvent('mouseup', pointerEventOptions));
-
-                    break;
-                case 'worldchess.com':
-                    elementToTrigger.dispatchEvent(new MouseEvent('mousedown', pointerEventOptions));
-
-                    if(this.isLegit) await this.delay(this.getRandomIntegerNearAverage(35, 125));
-
-                    elementToTrigger.dispatchEvent(new MouseEvent('mouseup', pointerEventOptions));
-
-                    break;
-            }
-        }
-
-        if(debugModeActivated) {
-            const dot = document.createElement('div');
-                    dot.style.position = 'absolute';
-                    dot.style.width = '7px';
-                    dot.style.height = '7px';
-                    dot.style.borderRadius = '50%';
-                    dot.style.backgroundColor = 'lime';
-                    dot.style.left = `${randomizedX - 2.5}px`;
-                    dot.style.top = `${randomizedY - 2.5}px`;
-
-            const container = document.createElement('div');
-                    container.style.position = 'absolute';
-                    container.style.width = `${Math.round(randomVariationX * 2)}px`;
-                    container.style.height = `${Math.round(randomVariationY * 2)}px`;
-                    container.style.border = '2px dashed green';
-                    container.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-                    container.style.left = `${clientX - randomVariationX}px`;
-                    container.style.top = `${clientY - randomVariationY}px`;
-
-            document.body.appendChild(container);
-            document.body.appendChild(dot);
-
-            setTimeout(() => {
-                dot.remove();
-                container.remove();
-            }, 1000);
-        }
-    }
-
-    click(domCoord) {
-        if(this.active)
-            this.triggerPieceClick(domCoord);
-    }
-
-    async hesitate() {
-        const hesitationPieceDomCoord = getRandomOwnPieceDomCoord(this.fenMoveArr[0], getBoardMatrix());
-
-        if(hesitationPieceDomCoord) {
-            if(this.hesitationTypeOne) {
-                this.click(this.moveDomCoords[0]);
-                await this.delay(this.hesitationDelay);
-            }
-
-            this.click(hesitationPieceDomCoord);
-
-            await this.delay(this.hesitationResolveDelay);
-
-            if(this.shouldHesitateTwice && this.secondHesitationResolveDelay !== -1) {
-                const secondHesitationPieceDomCoord = getRandomOwnPieceDomCoord(this.fenMoveArr[0], getBoardMatrix());
-                this.click(secondHesitationPieceDomCoord);
-                await this.delay(this.secondHesitationResolveDelay);
-            }
-        }
-
-        this.finishMove(this.toSquareSelectDelay, this.promotionDelay);
-    }
-
-
-    async finishMove(delay01, delay02) {
-        this.click(this.moveDomCoords[0]);
-
-        await this.delay(delay01);
-
-        this.click(this.moveDomCoords[1]);
-
-        // Handle promotion click if necessary
-        if(this.isPromotion) {
-            this.isPromotingPawn = true;
-
-            await this.delay(delay02);
-
-            this.click(this.moveDomCoords[1]);
-
-            this.isPromotingPawn = false;
-        }
-
-        this.onFinished(true);
-    }
-
-    async playLegit() {
-        await this.delay(this.moveDelay);
-
-        if(this.shouldHesitate && this.hesitationDelay !== -1)
-            this.hesitate();
-        else
-            this.finishMove(this.toSquareSelectDelay, this.promotionDelay);
-    }
-
-    async start() {
-        if(this.isLegit) {
-            this.playLegit();
-        } else {
-            this.finishMove(5, 1111);
-        }
-    }
-
-    async stop() {
-        if(this.isPromotingPawn) {
-            // Attempt to promote the pawn before closing
-            this.click(this.moveDomCoords[1]);
-        }
-
-        this.onFinished(false);
-    }
-}
-
 async function makeMove(profile, fenMoveArr, isLegit) {
-    const move = new AutomaticMove(profile, fenMoveArr, isLegit, e => {
+    const move = new AutomaticMove({
+        profile,
+        fenMoveArr,
+        isLegit,
+        pieceAmount: getPieceAmount(),
+        moveDomCoords: fenCoordArrToDomCoord(fenMoveArr),
+        isPromotion: isPawnPromotion(fenMoveArr),
+        legitModeType: getConfigValue(configKeys.legitModeType, profile),
+        debugModeActivated: debugModeActivated,
+        getRandomOwnPieceDomCoord: getRandomOwnPieceDomCoord,
+        lastPieceSize: lastPieceSize,
+        lastMoveRequestTime: lastMoveRequestTime,
+        boardMatrix: getBoardMatrix(),
+        domain: domain
+    }, e => {
         // This is ran when the move finished
 
-        if(debugModeActivated) console.warn('Move', fenMoveArr, move.id, 'finished', 'for profile:', profile);
+        if(debugModeActivated) {
+            console.warn('Move', fenMoveArr, move.id, 'finished', 'for profile:', profile);
+        }
     });
 }
 
@@ -1955,8 +1608,6 @@ function getCanvasPixelColor(canvas, [xPercentage, yPercentage], debug) {
         clonedCtx.fill();
 
         const dataURL = clonedCanvas.toDataURL();
-
-        //console.log(canvas, pixel, dataURL);
     }
 
     return brightness < 128 ? 'b' : 'w';
@@ -1987,8 +1638,6 @@ function canvasHasPixelAt(canvas, [xPercentage, yPercentage], debug) {
         clonedCtx.fill();
 
         const dataURL = clonedCanvas.toDataURL();
-
-        //console.log(canvas, pixel, dataURL);
     }
 
     return pixel[3] !== 0;
@@ -2113,13 +1762,9 @@ function getBoardMatrix() {
     if(isValidPieceElemsArray) {
         pieceElems.forEach(pieceElem => {
             try {
-                // These two read the site's DOM and are the ones that actually throw,
-                // so they belong inside the guard
                 const pieceFenCode = getPieceElemFen(pieceElem);
                 const pieceCoordsArr = getPieceElemCoords(pieceElem);
 
-                // An unrecognised piece used to be written in as null, which joins to an
-                // empty string and silently makes the rank one square too narrow
                 if(typeof pieceFenCode !== 'string' || !pieceFenCode) return;
 
                 const [xIdx, yIdx] = pieceCoordsArr;
@@ -2140,120 +1785,9 @@ function getBoardPiece(fenCoord, boardMatrix) {
     const [boardRanks, boardFiles] = getBoardDimensions();
     const indexArr = chessCoordinatesToIndex(fenCoord);
 
-    // Callers that already hold a matrix pass it in, otherwise getRights alone
-    // rebuilds the whole board six times per FEN
     const matrix = boardMatrix ?? getBoardMatrix();
 
     return matrix?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
-}
-
-// Works on 8x8 boards only
-function getRights(boardMatrix) {
-    const pieceAt = coord => getBoardPiece(coord, boardMatrix);
-
-    // Placement tells us a right is definitely gone, never that it still exists:
-    // Rh1-g1-h1 puts the rook back but the right is spent. So once a right drops
-    // out of the placement check we remember it and never hand it back.
-    let rights = '';
-
-    const e1 = pieceAt('e1'), h1 = pieceAt('h1'), a1 = pieceAt('a1');
-    const e8 = pieceAt('e8'), h8 = pieceAt('h8'), a8 = pieceAt('a8');
-
-    if(e1 === 'K' && h1 === 'R') rights += 'K';
-    if(e1 === 'K' && a1 === 'R') rights += 'Q';
-    if(e8 === 'k' && h8 === 'r') rights += 'k';
-    if(e8 === 'k' && a8 === 'r') rights += 'q';
-
-    // Only trust the placement once both kings are on the board. A half-rendered board
-    // would otherwise burn every right permanently.
-    const flat = (boardMatrix ?? []).flat();
-    const boardLooksReady = flat.includes('K') && flat.includes('k');
-
-    if(boardLooksReady) {
-        for(const right of ['K', 'Q', 'k', 'q']) {
-            if(!rights.includes(right)) lostCastlingRights.add(right);
-        }
-    }
-
-    const finalRights = [...rights].filter(right => !lostCastlingRights.has(right)).join('');
-
-    return finalRights || '-';
-}
-
-// A double pawn push is the only thing that creates an en passant target, and we can
-// spot it by diffing the previous board against the current one.
-function getEnPassantTarget(previousBasicFen, currentBasicFen) {
-    if(!previousBasicFen || !currentBasicFen) return '-';
-
-    const toRows = fen => fen.split('/')
-        .map(row => [...(row.match(/\d+|\D/g) ?? [])]
-            .flatMap(token => isNaN(token) ? [token] : Array(Number(token)).fill('')));
-
-    const before = toRows(previousBasicFen);
-    const after = toRows(currentBasicFen);
-
-    if(before.length !== after.length) return '-';
-
-    const rowCount = before.length;
-
-    for(let x = 0; x < (before[0]?.length ?? 0); x++) {
-        for(let y = 0; y < rowCount; y++) {
-            const pawn = before[y]?.[x];
-
-            if(pawn !== 'P' && pawn !== 'p') continue;
-            if(after[y]?.[x] === pawn) continue;
-
-            const step = pawn === 'P' ? -2 : 2; // white moves up the matrix, black down
-            const landing = y + step;
-
-            if(after[landing]?.[x] !== pawn) continue;
-            if(before[landing]?.[x] === pawn) continue;
-
-            const skippedRank = rowCount - (y + step / 2);
-
-            return `${String.fromCharCode(97 + x)}${skippedRank}`;
-        }
-    }
-
-    return '-';
-}
-
-function updateFenCounters(previousFullFen, currentBasicFen, turn) {
-    const previousBasicFen = previousFullFen?.split(' ')?.[0];
-
-    if(!previousBasicFen) return;
-
-    const expand = fen => fen.replace(/\d+/g, d => ' '.repeat(Number(d))).split('/').join('');
-
-    const before = expand(previousBasicFen);
-    const after = expand(currentBasicFen);
-
-    const captured = countTotalPieces(currentBasicFen) < countTotalPieces(previousBasicFen);
-
-    let pawnMoved = false;
-
-    if(before.length === after.length) {
-        for(let i = 0; i < before.length; i++) {
-            if(before[i] === after[i]) continue;
-
-            if('Pp'.includes(before[i]) || 'Pp'.includes(after[i])) {
-                pawnMoved = true;
-                break;
-            }
-        }
-    }
-
-    halfmoveClock = (captured || pawnMoved) ? 0 : halfmoveClock + 1;
-
-    // A full move completes once it swings back around to white
-    if(turn === 'w') fullmoveNumber++;
-}
-
-function resetFenState() {
-    lostCastlingRights = new Set();
-    enPassantTarget = '-';
-    halfmoveClock = 0;
-    fullmoveNumber = 1;
 }
 
 function getBasicFen(boardMatrix) {
@@ -2263,8 +1797,6 @@ function getBasicFen(boardMatrix) {
 }
 
 function getFen(onlyBasic, turn) {
-    // Read the board once and reuse it, so the placement the rights are derived from
-    // is guaranteed to be the same position we're describing
     const boardMatrix = getBoardMatrix();
     const basicFen = getBasicFen(boardMatrix);
 
@@ -2272,32 +1804,23 @@ function getFen(onlyBasic, turn) {
         return basicFen;
     }
 
-    const previousBasicFen = lastCalculatedFullFen?.split(' ')?.[0];
-
-    // This field is whose turn it is, not which way the board is facing. Those are
-    // the same thing only when the player happens to be on move.
-    const sideToMove = turn || lastTurn || getBoardOrientation();
-
-    if(previousBasicFen && previousBasicFen !== basicFen) {
-        enPassantTarget = getEnPassantTarget(previousBasicFen, basicFen);
-        updateFenCounters(lastCalculatedFullFen, basicFen, sideToMove);
-    }
+    const sideToMove = turn || gameState.turn || getBoardOrientation(); // whose turn it is
 
     // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
-    return `${basicFen} ${sideToMove} ${getRights(boardMatrix)} ${enPassantTarget} ${halfmoveClock} ${fullmoveNumber}`;
+    return `${basicFen} ${sideToMove} ${gameState.castlingRights} ${gameState.enPassantTarget} ${gameState.halfmoveClock} ${gameState.fullmoveNumber}`;
 }
 
-function resetCachedValues() {
+function resetStoredMatchVariables() {
     chesscomVariantPlayerColorsTable = null;
+    gameStateHistory = [];
 
-    resetFenState();
+    gameState = createNewGameState();
 }
 
-function countTotalPieces(fen) {
+function countTotalPieces(basicFen) {
     let pieceCount = 0;
-    const position = fen.split(' ')[0];
 
-    for(let char of position) {
+    for(const char of basicFen) {
         if(/[rnbqkpRNBQKP]/.test(char)) {
             pieceCount++;
         }
@@ -2306,11 +1829,11 @@ function countTotalPieces(fen) {
     return pieceCount;
 }
 
-function getPieceChangeAmount(lastFen, newFen) {
-    if(!lastFen || !newFen) return 0;
+function getPieceChangeAmount(lastBasicFen, newBasicFen) {
+    if(!lastBasicFen || !newBasicFen) return 0;
 
-    const lastPieceCount = countTotalPieces(lastFen);
-    const newPieceCount = countTotalPieces(newFen);
+    const lastPieceCount = countTotalPieces(lastBasicFen);
+    const newPieceCount = countTotalPieces(newBasicFen);
 
     // (need to implement fix for variants which may add pieces legally)
     const countChange = newPieceCount - lastPieceCount;
@@ -2326,107 +1849,464 @@ function getPieceChangeAmount(lastFen, newFen) {
     return countChange;
 }
 
-function getBoardSquareChangeAmount(lastFen, newFen) {
-    if(!lastFen || !newFen) return 0;
+function fenToBoard(basicFen) {
+    const board = [];
 
-    // Expand digit runs, not single digits, otherwise a rank holding "10" empty squares
-    // becomes 1 character and the two boards go out of sync from that rank onwards
-    const expand = fen => fen.split(' ')[0].replace(/\d+/g, d => ' '.repeat(Number(d))).split('/').join('');
+    for(const row of basicFen.split('/')) {
+        const boardRow = [];
 
-    let board1 = expand(lastFen);
-    let board2 = expand(newFen);
+        for(const char of row) {
+            if(isNaN(char)) {
+                boardRow.push(char);
+            } else {
+                boardRow.push(...Array(Number(char)).fill(''));
+            }
+        }
 
-    let changedFrom = [];
-    let diff = 0;
+        board.push(boardRow);
+    }
 
-    for(let i = 0; i < board1.length; i++) {
-        if(board1[i] !== board2[i]) {
-            if(board1[i]?.trim()?.length > 0) changedFrom.push(board1[i]?.toLowerCase());
+    return board;
+}
 
-            diff += 1;
+function getBoardChange(lastBasicFen, newBasicFen) {
+    if(!lastBasicFen || !newBasicFen) {
+        return {
+            changedSquaresAmount: 0,
+            movedPieces: [],
+            from: null,
+            to: null,
+            movedPiece: null,
+            capturedPiece: null,
+            capturedSquare: null
+        };
+    }
+
+    const lastBoard = fenToBoard(lastBasicFen);
+    const newBoard = fenToBoard(newBasicFen);
+
+    const rows = newBoard.length;
+    const cols = newBoard[0]?.length ?? 0;
+
+    const movedPieces = [];
+    const removed = [];
+    const added = [];
+
+    for(let i = 0; i < rows; i++) {
+        for(let j = 0; j < cols; j++) {
+            const before = lastBoard[i]?.[j] ?? '';
+            const after = newBoard[i]?.[j] ?? '';
+
+            if(before === after) continue;
+
+            const square =
+                `${String.fromCharCode(97 + j)}${rows - i}`;
+
+            if(before !== '') {
+                movedPieces.push(before);
+
+                removed.push({
+                    square,
+                    piece: before
+                });
+            }
+
+            if(after !== '') {
+                added.push({
+                    square,
+                    piece: after
+                });
+            }
         }
     }
 
-    /* Possible "diff" value explanations,
-        (diff = 0) -> no changes, same board layout
-        (diff = 1) -> only one tile abruptly changed, shouldn't be possible
-        (diff = 2) -> a piece moved, maybe it ate another piece
-        (diff = 3) -> three tiles had changes, shouldn't be possible (NOTE: it's possible if the fen has skipped one turn...)
-        (diff > 3) -> a lot of tiles had changes, maybe a new game started, the change is significant so allowing it
-        (diff = 4) -> takeback or castling
+    const changedSquaresAmount =
+        removed.length + added.length;
+
+    let from = null;
+    let to = null;
+    let movedPiece = null;
+    let capturedPiece = null;
+    let capturedSquare = null;
+
+    /*
+        Castling:
+        two pieces disappear and two pieces appear.
+        The king uniquely identifies the actual move.
     */
+    if(removed.length === 2 && added.length === 2) {
+        const kingFrom =
+            removed.find(({ piece }) =>
+                piece.toLowerCase() === 'k'
+            );
 
-    return diff;
-}
+        const kingTo =
+            added.find(({ piece }) =>
+                piece.toLowerCase() === 'k'
+            );
 
-async function processBoardPosition(currentFullFen = getFen(), squareChangeAmount = 0) {
-    lastCalculatedFullFen = currentFullFen;
-    lastMoveRequestTime = Date.now();
-
-    clearVisuals(true);
-
-    boardUtils.setBoardDimensions(getBoardDimensions());
-    modLastEnteredSquare.squareFen = null;
-
-    if(!modListeners.length)
-        addMovesOnDemandListeners();
-
-    const didBoardOrientationChange = await checkBoardOrientationChange();
-
-    // Most likely a new match started
-    if(didBoardOrientationChange || squareChangeAmount > 5) {
-        resetCachedValues();
-
-        matchFirstSuggestionGiven = false;
-        lastTurn = getBoardOrientation();
-        instanceVars.turn.set(commLinkInstanceID, lastTurn);
-
-        CommLink.commands.newMatchStarted();
+        if(kingFrom && kingTo) {
+            from = kingFrom.square;
+            to = kingTo.square;
+            movedPiece = kingTo.piece;
+        }
     }
 
-    CommLink.commands.updateBoardFen(currentFullFen);
+    /*
+        Normal move, capture, en passant, or promotion:
+        the destination is the square where the moving piece appears.
+    */
+    if(!to && added.length === 1) {
+        const destination = added[0];
+
+        to = destination.square;
+        movedPiece = destination.piece;
+
+        /*
+            Find the removed piece of the same type and color.
+            This identifies the source without accidentally selecting
+            an unrelated rook, bishop, knight, etc.
+        */
+        const source = removed.find(({ piece, square }) =>
+            piece === movedPiece &&
+            square !== to
+        );
+
+        if(source) {
+            from = source.square;
+        }
+
+        /*
+            Promotion:
+            the pawn disappears from the source and a new piece appears
+            on the destination.
+        */
+        if(!from && movedPiece.toLowerCase() !== 'p') {
+            const pawnSource =
+                removed.find(({ piece }) =>
+                    piece.toLowerCase() === 'p'
+                );
+
+            if(pawnSource) {
+                from = pawnSource.square;
+            }
+        }
+    }
+
+    /*
+        A captured piece disappears from the destination square.
+    */
+    if(to) {
+        const capture = removed.find(({ square }) =>
+            square === to
+        );
+
+        if(capture) {
+            capturedPiece = capture.piece;
+            capturedSquare = capture.square;
+        }
+    }
+
+    /*
+        En passant:
+        the captured pawn disappears from a square other than the
+        destination.
+    */
+    if(
+        movedPiece?.toLowerCase() === 'p' &&
+        !capturedPiece &&
+        removed.length === 2 &&
+        added.length === 1
+    ) {
+        const capturedPawn = removed.find(({ piece, square }) =>
+            piece.toLowerCase() === 'p' &&
+            square !== from
+        );
+
+        if(capturedPawn) {
+            capturedPiece = capturedPawn.piece;
+            capturedSquare = capturedPawn.square;
+        }
+    }
+
+    return {
+        changedSquaresAmount,
+        movedPieces,
+        from,
+        to,
+        movedPiece,
+        capturedPiece,
+        capturedSquare
+    };
 }
 
 // This is called by observeNewMoves()
-async function determineBoardPositionValidity(turn) {
-    // Resolve the side to move before building the FEN, it used to be settled further
-    // down and the FEN was left carrying the board orientation instead
-    const resolvedTurn = (turn && lastTurn !== turn) ? turn : getBoardOrientation();
-
-    const currentFullFen = await getFen(false, resolvedTurn);
-    const fenChanged = currentFullFen?.split(' ', 1)?.[0] !== lastCalculatedFullFen?.split(' ', 1)?.[0]; // only compare the first part of the FENs to detect change
-
-    const pieceAmountChange = getPieceChangeAmount(lastCalculatedFullFen, currentFullFen);
-    const squareChangeAmount = getBoardSquareChangeAmount(lastCalculatedFullFen, currentFullFen);
+// Note: gameStateHistory[0].fen.full / gameStateHistory[0].fen.basic is the last FEN, from the previous board position.
+async function determineBoardPositionValidity(turn = getBoardOrientation()) {
     const pieceAmount = getPieceAmount(); // this depends on the current DOM, not from FEN.
 
     // A new board just appeared and is still loading, most likely a new match!
     if(pieceAmount === 0) {
-        lastCalculatedFullFen = null;
+        gameStateHistory = [];
 
         await wait(100);
 
-        return determineBoardPositionValidity(getBoardOrientation());
+        return determineBoardPositionValidity();
     }
+
+    const currentBasicFen = getFen(true);
+    const lastBasicFen = gameStateHistory[0]?.fen?.basic;
 
     // Do not continue if FEN did not change!
-    if(!fenChanged) return;
+    if(currentBasicFen === lastBasicFen) return;
 
-    if(turn) {
-        lastTurn = resolvedTurn;
-
-        instanceVars.turn.set(commLinkInstanceID, resolvedTurn);
-    }
+    const pieceAmountChange = getPieceChangeAmount(lastBasicFen, currentBasicFen);
+    const boardChanges = getBoardChange(lastBasicFen, currentBasicFen);
 
     if(pieceAmountChange === -1) {
         // Do not continue if a piece just disappeared, this is not possible legally!
         // (This happens sometimes because the mutationObserver detects DOM changes so fast)
-        if(squareChangeAmount === 1) {
+        if(boardChanges.changedSquaresAmount === 1) { // changed squares amount
             return;
         }
     }
 
-    processBoardPosition(currentFullFen, squareChangeAmount);
+    updateGameState(turn, currentBasicFen, boardChanges, pieceAmountChange);
+}
+
+function updateGameState(turn, basicFenToProcess, boardChanges, pieceAmountChange) {
+    const secondPreviousState = gameStateHistory[1];
+    const thirdPreviousState = gameStateHistory[2];
+    const secondPreviousBasicFen = gameStateHistory[1]?.fen?.basic;
+    const thirdPreviousBasicFen = gameStateHistory[2]?.fen?.basic;
+
+    const isStandardChessBoard =
+        lastBoardRanks === 8 &&
+        lastBoardFiles === 8;
+
+    const movedPiece =
+        boardChanges?.movedPiece;
+
+    const isCapture =
+        pieceAmountChange === -1;
+
+    const isPawnMove =
+        movedPiece?.toLowerCase() === 'p';
+
+    const isCastling =
+        isStandardChessBoard &&
+        boardChanges?.changedSquaresAmount === 4 &&
+        movedPiece?.toLowerCase() === 'k' &&
+        boardChanges.movedPieces.some(piece =>
+            piece.toLowerCase() === 'r'
+        );
+
+    const castlingSide =
+        isCastling
+            ? movedPiece === 'K'
+                ? 'white'
+                : 'black'
+            : null;
+
+    const isDoublePawnPush =
+        isPawnMove &&
+        boardChanges.from &&
+        boardChanges.to &&
+        Math.abs(
+            Number(boardChanges.from[1]) -
+            Number(boardChanges.to[1])
+        ) === 2;
+
+    const enPassantTarget =
+        isDoublePawnPush
+            ? `${boardChanges.from[0]}${
+                (
+                    Number(boardChanges.from[1]) +
+                    Number(boardChanges.to[1])
+                ) / 2
+            }`
+            : '-';
+
+    const isWhiteKingMove =
+        movedPiece === 'K';
+
+    const isBlackKingMove =
+        movedPiece === 'k';
+
+    const isWhiteKingsideRookMove =
+        movedPiece === 'R' &&
+        boardChanges.from === 'h1';
+
+    const isWhiteQueensideRookMove =
+        movedPiece === 'R' &&
+        boardChanges.from === 'a1';
+
+    const isBlackKingsideRookMove =
+        movedPiece === 'r' &&
+        boardChanges.from === 'h8';
+
+    const isBlackQueensideRookMove =
+        movedPiece === 'r' &&
+        boardChanges.from === 'a8';
+
+    const isWhiteKingsideRookCapture =
+        boardChanges.capturedPiece === 'R' &&
+        boardChanges.capturedSquare === 'h1';
+
+    const isWhiteQueensideRookCapture =
+        boardChanges.capturedPiece === 'R' &&
+        boardChanges.capturedSquare === 'a1';
+
+    const isBlackKingsideRookCapture =
+        boardChanges.capturedPiece === 'r' &&
+        boardChanges.capturedSquare === 'h8';
+
+    const isBlackQueensideRookCapture =
+        boardChanges.capturedPiece === 'r' &&
+        boardChanges.capturedSquare === 'a8';
+
+    const halfmoveClock =
+        isCapture || isPawnMove
+            ? 0
+            : gameState.halfmoveClock + 1;
+
+    const plyCount =
+        gameState.plyCount + 1;
+
+    const fullmoveNumber =
+        Math.floor((plyCount / 2) + 1);
+
+    if(isWhiteKingMove) {
+        gameState.lostCastlingRights.add('K');
+        gameState.lostCastlingRights.add('Q');
+    }
+
+    if(isBlackKingMove) {
+        gameState.lostCastlingRights.add('k');
+        gameState.lostCastlingRights.add('q');
+    }
+
+    if(isWhiteKingsideRookMove || isWhiteKingsideRookCapture) {
+        gameState.lostCastlingRights.add('K');
+    }
+
+    if(isWhiteQueensideRookMove || isWhiteQueensideRookCapture) {
+        gameState.lostCastlingRights.add('Q');
+    }
+
+    if(isBlackKingsideRookMove || isBlackKingsideRookCapture) {
+        gameState.lostCastlingRights.add('k');
+    }
+
+    if(isBlackQueensideRookMove || isBlackQueensideRookCapture) {
+        gameState.lostCastlingRights.add('q');
+    }
+
+    const castlingRights =
+        isStandardChessBoard
+            ? ['K', 'Q', 'k', 'q']
+                .filter(right =>
+                    !gameState.lostCastlingRights.has(right)
+                )
+                .join('') || '-'
+            : '-';
+
+    const isOneMoveReversed =
+        boardChanges?.from === gameStateHistory[0]?.boardChanges?.to &&
+        boardChanges?.to === gameStateHistory[0]?.boardChanges?.from &&
+        boardChanges?.movedPiece === gameStateHistory[0]?.boardChanges?.movedPiece;
+
+    const isTakeback =
+        !lastIsTakebackState &&
+        (
+            (
+                basicFenToProcess === secondPreviousBasicFen &&
+                isOneMoveReversed
+            ) ||
+            (
+                basicFenToProcess === thirdPreviousBasicFen &&
+                boardChanges?.changedSquaresAmount === 4 &&
+                boardChanges?.from == null &&
+                boardChanges?.to == null &&
+                boardChanges?.movedPiece == null
+            )
+        );
+
+    const previousStateIndex = isTakeback
+        ? basicFenToProcess === secondPreviousBasicFen
+            ? 1
+            : 2
+        : null;
+
+    const previousState = isTakeback
+        ? structuredClone(gameStateHistory[previousStateIndex])
+        : null;
+
+    lastIsTakebackState = isTakeback;
+
+    Object.assign(
+        gameState,
+        previousState || {
+            turn,
+            pieceAmountChange,
+            boardChanges,
+            movedPiece,
+            enPassantTarget,
+            castlingRights,
+            isCapture,
+            isPawnMove,
+            isCastling,
+            castlingSide,
+            isTakeback,
+            halfmoveClock,
+            plyCount,
+            fullmoveNumber
+        }
+    );
+
+    if(previousStateIndex !== null) {
+        // Takeback detected, remove the states after the restored state.
+        gameStateHistory.splice(0, previousStateIndex);
+    }
+    else {
+        // State has been updated, create the full FEN.
+        const currentFullFen = getFen(false, gameState.turn);
+        const currentBasicFen = currentFullFen?.split(' ', 1)?.[0];
+
+        gameState.fen = { 'full': currentFullFen, 'basic': currentBasicFen };
+        gameStateHistory.unshift(structuredClone(gameState));
+    }
+
+    processBoardPosition(boardChanges.changedSquaresAmount);
+}
+
+async function processBoardPosition(squareChangeAmount = 0) {
+    clearVisuals(true);
+
+    const didBoardOrientationChange = await checkBoardOrientationChange();
+
+    lastMoveRequestTime = Date.now();
+    modLastEnteredSquare.squareFen = null;
+
+    if(BoardDrawer)
+        BoardDrawer.setBoardDimensions(getBoardDimensions());
+
+    if(!modListeners.length)
+        addMovesOnDemandListeners();
+    
+    // Most likely a new match started
+    if(didBoardOrientationChange || squareChangeAmount > 5) {
+        resetStoredMatchVariables();
+
+        matchFirstSuggestionGiven = false;
+        gameState.turn = getBoardOrientation();
+        instanceVars.turn.set(commLinkInstanceID, gameState.turn);
+
+        CommLink.commands.newMatchStarted();
+    } else if(gameState.turn)
+        instanceVars.turn.set(commLinkInstanceID, gameState.turn);
+
+    CommLink.commands.updateBoardFen(gameState.fen.full);
 }
 
 // This also updates the turn instanceVariable that the GUI uses to determine the turn!
@@ -2436,7 +2316,7 @@ function observeNewMoves() {
 
     dumbBoardObservingInterval = setInterval(() => {
         if(isUserMouseDown) return;
-        determineBoardPositionValidity(lastMutationObsProcessedTurn || getBoardOrientation());
+        determineBoardPositionValidity(lastMutationObsProcessedTurn);
     }, 250);
 
     boardObserver = new MutationObserver(mutationArr => {
@@ -2473,7 +2353,7 @@ async function checkBoardOrientationChange() {
 
         instanceVars.playerColor.set(commLinkInstanceID, boardOrientation);
 
-        boardUtils.setBoardOrientation(boardOrientation);
+        if(BoardDrawer) BoardDrawer.setOrientation(boardOrientation);
 
         await CommLink.commands.updateBoardOrientation(boardOrientation);
     }
@@ -3805,7 +3685,7 @@ async function start() {
             'window': window,
             'boardDimensions': getBoardDimensions(),
             'playerColor': getBoardOrientation(),
-            'zIndex': Math.floor(Math.random() * (99 - 10 + 1)) + 10,
+            'zIndex': Math.floor(Math.random() * 90) + 10,
             'prepend': true,
             'debugMode': debugModeActivated,
             'adjustSizeByDimensions': domain === 'chess.com' && pathname?.includes('/variants'),

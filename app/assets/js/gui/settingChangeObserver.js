@@ -155,6 +155,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             startPictureInPicture();
 
             break;
+        case 'alwaysMyTurn':
+            const inputValue = document.querySelector(`input[data-key="reverseSide"]`);
+
+            if(value) inputValue.removeAttribute('disabled');
+            else inputValue.setAttribute('disabled', 'true');
+
+            break;
         case 'enableAdvancedElo':
             if(!normalEloInput) return;
 

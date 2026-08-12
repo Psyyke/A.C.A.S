@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.3.5
+ - Version: 1.3.7
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -345,57 +345,57 @@ class UniversalBoardDrawer {
 
         switch(type) {
             case 'text':
-                const textElement = this.createTextOnSquare(square, config);
+                  const textElement = this.createTextOnSquare(square, config);
 
-                if(textElement) {
-                    this.addedShapes.push({ type, positions, config, 'element': textElement });
+                  if(textElement) {
+                      this.addedShapes.push({ type, positions, config, 'element': textElement });
 
-                    if(this.usePrepend) {
-                        this.boardContainerElem.prepend(textElement);
-                    } else {
-                        this.boardContainerElem.appendChild(textElement);
-                    }
+                      if(this.usePrepend) {
+                          this.boardContainerElem.prepend(textElement);
+                      } else {
+                          this.boardContainerElem.appendChild(textElement);
+                      }
 
-                    this.setTextPosition(square, textElement, config);
+                      this.setTextPosition(square, textElement, config);
 
-                    return textElement;
-                }
+                      return textElement;
+                  }
 
-                break;
+                  break;
 
             case 'rectangle':
-                const rectElement = this.createRectOnSquare(square, config);
+                  const rectElement = this.createRectOnSquare(square, config);
 
-                if(rectElement) {
-                    this.addedShapes.push({ type, positions, config, 'element': rectElement });
+                  if(rectElement) {
+                      this.addedShapes.push({ type, positions, config, 'element': rectElement });
 
-                    if(this.usePrepend) {
-                        this.boardContainerElem.prepend(rectElement);
-                    } else {
-                        this.boardContainerElem.appendChild(rectElement);
-                    }
+                      if(this.usePrepend) {
+                          this.boardContainerElem.prepend(rectElement);
+                      } else {
+                          this.boardContainerElem.appendChild(rectElement);
+                      }
 
-                    return rectElement;
-                }
+                      return rectElement;
+                  }
 
-                break;
+                  break;
 
             default:
-                const arrowElement = this.createArrowBetweenPositions(...positions, config);
+                  const arrowElement = this.createArrowBetweenPositions(...positions, config);
 
-                if(arrowElement) {
-                    this.addedShapes.push({ 'type': 'arrow', positions, config, 'element': arrowElement });
+                  if(arrowElement) {
+                      this.addedShapes.push({ 'type': 'arrow', positions, config, 'element': arrowElement });
 
-                    if(this.usePrepend) {
-                        this.boardContainerElem.prepend(arrowElement);
-                    } else {
-                        this.boardContainerElem.appendChild(arrowElement);
-                    }
+                      if(this.usePrepend) {
+                          this.boardContainerElem.prepend(arrowElement);
+                      } else {
+                          this.boardContainerElem.appendChild(arrowElement);
+                      }
 
-                    return arrowElement;
-                }
+                      return arrowElement;
+                  }
 
-                break;
+                  break;
         }
 
         return null;
@@ -444,8 +444,8 @@ class UniversalBoardDrawer {
         let boardWidth = boardRect.width,
             boardHeight = boardRect.height;
 
-        let boardPositionTop = boardRect.top - bodyRect.top,
-            boardPositionLeft = boardRect.left - (this.ignoreBodyRectLeft ? 0 : bodyRect.left);
+        let boardPositionTop = boardRect.top + (window?.scrollY || 0),
+              boardPositionLeft = boardRect.left - (this.ignoreBodyRectLeft ? 0 : bodyRect.left);
 
         if(this.adjustSizeByDimensions) {
 
