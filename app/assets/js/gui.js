@@ -154,8 +154,9 @@ async function updateUserscriptInfoText() {
     
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
-        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.2')) {
+        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.5')) {
             updateYourUserscriptElem.classList.remove('hidden');
+            toast.warning(TRANS_OBJ?.oldUserscriptWarning ?? 'You are using an outdated or incompatible version of A.C.A.S. Please update the userscript.', 10000);
         }
         
         userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
@@ -167,6 +168,47 @@ async function updateUserscriptInfoText() {
 function updateSabRequiringElems() {
     if(window?.SharedArrayBuffer)
         [...document.querySelectorAll('.requires-sab')].forEach(x => x.classList.remove('requires-sab'));
+}
+
+function initializePolyglotBookLoader() {
+    const fileInput = document.querySelector('#book-file');
+    const fileNameInput = document.querySelector('#book-file-name');
+
+    if(!fileInput || !fileNameInput) return;
+
+    fileNameInput.onclick = () => fileInput.click();
+    fileInput.onchange = async () => {
+        const file = fileInput.files?.[0];
+        if(!file) return;
+
+        const fileName = file.name;
+
+        fileNameInput.value = fileName;
+        fileNameInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        try {
+            await POLYGLOT_BOOK.saveToStorage(file);
+
+            const loadedBook = await POLYGLOT_BOOK.loadFromStorage(fileName);
+
+            if(!loadedBook) {
+                throw new Error('Failed to load the saved opening book back from storage.');
+            }
+
+            POLY_OPENING_BOOKS.set(
+                SETTING_FILTER_OBJ.profileID,
+                loadedBook
+            );
+
+            const openingBookAddedText = (TRANS_OBJ?.openingBookAdded ?? 'Added opening book: {fileName}')
+                .replace('{fileName}', fileName);
+
+            toast.create('success', '📚', openingBookAddedText, 2500);
+        } catch (error) {
+            console.error('Failed to save polyglot book:', error);
+            toast.error(TRANS_OBJ?.openingBookSaveFailed ?? 'Failed to save opening book to storage.', 5000);
+        }
+    };
 }
 
 export async function initGUI() {
@@ -215,6 +257,7 @@ export async function initGUI() {
 
     initializeFloatyButtons();
     initializeInputElems();
+    initializePolyglotBookLoader();
     initializeDropdowns();
 
     monitorInstances();

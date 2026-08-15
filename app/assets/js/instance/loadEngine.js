@@ -38,13 +38,10 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     }
 
     async function startGame(variant = 'chess') {
-        const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
-        const fen = currentFen || this.variantStartPosFen;
-
         await this.engineStartNewGame(variant, profileName);
         await WAIT_UNTIL_VAR(() => this.instanceReady);
 
-        this.calculateBestMoves(fen, { 'skipValidityChecks': true, 'specificProfileName': profileName });
+        this.Interface.updateBoardFen({ 'skipValidityChecks': true, 'specificProfileName': profileName });
     }
     
     function loadStockfish(folderName, fileName = folderName) {

@@ -10,7 +10,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
     if(!currentFen) return;
 
     const profiles = await GET_PROFILES();
-    let { skipValidityChecks, specificMovesObj, moveObj, specificProfileName } = config;
+    let { skipValidityChecks, specificMovesObj, specificProfileName } = config;
 
     const shouldCalculate = p => p.config.engineEnabled
         && (specificProfileName ? p.name === specificProfileName : true)
@@ -73,13 +73,11 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             case 'acas-fusion':
                 const calcDepth = this.pV[profileName].searchDepth || 100;
 
-                const moveHistory = this.moveHistory
-                    .slice(0, -1); // remove latest the move we are calculating right now
-                const historyString = GENERATE_HISTORY_STR(moveHistory, playerColor);
-
-                searchCommandStr = `go depth ${calcDepth}${specificMoves} history ${historyString}`;
-
-                updatePipData({ 'goalDepth': calcDepth });
+                console.error('This engine is not supported at the moment');
+                
+                //const historyString = GENERATE_HISTORY_STR(this.gameStateHistory.slice(0, -1));
+                //searchCommandStr = `go depth ${calcDepth}${specificMoves} history ${historyString}`;
+                //updatePipData({ 'goalDepth': calcDepth });
                 
                 break;
 

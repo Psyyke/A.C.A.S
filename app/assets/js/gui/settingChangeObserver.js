@@ -71,6 +71,8 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             break;
         case 'chessEngine':
             const eloInput = engineEloInput.querySelector('input[data-key="engineElo"]');
+            const oppMoveGuessInputContainer = document.querySelector('input[data-key="showOpponentMoveGuess"]')
+                ?.parentElement?.parentElement?.parentElement;
             const isMaiaEngine = value && value.includes('maia');
             const enginesWithoutAdvancedElo = ['maia2', 'maia3', 'fairy-stockfish-nnue-wasm'];
             const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
@@ -91,9 +93,11 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             if(isMaiaEngine) {
                 chess960Checkbox.classList.add('hidden');
                 enemyEloInputContainer.classList.remove('hidden');
+                oppMoveGuessInputContainer?.classList?.add('disabled');
             } else {
                 chess960Checkbox.classList.remove('hidden');
                 enemyEloInputContainer.classList.add('hidden');
+                oppMoveGuessInputContainer?.classList?.remove('disabled');
             }
 
             if(value === 'lc0') {

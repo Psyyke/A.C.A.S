@@ -97,9 +97,13 @@ export default async function setupEnvironment(startpos, dimensions) {
                         <div class="instance-additional-info"></div>
                     </div>
                     <div class="instance-domain" title="${TRANS_OBJ?.instanceDomain ?? 'Instance Domain'}"></div>
-                    <div class="instance-fen-container">
+                    <div class="instance-buttons">
                         <div class="instance-fen-btn acas-fancy-button">${TRANS_OBJ?.showFenBtn ?? 'Show FEN'}</div>
+                        <div class="instance-pgn-btn acas-fancy-button">${(TRANS_OBJ?.showFenBtn.replace('FEN', 'PGN')) ?? 'Show PGN'}</div>
+                    </div>
+                    <div class="instance-information">
                         <div class="instance-fen hidden" title="${TRANS_OBJ?.instanceFen ?? 'Instance Fen'}"></div>
+                        <div class="instance-pgn hidden" title="${TRANS_OBJ?.instancePgn ?? 'Instance PGN'}">1. (...)</div>
                     </div>
                 </div>
                 <div class="instance-misc">
@@ -113,6 +117,7 @@ export default async function setupEnvironment(startpos, dimensions) {
                 </div>
                 <div class="chessground-x"></div>
             </div>
+            <div class="instance-opening-container"><span></span></div>
             <div><div class="pseudoground-x"></div></div>
             `;
 
@@ -121,7 +126,9 @@ export default async function setupEnvironment(startpos, dimensions) {
         const instanceChessVariantElem = acasInstanceElem.querySelector('.instance-variant');
         const instanceDomainElem = acasInstanceElem.querySelector('.instance-domain');
         const instanceFenElem = acasInstanceElem.querySelector('.instance-fen');
+        const instancePgnElem = acasInstanceElem.querySelector('.instance-pgn');
         const showFenBtn = acasInstanceElem.querySelector('.instance-fen-btn');
+        const showPgnBtn = acasInstanceElem.querySelector('.instance-pgn-btn');
         const chessboardComponentsElem = acasInstanceElem.querySelector('.chessboard-components');
 
         showFenBtn.onclick = function() {
@@ -133,6 +140,18 @@ export default async function setupEnvironment(startpos, dimensions) {
                 showFenBtn.innerText = TRANS_OBJ?.showFenBtn ?? 'Show FEN';
             } else {
                 showFenBtn.innerText = TRANS_OBJ?.hideFenBtn ?? 'Hide FEN';
+            }
+        }
+
+        showPgnBtn.onclick = function() {
+            instancePgnElem.classList.toggle('hidden');
+
+            const didHide = [...instancePgnElem.classList].includes('hidden');
+
+            if(didHide) {
+                showPgnBtn.innerText = TRANS_OBJ?.showFenBtn.replace('FEN', 'PGN') ?? 'Show PGN';
+            } else {
+                showPgnBtn.innerText = TRANS_OBJ?.hideFenBtn.replace('FEN', 'PGN') ?? 'Hide PGN';
             }
         }
 

@@ -55,7 +55,8 @@
             instanceVars: {
                 playerColor: createInstanceVar('playerColor'),
                 turn: createInstanceVar('turn'),
-                fen: createInstanceVar('fen')
+                fen: createInstanceVar('fen'),
+                gameStateHistory: createInstanceVar('gameStateHistory')
             },
             // NON-ASYNC
             deleteValue: (key) => messageUserscript('USERSCRIPT_deleteValue', [key]),

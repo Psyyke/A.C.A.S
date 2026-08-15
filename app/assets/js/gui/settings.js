@@ -78,6 +78,26 @@ export async function resetSettings() {
 
         USERSCRIPT.setValue(gmConfigKey, { 'global': { 'chessEngineProfile': 'default' } });
 
+        try {
+            if('indexedDB' in window) {
+                const db = await POLYGLOT_BOOK.openDatabase();
+
+                await new Promise((resolve, reject) => {
+                    const transaction = db.transaction(POLYGLOT_BOOK.STORE_NAME, 'readwrite');
+                    const store = transaction.objectStore(POLYGLOT_BOOK.STORE_NAME);
+                    const request = store.clear();
+
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                    transaction.onerror = () => reject(transaction.error);
+                });
+            }
+        } catch (error) {
+            console.error('Failed to clear Polyglot opening books from storage:', error);
+        }
+
+        localStorage.removeItem('polyglotBookName');
+
         for(let i = localStorage.length - 1; i >= 0; i--) {
             const key = localStorage.key(i);
 

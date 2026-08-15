@@ -212,14 +212,16 @@ const dbValues = {
     AcasConfig: 'AcasConfig',
     playerColor: instanceID => 'playerColor' + tempValueIndicator + instanceID,
     turn: instanceID => 'turn' + tempValueIndicator + instanceID,
-    fen: instanceID => 'fen' + tempValueIndicator + instanceID
+    fen: instanceID => 'fen' + tempValueIndicator + instanceID,
+    gameStateHistory: instanceID => 'gameStateHistory' + tempValueIndicator + instanceID,
 };
-// Add them to /js/misc/userscriptBridge.js as well if you,
-// decide to add more variables here
+// Add them to /js/misc/userscriptBridge.js as well if you decide to add more variables here
+// Also make sure dbValues (above) have these instanceVars
 const instanceVars = {
     playerColor: createInstanceVariable('playerColor'),
     turn: createInstanceVariable('turn'),
-    fen: createInstanceVariable('fen')
+    fen: createInstanceVariable('fen'),
+    gameStateHistory: createInstanceVariable('gameStateHistory')
 };
 
 function exposeViaMessages() {
@@ -316,34 +318,49 @@ function getUniqueID() {
     )
 }
 
-function createNewGameState() {
+function getBoardChangesObjTemplate() {
+    return {
+            changedSquaresAmount: 0,
+            movedPieces: [],
+            removed: [],
+            added: [],
+            pieceAmountChange: 0,
+
+            from: null,
+            to: null,
+            movedPiece: null,
+            movedPieceColor: null,
+
+            capturedPiece: null,
+            capturedSquare: null,
+
+            isPromotion: false,
+            promotionPiece: null,
+            isEnPassant: false,
+
+            missedFen: null
+    };
+}
+
+function getGameStateObjTemplate() {
     return {
         fen: { 'full': null, 'basic': null },
         turn: null,
 
         pieceAmountChange: 0,
 
-        boardChanges: {
-            changedSquaresAmount: 0,
-            movedPieces: [],
-            from: null,
-            to: null,
-            movedPiece: null,
-            capturedPiece: null,
-            capturedSquare: null
-        },
+        boardChanges: getBoardChangesObjTemplate(),
 
         movedPiece: null,
 
         enPassantTarget: '-',
         castlingRights: 'KQkq',
-        lostCastlingRights: new Set(),
+        lostCastlingRights: [],
 
         isCapture: false,
         isPawnMove: false,
         isCastling: false,
         castlingSide: null,
-        isTakeback: false,
 
         halfmoveClock: -1,
         plyCount: -1,
@@ -374,8 +391,8 @@ const configKeys = Object.freeze([
     'engineNodes', 'chessFont', 'useChess960',
     'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
     'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
-    'secondaryArrowColorHex', 'opponentArrowColorHex', 'reverseSide',
-    'engineEnabled', 'autoMove', 'autoMoveLegit',
+    'secondaryArrowColorHex', 'opponentArrowColorHex', 'bookMoveColorHex',
+    'bookMoveOpacity', 'reverseSide', 'engineEnabled', 'autoMove', 'autoMoveLegit',
     'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType',
     'moveDisplayDelay', 'renderSquarePlayer', 'renderSquareEnemy',
     'renderSquareContested', 'renderSquareSafe', 'renderPiecePlayerCapture',
@@ -395,19 +412,26 @@ const pieceNameToFen = {
     'queen': 'q',
     'king': 'k'
 };
+const defaultPosBasicFens = [
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
+];
+
+const gameStateHistory = {
+    set: (val) => instanceVars.gameStateHistory.set(commLinkInstanceID, val || []),
+    get: () => instanceVars.gameStateHistory.get(commLinkInstanceID) || []
+};
 
 let BoardDrawer = null;
 let chessBoardElem = null;
 let chesscomVariantPlayerColorsTable = null;
 let activeGuiMoveMarkings = [];
+let activeBookMoveMarkings = [];
 let activeMetricRenders = [];
 let activeFeedback = [];
 let boardObserver = null;
 let dumbBoardObservingInterval = null;
 
 let lastMutationObservationDate = 0;
-let gameStateHistory = [];
-let lastIsTakebackState = false;
 let lastBoardRanks = null;
 let lastBoardFiles = null;
 let lastBoardSize = null;
@@ -416,8 +440,10 @@ let lastBoardMatrix = null;
 let lastBoardOrientation = null;
 let lastMoveRequestTime = 0;
 let lastMutationObsProcessedTurn = null;
+let lastAllowedFen = '';
+let lastRejectedFen = '';
 
-let gameState = createNewGameState();
+let gameState = getGameStateObjTemplate();
 
 let matchFirstSuggestionGiven = false;
 let isUserMouseDown = false;
@@ -512,6 +538,7 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 return getFen();
             case 'removeSiteMoveMarkings':
                 removeMarkingsFromBoard();
+                removeBookMovesFromBoard();
                 return true;
             case 'markMoveToSite':
                 const profile = packet.data?.[0]?.profile;
@@ -537,6 +564,9 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
 
                 matchFirstSuggestionGiven = true;
 
+                return true;
+            case 'markBookToSite':
+                addBookToBoard(packet.data);
                 return true;
             case 'renderMetricsToSite':
                 renderMetrics(packet.data);
@@ -734,6 +764,73 @@ function maybeAnnounceMarkingsToPage(moveMarkings) {
     }
 
     unsafeWindow.postMessage({ name: 'bestMoveArr', value: selectedMarking });
+}
+
+function addBookToBoard(bookMoves) {
+    if(!BoardDrawer || !Array.isArray(bookMoves) || !bookMoves.length) return;
+
+    const profiles = [...new Set(bookMoves.map(move => move?.profile).filter(Boolean))];
+
+    profiles.forEach(profile => removeBookMovesFromBoard(profile));
+
+    const moveGroups = bookMoves.reduce((map, move) => {
+        const profile = move?.profile;
+
+        if(!profile) return map;
+
+        map.set(profile, [...(map.get(profile) || []), move]);
+        return map;
+    }, new Map());
+
+    moveGroups.forEach((moves, profile) => {
+        const color = getConfigValue(configKeys.bookMoveColorHex, profile) || '#00d4ff';
+        const opacity = (getConfigValue(configKeys.bookMoveOpacity, profile) || 75) / 100;
+        const arrowStyle = [
+            'stroke: rgb(0 0 0 / 50%);',
+            'stroke-width: 2px;',
+            'stroke-linejoin: round;',
+            `fill: ${color};`,
+            `opacity: ${opacity};`
+        ].join('\n');
+
+        const arrows = moves
+            .map((move, index) => {
+                if(!move?.from || !move?.to) return null;
+
+                const scale =
+                    index === 0
+                        ? 1
+                        : moves.length === 2
+                            ? 0.75
+                            : 1 - 0.5 * (index / (moves.length - 1));
+
+                return BoardDrawer.createShape('arrow', [move.from, move.to], {
+                    style: arrowStyle,
+                    lineWidth: 30 * scale,
+                    arrowheadWidth: 80 * scale,
+                    arrowheadHeight: 60 * scale,
+                    startOffset: 30
+                });
+            })
+            .filter(Boolean);
+
+        activeBookMoveMarkings.push(...arrows.map(arrow => ({ profile, arrowElem: arrow })));
+    });
+}
+
+function removeBookMovesFromBoard(profile) {
+    let removalArr = activeBookMoveMarkings;
+
+    if(profile) {
+        removalArr = removalArr.filter(obj => obj.profile === profile);
+        activeBookMoveMarkings = activeBookMoveMarkings.filter(obj => obj.profile !== profile);
+    } else {
+        activeBookMoveMarkings = [];
+    }
+
+    removalArr.forEach(markingObj => {
+        markingObj.arrowElem?.remove();
+    });
 }
 
 function addMarkingsToBoard(moveObjArr) {
@@ -980,6 +1077,7 @@ function clearVisuals(noMetricsRemoval = false) {
     if(!noMetricsRemoval) clearMetricRenders();
     clearFeedback();
     removeMarkingsFromBoard();
+    removeBookMovesFromBoard();
 }
 
 function displayImportantNotification(title, text) {
@@ -1233,6 +1331,16 @@ function isPawnPromotion(bestMove) {
     return false;
 }
 
+function isPawnOnPromotionSquareFen(fenStr) {
+    if(!fenStr || typeof fenStr !== 'string') return false;
+
+    const board = fenStr.split(' ')[0];
+    if(!board) return false;
+
+    const ranks = board.split('/');
+
+    return ranks[0]?.includes('P') || ranks[ranks.length - 1]?.includes('p');
+}
 
 function fenCoordArrToDomCoord(fenCoordArr) {
     // fenCoordArr e.g. ["e6", "e5"]
@@ -1483,7 +1591,7 @@ function getRandomOwnPieceDomCoord(fenCoord, boardMatrix) {
         }
     }
 
-    if (candidatePieces.length > 0) {
+    if(candidatePieces.length > 0) {
         // Choose a random piece from the candidates
         const randomIndex = Math.floor(Math.random() * candidatePieces.length);
         const chosenPiece = candidatePieces[randomIndex];
@@ -1557,7 +1665,6 @@ function isBoardDrawerNeeded() {
 function squeezeEmptySquares(fenStr) {
     return fenStr.replace(/1+/g, match => match.length);
 }
-
 
 function getFenPieceColor(pieceFenStr) {
     return pieceFenStr == pieceFenStr.toUpperCase() ? 'w' : 'b';
@@ -1796,57 +1903,26 @@ function getBasicFen(boardMatrix) {
     return squeezeEmptySquares(matrix.map(x => x.join('')).join('/'));
 }
 
-function getFen(onlyBasic, turn) {
+function getFen(onlyBasic, turn, basicFenToUse, state = gameState) {
     const boardMatrix = getBoardMatrix();
-    const basicFen = getBasicFen(boardMatrix);
+    const basicFen = typeof basicFenToUse === 'string'
+        ? basicFenToUse
+        : getBasicFen(boardMatrix);
 
-    if(onlyBasic) {
-        return basicFen;
-    }
+    if(onlyBasic) return basicFen;
 
-    const sideToMove = turn || gameState.turn || getBoardOrientation(); // whose turn it is
+    const sideToMove = turn || state.turn || 'w'; // whose turn it is
 
     // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
-    return `${basicFen} ${sideToMove} ${gameState.castlingRights} ${gameState.enPassantTarget} ${gameState.halfmoveClock} ${gameState.fullmoveNumber}`;
+    return `${basicFen} ${sideToMove} ${state.castlingRights} ${state.enPassantTarget} ${state.halfmoveClock} ${state.fullmoveNumber}`;
 }
 
 function resetStoredMatchVariables() {
     chesscomVariantPlayerColorsTable = null;
-    gameStateHistory = [];
-
-    gameState = createNewGameState();
-}
-
-function countTotalPieces(basicFen) {
-    let pieceCount = 0;
-
-    for(const char of basicFen) {
-        if(/[rnbqkpRNBQKP]/.test(char)) {
-            pieceCount++;
-        }
-    }
-
-    return pieceCount;
-}
-
-function getPieceChangeAmount(lastBasicFen, newBasicFen) {
-    if(!lastBasicFen || !newBasicFen) return 0;
-
-    const lastPieceCount = countTotalPieces(lastBasicFen);
-    const newPieceCount = countTotalPieces(newBasicFen);
-
-    // (need to implement fix for variants which may add pieces legally)
-    const countChange = newPieceCount - lastPieceCount;
-
-    /* Possible "countChange" value explanations,
-        (countChange < -1) -> multiple pieces have disappeared (atomic chess variant or a faulty newFen?)
-        (countChange = -1) -> piece has been eaten
-        (countChange = 0)  -> piece moved
-        (countChange = 1)  -> piece has spawned
-        (countChange > 1)  -> multiple pieces have spawned (possibly a new game?)
-    */
-
-    return countChange;
+    gameStateHistory.set(); // reset
+    
+    gameState = getGameStateObjTemplate();
+    forceUpdateGameState();
 }
 
 function fenToBoard(basicFen) {
@@ -1869,17 +1945,38 @@ function fenToBoard(basicFen) {
     return board;
 }
 
-function getBoardChange(lastBasicFen, newBasicFen) {
+function boardToFen(board) {
+    return board.map(row => {
+        let fenRow = '';
+        let emptyCount = 0;
+
+        for(const piece of row) {
+            if(piece === '') {
+                emptyCount++;
+                continue;
+            }
+
+            if(emptyCount) {
+                fenRow += emptyCount;
+                emptyCount = 0;
+            }
+
+            fenRow += piece;
+        }
+
+        if(emptyCount) {
+            fenRow += emptyCount;
+        }
+
+        return fenRow;
+    }).join('/');
+}
+
+function getBoardChanges(lastBasicFen, newBasicFen, turn) {
+    const changes = getBoardChangesObjTemplate();
+
     if(!lastBasicFen || !newBasicFen) {
-        return {
-            changedSquaresAmount: 0,
-            movedPieces: [],
-            from: null,
-            to: null,
-            movedPiece: null,
-            capturedPiece: null,
-            capturedSquare: null
-        };
+        return changes;
     }
 
     const lastBoard = fenToBoard(lastBasicFen);
@@ -1888,10 +1985,6 @@ function getBoardChange(lastBasicFen, newBasicFen) {
     const rows = newBoard.length;
     const cols = newBoard[0]?.length ?? 0;
 
-    const movedPieces = [];
-    const removed = [];
-    const added = [];
-
     for(let i = 0; i < rows; i++) {
         for(let j = 0; j < cols; j++) {
             const before = lastBoard[i]?.[j] ?? '';
@@ -1899,186 +1992,800 @@ function getBoardChange(lastBasicFen, newBasicFen) {
 
             if(before === after) continue;
 
+            changes.changedSquaresAmount++;
+
             const square =
                 `${String.fromCharCode(97 + j)}${rows - i}`;
 
             if(before !== '') {
-                movedPieces.push(before);
+                changes.movedPieces.push(before);
 
-                removed.push({
+                changes.removed.push({
                     square,
-                    piece: before
+                    piece: before,
+                    row: i,
+                    col: j
                 });
             }
 
             if(after !== '') {
-                added.push({
+                changes.added.push({
                     square,
-                    piece: after
+                    piece: after,
+                    row: i,
+                    col: j
                 });
             }
         }
     }
 
-    const changedSquaresAmount =
-        removed.length + added.length;
+    changes.pieceAmountChange =
+        changes.added.length - changes.removed.length;
 
-    let from = null;
-    let to = null;
-    let movedPiece = null;
-    let capturedPiece = null;
-    let capturedSquare = null;
+    if(turn && changes.changedSquaresAmount !== 2) {
+        changes.missedFen = getMissedFen(
+            lastBoard,
+            newBoard,
+            changes,
+            turn
+        );
+    }
 
     /*
         Castling:
         two pieces disappear and two pieces appear.
-        The king uniquely identifies the actual move.
     */
-    if(removed.length === 2 && added.length === 2) {
-        const kingFrom =
-            removed.find(({ piece }) =>
-                piece.toLowerCase() === 'k'
-            );
+    if(
+        changes.removed.length === 2 &&
+        changes.added.length === 2
+    ) {
+        const kingFrom = changes.removed.find(({ piece }) =>
+            piece.toLowerCase() === 'k'
+        );
 
-        const kingTo =
-            added.find(({ piece }) =>
-                piece.toLowerCase() === 'k'
-            );
+        const kingTo = changes.added.find(({ piece }) =>
+            piece.toLowerCase() === 'k'
+        );
 
         if(kingFrom && kingTo) {
-            from = kingFrom.square;
-            to = kingTo.square;
-            movedPiece = kingTo.piece;
+            changes.from = kingFrom.square;
+            changes.to = kingTo.square;
+            changes.movedPiece = kingFrom.piece;
         }
     }
 
     /*
         Normal move, capture, en passant, or promotion:
-        the destination is the square where the moving piece appears.
+        exactly one piece appears.
     */
-    if(!to && added.length === 1) {
-        const destination = added[0];
+    if(!changes.to && changes.added.length === 1) {
+        const destination = changes.added[0];
 
-        to = destination.square;
-        movedPiece = destination.piece;
+        changes.to = destination.square;
 
-        /*
-            Find the removed piece of the same type and color.
-            This identifies the source without accidentally selecting
-            an unrelated rook, bishop, knight, etc.
-        */
-        const source = removed.find(({ piece, square }) =>
-            piece === movedPiece &&
-            square !== to
+        const source = changes.removed.find(({ piece, square }) =>
+            piece === destination.piece &&
+            square !== changes.to
         );
 
         if(source) {
-            from = source.square;
+            changes.from = source.square;
+            changes.movedPiece = source.piece;
         }
 
         /*
             Promotion:
-            the pawn disappears from the source and a new piece appears
-            on the destination.
+            a pawn disappears and a non-pawn appears.
         */
-        if(!from && movedPiece.toLowerCase() !== 'p') {
-            const pawnSource =
-                removed.find(({ piece }) =>
-                    piece.toLowerCase() === 'p'
-                );
+        if(
+            !changes.from &&
+            destination.piece.toLowerCase() !== 'p'
+        ) {
+            const pawnSource = changes.removed.find(({ piece }) =>
+                piece.toLowerCase() === 'p'
+            );
 
             if(pawnSource) {
-                from = pawnSource.square;
+                changes.from = pawnSource.square;
+                changes.movedPiece = pawnSource.piece;
+                changes.isPromotion = true;
+                changes.promotionPiece = destination.piece;
             }
         }
     }
 
     /*
-        A captured piece disappears from the destination square.
+        Normal capture:
+        captured piece disappears from the destination square.
     */
-    if(to) {
-        const capture = removed.find(({ square }) =>
-            square === to
+    if(changes.to) {
+        const capture = changes.removed.find(({ square }) =>
+            square === changes.to
         );
 
         if(capture) {
-            capturedPiece = capture.piece;
-            capturedSquare = capture.square;
+            changes.capturedPiece = capture.piece;
+            changes.capturedSquare = capture.square;
         }
     }
 
     /*
-        En passant:
-        the captured pawn disappears from a square other than the
-        destination.
+        En passant.
     */
-    if(
-        movedPiece?.toLowerCase() === 'p' &&
-        !capturedPiece &&
-        removed.length === 2 &&
-        added.length === 1
+    if (
+        changes.movedPiece?.toLowerCase() === 'p' &&
+        changes.removed.length === 2 &&
+        changes.added.length === 1 &&
+        !changes.capturedPiece
     ) {
-        const capturedPawn = removed.find(({ piece, square }) =>
+        const capturedPawn = changes.removed.find(({ piece, square }) =>
             piece.toLowerCase() === 'p' &&
-            square !== from
+            square !== changes.from
         );
 
-        if(capturedPawn) {
-            capturedPiece = capturedPawn.piece;
-            capturedSquare = capturedPawn.square;
+        if (capturedPawn) {
+            changes.capturedPiece = capturedPawn.piece;
+            changes.capturedSquare = capturedPawn.square;
+            changes.isEnPassant = true;
         }
     }
 
-    return {
-        changedSquaresAmount,
-        movedPieces,
-        from,
-        to,
-        movedPiece,
-        capturedPiece,
-        capturedSquare
-    };
+    if(changes.movedPiece) {
+        changes.movedPieceColor =
+            changes.movedPiece === changes.movedPiece.toUpperCase()
+                ? 'w'
+                : 'b';
+    }
+
+    return changes;
+}
+
+// This function is enourmously large, I know. It's still in development.
+function getMissedFen(lastBoard, newBoard, changes, turn) {
+    const opponent = turn === 'w' ? 'b' : 'w';
+
+    const turnRemoved = changes.removed.filter(({ piece }) =>
+        getFenPieceColor(piece) === turn
+    );
+
+    const turnAdded = changes.added.filter(({ piece }) =>
+        getFenPieceColor(piece) === turn
+    );
+
+    const opponentChanged = [
+        ...changes.removed,
+        ...changes.added
+    ].some(({ piece }) =>
+        getFenPieceColor(piece) === opponent
+    );
+
+    if(!turnRemoved.length || !opponentChanged) {
+        return null;
+    }
+
+    /*
+        ---------------------------------------------------------
+        Same-square recapture
+        ---------------------------------------------------------
+
+        One of the opponent's removed pieces is the piece that
+        was captured by the turn piece. It must be on the same
+        square where the opponent's remaining piece ends up.
+
+        The other opponent removal is the source of the
+        recapturing piece.
+    */
+    if(
+        turnRemoved.length === 1 &&
+        turnAdded.length === 0
+    ) {
+        const opponentRemoved = changes.removed.filter(({ piece }) =>
+            getFenPieceColor(piece) === opponent
+        );
+
+        const opponentAdded = changes.added.filter(({ piece }) =>
+            getFenPieceColor(piece) === opponent
+        );
+
+        if(
+            opponentRemoved.length === 2 &&
+            opponentAdded.length === 1
+        ) {
+            const firstMover = turnRemoved[0];
+            const opponentTo = opponentAdded[0];
+
+            /*
+                The captured opponent piece must have been on
+                the destination square.
+            */
+            const captured = opponentRemoved.find(({ row, col }) =>
+                row === opponentTo.row &&
+                col === opponentTo.col
+            );
+
+            /*
+                The other removed opponent piece is the piece
+                that made the recapture.
+            */
+            const opponentFrom = opponentRemoved.find(({ row, col }) =>
+                row !== opponentTo.row ||
+                col !== opponentTo.col
+            );
+
+            if(captured && opponentFrom) {
+                /*
+                    The opponent must actually move its piece from
+                    opponentFrom to opponentTo. This also prevents
+                    accidentally treating two unrelated removals
+                    as a recapture.
+                */
+                if(opponentFrom.piece === opponentTo.piece) {
+                    const board = lastBoard.map(row => [...row]);
+
+                    board[firstMover.row][firstMover.col] = '';
+                    board[opponentTo.row][opponentTo.col] =
+                        firstMover.piece;
+
+                    let valid = true;
+                    let opponentChanges = 0;
+                    const checked = new Set();
+
+                    for(const change of [
+                        ...changes.removed,
+                        ...changes.added
+                    ]) {
+                        const key = `${change.row}:${change.col}`;
+
+                        if(checked.has(key)) {
+                            continue;
+                        }
+
+                        checked.add(key);
+
+                        const candidatePiece =
+                            board[change.row]?.[change.col] ?? '';
+
+                        const actualPiece =
+                            newBoard[change.row]?.[change.col] ?? '';
+
+                        if(candidatePiece === actualPiece) {
+                            continue;
+                        }
+
+                        const candidateColor = candidatePiece
+                            ? getFenPieceColor(candidatePiece)
+                            : null;
+
+                        const actualColor = actualPiece
+                            ? getFenPieceColor(actualPiece)
+                            : null;
+
+                        /*
+                            Opponent captures the turn piece on the
+                            destination square.
+                        */
+                        if(
+                            candidateColor === turn &&
+                            actualColor === opponent
+                        ) {
+                            opponentChanges++;
+                            continue;
+                        }
+
+                        /*
+                            Opponent's original piece disappears
+                            from its source square.
+                        */
+                        if(
+                            candidateColor === opponent &&
+                            !actualPiece
+                        ) {
+                            opponentChanges++;
+                            continue;
+                        }
+
+                        /*
+                            Generic opponent removal case.
+                        */
+                        if(
+                            !candidatePiece &&
+                            actualColor === opponent
+                        ) {
+                            opponentChanges++;
+                            continue;
+                        }
+
+                        valid = false;
+                        break;
+                    }
+
+                    if(valid && opponentChanges) {
+                        return boardToFen(board);
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+        ---------------------------------------------------------
+        Normal move / capture
+        ---------------------------------------------------------
+    */
+    for(const from of turnRemoved) {
+        for(const to of turnAdded) {
+            if(from.piece !== to.piece) {
+                continue;
+            }
+
+            if(from.row === to.row && from.col === to.col) {
+                continue;
+            }
+
+            const board = lastBoard.map(row => [...row]);
+
+            board[from.row][from.col] = '';
+            board[to.row][to.col] = from.piece;
+
+            let valid = true;
+            let opponentChanges = 0;
+            const checked = new Set();
+
+            for(const change of [
+                ...changes.removed,
+                ...changes.added
+            ]) {
+                const key = `${change.row}:${change.col}`;
+
+                if(checked.has(key)) {
+                    continue;
+                }
+
+                checked.add(key);
+
+                const candidatePiece =
+                    board[change.row]?.[change.col] ?? '';
+
+                const actualPiece =
+                    newBoard[change.row]?.[change.col] ?? '';
+
+                if(candidatePiece === actualPiece) {
+                    continue;
+                }
+
+                const candidateColor = candidatePiece
+                    ? getFenPieceColor(candidatePiece)
+                    : null;
+
+                const actualColor = actualPiece
+                    ? getFenPieceColor(actualPiece)
+                    : null;
+
+                /*
+                    Remaining difference must belong to opponent.
+                */
+                if(
+                    candidateColor === turn &&
+                    actualColor === opponent
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                if(
+                    candidateColor === opponent &&
+                    !actualPiece
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                if(
+                    !candidatePiece &&
+                    actualColor === opponent
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                valid = false;
+                break;
+            }
+
+            if(valid && opponentChanges) {
+                return boardToFen(board);
+            }
+        }
+    }
+
+    /*
+        ---------------------------------------------------------
+        Promotion
+        ---------------------------------------------------------
+    */
+    for(const from of turnRemoved) {
+        if(from.piece.toLowerCase() !== 'p') {
+            continue;
+        }
+
+        for(const to of turnAdded) {
+            if(to.piece.toLowerCase() === 'p') {
+                continue;
+            }
+
+            const board = lastBoard.map(row => [...row]);
+
+            board[from.row][from.col] = '';
+            board[to.row][to.col] = to.piece;
+
+            let valid = true;
+            let opponentChanges = 0;
+            const checked = new Set();
+
+            for(const change of [
+                ...changes.removed,
+                ...changes.added
+            ]) {
+                const key = `${change.row}:${change.col}`;
+
+                if(checked.has(key)) {
+                    continue;
+                }
+
+                checked.add(key);
+
+                const candidatePiece =
+                    board[change.row]?.[change.col] ?? '';
+
+                const actualPiece =
+                    newBoard[change.row]?.[change.col] ?? '';
+
+                if(candidatePiece === actualPiece) {
+                    continue;
+                }
+
+                const candidateColor = candidatePiece
+                    ? getFenPieceColor(candidatePiece)
+                    : null;
+
+                const actualColor = actualPiece
+                    ? getFenPieceColor(actualPiece)
+                    : null;
+
+                if(
+                    candidateColor === turn &&
+                    actualColor === opponent
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                if(
+                    candidateColor === opponent &&
+                    !actualPiece
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                if(
+                    !candidatePiece &&
+                    actualColor === opponent
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                valid = false;
+                break;
+            }
+
+            if(valid && opponentChanges) {
+                return boardToFen(board);
+            }
+        }
+    }
+
+    /*
+        ---------------------------------------------------------
+        En passant
+        ---------------------------------------------------------
+    */
+    if(
+        turnRemoved.length === 1 &&
+        turnAdded.length === 0 &&
+        turnRemoved[0].piece.toLowerCase() === 'p'
+    ) {
+        const from = turnRemoved[0];
+
+        const direction = turn === 'w' ? -1 : 1;
+        const startRow = turn === 'w' ? 6 : 1;
+
+        if(from.row === startRow) {
+            const toRow = from.row + direction * 2;
+            const middleRow = from.row + direction;
+
+            /*
+                The intermediate square must be empty in the
+                current position because the pawn was captured.
+            */
+            if(
+                lastBoard[middleRow][from.col] === '' &&
+                newBoard[toRow][from.col] === ''
+            ) {
+                const board = lastBoard.map(row => [...row]);
+
+                board[from.row][from.col] = '';
+                board[toRow][from.col] = from.piece;
+
+                let valid = true;
+                let opponentChanges = 0;
+                const checked = new Set();
+
+                for(const change of [
+                    ...changes.removed,
+                    ...changes.added
+                ]) {
+                    const key = `${change.row}:${change.col}`;
+
+                    if(checked.has(key)) {
+                        continue;
+                    }
+
+                    checked.add(key);
+
+                    const candidatePiece =
+                        board[change.row]?.[change.col] ?? '';
+
+                    const actualPiece =
+                        newBoard[change.row]?.[change.col] ?? '';
+
+                    if(candidatePiece === actualPiece) {
+                        continue;
+                    }
+
+                    const candidateColor = candidatePiece
+                        ? getFenPieceColor(candidatePiece)
+                        : null;
+
+                    const actualColor = actualPiece
+                        ? getFenPieceColor(actualPiece)
+                        : null;
+
+                    if(
+                        candidateColor === turn &&
+                        actualColor === opponent
+                    ) {
+                        opponentChanges++;
+                        continue;
+                    }
+
+                    if(
+                        candidateColor === opponent &&
+                        !actualPiece
+                    ) {
+                        opponentChanges++;
+                        continue;
+                    }
+
+                    if(
+                        !candidatePiece &&
+                        actualColor === opponent
+                    ) {
+                        opponentChanges++;
+                        continue;
+                    }
+
+                    valid = false;
+                    break;
+                }
+
+                if(valid && opponentChanges) {
+                    return boardToFen(board);
+                }
+            }
+        }
+    }
+
+    /*
+        ---------------------------------------------------------
+        Castling
+        ---------------------------------------------------------
+    */
+    if(
+        turnRemoved.length === 2 &&
+        turnAdded.length === 2
+    ) {
+        const kingFrom = turnRemoved.find(({ piece }) =>
+            piece.toLowerCase() === 'k'
+        );
+
+        const rookFrom = turnRemoved.find(({ piece }) =>
+            piece.toLowerCase() === 'r'
+        );
+
+        const kingTo = turnAdded.find(({ piece }) =>
+            piece.toLowerCase() === 'k'
+        );
+
+        const rookTo = turnAdded.find(({ piece }) =>
+            piece.toLowerCase() === 'r'
+        );
+
+        if(
+            kingFrom &&
+            rookFrom &&
+            kingTo &&
+            rookTo
+        ) {
+            const board = lastBoard.map(row => [...row]);
+
+            board[kingFrom.row][kingFrom.col] = '';
+            board[rookFrom.row][rookFrom.col] = '';
+
+            board[kingTo.row][kingTo.col] = kingFrom.piece;
+            board[rookTo.row][rookTo.col] = rookFrom.piece;
+
+            let valid = true;
+            let opponentChanges = 0;
+            const checked = new Set();
+
+            for(const change of [
+                ...changes.removed,
+                ...changes.added
+            ]) {
+                const key = `${change.row}:${change.col}`;
+
+                if(checked.has(key)) {
+                    continue;
+                }
+
+                checked.add(key);
+
+                const candidatePiece =
+                    board[change.row]?.[change.col] ?? '';
+
+                const actualPiece =
+                    newBoard[change.row]?.[change.col] ?? '';
+
+                if(candidatePiece === actualPiece) {
+                    continue;
+                }
+
+                const candidateColor = candidatePiece
+                    ? getFenPieceColor(candidatePiece)
+                    : null;
+
+                const actualColor = actualPiece
+                    ? getFenPieceColor(actualPiece)
+                    : null;
+
+                if(
+                    candidateColor === turn &&
+                    actualColor === opponent
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                if(
+                    candidateColor === opponent &&
+                    !actualPiece
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                if(
+                    !candidatePiece &&
+                    actualColor === opponent
+                ) {
+                    opponentChanges++;
+                    continue;
+                }
+
+                valid = false;
+                break;
+            }
+
+            if(valid && opponentChanges) {
+                return boardToFen(board);
+            }
+        }
+    }
+
+    return null;
 }
 
 // This is called by observeNewMoves()
-// Note: gameStateHistory[0].fen.full / gameStateHistory[0].fen.basic is the last FEN, from the previous board position.
-async function determineBoardPositionValidity(turn = getBoardOrientation()) {
+// Note: gameStateHistory.get()[0].fen.full / gameStateHistory.get()[0].fen.basic is the last FEN, from the previous board position.
+async function determineBoardPositionValidity() {
     const pieceAmount = getPieceAmount(); // this depends on the current DOM, not from FEN.
 
     // A new board just appeared and is still loading, most likely a new match!
     if(pieceAmount === 0) {
-        gameStateHistory = [];
+        gameStateHistory.set(); // reset
 
         await wait(100);
 
         return determineBoardPositionValidity();
     }
 
+    const history = gameStateHistory.get();
     const currentBasicFen = getFen(true);
-    const lastBasicFen = gameStateHistory[0]?.fen?.basic;
+    const lastTurn = history[0]?.turn;
 
-    // Do not continue if FEN did not change!
-    if(currentBasicFen === lastBasicFen) return;
-
-    const pieceAmountChange = getPieceChangeAmount(lastBasicFen, currentBasicFen);
-    const boardChanges = getBoardChange(lastBasicFen, currentBasicFen);
-
-    if(pieceAmountChange === -1) {
-        // Do not continue if a piece just disappeared, this is not possible legally!
-        // (This happens sometimes because the mutationObserver detects DOM changes so fast)
-        if(boardChanges.changedSquaresAmount === 1) { // changed squares amount
-            return;
-        }
+    // Promotion positions are not valid to process or store.
+    if(isPawnOnPromotionSquareFen(currentBasicFen)) {
+        lastRejectedFen = currentBasicFen;
+        return;
     }
 
-    updateGameState(turn, currentBasicFen, boardChanges, pieceAmountChange);
+    // Do not continue if FEN did not change!
+    if(currentBasicFen === lastAllowedFen || lastRejectedFen === currentBasicFen) return;
+
+    const boardChanges = getBoardChanges(lastAllowedFen, currentBasicFen, lastTurn);
+
+    /* Possible "pieceAmountChange" value explanations,
+        (change < -1) -> multiple pieces have disappeared (atomic chess variant or a faulty newFen?)
+        (change = -1) -> piece has been eaten
+        (change = 0)  -> piece moved
+        (change = 1)  -> piece has spawned
+        (change > 1)  -> multiple pieces have spawned (possibly a new game?)
+    */
+
+    // Do not continue if a piece just disappeared, this is not possible legally!
+    // (This happens sometimes because the mutationObserver detects DOM changes so fast)
+    if(boardChanges.pieceAmountChange === -1 && boardChanges.changedSquaresAmount === 1) {
+        lastRejectedFen = currentBasicFen;
+
+        return;
+    }
+
+    // When moves are done very quickly, two moves can happen at once on the DOM.
+    // If that happens, we generate the missing move and its fen ourselves.
+    if(boardChanges.missedFen) {
+        const missedFen = boardChanges.missedFen;
+        const turnAfterMissedMove = lastTurn === 'w' ? 'b' : 'w';
+
+        const missedChanges = getBoardChanges(lastAllowedFen, missedFen);
+        updateGameState(missedFen, missedChanges, true, turnAfterMissedMove);
+
+        const actualChanges = getBoardChanges(missedFen, currentBasicFen);
+        updateGameState(currentBasicFen, actualChanges, true);
+
+        processBoardPosition();
+    } else {
+        updateGameState(currentBasicFen, boardChanges);
+
+        processBoardPosition();
+    }
+
+    // IMPORTANT: lastAllowedFen must remain the previous FEN while processing
+    // so that we get this path (lastAllowedFen → missedFen → currentBasicFen)
+    // (Keep this declaration at the bottom of this function, will ya'?)
+    lastAllowedFen = currentBasicFen;
+    lastRejectedFen = '';
 }
 
-function updateGameState(turn, basicFenToProcess, boardChanges, pieceAmountChange) {
-    const secondPreviousState = gameStateHistory[1];
-    const thirdPreviousState = gameStateHistory[2];
-    const secondPreviousBasicFen = gameStateHistory[1]?.fen?.basic;
-    const thirdPreviousBasicFen = gameStateHistory[2]?.fen?.basic;
+function forceUpdateGameState() {
+    const currentBasicFen = getFen(true);
+    const boardChanges = getBoardChanges(currentBasicFen, currentBasicFen);
+
+    updateGameState(currentBasicFen, boardChanges);
+}
+
+function removeTakeback(history) {
+    // Todo
+    return history;
+}
+
+function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) {
+    const stateHistory = gameStateHistory.get();
+    const previousBasicFen = stateHistory[0]?.fen?.basic;
+    const isTurnForced = typeof forcedTurn === 'string';
+
+    const turn = forcedTurn || (boardChanges?.movedPieceColor === 'w' ? 'b' : 'w');
 
     const isStandardChessBoard =
         lastBoardRanks === 8 &&
@@ -2088,7 +2795,7 @@ function updateGameState(turn, basicFenToProcess, boardChanges, pieceAmountChang
         boardChanges?.movedPiece;
 
     const isCapture =
-        pieceAmountChange === -1;
+        boardChanges.pieceAmountChange === -1;
 
     const isPawnMove =
         movedPiece?.toLowerCase() === 'p';
@@ -2176,112 +2883,79 @@ function updateGameState(turn, basicFenToProcess, boardChanges, pieceAmountChang
     const fullmoveNumber =
         Math.floor((plyCount / 2) + 1);
 
-    if(isWhiteKingMove) {
-        gameState.lostCastlingRights.add('K');
-        gameState.lostCastlingRights.add('Q');
-    }
+    const loseCastlingRights = (...rights) => {
+        for(const right of rights) {
+            if(!gameState.lostCastlingRights.includes(right)) {
+                gameState.lostCastlingRights.push(right);
+            }
+        }
+    };
 
-    if(isBlackKingMove) {
-        gameState.lostCastlingRights.add('k');
-        gameState.lostCastlingRights.add('q');
-    }
+    if(isWhiteKingMove) loseCastlingRights('K', 'Q');
+    if(isBlackKingMove) loseCastlingRights('k', 'q');
 
-    if(isWhiteKingsideRookMove || isWhiteKingsideRookCapture) {
-        gameState.lostCastlingRights.add('K');
-    }
-
-    if(isWhiteQueensideRookMove || isWhiteQueensideRookCapture) {
-        gameState.lostCastlingRights.add('Q');
-    }
-
-    if(isBlackKingsideRookMove || isBlackKingsideRookCapture) {
-        gameState.lostCastlingRights.add('k');
-    }
-
-    if(isBlackQueensideRookMove || isBlackQueensideRookCapture) {
-        gameState.lostCastlingRights.add('q');
-    }
+    if(isWhiteKingsideRookMove || isWhiteKingsideRookCapture) loseCastlingRights('K');
+    if(isWhiteQueensideRookMove || isWhiteQueensideRookCapture) loseCastlingRights('Q');
+    if(isBlackKingsideRookMove || isBlackKingsideRookCapture) loseCastlingRights('k');
+    if(isBlackQueensideRookMove || isBlackQueensideRookCapture) loseCastlingRights('q');
 
     const castlingRights =
         isStandardChessBoard
             ? ['K', 'Q', 'k', 'q']
-                .filter(right =>
-                    !gameState.lostCastlingRights.has(right)
-                )
+                .filter(right => !gameState.lostCastlingRights.includes(right))
                 .join('') || '-'
             : '-';
 
-    const isOneMoveReversed =
-        boardChanges?.from === gameStateHistory[0]?.boardChanges?.to &&
-        boardChanges?.to === gameStateHistory[0]?.boardChanges?.from &&
-        boardChanges?.movedPiece === gameStateHistory[0]?.boardChanges?.movedPiece;
+    const stateObj = {
+        turn,
+        movedPiece,
+        enPassantTarget,
+        castlingRights,
+        isCapture,
+        isPawnMove,
+        isCastling,
+        castlingSide,
+        halfmoveClock,
+        plyCount,
+        fullmoveNumber,
+        boardChanges,
+        'pieceAmountChange': boardChanges.pieceAmountChange
+    };
 
-    const isTakeback =
-        !lastIsTakebackState &&
-        (
-            (
-                basicFenToProcess === secondPreviousBasicFen &&
-                isOneMoveReversed
-            ) ||
-            (
-                basicFenToProcess === thirdPreviousBasicFen &&
-                boardChanges?.changedSquaresAmount === 4 &&
-                boardChanges?.from == null &&
-                boardChanges?.to == null &&
-                boardChanges?.movedPiece == null
-            )
-        );
-
-    const previousStateIndex = isTakeback
-        ? basicFenToProcess === secondPreviousBasicFen
-            ? 1
-            : 2
-        : null;
-
-    const previousState = isTakeback
-        ? structuredClone(gameStateHistory[previousStateIndex])
-        : null;
-
-    lastIsTakebackState = isTakeback;
-
-    Object.assign(
-        gameState,
-        previousState || {
-            turn,
-            pieceAmountChange,
-            boardChanges,
-            movedPiece,
-            enPassantTarget,
-            castlingRights,
-            isCapture,
-            isPawnMove,
-            isCastling,
-            castlingSide,
-            isTakeback,
-            halfmoveClock,
-            plyCount,
-            fullmoveNumber
-        }
+    const currentFullFen = getFen(
+        false,
+        turn,
+        forceFen ? basicFenToProcess : false,
+        stateObj
     );
 
-    if(previousStateIndex !== null) {
-        // Takeback detected, remove the states after the restored state.
-        gameStateHistory.splice(0, previousStateIndex);
-    }
-    else {
-        // State has been updated, create the full FEN.
-        const currentFullFen = getFen(false, gameState.turn);
-        const currentBasicFen = currentFullFen?.split(' ', 1)?.[0];
+    const currentBasicFen = currentFullFen?.split(' ', 1)?.[0];
 
-        gameState.fen = { 'full': currentFullFen, 'basic': currentBasicFen };
-        gameStateHistory.unshift(structuredClone(gameState));
-    }
+    stateObj.fen = {
+        'full': currentFullFen,
+        'basic': currentBasicFen
+    };
 
-    processBoardPosition(boardChanges.changedSquaresAmount);
+    const tempStateHistory = [
+        structuredClone(stateObj),
+        ...stateHistory
+    ];
+
+    const filteredStateHistory = removeTakeback(tempStateHistory);
+    const currentStateObj = filteredStateHistory?.[0];
+
+    Object.assign(gameState, currentStateObj);
+    gameStateHistory.set(filteredStateHistory);
 }
 
-async function processBoardPosition(squareChangeAmount = 0) {
+async function processBoardPosition() {
     clearVisuals(true);
+
+    const stateHistory = gameStateHistory.get();
+    const latestState = stateHistory[0];
+    const squareChangeAmount = latestState?.boardChanges?.changedSquaresAmount || 0;
+
+    instanceVars.fen.set(commLinkInstanceID, gameState.fen.full);
 
     const didBoardOrientationChange = await checkBoardOrientationChange();
 
@@ -2294,8 +2968,11 @@ async function processBoardPosition(squareChangeAmount = 0) {
     if(!modListeners.length)
         addMovesOnDemandListeners();
     
-    // Most likely a new match started
-    if(didBoardOrientationChange || squareChangeAmount > 5) {
+    if( // ...if a new match started
+        didBoardOrientationChange ||
+        squareChangeAmount > 6 ||
+        ( defaultPosBasicFens.includes(gameState.fen.basic) && (squareChangeAmount > 1) )
+    ) {
         resetStoredMatchVariables();
 
         matchFirstSuggestionGiven = false;
@@ -2306,7 +2983,8 @@ async function processBoardPosition(squareChangeAmount = 0) {
     } else if(gameState.turn)
         instanceVars.turn.set(commLinkInstanceID, gameState.turn);
 
-    CommLink.commands.updateBoardFen(gameState.fen.full);
+    // The GUI loads the current board state from instanceVars.gameStateHistory
+    CommLink.commands.updateBoardFen();
 }
 
 // This also updates the turn instanceVariable that the GUI uses to determine the turn!
@@ -2316,7 +2994,8 @@ function observeNewMoves() {
 
     dumbBoardObservingInterval = setInterval(() => {
         if(isUserMouseDown) return;
-        determineBoardPositionValidity(lastMutationObsProcessedTurn);
+
+        determineBoardPositionValidity();
     }, 250);
 
     boardObserver = new MutationObserver(mutationArr => {
@@ -2327,13 +3006,11 @@ function observeNewMoves() {
             const isNewMove = mutationMoveArr?.[0];
             let turn = mutationMoveArr?.[1];
 
-            if(turn) lastMutationObsProcessedTurn = turn;
-
             // Do not continue if mutation was not detected as a possible new move! (Different for each chess site)
             // We later compare FENs to detect if it was actually a new valid move!
             if(!isNewMove) return;
 
-            determineBoardPositionValidity(turn);
+            determineBoardPositionValidity();
         } catch(e) {
             if(debugModeActivated) console.error(e);
         }

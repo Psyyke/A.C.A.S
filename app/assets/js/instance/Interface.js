@@ -24,6 +24,80 @@ export default class Interface {
         this.AcasInstance = instance;
     }
 
+    async displayBookMoves(bookMoves, profile) {
+        const profileNames = profile
+            ? [profile]
+            : [...new Set(bookMoves?.map(move => move?.profile).filter(Boolean) || [])];
+
+        if(!profileNames.length) return;
+
+        for(const profileName of profileNames) {
+            this.removeBookMarkings(profileName);
+
+            const movesForProfile = bookMoves.filter(move => move?.profile === profileName);
+            const { BoardDrawer, configKeys } = this.AcasInstance;
+
+            const color = await this.AcasInstance.getConfigValue(
+                configKeys.bookMoveColorHex,
+                profileName
+            );
+
+            const opacity = (
+                await this.AcasInstance.getConfigValue(
+                    configKeys.bookMoveOpacity,
+                    profileName
+                )
+            ) / 100;
+
+            const arrowStyle = [
+                'stroke: rgb(0 0 0 / 50%);',
+                'stroke-width: 2px;',
+                'stroke-linejoin: round;',
+                `fill: ${color || '#00d4ff'};`,
+                `opacity: ${opacity || 0.75};`
+            ].join('\n');
+
+            const arrows = movesForProfile
+                .map((move, index) => {
+                    if(!move.from || !move.to) return null;
+
+                    const scale =
+                        index === 0
+                            ? 1
+                            : movesForProfile.length === 2
+                                ? 0.75
+                                : 1 - 0.5 * (index / (movesForProfile.length - 1));
+
+                    return BoardDrawer.createShape('arrow', [move.from, move.to], {
+                        style: arrowStyle,
+                        lineWidth: 30 * scale,
+                        arrowheadWidth: 80 * scale,
+                        arrowheadHeight: 60 * scale,
+                        startOffset: 30
+                    });
+                })
+                .filter(Boolean);
+
+            this.AcasInstance.pV[profileName].bookMoveMarkings = arrows;
+        }
+    }
+
+    removeBookMarkings(profile) {
+        const profileNames = profile
+            ? [profile]
+            : Object.keys(this.AcasInstance.pV || {});
+
+        profileNames.forEach(profileName => {
+            const profileMarks = this.AcasInstance.pV?.[profileName]?.bookMoveMarkings || [];
+
+            profileMarks.forEach(mark => mark?.remove());
+
+            if(this.AcasInstance.pV?.[profileName]) {
+                this.AcasInstance.pV[profileName].bookMoveMarkings = [];
+            }
+        });
+    }
+
     async markMoves(moveObjArr, profile) {
         this.removeMarkings(profile, 'Make room for new move markings');
 
@@ -162,55 +236,82 @@ export default class Interface {
         }
     }
     
-    async updateBoardFen(fen) {
-        const moveObj = EXTRACT_MOVE_FROM_FEN(this.AcasInstance.currentFen, fen);
-        const movedPieceLowered = moveObj?.movedPiece?.toLowerCase();
-        const instanceFenElem = this?.AcasInstance?.instanceElem?.querySelector('.instance-fen');
+    async updateBoardFen(calculateMovesConfig) {
+        const userscriptGameStateHistory = await GET_STATE_HISTORY(this.AcasInstance.instanceID);
+        const currentStateObj = userscriptGameStateHistory[0];
 
-        if(!instanceFenElem) return;
+        // The userscript keeps gameStateHistory as [newest, ..., initial], newest index 0.
+        // The GUI has it reversed, so [initial, ..., newest], oldest index 0.
+        // We update the entire history so that reloading GUI doesn't clear history.
+        this.AcasInstance.gameStateHistory = userscriptGameStateHistory
+            .slice()
+            .reverse();
+        
+        const instanceElem = this?.AcasInstance?.instanceElem;
+        const instanceFenElem = instanceElem?.querySelector('.instance-fen');
+        const instancePgnElem = instanceElem?.querySelector('.instance-pgn');
+        const instanceOpeningElem = instanceElem?.querySelector('.instance-opening-container span');
+
+        if(!instanceFenElem || !instancePgnElem || !instanceOpeningElem) {
+            console.error('Cannot update fen, could not find the correct elements from the instance document.');
+            return;
+        }
+
+        this.AcasInstance.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
+        this.removeMarkings(null, 'New board FEN');
+        this.removeBookMarkings();
+        updatePipData({ 'moveObjects': null });
+
+        const fen = currentStateObj?.fen?.full;
+
+        if(fen) {
+            this.AcasInstance.currentFen = fen;
+            instanceFenElem.innerText = fen;
+
+            if(this.AcasInstance.chessground)
+                this.AcasInstance.chessground.set({ fen });
+        }
+
+        if(this.AcasInstance.activeVariant === 'chess') {
+            const PGN = GET_PGN_FROM_STATE_HISTORY(this.AcasInstance.gameStateHistory);
+
+            if(PGN) {
+                const opening = FIND_OPENING_BY_PGN(PGN);
+
+                instancePgnElem.innerText = PGN?.length > 0 ? PGN : '1. (...)';
+                if(opening) instanceOpeningElem.innerText = `${opening?.name} (${opening?.eco})` || '';
+            }
+        } else {
+            instancePgnElem.innerText = 'Not the default chess variant, cannot create PGN.';
+            instanceOpeningElem.innerText = '';
+        }
+
+        // For each profile config
+        Object.keys(this.AcasInstance.pV).forEach(profileName => {
+            this.AcasInstance.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
+            this.AcasInstance.pV[profileName].currentSpeeches = [];
+
+            this.AcasInstance.getAndDisplayBookMoves(fen, profileName);
+            this.AcasInstance.renderMetric(fen, profileName);
+        });
+
+        this.AcasInstance.renderFeedback(currentStateObj);
+
+        this.AcasInstance.calculateBestMoves(fen, calculateMovesConfig);
 
         if(this.AcasInstance.debugLogsEnabled) {
             const origin = (typeof location !== 'undefined' && location.origin) ? location.origin : '';
             const fens = [this.AcasInstance.currentFen, fen];
             const fensString = fens.map(x => x.split(' ')[0]).join(',');
     
-            console.warn('%c[ NEW FEN RECEIVED! ]', 'color: neon; font-weight: bold; font-size: 50px;');
-            console.warn('[Logical Change Detection] New board FEN received:', `${origin}/A.C.A.S/board/?fens=${fensString}&o=${this.AcasInstance.lastOrientation}`, { fen, moveObj });
+            console.warn(
+                '%c[ NEW FEN RECEIVED! ]', 'color: neon; font-weight: bold; font-size: 50px;'
+            );
+            console.warn(
+                '[Logical Change Detection] New board FEN received:', `${origin}/A.C.A.S/board/?fens=${fensString}&o=${this.AcasInstance.lastOrientation}`,
+                { fen, currentStateObj }
+            );
         }
-
-        if(!moveObj?.color) {
-            const playerColor = await this.AcasInstance.getPlayerColor();
-            moveObj.color = playerColor.toLowerCase() === 'w' ? 'b' : 'w';
-        }
-    
-        this.AcasInstance.currentFen = fen;
-    
-        USERSCRIPT.instanceVars.fen.set(this.AcasInstance.instanceID, fen);
-    
-        if(instanceFenElem) instanceFenElem.innerText = fen;
-        if(this.AcasInstance.chessground) this.AcasInstance.chessground.set({ fen });
-
-        this.AcasInstance.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
-
-        this.removeMarkings(null, 'New board FEN');
-    
-        // For each profile config
-        Object.keys(this.AcasInstance.pV).forEach(profileName => {
-            this.AcasInstance.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
-            this.AcasInstance.pV[profileName].currentSpeeches = [];
-    
-            this.AcasInstance.renderMetric(fen, profileName);
-        });
-    
-        updatePipData({ 'moveObjects': null });
-
-        this.AcasInstance.renderFeedback(fen);
-        this.AcasInstance.calculateBestMoves(fen, { moveObj });
-    
-        this.AcasInstance.moveHistory.push({
-            'fen': fen,
-            'move': moveObj
-        });
     }
     
     updateBoardOrientation(orientation) {
@@ -290,6 +391,13 @@ export default class Interface {
         if(connectionWarningElem) {
             connectionWarningElem.classList.remove('hidden');
         }
+    }
+
+    clearOpeningText() {
+        const instanceElem = this?.AcasInstance?.instanceElem;
+        const instanceOpeningElem = instanceElem?.querySelector('.instance-opening-container span');
+
+        if(instanceOpeningElem) instanceOpeningElem.innerText = '';
     }
     
     removeConnectionIssueWarning() {
