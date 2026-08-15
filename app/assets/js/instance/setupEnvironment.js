@@ -55,6 +55,10 @@ export default async function setupEnvironment(startpos, dimensions) {
         const orientation = await this.getPlayerColor();
 
         const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
+
+        // Keep the instance in sync, it still held the 8x8 default otherwise
+        this.boardDimensions = boardDimensions;
+
         const instanceIdQuery = `[data-instance-id="${this.instanceID}"]`;
 
         this.currentFen = fen;
