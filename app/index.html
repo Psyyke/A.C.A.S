@@ -26,11 +26,12 @@
 		<link rel="modulepreload" href="./assets/js/instance/setupEnvironment.js">
 		<link rel="modulepreload" href="./assets/js/instance/engineStartNewGame.js">
 		<link rel="modulepreload" href="../assets/libraries/chessgroundx/chessground.js">
+		<link rel="preload" href="./assets/openings/pgn.json" as="fetch" crossorigin>
 		<link rel="modulepreload" href="./assets/js/AcasWebSocketClient.js">
 		<link rel="modulepreload" href="./assets/js/gui.js">
-		<script src="../assets/libraries/CommLink/CommLink.js"></script>
+		<script src="../userscript-components/CommLink.js"></script>
 		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
-		<script src="../assets/libraries/UniversalBoardDrawer/UniversalBoardDrawer.js"></script>
+		<script src="../userscript-components/UniversalBoardDrawer.js"></script>
 		<script src="../assets/libraries/SnapDOM/snapdom.min.js"></script>
 		<script type="module" src="./assets/js/misc/exposeModules.js"></script>
 		<script src="./assets/js/globals.js"></script>
@@ -438,17 +439,24 @@
 								<div class="input-subtitle">Make engine use Chess960 chess variant</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="useChess960" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Reverse Side</div>
-								<div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Move suggestions</div>
 								<div class="input-subtitle">How many arrows will show up</div></div>
 								<input type="textfield" data-key="moveSuggestionAmount" data-default-value="2" data-between="0-500">
 							</div>
+                            <div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
+								<div class="input-subtitle">Show the move suggestions after this time</div></div>
+								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
+							</div>
 							<div class="textfield-input custom-input"><div><div class="input-title">Max Movetime (ms)</div>
 								<div class="input-subtitle" title="Ms means millisecond. 1000 milliseconds is 1 second.">1000ms is 1 second</div></div>
 								<input type="textfield" data-key="maxMovetime" data-default-value="0" data-between="0-100000">
+							</div>
+                            <div id="polyglot-book-input" class="file-input custom-input"><div><div class="input-title">Opening Book</div>
+								<div class="input-subtitle">Load a Polyglot opening book (.bin)</div></div>
+								<div class="book-upload-row">
+									<input type="textfield" data-key="openingBookName" data-default-value="" id="book-file-name" class="book-file-name" placeholder="No book loaded" readonly>
+									<input type="file" id="book-file" accept=".bin,.bin.gz" hidden>
+								</div>
 							</div>
 						</div>
 						<div class="setting-panel">
@@ -582,10 +590,10 @@
 												<div class="setting-panel">
 													<div class="setting-panel-title" data-translation-move-display-settings>Move suggestion settings</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Move opacity (1 - 100%)</div>
-														<div class="input-subtitle">Change the opacity of the arrows</div></div>
-														<input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
-													</div>
-													<div class="color-input custom-input"><div><div class="input-title">Primary Move Color</div>
+                                                        <div class="input-subtitle">Change the opacity of the arrows</div></div>
+                                                        <input type="textfield" data-key="arrowOpacity" data-default-value="50" data-between="1-100">
+                                                    </div>
+                                                    <div class="color-input custom-input"><div><div class="input-title">Primary Move Color</div>
 														<div class="input-subtitle">The best move color</div></div>
 														<input type="color" data-key="primaryArrowColorHex" data-default-value="#32CD32">
 													</div>
@@ -597,6 +605,13 @@
 														<div class="input-subtitle">Opponent move color</div></div>
 														<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
 													</div>
+                                                    <div class="textfield-input custom-input"><div><div class="input-title">Book move opacity (1 - 100%)</div>
+                                                        <div class="input-subtitle">Change the opacity of the opening book arrows</div></div>
+                                                        <input type="textfield" data-key="bookMoveOpacity" data-default-value="75" data-between="1-100">
+                                                    </div>
+                                                    <div class="color-input custom-input"><div class="input-title">Book Move Color</div>
+                                                        <input type="color" data-key="bookMoveColorHex" data-default-value="#f45cff">
+                                                    </div>
 												</div>
 
 												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
@@ -605,10 +620,6 @@
 									</dialog>
 								</div>
 							</div>
-							<div class="textfield-input custom-input"><div><div class="input-title">Move Delay (ms)</div>
-								<div class="input-subtitle">Show the move suggestions after this time</div></div>
-								<input type="textfield" data-key="moveDisplayDelay" data-default-value="0" data-between="0-99999">
-							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Moves On Demand</div>
 								<div class="input-subtitle">Calculates moves for pieces you interact with</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="movesOnDemand" data-default-value="false"><div class="checkbox-fill">✔</div></div>
@@ -616,6 +627,16 @@
 							<div class="checkbox-input custom-input"><div><div class="input-title">Only Suggest Pieces</div>
 								<div class="input-subtitle">Suggest pieces to move, but give no moves</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="onlySuggestPieces" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+							</div>
+                            <div class="input-combination-box">
+                                <div class="checkbox-input custom-input"><div><div class="input-title">Always My Turn</div>
+									<div class="input-subtitle">Force turn to be your turn</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="alwaysMyTurn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+								</div>
+                                <div class="checkbox-input sub-input custom-input"><div><div class="input-title">Reverse Side</div>
+                                    <div class="input-subtitle">Calculates the opponent's best moves</div></div><div class="checkbox-container">
+                                    <input type="checkbox" data-key="reverseSide" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                </div>
 							</div>
 						</div>
 						<div class="setting-panel">
@@ -813,6 +834,7 @@
 
 		<script src="./assets/js/misc/toastMessage.js"></script>
 		<script src="./assets/js/misc/userSecuritySystem.js"></script>
+		<script src="./assets/js/misc/PolyglotBook.js"></script>
 		<script type="module" src="./assets/js/init.js"></script>
 	</body>
 </html>

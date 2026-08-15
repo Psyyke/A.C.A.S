@@ -1,6 +1,7 @@
 import MoveEvaluator from '../MoveEvaluator.js';
 
-export default async function renderFeedback(currentFen) {
+export default async function renderFeedback(gameStateObj) {
+    const currentFen = gameStateObj.fen.full;
     const profiles = await GET_PROFILES();
 
     const display = async (from, to, cp, category, label, profileName) => {
@@ -71,11 +72,10 @@ export default async function renderFeedback(currentFen) {
         const playerColor = await this.getPlayerColor();
 
         if(isChangeLogical && lastFen && currentFen) {
-            const moveObj = EXTRACT_MOVE_FROM_FEN(lastFen, currentFen,
-                [this.boardDimensions.width, this.boardDimensions.height]);
-            const from = moveObj.from,
-                  to = moveObj.to,
-                  pieceColor = moveObj.color;
+            const from = gameStateObj.boardChanges.from,
+                  to = gameStateObj.boardChanges.to,
+                  pieceColor = gameStateObj.turn;
+
             const isPlayerPiece = playerColor === pieceColor;
             const shouldReturnPlayerFeedbackDisabled = isPlayerPiece && !enablePlayerFeedback && enableEnemyFeedback;
             const shouldReturnEnemyFeedbackDisabled = !isPlayerPiece && enablePlayerFeedback && !enableEnemyFeedback;

@@ -132,6 +132,80 @@ input:focus {
     border-radius: var(--settings-input-border-radius);
     padding: 0;
 }
+.file-input {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.file-input .book-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(100%, 280px);
+}
+.file-input .book-file-name {
+    height: 40px;
+    min-width: 170px;
+    max-width: 220px;
+    width: 100%;
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    color: rgb(255 255 255 / 75%);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: unset;
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+}
+.file-input .book-file-name:focus {
+    outline: none;
+    box-shadow: none;
+}
+.file-input .book-file-trigger {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    cursor: pointer;
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0;
+}
+.file-input .checkbox-fill {
+    width: inherit;
+    height: inherit;
+    border-radius: inherit;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    font-size: 21px;
+    color: rgb(255 255 255 / 85%);
+    background-color: rgb(0 0 0 / 6%);
+    opacity: 0.02;
+    pointer-events: none;
+}
+.file-input .book-file-trigger:hover .checkbox-fill {
+    opacity: 0.12;
+}
+.file-input .checkbox-fill i {
+    font-size: 20px;
+}
 /* Dropdown */
 .dropdown-input input {
     width: 90px;
