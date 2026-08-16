@@ -131,6 +131,9 @@ export default class AcasInstance {
                 this.lastFeedbackFen = null;
 
                 this.usingAdvancedMode = null;
+
+                this.futureMoves = [];
+                this.activeFutureMoveMarkings = [];
         
                 this.currentSpeeches = [];
             }
@@ -848,6 +851,31 @@ export default class AcasInstance {
         }
 
         this.pV[profile].pendingMoveDisplay = null;
+
+        const normalMoves = moveObjects.filter(move => !move.isFuture);
+        const validFutureMoves = this.pV[profile].futureMoves
+            // Filter out future moves that don't start from same square as parent move ends
+            .filter(futureMove => {
+                const parent = futureMove.parentMove;
+                const futureStart = futureMove.player?.[0];
+
+                if(!parent || !futureStart) return false;
+
+                return normalMoves.some(normalMove =>
+                    normalMove.player?.[0] === parent.from &&
+                    normalMove.player?.[1] === parent.to &&
+                    normalMove.player?.[1] === futureStart
+                );
+            })
+            // Filter out duplicates
+            .filter((move, index, moves) =>
+                index === moves.findIndex(m =>
+                    m.player?.[0] === move.player?.[0] &&
+                    m.player?.[1] === move.player?.[1]
+                )
+            );
+
+        moveObjects.push(...validFutureMoves);
         
         const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
         const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
@@ -865,19 +893,24 @@ export default class AcasInstance {
             });
         }
 
-        updatePipData({ moveObjects });
-
-        moveObjects.forEach(moveObj => {
-            const spokenText = moveObj.player
-                ?.map(x => {
-                    const [letter, number] = x.toUpperCase().split('');
-                    const spokenLetter = letter === 'A' ? 'AA' : letter;
-                    return `"${spokenLetter}"\n"${number}"`;
-                })
-                .join('\n');
-
-            this.speak(spokenText, profile);
+        updatePipData({
+            moveObjects: moveObjects.filter(m => !m.isFuture)
         });
+
+        moveObjects
+            .forEach(moveObj => {
+                if(moveObj?.isFuture) return;
+
+                const spokenText = moveObj.player
+                    ?.map(x => {
+                        const [letter, number] = x.toUpperCase().split('');
+                        const spokenLetter = letter === 'A' ? 'AA' : letter;
+                        return `"${spokenLetter}"\n"${number}"`;
+                    })
+                    .join('\n');
+
+                this.speak(spokenText, profile);
+            });
     }
 
     startInterfacePolling() {

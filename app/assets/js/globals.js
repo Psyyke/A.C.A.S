@@ -257,6 +257,22 @@ function GET_UNIQUE_MOVES(moves) {
     return [cleaned, removedCount];
 }
 
+const CREATE_MOVE_OBJ = ({
+    playerMove = null,
+    opponentMove = null,
+    cp = 0,
+    profile = null,
+    ranking = 99
+}) => ({
+    player: [playerMove?.from ?? null, playerMove?.to ?? null],
+    opponent: [opponentMove?.from ?? null, opponentMove?.to ?? null],
+    playerPromotion: playerMove?.promotion ?? null,
+    opponentPromotion: opponentMove?.promotion ?? null,
+    cp,
+    profile,
+    ranking
+});
+
 function OBJECT_TO_STRING(obj) {
     const parts = [];
 

@@ -128,13 +128,13 @@ export default async function engineMessageProcessor(msg, profile) {
 
         const cp = data?.cp;
         const [playerMove, opponentMove] = moves;
-        const moveObj = {
-            'player': [playerMove?.from ?? null, playerMove?.to ?? null],
-            'opponent': [opponentMove?.from ?? null, opponentMove?.to ?? null],
-            'playerPromotion': playerMove?.promotion ?? null,
-            'opponentPromotion': opponentMove?.promotion ?? null,
-            cp, profile, ranking
-        };
+        const moveObj = CREATE_MOVE_OBJ({
+            playerMove,
+            opponentMove,
+            cp,
+            profile,
+            ranking
+        });
 
         this.pV[profile].pastMoveObjects.push(moveObj);
 
@@ -145,9 +145,38 @@ export default async function engineMessageProcessor(msg, profile) {
         const markingLimit = this.pV[profile].multiPV;
         const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
-        const [topMoveObjects, removedDuplicateMoveAmount] = GET_UNIQUE_MOVES(this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
+        const [topMoveObjects, removedDuplicateMoveAmount]
+            = GET_UNIQUE_MOVES(this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
         const calculationStartedAt = oldestUnfinishedCalcRequestObj?.startedAt;
         const calculationTimeElapsed = Date.now() - calculationStartedAt;
+        const ownFutureMove = moves?.[2];
+
+        if(ownFutureMove) {
+            const futureMoveObj = CREATE_MOVE_OBJ({
+                playerMove: ownFutureMove,
+                profile,
+                cp: 0,
+                ranking: 99
+            });
+
+            futureMoveObj.isFuture = true;
+            futureMoveObj.parentMove = moves?.[0];
+
+            const futureMoves = this.pV[profile].futureMoves;
+
+            // Ensure the best future is selected
+            const existingIndex = futureMoves.findIndex(move =>
+                move.parentMove?.from === futureMoveObj.parentMove?.from &&
+                move.parentMove?.to === futureMoveObj.parentMove?.to &&
+                move.parentMove?.promotion === futureMoveObj.parentMove?.promotion
+            );
+
+            if(existingIndex !== -1) {
+                futureMoves.splice(existingIndex, 1);
+            }
+
+            futureMoves.push(futureMoveObj);
+        }
 
         updatePipData({ calculationTimeElapsed, 'nodes': data?.nodes, topMoveObjects });
         

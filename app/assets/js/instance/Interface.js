@@ -3,19 +3,30 @@ import { updatePipData } from '../gui/pip.js';
 function getArrowStyle(type, fill, opacity) {
     const getBaseStyleModification = (f, o) => [
         'stroke: rgb(0 0 0 / 50%);',
-        'stroke-width: 2px;',
+        'stroke-width: 0.5%;',
         'stroke-linejoin: round;',
         `fill: ${fill || f};`,
         `opacity: ${opacity || o};`
     ].join('\n');
 
     switch(type) {
-        case 'best': 
+        case 'best':
             return getBaseStyleModification('limegreen', 0.9);
-        case 'secondary': 
+        case 'secondary':
             return getBaseStyleModification('dodgerblue', 0.7);
         case 'opponent':
             return getBaseStyleModification('crimson', 0.3);
+        case 'book':
+            return getBaseStyleModification('#00d4ff', 0.75);
+        case 'future':
+            return [
+                'stroke: rgb(0 0 0 / 40%);',
+                'stroke-width: 0.5%;',
+                'stroke-linejoin: round;',
+                'stroke-dasharray: 15 5;',
+                'fill: #b5b5b5;',
+                `opacity: ${opacity};`
+            ].join('\n');
     }
 }
 
@@ -49,13 +60,7 @@ export default class Interface {
                 )
             ) / 100;
 
-            const arrowStyle = [
-                'stroke: rgb(0 0 0 / 50%);',
-                'stroke-width: 2px;',
-                'stroke-linejoin: round;',
-                `fill: ${color || '#00d4ff'};`,
-                `opacity: ${opacity || 0.75};`
-            ].join('\n');
+            const arrowStyle = getArrowStyle('book', color, opacity);
 
             const arrows = movesForProfile
                 .map((move, index) => {
@@ -150,20 +155,22 @@ export default class Interface {
         };
     
         moveObjArr.forEach((mObj, idx) => {
+            if((onlySuggestPieces || moveAsFilledSquares) && mObj.isFuture) return;
+
             const [from, to] = mObj.player, [oppFrom, oppTo] = mObj.opponent;
             const oppMovesExist = oppFrom && oppTo, rank = idx + 1, cp = mObj.cp;
-    
+
             if(onlySuggestPieces && !movesOnDemand) {
                 const fillType = idx === 0 ? 1 : 0, fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex;
                 const fromSquare = fillSquare(from, `opacity: ${arrowOpacity}; stroke-width:5; stroke:black; rx:2; ry:2; fill:${fillColor};`);
                 const elems = [fromSquare];
-    
+
                 if(oppFrom) {
                     const oppElem = fillSquare(oppFrom, `opacity:${arrowOpacity}; stroke-width:5; stroke:black; rx:2; ry:2; display:none; fill:${opponentArrowColorHex};`);
                     handleOpponentDisplay(from, oppElem);
                     elems.push(oppElem);
                 }
-    
+
                 this.AcasInstance.pV[profile].activeGuiMoveMarkings.push({otherElems: elems});
             }
             else if(moveAsFilledSquares) {
@@ -172,12 +179,12 @@ export default class Interface {
                 const fromStyle = styleBase + (markedSquares[fillType].includes(from) ? 'opacity:0;' : '');
                 const toStyle = `filter:brightness(1.5); stroke-dasharray:4 4; ${styleBase}` + (markedSquares[fillType].includes(to) ? 'opacity:0;' : '');
                 const elems = [fillSquare(from, fromStyle), fillSquare(to, toStyle)];
-    
+
                 if(oppMovesExist && showOpponentMoveGuess) {
                     const oppFromElem = fillSquare(oppFrom, fromStyle + ` fill:${opponentArrowColorHex};`);
                     const oppToElem = fillSquare(oppTo, toStyle + ` fill:${opponentArrowColorHex};`);
                     elems.push(oppFromElem, oppToElem);
-    
+
                     if(showOpponentMoveGuessConstantly) {
                         oppFromElem.style.display = oppToElem.style.display = 'block';
                     } else {
@@ -186,39 +193,69 @@ export default class Interface {
                         handleOpponentDisplay(from, oppToElem);
                     }
                 }
-    
+
                 markedSquares[fillType].push(from, to);
                 this.AcasInstance.pV[profile].activeGuiMoveMarkings.push({otherElems: elems});
             }
             else {
-                let arrowStyle = getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
+                let arrowStyle = mObj.isFuture
+                    ? getArrowStyle('future', null, arrowOpacity)
+                    : getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
+
                 let [lineWidth, arrowheadWidth, arrowheadHeight, startOffset] = [30, 80, 60, 30];
-    
+
                 if(idx !== 0) {
-                    arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
-                    const scale = totalRanks === 2 ? 0.75 : maxScale - (maxScale - minScale) * ((rank-1)/(totalRanks-1));
-                    lineWidth *= scale; arrowheadWidth *= scale; arrowheadHeight *= scale;
+                    if(!mObj.isFuture) {
+                        arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
+                    }
+
+                    const scale = totalRanks === 2
+                        ? 0.75
+                        : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
+
+                    lineWidth *= scale;
+                    arrowheadWidth *= scale;
+                    arrowheadHeight *= scale;
                 }
-    
-                const playerArrowElem = BoardDrawer.createShape('arrow', [from, to], {style: arrowStyle, lineWidth, arrowheadWidth, arrowheadHeight, startOffset});
+
+                const playerArrowElem = BoardDrawer.createShape('arrow', [from, to], {
+                    style: arrowStyle,
+                    lineWidth,
+                    arrowheadWidth,
+                    arrowheadHeight,
+                    startOffset
+                });
+
                 let oppArrowElem = null;
-    
+
                 if(oppMovesExist && showOpponentMoveGuess) {
-                    oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo], {style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity), lineWidth, arrowheadWidth, arrowheadHeight, startOffset});
-                    if(showOpponentMoveGuessConstantly) oppArrowElem.style.display = 'block';
-                    else {
+                    oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo], {
+                        style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
+                        lineWidth,
+                        arrowheadWidth,
+                        arrowheadHeight,
+                        startOffset
+                    });
+
+                    if(showOpponentMoveGuessConstantly) {
+                        oppArrowElem.style.display = 'block';
+                    } else {
                         oppArrowElem.style.display = 'none';
                         handleOpponentDisplay(from, oppArrowElem);
                     }
                 }
-    
+
                 if(idx === 0 && playerArrowElem) {
                     const p = playerArrowElem.parentElement;
                     p.appendChild(playerArrowElem);
                     if(oppArrowElem) p.appendChild(oppArrowElem);
                 }
-    
-                this.AcasInstance.pV[profile].activeGuiMoveMarkings.push({...mObj, playerArrowElem, oppArrowElem});
+
+                this.AcasInstance.pV[profile].activeGuiMoveMarkings.push({
+                    ...mObj,
+                    playerArrowElem,
+                    oppArrowElem
+                });
             }
         });
     
@@ -227,15 +264,24 @@ export default class Interface {
     }
     
     removeMarkingFromProfile(p) {
-        this.AcasInstance.pV[p].activeGuiMoveMarkings.forEach(markingObj => {
-            markingObj.oppArrowElem?.remove();
-            markingObj.playerArrowElem?.remove();
-            markingObj?.otherElems?.forEach(x => x?.remove());
-        });
+        this.AcasInstance.pV[p].activeGuiMoveMarkings
+            .forEach(markingObj => {
+                markingObj.oppArrowElem?.remove();
+                markingObj.playerArrowElem?.remove();
+                markingObj?.otherElems?.forEach(x => x?.remove());
+            });
+
+        this.AcasInstance.pV[p].activeFutureMoveMarkings
+            .forEach(markingObj => {
+                markingObj.oppArrowElem?.remove();
+                markingObj.playerArrowElem?.remove();
+                markingObj?.otherElems?.forEach(x => x?.remove());
+            });
 
         this.AcasInstance.pV[p].activeSquareListeners?.forEach(listener => listener?.remove?.());
         this.AcasInstance.pV[p].activeSquareListeners = [];
         this.AcasInstance.pV[p].activeGuiMoveMarkings = [];
+        this.AcasInstance.pV[p].activeFutureMoveMarkings = [];
     }
 
     removeMarkings(profile, reason) {
@@ -305,12 +351,13 @@ export default class Interface {
             this.AcasInstance.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
             this.AcasInstance.pV[profileName].currentSpeeches = [];
 
+            this.AcasInstance.pV[profileName].futureMoves = [];
+
             this.AcasInstance.getAndDisplayBookMoves(fen, profileName);
             this.AcasInstance.renderMetric(fen, profileName);
         });
 
         this.AcasInstance.renderFeedback(currentStateObj);
-
         this.AcasInstance.calculateBestMoves(fen, calculateMovesConfig);
 
         if(this.AcasInstance.debugLogsEnabled) {

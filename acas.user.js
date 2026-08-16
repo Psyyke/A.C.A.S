@@ -80,7 +80,7 @@
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1900946/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.6
+// @version     2.4.7
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -596,7 +596,7 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 function getArrowStyle(type, fill, opacity) {
     const getBaseStyleModification = (f, o) => [
         'stroke: rgb(0 0 0 / 50%);',
-        'stroke-width: 2px;',
+        'stroke-width: 0.5%;',
         'stroke-linejoin: round;',
         `fill: ${fill || f};`,
         `opacity: ${opacity || o};`
@@ -609,8 +609,19 @@ function getArrowStyle(type, fill, opacity) {
             return getBaseStyleModification('dodgerblue', 0.7);
         case 'opponent':
             return getBaseStyleModification('crimson', 0.3);
+        case 'book':
+            return getBaseStyleModification('#00d4ff', 0.75);
+        case 'future':
+            return [
+                'stroke: rgb(0 0 0 / 40%);',
+                'stroke-width: 0.5%;',
+                'stroke-linejoin: round;',
+                'stroke-dasharray: 15 5;',
+                'fill: #b5b5b5;',
+                `opacity: ${opacity};`
+            ].join('\n');
     }
-};
+}
 
 function getChessgroundCoordsFromPiece(pieceElem) {
     const key = pieceElem?.cgKey;
@@ -812,13 +823,7 @@ function addBookToBoard(bookMoves) {
     moveGroups.forEach((moves, profile) => {
         const color = getConfigValue(configKeys.bookMoveColorHex, profile) || '#00d4ff';
         const opacity = (getConfigValue(configKeys.bookMoveOpacity, profile) || 75) / 100;
-        const arrowStyle = [
-            'stroke: rgb(0 0 0 / 50%);',
-            'stroke-width: 2px;',
-            'stroke-linejoin: round;',
-            `fill: ${color};`,
-            `opacity: ${opacity};`
-        ].join('\n');
+        const arrowStyle = getArrowStyle('book', color, opacity);
 
         const arrows = moves
             .map((move, index) => {
@@ -841,7 +846,10 @@ function addBookToBoard(bookMoves) {
             })
             .filter(Boolean);
 
-        activeBookMoveMarkings.push(...arrows.map(arrow => ({ profile, arrowElem: arrow })));
+        activeBookMoveMarkings.push(...arrows.map(arrow => ({
+            profile,
+            arrowElem: arrow
+        })));
     });
 }
 
@@ -890,6 +898,9 @@ function addMarkingsToBoard(moveObjArr) {
         const onlySuggestPieces = getConfigValue(configKeys.onlySuggestPieces, profile);
         const movesOnDemand = getConfigValue(configKeys.movesOnDemand, profile);
 
+        // Future moves should not be displayed as suggested pieces or filled squares.
+        if(markingObj.isFuture && (onlySuggestPieces || moveAsFilledSquares)) return;
+
         const [from, to] = markingObj.player;
         const [oppFrom, oppTo] = markingObj.opponent;
         const oppMovesExist = oppFrom && oppTo;
@@ -905,7 +916,7 @@ function addMarkingsToBoard(moveObjArr) {
                     from,
                     `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`
                 );
-                
+
             let markedSquareElems = [fromSquareMarking];
 
             if(oppFrom) {
@@ -994,37 +1005,61 @@ function addMarkingsToBoard(moveObjArr) {
         function markArrows() {
             let playerArrowElem = null;
             let oppArrowElem = null;
-            let arrowStyle = getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
+
+            let arrowStyle = markingObj.isFuture
+                ? getArrowStyle('future', null, arrowOpacity)
+                : getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
+
             let lineWidth = 30;
             let arrowheadWidth = 80;
             let arrowheadHeight = 60;
             let startOffset = 30;
 
+            // Future moves still receive the normal rank-based scaling.
             if(idx !== 0) {
-                arrowStyle = getArrowStyle('secondary', secondaryArrowColorHex, arrowOpacity);
+                if(!markingObj.isFuture) {
+                    arrowStyle = getArrowStyle(
+                        'secondary',
+                        secondaryArrowColorHex,
+                        arrowOpacity
+                    );
+                }
 
                 const arrowScale = totalRanks === 2
                     ? 0.75
-                    : maxScale - (maxScale - minScale) * ((rank - 1) / (totalRanks - 1));
+                    : maxScale - minScale * ((rank - 1) / (totalRanks - 1));
 
                 lineWidth = lineWidth * arrowScale;
                 arrowheadWidth = arrowheadWidth * arrowScale;
                 arrowheadHeight = arrowheadHeight * arrowScale;
-                startOffset = startOffset;
             }
 
-            playerArrowElem = BoardDrawer.createShape('arrow', [from, to],
+            playerArrowElem = BoardDrawer.createShape(
+                'arrow',
+                [from, to],
                 {
                     style: arrowStyle,
-                    lineWidth, arrowheadWidth, arrowheadHeight, startOffset
+                    lineWidth,
+                    arrowheadWidth,
+                    arrowheadHeight,
+                    startOffset
                 }
             );
 
             if(oppMovesExist && showOpponentMoveGuess) {
-                oppArrowElem = BoardDrawer.createShape('arrow', [oppFrom, oppTo],
+                oppArrowElem = BoardDrawer.createShape(
+                    'arrow',
+                    [oppFrom, oppTo],
                     {
-                        style: getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity),
-                        lineWidth, arrowheadWidth, arrowheadHeight, startOffset
+                        style: getArrowStyle(
+                            'opponent',
+                            opponentArrowColorHex,
+                            arrowOpacity
+                        ),
+                        lineWidth,
+                        arrowheadWidth,
+                        arrowheadHeight,
+                        startOffset
                     }
                 );
 
