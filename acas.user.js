@@ -80,7 +80,7 @@
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1900946/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.5
+// @version     2.4.6
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -610,6 +610,14 @@ function getArrowStyle(type, fill, opacity) {
         case 'opponent':
             return getBaseStyleModification('crimson', 0.3);
     }
+};
+
+function getChessgroundCoordsFromPiece(pieceElem) {
+    const key = pieceElem?.cgKey;
+
+    if(key) return chessCoordinatesToIndex(key);
+
+    return getElemCoordinatesFromTransform(pieceElem);
 };
 
 function createInputListener(listenerType, targetValue, callback) {
@@ -3303,11 +3311,7 @@ addSupportedChessSite('lichess.org', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
-
-        if(key) {
-            return chessCoordinatesToIndex(key);
-        }
+        return getChessgroundCoordsFromPiece(pieceElem);
     },
 
     'boardDimensions': obj => {
@@ -3403,11 +3407,7 @@ addSupportedChessSite('playstrategy.org', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
-
-        if(key) {
-            return chessCoordinatesToIndex(key);
-        }
+        return getChessgroundCoordsFromPiece(pieceElem);
     },
 
     'boardDimensions': obj => {
@@ -3511,11 +3511,7 @@ addSupportedChessSite('pychess.org', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
-
-        if(key) {
-            return chessCoordinatesToIndex(key);
-        }
+        return getChessgroundCoordsFromPiece(pieceElem);
     },
 
     'boardDimensions': obj => {
@@ -3667,11 +3663,7 @@ addSupportedChessSite('chess.coolmathgames.com', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
-
-        if(key) {
-            return chessCoordinatesToIndex(key);
-        }
+        return getChessgroundCoordsFromPiece(pieceElem);
     },
 
     'boardDimensions': obj => {
@@ -3971,11 +3963,7 @@ addSupportedChessSite('chess.net', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
-
-        if(key) {
-            return chessCoordinatesToIndex(key);
-        }
+        return getChessgroundCoordsFromPiece(pieceElem);
     },
 
     'boardDimensions': obj => {
@@ -4045,11 +4033,7 @@ addSupportedChessSite('freechess.club', {
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
-
-        if(key) {
-            return chessCoordinatesToIndex(key);
-        }
+        return getChessgroundCoordsFromPiece(pieceElem);
     },
 
     'boardDimensions': obj => {
@@ -4287,11 +4271,7 @@ addSupportedChessSite([
     'pieceElemCoords': obj => {
         const pieceElem = obj.pieceElem;
 
-        const key = pieceElem?.cgKey;
-
-        if(key) {
-            return chessCoordinatesToIndex(key);
-        }
+        return getChessgroundCoordsFromPiece(pieceElem);
     },
 
     'boardDimensions': obj => {
