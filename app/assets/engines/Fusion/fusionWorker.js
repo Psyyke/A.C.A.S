@@ -137,7 +137,7 @@ function postBestMoves(fen, bestMatchObj, multipv = 5) {
 
     // Convert policy object to array of [move, probability] — already sorted
 
-    console.log("Matches:",bestMatchObj); // Log moves in order
+    console.log("Matches:", bestMatchObj); // Log moves in order
 
     const lines = [];
 

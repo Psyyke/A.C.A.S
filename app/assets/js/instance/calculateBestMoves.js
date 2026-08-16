@@ -10,7 +10,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
     if(!currentFen) return;
 
     const profiles = await GET_PROFILES();
-    let { skipValidityChecks, specificMovesObj, moveObj, specificProfileName } = config;
+    let { skipValidityChecks, specificMovesObj, specificProfileName } = config;
 
     const shouldCalculate = p => p.config.engineEnabled
         && (specificProfileName ? p.name === specificProfileName : true)
@@ -36,6 +36,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
 
         const playerColor = await this.getPlayerColor();
         const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
+        const alwaysMyTurn = await this.getConfigValue(this.configKeys.alwaysMyTurn, profileName);
         const isAttackingPlayerColor = reverseSide
             ? playerColor.toLowerCase() === 'w' ? 'b' : 'w'
             : playerColor;
@@ -44,20 +45,21 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         // Do not calculate when player is attacking king, this makes some engines crash!
         if(IS_PLAYER_ATTACKING_KING(currentFen, isAttackingPlayerColor)) return;
 
-        let reversedFen = null;
-        let specificMoves = '';
-
-        if(reverseSide && !specificMovesObj) reversedFen = REVERSE_FEN_TURN(currentFen);
-        if(specificMovesObj?.isOpponent) reversedFen = REVERSE_FEN_TURN(currentFen);
-
         this.pV[profileName].lastCalculatedFen = currentFen;
         this.pV[profileName].lastFen = currentFen;
         this.pV[profileName].pendingCalculations.push({ 'fen': currentFen, 'startedAt': Date.now(), 'finished': false });
 
         this.Interface.removeMarkings(profileName, 'Calculating best moves');
 
+        let reversedFen = null;
+        let specificMoves = '';
+
+        if(alwaysMyTurn && currentFen.split(' ')[1] !== playerColor) currentFen = REVERSE_FEN_TURN(currentFen);
+        if(alwaysMyTurn && reverseSide && !specificMovesObj) reversedFen = REVERSE_FEN_TURN(currentFen);
+
+        if(specificMovesObj?.isOpponent) reversedFen = REVERSE_FEN_TURN(currentFen);
+
         this.renderMetric(currentFen, profileName);
-    
         this.sendMsgToEngine(`position fen ${reversedFen || currentFen}`, profileName);
 
         if(specificMovesObj?.moves)
@@ -71,13 +73,11 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             case 'acas-fusion':
                 const calcDepth = this.pV[profileName].searchDepth || 100;
 
-                const moveHistory = this.moveHistory
-                    .slice(0, -1); // remove latest the move we are calculating right now
-                const historyString = GENERATE_HISTORY_STR(moveHistory, playerColor);
-
-                searchCommandStr = `go depth ${calcDepth}${specificMoves} history ${historyString}`;
-
-                updatePipData({ 'goalDepth': calcDepth });
+                console.error('This engine is not supported at the moment');
+                
+                //const historyString = GENERATE_HISTORY_STR(this.gameStateHistory.slice(0, -1));
+                //searchCommandStr = `go depth ${calcDepth}${specificMoves} history ${historyString}`;
+                //updatePipData({ 'goalDepth': calcDepth });
                 
                 break;
 

@@ -211,7 +211,16 @@ export function sendToProcess(cmd, identifierObj, type = 'user') {
     const { engineProcess } = engineObj;
 
     if(engineProcess.stdin.writable) {
-        engineProcess.stdin.write(cmd + '\n', 'utf8');
+        // writable stays true for a moment after the child dies, and an unhandled
+        // stream error (EPIPE) would take the whole app down with every other engine
+        try {
+            engineProcess.stdin.write(cmd + '\n', 'utf8', err => {
+                if(err) console.error(`[engine] failed writing to engine stdin: ${err.message}`);
+            });
+        } catch (err) {
+            console.error(`[engine] failed writing to engine stdin: ${err.message}`);
+            return;
+        }
 
         log(cmd, type, identifierObj);
     }
@@ -312,6 +321,11 @@ async function startEngineProcess(enginePath, identifierObj) {
                 });
 
                 engineProcess.stderr.on('data', (data) => log(`${data}`, 'info', identifierObj));
+
+                // Streams throw on an unhandled 'error', which kills the main process
+                for(const stream of [engineProcess.stdin, engineProcess.stdout, engineProcess.stderr]) {
+                    stream?.on('error', err => console.error(`[engine] stream error: ${err?.message}`));
+                }
 
                 engineProcess.on('error', (err) => {
                     if(settled) return;

@@ -256,7 +256,30 @@ cg-container {
 	align-items: center;
 	background-color: rgb(0 0 0 / 56%);
 	padding: 10px 20px 20px 20px;
-	border-radius: 0 0 5px 5px;
+}
+.instance-opening-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    min-height: 5px;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 400;
+    color: rgb(255 255 255 / 70%);
+    border-bottom: 4px;
+    border-radius: 0 0 5px 5px;
+    background-color: rgb(0 0 0 / 40%);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+.instance-opening-container span {
+    padding: 7px;
+    text-align: center;
+}
+#polyglot-book-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 .assistance-concealment-active {
     opacity: 0.8 !important;
@@ -308,13 +331,24 @@ cg-container {
 	align-items: flex-end;
 	margin-right: 2px;
 }
-.instance-fen {
-    font-size: 11px;
-    font-weight: 100;
-    color: rgb(255 255 255 / 30%);
+.instance-information {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.instance-information * {
+    font-size: 12px;
+    font-weight: 200;
+    color: rgb(255 255 255 / 50%);
     word-break: break-word;
 }
-.instance-fen-btn {
+.instance-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 3px;
+}
+.instance-buttons .acas-fancy-button {
 	font-size: 12px;
     font-weight: 100;
     color: rgb(255 255 255 / 50%);
@@ -326,10 +360,10 @@ cg-container {
 	width: fit-content;
     height: fit-content;
 }
-.instance-fen-btn:hover {
+.instance-buttons .acas-fancy-button:hover {
 	background-color: rgb(255 255 255 / 10%);
 }
-.instance-fen-btn:active {
+.instance-buttons .acas-fancy-button:active {
 	margin-top: 3px;
 }
 .instance-variant {
@@ -752,7 +786,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     font-weight: 300;
     font-size: 20px;
     color: rgb(255 255 255 / 85%);
-    text-shadow: 0px 2px 0px #000;
+    text-shadow: 0px 2px 0px rgb(0 0 0 / 50%);
 }
 #no-instances-sites {
 	margin: 10px;

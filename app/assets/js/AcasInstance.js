@@ -21,11 +21,11 @@ const configKeys = Object.freeze([
     'displayMovesOnExternalSite', 'showMoveGhost', 'showOpponentMoveGuess',
     'showOpponentMoveGuessConstantly', 'onlyShowTopMoves', 'maxMovetime',
     'chessVariant', 'chessEngine', 'useExternalChessEngine', 'lc0Weight',
-    'engineNodes', 'chessFont', 'useChess960',
+    'engineNodes', 'chessFont', 'useChess960', 'alwaysMyTurn', 'openingBookName',
     'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
     'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
-    'secondaryArrowColorHex', 'opponentArrowColorHex', 'reverseSide',
-    'engineEnabled', 'autoMove', 'autoMoveLegit',
+    'secondaryArrowColorHex', 'opponentArrowColorHex', 'bookMoveColorHex',
+    'bookMoveOpacity', 'reverseSide', 'engineEnabled', 'autoMove', 'autoMoveLegit',
     'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType',
     'moveDisplayDelay', 'renderSquarePlayer', 'renderSquareEnemy',
     'renderSquareContested', 'renderSquareSafe', 'renderPiecePlayerCapture',
@@ -86,7 +86,6 @@ export default class AcasInstance {
         this.variantStartPosFen = null;
         this.lastOrientation = null;
         this.lastTurn = null;
-        this.kingMoved = '';
 
         this.engines = [];
         this.activeEnginesAmount = 0;
@@ -99,8 +98,8 @@ export default class AcasInstance {
         this.unprocessedPackets = [];
         this.interfacePollingActive = false;
 
-        this.moveHistory = [];
         this.moveDiffHistory = [];
+        this.gameStateHistory = [];
         
         this.profileVariables = class {
             constructor() {
@@ -120,6 +119,7 @@ export default class AcasInstance {
                 this.pastMoveObjects = [];
                 this.bestMoveMarkingElem = null;
                 this.activeGuiMoveMarkings = [];
+                this.bookMoveMarkings = [];
                 this.activeMetrics = [];
                 this.activeFeedbackDisplays = [];
                 this.pendingMoveDisplay = null;
@@ -169,6 +169,7 @@ export default class AcasInstance {
         this.CommLink.registerSendCommand('ping');
         this.CommLink.registerSendCommand('getFen');
         this.CommLink.registerSendCommand('markMoveToSite');
+        this.CommLink.registerSendCommand('markBookToSite');
         this.CommLink.registerSendCommand('renderMetricsToSite');
         this.CommLink.registerSendCommand('feedbackToSite');
         this.CommLink.registerSendCommand('updateRestartListener');
@@ -241,9 +242,10 @@ export default class AcasInstance {
             if(typeof uciOptionName === 'string' && typeof profileName === 'string')
                 this.setEngineOption(uciOptionName, null, true, profileName);
             else
-                toast.error('Failed to activate the button press, parsing the option failed.', 1000);
+                toast.error(TRANS_OBJ?.dynamicButtonPressParseError ?? 'Failed to activate the button press, parsing the option failed.', 1000);
         };
 
+        this.loadOpeningBook();
         this.loadEngines();
     }
 
@@ -303,7 +305,7 @@ export default class AcasInstance {
                 this.Interface.updateBoardOrientation(packet.data);
                 return true;
             case 'updateBoardFen':
-                this.Interface.updateBoardFen(packet.data);
+                this.Interface.updateBoardFen();
                 return true;
             case 'newMatchStarted':
                 this.engineStartNewGame();
@@ -544,8 +546,6 @@ export default class AcasInstance {
 
     clearHistoryVariables(profileName) {
         this.pV[profileName].lastFen = null;
-
-        this.moveHistory = [];
     }
 
     engineStopCalculating(profile, reason) {
@@ -786,6 +786,59 @@ export default class AcasInstance {
         if(!profileObj) return false;
 
         return this.pV[profile].pendingCalculations.find(x => !x.finished) ? true : false;
+    }
+
+    async getAndDisplayBookMoves(fen = this.currentFen, profile) {
+        const book = POLY_OPENING_BOOKS.get(profile);
+
+        if(!book) {
+            this.Interface.removeBookMarkings();
+            return;
+        }
+
+        const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
+        const alwaysMyTurn = await this.getConfigValue(this.configKeys.alwaysMyTurn, profile);
+        const playerColor = await this.getPlayerColor();
+        const moveSuggestionAmount = this.pV[profile].multiPV;
+
+        if(alwaysMyTurn && fen.split(' ')[1] !== playerColor) fen = REVERSE_FEN_TURN(fen);
+
+        const bookMoves = book.getMoves(fen)
+            .slice(0, moveSuggestionAmount)
+            .map(move => ({ ...move, profile }));
+
+        if(displayMovesExternally) {
+            await this.Interface.displayBookMoves(bookMoves);
+        }
+        
+        this.CommLink.commands.markBookToSite(bookMoves);
+    }
+
+    async loadOpeningBook() {
+        const profiles = await GET_PROFILES();
+
+        for(const profileObj of profiles) {
+            const profileName = profileObj.name;
+            const savedFileName = await this.getConfigValue(this.configKeys.openingBookName, profileName);
+
+            if(!savedFileName || typeof savedFileName !== 'string' || !savedFileName.trim()) {
+                POLY_OPENING_BOOKS.set(profileName, null);
+                continue;
+            }
+
+            const book = await POLYGLOT_BOOK.loadFromStorage(savedFileName);
+
+            if(!book) {
+                const openingBookMissingText = (TRANS_OBJ?.openingBookMissingProfile ?? 'Opening book missing for profile "{profile}". Please re-import it.')
+                    .replace('{profile}', profileName);
+
+                toast.error(openingBookMissingText, 8000);
+                POLY_OPENING_BOOKS.set(profileName, null);
+                continue;
+            }
+
+            POLY_OPENING_BOOKS.set(profileName, book);
+        }
     }
 
     async displayMoves(moveObjects, profile, bypassConcealmentCheck) {

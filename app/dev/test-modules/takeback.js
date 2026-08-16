@@ -50,24 +50,33 @@ export async function init(container, { test } = {}) {
             { type: 'move', san: 'c5', text: 'Black: c5 (different reply)' },
             { type: 'move', san: 'Nf3', text: 'White: Nf3' },
             { type: 'undo', text: 'Takeback: white move undone' },
-            { type: 'move', san: 'Nf3', text: 'White: Nf3 #2' }
+            { type: 'move', san: 'Nf3', text: 'White: Nf3 #2' },
+            
+            { type: 'move', san: 'd6', text: 'Black: d6' },
+            { type: 'move', san: 'd4', text: 'White: d4' },
+            { type: 'undo', count: 2, text: 'Takeback: 2 moves undone instantly' },
+            { type: 'move', san: 'Nc6', text: 'Black: Nc6 (alternative move)' }
         ];
 
         for (const a of actions) {
             if (cancelled) return;
 
             if (a.type === 'move') {
-                // apply SAN move; allow sloppy parsing for robustness
                 const applied = replay.move(a.san, { sloppy: true });
                 if (!applied) {
                     console.warn('Failed to apply move:', a.san);
                 }
             } else if (a.type === 'undo') {
-                replay.undo();
+                const repeat = a.count || 1;
+                for (let i = 0; i < repeat; i++) {
+                    replay.undo();
+                }
             }
 
             cg.set({ fen: replay.fen() });
             info.textContent = a.text || '';
+
+            console.log('Action:', a.text || a.type, 'FEN:', replay.fen());
 
             await wait(typeof a.delay === 'number' ? a.delay : delay);
         }

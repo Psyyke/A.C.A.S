@@ -16,9 +16,11 @@ export default async function engineMessageProcessor(msg, profile) {
         return;
     }
 
+    const simpleFen = fen => fen?.split(' ')?.[0];
+
     const data = PARSE_UCI_RESPONSE(msg);
     const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
-    const isMessageForCurrentFen = oldestUnfinishedCalcRequestObj?.fen === this.currentFen;
+    const isMessageForCurrentFen = simpleFen(oldestUnfinishedCalcRequestObj?.fen) === simpleFen(this.currentFen);
     const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant') && !msg.includes('UCI_');
     const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
     const isMsgOption = msg.startsWith('option name ');
@@ -28,7 +30,7 @@ export default async function engineMessageProcessor(msg, profile) {
             oldestUnfinishedCalcRequestObj.finished = true;
 
         // Check if the board has changed while we were finishing up a move calculation.
-        if(oldestUnfinishedCalcRequestObj?.fen !== this.currentFen) {
+        if(simpleFen(oldestUnfinishedCalcRequestObj?.fen) !== simpleFen(this.currentFen)) {
             // Finish everything
             this.pV[profile].pendingCalculations.forEach(x => x.finished = true);
 

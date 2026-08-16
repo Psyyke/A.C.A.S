@@ -25,6 +25,7 @@
 }
 cg-board {
     border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
 html, body {
     height: 100%;
@@ -44,14 +45,60 @@ body {
     -ms-flex-pack: center;
     justify-content: center;
 }
-#board {
-    width: min(90vw, 90svh);
-    height: min(90svh, 90vw);
+.board-layout {
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    gap: 10px;
 }
-.back-to-acas-link {
+#board {
+    width: min(72vh, 68vw);
+    height: min(72vh, 68vw);
+    flex: 0 0 auto;
+}
+.fen-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+.top-controls {
     position: absolute;
     top: 10px;
     left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+}
+.orientation-button {
+    appearance: none;
+    border: 2px solid #9e9384;
+    background: rgba(255, 255, 255, 0.2);
+    color: #2a2927;
+    padding: 10px 18px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: "Mona Sans";
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.12s ease;
+    border-radius: 5px;
+}
+.orientation-button:hover {
+    background: rgba(255, 255, 255, 0.32);
+}
+.orientation-button:active {
+    transform: translateY(1px);
+}
+#fen-display {
+    color: #2a2927;
+    font-size: 20px;
+    font-family: "IBM Plex Sans", "Mona Sans", monospace;
+    font-weight: 300;
+    overflow-wrap: break-word;
+    max-width: 90vw;
+}
+.back-to-acas-link {
     color: #9e9384;
     text-decoration: none;
     font-size: 16px;
@@ -61,4 +108,7 @@ body {
     border-radius: 5px;
     background-color: #c5b8a5;
     border: 2px solid #9e9384;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }

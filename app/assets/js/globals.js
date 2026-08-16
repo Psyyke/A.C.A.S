@@ -38,6 +38,8 @@ const IS_EXTERNAL_ENGINE_SETTING_ACTIVE = JSON.parse(
 const FI_NUMBER_FORMATTER = new Intl.NumberFormat('fi-FI');
 const ACTIVE_INPUT_LISTENERS = [];
 
+const POLY_OPENING_BOOKS = new Map();
+
 let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js
 let IS_INSTANCE_SETTING_BTN_DISABLED = false;
@@ -304,7 +306,7 @@ function SPEAK_TEXT(text, config = {}) {
             if(selectedVoice) {
                 utterance.voice = selectedVoice;
             } else {
-                toast.error('TTS voice not found!');
+                toast.error(TRANS_OBJ?.ttsVoiceNotFound ?? 'TTS voice not found!');
                 return;
             }
         }
@@ -312,7 +314,7 @@ function SPEAK_TEXT(text, config = {}) {
         synthesis.speak(utterance);
         return synthesis;
     } else {
-        toast.error('Web Speech API is not supported in this browser!');
+        toast.error(TRANS_OBJ?.webSpeechUnsupported ?? 'Web Speech API is not supported in this browser!');
     }
 }
 
@@ -383,30 +385,50 @@ function GET_BOARD_DIMENSIONS_FROM_FEN(fenStr) {
     }
 }
 
-function GENERATE_HISTORY_STR(moveHistory, playerColor) {
-    /* History move (e.g.)
-    moveHistory.move = {
-        "from": "g2",
-        "to": "g3",
-        "color": "w",
-        "movedPiece": "P"
-    } */
+function GET_PGN_FROM_STATE_HISTORY(gameStateHistory) {
+    const chess = new Chess();
 
-    const latestMoveColor = moveHistory?.at(-1)?.move?.color;
+    for(const state of gameStateHistory) {
+        const change = state.boardChanges;
+        const promotionPiece = change.promotionPiece;
 
-    if(!moveHistory?.length || !latestMoveColor) return '-';
+        if(!change?.from || !change?.to) continue;
 
-    return moveHistory
+        chess.move({
+            from: change.from,
+            to: change.to,
+            ...(promotionPiece && {
+                promotion: promotionPiece.toLowerCase()
+            })
+        });
+    }
+
+    return chess.pgn();
+}
+
+async function GET_STATE_HISTORY(id) {
+    const getter = USERSCRIPT?.instanceVars?.gameStateHistory?.get;
+
+    if(typeof getter !== 'function') {
+        return [];
+    }
+
+    return await getter(id) || [];
+}
+
+function GENERATE_HISTORY_STR(gameStateHistory) {
+    if(!gameStateHistory?.length) return '-';
+
+    return gameStateHistory
         .slice()
-        .reverse() // Needs to be sorted from new to old. The oldest move being the last index.
-        .map(moveObj => {
-            if(!latestMoveColor) return moveObj.fen.replaceAll(' ', '#');
+        .map(gameState => {
+            const fen = gameState.fen?.full;
 
-            const parts = moveObj.fen.split(' ');
-            parts[1] = moveObj.move.color;
+            if(!fen) return null;
 
-            return parts.join(' ').replaceAll(' ', '#');
+            return fen.replaceAll(' ', '#');
         })
+        .filter(Boolean)
         .join(',');
 }
 
@@ -488,13 +510,16 @@ function FEN_TO_ARRAYS(fen) {
 
     for(let row of rows) {
         const boardRow = [];
-        for(let char of row) {
-            if(isNaN(char)) {
-                boardRow.push(char);
+
+        // Match digit runs, not single digits, so wide boards ("10" empty squares) don't collapse
+        for(const token of row.match(/\d+|\D/g) ?? []) {
+            if(isNaN(token)) {
+                boardRow.push(token);
             } else {
-                boardRow.push(...Array(parseInt(char)).fill(''));
+                boardRow.push(...Array(parseInt(token, 10)).fill(''));
             }
         }
+
         board.push(boardRow);
     }
 
@@ -508,14 +533,15 @@ function IS_PLAYER_ATTACKING_KING(currentFen, turn) {
     const rows = boardPart.split('/');
     const board = [];
 
-    for(let i = 0; i < 8; i++) {
+    // Variant boards are not always 8x8, so follow the FEN instead of assuming
+    for(const rowString of rows) {
         const row = [];
 
-        for(let char of rows[i]) {
-            if(isNaN(char)) {
-                row.push(char);
+        for(const token of rowString.match(/\d+|\D/g) ?? []) {
+            if(isNaN(token)) {
+                row.push(token);
             } else {
-                for(let j = 0; j < parseInt(char); j++) row.push(1);
+                for(let j = 0; j < parseInt(token, 10); j++) row.push(1);
             }
         }
 
@@ -525,10 +551,13 @@ function IS_PLAYER_ATTACKING_KING(currentFen, turn) {
     const isWhiteAttacking = turn === 'w';
     const enemyKing = isWhiteAttacking ? 'k' : 'K';
 
+    const boardHeight = board.length;
+    const boardWidth = board.reduce((max, row) => Math.max(max, row.length), 0);
+
     let kX = -1, kY = -1;
-    
-    for(let y = 0; y < 8; y++) {
-        for(let x = 0; x < 8; x++) {
+
+    for(let y = 0; y < boardHeight; y++) {
+        for(let x = 0; x < board[y].length; x++) {
             if(board[y][x] === enemyKing) { kX = x; kY = y; break; }
         }
         if(kX !== -1) break;
@@ -542,18 +571,19 @@ function IS_PLAYER_ATTACKING_KING(currentFen, turn) {
 
     const kn = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
 
-    for(let i = 0; i < 8; i++) {
+    for(let i = 0; i < kn.length; i++) {
         const p = board[kY + kn[i][1]]?.[kX + kn[i][0]];
         if(p === atk.n) return true;
     }
 
     const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0], [1, -1], [-1, -1], [1, 1], [-1, 1]];
+    const maxRayLength = Math.max(boardWidth, boardHeight);
 
-    for(let i = 0; i < 8; i++) {
+    for(let i = 0; i < dirs.length; i++) {
         const dx = dirs[i][0], dy = dirs[i][1];
         const isDiagonal = i > 3;
 
-        for(let j = 1; j < 8; j++) {
+        for(let j = 1; j < maxRayLength; j++) {
             const x = kX + dx * j, y = kY + dy * j;
             const p = board[y]?.[x];
             if(p === undefined) break;
@@ -736,83 +766,14 @@ function CALC_TIME_PROGRESS(startTime, movetime) {
     return Math.max(0, Math.min(1, progress));
 }
 
-function MODIFY_FEN_CASTLE_RIGHTS(fen, rights) {
-    let parts = fen.split(' ');
-    if(parts.length < 4) return fen;
-
-    let cr = parts[2];
-    let newCr = cr;
-
-    const wMoved = rights.includes('w');
-    const bMoved = rights.includes('b');
-
-    if(wMoved && bMoved) {
-        newCr = '-';
-    } else {
-        if(wMoved) newCr = newCr.replace(/[KQ]/g, '');
-        if(bMoved) newCr = newCr.replace(/[kq]/g, '');
-        if(newCr === '') newCr = '-';
-    }
-
-    parts[2] = newCr;
-    return parts.join(' ');
-}
-
-function EXTRACT_MOVE_FROM_FEN(lastFen, currentFen, boardDimensions = [8, 8]) {
-    if(!(lastFen && currentFen)) return { from: null, to: null, color: null };
-
-    const [cols, rows] = boardDimensions;
-    lastFen = lastFen.split(' ')[0];
-    currentFen = currentFen.split(' ')[0];
-
-    let lastBoard = FEN_TO_ARRAYS(lastFen);
-    let currentBoard = FEN_TO_ARRAYS(currentFen);
-
-    let moveFrom = null;
-    let moveTo = null;
-    let movedPiece = null;
-
-    for(let i = 0; i < rows; i++) {
-        for(let j = 0; j < cols; j++) {
-            if(lastBoard[i][j] !== currentBoard[i][j]) {
-                if(lastBoard[i][j] !== '' && currentBoard[i][j] === '') {
-                    moveFrom = `${String.fromCharCode(97 + j)}${rows - i}`;
-                }
-                if(currentBoard[i][j] !== '') {
-                    moveTo = `${String.fromCharCode(97 + j)}${rows - i}`;
-                    movedPiece = currentBoard[i][j];
-                }
-            }
-        }
-    }
-
-    let color = movedPiece ? (movedPiece === movedPiece.toUpperCase() ? 'w' : 'b') : null;
-
-    if(movedPiece && moveTo && (!moveFrom || moveFrom === null)) {
-        const toRank = parseInt(moveTo.match(/\d+/)[0]);
-        const toFile = moveTo[0];
-
-        if(color === 'w' && toRank === rows) {
-            moveFrom = `${toFile}${toRank - 1}`;
-            movedPiece = 'P';
-        } else if(color === 'b' && toRank === 1) {
-            moveFrom = `${toFile}${toRank + 1}`;
-            movedPiece = 'p';
-        }
-    }
-
-    return { from: moveFrom, to: moveTo, color, movedPiece };
-}
-
 function REVERSE_FEN_TURN(fen) {
-    const fenSplit = fen.split(' ');
+    const parts = fen.split(' ');
 
-    if(fenSplit[1] === 'w')
-        fenSplit[1] = 'b';
-    else
-        fenSplit[1] = 'w';
+    parts[1] = parts[1] === 'w' ? 'b' : 'w';
+    // Reset en-passant field (tied to the move that just happened, reversing turn makes the history inconsistent)
+    parts[3] = '-';
 
-    return fenSplit.join(' ');
+    return parts.join(' ');
 }
 
 function PARSE_UCI_OPTION(line) {
@@ -1182,3 +1143,41 @@ function GET_UNIQUE_ID() {
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     )
 }
+
+function FIND_OPENING_BY_PGN(pgn) {
+    if(!pgn || !window?.OPENINGS) return null;
+
+    let bestMatch = null;
+
+    for(const opening of window.OPENINGS) {
+        if(
+            pgn.startsWith(opening.pgn) &&
+            (!bestMatch || opening.pgn.length > bestMatch.pgn.length)
+        ) {
+            bestMatch = opening;
+        }
+    }
+
+    return bestMatch;
+}
+
+(async () => {
+    try {
+        const res = await fetch('./assets/openings/pgn.json');
+
+        if(!res.ok) {
+            window.OPENINGS = [];
+            return;
+        }
+
+        const data = await res.json();
+
+        window.OPENINGS =
+            Array.isArray(data)
+                ? data
+                : (data.openings || []);
+
+    } catch(e) {
+        window.OPENINGS = [];
+    }
+})();

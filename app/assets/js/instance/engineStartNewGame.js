@@ -47,7 +47,8 @@ export default async function engineStartNewGame(variant, profile) {
     // Global resets run once, before any per-profile work, so looping over
     // profiles below does not wipe another profile's dynamic-options state.
     resetDynamicOptionsReady();
-    this.kingMoved = ''; // reset king moved check
+
+    this.Interface.clearOpeningText();
 
     // MoveEval is shared across the instance, so reset it once with the
     // instance-level player color (not per-profile) to avoid parallel stomping.

@@ -108,7 +108,9 @@ function onCommandReceived(remoteCommand) {
 
         switch (type) {
             case 'uci':
-                handleClientUciCommand(msg);
+                // Async, so its throws land as rejections that this try/catch can't see.
+                // Every input validation in handleClientUciCommand went unreported before.
+                handleClientUciCommand(msg).catch(e => reportCommandFailure(remoteCommand, e));
                 break;
 
             case 'getEngines':
@@ -126,7 +128,7 @@ function onCommandReceived(remoteCommand) {
         }
 
     } catch (e) {
-        toast('error', `Failed to process remote command;\n\n${remoteCommand?.slice(0, 500)}\n\nReason: ${e?.message}`, 20000);
+        reportCommandFailure(remoteCommand, e);
     }
 }
 
@@ -190,6 +192,12 @@ export function startLocalWSS() {
 
             if(wss.onClientChange) wss.onClientChange(false);
         });
+
+        // ws requires this, without it a client resetting mid-frame throws
+        ws.on('error', err => {
+            console.error('[server] client socket error:', err?.message);
+            clients.delete(ws);
+        });
     });
 
     wss.httpServer.on('listening', () => emitListeningState(wss));
@@ -210,6 +218,17 @@ export function startLocalWSS() {
             origin
         });
     };
+
+    // Emitted asynchronously, so with no listener EADDRINUSE takes the process down
+    // and the window is left showing OFFLINE forever
+    server.on('error', err => {
+        const reason = err?.code === 'EADDRINUSE'
+            ? `Port ${PORT} is already in use, is another copy of ACAS running?`
+            : `Server error: ${err?.message}`;
+
+        console.error('[server]', reason);
+        toast('error', reason, 20000);
+    });
 
     server.listen(PORT, '127.0.0.1');
 
