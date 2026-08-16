@@ -52,8 +52,13 @@ export default async function updateSettings(updateObj) {
     const didUpdateSearchNodes = findSetting(this.configKeys.engineNodes);
 
     if(didUpdateVariant || didUpdate960Mode) {
-        this.set960Mode(useChess960, profileName);
-        this.engineStartNewGame(didUpdateVariant ? chessVariant : this.pV[profileName].chessVariant, profileName);
+        // Both of these reach into this.pV[profileName]. A profile whose engine is off was
+        // never loaded so it has no entry, and the disabled-profile loop above only bails
+        // out when one exists.
+        if(this.pV[profileName]) {
+            this.set960Mode(useChess960, profileName);
+            this.engineStartNewGame(didUpdateVariant ? chessVariant : this.pV[profileName].chessVariant, profileName);
+        }
 
         return;
     }
@@ -76,7 +81,10 @@ export default async function updateSettings(updateObj) {
     }
 
     if(didUpdateAdvancedElo) {
-        this.updateAdvancedModeStatus(profileName, settingValue);
+        // createAndLoadSpecificEngine builds the pV entry itself, so only the status
+        // update needs an existing one
+        if(this.pV[profileName]) this.updateAdvancedModeStatus(profileName, settingValue);
+
         this.createAndLoadSpecificEngine(profileName);
     }
 
@@ -97,12 +105,13 @@ export default async function updateSettings(updateObj) {
     if(didUpdateElo)
         this.setEngineElo(await this.getConfigValue(this.configKeys.engineElo, profileName), isDirectlyCausedByUser, profileName);
 
-    if(didUpdateAdvancedEloDepth) {
+    if(didUpdateAdvancedEloDepth && this.pV[profileName]) {
         this.pV[profileName].searchDepth = settingValue;
     }
 
     if(didUpdateSearchNodes) {
-        this.pV[profileName].engineNodes = settingValue;
+        if(this.pV[profileName]) this.pV[profileName].engineNodes = settingValue;
+
         updatePipData({ 'goalDepth': null });
     }
 

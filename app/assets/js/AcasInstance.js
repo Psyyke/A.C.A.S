@@ -969,7 +969,10 @@ export default class AcasInstance {
             }
         } else if(typeof i === 'number') {
             if(i >= 0 && i < this.engines.length) {
-                const profileName = this.engines[i].profile;
+                // Engine objects are built with profileName, not profile. This was always
+                // undefined, so pV[undefined] was falsy and closing an instance left its
+                // markings on the board and the whole pV map in memory.
+                const profileName = this.engines[i].profileName;
 
                 this.engines[i].worker?.terminate();
                 delete this.engines[i].worker;
