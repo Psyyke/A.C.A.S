@@ -616,8 +616,8 @@ function getArrowStyle(type, fill, opacity) {
                 'stroke: rgb(0 0 0 / 40%);',
                 'stroke-width: 0.3%;',
                 'stroke-linejoin: round;',
-                'stroke-dasharray: 30 5;',
-                'fill: silver;',
+                'stroke-dasharray: 2;',
+                'fill: rgb(255 255 255 / 20%);',
                 `opacity: ${opacity};`
             ].join('\n');
     }
