@@ -28,8 +28,41 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         }
     };
 
-    function restartEngine(name, e) {
+    // Load pollers were cleared only when the engine reported back. If the worker failed
+    // to load instead, the interval kept posting to it at 10Hz for the life of the page
+    // and the worker was never terminated, because it only reaches this.engines on the
+    // successful handshake.
+    this.pendingEngineLoads ??= new Set();
+
+    const trackLoad = (worker, intervalId) => {
+        const entry = { worker, intervalId };
+
+        this.pendingEngineLoads.add(entry);
+
+        return entry;
+    };
+
+    const finishLoad = entry => {
+        if(!entry) return;
+
+        clearInterval(entry.intervalId);
+        this.pendingEngineLoads.delete(entry);
+    };
+
+    const abandonLoad = entry => {
+        if(!entry) return;
+
+        clearInterval(entry.intervalId);
+        entry.worker?.terminate?.();
+        this.pendingEngineLoads.delete(entry);
+    };
+
+    function restartEngine(name, e, loadEntry) {
+        abandonLoad(loadEntry);
+
+        // This guard was dead, the flag was never set, so every onerror re-closed the instance
         if(alreadyRestarted) return;
+        alreadyRestarted = true;
 
         setProfileBubbleStatus('warning', profileName, `Restarting the instance due to the error: ${e?.message}`);
         console.error(`Restarting the instance "${name}" due to the error:`, e);
@@ -93,17 +126,17 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             }
         };
 
-        const waitStockfish = setInterval(() => {
+        const loadEntry = trackLoad(stockfish, setInterval(() => {
             if(stockfish_loaded) {
-                clearInterval(waitStockfish);
+                finishLoad(loadEntry);
                 return;
             }
 
             stockfish.postMessage({ method: 'acas_check_loaded' });
-        }, 100);
+        }, 100));
 
         stockfish.onerror = e => {
-            restartEngine.bind(this)('fairy-stockfish-nnue-wasm', e);
+            restartEngine.bind(this)('fairy-stockfish-nnue-wasm', e, loadEntry);
         };
     }
 
@@ -129,17 +162,17 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             }
         };
 
-        const waitStockfish = setInterval(() => {
+        const loadEntry = trackLoad(stockfish, setInterval(() => {
             if(stockfish_loaded) {
-                clearInterval(waitStockfish);
+                finishLoad(loadEntry);
                 return;
             }
 
             stockfish.postMessage({ method: 'acas_check_loaded' });
-        }, 100);
+        }, 100));
 
         stockfish.onerror = e => {
-            restartEngine.bind(this)(engineName, e);
+            restartEngine.bind(this)(engineName, e, loadEntry);
         };
     }
 
@@ -167,17 +200,17 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             }
         };
 
-        const waitLc0 = setInterval(() => {
+        const loadEntry = trackLoad(lc0, setInterval(() => {
             if(lc0_loaded) {
-                clearInterval(waitLc0);
+                finishLoad(loadEntry);
                 return;
             }
 
             lc0.postMessage({ method: 'acas_check_loaded' });
-        }, 100);
+        }, 100));
 
         lc0.onerror = e => {
-            restartEngine.bind(this)('lc0', e);
+            restartEngine.bind(this)('lc0', e, loadEntry);
         };
     }
 
@@ -203,17 +236,17 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             }
         };
 
-        const waitFusion = setInterval(() => {
+        const loadEntry = trackLoad(Fusion, setInterval(() => {
             if(fusion_loaded) {
-                clearInterval(waitFusion);
+                finishLoad(loadEntry);
                 return;
             }
 
             Fusion.postMessage({ method: 'acas_check_loaded' });
-        }, 100);
+        }, 100));
 
         Fusion.onerror = e => {
-            restartEngine.bind(this)('acas-fusion', e);
+            restartEngine.bind(this)('acas-fusion', e, loadEntry);
         };
     }
 
@@ -283,17 +316,17 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
             }
         };
 
-        const waitMaia = setInterval(() => {
+        const loadEntry = trackLoad(maia, setInterval(() => {
             if(maia_loaded) {
-                clearInterval(waitMaia);
+                finishLoad(loadEntry);
                 return;
             }
 
             maia.postMessage({ method: 'acas_check_loaded' });
-        }, 100);
+        }, 100));
 
         maia.onerror = e => {
-            restartEngine.bind(this)('maia2', e);
+            restartEngine.bind(this)('maia2', e, loadEntry);
         };
     }
     

@@ -14,6 +14,8 @@ let pipCanvas = null;
 let pipLastPipEval = null;
 let pipLastPipFromTo = [null, null];
 let pipLastPipBoardBitmaps = [null, null];
+const PIP_CONTEXT_QUEUE_LIMIT = 30;
+
 let pipContextQueue = [];
 let pipProcessingBestMove = false;
 let pipRefreshTimeout = null;
@@ -281,6 +283,11 @@ async function refreshPipView() {
     ctxQueue.push(['fillRect', [0, pipHeaderHeight - pipStatusBarHeight, headerWidth, pipStatusBarHeight]]);
 
     pipContextQueue.unshift(ctxQueue);
+
+    // The queue was only emptied once a bestmove arrived. During a long search
+    // updatePipData fires on every info line, so it grew for the whole session.
+    if(pipContextQueue.length > PIP_CONTEXT_QUEUE_LIMIT)
+        pipContextQueue.length = PIP_CONTEXT_QUEUE_LIMIT;
 
     if(from && to) pipLastPipFromTo = [from, to];
 

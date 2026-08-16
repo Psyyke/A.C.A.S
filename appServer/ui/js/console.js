@@ -1,4 +1,6 @@
-const MAX_LOG_LINES = 100000;
+// Each line is a div with two spans, so 100000 meant roughly 300k nodes per console,
+// per instance, fed by an engine emitting thousands of info lines a second
+const MAX_LOG_LINES = 2000;
 const CONSOLE_OBJS = new Map();
 
 async function log(text, type = 'info', identifierObj) {
@@ -26,7 +28,7 @@ async function log(text, type = 'info', identifierObj) {
     div.querySelector('.msg-body').textContent = text;
 
     const currentFilter = filterInput.value.toLowerCase();
-    if(currentFilter && !text.toLowerCase().includes(currentFilter))
+    if(currentFilter && !div.textContent.toLowerCase().includes(currentFilter))
         div.style.display = 'none';
 
     const shouldScroll = logDiv.scrollHeight - logDiv.clientHeight <= logDiv.scrollTop + 60;

@@ -131,11 +131,22 @@ export default class Interface {
     
         const fillSquare = (square, style) => BoardDrawer.createShape('rectangle', square, {style});
     
+        // Collected so removeMarkingFromProfile can drop them. They used to be registered
+        // once per marking and never removed, and UniversalBoardDrawer walks that array on
+        // every pointer move over a square, so a long game left hundreds of stale callbacks
+        // writing to detached nodes.
+        const squareListeners = [];
+
         const handleOpponentDisplay = (square, elem) => {
+            // createShape returns false when the drawer is terminated or the square is
+            // invalid. The old guard was missing a return, so it fell through to false.style.
+            if(!elem) return;
+
             const listener = BoardDrawer.addSquareListener(square, type => {
-                if(!elem) listener.remove();
                 elem.style.display = type === 'enter' ? 'inherit' : 'none';
             });
+
+            squareListeners.push(listener);
         };
     
         moveObjArr.forEach((mObj, idx) => {
@@ -211,6 +222,7 @@ export default class Interface {
             }
         });
     
+        this.AcasInstance.pV[profile].activeSquareListeners = squareListeners;
         this.AcasInstance.pV[profile].pastMoveObjects = [];
     }
     
@@ -221,6 +233,8 @@ export default class Interface {
             markingObj?.otherElems?.forEach(x => x?.remove());
         });
 
+        this.AcasInstance.pV[p].activeSquareListeners?.forEach(listener => listener?.remove?.());
+        this.AcasInstance.pV[p].activeSquareListeners = [];
         this.AcasInstance.pV[p].activeGuiMoveMarkings = [];
     }
 

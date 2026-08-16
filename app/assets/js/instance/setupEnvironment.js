@@ -182,11 +182,15 @@ export default async function setupEnvironment(startpos, dimensions) {
 
         chessboardComponentsElem.classList.add(chessFont);
         
-        new ResizeObserver(entries => {
+        // Kept on the instance so close() can disconnect it. Without a reference the
+        // observer stayed alive with an active observation and pinned the detached board.
+        this.boardResizeObserver = new ResizeObserver(entries => {
             const width = entries[0].target.getBoundingClientRect().width;
 
             chessgroundElem.style.height = `${GET_BOARD_HEIGHT_FROM_WIDTH(width, boardDimensions)}px`;
-        }).observe(chessgroundElem);
+        });
+
+        this.boardResizeObserver.observe(chessgroundElem);
 
         this.chessground = window.ChessgroundX(chessgroundElem, { 
             disableContextMenu: true,

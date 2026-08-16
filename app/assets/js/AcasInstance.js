@@ -1023,6 +1023,22 @@ export default class AcasInstance {
 
         this?.killEngines();
 
+        // Engines still in their load handshake are not in this.engines yet, so killEngines
+        // can't reach them and both the worker and its poller would outlive the instance
+        this.pendingEngineLoads?.forEach(entry => {
+            clearInterval(entry.intervalId);
+            entry.worker?.terminate?.();
+        });
+        this.pendingEngineLoads?.clear();
+
+        this.boardResizeObserver?.disconnect();
+        this.boardResizeObserver = null;
+
+        // Chessground binds scroll/resize listeners on document and window; without
+        // destroy() every opened and closed instance leaks them plus the whole board state
+        this.chessground?.destroy?.();
+        this.chessground = null;
+
         this?.CommLink?.kill();
 
         if(this.MoveEval) {
