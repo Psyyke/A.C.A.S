@@ -49,6 +49,19 @@ function createWindow() {
 	return win;
 }
 
+// Two copies fighting over port 2800 just means the second one has no working server
+if(!app.requestSingleInstanceLock()) {
+	app.quit();
+}
+
+app.on('second-instance', () => {
+	if(!mainWindow || mainWindow.isDestroyed()) return;
+
+	if(mainWindow.isMinimized()) mainWindow.restore();
+
+	mainWindow.focus();
+});
+
 app.whenReady().then(() => {
 	mainWindow = createWindow();
 	mainWindow.setMenu(null);
