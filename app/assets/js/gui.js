@@ -154,7 +154,7 @@ async function updateUserscriptInfoText() {
     
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
-        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.5')) {
+        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.7')) {
             updateYourUserscriptElem.classList.remove('hidden');
             toast.warning(TRANS_OBJ?.oldUserscriptWarning ?? 'You are using an outdated or incompatible version of A.C.A.S. Please update the userscript.', 10000);
         }
