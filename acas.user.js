@@ -614,10 +614,10 @@ function getArrowStyle(type, fill, opacity) {
         case 'future':
             return [
                 'stroke: rgb(0 0 0 / 40%);',
-                'stroke-width: 0.5%;',
+                'stroke-width: 0.3%;',
                 'stroke-linejoin: round;',
-                'stroke-dasharray: 15 5;',
-                'fill: #b5b5b5;',
+                'stroke-dasharray: 30 5;',
+                'fill: silver;',
                 `opacity: ${opacity};`
             ].join('\n');
     }
