@@ -617,8 +617,27 @@ function getChessgroundCoordsFromPiece(pieceElem) {
 
     if(key) return chessCoordinatesToIndex(key);
 
-    return getElemCoordinatesFromTransform(pieceElem);
-};
+    if(!pieceElem || !chessBoardElem || !lastBoardOrientation) return;
+
+    const [x, y] = extractElemTransformData(pieceElem) || [];
+    const squareSize = chessBoardElem.clientWidth / 8;
+
+    if(x == null || y == null || !squareSize) return;
+
+    const file = Math.round(x / squareSize);
+    const rank = Math.round(y / squareSize);
+
+    if(
+        file < 0 || file > 7 ||
+        rank < 0 || rank > 7 ||
+        Math.abs(x - file * squareSize) > 1 ||
+        Math.abs(y - rank * squareSize) > 1
+    ) return;
+
+    return lastBoardOrientation === 'w'
+        ? [file, 7 - rank]
+        : [7 - file, rank];
+}
 
 function createInputListener(listenerType, targetValue, callback) {
     if(typeof listenerType !== 'string' || typeof targetValue !== 'string' || !callback) return;
