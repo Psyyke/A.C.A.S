@@ -86,8 +86,9 @@ function killSpecificEngine(identifierObj, code) {
     if(engineObjToKill) {
         engineObjToKill.engineProcess.kill();
 
-        if(!mainWindow || mainWindow.isDestroyed()) return;
-
+        // toast() and sendToRenderer() already no-op once the window is gone. The early
+        // return that used to sit here also skipped the cleanup below, so quitting on
+        // Windows/Linux left aliveEngineProcesses fully populated.
         toast('message', `Killed specific engine! (${code || 'Manually/Externally'})`, 4000);
 
         removeAliveEngineObj(identifierObj);
@@ -259,19 +260,37 @@ async function startEngineProcess(enginePath, identifierObj) {
                     cwd: path.dirname(enginePath)
                 });
 
+                let settled = false;
+
+                // spawn() sets pid synchronously on success and 'error' fires within a tick
+                // on failure, so the old !engineProcess.pid check could never be true. Track
+                // whether startup actually finished instead.
                 const launchTimeout = setTimeout(() => {
-                    if(!engineProcess.pid) {
-                        engineProcess.kill();
-                        reject(new Error("Timeout while attempting to start engine"));
-                    }
+                    if(settled) return;
+                    settled = true;
+
+                    engineProcess.kill();
+                    reject(new Error("Timeout while attempting to start engine"));
                 }, 5000);
 
                 engineProcess.on('spawn', () => {
-                    clearTimeout(launchTimeout);
-
                     addConsoleView(identifierObj);
 
                     setTimeout(() => {
+                        if(settled) return;
+
+                        // The engine can die inside this delay (missing DLL, missing weights).
+                        // Registering it then would hand applySavedEngineOptions a dead stdin.
+                        if(engineProcess.exitCode !== null || engineProcess.signalCode !== null) {
+                            settled = true;
+                            clearTimeout(launchTimeout);
+
+                            return reject(new Error('Engine exited during startup'));
+                        }
+
+                        settled = true;
+                        clearTimeout(launchTimeout);
+
                         // Do not change the variable names because other code assumes those keys
                         addAliveEngineObj({
                             engineProcess,
@@ -282,6 +301,7 @@ async function startEngineProcess(enginePath, identifierObj) {
                         toast('message', `Launched: ${path.basename(enginePath)}`, 1500);
 
                         applySavedEngineOptions(identifierObj);
+                        refreshEngineCards(aliveEngineProcesses);
                         resolve(engineProcess);
                     }, 100);
                 });
@@ -308,6 +328,9 @@ async function startEngineProcess(enginePath, identifierObj) {
                 }
 
                 engineProcess.on('error', (err) => {
+                    if(settled) return;
+                    settled = true;
+
                     clearTimeout(launchTimeout);
                     toast('error', `Engine error: ${err.message}`, 10000);
                     reject(err);
@@ -315,6 +338,13 @@ async function startEngineProcess(enginePath, identifierObj) {
 
                 engineProcess.on('close', (code) => {
                     const engineObj = findAliveEngineObj(identifierObj);
+
+                    // A relaunch registers the replacement under the same identifier, and a
+                    // wrapper script can hold its pipe open long enough for this to fire late.
+                    // Without this the dead process tears down the live one's bookkeeping, and
+                    // killAllEngines() then leaves it running after the app quits.
+                    if(engineObj && engineObj.engineProcess !== engineProcess) return;
+
                     const fen = engineObj?.currentFen;
 
                     sendEngineDeathCertificateToClient('Engine process closed', fen, engineId, profileName, instanceId);

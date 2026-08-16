@@ -35,7 +35,7 @@ function createWindow() {
 		title: 'Advanced Chess Assistance Server (Beta)',
 		width: 735,
 		height: 800,
-		icon: path.join(__dirname, 'app', 'favicon.ico'),
+		icon: path.join(__dirname, '..', 'ui', 'favicon.ico'),
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			contextIsolation: true,
@@ -49,22 +49,21 @@ function createWindow() {
 	return win;
 }
 
-// Two copies fighting over port 2800 just means the second one has no working server
-if(!app.requestSingleInstanceLock()) {
-	app.quit();
-}
-
-app.on('second-instance', () => {
-	if(!mainWindow || mainWindow.isDestroyed()) return;
-
-	if(mainWindow.isMinimized()) mainWindow.restore();
-
-	mainWindow.focus();
-});
-
-app.whenReady().then(() => {
+function createAndTrackWindow({ startServer = false } = {}) {
 	mainWindow = createWindow();
 	mainWindow.setMenu(null);
+
+	mainWindow.webContents.once('did-finish-load', () => {
+		if(startServer) startLocalWSS();
+
+		renderEngineGrid();
+	});
+
+	return mainWindow;
+}
+
+app.whenReady().then(() => {
+	createAndTrackWindow({ 'startServer': true });
 
 	ipcMain.handle('killAllEngines',
 		async (event) => killAllEngines());
@@ -101,11 +100,6 @@ app.whenReady().then(() => {
 		return null;
 	});
 
-	mainWindow.webContents.once('did-finish-load', () => {
-		startLocalWSS();
-		renderEngineGrid();
-	});
-
     console.log('Ready!');
 });
 
@@ -119,5 +113,8 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-	if(BrowserWindow.getAllWindows().length === 0) createWindow();
+	// The return value used to be dropped, so mainWindow still pointed at the destroyed
+	// window and every renderer send bailed on isDestroyed(). On macOS that left a blank
+	// window with no engine grid, no consoles and no toasts.
+	if(BrowserWindow.getAllWindows().length === 0) createAndTrackWindow();
 });
