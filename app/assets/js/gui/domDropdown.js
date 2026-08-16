@@ -1,7 +1,9 @@
 export function doesDropdownItemExist(dropdownInputElem, itemValue) {
-    // itemValue is whatever the user typed into the dropdown filter, so a single quote
-    // character used to throw SyntaxError straight out of getInputValue
-    const selector = `*[data-value=${CSS.escape(String(itemValue))}]`;
+    const cleanedItemValue = CSS.escape(String(itemValue));
+
+    if(cleanedItemValue === '') return false;
+
+    const selector = `*[data-value=${cleanedItemValue}]`;
 
     return dropdownInputElem.parentElement.querySelector(selector) ? true : false;
 }
