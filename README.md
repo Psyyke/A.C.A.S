@@ -64,7 +64,12 @@ There might be more, please let us know if anything is missing, thank you!
 
 </details>
 
-![281683276-af4af26b-d5e9-4502-ac6a-8921d34c3cfa](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318)
+| Example 1 | Example 2 |
+|---|---|
+| ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="Image 2" src="https://github.com/user-attachments/assets/3216a77d-7d7f-493f-8d93-f5a650650e03" /> |
+
+
+## How does it work?
 
 | A.C.A.S (Tab #1)    | Chess Website (Tab #2)  |
 |----------------------|----------------------|
