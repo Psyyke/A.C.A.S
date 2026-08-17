@@ -882,9 +882,17 @@ export default class AcasInstance {
             );
 
         // Remove normal moves completely when opacity is <= 1 (1 - 100)
-        moveObjects = (normalMoveOpacity <= 1)
-            ? validFutureMoves
-            : [...moveObjects, ...validFutureMoves];
+        // Only remove moves belonging to the current profile.
+        if (normalMoveOpacity <= 1) {
+            moveObjects = [
+                ...moveObjects.filter(move => move?.profile !== profile),
+                ...validFutureMoves
+            ];
+        } else {
+            moveObjects = [...moveObjects, ...validFutureMoves];
+        }
+
+        if(moveObjects?.length === 0) return;
     
         this.Interface.markMoves(moveObjects, profile);
 
