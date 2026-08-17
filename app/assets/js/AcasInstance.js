@@ -852,7 +852,13 @@ export default class AcasInstance {
 
         this.pV[profile].pendingMoveDisplay = null;
 
+        const normalMoveOpacity = await this.getConfigValue(this.configKeys.arrowOpacity, profile);
+        const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
+        const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
+        const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
+
         const normalMoves = moveObjects.filter(move => !move.isFuture);
+
         const validFutureMoves = this.pV[profile].futureMoves
             // Filter out future moves that don't start from same square as parent move ends
             .filter(futureMove => {
@@ -875,12 +881,11 @@ export default class AcasInstance {
                 )
             );
 
-        moveObjects.push(...validFutureMoves);
-        
-        const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
-        const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
-        const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
-
+        // Remove normal moves completely when opacity is <= 1 (1 - 100)
+        moveObjects = (normalMoveOpacity <= 1)
+            ? validFutureMoves
+            : [...moveObjects, ...validFutureMoves];
+    
         this.Interface.markMoves(moveObjects, profile);
 
         if(displayMovesExternally) {
