@@ -26,7 +26,7 @@ const configKeys = Object.freeze([
     'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
     'secondaryArrowColorHex', 'opponentArrowColorHex', 'bookMoveColorHex',
     'bookMoveOpacity', 'reverseSide', 'engineEnabled', 'autoMove', 'autoMoveLegit',
-    'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType',
+    'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType', 'enableEveryPieceEvals',
     'moveDisplayDelay', 'renderSquarePlayer', 'renderSquareEnemy',
     'renderSquareContested', 'renderSquareSafe', 'renderPiecePlayerCapture',
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
@@ -86,12 +86,14 @@ export default class AcasInstance {
         this.variantStartPosFen = null;
         this.lastOrientation = null;
         this.lastTurn = null;
+        this.lastAcceptedBasicFen = null;
 
         this.engines = [];
         this.activeEnginesAmount = 0;
         this.variantNotSupportedByEngineAmount = 0;
         this.freezeEngineKilling = {};
         this.MoveEval = null;
+        this.BoardPiecesEval = null;
 
         this.pV = {}; // profile variables
 
@@ -129,6 +131,8 @@ export default class AcasInstance {
         
                 this.lastFen = null;
                 this.lastFeedbackFen = null;
+
+                this.activePieceEvalDisplays = [];
 
                 this.usingAdvancedMode = null;
 
@@ -1090,6 +1094,11 @@ export default class AcasInstance {
         if(this.MoveEval) {
             this.MoveEval.terminate();
             this.MoveEval = null;
+        }
+
+        if(this.BoardPiecesEval) {
+            this.BoardPiecesEval.terminate();
+            this.BoardPiecesEval = null;
         }
 
         this?.BoardDrawer?.terminate();

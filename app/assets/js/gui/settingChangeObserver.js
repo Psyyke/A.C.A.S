@@ -247,6 +247,14 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             }
 
             break;
+        case 'chessEngineProfile':
+            const showRenderingSettings = SETTING_FILTER_OBJ.profileID === 'default';
+
+            [...document.querySelectorAll('.only-default-profile-setting')].forEach(x => {
+                showRenderingSettings ? x.classList.remove('disabled') : x.classList.add('disabled');
+            });
+
+            break;
     }
 
     processedElems.push([inputElem, value]);

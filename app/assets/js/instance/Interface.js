@@ -299,7 +299,12 @@ export default class Interface {
     async updateBoardFen(calculateMovesConfig) {
         const userscriptGameStateHistory = await GET_STATE_HISTORY(this.AcasInstance.instanceID);
         const currentStateObj = userscriptGameStateHistory[0];
+        const fen = currentStateObj?.fen?.full;
+        const basicFen = currentStateObj?.fen?.basic;
 
+        if(basicFen && basicFen === this.lastAcceptedBasicFen) return;
+        if(basicFen) this.lastAcceptedBasicFen = basicFen
+        
         // The userscript keeps gameStateHistory as [newest, ..., initial], newest index 0.
         // The GUI has it reversed, so [initial, ..., newest], oldest index 0.
         // We update the entire history so that reloading GUI doesn't clear history.
@@ -321,8 +326,6 @@ export default class Interface {
         this.removeMarkings(null, 'New board FEN');
         this.removeBookMarkings();
         updatePipData({ 'moveObjects': null });
-
-        const fen = currentStateObj?.fen?.full;
 
         if(fen) {
             this.AcasInstance.currentFen = fen;

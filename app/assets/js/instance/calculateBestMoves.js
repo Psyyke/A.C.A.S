@@ -59,7 +59,6 @@ export default async function calculateBestMoves(currentFen, config = {}) {
 
         if(specificMovesObj?.isOpponent) reversedFen = REVERSE_FEN_TURN(currentFen);
 
-        this.renderMetric(currentFen, profileName);
         this.sendMsgToEngine(`position fen ${reversedFen || currentFen}`, profileName);
 
         if(specificMovesObj?.moves)

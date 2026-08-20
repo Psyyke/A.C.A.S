@@ -461,7 +461,7 @@
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👁️‍🗨️</div>
-							<div class="floaty-input custom-input">
+							<div class="floaty-input only-default-profile-setting custom-input">
 								<div><div class="input-title" data-translation-rendering-title>Rendering Settings</div><div class="input-subtitle" data-translation-rendering-subtitle>Display various metrics on the board</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
@@ -512,7 +512,13 @@
 														<div class="input-subtitle">Display 🩸 on pieces that you should attack</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="renderPieceEnemyCapture" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Show Piece Contributions</div>
+                                                        <div class="input-subtitle">See how much each piece is contributing to the position</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-render-setting="true" data-key="enableEveryPieceEvals" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
 												</div>
+
+                                                <p data-translation-experimental-warning="">This feature is experimental, it might not work well!</p>
 
 												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
 											</section>
@@ -520,7 +526,7 @@
 									</dialog>
 								</div>
 							</div>
-							<div class="floaty-input custom-input">
+							<div class="floaty-input only-default-profile-setting custom-input">
 								<div><div class="input-title" data-translation-feedback-title>Feedback Settings</div><div class="input-subtitle" data-translation-feedback-subtitle>Get feedback on your moves</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
@@ -558,8 +564,6 @@
 														<input type="textfield" data-key="feedbackEngineDepth" data-default-value="15" data-between="1-99">
 													</div>
 												</div>
-
-												<p data-translation-experimental-warning>This feature is experimental, it might not work well!</p>
 
 												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
 											</section>
