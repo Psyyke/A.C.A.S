@@ -146,6 +146,7 @@
         "renderSquareSafe": ["Pătrate sigure", "Subliniază pătratele sigure cu cian"],
         "renderPiecePlayerCapture": ["Amenințare de Captură a Pieselor Proprii", "Afișează 💧 pe piesele care sunt în pericol de captură"],
         "renderPieceEnemyCapture": ["Amenințare de Captură a Pieselor Adversarului", "Afișează 🩸 pe piesele pe care ar trebui să le ataci"],
+        "enableEveryPieceEvals": ["Afișează contribuția fiecărei piese", "Vezi cât contribuie fiecare piesă la poziție"],
         "feedbackEngineDepth": ["Adâncime de căutare", "Cât de adânc va căuta motorul de feedback"],
         "enableEnemyFeedback": ["Evaluează Adversarul", "Dă feedback și despre adversar"],
         "enableMoveRatings": ["Evaluări de Mutări", "Arată gândurile motorului despre mutări"],

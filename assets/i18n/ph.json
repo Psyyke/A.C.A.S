@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Mga Square na Ligtas", "Ihighlight ang mga square na ligtas ng cyan"],
         "renderPiecePlayerCapture": ["Banta ng Kapit ng Piyesa Mo", "Ipakita ang 💧 sa mga piyesa na nanganganib na makapit"],
         "renderPieceEnemyCapture": ["Banta ng Kapit ng Piyesa ng Kalaban", "Ipakita ang 🩸 sa mga piyesa na dapat mong atakihin"],
+        "enableEveryPieceEvals": ["Ipakita ang Kontribusyon ng Bawat Piyesa", "Tingnan kung gaano kaimportante ang bawat piyesa sa posisyon"],
         "feedbackEngineDepth": ["Lalim ng Paghahanap", "Kung gaano kalalim ang feedback engine sa paghahanap"],
         "enableEnemyFeedback": ["Rate ang Kalaban", "Magbigay din ng feedback sa kalaban"],
         "enableMoveRatings": ["Mga Rating ng Galaw", "Ipakita ang mga iniisip ng engine tungkol sa mga galaw"],

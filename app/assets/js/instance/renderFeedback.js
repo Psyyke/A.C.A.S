@@ -4,10 +4,10 @@ export default async function renderFeedback(gameStateObj) {
     const currentFen = gameStateObj.fen.full;
     const profiles = await GET_PROFILES();
 
-    const display = async (from, to, cp, category, label, profileName) => {
-        clearFeedback(profileName);
+    const display = async (from, to, cp, category, label, profileID) => {
+        clearFeedback(profileID);
 
-        const feedbackOnExternalSite = await this.getConfigValue(this.configKeys.feedbackOnExternalSite, profileName);
+        const feedbackOnExternalSite = await this.getConfigValue(this.configKeys.feedbackOnExternalSite, profileID);
 
         const addedFeedbacks = [];
         const BoardDrawer = this.BoardDrawer;
@@ -19,7 +19,9 @@ export default async function renderFeedback(gameStateObj) {
 
             const textElem = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
 
-            addedFeedbacks.push({ 'elem': textElem, 'data': { shapeType, shapeSquare, shapeConfig }});
+            addedFeedbacks.push(CREATE_BOARD_DRAWER_MOVE_OBJ(textElem, {
+                shapeType, shapeSquare, shapeConfig
+            }, profileID, 'feedback'));
         }
 
         if(typeof category === 'number') {
@@ -29,31 +31,28 @@ export default async function renderFeedback(gameStateObj) {
             addText(to, 1.7, emoji, `opacity: 1;`, [0.8, 0.8]);
         }
 
-        if(!this.pV[profileName]) return;
+        if(!this.pV[profileID]) return;
 
-        this.pV[profileName].activeFeedbackDisplays.push(...addedFeedbacks);
+        this.pV[profileID].activeFeedbackDisplays.push(...addedFeedbacks);
 
         if(feedbackOnExternalSite) {
-            // Create a copy without modifying the original array
-            const feedbacksWithoutElem = addedFeedbacks.map(x => ({ ...x, elem: null }));
-
-            this.CommLink.commands.feedbackToSite(feedbacksWithoutElem);
+            this.CommLink.commands.renderVisualsToSite(FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(addedFeedbacks));
         }
     }
 
-    const clearFeedback = profileName => {
-        if(!profileName) return;
-        if(!this.pV[profileName]) return;
+    const clearFeedback = profileID => {
+        if(!profileID) return;
+        if(!this.pV[profileID]) return;
 
         // Remove all previous metrics
-        const previousFeedbacks = this.pV[profileName].activeFeedbackDisplays;
+        const previousFeedbacks = this.pV[profileID].activeFeedbackDisplays;
 
         if(previousFeedbacks.length) {
             previousFeedbacks.forEach(x => {
                 if(x.elem) x.elem.remove();
             });
 
-            this.pV[profileName].activeFeedbackDisplays = [];
+            this.pV[profileID].activeFeedbackDisplays = [];
         }
     }
 
@@ -64,17 +63,17 @@ export default async function renderFeedback(gameStateObj) {
 
     // Display new feedback
     for(const profileObj of profiles.filter(p => p.config.enableMoveRatings || p.config.enableEnemyFeedback)) {
-        const profileName = profileObj.name;
+        const profileID = profileObj.name;
 
         // GET_PROFILES() returns every configured profile, but pV only holds the ones
         // whose engine actually loaded. A profile with the engine off and move ratings
         // on used to throw here and kill feedback for every other profile too.
-        if(!this.pV[profileName]) continue;
+        if(!this.pV[profileID]) continue;
 
-        const lastFen = this.pV[profileName].lastFen;
-        const feedbackEngineDepth = await this.getConfigValue(this.configKeys.feedbackEngineDepth, profileName);
-        const enablePlayerFeedback = await this.getConfigValue(this.configKeys.enableMoveRatings, profileName);
-        const enableEnemyFeedback = await this.getConfigValue(this.configKeys.enableEnemyFeedback, profileName);
+        const lastFen = this.pV[profileID].lastFen;
+        const feedbackEngineDepth = await this.getConfigValue(this.configKeys.feedbackEngineDepth, profileID);
+        const enablePlayerFeedback = await this.getConfigValue(this.configKeys.enableMoveRatings, profileID);
+        const enableEnemyFeedback = await this.getConfigValue(this.configKeys.enableEnemyFeedback, profileID);
         const isChangeLogical = this.isFenChangeLogical(lastFen, currentFen);
 
         const playerColor = await this.getPlayerColor();
@@ -100,7 +99,7 @@ export default async function renderFeedback(gameStateObj) {
                 const cp = resultObj.cp;
                 const label = this.MoveEval.resultLabels[category];
 
-                display(from, to, cp, category, label, profileName);
+                display(from, to, cp, category, label, profileID);
             });
         }
     }

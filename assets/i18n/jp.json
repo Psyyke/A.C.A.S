@@ -146,6 +146,7 @@
         "renderSquareSafe": ["安全な正方形", "駒が安全に移動できる安全な正方形をシアン色で強調"],
         "renderPiecePlayerCapture": ["自分の駒の捕獲の脅威", "捕獲の危険にある駒に💧を表示"],
         "renderPieceEnemyCapture": ["敵の駒の捕獲の脅威", "攻撃すべき駒に🩸を表示"],
+        "enableEveryPieceEvals": ["各駒の貢献を表示", "それぞれの駒が局面にどれだけ貢献しているかを確認"],
         "feedbackEngineDepth": ["検索深度", "フィードバックエンジンがどれだけ深く検索するか"],
         "enableEnemyFeedback": ["敵を評価", "敵についてもフィードバックを提供"],
         "enableMoveRatings": ["手の評価", "エンジンの手についての考えを表示"],

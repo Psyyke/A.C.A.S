@@ -146,6 +146,7 @@
         "renderSquareSafe": ["Quadrados Seguros", "Destacar quadrados seguros com ciano"],
         "renderPiecePlayerCapture": ["Ameaça de Captura da Própria Peça", "Exibir 💧 em peças que estão em perigo de captura"],
         "renderPieceEnemyCapture": ["Ameaça de Captura da Peça do Oponente", "Exibir 🩸 em peças que você deve atacar"],
+        "enableEveryPieceEvals": ["Mostrar contribuição de cada peça", "Veja o quanto cada peça contribui para a posição"],
         "feedbackEngineDepth": ["Profundidade de Busca", "Até que profundidade o motor de feedback buscará"],
         "enableEnemyFeedback": ["Avaliar Oponente", "Dar feedback também sobre o oponente"],
         "enableMoveRatings": ["Avaliações de Movimentos", "Mostrar os pensamentos do motor sobre movimentos"],

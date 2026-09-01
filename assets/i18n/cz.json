@@ -146,6 +146,7 @@
         "renderSquareSafe": ["Bezpečná pole", "Zvýrazní pole, na která se figurka může bezpečně přesunout azurově"],
         "renderPiecePlayerCapture": ["Hrozba zajetí vlastních figur", "Zobrazí 💧 na figurkách, které jsou v ohrožení zajetí"],
         "renderPieceEnemyCapture": ["Hrozba zajetí figur protivníka", "Zobrazí 🩸 na figurkách, které byste měli napadnout"],
+        "enableEveryPieceEvals": ["Zobrazit přínos každé figurky", "Podívejte se, jak každá figurka přispívá k pozici"],
         "feedbackEngineDepth": ["Hloubka vyhledávání", "Jak hluboko bude motor pro zpětnou vazbu vyhledávat"],
         "enableEnemyFeedback": ["Hodnotit protivníka", "Poskytnout zpětnou vazbu i na protivníka"],
         "enableMoveRatings": ["Hodnocení tahů", "Zobrazit myšlenky motoru o tazích"],

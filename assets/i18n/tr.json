@@ -146,6 +146,7 @@
         "renderSquareSafe": ["Güvenli Kareler", "Mavi ile güvenli kareleri vurgula"],
         "renderPiecePlayerCapture": ["Kendi Taşını Yakalama Tehdidi", "Yakalanma tehlikesinde olan taşlarınızın üzerine 💧 göster"],
         "renderPieceEnemyCapture": ["Rakip Taşını Yakalama Tehdidi", "Saldırmanız gereken rakip taşlarının üzerine 🩸 göster"],
+        "enableEveryPieceEvals": ["Her Taşın Katkısını Göster", "Her taşın konuma ne kadar katkı sağladığını gör"],
         "feedbackEngineDepth": ["Arama Derinliği", "Geri bildirim motorunun ne kadar derin arayacağı"],
         "enableEnemyFeedback": ["Rakibi Değerlendir", "Rakip hakkında da geri bildirim ver"],
         "enableMoveRatings": ["Hamle Değerlendirmeleri", "Motorun hamleler hakkındaki düşüncelerini göster"],

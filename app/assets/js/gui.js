@@ -12,6 +12,21 @@ import { pipData, startPictureInPicture } from './gui/pip.js';
 export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
 
+function setupSettingsContainerHoverRecovery() {
+    const settingsContainer = document.querySelector('#acas-settings-container');
+    if(!settingsContainer) return;
+
+    const setActive = (active) => settingsContainer.classList.toggle('is-active', active);
+
+    settingsContainer.addEventListener('pointerenter', () => setActive(true));
+    settingsContainer.addEventListener('pointerleave', () => setActive(false));
+    settingsContainer.addEventListener('pointerdown', () => setActive(true));
+
+    document.addEventListener('pointerdown', event => {
+        if(!settingsContainer.contains(event.target)) setActive(false);
+    });
+}
+
 export function setThemeColorHex(value) {
     document.body.style['background-color'] = value || null;
     document.querySelectorAll('dialog').forEach(diag => {
@@ -154,7 +169,7 @@ async function updateUserscriptInfoText() {
     
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
-        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, '2.4.7')) {
+        if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, USERSCRIPT_MIN_VERSION)) {
             updateYourUserscriptElem.classList.remove('hidden');
             toast.warning(TRANS_OBJ?.oldUserscriptWarning ?? 'You are using an outdated or incompatible version of A.C.A.S. Please update the userscript.', 10000);
         }
@@ -213,6 +228,8 @@ function initializePolyglotBookLoader() {
 
 export async function initGUI() {
     if(initialized) return;
+
+    setupSettingsContainerHoverRecovery();
 
     const storedThemeColor = localStorage.getItem(THEME_COLOR_STORAGE_KEY);
     const defaultInstanceSize = 500;

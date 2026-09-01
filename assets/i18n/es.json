@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Cuadrados seguros", "Resaltar los cuadrados seguros a los que una pieza puede moverse con cian"],
         "renderPiecePlayerCapture": ["Amenaza de captura de piezas propias", "Mostrar 💧 en las piezas que están en peligro de captura"],
         "renderPieceEnemyCapture": ["Amenaza de captura de piezas enemigas", "Mostrar 🩸 en las piezas que deberías atacar"],
+        "enableEveryPieceEvals": ["Contribución de cada pieza", "Mira cuánto contribuye cada pieza a la posición"],
         "feedbackEngineDepth": ["Profundidad de búsqueda", "Qué tan profundo buscará el motor de retroalimentación"],
         "enableEnemyFeedback": ["Calificar al oponente", "Dar retroalimentación también sobre el oponente"],
         "enableMoveRatings": ["Calificaciones de movimientos", "Mostrar los pensamientos del motor sobre los movimientos"],

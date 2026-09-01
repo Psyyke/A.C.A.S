@@ -146,6 +146,7 @@
         "renderSquareSafe": ["안전한 칸", "말이 안전하게 이동할 수 있는 안전한 칸을 청록색으로 강조"],
         "renderPiecePlayerCapture": ["자신의 말 포착 위협", "잡힐 위험이 있는 말에 💧 표시"],
         "renderPieceEnemyCapture": ["적 말 포착 위협", "공격해야 할 말에 🩸 표시"],
+        "enableEveryPieceEvals": ["각 말의 기여도 표시", "각 말이 위치에 얼마나 기여하는지 보기"],
         "feedbackEngineDepth": ["검색 깊이", "피드백 엔진이 얼마나 깊이 검색할지"],
         "enableEnemyFeedback": ["적 평가", "적에 대해서도 피드백 제공"],
         "enableMoveRatings": ["이동 평가", "엔진의 이동에 대한 생각 표시"],

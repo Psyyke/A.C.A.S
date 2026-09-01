@@ -146,6 +146,7 @@
         "renderSquareSafe": ["Sigurni kvadrati", "Istakni sigurne kvadrate cijanom"],
         "renderPiecePlayerCapture": ["Pretnja zarobljavanjem sopstvenih figura", "Prikaži 💧 na figurama koje su u opasnosti od zarobljavanja"],
         "renderPieceEnemyCapture": ["Pretnja zarobljavanjem figura protivnika", "Prikaži 🩸 na figurama koje bi trebalo da napadnete"],
+        "enableEveryPieceEvals": ["Prikaži doprinos svake figure", "Pogledaj koliko svaka figura doprinosi poziciji"],
         "feedbackEngineDepth": ["Dubina pretrage", "Koliko duboko će motor povratnih informacija pretraživati"],
         "enableEnemyFeedback": ["Oceni Protivnika", "Daj povratne informacije i o protivniku"],
         "enableMoveRatings": ["Ocene Poteza", "Prikaži misli motora o potezima"],

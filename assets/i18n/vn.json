@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Ô an toàn", "Tô lam các ô an toàn"],
         "renderPiecePlayerCapture": ["Quân đang bị đe dọa", "Hiển thị 💧 lên các quân của bạn đang có nguy cơ bị bắt"],
         "renderPieceEnemyCapture": ["Quân đối thủ có thể bắt", "Hiển thị 🩸 lên các quân đối thủ mà bạn nên tấn công"],
+        "enableEveryPieceEvals": ["Hiển thị đóng góp của từng quân cờ", "Xem từng quân cờ đang đóng góp bao nhiêu cho vị trí"],
         "feedbackEngineDepth": ["Độ sâu tìm kiếm", "Độ sâu mà engine phản hồi sẽ tính toán"],
         "enableEnemyFeedback": ["Đánh giá đối thủ", "Đưa ra phản hồi cho cả nước đi của đối thủ"],
         "enableMoveRatings": ["Đánh giá nước đi", "Hiển thị nhận xét của engine về các nước đi"],

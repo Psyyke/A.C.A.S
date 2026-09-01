@@ -21,7 +21,7 @@ export default async function renderMetric(fen, profile) {
     const renderPiecePlayerCapture  = await this.getConfigValue(this.configKeys.renderPiecePlayerCapture, profile);
     const renderPieceEnemyCapture   = await this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
     const renderOnExternalSite      = await this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
-    const enableEveryPieceEvals      = await this.getConfigValue(this.configKeys.enableEveryPieceEvals, profile);
+    const enableEveryPieceEvals     = await this.getConfigValue(this.configKeys.enableEveryPieceEvals, profile);
 
     const onlyRenderSquarePlayer = renderSquarePlayer && !(renderSquareEnemy || renderSquareContested);
     const onlyRenderSquareEnemy = renderSquareEnemy && !(renderSquarePlayer || renderSquareContested);
@@ -62,14 +62,11 @@ export default async function renderMetric(fen, profile) {
             shapeConfig
         );
 
-        addedMetrics.push({
-            elem: rect,
-            data: {
-                shapeType,
-                shapeSquare,
-                shapeConfig
-            }
-        });
+        addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(rect, {
+            shapeType,
+            shapeSquare,
+            shapeConfig
+        }, profile, 'metric'));
     }
 
     function addText(squareFen, size, text, style, position) {
@@ -88,14 +85,11 @@ export default async function renderMetric(fen, profile) {
             shapeConfig
         );
 
-        addedMetrics.push({
-            elem: textElem,
-            data: {
-                shapeType,
-                shapeSquare,
-                shapeConfig
-            }
-        });
+        addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(textElem, {
+            shapeType,
+            shapeSquare,
+            shapeConfig
+        }, profile, 'metric'));
     }
 
     function addTextWithBorder(squareFen, size, text, style, position) {
@@ -230,14 +224,7 @@ export default async function renderMetric(fen, profile) {
             ...addedPieceEvals
         ];
 
-        const metricsWithoutElem = allMetrics.map(x => ({
-            ...x,
-            elem: null
-        }));
-
-        this.CommLink.commands.renderMetricsToSite(
-            metricsWithoutElem
-        );
+        this.CommLink.commands.renderVisualsToSite(FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(allMetrics));
     }
 }
 
@@ -325,14 +312,11 @@ async function renderPieceEvals(fen, profile) {
                     shapeConfig
                 );
 
-                addedDisplays.push({
-                    elem,
-                    data: {
-                        shapeType,
-                        shapeSquare,
-                        shapeConfig
-                    }
-                });
+                addedDisplays.push(CREATE_BOARD_DRAWER_MOVE_OBJ(elem, {
+                    shapeType,
+                    shapeSquare,
+                    shapeConfig
+                }, profile, 'metric'));
             }
 
             this.pV[profile].activePieceEvalDisplays.push(

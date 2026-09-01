@@ -48,6 +48,8 @@ const ACTIVE_INPUT_LISTENERS = [];
 
 const POLY_OPENING_BOOKS = new Map();
 
+const USERSCRIPT_MIN_VERSION = '2.4.8';
+
 let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js
 let IS_INSTANCE_SETTING_BTN_DISABLED = false;
@@ -66,6 +68,52 @@ function FORCE_CLOSE_ALL_INSTANCES() {
             iObj.instance.close();
         }
     });
+}
+
+function CREATE_BOARD_DRAWER_MOVE_OBJ(
+    elem = null,
+    move,
+    profileID = null,
+    category = null
+) {
+    return {
+        elem,
+
+        data: {
+            // Shape
+            shapeType: move.shapeType ?? null,
+            shapeSquare: move.shapeSquare ?? null,
+            shapeConfig: move.shapeConfig ?? null,
+
+            // Player move
+            from: move.from ?? move.player?.[0] ?? null,
+            to: move.to ?? move.player?.[1] ?? null,
+
+            // Opponent move
+            oppFrom: move.oppFrom ?? move.opponent?.[0] ?? null,
+            oppTo: move.oppTo ?? move.opponent?.[1] ?? null,
+
+            // Move metadata
+            playerPromotion: move.playerPromotion ?? null,
+            opponentPromotion: move.opponentPromotion ?? null,
+            cp: move.cp ?? null,
+            ranking: move.ranking ?? null,
+            isFuture: move.isFuture ?? null,
+            isOpponent: move.isOpponent ?? false,
+            forceHoverOnly: move.forceHoverOnly ?? false,
+            bringToFront: move.bringToFront ?? false,
+
+            // Identification
+            profileID,
+            category
+        }
+    };
+}
+
+function FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(moveObjs) {
+    if(!Array.isArray(moveObjs)) return [];
+
+    return moveObjs.map(x => x?.data ?? x);
 }
 
 function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
@@ -883,40 +931,48 @@ function PARSE_UCI_OPTION(line) {
 }
 
 function PARSE_UCI_RESPONSE(response) {
-    const keywords = ['id', 'name', 'author', 'uciok', 'readyok', 
+    const keywords = [
+        'id', 'name', 'author', 'uciok', 'readyok',
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',
         'wdl', 'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
         'currmove', 'currmovenumber', 'hashfull', 'multipv', 'prob',
         'refutation', 'line', 'stop', 'ponderhit', 'ucs', 'baseTurn',
         'position', 'startpos', 'moves', 'files', 'ranks',
-        'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc', 'error'];
+        'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc', 'error'
+    ];
 
     keywords.push(...keywords.map(k => k + 'San'));
 
     const data = {};
     let currentKeyword = null;
-    
-    response.split(/\s+/).forEach(token => {
+
+    response.trim().split(/\s+/).forEach(token => {
         if(keywords.includes(token) || token.startsWith('info')) {
             if(token.startsWith('info')) {
                 return;
             }
 
             currentKeyword = token;
-            data[currentKeyword] = '';
+
+            data[currentKeyword] = currentKeyword === 'wdl' ? [] : '';
 
         } else if(currentKeyword !== null) {
-            if(!isNaN(token) && !/^[rnbqkpRNBQKP\d]+$/.test(token)) {
-                data[currentKeyword] = parseInt(token);
+            const number = Number(token);
+
+            if(currentKeyword === 'wdl') {
+                if(Number.isFinite(number)) {
+                    data[currentKeyword].push(number);
+                }
+            } else if(token !== '' && Number.isFinite(number)) {
+                data[currentKeyword] = number;
             } else if(data[currentKeyword] !== '') {
-                data[currentKeyword] += ' ';
-                data[currentKeyword] += token;
+                data[currentKeyword] += ' ' + token;
             } else {
-                data[currentKeyword] += token;
+                data[currentKeyword] = token;
             }
         }
     });
-    
+
     return data;
 }
 

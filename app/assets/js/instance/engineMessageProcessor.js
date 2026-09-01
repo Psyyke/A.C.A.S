@@ -102,7 +102,7 @@ export default async function engineMessageProcessor(msg, profile) {
     }
 
     if(data?.wdl) {
-        const [winChance, drawChance, lossChance] = data?.wdl?.split(' ');
+        const [winChance, drawChance, lossChance] = data?.wdl ?? [];
 
         updatePipData({ winChance, drawChance, lossChance });
     }

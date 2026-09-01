@@ -146,6 +146,7 @@
         "renderSquareSafe": ["Turvalised ruudud", "Näita ruute, kuhu tükk saab turvaliselt liikuda"],
         "renderPiecePlayerCapture": ["Oma tüki vallutamise oht", "Näita 💧 tükke, mis on vallutamise ohus"],
         "renderPieceEnemyCapture": ["Vastase tüki vallutamise oht", "Näita 🩸 tükke, mida tuleb rünnata"],
+        "enableEveryPieceEvals": ["Näita iga tüki osalust", "Vaata, kui palju iga tükk positsiooni panustab"],
         "feedbackEngineDepth": ["Otsingu sügavus", "Kui sügavale otsib tagasiside mootor"],
         "enableEnemyFeedback": ["Hinda vastast", "Anna tagasisidet ka vastase kohta"],
         "enableMoveRatings": ["Käikude hinnangud", "Kuva mootori mõtteid käikude kohta"],

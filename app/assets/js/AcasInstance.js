@@ -175,10 +175,7 @@ export default class AcasInstance {
 
         this.CommLink.registerSendCommand('ping');
         this.CommLink.registerSendCommand('getFen');
-        this.CommLink.registerSendCommand('markMoveToSite');
-        this.CommLink.registerSendCommand('markBookToSite');
-        this.CommLink.registerSendCommand('renderMetricsToSite');
-        this.CommLink.registerSendCommand('feedbackToSite');
+        this.CommLink.registerSendCommand('renderVisualsToSite');
         this.CommLink.registerSendCommand('updateRestartListener');
         this.CommLink.registerSendCommand('updateConcealAssistanceListener');
         this.CommLink.registerSendCommand('applyAssistanceConcealment');
@@ -803,7 +800,6 @@ export default class AcasInstance {
             return;
         }
 
-        const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
         const alwaysMyTurn = await this.getConfigValue(this.configKeys.alwaysMyTurn, profile);
         const playerColor = await this.getPlayerColor();
         const moveSuggestionAmount = this.pV[profile].multiPV;
@@ -814,11 +810,7 @@ export default class AcasInstance {
             .slice(0, moveSuggestionAmount)
             .map(move => ({ ...move, profile }));
 
-        if(displayMovesExternally) {
-            await this.Interface.displayBookMoves(bookMoves);
-        }
-        
-        this.CommLink.commands.markBookToSite(bookMoves);
+        await this.Interface.displayBookMoves(bookMoves, profile);
     }
 
     async loadOpeningBook() {
@@ -857,7 +849,6 @@ export default class AcasInstance {
         this.pV[profile].pendingMoveDisplay = null;
 
         const normalMoveOpacity = await this.getConfigValue(this.configKeys.arrowOpacity, profile);
-        const displayMovesExternally = await this.getConfigValue(this.configKeys.displayMovesOnExternalSite, profile);
         const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
         const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
 
@@ -899,10 +890,6 @@ export default class AcasInstance {
         if(moveObjects?.length === 0) return;
     
         this.Interface.markMoves(moveObjects, profile);
-
-        if(displayMovesExternally) {
-            this.CommLink.commands.markMoveToSite(moveObjects);
-        }
 
         if(onlySuggestPieces && !movesOnDemand) {
             moveObjects.forEach(moveObj => {

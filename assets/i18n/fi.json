@@ -146,6 +146,7 @@
         "renderSquareSafe": ["Turvalliset ruudut", "Korostaa syaanimellä ruudut, joihin nappula voi siirtyä turvallisesti"],
         "renderPiecePlayerCapture": ["Oman nappulan kaappausuhka", "Näyttää 💧 nappuloilla, jotka ovat vaarassa kaapattavaksi"],
         "renderPieceEnemyCapture": ["Vastustajan nappulan kaappausuhka", "Näyttää 🩸 nappuloilla, joihin kannattaa hyökätä"],
+        "enableEveryPieceEvals": ["Näytä jokaisen nappulan osuus", "Näe, kuinka paljon jokainen nappula vaikuttaa asemaan"],
         "feedbackEngineDepth": ["Hakusyvyys", "Kuinka syvälle palautteen antava moottori hakee siirtoja"],
         "enableEnemyFeedback": ["Arvioi vastustajan siirrot", "Anna palautetta myös vastustajan siirroista"],
         "enableMoveRatings": ["Siirtojen arvioinnit", "Näytä moottorin arvio siirtojen laadusta"],

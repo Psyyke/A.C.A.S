@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Säkra kvadrater", "Markera med cyan säkra kvadrater"],
         "renderPiecePlayerCapture": ["Egen pjäsfångsthot", "Visa 💧 på pjäser som är i fara att erövras"],
         "renderPieceEnemyCapture": ["Motståndarens pjäsfångsthot", "Visa 🩸 på pjäser som du bör attackera"],
+        "enableEveryPieceEvals": ["Visa varje pjäss bidrag", "Se hur mycket varje pjäs bidrar till positionen"],
         "feedbackEngineDepth": ["Sökdjup", "Hur djupt kommer feedbackmotorn att söka"],
         "enableEnemyFeedback": ["Betygsätt Motståndare", "Ge feedback även om motståndaren"],
         "enableMoveRatings": ["Dragbetyg", "Visa motorns tankar om drag"],

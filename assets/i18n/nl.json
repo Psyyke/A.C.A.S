@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Veilige Vierkanten", "Markeer veilige vierkanten met cyaan"],
         "renderPiecePlayerCapture": ["Eigen Stuk Vangstbedreiging", "Toon 💧 op stukken die in gevaar zijn om te worden gevangen"],
         "renderPieceEnemyCapture": ["Tegenstander Stuk Vangstbedreiging", "Toon 🩸 op stukken die je zou moeten aanvallen"],
+        "enableEveryPieceEvals": ["Bijdrage van elk stuk weergeven", "Zie hoeveel elk stuk bijdraagt aan de positie"],
         "feedbackEngineDepth": ["Zoekdiepte", "Hoe diep zal de feedback engine zoeken"],
         "enableEnemyFeedback": ["Beoordeel Tegenstander", "Geef ook feedback op de tegenstander"],
         "enableMoveRatings": ["Zet Beoordelingen", "Toon de gedachten van de engine over zetten"],

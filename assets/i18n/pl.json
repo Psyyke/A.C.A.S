@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Bezpieczne pola", "Zaznaczaj bezpieczne pola na cyjanowo"],
         "renderPiecePlayerCapture": ["Zagrożenie złapaniem własnego pionka", "Wyświetl 💧 na pionkach, które są w niebezpieczeństwie złapania"],
         "renderPieceEnemyCapture": ["Zagrożenie złapaniem pionka przeciwnika", "Wyświetl 🩸 na pionkach, które powinieneś zaatakować"],
+        "enableEveryPieceEvals": ["Pokaż wkład każdej bierki", "Zobacz, jak bardzo każda bierka przyczynia się do pozycji"],
         "feedbackEngineDepth": ["Głębokość wyszukiwania", "Jak głęboko silnik opinii będzie wyszukiwał"],
         "enableEnemyFeedback": ["Oceń Przeciwnika", "Daj również opinię na temat przeciwnika"],
         "enableMoveRatings": ["Oceny Ruchów", "Pokaż myśli silnika na temat ruchów"],

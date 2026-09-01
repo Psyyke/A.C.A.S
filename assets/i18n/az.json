@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Təhlükəsiz kvadratlar", "Syan rəngdə piyənin təhlükəsiz şəkildə keçə biləcəyi kvadratları vurğulayın"],
         "renderPiecePlayerCapture": ["Öz piyənin tutulma təhlükəsi", "Tutulma təhlükəsi olan piyələrə 💧 işarəsi qoyun"],
         "renderPieceEnemyCapture": ["Rəqib piyənin tutulma təhlükəsi", "Hücum etməli olduğunuz piyələrə 🩸 işarəsi qoyun"],
+        "enableEveryPieceEvals": ["Hər fiqurun töhfəsini göstər", "Hər fiqurun mövqeyə necə töhfə verdiyini gör"],
         "feedbackEngineDepth": ["Axtarış dərinliyi", "Qiymətləndirmə mühərrikinin neçə dərinlikdə axtaracağı"],
         "enableEnemyFeedback": ["Rəqibi qiymətləndirin", "Rəqibin hərəkətləri haqqında da qiymətləndirmə verin"],
         "enableMoveRatings": ["Hərəkət qiymətləndirmələri", "Mühərrikin hərəkətlər haqqında düşüncələrini göstərin"],

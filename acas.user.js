@@ -80,7 +80,7 @@
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1900946/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.7
+// @version     2.4.8
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -424,10 +424,7 @@ const gameStateHistory = {
 let BoardDrawer = null;
 let chessBoardElem = null;
 let chesscomVariantPlayerColorsTable = null;
-let activeGuiMoveMarkings = [];
-let activeBookMoveMarkings = [];
-let activeMetricRenders = [];
-let activeFeedback = [];
+let activeVisuals = [];
 let boardObserver = null;
 let dumbBoardObservingInterval = null;
 
@@ -439,7 +436,6 @@ let lastPieceSize = null;
 let lastBoardMatrix = null;
 let lastBoardOrientation = null;
 let lastMoveRequestTime = 0;
-let lastMutationObsProcessedTurn = null;
 let lastAllowedFen = '';
 let lastRejectedFen = '';
 
@@ -536,43 +532,12 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 return `pong (took ${Date.now() - packet.date}ms)`;
             case 'getFen':
                 return getFen();
-            case 'removeSiteMoveMarkings':
-                removeMarkingsFromBoard();
-                removeBookMovesFromBoard();
-                return true;
-            case 'markMoveToSite':
-                const profile = packet.data?.[0]?.profile;
-
-                removeMarkingsFromBoard(profile);
-                addMarkingsToBoard(packet.data);
-
-                const isAutoMove = getConfigValue(configKeys.autoMove, profile);
-                const isAutoMoveAfterUser = getConfigValue(configKeys.autoMoveAfterUser, profile);
-
-                if(isAutoMove && (!isAutoMoveAfterUser || matchFirstSuggestionGiven)) {
-                    AutomaticMove.stopAll(); // stop all active automoves before starting a new one
-
-                    const isLegit = getConfigValue(configKeys.autoMoveLegit, profile);
-                    const isRandom = getConfigValue(configKeys.autoMoveRandom, profile);
-
-                    const move = isRandom
-                        ? packet.data[Math.floor(Math.random() * Math.random() * packet.data.length)]?.player
-                        : packet.data[0]?.player;
-
-                    makeMove(profile, move, isLegit);
-                }
+            case 'renderVisualsToSite':
+                renderStuffToBoard(packet.data);
+                handleAutoMove(packet.data);
 
                 matchFirstSuggestionGiven = true;
 
-                return true;
-            case 'markBookToSite':
-                addBookToBoard(packet.data);
-                return true;
-            case 'renderMetricsToSite':
-                renderMetrics(packet.data);
-                return true;
-            case 'feedbackToSite':
-                displayFeedback(packet.data);
                 return true;
             case 'updateRestartListener':
                 createInputListener('instanceRestart', packet.data, () => {
@@ -592,36 +557,6 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
 });
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-function getArrowStyle(type, fill, opacity) {
-    const getBaseStyleModification = (f, o) => [
-        'stroke: rgb(0 0 0 / 50%);',
-        'stroke-width: 0.5%;',
-        'stroke-linejoin: round;',
-        `fill: ${fill || f};`,
-        `opacity: ${opacity || o};`
-    ].join('\n');
-
-    switch(type) {
-        case 'best':
-            return getBaseStyleModification('limegreen', 0.9);
-        case 'secondary':
-            return getBaseStyleModification('dodgerblue', 0.7);
-        case 'opponent':
-            return getBaseStyleModification('crimson', 0.3);
-        case 'book':
-            return getBaseStyleModification('#00d4ff', 0.75);
-        case 'future':
-            return [
-                'stroke: rgb(0 0 0 / 40%);',
-                'stroke-width: 0.3%;',
-                'stroke-linejoin: round;',
-                'stroke-dasharray: 2;',
-                'fill: rgb(255 255 255 / 20%);',
-                `opacity: ${opacity};`
-            ].join('\n');
-    }
-}
 
 function getChessgroundCoordsFromPiece(pieceElem) {
     const key = pieceElem?.cgKey;
@@ -652,14 +587,14 @@ function getChessgroundCoordsFromPiece(pieceElem) {
 
 function createInputListener(listenerType, targetValue, callback) {
     if(typeof listenerType !== 'string' || typeof targetValue !== 'string' || !callback) return;
-    
+
     const existingIndex = activeInputListeners
         .findIndex(l => l.listenerType === listenerType);
 
     if(existingIndex !== -1) {
         const existing = activeInputListeners[existingIndex];
         if(existing.targetValue === targetValue) return;
-        
+
         existing.listeners.forEach(({ type, fn }) => document.removeEventListener(type, fn));
         activeInputListeners.splice(existingIndex, 1);
     }
@@ -718,428 +653,178 @@ function createInputListener(listenerType, targetValue, callback) {
     });
 }
 
-function clearMetricRenders() {
-    activeMetricRenders.forEach(elem => {
-        if(elem?.remove) elem.remove();
-    });
-
-    activeMetricRenders.length = 0;
-}
-
-function renderMetrics(addedMetrics) {
-    if(!BoardDrawer) return;
-
-    clearMetricRenders();
-
-    function processMetric(metric) {
-        const data = metric?.data;
-
-        if(!data) return;
-
-        const shapeType = data?.shapeType;
-        const shapeSquare = data?.shapeSquare;
-        const shapeConfig = data?.shapeConfig;
-
-        if(shapeType && shapeSquare && shapeConfig) {
-            const shape = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
-
-            activeMetricRenders.push(shape);
-        }
-    }
-
-    function findMetricByType(type) {
-        return addedMetrics.filter(metric => metric?.data?.shapeType === type) || [];
-    }
-
-    findMetricByType('text')
-        .forEach(processMetric);
-
-    findMetricByType('rectangle')
-        .forEach(processMetric);
-}
-
-function clearFeedback() {
-    activeFeedback.forEach(elem => elem?.remove());
-    activeFeedback.length = 0;
-}
-
-function displayFeedback(addedFeedback) {
-    if(!BoardDrawer) return;
-
-    clearFeedback();
-
-    function processFeedback(feedback) {
-        const data = feedback?.data;
-
-        if(!data) return;
-
-        const shapeType = data?.shapeType;
-        const shapeSquare = data?.shapeSquare;
-        const shapeConfig = data?.shapeConfig;
-
-        if(shapeType && shapeSquare && shapeConfig) {
-            const shape = BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
-
-            activeFeedback.push(shape);
-        }
-    }
-
-    addedFeedback.forEach(processFeedback);
-}
-
-function maybeAnnounceMarkingsToPage(moveMarkings) {
+function maybeAnnounceMarkingsToPage() {
     if(!runningOnDevPage || typeof unsafeWindow === 'undefined') return;
 
-    const markings = activeGuiMoveMarkings || [];
+    const markings = activeVisuals
+        .map(({ marking }) => marking)
+        .filter(marking =>
+            marking?.category === 'move' &&
+            !marking.isOpponent &&
+            !marking.isFuture
+        );
 
     let selectedMarking = null;
 
-    if(markings.length === 1) {
-        selectedMarking = markings[0].player;
-    } else if (markings.length > 1) {
-        const randomIndex = Math.floor(Math.random() * markings.length);
-        selectedMarking = markings[randomIndex].player;
+    if(markings.length > 0) {
+        const marking = markings.length === 1
+            ? markings[0]
+            : markings[Math.floor(Math.random() * markings.length)];
+
+        selectedMarking = [marking.from, marking.to];
     }
 
-    unsafeWindow.postMessage({ name: 'bestMoveArr', value: selectedMarking });
-}
-
-function addBookToBoard(bookMoves) {
-    if(!BoardDrawer || !Array.isArray(bookMoves) || !bookMoves.length) return;
-
-    const profiles = [...new Set(bookMoves.map(move => move?.profile).filter(Boolean))];
-
-    profiles.forEach(profile => removeBookMovesFromBoard(profile));
-
-    const moveGroups = bookMoves.reduce((map, move) => {
-        const profile = move?.profile;
-
-        if(!profile) return map;
-
-        map.set(profile, [...(map.get(profile) || []), move]);
-        return map;
-    }, new Map());
-
-    moveGroups.forEach((moves, profile) => {
-        const color = getConfigValue(configKeys.bookMoveColorHex, profile) || '#00d4ff';
-        const opacity = (getConfigValue(configKeys.bookMoveOpacity, profile) || 75) / 100;
-        const arrowStyle = getArrowStyle('book', color, opacity);
-
-        const arrows = moves
-            .map((move, index) => {
-                if(!move?.from || !move?.to) return null;
-
-                const scale =
-                    index === 0
-                        ? 1
-                        : moves.length === 2
-                            ? 0.75
-                            : 1 - 0.5 * (index / (moves.length - 1));
-
-                return BoardDrawer.createShape('arrow', [move.from, move.to], {
-                    style: arrowStyle,
-                    lineWidth: 30 * scale,
-                    arrowheadWidth: 80 * scale,
-                    arrowheadHeight: 60 * scale,
-                    startOffset: 30
-                });
-            })
-            .filter(Boolean);
-
-        activeBookMoveMarkings.push(...arrows.map(arrow => ({
-            profile,
-            arrowElem: arrow
-        })));
+    unsafeWindow.postMessage({
+        name: 'bestMoveArr',
+        value: selectedMarking
     });
 }
 
-function removeBookMovesFromBoard(profile) {
-    let removalArr = activeBookMoveMarkings;
-
-    if(profile) {
-        removalArr = removalArr.filter(obj => obj.profile === profile);
-        activeBookMoveMarkings = activeBookMoveMarkings.filter(obj => obj.profile !== profile);
-    } else {
-        activeBookMoveMarkings = [];
+function handleAutoMove(markings) {
+    if(!Array.isArray(markings) || !markings.length) {
+        return;
     }
 
-    removalArr.forEach(markingObj => {
-        markingObj.arrowElem?.remove();
-    });
+    if(markings[0]?.category !== 'move') {
+        return;
+    }
+
+    const profileID = markings[0]?.profileID;
+
+    const isAutoMove = getConfigValue(
+        configKeys.autoMove,
+        profileID
+    );
+
+    const isAutoMoveAfterUser = getConfigValue(
+        configKeys.autoMoveAfterUser,
+        profileID
+    );
+
+    if(isAutoMove && (!isAutoMoveAfterUser || matchFirstSuggestionGiven)) {
+        AutomaticMove.stopAll();
+
+        const isLegit = getConfigValue(
+            configKeys.autoMoveLegit,
+            profileID
+        );
+
+        const isRandom = getConfigValue(
+            configKeys.autoMoveRandom,
+            profileID
+        );
+
+        const move = isRandom
+            ? markings[
+                Math.floor(
+                    Math.random() * Math.random() * markings.length
+                )
+            ]?.player
+            : markings[0]?.player;
+
+        makeMove(profileID, move, isLegit);
+    }
 }
 
-function addMarkingsToBoard(moveObjArr) {
-    if(!BoardDrawer) return;
-
-    const maxScale = 1;
-    const minScale = 0.5;
-    const totalRanks = moveObjArr.length;
-    const markedSquares = { 0: [], 1: [] };
-
-    function fillSquare(square, style) {
-        const shapeType = 'rectangle';
-        const shapeConfig = { style };
-
-        const rect = BoardDrawer.createShape(shapeType, square, shapeConfig);
-
-        return rect;
+function renderStuffToBoard(markings) {
+    if(!BoardDrawer || !Array.isArray(markings) || !markings.length) {
+        return;
     }
 
-    function processMarkingObj(markingObj, idx) {
-        const profile = markingObj.profile;
+    const profileID = markings[0]?.profileID;
+    const category = markings[0]?.category;
 
-        const showOpponentMoveGuess = getConfigValue(configKeys.showOpponentMoveGuess, profile);
-        const showOpponentMoveGuessConstantly = getConfigValue(configKeys.showOpponentMoveGuessConstantly, profile);
-        const arrowOpacity = getConfigValue(configKeys.arrowOpacity, profile) / 100;
-        const primaryArrowColorHex = getConfigValue(configKeys.primaryArrowColorHex, profile);
-        const secondaryArrowColorHex = getConfigValue(configKeys.secondaryArrowColorHex, profile);
-        const opponentArrowColorHex = getConfigValue(configKeys.opponentArrowColorHex, profile);
-        const moveAsFilledSquares = getConfigValue(configKeys.moveAsFilledSquares, profile);
-        const onlySuggestPieces = getConfigValue(configKeys.onlySuggestPieces, profile);
-        const movesOnDemand = getConfigValue(configKeys.movesOnDemand, profile);
+    clearVisuals({
+        profileID,
+        category
+    });
 
-        // Future moves should not be displayed as suggested pieces or filled squares.
-        if(markingObj.isFuture && (onlySuggestPieces || moveAsFilledSquares)) return;
+    markings.forEach(marking => {
+        const {
+            shapeType,
+            shapeSquare,
+            shapeConfig,
+            forceHoverOnly,
+            bringToFront,
+            from
+        } = marking || {};
 
-        const [from, to] = markingObj.player;
-        const [oppFrom, oppTo] = markingObj.opponent;
-        const oppMovesExist = oppFrom && oppTo;
-        const rank = idx + 1;
-        const cp = markingObj?.cp;
+        if(!shapeType || !shapeSquare || !shapeConfig) {
+            return;
+        }
 
-        function markSuggestedPieces() {
-            const fillType = idx === 0 ? 1 : 0,
-                  fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex;
+        const shape = BoardDrawer.createShape(
+            shapeType,
+            shapeSquare,
+            shapeConfig
+        );
 
-            const fromSquareMarking =
-                fillSquare(
-                    from,
-                    `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`
-                );
+        if(!shape) {
+            return;
+        }
 
-            let markedSquareElems = [fromSquareMarking];
+        let hoverListener = null;
 
-            if(oppFrom) {
-                const oppFromSquareMarking =
-                    fillSquare(
-                        oppFrom,
-                        `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; display: none; fill: ${opponentArrowColorHex};`
-                    );
-
-                const squareListener = BoardDrawer.addSquareListener(from, type => {
-                    if(!oppFromSquareMarking) squareListener.remove();
-
-                    switch(type) {
-                        case 'enter':
-                            oppFromSquareMarking.style.display = 'inherit';
-                            break;
-                        case 'leave':
-                            oppFromSquareMarking.style.display = 'none';
-                            break;
+        if(forceHoverOnly && from) {
+            hoverListener = BoardDrawer.addSquareListener(
+                from,
+                type => {
+                    if(type === 'enter') {
+                        shape.style.display = 'inherit';
+                    } else if(type === 'leave') {
+                        shape.style.display = 'none';
                     }
-                });
-
-                markedSquareElems.push(oppFromSquareMarking);
-            }
-
-            activeGuiMoveMarkings.push(
-                { 'otherElems': markedSquareElems }, profile
+                }
             );
         }
 
-        function markFilledSquares() {
-            const fillType = idx === 0 ? 1 : 0,
-                    fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex,
-                    styling = `opacity: ${arrowOpacity}; stroke-width: 5; stroke: black; rx: 2; ry: 2; fill: ${fillColor};`,
-                    skipFromSquare = markedSquares[fillType].find(x => x === from) ? 'opacity: 0;' : '',
-                    skipToSquare = markedSquares[fillType].find(x => x === to) ? 'opacity: 0;' : '';
-
-            const fromSquareStyle = `${styling} ${skipFromSquare}`;
-            const toSquareStyle = `filter: brightness(1.5); stroke-dasharray: 4 4; ${styling} ${skipToSquare}`;
-
-            const fromSquareFill = fillSquare(from, fromSquareStyle);
-            const toSquareFill = fillSquare(to, toSquareStyle);
-
-            const markedSquareFens = [from, to];
-            const markedSquareElems = [fromSquareFill, toSquareFill];
-
-            if(oppMovesExist && showOpponentMoveGuess) {
-                const oppFromSquareFill = fillSquare(oppFrom, fromSquareStyle + ` fill: ${opponentArrowColorHex};`);
-                const oppToSquareFill = fillSquare(oppTo, toSquareStyle + ` fill: ${opponentArrowColorHex};`);
-
-                markedSquareElems.push(oppFromSquareFill, oppToSquareFill);
-
-                if(showOpponentMoveGuessConstantly) {
-                    oppFromSquareFill.style.display = 'block';
-                    oppToSquareFill.style.display = 'block';
-                } else {
-                    oppFromSquareFill.style.display = 'none';
-                    oppToSquareFill.style.display = 'none';
-
-                    const squareListener = BoardDrawer.addSquareListener(from, type => {
-                        if(!oppFromSquareFill || !oppToSquareFill) {
-                            squareListener.remove();
-                        }
-
-                        switch(type) {
-                            case 'enter':
-                                oppFromSquareFill.style.display = 'inherit';
-                                oppToSquareFill.style.display = 'inherit';
-                                break;
-                            case 'leave':
-                                oppFromSquareFill.style.display = 'none';
-                                oppToSquareFill.style.display = 'none';
-                                break;
-                        }
-                    });
-                }
-            }
-
-            markedSquares[fillType].push(...markedSquareFens);
-
-            activeGuiMoveMarkings.push(
-                { 'otherElems': markedSquareElems }, profile
-            );
+        if(bringToFront) {
+            shape.parentElement?.appendChild(shape);
         }
 
-        function markArrows() {
-            let playerArrowElem = null;
-            let oppArrowElem = null;
-
-            let arrowStyle = markingObj.isFuture
-                ? getArrowStyle('future', null, arrowOpacity)
-                : getArrowStyle('best', primaryArrowColorHex, arrowOpacity);
-
-            let lineWidth = 30;
-            let arrowheadWidth = 80;
-            let arrowheadHeight = 60;
-            let startOffset = 30;
-
-            // Future moves still receive the normal rank-based scaling.
-            if(idx !== 0) {
-                if(!markingObj.isFuture) {
-                    arrowStyle = getArrowStyle(
-                        'secondary',
-                        secondaryArrowColorHex,
-                        arrowOpacity
-                    );
-                }
-
-                const arrowScale = totalRanks === 2
-                    ? 0.75
-                    : maxScale - minScale * ((rank - 1) / (totalRanks - 1));
-
-                lineWidth = lineWidth * arrowScale;
-                arrowheadWidth = arrowheadWidth * arrowScale;
-                arrowheadHeight = arrowheadHeight * arrowScale;
-            }
-
-            playerArrowElem = BoardDrawer.createShape(
-                'arrow',
-                [from, to],
-                {
-                    style: arrowStyle,
-                    lineWidth,
-                    arrowheadWidth,
-                    arrowheadHeight,
-                    startOffset
-                }
-            );
-
-            if(oppMovesExist && showOpponentMoveGuess) {
-                oppArrowElem = BoardDrawer.createShape(
-                    'arrow',
-                    [oppFrom, oppTo],
-                    {
-                        style: getArrowStyle(
-                            'opponent',
-                            opponentArrowColorHex,
-                            arrowOpacity
-                        ),
-                        lineWidth,
-                        arrowheadWidth,
-                        arrowheadHeight,
-                        startOffset
-                    }
-                );
-
-                if(showOpponentMoveGuessConstantly) {
-                    oppArrowElem.style.display = 'block';
-                } else {
-                    oppArrowElem.style.display = 'none';
-
-                    const squareListener = BoardDrawer.addSquareListener(from, type => {
-                        if(!oppArrowElem) {
-                            squareListener.remove();
-                        }
-
-                        switch(type) {
-                            case 'enter':
-                                oppArrowElem.style.display = 'inherit';
-                                break;
-                            case 'leave':
-                                oppArrowElem.style.display = 'none';
-                                break;
-                        }
-                    });
-                }
-            }
-
-            if(idx === 0 && playerArrowElem) {
-                const parentElem = playerArrowElem.parentElement;
-
-                // move best arrow element on top (multiple same moves can hide the best move)
-                parentElem.appendChild(playerArrowElem);
-
-                if(oppArrowElem) {
-                    parentElem.appendChild(oppArrowElem);
-                }
-            }
-
-            activeGuiMoveMarkings.push(
-                { ...markingObj, playerArrowElem, oppArrowElem, profile }
-            );
-        }
-
-        if(onlySuggestPieces && !movesOnDemand) {
-            markSuggestedPieces();
-        } else if(moveAsFilledSquares) {
-            markFilledSquares();
-        } else {
-            markArrows();
-        }
-    }
-
-    moveObjArr.forEach(processMarkingObj);
-
-    maybeAnnounceMarkingsToPage(activeGuiMoveMarkings);
-}
-
-function removeMarkingsFromBoard(profile) {
-    let removalArr = activeGuiMoveMarkings;
-
-    if(profile) {
-        removalArr =
-            removalArr.filter(obj => obj.profile === profile);
-
-        activeGuiMoveMarkings =
-            activeGuiMoveMarkings.filter(obj => obj.profile !== profile);
-    } else {
-        activeGuiMoveMarkings = [];
-    }
-
-    removalArr.forEach(markingObj => {
-        markingObj.oppArrowElem?.remove();
-        markingObj.playerArrowElem?.remove();
-        markingObj?.otherElems?.forEach(x => x?.remove());
+        activeVisuals.push({
+            marking,
+            shape,
+            hoverListener
+        });
     });
+
+    maybeAnnounceMarkingsToPage();
 }
 
-function clearVisuals(noMetricsRemoval = false) {
-    if(!noMetricsRemoval) clearMetricRenders();
-    clearFeedback();
-    removeMarkingsFromBoard();
-    removeBookMovesFromBoard();
+function clearVisuals({
+    noMetricsRemoval = false,
+    profileID = null,
+    category = null
+} = {}) {
+    const shouldRemove = marking => {
+        if(profileID && marking?.profileID !== profileID) {
+            return false;
+        }
+
+        if(category && marking?.category !== category) {
+            return false;
+        }
+
+        if(noMetricsRemoval && marking?.category === 'metric') {
+            return false;
+        }
+
+        return true;
+    };
+
+    const removalArr = activeVisuals.filter(
+        item => shouldRemove(item.marking)
+    );
+
+    activeVisuals = activeVisuals.filter(
+        item => !shouldRemove(item.marking)
+    );
+
+    removalArr.forEach(({ shape, hoverListener }) => {
+        hoverListener?.remove();
+        shape?.remove();
+    });
 }
 
 function displayImportantNotification(title, text) {
@@ -1910,15 +1595,7 @@ function getBoardDimensions() {
 }
 
 function isMutationNewMove(mutationArr) {
-    const isNewMoveArr = getSiteData('isMutationNewMove', { mutationArr }); // [isNewMove, turn]
-
-    return isNewMoveArr || false;
-}
-
-function getMutationTurn(mutationArr) {
-    const turn = getSiteData('getMutationTurn', { mutationArr });
-
-    return turn || null;
+    return getSiteData('isMutationNewMove', { mutationArr }) || false;
 }
 
 function getBoardMatrix() {
@@ -1982,7 +1659,7 @@ function getFen(onlyBasic, turn, basicFenToUse, state = gameState) {
 function resetStoredMatchVariables() {
     chesscomVariantPlayerColorsTable = null;
     gameStateHistory.set(); // reset
-    
+
     gameState = getGameStateObjTemplate();
     forceUpdateGameState();
 }
@@ -3011,7 +2688,7 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
 }
 
 async function processBoardPosition() {
-    clearVisuals(true);
+    clearVisuals({ noMetricsRemoval: true });
 
     const stateHistory = gameStateHistory.get();
     const latestState = stateHistory[0];
@@ -3029,7 +2706,7 @@ async function processBoardPosition() {
 
     if(!modListeners.length)
         addMovesOnDemandListeners();
-    
+
     if( // ...if a new match started
         didBoardOrientationChange ||
         squareChangeAmount > 6 ||
@@ -3064,13 +2741,9 @@ function observeNewMoves() {
         try {
             lastMutationObservationDate = Date.now();
 
-            const mutationMoveArr = isMutationNewMove(mutationArr); // returns [isNewMove, turn]
-            const isNewMove = mutationMoveArr?.[0];
-            let turn = mutationMoveArr?.[1];
-
             // Do not continue if mutation was not detected as a possible new move! (Different for each chess site)
             // We later compare FENs to detect if it was actually a new valid move!
-            if(!isNewMove) return;
+            if(!isMutationNewMove(mutationArr)) return;
 
             determineBoardPositionValidity();
         } catch(e) {
@@ -3258,54 +2931,20 @@ addSupportedChessSite('chess.com', {
         }
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let blacks = 0;
-        let whites = 0;
-
-        mutationArr.forEach(mutation => {
-            const target = mutation?.target;
-            if(!target || !target.getBoundingClientRect) return;
-
-            const rect = target.getBoundingClientRect();
-            if(rect.width === 0 || rect.height === 0) return;
-
-            const classList = target.classList;
-            if(!classList) return;
-
-            for(let i = 0; i < classList.length; i++) {
-                const cls = classList[i];
-
-                if(cls && cls.length === 2) {
-                    const prefix = cls[0];
-
-                    if (prefix === 'b') blacks++;
-                    else if (prefix === 'w') whites++;
-                }
-            }
-        });
-
-        if(blacks === 0 && whites === 0) return null;
-
-        const turn = blacks > whites ? 'w' : 'b';
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const pathname = obj.pathname;
         const mutationArr = obj.mutationArr;
 
         // Process variant boards...
         if(pathname?.includes('/variants')) {
-            if(isUserMouseDown) return [false, null];
-            return [true, getBoardOrientation()]; // allow everything, always make own turn
+            if(isUserMouseDown) return false;
+            return true; // allow everything
         }
 
         // Not a variant board, processing differently...
 
         if(mutationArr.length === 1)
-            return [false, null];
+            return false;
 
         const isPremove = mutationArr.filter(m => m?.target?.classList?.contains('highlight'))
             .map(x => x?.target?.style?.['background-color'])
@@ -3313,8 +2952,7 @@ addSupportedChessSite('chess.com', {
 
         const isNewMove = mutationArr.length >= 3 && !isPremove;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3372,31 +3010,12 @@ addSupportedChessSite('lichess.org', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let blacks = 0;
-        let whites = 0;
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
-
-            if(classList?.contains('black')) blacks += 1;
-            if(classList?.contains('white')) whites += 1;
-        });
-
-        const turn = blacks > whites ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
         const isNewMove = mutationArr.length >= 3;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3468,29 +3087,6 @@ addSupportedChessSite('playstrategy.org', {
         return getBoardDimensionsFromSize();
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let ally = 0;
-        let enemy = 0;
-
-        const boardOrientation = getBoardOrientation();
-        const isPlayerWhite = boardOrientation === 'w';
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
-
-            if(classList?.contains('ally')) ally += 1;
-            if(classList?.contains('enemy')) enemy += 1;
-        });
-
-        const turn = isPlayerWhite
-          ? ally > enemy ? 'b' : 'w'
-          : ally > enemy ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -3498,8 +3094,7 @@ addSupportedChessSite('playstrategy.org', {
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3573,29 +3168,6 @@ addSupportedChessSite('pychess.org', {
     },
 
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let ally = 0;
-        let enemy = 0;
-
-        const boardOrientation = getBoardOrientation();
-        const isPlayerWhite = boardOrientation === 'w';
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
-
-            if(classList?.contains('ally')) ally += 1;
-            if(classList?.contains('enemy')) enemy += 1;
-        });
-
-        const turn = isPlayerWhite
-          ? ally > enemy ? 'b' : 'w'
-          : ally > enemy ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -3603,8 +3175,7 @@ addSupportedChessSite('pychess.org', {
             || mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3650,24 +3221,6 @@ addSupportedChessSite('chess.org', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let blacks = 0;
-        let whites = 0;
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
-
-            if(classList?.contains('black')) blacks += 1;
-            if(classList?.contains('white')) whites += 1;
-        });
-
-        const turn = blacks > whites ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -3677,8 +3230,7 @@ addSupportedChessSite('chess.org', {
 
         const isNewMove = true; // laggy but this is a non-popular site
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3724,24 +3276,6 @@ addSupportedChessSite('chess.coolmathgames.com', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let blacks = 0;
-        let whites = 0;
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
-
-            if(classList?.contains('black')) blacks += 1;
-            if(classList?.contains('white')) whites += 1;
-        });
-
-        const turn = blacks > whites ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -3755,8 +3289,7 @@ addSupportedChessSite('chess.coolmathgames.com', {
         // AND THE USERSCRIPT TRIGGERING A WHOLE NEW MATCH STARTING. THIS IS A NON-POPULAR SITE
         // SO FIX HAS NOT BEEN MADE...
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3803,21 +3336,12 @@ addSupportedChessSite('papergames.io', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        const playerColor = getBoardOrientation();
-
-        return playerColor || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
         const isNewMove = mutationArr.length >= 12;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3866,14 +3390,6 @@ addSupportedChessSite('immortal.game', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        const playerColor = getBoardOrientation();
-
-        return playerColor || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -3883,8 +3399,7 @@ addSupportedChessSite('immortal.game', {
 
         const isNewMove = mutationArr.length >= 5;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -3930,32 +3445,6 @@ addSupportedChessSite('worldchess.com', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let blacks = 0;
-        let whites = 0;
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation?.target?.classList;
-
-            for(let i = 0; i < classList.length; i++) {
-                const cls = classList[i];
-
-                if(cls.length === 2) {
-                    const prefix = cls[0];
-
-                    if(prefix === 'b') blacks++;
-                    else if(prefix === 'w') whites++;
-                }
-            }
-        });
-
-        const turn = blacks > whites ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
@@ -3965,8 +3454,7 @@ addSupportedChessSite('worldchess.com', {
 
         const isNewMove = mutationArr.find(m => m?.attributeName === 'style') ? true : false;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -4024,31 +3512,12 @@ addSupportedChessSite('chess.net', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let blacks = 0;
-        let whites = 0;
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
-
-            if(classList?.contains('black')) blacks += 1;
-            if(classList?.contains('white')) whites += 1;
-        });
-
-        const turn = blacks > whites ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
         const isNewMove = mutationArr.length >= 3;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -4094,31 +3563,12 @@ addSupportedChessSite('freechess.club', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        let blacks = 0;
-        let whites = 0;
-
-        mutationArr.forEach(mutation => {
-            const classList = mutation.target?.classList;
-
-            if(classList?.contains('black')) blacks += 1;
-            if(classList?.contains('white')) whites += 1;
-        });
-
-        const turn = blacks > whites ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
         const isNewMove = mutationArr.length >= 3;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -4163,20 +3613,13 @@ addSupportedChessSite('play.chessclub.com', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        return getBoardOrientation() || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
         const isNewMove = mutationArr.find(mutation => mutation?.type === 'childList')
             ? true : false;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -4219,20 +3662,13 @@ addSupportedChessSite('gameknot.com', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        return getBoardOrientation() || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
         const isNewMove = mutationArr.find(m => m.type === 'childList') ? true : false
             || mutationArr.find(m => m?.target?.classList?.contains('last-move')) ? true : false;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -4270,19 +3706,12 @@ addSupportedChessSite('app.edchess.io', {
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        return getBoardOrientation() || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
 
         const isNewMove = mutationArr.length >= 2;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 
@@ -4332,23 +3761,11 @@ addSupportedChessSite([
         return [8, 8];
     },
 
-    'getMutationTurn': obj => {
-        const mutationArr = obj.mutationArr;
-
-        const mutationContainsBlack = mutationArr
-            .find(mutation => mutation.target?.classList?.contains('black'));
-
-        const turn = mutationContainsBlack ? 'w' : 'b';
-
-        return turn || null;
-    },
-
     'isMutationNewMove': obj => {
         const mutationArr = obj.mutationArr;
         const isNewMove = mutationArr.length >= 2;
 
-        if(isNewMove) return [isNewMove, getMutationTurn(mutationArr)];
-        return [isNewMove, null];
+        return isNewMove;
     }
 });
 

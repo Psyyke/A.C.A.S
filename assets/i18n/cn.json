@@ -146,6 +146,7 @@
         "renderSquareSafe": ["安全方格", "用青色标记棋子可以安全移动到的方格"],
         "renderPiecePlayerCapture": ["己方棋子捕获威胁", "在面临捕获危险的己方棋子上显示💧"],
         "renderPieceEnemyCapture": ["敌方棋子捕获威胁", "在应该攻击的敌方棋子上显示🩸"],
+        "enableEveryPieceEvals": ["显示每个棋子的贡献", "查看每个棋子对局势的贡献程度"],
         "feedbackEngineDepth": ["搜索深度", "反馈引擎将搜索多深"],
         "enableEnemyFeedback": ["评估对手", "也对对手的走法提供反馈"],
         "enableMoveRatings": ["走法评分", "显示引擎对走法的评估"],

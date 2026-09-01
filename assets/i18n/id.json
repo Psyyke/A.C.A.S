@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Kotak yang Aman", "Tandai kotak aman yang dapat dimasuki bidak dengan cyan"],
         "renderPiecePlayerCapture": ["Ancaman Tangkapan Bidak Sendiri", "Tampilkan 💧 pada bidak yang berisiko ditangkap"],
         "renderPieceEnemyCapture": ["Ancaman Tangkapan Bidak Musuh", "Tampilkan 🩸 pada bidak yang harus Anda serang"],
+        "enableEveryPieceEvals": ["Tampilkan Kontribusi Setiap Bidak", "Lihat seberapa besar kontribusi setiap bidak terhadap posisi"],
         "feedbackEngineDepth": ["Kedalaman Pencarian", "Seberapa dalam mesin umpan balik akan mencari"],
         "enableEnemyFeedback": ["Nilai Musuh", "Berikan umpan balik tentang musuh juga"],
         "enableMoveRatings": ["Peringkat Gerakan", "Tampilkan pemikiran mesin tentang gerakan"],

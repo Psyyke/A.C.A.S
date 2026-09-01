@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Biztonságos négyzetek", "Jelöli ciankékkel a biztonságos négyzeteket, ahová egy bábú biztonságosan léphet"],
         "renderPiecePlayerCapture": ["Saját bábú elfogási veszélye", "Jelöli 💧-vel a bábúkat, amelyek elfogás veszélyében vannak"],
         "renderPieceEnemyCapture": ["Ellenfél bábú elfogási veszélye", "Jelöli 🩸-vel a bábúkat, amelyeket támadnod kell"],
+        "enableEveryPieceEvals": ["Minden bábu hozzájárulásának megjelenítése", "Lásd, mennyit járul hozzá minden bábu a pozícióhoz"],
         "feedbackEngineDepth": ["Keresési mélység", "Milyen mélyen fog keresni a visszajelzési motor"],
         "enableEnemyFeedback": ["Ellenfél értékelése", "Adj visszajelzést az ellenfélről is"],
         "enableMoveRatings": ["Lépés értékelések", "Mutasd a motor gondolatait a lépésekről"],

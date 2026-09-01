@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Sichere Felder", "Hebe die Felder hervor, auf die eine Figur sicher ziehen kann, mit cyan"],
         "renderPiecePlayerCapture": ["Eroberungsgefahr eigener Figuren", "Zeige 💧 auf Figuren an, die in Gefahr der Eroberung sind"],
         "renderPieceEnemyCapture": ["Eroberungsgefahr gegnerischer Figuren", "Zeige 🩸 auf Figuren an, die du angreifen solltest"],
+        "enableEveryPieceEvals": ["Beitrag jeder Figur anzeigen", "Sieh, wie sehr jede Figur zur Stellung beiträgt"],
         "feedbackEngineDepth": ["Suchtiefe", "Wie tief wird die Feedback-Engine suchen"],
         "enableEnemyFeedback": ["Gegner bewerten", "Gib auch Feedback zum Gegner"],
         "enableMoveRatings": ["Zugbewertungen", "Zeige die Gedanken der Engine zu Zügen"],

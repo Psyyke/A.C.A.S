@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Carrés sécurisés", "Met en évidence les carrés sûrs vers lesquels une pièce peut se déplacer avec du cyan"],
         "renderPiecePlayerCapture": ["Menace de capture des pièces du joueur", "Affiche 💧 sur les pièces qui sont en danger d'être capturées"],
         "renderPieceEnemyCapture": ["Menace de capture des pièces ennemies", "Affiche 🩸 sur les pièces que vous devriez attaquer"],
+        "enableEveryPieceEvals": ["Afficher la contribution de chaque pièce", "Voir combien chaque pièce contribue à la position"],
         "feedbackEngineDepth": ["Profondeur de recherche", "À quelle profondeur le moteur de rétroaction recherchera-t-il"],
         "enableEnemyFeedback": ["Évaluer l'adversaire", "Donner également des commentaires sur l'adversaire"],
         "enableMoveRatings": ["Évaluations des mouvements", "Afficher les pensées du moteur sur les mouvements"],

@@ -46,6 +46,7 @@
     .external-engine-setting-panel {
 		display: none !important;
 	}
+	#acas-settings-container,
 	#acas-settings-container #settings-header,
 	#acas-settings-container #setting-container,
 	#settings-panels {
@@ -891,13 +892,13 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     height: fit-content;
     width: 100%;
     display: flex;
-    transition: all 0.1s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease, background-color 0.2s ease;
     padding: 10px;
     opacity: 0.4;
     justify-content: space-between;
     flex-direction: row;
     box-sizing: border-box;
-    background-color: rgb(0 0 0 / 20%);
+    background: linear-gradient(to bottom, rgb(0 0 0 / 18%), rgb(0 0 0 / 12%));
     border-bottom: 3px solid rgb(255 255 255 / 5%);
     flex-wrap: wrap;
 	grid-gap: 10px;
@@ -938,7 +939,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 #settings-panels {
     display: flex;
     justify-content: flex-start;
-    transition: all 0.1s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
     opacity: 0.4;
     box-sizing: border-box;
     width: 100%;
@@ -983,10 +984,6 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	margin-bottom: 10px;
 	padding-bottom: 10px;
 	border-bottom: 2px solid rgba(255, 255, 255, 0.05);
-}
-#acas-settings-container:hover #settings-header,
-#acas-settings-container:hover #setting-container {
-	opacity: 1;
 }
 #settings-header #settings-navbar-global,
 #settings-navbar-instance {
@@ -1377,7 +1374,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     margin: 10px;
     display: flex;
     justify-content: flex-start;
-    transition: all 0.1s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
     box-sizing: border-box;
     flex-wrap: wrap;
     gap: 10px;
@@ -1385,7 +1382,9 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     max-width: 100%;
     width: calc(100% - 20px);
 }
-#main-setting-panel:hover #settings-panels {
+#acas-settings-container.is-active #settings-header,
+#acas-settings-container.is-active #setting-container,
+#acas-settings-container.is-active #settings-panels {
 	opacity: 1;
 }
 .wide-text-input {

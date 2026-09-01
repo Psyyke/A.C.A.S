@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Bezpečné štvorce", "Zvýrazniť bezpečné štvorce cyanovou"],
         "renderPiecePlayerCapture": ["Hrozba zachytenia vlastných figúr", "Zobraziť 💧 na figúrach, ktoré sú v nebezpečenstve zachytenia"],
         "renderPieceEnemyCapture": ["Hrozba zachytenia figúr súpera", "Zobraziť 🩸 na figúrach, na ktoré by ste mali zaútočiť"],
+        "enableEveryPieceEvals": ["Zobraziť prínos každej figúry", "Pozri, ako veľmi každá figúra prispieva k pozícii"],
         "feedbackEngineDepth": ["Hĺbka vyhľadávania", "Ako hlboko bude motor spätnej väzby vyhľadávať"],
         "enableEnemyFeedback": ["Ohodnotiť Súpera", "Poskytnúť spätnú väzbu aj o súperovi"],
         "enableMoveRatings": ["Hodnotenia Ťahov", "Zobraziť myšlienky motora o ťahoch"],

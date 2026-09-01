@@ -148,6 +148,7 @@
         "renderSquareSafe": ["Safe Squares", "Highlight safe squares with cyan"],
         "renderPiecePlayerCapture": ["Own Piece Capture", "Display 💧 on pieces that are in danger of capture"],
         "renderPieceEnemyCapture": ["Enemy Piece Capture", "Display 🩸 on pieces that you should attack"],
+        "enableEveryPieceEvals": ["Show Piece Contributions", "See how much each piece is contributing to the position"],
         "feedbackEngineDepth": ["Search Depth", "How deep will the feedback engine search"],
         "enableEnemyFeedback": ["Rate Enemy", "Give feedback on the enemy too"],
         "enableMoveRatings": ["Move Ratings", "Show engine's thoughts about moves"],
