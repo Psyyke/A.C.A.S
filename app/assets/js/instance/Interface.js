@@ -114,7 +114,7 @@ export default class Interface {
             const shapes = [{
                 shapeType: 'rectangle',
                 shapeSquare: from,
-                shapeConfig: { style: `opacity: ${arrowOpacity}; stroke-width:5; stroke:black; rx:2; ry:2; fill:${fillColor};` }
+                shapeConfig: { style: `opacity: ${arrowOpacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2; fill:${fillColor};` }
             }];
 
             if(oppFrom) {
@@ -123,7 +123,7 @@ export default class Interface {
                 shapes.push({
                     shapeType: 'rectangle',
                     shapeSquare: oppFrom,
-                    shapeConfig: { style: `opacity:${arrowOpacity}; stroke-width:5; stroke:black; rx:2; ry:2;${hoverIfNeeded} fill:${opponentArrowColorHex};` },
+                    shapeConfig: { style: `opacity:${arrowOpacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2;${hoverIfNeeded} fill:${opponentArrowColorHex};` },
                     isOpponent: true,
                     forceHoverOnly: !showOpponentMoveGuessConstantly
                 });
@@ -133,7 +133,7 @@ export default class Interface {
         }
 
         if(moveAsFilledSquares) {
-            const styleBase = `opacity:${arrowOpacity}; stroke-width:5; stroke:black; rx:2; ry:2; fill:${fillColor};`;
+            const styleBase = `opacity:${arrowOpacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2; fill:${fillColor};`;
             const fromStyle = styleBase + (markedSquares[fillType].includes(from) ? 'opacity:0;' : '');
             const toStyle = `filter:brightness(1.5); stroke-dasharray:4 4; ${styleBase}` + (markedSquares[fillType].includes(to) ? 'opacity:0;' : '');
 
