@@ -1,5 +1,5 @@
 /* AutomaticMove.js
- - Version: 1.0
+ - Version: 1.1
  - Author: Haka
  - Description: A.C.A.S component
  - GitHub: https://github.com/Psyyke/A.C.A.S/
@@ -288,7 +288,13 @@ class AutomaticMove {
             clientY: randomizedY,
         };
 
-        const elementToTrigger = (input instanceof Element) ? input : document.elementFromPoint(clientX, clientY);
+        if(!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
+            return;
+        }
+
+        const elementToTrigger = (input instanceof Element)
+            ? input
+            : document.elementFromPoint(clientX, clientY);
 
         if(elementToTrigger) {
             switch(this.domain) {

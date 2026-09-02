@@ -78,7 +78,7 @@
 // @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
-// @require     https://update.greasyfork.org/scripts/591079/1900946/AutomaticMove.js
+// @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
 // @version     2.4.8
 // @namespace   HKR
@@ -680,16 +680,46 @@ function maybeAnnounceMarkingsToPage() {
     });
 }
 
+async function makeMove(profile, fenMoveArr, isLegit) {
+    const move = new AutomaticMove({
+        profile,
+        fenMoveArr,
+        isLegit,
+        pieceAmount: getPieceAmount(),
+        moveDomCoords: fenCoordArrToDomCoord(fenMoveArr),
+        isPromotion: isPawnPromotion(fenMoveArr),
+        legitModeType: getConfigValue(configKeys.legitModeType, profile),
+        debugModeActivated: debugModeActivated,
+        getRandomOwnPieceDomCoord: getRandomOwnPieceDomCoord,
+        lastPieceSize: lastPieceSize,
+        lastMoveRequestTime: lastMoveRequestTime,
+        boardMatrix: getBoardMatrix(),
+        domain: domain
+    }, e => {
+        // This is ran when the move finished
+
+        if(debugModeActivated) {
+            console.warn('Move', fenMoveArr, move.id, 'finished', 'for profile:', profile);
+        }
+    });
+}
+
 function handleAutoMove(markings) {
     if(!Array.isArray(markings) || !markings.length) {
         return;
     }
 
-    if(markings[0]?.category !== 'move') {
+    const filteredMarkings = markings.filter(marking =>
+        marking?.category === 'move' &&
+        !marking.isOpponent &&
+        !marking.isFuture
+    );
+
+    if(!filteredMarkings.length) {
         return;
     }
 
-    const profileID = markings[0]?.profileID;
+    const profileID = filteredMarkings[0]?.profileID;
 
     const isAutoMove = getConfigValue(
         configKeys.autoMove,
@@ -714,13 +744,15 @@ function handleAutoMove(markings) {
             profileID
         );
 
-        const move = isRandom
-            ? markings[
+        const marking = isRandom
+            ? filteredMarkings[
                 Math.floor(
-                    Math.random() * Math.random() * markings.length
+                    Math.random() * Math.random() * filteredMarkings.length
                 )
-            ]?.player
-            : markings[0]?.player;
+            ]
+            : filteredMarkings[0];
+
+        const move = [marking.from, marking.to];
 
         makeMove(profileID, move, isLegit);
     }
@@ -1351,30 +1383,6 @@ function getRandomOwnPieceDomCoord(fenCoord, boardMatrix) {
 
 function getPieceAmount() {
     return getPieceElem(true)?.length ?? 0;
-}
-
-async function makeMove(profile, fenMoveArr, isLegit) {
-    const move = new AutomaticMove({
-        profile,
-        fenMoveArr,
-        isLegit,
-        pieceAmount: getPieceAmount(),
-        moveDomCoords: fenCoordArrToDomCoord(fenMoveArr),
-        isPromotion: isPawnPromotion(fenMoveArr),
-        legitModeType: getConfigValue(configKeys.legitModeType, profile),
-        debugModeActivated: debugModeActivated,
-        getRandomOwnPieceDomCoord: getRandomOwnPieceDomCoord,
-        lastPieceSize: lastPieceSize,
-        lastMoveRequestTime: lastMoveRequestTime,
-        boardMatrix: getBoardMatrix(),
-        domain: domain
-    }, e => {
-        // This is ran when the move finished
-
-        if(debugModeActivated) {
-            console.warn('Move', fenMoveArr, move.id, 'finished', 'for profile:', profile);
-        }
-    });
 }
 
 function isBoardDrawerNeeded() {

@@ -73,7 +73,7 @@ export default async function engineMessageProcessor(msg, profile) {
     }
 
     if(msg.includes('info')) {
-        if(data?.multipv === '1' || ['lozza-5', 'lozza-9', 'lc0'].includes(await this.getEngineName(profile))) {
+        if(data?.multipv === 1 || ['lozza-5', 'lozza-9', 'lc0'].includes(await this.getEngineName(profile))) {
             if(data?.depth) {
                 const depthText = TRANS_OBJ?.calculationDepth ?? 'Depth';
                 const winningText = TRANS_OBJ?.winning ?? 'Winning';
