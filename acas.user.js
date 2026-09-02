@@ -720,29 +720,15 @@ function handleAutoMove(markings) {
     }
 
     const profileID = filteredMarkings[0]?.profileID;
+    const isAutoMove = getConfigValue(configKeys.autoMove, profileID);
 
-    const isAutoMove = getConfigValue(
-        configKeys.autoMove,
-        profileID
-    );
-
-    const isAutoMoveAfterUser = getConfigValue(
-        configKeys.autoMoveAfterUser,
-        profileID
-    );
+    const isAutoMoveAfterUser = getConfigValue(configKeys.autoMoveAfterUser, profileID);
 
     if(isAutoMove && (!isAutoMoveAfterUser || matchFirstSuggestionGiven)) {
         AutomaticMove.stopAll();
 
-        const isLegit = getConfigValue(
-            configKeys.autoMoveLegit,
-            profileID
-        );
-
-        const isRandom = getConfigValue(
-            configKeys.autoMoveRandom,
-            profileID
-        );
+        const isLegit = getConfigValue(configKeys.autoMoveLegit, profileID);
+        const isRandom = getConfigValue(configKeys.autoMoveRandom, profileID);
 
         const marking = isRandom
             ? filteredMarkings[
