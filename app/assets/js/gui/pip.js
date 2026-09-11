@@ -47,30 +47,91 @@ async function renderPipBoards(from, to) {
         const cgElem = document.querySelector(`.chessground-x[data-is-latest-updated="true"]`);
 
         if(!cgElem) return;
-        
-        const canvas = await snapdom.toCanvas(cgElem, { fast: true });
-        const bitmap = await createImageBitmap(canvas);
-        
+
         const instanceId = cgElem.parentElement.parentElement?.dataset?.instanceId;
-        const boardDrawerSvg = document.querySelector(`#board-drawings svg[data-instance-id="${instanceId}"]`);
-
-        const svg = boardDrawerSvg.cloneNode(true);
-        svg.style.position = 'unset';
-
-        const container = document.createElement('div');
-              container.appendChild(svg);
-              container.style.cssText = 'position: absolute;left:-9999px;';
-
-        document.body.appendChild(container);
-
-        const canvas2 = await snapdom.toCanvas(container, { fast: true });
-        const bitmap2 = await createImageBitmap(canvas2);
-
-        container.remove();
+        const { boardCanvas, overlayCanvas } = await captureBoardLayers(instanceId);
+        const bitmap = await createImageBitmap(boardCanvas);
+        const emptyOverlayCanvas = document.createElement('canvas');
+        emptyOverlayCanvas.width = boardCanvas.width;
+        emptyOverlayCanvas.height = boardCanvas.height;
+        const bitmap2 = await createImageBitmap(overlayCanvas || emptyOverlayCanvas);
 
         pipLastPipBoardBitmaps = [bitmap, bitmap2];
     }
 }
+
+async function captureBoardLayers(instanceId) {
+    const boards = [...document.querySelectorAll('.chessground-x[data-is-latest-updated="true"]')];
+    const cgElem = instanceId
+        ? boards.find(elem => elem.parentElement?.parentElement?.dataset?.instanceId === String(instanceId)) || boards[0]
+        : boards[0];
+
+    if(!cgElem) return { boardCanvas: null, overlayCanvas: null };
+
+    const rect = cgElem.getBoundingClientRect();
+
+    cgElem.style.height = `${rect.width}px`;
+
+    const acasInstance = window.AcasInstances?.find(
+        i => String(i.id) === String(instanceId)
+    );
+
+    if(acasInstance?.instance?.chessground) {
+        acasInstance.instance.chessground.redrawAll();
+    }
+
+    let boardCanvas = await snapdom.toCanvas(cgElem, { fast: true });
+
+    const boardDrawerSvg = document.querySelector(
+        `#board-drawings svg${instanceId ? `[data-instance-id="${instanceId}"]` : ''}`
+    );
+
+    if(!boardDrawerSvg) return { boardCanvas, overlayCanvas: null };
+
+    const svg = boardDrawerSvg.cloneNode(true);
+    svg.style.position = 'unset';
+
+    const container = document.createElement('div');
+
+    container.appendChild(svg);
+
+    container.style.cssText = `
+        position:absolute;
+        left:-9999px;
+        top:0;
+        width:${rect.width}px;
+        height:${rect.width}px;
+    `;
+
+    document.body.appendChild(container);
+
+    try {
+        const overlayCanvas = await snapdom.toCanvas(container, { fast: true });
+        return { boardCanvas, overlayCanvas };
+    } finally {
+        container.remove();
+    }
+}
+
+window.CAPTURE_BOARD_IMAGE = async instanceId => {
+    const { boardCanvas, overlayCanvas } = await captureBoardLayers(instanceId);
+
+    if(!boardCanvas) return null;
+
+    const outputCanvas = document.createElement('canvas');
+    outputCanvas.width = boardCanvas.width;
+    outputCanvas.height = boardCanvas.height;
+
+    const context = outputCanvas.getContext('2d');
+
+    context.drawImage(boardCanvas, 0, 0);
+
+    if(overlayCanvas) {
+        context.drawImage(overlayCanvas, 0, 0);
+    }
+
+    return outputCanvas.toDataURL('image/png');
+};
 
 function updatePipContext() {
     const ctx = pipCanvas.getContext('2d');

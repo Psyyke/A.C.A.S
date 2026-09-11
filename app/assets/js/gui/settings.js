@@ -210,7 +210,7 @@ export async function removeSetting(settingElem) {
 }
 
 export async function loopThroughAndUpdateSettingsValues(isDirectlyCausedByUser) {
-    const inputElements = [...document.querySelectorAll('input[data-key]')];
+    const inputElements = [...document.querySelectorAll('input[data-key], textarea[data-key]')];
 
     for(const inputElem of inputElements) {
         const key = inputElem.dataset.key;

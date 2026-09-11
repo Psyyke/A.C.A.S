@@ -343,6 +343,117 @@ function OBJECT_TO_STRING(obj) {
     return parts.join(', ');
 }
 
+async function SEND_WEBHOOK(data = {}) {
+    const instanceID = data.instanceId ?? SETTING_FILTER_OBJ.instanceID;
+    const profileID = data.profile ?? SETTING_FILTER_OBJ.profileID;
+
+    const getSetting = key =>
+        GET_GM_CFG_VALUE(key, instanceID, profileID);
+
+    const [
+        enabled,
+        url,
+        template,
+        includeBoard,
+        webhookAvatar
+    ] = await Promise.all([
+        getSetting('webhookEnabled'),
+        getSetting('webhookUrl'),
+        getSetting('webhookMessageTemplate'),
+        getSetting('webhookIncludeBoard'),
+        getSetting('webhookAvatar')
+    ]);
+
+    if(
+        !enabled ||
+        !/^https:\/\/discord(?:app)?\.com\/api\/webhooks\//i.test(url)
+    ) {
+        return false;
+    }
+
+    const variables = {
+        engine: 'A.C.A.S',
+        timestamp: new Date().toLocaleString(),
+        ...data,
+        profile: GET_HUMAN_READABLE_PROFILE_NAME(
+            data.profile ?? SETTING_FILTER_OBJ.profileID
+        )
+    };
+
+    const content = (template || '').replace(
+        /\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,
+        (_, key) => variables[key] ?? ''
+    );
+
+    const embed = {
+        title: `Engine (${variables.engine})`,
+        description: content.slice(0, 4096) || undefined,
+        color: parseInt(
+            localStorage.getItem(THEME_COLOR_STORAGE_KEY)?.replace('#', ''),
+            16
+        ),
+        footer: {
+            text: `${variables.site || 'Hmm'} • ${variables.timestamp}`
+        }
+    };
+
+    const form = new FormData();
+
+    if(
+        includeBoard &&
+        typeof CAPTURE_BOARD_IMAGE === 'function'
+    ) {
+        const boardDataUrl =
+            await CAPTURE_BOARD_IMAGE(instanceID);
+
+        if(boardDataUrl) {
+            const blob = await fetch(boardDataUrl)
+                .then(response => response.blob());
+
+            form.append(
+                'files[0]',
+                blob,
+                'chess-board.png'
+            );
+
+            embed.image = {
+                url: 'attachment://chess-board.png'
+            };
+        }
+    }
+
+    form.append(
+        'payload_json',
+        JSON.stringify({
+            username: 'A.C.A.S',
+            avatar_url:
+                webhookAvatar ||
+                `${location.origin}/A.C.A.S/assets/images/logo-192.png`,
+            embeds: [embed]
+        })
+    );
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: form
+        });
+
+        if(!response.ok) {
+            console.warn(
+                `[SEND_WEBHOOK] Discord returned ${response.status}`
+            );
+
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.warn('[SEND_WEBHOOK] Failed:', error);
+        return false;
+    }
+}
+
 function REMOVE_PARAM_FROM_URL(paramName) {
     const newParams = new URLSearchParams(window.location.search);
     newParams.delete(paramName);

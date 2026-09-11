@@ -419,8 +419,10 @@ export default class Interface {
             this.AcasInstance.currentFen = fen;
             instanceFenElem.innerText = fen;
 
-            if(this.AcasInstance.chessground)
+            if(this.AcasInstance.chessground) {
                 this.AcasInstance.chessground.set({ fen });
+                this.AcasInstance.chessground.redrawAll();
+            }
         }
 
         if(this.AcasInstance.activeVariant === 'chess') {

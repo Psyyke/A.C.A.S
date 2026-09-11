@@ -110,7 +110,7 @@ function processUrlParams() {
                 break;
         }
     } else if(settingToHighlight) {
-        const foundSettingElem = [...document.querySelectorAll('input[data-key]')]
+        const foundSettingElem = [...document.querySelectorAll('input[data-key], textarea[data-key]')]
             .find(elem => elem.dataset.key === settingToHighlight);
 
         const settingContainer = foundSettingElem?.closest('.custom-input');

@@ -31,6 +31,10 @@ export function setInputValue(elem, val, min, max) {
         }
 
         elem.value = VAR_TO_CORRECT_TYPE(val);
+
+        if(key === 'webhookMessageTemplate') {
+            elem.dispatchEvent(new Event('acas-value-set'));
+        }
     }
 }
 
@@ -105,6 +109,6 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
 }
 
 export function initializeInputElems() {
-    [...document.querySelectorAll('input[data-key]')]
+    [...document.querySelectorAll('input[data-key], textarea[data-key]')]
         .forEach(elem => initializeSettingInputElem(elem));
 }

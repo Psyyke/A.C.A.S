@@ -27,6 +27,29 @@ function setupSettingsContainerHoverRecovery() {
     });
 }
 
+function initializeWebhookTemplateEditor() {
+    const textarea = document.querySelector('.webhook-message-template');
+    const highlight = document.querySelector('.webhook-template-highlight');
+    if(!textarea || !highlight) return;
+
+    const escapeHtml = value => value.replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[character]));
+
+    const updateHighlight = () => {
+        const escaped = escapeHtml(textarea.value);
+        highlight.innerHTML = escaped.replace(/\{[a-zA-Z][a-zA-Z0-9_]*\}/g,
+            variable => `<span class="webhook-variable">${variable}</span>`
+        ) + '\n';
+        highlight.style.transform = `translate(${-textarea.scrollLeft}px, ${-textarea.scrollTop}px)`;
+    };
+
+    textarea.addEventListener('input', updateHighlight);
+    textarea.addEventListener('scroll', updateHighlight);
+    textarea.addEventListener('acas-value-set', updateHighlight);
+    updateHighlight();
+}
+
 export function setThemeColorHex(value) {
     document.body.style['background-color'] = value || null;
     document.querySelectorAll('dialog').forEach(diag => {
@@ -274,6 +297,7 @@ export async function initGUI() {
 
     initializeFloatyButtons();
     initializeInputElems();
+    initializeWebhookTemplateEditor();
     initializePolyglotBookLoader();
     initializeDropdowns();
 

@@ -6,9 +6,7 @@
     --settings-input-border-radius: 5px;
     --settings-input-font-size: 18px;
 }
-input:focus {
-    outline:none!important;
-}
+input:focus,
 .custom-input {
     display: flex;
     flex-direction: row-reverse;
@@ -52,6 +50,127 @@ input:focus {
     border-width: var(--settings-input-border-width);
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
+}
+.textfield-input input[type="url"] {
+    width: 95%;
+    max-width: 100%;
+}
+.textfield-input:has(input[type="url"]),
+.textfield-input:has(textarea) {
+    display: flex;
+    flex-direction: column;
+}
+.textfield-input:has(input[type="url"]) > div:first-child,
+.textfield-input:has(textarea) > div:first-child {
+    align-self: flex-start;
+}
+/* Textarea base style: future textareas inherit the settings appearance. */
+textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    color: rgb(255 255 255 / 75%);
+    font-size: var(--settings-input-font-size);
+    font-weight: 500;
+    font-family: unset;
+    line-height: 1.35;
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
+    resize: vertical;
+}
+.webhook-template-editor {
+    position: relative;
+    flex: 1 1 auto;
+    align-self: stretch;
+    width: 100%;
+    min-width: 220px;
+    min-height: 150px;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
+    overflow: hidden;
+}
+input:focus,
+textarea:focus,
+input:hover,
+textarea:hover,
+.checkbox-container:hover,
+.acas-fancy-button:hover {
+    border-color: rgb(255 255 255 / 55%);
+    outline: 2px solid rgb(255 255 255 / 35%) !important;
+    outline-offset: 0;
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 15%), 0 8px 24px rgb(0 0 0 / 18%);
+}
+.webhook-message-template,
+.webhook-template-highlight {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 150px;
+    padding: 10px;
+    margin: 0;
+    font: 500 var(--settings-input-font-size)/1.35 "Rubik", "IBM Plex Sans", sans-serif;
+    letter-spacing: normal;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+.webhook-message-template {
+    position: relative;
+    z-index: 1;
+    display: block;
+    height: 100%;
+    resize: vertical;
+    background: transparent;
+    color: rgb(255 255 255 / 80%);
+    border: 0;
+    outline: none;
+}
+.webhook-template-highlight {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    color: transparent;
+    pointer-events: none;
+    overflow: visible;
+}
+.webhook-template-highlight .webhook-variable {
+    color: transparent;
+    background-color: rgb(0 0 0 / 15%);
+    border-radius: 4px;
+    outline: 1px solid rgb(255 255 255 / 35%);
+    outline-offset: 1px;
+}
+.webhook-available-variables {
+    padding: 5px 10px 10px;
+    color: rgb(255 255 255 / 45%);
+    font-size: 12px;
+    line-height: 1.8;
+    min-width: 0;
+    max-width: 100%;
+}
+.webhook-available-variables .input-title {
+    color: rgb(255 255 255 / 70%);
+    font-size: 14px;
+    text-transform: none;
+}
+.webhook-available-variables p {
+    margin: 2px 0 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.webhook-available-variables code {
+    padding: 2px 5px;
+    border: 1px solid rgb(255 255 255 / 35%);
+    border-radius: 4px;
+    background-color: rgb(0 0 0 / 25%);
+    color: rgb(255 255 255 / 85%);
+    font: 600 12px "IBM Plex Sans", monospace;
+    white-space: nowrap;
 }
 /* Checkbox */
 .checkbox-container {
@@ -492,6 +611,7 @@ dialog {
     color: white;
     padding: 0;
     border-color:rgb(255 255 255 / 30%);
+    max-width: 600px;
     max-height: 85%;
 }
 

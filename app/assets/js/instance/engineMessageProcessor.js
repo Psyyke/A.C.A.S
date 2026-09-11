@@ -20,7 +20,11 @@ export default async function engineMessageProcessor(msg, profile) {
 
     const data = PARSE_UCI_RESPONSE(msg);
     const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
+    if(!data?.bestmove && oldestUnfinishedCalcRequestObj) oldestUnfinishedCalcRequestObj.lastData = data;
     const isMessageForCurrentFen = simpleFen(oldestUnfinishedCalcRequestObj?.fen) === simpleFen(this.currentFen);
+    const calculationTimeElapsed = oldestUnfinishedCalcRequestObj?.startedAt
+        ? Date.now() - oldestUnfinishedCalcRequestObj.startedAt
+        : 0;
     const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant') && !msg.includes('UCI_');
     const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
     const isMsgOption = msg.startsWith('option name ');
@@ -147,8 +151,6 @@ export default async function engineMessageProcessor(msg, profile) {
 
         const [topMoveObjects, removedDuplicateMoveAmount]
             = GET_UNIQUE_MOVES(this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
-        const calculationStartedAt = oldestUnfinishedCalcRequestObj?.startedAt;
-        const calculationTimeElapsed = Date.now() - calculationStartedAt;
         const ownFutureMove = moves?.[2];
 
         if(ownFutureMove) {
@@ -200,6 +202,35 @@ export default async function engineMessageProcessor(msg, profile) {
         finishOldestUnfinishedCalculation();
 
         setProfileBubbleStatus('idle', profile, 'Idle, calculated best moves successfully!');
+
+        if(isMessageForCurrentFen) {
+            const lastData = oldestUnfinishedCalcRequestObj?.lastData ?? {};
+
+            SEND_WEBHOOK({
+                instanceId: this.instanceID,
+                profile,
+                site: this.domain,
+                variant: this.activeVariant,
+                engine: IS_EXTERNAL_ENGINE_SETTING_ACTIVE[profile] ? 'External' : await this.getEngineName(profile),
+                bestMove: data.bestmove,
+                evaluation: lastData.cp,
+                fen: oldestUnfinishedCalcRequestObj?.fen,
+                depth: lastData.depth,
+                seldepth: lastData.seldepth,
+                nodes: lastData.nodes,
+                time: lastData.time,
+                calculationTime: calculationTimeElapsed,
+                nps: lastData.nps,
+                hashfull: lastData.hashfull,
+                tbhits: lastData.tbhits,
+                multipv: lastData.multipv,
+                mate: lastData.mate,
+                pv: lastData.pv,
+                currmove: lastData.currmove,
+                currmovenumber: lastData.currmovenumber,
+                engineOutput: msg
+            }).catch(console.error);
+        }
 
         if(isMessageForCurrentFen && this.pV[profile].activeGuiMoveMarkings.length === 0) {
             const markingLimit = this.pV[profile].multiPV; // await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile)
