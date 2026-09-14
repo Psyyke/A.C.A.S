@@ -37,13 +37,18 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         const playerColor = await this.getPlayerColor();
         const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
         const alwaysMyTurn = await this.getConfigValue(this.configKeys.alwaysMyTurn, profileName);
+
         const isAttackingPlayerColor = reverseSide
             ? playerColor.toLowerCase() === 'w' ? 'b' : 'w'
             : playerColor;
-        const previousFen = this.pV[profileName].lastFen;
 
-        // Do not calculate when player is attacking king, this makes some engines crash!
-        if(IS_PLAYER_ATTACKING_KING(currentFen, isAttackingPlayerColor)) return;
+        const variant = this.pV[profileName].chessVariant;
+        const isCustomVariant = variant && variant !== 'chess';
+
+        // Don't continue if player is attacking king and the variant is 'chess' (not custom)
+        // Otherwise some engines crash! Some variants have such situations legally though.
+        if(!isCustomVariant && IS_PLAYER_ATTACKING_KING(currentFen, isAttackingPlayerColor))
+            return;
 
         this.pV[profileName].lastCalculatedFen = currentFen;
         this.pV[profileName].lastFen = currentFen;
