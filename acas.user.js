@@ -80,7 +80,7 @@
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.8
+// @version     2.4.9
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -441,6 +441,7 @@ let lastRejectedFen = '';
 
 let gameState = getGameStateObjTemplate();
 
+let backendTabOpenedOnceAlready = false;
 let matchFirstSuggestionGiven = false;
 let isUserMouseDown = false;
 let modListeners = [];
@@ -3861,18 +3862,13 @@ function toggleConcealAssistance() {
 }
 
 function startWhenBackendReady() {
-    let timesUrlForceOpened = 0;
-    let i = 0;
-
     const interval = CommLink.setIntervalAsync(async () => {
-        i++;
-
         if(await isAcasBackendReady()) {
             start();
 
             interval.stop();
-        } else if(timesUrlForceOpened === 0 && (i % 10 === 0)) {
-            timesUrlForceOpened++;
+        } else if(!backendTabOpenedOnceAlready) {
+            backendTabOpenedOnceAlready = true;
 
             const config = GM_getValue(dbValues.AcasConfig);
             const isGhost = config?.global?.[configKeys.isUserscriptGhost];
