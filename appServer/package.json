@@ -37,5 +37,10 @@
 			"allowToChangeInstallationDirectory": true,
 			"license": "LICENSE"
 		}
+	},
+	"overrides": {
+		"ajv": {
+			"fast-uri": "4.1.5"
+		}
 	}
 }
