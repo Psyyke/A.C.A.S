@@ -2431,6 +2431,44 @@ function getMissedFen(lastBoard, newBoard, changes, turn) {
     return null;
 }
 
+// Which castling rights can still exist, judged from piece placement alone
+function inferCastlingRightsFromFen(fen) {
+    try {
+        const ranks = String(fen).trim().split(/\s+/)[0].split('/');
+        if(ranks.length !== 8) return '-';
+
+        const expand = rank => rank.replace(/[1-8]/g, d => '1'.repeat(d));
+        const rank8 = expand(ranks[0]); // black back rank
+        const rank1 = expand(ranks[7]); // white back rank
+
+        if(rank8.length !== 8 || rank1.length !== 8) return '-';
+
+        let rights = '';
+        if(rank1[4] === 'K') {
+            if(rank1[7] === 'R') rights += 'K';
+            if(rank1[0] === 'R') rights += 'Q';
+        }
+        if(rank8[4] === 'k') {
+            if(rank8[7] === 'r') rights += 'k';
+            if(rank8[0] === 'r') rights += 'q';
+        }
+
+        return rights || '-';
+    } catch(e) {
+        return '-';
+    }
+}
+
+function seedLostCastlingRights(basicFen) {
+    const possible = inferCastlingRightsFromFen(basicFen);
+
+    for(const right of ['K', 'Q', 'k', 'q']) {
+        if(!possible.includes(right) && !gameState.lostCastlingRights.includes(right)) {
+            gameState.lostCastlingRights.push(right);
+        }
+    }
+}
+
 // This is called by observeNewMoves()
 // Note: gameStateHistory.get()[0].fen.full / gameStateHistory.get()[0].fen.basic is the last FEN, from the previous board position.
 async function determineBoardPositionValidity() {
@@ -2625,6 +2663,10 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
         }
     };
 
+    // First state of this match (e.g. page loaded mid-game)
+    // Derive the impossible castling rights from the board itself.
+    if(!stateHistory.length) seedLostCastlingRights(basicFenToProcess);
+    
     if(isWhiteKingMove) loseCastlingRights('K', 'Q');
     if(isBlackKingMove) loseCastlingRights('k', 'q');
 
