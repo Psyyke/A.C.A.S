@@ -100,6 +100,10 @@
         "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của engine. Vui lòng mở một bàn cờ để khởi động engine và tải các cài đặt động."
     },
     "configTranslations": {
+        "pipSan": ["Ký hiệu nước đi SAN", "Dùng SAN trong bảng nổi và giọng đọc"],
+        "ttsAnnounceEnemyMoves": ["Đọc nước đi của đối thủ", "Nghe nước đi vừa chơi của đối thủ"],
+        "ttsAnnounceEvaluation": ["Đọc thay đổi lợi thế", "Nghe khi bạn giành hoặc mất lợi thế"],
+        "ttsTranslateAudio": ["Dịch âm thanh", "Nghe nước đi bằng ngôn ngữ đã chọn"],
         "engineEnabled": ["Đã bật", "Engine có được bật hay không"],
         "chessEngine": ["Engine Cờ Vua", "Đọc thêm tại đây"],
         "chessVariant": ["Biến thể Cờ Vua", "Đọc thêm tại đây"],
@@ -173,6 +177,29 @@
         "concealAssistanceAutoDelayMs": ["Tự động ẩn (ms)", "Tự động ẩn các tính năng trợ giúp sau khoảng thời gian này"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Trung lập", "Thiếu chính xác", "Sai lầm", "Sai lầm nghiêm trọng", "Thảm họa", "Nước đi tốt", "Xuất sắc", "Nước đi tốt nhất", "Nước đi yếu"],
+            "forced": "Nước đi bắt buộc", "provisional": "tạm thời", "eval": "Đánh giá", "best": "Tốt nhất", "loss": "Mất điểm đánh giá",
+            "depth": "Độ sâu", "engine": "Engine", "bestLine": "Biến tốt nhất", "playedLine": "Biến đã chơi", "critical": "Nước đi quan trọng.",
+            "waiting": "Đang chờ nước đi được ghi lại.", "mismatch": "Lịch sử nước đi không khớp hoặc biến thể không được hỗ trợ.",
+            "analyzing": "Đang phân tích {move}…", "unavailable": "Không có đánh giá."
+        },
+        "moveSpeech": {
+            "opponent": "Đối thủ: {move}",
+            "advantage": ["Bạn đang thua rõ rệt", "Bạn đang thua", "Bạn hơi bất lợi", "Thế cờ cân bằng", "Bạn hơi có lợi", "Bạn đang thắng", "Bạn đang thắng rõ rệt"],
+            "lang": "vi-VN", "pieces": { "K": "Vua", "Q": "Hậu", "R": "Xe", "B": "Tượng", "N": "Mã" },
+            "move": "{piece} đến {square}", "capture": "{piece} bắt ở {square}", "origin": "{piece} từ {square}",
+            "promotion": "phong cấp thành {piece}", "castleKingside": "Nhập thành cánh vua", "castleQueenside": "Nhập thành cánh hậu",
+            "check": "chiếu", "checkmate": "chiếu hết"
+        },
+        "dynamicSettings": {
+            "title": "Cài đặt động", "subtitle": "Trình sửa đồ thị · điều chỉnh cài đặt theo ván đấu", "addLine": "＋ Đường", "removeLine": "Xóa đường", "addPoint": "＋ Điểm", "deletePoint": "Xóa điểm", "curve": "Đường cong", "selectLine": "Chọn đường", "step": "Bậc thang", "linear": "Tuyến tính", "smooth": "Mượt", "pieceCount": "Số quân", "moveNumber": "Số lượt đi", "evaluation": "Đánh giá (lợi thế của bạn, cp)", "close": "Đóng trình sửa", "variable": "Biến đồ thị", "chooseSetting": "Cài đặt cần sửa", "zoomIn": "Phóng to", "zoomOut": "Thu nhỏ", "fit": "Vừa đồ thị", "coordinates": "Tọa độ điểm", "pointX": "Giá trị X của điểm", "pointY": "Giá trị Y của điểm",
+            "evaluationHint": "Âm là bất lợi, không là cân bằng, dương là lợi thế. Dùng đánh giá chính hoàn tất gần nhất.", "fitHint": "Điều chỉnh cả hai trục với khoảng trống quanh đường", "graphHint": "Kéo điểm và vùng trống để di chuyển. Chụm ngón hoặc cuộn để thu phóng. Phím mũi tên di chuyển điểm, Shift mười bước, Delete xóa điểm.", "exitFullscreen": "Thoát toàn màn hình", "fullscreen": "Đồ thị toàn màn hình", "instance": "Phiên", "equal": "Cân bằng (0 cp)", "visibility": "Hiện và áp dụng hoặc ẩn và tắt đường cong", "enableLine": "Bật và hiện {setting} của {profile}", "selectedLine": "Đã chọn: {setting}, {profile}", "chooseLine": "Chọn {setting}, {profile}", "currentValue": "Giá trị hiện tại của {setting}", "otherVariable": "Không có đường cho {variable}. Đường cong hiện có dùng ", "noLines": "Chưa có đường. Chọn cài đặt rồi ＋ Đường.", "existingCurve": "Một đường cong cho mỗi cài đặt và hồ sơ tránh xung đột. Biến: {variable}. Sửa hoặc xóa đường cong để đổi.", "addForProfile": "Thêm {setting} cho {profile}", "enableFirst": "Bật đường trong chú giải trước", "addPointHint": "Thêm điểm tọa độ nguyên", "stepLocked": "Cài đặt này chỉ dùng bậc thang.", "editing": "Đang sửa {setting} của {profile}.", "removeFromProfile": "Xóa {setting} khỏi {profile}", "point": "Điểm {number}", "selectPoint": "Chọn điểm để sửa tọa độ.", "profileLines": "Các đường hồ sơ của {setting}", "saveError": "Không thể lưu đồ thị. Kiểm tra kết nối userscript.", "variableLink": "Mở đường cong cho {variable}", "removeConfirm": "Xóa đường {setting} khỏi hồ sơ \"{profile}\"?\n\nTất cả điểm bị xóa và giá trị mặc định đã lưu được khôi phục.", "none": "Không có", "savedDefault": "Mặc định đã lưu", "unavailable": "{value} (không có sẵn)", "override": "Ghi đè động đang bật: {value} ({variable}: {position}).", "waiting": "Đường cong bật · chờ {variable}.", "defaultActive": "Đường cong bật · dùng mặc định đã lưu.", "disabled": "Đường cong động đã tắt.", "noCurve": "Chưa bật đường cong động.", "description": "Giá trị đã lưu: {value}. Ô giữ giá trị có thể sửa, dùng khi không áp dụng đường cong. Mở cài đặt động để sửa đường cong.", "openSetting": "Mở cài đặt động của {setting}"
+        },
+        "activityLog": {
+            "title": "Nhật ký hoạt động", "subtitle": "Thông báo engine, thay đổi động, cảnh báo và lỗi", "show": "Hiện", "clear": "Xóa nhật ký", "filter": "Lọc theo loại", "all": "Mọi hoạt động", "close": "Đóng nhật ký", "instance": "Phiên", "empty": "Chưa có mục nhật ký.", "status": "Hiện {shown} · tổng {total} · giữ {limit} mục mới nhất trong phiên",
+            "types": { "engine-input": "Đầu vào engine", "engine-output": "Đầu ra engine", "dynamic-change": "Thay đổi động", "setting-change": "Thay đổi cài đặt", "engine": "Vòng đời engine", "instance": "Vòng đời phiên", "game": "Sự kiện ván đấu", "site": "Thông báo trang", "warning": "Cảnh báo", "error": "Lỗi", "app": "Sự kiện ứng dụng" }
+        },
         "profileRemovalWarning": "Bạn có chắc muốn xóa hồ sơ này không?\n\nHành động này không thể hoàn tác.",
         "settingsResetWarning": "Bạn có chắc muốn đặt lại cài đặt không?\n\nCẢNH BÁO: Hành động này không thể hoàn tác và sẽ đặt lại toàn bộ cấu hình của bạn!",
         "refreshSiteNotification": "Hãy tải lại trang bên ngoài để áp dụng thay đổi!",

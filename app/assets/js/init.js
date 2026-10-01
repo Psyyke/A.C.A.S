@@ -2,6 +2,9 @@ import { createInstance } from './instanceManager.js';
 import { installNotificationElem, autoMoveCheckbox, hiddenSettingPanel, tosCheckboxElem,
     tosContinueBtnElem, tosContainerElem } from './gui/elementDeclarations.js';
 import { highlightSettingElem, initGUI } from './gui.js';
+import { initializeActivityLogging } from './misc/activityLog.js';
+
+initializeActivityLogging();
 
 let started = false;
 

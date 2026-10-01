@@ -98,6 +98,10 @@
         "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
     },
     "configTranslations": {
+        "pipSan": ["SAN hamle gösterimi", "Yüzen panelde ve konuşmada SAN kullan"],
+        "ttsAnnounceEnemyMoves": ["Rakip hamlelerini seslendir", "Rakibin son hamlesini dinle"],
+        "ttsAnnounceEvaluation": ["Üstünlük değişimlerini seslendir", "Üstünlük kazandığında veya kaybettiğinde dinle"],
+        "ttsTranslateAudio": ["Sesi çevir", "Hamleleri seçilen dilde dinle"],
         "engineEnabled": ["Etkin", "Motor etkin mi"],
         "chessEngine": ["Satranç Motoru", "Buradan daha fazla bilgi edinin"],
         "chessVariant": ["Satranç Varyantı", "Buradan daha fazla bilgi edinin"],
@@ -171,6 +175,29 @@
         "concealAssistanceAutoDelayMs": ["Otomatik Gizle (ms)", "Yardım özelliklerini bu süreden sonra otomatik olarak gizle"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Nötr", "İsabetsizlik", "Hata", "Büyük hata", "Felaket", "İyi hamle", "Mükemmel", "En iyi hamle", "Zayıf hamle"],
+            "forced": "Zorunlu hamle", "provisional": "geçici", "eval": "Değerlendirme", "best": "En iyi", "loss": "Değerlendirme kaybı",
+            "depth": "Derinlik", "engine": "Motor", "bestLine": "En iyi devam", "playedLine": "Oynanan devam", "critical": "Kritik hamle.",
+            "waiting": "Kaydedilmiş bir hamle bekleniyor.", "mismatch": "Hamle geçmişi uyuşmuyor veya varyant desteklenmiyor.",
+            "analyzing": "{move} analiz ediliyor…", "unavailable": "Değerlendirme kullanılamıyor."
+        },
+        "moveSpeech": {
+            "opponent": "Rakip: {move}",
+            "advantage": ["Açıkça kaybediyorsun", "Kaybediyorsun", "Biraz geridesin", "Konum eşit", "Biraz öndesin", "Kazanıyorsun", "Açıkça kazanıyorsun"],
+            "lang": "tr-TR", "pieces": { "K": "Şah", "Q": "Vezir", "R": "Kale", "B": "Fil", "N": "At" },
+            "move": "{piece}, hedef {square}", "capture": "{piece}, {square} karesinde alır", "origin": "{piece}, başlangıç {square}",
+            "promotion": "terfi: {piece}", "castleKingside": "Kısa rok", "castleQueenside": "Uzun rok",
+            "check": "şah", "checkmate": "şah mat"
+        },
+        "dynamicSettings": {
+            "title": "Dinamik ayarlar", "subtitle": "Grafik düzenleyici · ayarları oyuna göre değiştir", "addLine": "＋ Çizgi", "removeLine": "Çizgiyi kaldır", "addPoint": "＋ Nokta", "deletePoint": "Noktayı sil", "curve": "Eğri", "selectLine": "Çizgi seç", "step": "Basamak", "linear": "Doğrusal", "smooth": "Yumuşak", "pieceCount": "Taş sayısı", "moveNumber": "Hamle numarası", "evaluation": "Değerlendirme (avantajın, cp)", "close": "Düzenleyiciyi kapat", "variable": "Grafik değişkeni", "chooseSetting": "Düzenlenecek ayar", "zoomIn": "Yakınlaştır", "zoomOut": "Uzaklaştır", "fit": "Grafiği sığdır", "coordinates": "Nokta koordinatları", "pointX": "Noktanın X değeri", "pointY": "Noktanın Y değeri",
+            "evaluationHint": "Negatif geride, sıfır eşit, pozitif önde demektir. Son tamamlanan ana değerlendirme kullanılır.", "fitHint": "Çizgi etrafında boşluk bırakarak iki ekseni sığdır", "graphHint": "Noktaları ve boş alanı sürükleyin. Yakınlaştırmak için sıkıştırın veya kaydırın. Oklar noktayı, Shift on adım hareket ettirir. Delete siler.", "exitFullscreen": "Tam ekrandan çık", "fullscreen": "Tam ekran grafik", "instance": "Örnek", "equal": "Eşit (0 cp)", "visibility": "Eğriyi göster ve uygula veya gizle ve devre dışı bırak", "enableLine": "{profile} profilindeki {setting} ayarını etkinleştir ve göster", "selectedLine": "Seçili: {setting}, {profile}", "chooseLine": "{setting}, {profile} seç", "currentValue": "{setting} güncel değeri", "otherVariable": "{variable} için çizgi yok. Mevcut eğriler şunu kullanır: ", "noLines": "Çizgi yok. Ayarı seçin, sonra ＋ Çizgi.", "existingCurve": "Her ayar ve profil için tek eğri çakışmaları önler. Değişken: {variable}. Değiştirmek için eğriyi düzenleyin veya kaldırın.", "addForProfile": "{profile} için {setting} ekle", "enableFirst": "Önce açıklamada çizgiyi etkinleştirin", "addPointHint": "Tam sayılı nokta ekle", "stepLocked": "Bu ayar için basamak sabittir.", "editing": "{profile} profilinde {setting} düzenleniyor.", "removeFromProfile": "{profile} profilinden {setting} kaldır", "point": "Nokta {number}", "selectPoint": "Koordinatları düzenlemek için nokta seçin.", "profileLines": "{setting} profil çizgileri", "saveError": "Grafik kaydedilemedi. Userscript bağlantısını kontrol edin.", "variableLink": "{variable} eğrilerini aç", "removeConfirm": "\"{profile}\" profilinden {setting} çizgisi kaldırılsın mı?\n\nTüm noktalar silinir ve kayıtlı varsayılan değer geri yüklenir.", "none": "Yok", "savedDefault": "Kayıtlı varsayılan", "unavailable": "{value} (kullanılamıyor)", "override": "Dinamik geçersiz kılma etkin: {value} ({variable}: {position}).", "waiting": "Eğri etkin · {variable} bekleniyor.", "defaultActive": "Eğri etkin · kayıtlı varsayılan kullanılıyor.", "disabled": "Dinamik eğri devre dışı.", "noCurve": "Etkin dinamik eğri yok.", "description": "Kayıtlı değer: {value}. Alan, eğri olmadığında kullanılan düzenlenebilir değeri korur. Eğriyi düzenlemek için dinamik ayarları açın.", "openSetting": "{setting} için dinamik ayarları aç"
+        },
+        "activityLog": {
+            "title": "Etkinlik günlüğü", "subtitle": "Motor mesajları, dinamik değişiklikler, uyarılar ve hatalar", "show": "Göster", "clear": "Günlüğü temizle", "filter": "Türe göre filtrele", "all": "Tüm etkinlikler", "close": "Günlüğü kapat", "instance": "Örnek", "empty": "Henüz kayıt yok.", "status": "{shown} gösteriliyor · toplam {total} · oturumun son {limit} kaydı tutulur",
+            "types": { "engine-input": "Motor girdisi", "engine-output": "Motor çıktısı", "dynamic-change": "Dinamik değişiklikler", "setting-change": "Ayar değişiklikleri", "engine": "Motor yaşam döngüsü", "instance": "Örnek yaşam döngüsü", "game": "Oyun olayları", "site": "Site mesajları", "warning": "Uyarılar", "error": "Hatalar", "app": "Uygulama olayları" }
+        },
         "profileRemovalWarning": "Bu profili silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.",
         "settingsResetWarning": "Ayarları sıfırlamak istediğinizden emin misiniz?\n\nDİKKAT: Bu işlem geri alınamaz ve tüm yapılandırmanızı sıfırlar!",
         "refreshSiteNotification": "Değişiklikleri görmek için harici siteyi yenileyin!",

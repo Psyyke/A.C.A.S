@@ -32,6 +32,7 @@
 		<script src="../userscript-components/CommLink.js"></script>
 		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
 		<script src="../userscript-components/UniversalBoardDrawer.js"></script>
+		<script src="../userscript-components/DynamicSettings.js"></script>
 		<script src="../assets/libraries/SnapDOM/snapdom.min.js"></script>
 		<script type="module" src="./assets/js/misc/exposeModules.js"></script>
 		<script src="./assets/js/globals.js"></script>
@@ -241,8 +242,87 @@
 						title="Show Hidden Settings">👀</div>
 					<a target="_about" href="../usage/" class="control-panel-btn no-select acas-fancy-button" title="Open Documentation">📖</a>
 					<div id="import-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Import Settings">📂</div>
+                    <div class="floaty-wrapper activity-log-launcher">
+						<button class="open-floaty-btn acas-fancy-button" type="button" title="Activity Log" aria-label="Open activity log" aria-controls="log-floaty">📜</button>
+						<dialog id="log-floaty" aria-labelledby="activity-log-title">
+							<div class="floaty-container">
+								<section class="floaty-header">
+									<div class="title"><h1 id="activity-log-title">Activity Log</h1><p>Engine messages, dynamic changes, warnings and errors</p></div>
+									<div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" aria-label="Close activity log">💾</button></div>
+								</section>
+								<section class="floaty-body activity-log-body">
+									<div class="activity-log-toolbar">
+										<label class="activity-log-filter-label"><span>Show</span>
+											<select id="activity-log-filter" aria-label="Filter activity by type">
+												<option value="all">All activity</option>
+												<option value="engine-input">Engine input</option>
+												<option value="engine-output">Engine output</option>
+												<option value="dynamic-change">Dynamic changes</option>
+												<option value="setting-change">Setting changes</option>
+												<option value="engine">Engine lifecycle</option>
+												<option value="instance">Instance lifecycle</option>
+												<option value="game">Game events</option>
+												<option value="site">Site messages</option>
+												<option value="warning">Warnings</option>
+												<option value="error">Errors</option>
+												<option value="app">App events</option>
+											</select>
+										</label>
+										<span id="activity-log-status" role="status">No log entries yet.</span>
+										<button id="activity-log-clear" type="button" disabled>Clear log</button>
+									</div>
+									<div id="activity-log-entries" role="log" aria-live="off" aria-label="Session activity log" tabindex="0"></div>
+								</section>
+							</div>
+						</dialog>
+					</div>
 					<div id="export-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Export Settings">💾</div>
 					<div id="reset-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Reset Settings">🗑️</div>
+					<div class="floaty-wrapper dynamic-settings-editor">
+						<dialog id="dynamic-settings-floaty" class="dynamic-settings-floaty">
+							<div class="floaty-container">
+								<section class="floaty-header">
+									<div class="title"><h1>Dynamic Settings</h1><p>Graph editor · shape settings as the game changes</p></div>
+									<div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" aria-label="Close graph editor">💾</button></div>
+								</section>
+								<section class="floaty-body dynamic-settings-body">
+									<div id="dynamic-variable-control" class="dynamic-variable-control tabs-input">
+										<div id="dynamic-variable-select" class="dynamic-variable-tabs tabs-list-container" role="tablist" aria-label="Graph variable">
+											<button id="dynamic-tab-pieceCount" class="tab-item selected-tab-item" type="button" role="tab" data-variable="pieceCount" aria-selected="true" aria-controls="dynamic-graph-panel"><span>Piece Count</span></button>
+											<button id="dynamic-tab-moveNumber" class="tab-item" type="button" role="tab" data-variable="moveNumber" aria-selected="false" aria-controls="dynamic-graph-panel" tabindex="-1"><span>Move Number</span></button>
+											<button id="dynamic-tab-evaluation" class="tab-item" type="button" role="tab" data-variable="evaluation" title="Your advantage: negative means losing, zero means equal, positive means winning. Uses the latest completed primary evaluation." aria-selected="false" aria-controls="dynamic-graph-panel" tabindex="-1"><span>Evaluation</span></button>
+										</div>
+										<select id="dynamic-variable-compact" aria-label="Graph variable" aria-controls="dynamic-graph-panel" hidden><option value="pieceCount">Piece Count</option><option value="moveNumber">Move Number</option><option value="evaluation">Evaluation</option></select>
+									</div>
+									<div id="dynamic-graph-panel" class="dynamic-graph-panel" role="tabpanel" aria-labelledby="dynamic-tab-pieceCount">
+										<div class="dynamic-settings-toolbar dynamic-graph-toolbar">
+											<label class="dynamic-setting-picker"><select id="dynamic-add-setting" aria-label="Setting to view and edit" aria-controls="dynamic-graph-panel"></select></label>
+											<button id="dynamic-add-line" type="button">＋ Line</button>
+											<button id="dynamic-delete-line" type="button" disabled>Remove line</button>
+											<span class="dynamic-toolbar-separator" aria-hidden="true"></span>
+											<button id="dynamic-add-point" type="button">＋ Point</button>
+											<button id="dynamic-delete-point" type="button" disabled>Delete point</button>
+											<label class="dynamic-axis-control"><span class="dynamic-field-label">Curve</span><select id="dynamic-interpolation" aria-label="Selected line curve interpolation" aria-describedby="dynamic-interpolation-status" disabled><option value="" disabled>Select line</option><option value="step">Step</option><option value="linear">Linear</option><option value="smooth">Smooth</option></select><svg id="dynamic-interpolation-lock" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" hidden><path d="M6 8V5a4 4 0 0 1 8 0v3M4 8h12v9H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span id="dynamic-interpolation-status" class="dynamic-sr-only">Select a line to edit its curve.</span></label>
+											<button id="dynamic-zoom-out" type="button" aria-label="Zoom out">−</button>
+											<button id="dynamic-zoom-in" type="button" aria-label="Zoom in">＋</button>
+											<button id="dynamic-fit-graph" type="button" aria-label="Fit graph" title="Fit both axes with space around the line"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M3 19h18M5 17c5 0 3-10 8-10s3 5 6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+											<button id="dynamic-fullscreen-toggle" type="button" aria-pressed="false" aria-controls="dynamic-graph-panel" aria-label="Fullscreen graph" title="Fullscreen graph"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+											<div class="dynamic-point-inspector" aria-label="Selected point coordinates">
+												<span id="dynamic-point-status">Select a point to edit its coordinates.</span>
+												<label>X <input id="dynamic-point-x" type="number" step="1" aria-label="Selected point X value" disabled></label>
+												<label>Y <input id="dynamic-point-y" type="number" step="1" aria-label="Selected point Y value" disabled><select id="dynamic-point-choice" aria-label="Selected point dropdown value" hidden disabled></select></label>
+											</div>
+										</div>
+										<div id="dynamic-lines-list" class="dynamic-lines-list" role="group" aria-label="Profiles for the selected setting"></div>
+										<div class="dynamic-graph-wrap">
+											<svg id="dynamic-settings-graph" viewBox="0 0 1000 500" preserveAspectRatio="none" role="group" tabindex="0" aria-label="Dynamic settings graph editor" aria-description="Drag points to move them, drag empty space to pan, pinch or scroll to zoom. Arrow keys move a selected point by the current scale; Shift moves it by ten steps. Delete removes the selected point."></svg>
+											<div id="dynamic-current-values" class="dynamic-current-values" role="status" hidden></div>
+										</div>
+									</div>
+								</section>
+							</div>
+						</dialog>
+					</div>
 				</div>
 			</div>
 			<div id="userscript-info-small"></div>
@@ -558,20 +638,18 @@
 												<div class="setting-panel">
 													<div class="setting-panel-title" data-translation-moves-text>Move feedback</div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Move Ratings</div>
-														<div class="input-subtitle">Show engine's thoughts about moves</div></div><div class="checkbox-container">
+														<div class="input-subtitle">Compare your moves with the engine’s best</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="enableMoveRatings" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Rate Enemy</div>
-														<div class="input-subtitle">Give feedback on the enemy too</div></div><div class="checkbox-container">
+														<div class="input-subtitle">Rate opponent moves</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="enableEnemyFeedback" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Search Depth</div>
-														<div class="input-subtitle">How deep will the feedback engine search</div></div>
+														<div class="input-subtitle">Fairy Stockfish 14 target depth</div></div>
 														<input type="textfield" data-key="feedbackEngineDepth" data-default-value="15" data-between="1-99">
 													</div>
 												</div>
-
-                                                <p data-translation-experimental-warning>This feature is experimental, it might not work well!</p>
 
 												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
 											</section>
@@ -730,6 +808,18 @@
 								<div class="input-subtitle">Higher number, faster speed</div></div>
 								<input type="textfield" data-key="ttsVoiceSpeed" data-default-value="10" data-between="1-100">
 							</div>
+                            <div class="checkbox-input custom-input"><div><div class="input-title">Announce Opponent Moves</div>
+                                <div class="input-subtitle">Hear the move your opponent just played</div></div><div class="checkbox-container">
+                                <input type="checkbox" data-key="ttsAnnounceEnemyMoves" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                            </div>
+                            <div class="checkbox-input custom-input"><div><div class="input-title">Announce Advantage Changes</div>
+                                <div class="input-subtitle">Hear when you gain or lose the advantage</div></div><div class="checkbox-container">
+                                <input type="checkbox" data-key="ttsAnnounceEvaluation" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                            </div>
+                            <div class="checkbox-input custom-input"><div><div class="input-title">Translate Audio</div>
+                                <div class="input-subtitle">Speak moves in your selected language</div></div><div class="checkbox-container">
+                                <input type="checkbox" data-key="ttsTranslateAudio" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                            </div>
 						</div>
 					<div class="setting-panel">
                         <div class="setting-panel-title"><span class="misc-panel-title">Miscellaneous</span> ❔</div>
@@ -763,6 +853,10 @@
                                                 <div class="checkbox-input custom-input"><div><div class="input-title">Display Board</div>
                                                     <div class="input-subtitle">Instead of just text, display the entire board</div></div><div class="checkbox-container">
                                                     <input type="checkbox" data-key="pipBoard" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">SAN Move Notation</div>
+                                                    <div class="input-subtitle">Use SAN in PIP and Move TTS</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="pipSan" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
                                                 </div>
                                             </div>
 

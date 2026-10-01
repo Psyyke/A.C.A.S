@@ -100,6 +100,10 @@
         "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
     },
     "configTranslations": {
+        "pipSan": ["Notation SAN", "Utiliser SAN dans le panneau flottant et la voix"],
+        "ttsAnnounceEnemyMoves": ["Annoncer les coups adverses", "Écouter le dernier coup de l’adversaire"],
+        "ttsAnnounceEvaluation": ["Annoncer les changements d’avantage", "Écouter quand vous gagnez ou perdez l’avantage"],
+        "ttsTranslateAudio": ["Traduire l’audio", "Écouter les coups dans la langue sélectionnée"],
         "engineEnabled": ["Activé", "Le moteur est-il activé ?"],
         "chessEngine": ["Moteur d'échecs", "En savoir plus ici"],
         "chessVariant": ["Variante d'échecs", "En savoir plus ici"],
@@ -172,6 +176,57 @@
         "concealAssistanceAutoDelayMs": ["Dissimulation automatique (ms)", "Dissimuler automatiquement les fonctionnalités après ce délai"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutre", "Imprécision", "Erreur", "Gaffe", "Catastrophique", "Bon coup", "Excellent", "Meilleur coup", "Coup faible"],
+            "forced": "Coup forcé", "provisional": "provisoire", "eval": "Évaluation", "best": "Meilleur", "loss": "Perte d’évaluation",
+            "depth": "Profondeur", "engine": "Moteur", "bestLine": "Meilleure variante", "playedLine": "Variante jouée", "critical": "Coup critique.",
+            "waiting": "En attente d’un coup enregistré.", "mismatch": "Historique incohérent ou variante non prise en charge.",
+            "analyzing": "Analyse de {move}…", "unavailable": "Évaluation indisponible."
+        },
+        "moveSpeech": {
+            "opponent": "Adversaire : {move}",
+            "advantage": ["Vous perdez nettement", "Vous êtes en train de perdre", "Vous avez un léger désavantage", "La position est égale", "Vous avez un léger avantage", "Vous êtes en train de gagner", "Vous gagnez nettement"],
+            "lang": "fr-FR", "pieces": { "K": "Roi", "Q": "Dame", "R": "Tour", "B": "Fou", "N": "Cavalier" },
+            "move": "{piece} en {square}", "capture": "{piece} prend en {square}", "origin": "{piece} de {square}",
+            "promotion": "promotion en {piece}", "castleKingside": "Petit roque", "castleQueenside": "Grand roque",
+            "check": "échec", "checkmate": "échec et mat"
+        },
+        "dynamicSettings": {
+            "title": "Paramètres dynamiques", "subtitle": "Éditeur de graphiques · adapte les paramètres à la partie",
+            "addLine": "＋ Ligne", "removeLine": "Supprimer la ligne", "addPoint": "＋ Point", "deletePoint": "Supprimer le point",
+            "curve": "Courbe", "selectLine": "Sélectionner une ligne", "step": "Paliers", "linear": "Linéaire", "smooth": "Lisse",
+            "pieceCount": "Nombre de pièces", "moveNumber": "Numéro du coup", "evaluation": "Évaluation (votre avantage, cp)",
+            "close": "Fermer l’éditeur", "variable": "Variable du graphique", "chooseSetting": "Paramètre à modifier",
+            "zoomIn": "Agrandir", "zoomOut": "Réduire", "fit": "Ajuster le graphique", "coordinates": "Coordonnées du point",
+            "pointX": "Valeur X du point", "pointY": "Valeur Y du point",
+            "evaluationHint": "Votre avantage : négatif signifie perdant, zéro égalité et positif gagnant. Utilise la dernière évaluation principale terminée.",
+            "fitHint": "Ajuster les deux axes avec de l’espace autour de la ligne",
+            "graphHint": "Faites glisser les points pour les déplacer, le vide pour déplacer la vue. Pincez ou défilez pour zoomer. Les flèches déplacent le point ; Maj le déplace de dix pas. Suppr le supprime.",
+            "exitFullscreen": "Quitter le plein écran", "fullscreen": "Graphique en plein écran", "instance": "Instance", "equal": "Égalité (0 cp)",
+            "visibility": "Afficher et appliquer la courbe, ou la masquer et la désactiver",
+            "enableLine": "Activer et afficher {setting} de {profile}", "selectedLine": "Sélectionné : {setting}, {profile}",
+            "chooseLine": "Sélectionner {setting}, {profile}", "currentValue": "Valeur actuelle de {setting}",
+            "otherVariable": "Aucune ligne pour {variable}. Les courbes existantes utilisent ", "noLines": "Aucune ligne. Sélectionnez un paramètre, puis ＋ Ligne.",
+            "existingCurve": "Une courbe par paramètre et profil évite les conflits. Variable actuelle : {variable}. Modifiez ou supprimez la courbe pour la changer.",
+            "addForProfile": "Ajouter {setting} pour {profile}", "enableFirst": "Activez la ligne dans la légende pour ajouter un point",
+            "addPointHint": "Ajouter un point entier à la ligne", "stepLocked": "L’interpolation par paliers est imposée pour ce paramètre.",
+            "editing": "Modification de {setting} de {profile}.", "removeFromProfile": "Supprimer {setting} de {profile}",
+            "point": "Point {number}", "selectPoint": "Sélectionnez un point pour modifier ses coordonnées.", "profileLines": "Lignes des profils de {setting}",
+            "saveError": "Impossible d’enregistrer le graphique. Vérifiez la connexion au userscript.", "variableLink": "Ouvrir les courbes de {variable}",
+            "removeConfirm": "Supprimer la ligne {setting} du profil \"{profile}\" ?\n\nTous ses points seront supprimés et la valeur enregistrée sera rétablie.",
+            "none": "Aucun", "savedDefault": "Valeur enregistrée", "unavailable": "{value} (indisponible)",
+            "override": "Remplacement dynamique actif : {value} ({variable} : {position}).", "waiting": "Courbe activée · en attente de {variable}.",
+            "defaultActive": "Courbe activée · valeur enregistrée utilisée.", "disabled": "Courbe dynamique désactivée.", "noCurve": "Aucune courbe dynamique activée.",
+            "description": "Valeur enregistrée : {value}. Le champ conserve cette valeur modifiable, utilisée sans courbe. Ouvrez les paramètres dynamiques pour modifier la courbe.",
+            "openSetting": "Ouvrir les paramètres dynamiques de {setting}"
+        },
+        "activityLog": {
+            "title": "Journal d’activité", "subtitle": "Messages du moteur, changements dynamiques, avertissements et erreurs",
+            "show": "Afficher", "clear": "Vider le journal", "filter": "Filtrer par type", "all": "Toute l’activité",
+            "close": "Fermer le journal", "instance": "Instance", "empty": "Aucune entrée pour le moment.",
+            "status": "{shown} affichées · {total} au total · les {limit} dernières conservées pour cette session",
+            "types": { "engine-input": "Entrée du moteur", "engine-output": "Sortie du moteur", "dynamic-change": "Changements dynamiques", "setting-change": "Changements de paramètres", "engine": "Cycle du moteur", "instance": "Cycle de l’instance", "game": "Événements de partie", "site": "Messages du site", "warning": "Avertissements", "error": "Erreurs", "app": "Événements de l’application" }
+        },
         "profileRemovalWarning": "Êtes-vous sûr(e) de vouloir supprimer ce profil ?\n\nCette action est irréversible.",
         "settingsResetWarning": "Êtes-vous sûr(e) de vouloir réinitialiser les paramètres ?\n\nDANGER : Cette action est irréversible et réinitialisera toute votre configuration !",
         "refreshSiteNotification": "Actualisez le site externe pour appliquer les changements.",

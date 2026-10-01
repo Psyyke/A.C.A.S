@@ -85,6 +85,7 @@
 
 			updateTextContent();
 			translateConfig();
+			document.dispatchEvent(new Event('acas-translations-updated'));
 
 			if(firstLoad) {
 				let retranslateTimeout = null;

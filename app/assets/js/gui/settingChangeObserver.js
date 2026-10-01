@@ -61,7 +61,10 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             break;
         case 'ttsVoiceEnabled':
-            if(valueExists) {
+        case 'ttsAnnounceEnemyMoves':
+        case 'ttsAnnounceEvaluation':
+            if(['ttsVoiceEnabled', 'ttsAnnounceEnemyMoves', 'ttsAnnounceEvaluation']
+                .some(key => document.querySelector(`input[data-key="${key}"]`)?.checked)) {
                 ttsNameDropdownElem.classList.remove('disabled-input');
                 ttsSpeedRangeElem.classList.remove('disabled-input');
             } else {
@@ -157,6 +160,11 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             if(wasCalledByUpdateLoop) return;
 
             startPictureInPicture();
+
+            break;
+        case 'pipSan':
+            if(processedElems.findLast(([elem]) => elem === inputElem)?.[1] !== value)
+                window.REFRESH_PIP_DISPLAY?.();
 
             break;
         case 'alwaysMyTurn':

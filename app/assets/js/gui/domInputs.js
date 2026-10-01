@@ -31,11 +31,11 @@ export function setInputValue(elem, val, min, max) {
         }
 
         elem.value = VAR_TO_CORRECT_TYPE(val);
-
-        if(key === 'webhookMessageTemplate') {
-            elem.dispatchEvent(new Event('acas-value-set'));
-        }
     }
+
+    // Notify descriptions/highlights after both text and checkbox updates.
+    // This is not a change event: loading a value must not save it again.
+    elem.dispatchEvent(new Event('acas-value-set'));
 }
 
 export function getInputValue(elem) {

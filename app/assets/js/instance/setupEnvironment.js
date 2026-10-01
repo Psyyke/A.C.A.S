@@ -122,6 +122,7 @@ export default async function setupEnvironment(startpos, dimensions) {
                 <div class="chessground-x"></div>
             </div>
             <div class="instance-opening-container"><span></span></div>
+            <div class="instance-feedback-container ${isConcealAssistanceActive ? 'assistance-concealment-active' : ''}"></div>
             <div><div class="pseudoground-x"></div></div>
             `;
 

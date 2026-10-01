@@ -1,5 +1,6 @@
-import { floatingPanelVideoElem, floatingFloaty, pipBoardInput } from './elementDeclarations.js';
+import { floatingPanelVideoElem, floatingFloaty, pipBoardInput, pipSanInput } from './elementDeclarations.js';
 import { setMediaMetadata } from './media.js';
+import { formatMoveNotationAsync } from '../misc/moveNotation.js';
 
 export const pipData = {};
 const pipFontSizes = { large: 64, mlarge: 35, medium: 26, small: 18, esmall: 18 };
@@ -7,10 +8,10 @@ const pipHeaderHeight = 44;
 const pipEvalBarWidth = 41;
 const pipStatusBarHeight = 2;
 const pipBoardSize = 360;
-const pipMaxTextWidth = 332;
 const pipBoardConfig = [0, pipHeaderHeight, pipBoardSize];
 
 let pipCanvas = null;
+let pipVideo = null;
 let pipLastPipEval = null;
 let pipLastPipFromTo = [null, null];
 let pipLastPipBoardBitmaps = [null, null];
@@ -20,6 +21,26 @@ let pipContextQueue = [];
 let pipProcessingBestMove = false;
 let pipRefreshTimeout = null;
 let lastProcessedDepth = null;
+let pipRefreshRevision = 0;
+
+function resizePipCanvas() {
+    if(!pipCanvas) return;
+    const isBoard = pipBoardInput.checked;
+    const width = !isBoard && pipSanInput?.checked ? 280 : 400;
+    const height = isBoard ? 400 : 200;
+    if(pipCanvas.width === width && pipCanvas.height === height) return;
+
+    pipCanvas.width = width;
+    pipCanvas.height = height;
+    if(pipVideo) {
+        pipVideo.width = width / 2;
+        pipVideo.height = height / 2;
+    }
+    // The existing canvas stream follows its new aspect ratio without reopening
+    // PIP. Never replay drawing commands made for the previous dimensions.
+    pipContextQueue = [];
+    pipProcessingBestMove = false;
+}
 
 export function updatePipData(data) {
     if(data) Object.assign(pipData, data);
@@ -155,6 +176,8 @@ function updatePipContext() {
 }
 
 async function refreshPipView() {
+    const revision = ++pipRefreshRevision;
+    const moveObjects = pipData.moveObjects;
     const ctxQueue = [];
     const playerColor = pipData.playerColor,
           bestMove = pipData?.moveObjects?.[0],
@@ -167,9 +190,17 @@ async function refreshPipView() {
           tFrom = tMove?.player?.[0],
           tTo = tMove?.player?.[1];
 
+    const useSan = Boolean(pipSanInput?.checked);
+    const isCurrentNotation = () => pipData.moveObjects === moveObjects
+        && Boolean(pipSanInput?.checked) === useSan && !CONCEAL_ASSISTANCE_ACTIVE;
+    const [bestMoveText, secondMoveText, thirdMoveText] = await Promise.all(
+        [bestMove, sMove, tMove].map(move => formatMoveNotationAsync(move, useSan, false, undefined, isCurrentNotation))
+    );
+    if(revision !== pipRefreshRevision || pipData.moveObjects !== moveObjects
+        || Boolean(pipSanInput?.checked) !== useSan) return;
     const centipawnEval = pipData?.centipawnEval / 100;
-    const mediaTitle = from
-        ? `${from?.toUpperCase()} ➔ ${to?.toUpperCase()}`
+    const mediaTitle = from && !CONCEAL_ASSISTANCE_ACTIVE
+        ? bestMoveText
         : `Hold on, I'm thinking...`;
 
     let engineEvaluation = pipData?.eval;
@@ -201,6 +232,7 @@ async function refreshPipView() {
     });
 
     if(!pipCanvas) return; // do not continue if pip is not enabled
+    resizePipCanvas();
 
     if(bestMove) {
         ctxQueue.push(['bestmove', from+to]);
@@ -209,8 +241,12 @@ async function refreshPipView() {
 
     const isBoard = pipBoardInput.checked;
     if(isBoard && bestMove) await renderPipBoards(from, to);
+    if(revision !== pipRefreshRevision || pipData.moveObjects !== moveObjects) return;
 
     const headerWidth = pipCanvas.width - pipEvalBarWidth;
+    const pipMaxTextWidth = headerWidth - 28;
+    const alternativeWidth = (headerWidth - 48) / 2;
+    const thirdMoveX = 32 + alternativeWidth;
     const noInstancesText = FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
 
     // Clear canvas
@@ -255,7 +291,7 @@ async function refreshPipView() {
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
         ctxQueue.push(['font', `500 ${pipFontSizes.small}px Mona Sans`]);
         ctxQueue.push(['fillText',
-            [`(${timeFormatted}, ${progressPercent}%)`, 120, 28]
+            [`(${timeFormatted}, ${progressPercent}%)`, 120, 28, headerWidth - 132]
         ]);
     }
 
@@ -273,10 +309,10 @@ async function refreshPipView() {
     // Text based rendering
     } else {
         if(to === 'one)') {
-            ctxQueue.push(['fillText', ['≽(•⩊ •マ≼', 16, pipHeaderHeight + 100]]);
+            ctxQueue.push(['fillText', ['≽(•⩊ •マ≼', 16, pipHeaderHeight + 100, pipMaxTextWidth]]);
         } else if(bestMove && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['fillText',
-                [`${from.toUpperCase()} ➔ ${to.toUpperCase()}`, 16, pipHeaderHeight + 100]
+                [bestMoveText, 16, pipHeaderHeight + 100, pipMaxTextWidth]
             ]);
         }
 
@@ -284,13 +320,13 @@ async function refreshPipView() {
             ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
             ctxQueue.push(['font', `500 ${pipFontSizes.medium}px Mona Sans`]);
             ctxQueue.push(['fillText',
-                [`2. (${sFrom.toUpperCase()} ➔ ${sTo.toUpperCase()})`, 16, pipHeaderHeight + 135]
+                [`2. (${secondMoveText})`, 16, pipHeaderHeight + 135, alternativeWidth]
             ]);
         }
 
         if(tFrom && tTo && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['fillText',
-                [`3. (${tFrom.toUpperCase()} ➔ ${tTo.toUpperCase()})`, 180, pipHeaderHeight + 135]
+                [`3. (${thirdMoveText})`, thirdMoveX, pipHeaderHeight + 135, alternativeWidth]
             ]);
         }
     }
@@ -356,16 +392,10 @@ async function refreshPipView() {
 }
 
 export async function startPictureInPicture() {
-    let width = 200, height = pipBoardInput.checked ? 200 : 100;
-    const pipWidth = width * 2, pipHeight = height * 2;
-
     const video = document.createElement('video');
-          video.width = width;
-          video.height = height;
-
+    pipVideo = video;
     pipCanvas = document.createElement('canvas');
-    pipCanvas.width = pipWidth;
-    pipCanvas.height = pipHeight;
+    resizePipCanvas();
 
     const stream = pipCanvas.captureStream();
     video.srcObject = stream;

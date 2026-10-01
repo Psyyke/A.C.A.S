@@ -1,6 +1,6 @@
 import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exportSettingsBtn, resetSettingsBtn,
     noInstancesSitesElem, seeSupportedSitesBtn, ttsNameDropdownElem, userscriptInfoElem, updateYourUserscriptElem,
-    decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, floatyButtons, beggingFloaty, profileListContainerElem } from './gui/elementDeclarations.js';
+    decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, beggingFloaty, profileListContainerElem } from './gui/elementDeclarations.js';
 import { importSettings, exportSettings, resetSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
 import { monitorInstances, monitorInstanceTabs, toggleSelectedNavbarItem } from './gui/instances.js';
@@ -8,6 +8,8 @@ import { initializeInputElems } from './gui/domInputs.js';
 import { incrementUserUsageStat, updateUserUsageStats } from './gui/stats.js';
 import { fillProfileTabs, createNewProfile } from './gui/profiles.js';
 import { pipData, startPictureInPicture } from './gui/pip.js';
+import { initializeDynamicSettings } from './gui/dynamicSettings.js';
+import { initializeActivityLog } from './gui/activityLog.js';
 
 export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
@@ -140,41 +142,36 @@ function fillTextToSpeechVoices() {
 }
 
 function initializeFloatyButtons() {
-    [...floatyButtons].forEach(btn => {
-        const floatyDialog = btn?.parentElement?.querySelector('dialog');
+    document.querySelectorAll('.floaty-wrapper > dialog').forEach(floatyDialog => {
+        const btn = floatyDialog.parentElement.querySelector('.open-floaty-btn');
+        const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
 
-        if(floatyDialog) {
-            const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
-        
-            function open() {
-                floatyDialog.showModal();
-                document.body.style.overflow = 'hidden'; // stop background scrolling
-            }
-        
-            function close() {
-                floatyDialog.close();
-                document.body.style.overflow = ''; // restore scrolling
-            }
-        
-            btn.onclick = () => (floatyDialog.open ? close() : open());
-            if(closeBtn) closeBtn.onclick = () => close();
-        
-            floatyDialog.onclick = (e) => {
-                const selection = window.getSelection().toString();
-                
-                if(!selection) {
-                    if (e.target === floatyDialog) close();
-                }
-            };
-
-            const observer = new MutationObserver(() => {
-                if(!floatyDialog.open) document.body.style.overflow = '';
-            });
-        
-            observer.observe(floatyDialog, { attributes: true, attributeFilter: ['open'] });
-        } else {
-            console.error('No floaty dialog found for floaty button!');
+        function open() {
+            floatyDialog.showModal();
+            document.body.style.overflow = 'hidden'; // stop background scrolling
         }
+
+        function close() {
+            floatyDialog.close();
+            document.body.style.overflow = document.querySelector('dialog[open]') ? 'hidden' : '';
+        }
+
+        // The graph editor now opens through setting shortcuts, without a launcher.
+        if(btn) btn.onclick = () => (floatyDialog.open ? close() : open());
+        if(closeBtn) closeBtn.onclick = () => close();
+
+        floatyDialog.onclick = (e) => {
+            const selection = window.getSelection().toString();
+            if(!selection && e.target === floatyDialog) close();
+        };
+
+        const observer = new MutationObserver(() => {
+            if(!floatyDialog.open) {
+                // A setting shortcut can stack the graph above another modal.
+                document.body.style.overflow = document.querySelector('dialog[open]') ? 'hidden' : '';
+            }
+        });
+        observer.observe(floatyDialog, { attributes: true, attributeFilter: ['open'] });
     });
 }
 
@@ -237,6 +234,8 @@ function initializePolyglotBookLoader() {
                 SETTING_FILTER_OBJ.profileID,
                 loadedBook
             );
+            await Promise.all((window.AcasInstances ?? []).filter(item => SETTING_FILTER_OBJ.instanceID == null
+                || String(item.id) === String(SETTING_FILTER_OBJ.instanceID)).map(item => item.instance.loadOpeningBook()));
 
             const openingBookAddedText = (TRANS_OBJ?.openingBookAdded ?? 'Added opening book: {fileName}')
                 .replace('{fileName}', fileName);
@@ -296,6 +295,8 @@ export async function initGUI() {
     };
 
     initializeFloatyButtons();
+    initializeActivityLog();
+    initializeDynamicSettings();
     initializeInputElems();
     initializeWebhookTemplateEditor();
     initializePolyglotBookLoader();

@@ -1,4 +1,9 @@
 import { updatePipData } from '../gui/pip.js';
+import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
+import { logActivity } from '../misc/activityLog.js';
+import { evaluationForPlayer } from '../misc/evaluation.js';
+import { prepareFeedbackPosition } from './renderFeedback.js';
+import { annotateOpponentMove } from './annotate.js';
 
 function computeArrowScale(index, total) {
     if(total === 2) return 0.75;
@@ -385,13 +390,17 @@ export default class Interface {
     }
 
     async updateBoardFen(calculateMovesConfig) {
+        const request = (this.boardUpdateRequest || 0) + 1;
+        this.boardUpdateRequest = request;
         const userscriptGameStateHistory = await GET_STATE_HISTORY(this.AcasInstance.instanceID);
+        if(this.boardUpdateRequest !== request || this.AcasInstance.instanceClosed) return;
         const currentStateObj = userscriptGameStateHistory[0];
         const fen = currentStateObj?.fen?.full;
         const basicFen = currentStateObj?.fen?.basic;
 
-        if(basicFen && basicFen === this.lastAcceptedBasicFen) return;
-        if(basicFen) this.lastAcceptedBasicFen = basicFen
+        if(!fen) return;
+        if(basicFen && basicFen === this.lastAcceptedBasicFen && fen === this.AcasInstance.currentFen
+            && !calculateMovesConfig?.skipValidityChecks) return;
 
         // The userscript keeps gameStateHistory as [newest, ..., initial], newest index 0.
         // The GUI has it reversed, so [initial, ..., newest], oldest index 0.
@@ -415,8 +424,15 @@ export default class Interface {
         this.removeBookMarkings();
         updatePipData({ 'moveObjects': null });
 
+        const previousFen = this.AcasInstance.currentFen;
         if(fen) {
             this.AcasInstance.currentFen = fen;
+            // Clear/cancel feedback before asynchronous settings application,
+            // not seconds later when renderFeedback eventually gets called.
+            prepareFeedbackPosition.call(this.AcasInstance, fen);
+            setDynamicSettingsContext(this.AcasInstance.instanceID, fen, currentStateObj);
+            await this.AcasInstance.syncDynamicSettings();
+            if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen || this.AcasInstance.instanceClosed) return;
             instanceFenElem.innerText = fen;
 
             if(this.AcasInstance.chessground) {
@@ -450,7 +466,9 @@ export default class Interface {
             this.AcasInstance.renderMetric(fen, profileName);
         });
 
-        this.AcasInstance.renderFeedback(currentStateObj);
+        if(basicFen) this.lastAcceptedBasicFen = basicFen;
+        annotateOpponentMove.call(this.AcasInstance, currentStateObj, previousFen).catch(error => console.warn('[Audio] Move annotation failed:', error));
+        this.AcasInstance.renderFeedback(currentStateObj).catch(error => console.warn('[Feedback] Board refresh failed:', error));
         this.AcasInstance.calculateBestMoves(fen, calculateMovesConfig);
 
         if(this.AcasInstance.debugLogsEnabled) {
@@ -516,29 +534,15 @@ export default class Interface {
         infoTextElem.classList.remove('hidden');
     }
 
-    async updateEval(centipawnEval, mate, profile) {
+    async updateEval(centipawnEval, mate, profile, analyzedColor) {
         if(!this.AcasInstance.instanceElem) return;
-
-        centipawnEval = Number(centipawnEval);
-
         const evalFill = this.AcasInstance.instanceElem.querySelector('.eval-fill');
-        const gradualness = 8;
-        const playerColor = await this.AcasInstance.getPlayerColor(profile);
-
-        if(this.AcasInstance.lastTurn !== playerColor) return;
-
-        if(playerColor === 'b') {
-            centipawnEval = -centipawnEval;
-        }
-
-        let advantage = 1 / (1 + 10**(-centipawnEval / 100 / gradualness)); // [-1, 1]
-
-        if(mate)
-            advantage = centipawnEval > 0 ? 1 : 0;
-
-        updatePipData({ 'eval': advantage, playerColor, centipawnEval });
-
-        evalFill.style.height = `${advantage * 100}%`;
+        const playerColor = await this.AcasInstance.getPlayerColor();
+        const evaluation = evaluationForPlayer(centipawnEval, mate,
+            analyzedColor ?? this.AcasInstance.currentFen?.split(' ')[1], playerColor);
+        if(!evalFill || !evaluation) return;
+        updatePipData({ eval: evaluation.whiteAdvantage, playerColor, centipawnEval: evaluation.whiteEvaluation });
+        evalFill.style.height = `${evaluation.whiteAdvantage * 100}%`;
     }
 
     displayConnectionIssueWarning() {
@@ -566,6 +570,7 @@ export default class Interface {
 
     frontLog(str) {
         const message = `[FRONTEND] ${str}`;
+        logActivity('site', str, { instanceID: this.AcasInstance.instanceID });
 
         console.log('%c' + message, 'color: dodgerblue');
     }

@@ -4,7 +4,7 @@ import Store from 'electron-store';
 import path from 'path';
 import os from 'os';
 
-import { killAllEngines, clearCache, addEngine, getSavedEngines, renderEngineGrid,
+import { killAllEngines, killEngine, clearCache, addEngine, getSavedEngines, renderEngineGrid,
 	removeEngine, sendManualUciToEngine } from './engine.js';
 import { startLocalWSS, stopLocalWSS, sendEnginesList } from './server.js';
 
@@ -32,7 +32,7 @@ function getExecutableExtensions() {
 
 function createWindow() {
 	const win = new BrowserWindow({
-		title: 'Advanced Chess Assistance Server (Beta)',
+		title: `Advanced Chess Assistance Server v${app.getVersion()} (Beta)`,
 		width: 735,
 		height: 800,
 		icon: path.join(__dirname, '..', 'ui', 'favicon.ico'),
@@ -67,6 +67,11 @@ app.whenReady().then(() => {
 
 	ipcMain.handle('killAllEngines',
 		async (event) => killAllEngines());
+
+	ipcMain.handle('killEngine',
+		async (event, identifierObj) => killEngine(identifierObj));
+
+	ipcMain.handle('getAppVersion', () => app.getVersion());
 
     ipcMain.handle('clearCache',
 		async (event) => clearCache());

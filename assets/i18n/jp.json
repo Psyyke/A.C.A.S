@@ -98,6 +98,10 @@
         "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。"
     },
     "configTranslations": {
+        "pipSan": ["SAN棋譜表記", "フローティングパネルと音声でSANを使用"],
+        "ttsAnnounceEnemyMoves": ["相手の手を読み上げる", "相手が指した直前の手を聞く"],
+        "ttsAnnounceEvaluation": ["形勢の変化を読み上げる", "優勢や劣勢への変化を聞く"],
+        "ttsTranslateAudio": ["音声を翻訳", "選択した言語で手を読み上げる"],
         "engineEnabled": ["有効", "エンジンは有効ですか"],
         "chessEngine": ["チェスエンジン", "詳細はこちらを参照"],
         "chessVariant": ["チェスバリアント", "詳細はこちらを参照"],
@@ -171,6 +175,29 @@
         "concealAssistanceAutoDelayMs": ["自動非表示（ミリ秒）", "この時間後に自動的に支援機能を非表示"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["中立", "不正確", "ミス", "大悪手", "致命的", "好手", "優秀", "最善手", "弱い手"],
+            "forced": "唯一の合法手", "provisional": "暫定", "eval": "評価", "best": "最善", "loss": "評価の損失",
+            "depth": "深さ", "engine": "エンジン", "bestLine": "最善の変化", "playedLine": "実戦の変化", "critical": "重要な手。",
+            "waiting": "記録された手を待っています。", "mismatch": "手の履歴が一致しないか、非対応の変則チェスです。",
+            "analyzing": "{move}を解析中…", "unavailable": "評価を取得できません。"
+        },
+        "moveSpeech": {
+            "opponent": "相手：{move}",
+            "advantage": ["大きく劣勢です", "劣勢です", "やや劣勢です", "互角です", "やや優勢です", "優勢です", "大きく優勢です"],
+            "lang": "ja-JP", "pieces": { "K": "キング", "Q": "クイーン", "R": "ルーク", "B": "ビショップ", "N": "ナイト" },
+            "move": "{piece}を{square}へ", "capture": "{piece}が{square}で取る", "origin": "{square}からの{piece}",
+            "promotion": "{piece}に昇格", "castleKingside": "キングサイドのキャスリング", "castleQueenside": "クイーンサイドのキャスリング",
+            "check": "チェック", "checkmate": "チェックメイト"
+        },
+        "dynamicSettings": {
+            "title": "動的設定", "subtitle": "グラフ編集 · 対局に応じて設定を変更", "addLine": "＋ 線", "removeLine": "線を削除", "addPoint": "＋ 点", "deletePoint": "点を削除", "curve": "曲線", "selectLine": "線を選択", "step": "段階", "linear": "線形", "smooth": "滑らか", "pieceCount": "駒の数", "moveNumber": "手数", "evaluation": "評価（自分の優位、cp）", "close": "編集を閉じる", "variable": "グラフの変数", "chooseSetting": "編集する設定", "zoomIn": "拡大", "zoomOut": "縮小", "fit": "全体を表示", "coordinates": "選択した点の座標", "pointX": "点の X 値", "pointY": "点の Y 値",
+            "evaluationHint": "負の値は劣勢、ゼロは互角、正の値は優勢。直近の完了した主評価を使用します。", "fitHint": "線の周囲に余白を設け両軸を調整", "graphHint": "点をドラッグして移動、空白をドラッグして表示を移動。ピンチやスクロールで拡大縮小。矢印キーで点を移動、Shift で十段階、Delete で削除。", "exitFullscreen": "全画面を終了", "fullscreen": "全画面グラフ", "instance": "インスタンス", "equal": "互角（0 cp）", "visibility": "曲線を表示して適用、または非表示にして無効化", "enableLine": "{profile} の {setting} を有効にして表示", "selectedLine": "選択済み：{setting}、{profile}", "chooseLine": "{setting}、{profile} を選択", "currentValue": "{setting} の現在値", "otherVariable": "{variable} の線はありません。既存の曲線：", "noLines": "線はありません。設定を選び、＋ 線を押してください。", "existingCurve": "設定とプロファイルごとに曲線は一つです。現在の変数：{variable}。変更するには曲線を編集または削除。", "addForProfile": "{profile} に {setting} を追加", "enableFirst": "凡例で線を有効にしてください", "addPointHint": "整数の点を追加", "stepLocked": "この設定は段階補間に固定されています。", "editing": "{profile} の {setting} を編集中。", "removeFromProfile": "{profile} から {setting} を削除", "point": "点 {number}", "selectPoint": "座標を編集する点を選択。", "profileLines": "{setting} のプロファイル線", "saveError": "グラフを保存できません。ユーザースクリプトの接続を確認してください。", "variableLink": "{variable} の既存の曲線を開く", "removeConfirm": "プロファイル「{profile}」の {setting} の線を削除しますか？\n\nすべての点が削除され、保存済みの既定値に戻ります。", "none": "なし", "savedDefault": "保存済みの既定値", "unavailable": "{value}（利用不可）", "override": "動的な上書き有効：{value}（{variable}：{position}）。", "waiting": "曲線有効 · {variable} を待機中。", "defaultActive": "曲線有効 · 保存済みの既定値を使用。", "disabled": "動的曲線は無効です。", "noCurve": "有効な動的曲線はありません。", "description": "保存値：{value}。曲線が適用されない場合、この編集可能な値を使います。動的設定で曲線を編集できます。", "openSetting": "{setting} の動的設定を開く"
+        },
+        "activityLog": {
+            "title": "活動ログ", "subtitle": "エンジンのメッセージ、動的変更、警告とエラー", "show": "表示", "clear": "ログを消去", "filter": "種類で絞り込み", "all": "すべての活動", "close": "ログを閉じる", "instance": "インスタンス", "empty": "ログはまだありません。", "status": "{shown} 件表示 · 合計 {total} 件 · このセッションの最新 {limit} 件を保持",
+            "types": { "engine-input": "エンジン入力", "engine-output": "エンジン出力", "dynamic-change": "動的変更", "setting-change": "設定変更", "engine": "エンジンの状態", "instance": "インスタンスの状態", "game": "対局イベント", "site": "サイトのメッセージ", "warning": "警告", "error": "エラー", "app": "アプリのイベント" }
+        },
         "profileRemovalWarning": "このプロフィールを削除してもよろしいですか？\n\nこの操作は取り消せません。",
         "settingsResetWarning": "設定をリセットしてもよろしいですか？\n\n注意: この操作は元に戻せず、すべての設定がリセットされます！",
         "refreshSiteNotification": "変更を確認するには外部サイトを更新してください！",

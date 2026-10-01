@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dynamic graph regression checks</title>
+    <style>
+        body { background: #102832; color: #e7f4fa; font: 15px system-ui, sans-serif; padding: 24px; }
+        li { padding: 6px; }
+        .pass { color: #9be564; }
+        .fail { color: #ff6f91; }
+    </style>
+    <script src="../assets/js/globals.js"></script>
+    <script src="../../userscript-components/DynamicSettings.js"></script>
+</head>
+<body>
+    <h1>Dynamic graph regression checks</h1>
+    <p id="summary" role="status">Loading checks…</p>
+    <ol id="results"></ol>
+    <script type="module" src="dynamicGraph.tests.js"></script>
+</body>
+</html>

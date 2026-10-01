@@ -1,4 +1,4 @@
-import Fsf14Web from '/A.C.A.S/app/assets/engines/lila-stockfish/fsf14.js';
+import Fsf14Web from './fsf14.js';
 
 let engine = null;
 

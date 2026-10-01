@@ -185,7 +185,8 @@ class CommLinkHandler {
                     const poolPacket = await this.findPacketByID(packetID);
                     const packetResult = poolPacket?.result;
 
-                    if(poolPacket && packetResult) {
+                    // false, 0 and an empty string are replies too, not missing acknowledgements.
+                    if(poolPacket && packetResult != null) {
                         if(!this.silentMode)
                             console.log(`[CommLink Sender] Got result for a packet (${packetID}):`, packetResult);
 

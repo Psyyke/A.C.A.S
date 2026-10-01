@@ -100,6 +100,10 @@
         "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas."
     },
     "configTranslations": {
+        "pipSan": ["Notación SAN", "Usar SAN en el panel flotante y en la voz"],
+        "ttsAnnounceEnemyMoves": ["Anunciar jugadas del rival", "Escucha la última jugada del rival"],
+        "ttsAnnounceEvaluation": ["Anunciar cambios de ventaja", "Escucha cuándo ganas o pierdes ventaja"],
+        "ttsTranslateAudio": ["Traducir audio", "Escucha las jugadas en el idioma seleccionado"],
         "engineEnabled": ["Habilitado", "¿Está habilitado el motor?"],
         "chessEngine": ["Motor de Ajedrez", "Lee más aquí"],
         "chessVariant": ["Variante de Ajedrez", "Lee más aquí"],
@@ -174,6 +178,57 @@
 
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutral", "Imprecisión", "Error", "Error grave", "Catastrófica", "Buena jugada", "Excelente", "Mejor jugada", "Jugada débil"],
+            "forced": "Jugada forzada", "provisional": "provisional", "eval": "Evaluación", "best": "Mejor", "loss": "Pérdida de evaluación",
+            "depth": "Profundidad", "engine": "Motor", "bestLine": "Mejor línea", "playedLine": "Línea jugada", "critical": "Jugada crítica.",
+            "waiting": "Esperando una jugada registrada.", "mismatch": "El historial no coincide o la variante no es compatible.",
+            "analyzing": "Analizando {move}…", "unavailable": "Evaluación no disponible."
+        },
+        "moveSpeech": {
+            "opponent": "Rival: {move}",
+            "advantage": ["Estás perdiendo claramente", "Estás perdiendo", "Tienes una ligera desventaja", "La posición está igualada", "Tienes una ligera ventaja", "Estás ganando", "Estás ganando claramente"],
+            "lang": "es-ES", "pieces": { "K": "Rey", "Q": "Dama", "R": "Torre", "B": "Alfil", "N": "Caballo" },
+            "move": "{piece} a {square}", "capture": "{piece} captura en {square}", "origin": "{piece} de {square}",
+            "promotion": "promociona a {piece}", "castleKingside": "Enroque corto", "castleQueenside": "Enroque largo",
+            "check": "jaque", "checkmate": "jaque mate"
+        },
+        "dynamicSettings": {
+            "title": "Ajustes dinámicos", "subtitle": "Editor de gráficos · adapta los ajustes al juego",
+            "addLine": "＋ Línea", "removeLine": "Eliminar línea", "addPoint": "＋ Punto", "deletePoint": "Eliminar punto",
+            "curve": "Curva", "selectLine": "Selecciona una línea", "step": "Escalonada", "linear": "Lineal", "smooth": "Suave",
+            "pieceCount": "Número de piezas", "moveNumber": "Número de jugada", "evaluation": "Evaluación (tu ventaja, cp)",
+            "close": "Cerrar editor", "variable": "Variable del gráfico", "chooseSetting": "Ajuste que editar",
+            "zoomIn": "Acercar", "zoomOut": "Alejar", "fit": "Ajustar gráfico", "coordinates": "Coordenadas del punto",
+            "pointX": "Valor X del punto", "pointY": "Valor Y del punto",
+            "evaluationHint": "Tu ventaja: negativo indica derrota, cero igualdad y positivo victoria. Usa la última evaluación principal completada.",
+            "fitHint": "Ajustar ambos ejes dejando espacio alrededor de la línea",
+            "graphHint": "Arrastra puntos para moverlos y el espacio vacío para desplazarte. Pellizca o desplaza para ampliar. Las flechas mueven el punto; Mayús lo mueve diez pasos. Supr lo elimina.",
+            "exitFullscreen": "Salir de pantalla completa", "fullscreen": "Gráfico a pantalla completa", "instance": "Instancia", "equal": "Igualado (0 cp)",
+            "visibility": "Mostrar y aplicar la curva, u ocultarla y desactivarla",
+            "enableLine": "Activar y mostrar {setting} de {profile}", "selectedLine": "Seleccionado: {setting}, {profile}",
+            "chooseLine": "Seleccionar {setting}, {profile}", "currentValue": "Valor actual de {setting}",
+            "otherVariable": "No hay líneas para {variable}. Las curvas existentes usan ", "noLines": "Sin líneas. Selecciona un ajuste y después ＋ Línea.",
+            "existingCurve": "Una curva por ajuste y perfil evita conflictos. Variable actual: {variable}. Edita o elimina la curva para cambiarla.",
+            "addForProfile": "Añadir {setting} para {profile}", "enableFirst": "Activa la línea en la leyenda para añadir un punto",
+            "addPointHint": "Añadir un punto entero a la línea", "stepLocked": "La curva escalonada está bloqueada para este ajuste.",
+            "editing": "Editando {setting} de {profile}.", "removeFromProfile": "Eliminar {setting} de {profile}",
+            "point": "Punto {number}", "selectPoint": "Selecciona un punto para editar sus coordenadas.", "profileLines": "Líneas de perfiles de {setting}",
+            "saveError": "No se pudo guardar el gráfico. Comprueba la conexión con el userscript.", "variableLink": "Abrir las curvas de {variable}",
+            "removeConfirm": "¿Eliminar la línea {setting} del perfil \"{profile}\"?\n\nSe borrarán todos sus puntos y se restaurará el valor guardado.",
+            "none": "Ninguno", "savedDefault": "Valor guardado", "unavailable": "{value} (no disponible)",
+            "override": "Anulación dinámica activa: {value} ({variable}: {position}).", "waiting": "Curva activada · esperando {variable}.",
+            "defaultActive": "Curva activada · usando el valor guardado.", "disabled": "Curva dinámica desactivada.", "noCurve": "Ninguna curva dinámica activada.",
+            "description": "Valor guardado: {value}. El campo conserva este valor editable, usado cuando no se aplica ninguna curva. Abre los ajustes dinámicos para editarla.",
+            "openSetting": "Abrir ajustes dinámicos de {setting}"
+        },
+        "activityLog": {
+            "title": "Registro de actividad", "subtitle": "Mensajes del motor, cambios dinámicos, advertencias y errores",
+            "show": "Mostrar", "clear": "Borrar registro", "filter": "Filtrar por tipo", "all": "Toda la actividad",
+            "close": "Cerrar registro", "instance": "Instancia", "empty": "Todavía no hay registros.",
+            "status": "{shown} visibles · {total} en total · se conservan los últimos {limit} de esta sesión",
+            "types": { "engine-input": "Entrada del motor", "engine-output": "Salida del motor", "dynamic-change": "Cambios dinámicos", "setting-change": "Cambios de ajustes", "engine": "Ciclo del motor", "instance": "Ciclo de instancia", "game": "Eventos de partida", "site": "Mensajes del sitio", "warning": "Advertencias", "error": "Errores", "app": "Eventos de la aplicación" }
+        },
         "profileRemovalWarning": "¿Estás seguro de que quieres eliminar este perfil?\n\nEsta acción no se puede deshacer.",
         "settingsResetWarning": "¿Estás seguro de que quieres restablecer la configuración?\n\nPeligro: ¡Esta acción es irreversible y restablecerá toda tu configuración!",
         "refreshSiteNotification": "¡Actualiza el sitio externo para ver los cambios!",

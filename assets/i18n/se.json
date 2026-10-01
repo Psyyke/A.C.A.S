@@ -100,6 +100,10 @@
         "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
     },
     "configTranslations": {
+        "pipSan": ["SAN-dragnotation", "Använd SAN i den flytande panelen och talet"],
+        "ttsAnnounceEnemyMoves": ["Läs upp motståndarens drag", "Hör motståndarens senaste drag"],
+        "ttsAnnounceEvaluation": ["Läs upp förändringar i fördel", "Hör när du får eller förlorar fördelen"],
+        "ttsTranslateAudio": ["Översätt ljud", "Hör dragen på det valda språket"],
         "engineEnabled": ["Aktiverad", "Är motorn aktiverad"],
         "chessEngine": ["Schackmotor", "Läs mer här"],
         "chessVariant": ["Schackvariant", "Läs mer här"],
@@ -173,6 +177,29 @@
         "concealAssistanceAutoDelayMs": ["Automatisk dölj (ms)", "Dölj automatiskt assistansfunktioner efter denna tid"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutralt", "Oexakthet", "Misstag", "Grovt misstag", "Katastrofalt", "Bra drag", "Utmärkt", "Bästa drag", "Svagt drag"],
+            "forced": "Tvunget drag", "provisional": "preliminärt", "eval": "Utvärdering", "best": "Bäst", "loss": "Utvärderingsförlust",
+            "depth": "Djup", "engine": "Motor", "bestLine": "Bästa variant", "playedLine": "Spelad variant", "critical": "Kritiskt drag.",
+            "waiting": "Väntar på ett registrerat drag.", "mismatch": "Draghistoriken stämmer inte eller varianten stöds inte.",
+            "analyzing": "Analyserar {move}…", "unavailable": "Utvärdering saknas."
+        },
+        "moveSpeech": {
+            "opponent": "Motståndaren: {move}",
+            "advantage": ["Du står klart på förlust", "Du håller på att förlora", "Du ligger lite efter", "Ställningen är jämn", "Du ligger lite före", "Du håller på att vinna", "Du står klart på vinst"],
+            "lang": "sv-SE", "pieces": { "K": "Kung", "Q": "Dam", "R": "Torn", "B": "Löpare", "N": "Springare" },
+            "move": "{piece} till {square}", "capture": "{piece} slår på {square}", "origin": "{piece} från {square}",
+            "promotion": "förvandling till {piece}", "castleKingside": "Kort rockad", "castleQueenside": "Lång rockad",
+            "check": "schack", "checkmate": "schackmatt"
+        },
+        "dynamicSettings": {
+            "title": "Dynamiska inställningar", "subtitle": "Grafredigerare · anpassa inställningar till spelet", "addLine": "＋ Linje", "removeLine": "Ta bort linje", "addPoint": "＋ Punkt", "deletePoint": "Ta bort punkt", "curve": "Kurva", "selectLine": "Välj linje", "step": "Steg", "linear": "Linjär", "smooth": "Mjuk", "pieceCount": "Antal pjäser", "moveNumber": "Dragnummer", "evaluation": "Utvärdering (din fördel, cp)", "close": "Stäng redigeraren", "variable": "Grafvariabel", "chooseSetting": "Inställning att redigera", "zoomIn": "Zooma in", "zoomOut": "Zooma ut", "fit": "Anpassa grafen", "coordinates": "Punktkoordinater", "pointX": "Punktens X-värde", "pointY": "Punktens Y-värde",
+            "evaluationHint": "Negativt innebär underläge, noll jämnt, positivt överläge. Senast färdiga primära utvärdering.", "fitHint": "Anpassa båda axlarna med utrymme runt linjen", "graphHint": "Dra punkter för att flytta dem och tom yta för att panorera. Nyp eller rulla för att zooma. Piltangenter flyttar punkten, Skift tio steg, Delete tar bort den.", "exitFullscreen": "Avsluta helskärm", "fullscreen": "Graf i helskärm", "instance": "Instans", "equal": "Jämnt (0 cp)", "visibility": "Visa och tillämpa kurvan eller dölj och inaktivera", "enableLine": "Aktivera och visa {setting} från {profile}", "selectedLine": "Vald: {setting}, {profile}", "chooseLine": "Välj {setting}, {profile}", "currentValue": "Aktuellt värde för {setting}", "otherVariable": "Inga linjer för {variable}. Befintliga kurvor använder ", "noLines": "Inga linjer. Välj en inställning och sedan ＋ Linje.", "existingCurve": "En kurva per inställning och profil förhindrar konflikter. Variabel: {variable}. Redigera eller ta bort kurvan för att byta.", "addForProfile": "Lägg till {setting} för {profile}", "enableFirst": "Aktivera linjen i teckenförklaringen först", "addPointHint": "Lägg till en heltalspunkt", "stepLocked": "Steg är låst för denna inställning.", "editing": "Redigerar {setting} från {profile}.", "removeFromProfile": "Ta bort {setting} från {profile}", "point": "Punkt {number}", "selectPoint": "Välj en punkt för att redigera koordinaterna.", "profileLines": "Profillinjer för {setting}", "saveError": "Kunde inte spara grafen. Kontrollera userscript-anslutningen.", "variableLink": "Öppna befintliga kurvor för {variable}", "removeConfirm": "Ta bort linjen {setting} från profilen \"{profile}\"?\n\nAlla punkter tas bort och det sparade standardvärdet återställs.", "none": "Ingen", "savedDefault": "Sparat standardvärde", "unavailable": "{value} (otillgängligt)", "override": "Dynamisk åsidosättning aktiv: {value} ({variable}: {position}).", "waiting": "Kurva aktiverad · väntar på {variable}.", "defaultActive": "Kurva aktiverad · använder sparat standardvärde.", "disabled": "Dynamisk kurva inaktiverad.", "noCurve": "Ingen dynamisk kurva aktiverad.", "description": "Sparat värde: {value}. Fältet behåller detta redigerbara värde för användning utan kurva. Öppna dynamiska inställningar för att redigera kurvan.", "openSetting": "Öppna dynamiska inställningar för {setting}"
+        },
+        "activityLog": {
+            "title": "Aktivitetslogg", "subtitle": "Motormeddelanden, dynamiska ändringar, varningar och fel", "show": "Visa", "clear": "Rensa loggen", "filter": "Filtrera efter typ", "all": "All aktivitet", "close": "Stäng loggen", "instance": "Instans", "empty": "Inga loggposter ännu.", "status": "{shown} visas · {total} totalt · senaste {limit} sparas under sessionen",
+            "types": { "engine-input": "Motorindata", "engine-output": "Motorutdata", "dynamic-change": "Dynamiska ändringar", "setting-change": "Inställningsändringar", "engine": "Motorns livscykel", "instance": "Instansens livscykel", "game": "Spelhändelser", "site": "Webbplatsmeddelanden", "warning": "Varningar", "error": "Fel", "app": "Apphändelser" }
+        },
         "profileRemovalWarning": "Är du säker på att du vill ta bort denna profil?\n\nDenna åtgärd kan inte ångras.",
         "settingsResetWarning": "Är du säker på att du vill återställa inställningarna?\n\nVARNING: Denna åtgärd är oåterkallelig och kommer att återställa hela din konfiguration!",
         "refreshSiteNotification": "Uppdatera den externa sidan för att se ändringar!",

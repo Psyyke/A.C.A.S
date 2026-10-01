@@ -98,6 +98,10 @@
         "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
     },
     "configTranslations": {
+        "pipSan": ["SAN notacija poteza", "Koristi SAN u plutajućem panelu i govoru"],
+        "ttsAnnounceEnemyMoves": ["Najavi poteze protivnika", "Čuj poslednji potez protivnika"],
+        "ttsAnnounceEvaluation": ["Najavi promene prednosti", "Čuj kada dobijaš ili gubiš prednost"],
+        "ttsTranslateAudio": ["Преведи звук", "Слушајте потезе на изабраном језику"],
         "engineEnabled": ["Omogućeno", "Da li je motor omogućen?"],
         "chessEngine": ["Šahovski motor", "Pročitaj više ovde"],
         "chessVariant": ["Šahovska varijanta", "Pročitaj više ovde"],
@@ -171,6 +175,29 @@
         "concealAssistanceAutoDelayMs": ["Automatsko skrivanje (ms)", "Automatski sakri funkcije pomoći nakon ovog vremena"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutralan", "Nepreciznost", "Greška", "Gruba greška", "Katastrofalan", "Dobar potez", "Odličan", "Najbolji potez", "Slab potez"],
+            "forced": "Prinudan potez", "provisional": "privremeno", "eval": "Procena", "best": "Najbolji", "loss": "Gubitak procene",
+            "depth": "Dubina", "engine": "Motor", "bestLine": "Najbolji nastavak", "playedLine": "Odigrani nastavak", "critical": "Kritičan potez.",
+            "waiting": "Čeka se zabeleženi potez.", "mismatch": "Istorija poteza se ne poklapa ili varijanta nije podržana.",
+            "analyzing": "Analiza {move}…", "unavailable": "Procena nije dostupna."
+        },
+        "moveSpeech": {
+            "opponent": "Protivnik: {move}",
+            "advantage": ["Ubedljivo gubiš", "Gubiš", "Imaš mali zaostatak", "Pozicija je jednaka", "Imaš malu prednost", "Dobijaš", "Ubedljivo dobijaš"],
+            "lang": "sr-RS", "pieces": { "K": "Краљ", "Q": "Дама", "R": "Топ", "B": "Ловац", "N": "Скакач" },
+            "move": "{piece} на {square}", "capture": "{piece} узима на {square}", "origin": "{piece} са {square}",
+            "promotion": "промоција: {piece}", "castleKingside": "Мала рокада", "castleQueenside": "Велика рокада",
+            "check": "шах", "checkmate": "мат"
+        },
+        "dynamicSettings": {
+            "title": "Dinamička podešavanja", "subtitle": "Uređivač grafikona · podešavanja prate igru", "addLine": "＋ Linija", "removeLine": "Ukloni liniju", "addPoint": "＋ Tačka", "deletePoint": "Obriši tačku", "curve": "Kriva", "selectLine": "Izaberite liniju", "step": "Stepenasta", "linear": "Linearna", "smooth": "Glatka", "pieceCount": "Broj figura", "moveNumber": "Broj poteza", "evaluation": "Procena (vaša prednost, cp)", "close": "Zatvori uređivač", "variable": "Promenljiva grafikona", "chooseSetting": "Podešavanje za izmenu", "zoomIn": "Uvećaj", "zoomOut": "Umanji", "fit": "Prilagodi grafikon", "coordinates": "Koordinate tačke", "pointX": "X vrednost tačke", "pointY": "Y vrednost tačke",
+            "evaluationHint": "Negativno znači gubitak, nula jednakost, pozitivno prednost. Poslednja završena glavna procena.", "fitHint": "Prilagodi obe ose sa prostorom oko linije", "graphHint": "Prevucite tačke i praznu površinu. Zumirajte skrolovanjem ili skupljanjem prstiju. Strelice pomeraju tačku, Shift deset koraka, Delete briše.", "exitFullscreen": "Izađi iz celog ekrana", "fullscreen": "Grafikon preko celog ekrana", "instance": "Instanca", "equal": "Jednako (0 cp)", "visibility": "Prikaži i primeni krivu ili sakrij i isključi", "enableLine": "Uključi i prikaži {setting} iz {profile}", "selectedLine": "Izabrano: {setting}, {profile}", "chooseLine": "Izaberi {setting}, {profile}", "currentValue": "Trenutna vrednost za {setting}", "otherVariable": "Nema linija za {variable}. Postojeće krive koriste ", "noLines": "Nema linija. Izaberite podešavanje, zatim ＋ Linija.", "existingCurve": "Jedna kriva po podešavanju i profilu sprečava sukobe. Promenljiva: {variable}. Izmenite ili uklonite krivu za promenu.", "addForProfile": "Dodaj {setting} za {profile}", "enableFirst": "Prvo uključite liniju u legendi", "addPointHint": "Dodaj celobrojnu tačku", "stepLocked": "Ovo podešavanje zahteva stepenastu krivu.", "editing": "Izmena {setting} iz {profile}.", "removeFromProfile": "Ukloni {setting} iz {profile}", "point": "Tačka {number}", "selectPoint": "Izaberite tačku za izmenu koordinata.", "profileLines": "Linije profila za {setting}", "saveError": "Grafikon nije sačuvan. Proverite vezu sa userscriptom.", "variableLink": "Otvori krive za {variable}", "removeConfirm": "Ukloniti liniju {setting} iz profila \"{profile}\"?\n\nSve tačke će biti obrisane i sačuvana podrazumevana vrednost vraćena.", "none": "Nema", "savedDefault": "Sačuvana podrazumevana vrednost", "unavailable": "{value} (nedostupno)", "override": "Dinamička zamena aktivna: {value} ({variable}: {position}).", "waiting": "Kriva uključena · čekanje na {variable}.", "defaultActive": "Kriva uključena · koristi se sačuvana vrednost.", "disabled": "Dinamička kriva isključena.", "noCurve": "Nema uključene dinamičke krive.", "description": "Sačuvana vrednost: {value}. Polje čuva vrednost za izmenu koja se koristi bez krive. Otvorite dinamička podešavanja za izmenu krive.", "openSetting": "Otvori dinamička podešavanja za {setting}"
+        },
+        "activityLog": {
+            "title": "Dnevnik aktivnosti", "subtitle": "Poruke motora, dinamičke promene, upozorenja i greške", "show": "Prikaži", "clear": "Očisti dnevnik", "filter": "Filtriraj po tipu", "all": "Sve aktivnosti", "close": "Zatvori dnevnik", "instance": "Instanca", "empty": "Još nema zapisa.", "status": "Prikazano {shown} · ukupno {total} · čuva se poslednjih {limit} u sesiji",
+            "types": { "engine-input": "Ulaz motora", "engine-output": "Izlaz motora", "dynamic-change": "Dinamičke promene", "setting-change": "Promene podešavanja", "engine": "Životni ciklus motora", "instance": "Životni ciklus instance", "game": "Događaji igre", "site": "Poruke sajta", "warning": "Upozorenja", "error": "Greške", "app": "Događaji aplikacije" }
+        },
         "profileRemovalWarning": "Da li ste sigurni da želite da uklonite ovaj profil?\n\nOva akcija se ne može poništiti.",
         "settingsResetWarning": "Da li ste sigurni da želite da resetujete podešavanja?\n\nOPASNOST: Ova akcija je nepovratna i resetovaće celu vašu konfiguraciju!",
         "refreshSiteNotification": "Osveži spoljašnju stranicu da vidiš promene!",

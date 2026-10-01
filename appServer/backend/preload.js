@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, shell } from 'electron';
 
 contextBridge.exposeInMainWorld('engineAPI', {
 	killAllEngines: () => ipcRenderer.invoke('killAllEngines'),
+	killEngine: (identifierObj) => ipcRenderer.invoke('killEngine', identifierObj),
     clearCache: () => ipcRenderer.invoke('clearCache'),
 	getSavedEngines: () => ipcRenderer.invoke('getSavedEngines'),
 	sendManualUciToEngine: (cmd, identifierObj) => ipcRenderer.invoke('sendManualUciToEngine', cmd, identifierObj),
@@ -33,5 +34,6 @@ contextBridge.exposeInMainWorld('toastAPI', {
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {
+	getVersion: () => ipcRenderer.invoke('getAppVersion'),
 	openExternal: (url) => shell.openExternal(url)
 });

@@ -100,6 +100,10 @@
         "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
     },
     "configTranslations": {
+        "pipSan": ["SAN-Zugnotation", "SAN im schwebenden Fenster und in der Sprachausgabe verwenden"],
+        "ttsAnnounceEnemyMoves": ["Gegnerzüge ansagen", "Den zuletzt gespielten Gegnerzug hören"],
+        "ttsAnnounceEvaluation": ["Vorteilsänderungen ansagen", "Hören, wenn sich dein Vorteil ändert"],
+        "ttsTranslateAudio": ["Audio übersetzen", "Züge in der ausgewählten Sprache hören"],
         "engineEnabled": ["Aktiviert", "Ist die Engine aktiviert"],
         "chessEngine": ["Schach-Engine", "Lies mehr hier"],
         "chessVariant": ["Schach-Variante", "Lies mehr hier"],
@@ -173,6 +177,44 @@
         "concealAssistanceAutoDelayMs": ["Automatisches Verbergen (ms)", "Hilfsfunktionen nach dieser Zeit automatisch verbergen"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutral", "Ungenauigkeit", "Fehler", "Grober Fehler", "Katastrophal", "Guter Zug", "Ausgezeichnet", "Bester Zug", "Schwacher Zug"],
+            "forced": "Erzwungener Zug", "provisional": "vorläufig", "eval": "Bewertung", "best": "Bester", "loss": "Bewertungsverlust",
+            "depth": "Tiefe", "engine": "Engine", "bestLine": "Beste Variante", "playedLine": "Gespielte Variante", "critical": "Kritischer Zug.",
+            "waiting": "Warte auf einen aufgezeichneten Zug.", "mismatch": "Zugverlauf passt nicht oder Variante wird nicht unterstützt.",
+            "analyzing": "Analysiere {move}…", "unavailable": "Bewertung nicht verfügbar."
+        },
+        "moveSpeech": {
+            "opponent": "Gegner: {move}",
+            "advantage": ["Du stehst klar auf Verlust", "Du stehst auf Verlust", "Du stehst leicht schlechter", "Die Stellung ist ausgeglichen", "Du stehst leicht besser", "Du stehst auf Gewinn", "Du stehst klar auf Gewinn"],
+            "lang": "de-DE", "pieces": { "K": "König", "Q": "Dame", "R": "Turm", "B": "Läufer", "N": "Springer" },
+            "move": "{piece} nach {square}", "capture": "{piece} schlägt auf {square}", "origin": "{piece} von {square}",
+            "promotion": "Umwandlung: {piece}", "castleKingside": "Kurze Rochade", "castleQueenside": "Lange Rochade",
+            "check": "Schach", "checkmate": "Schachmatt"
+        },
+        "dynamicSettings": {
+            "title": "Dynamische Einstellungen", "subtitle": "Diagrammeditor · Einstellungen an den Spielverlauf anpassen",
+            "addLine": "＋ Linie", "removeLine": "Linie entfernen", "addPoint": "＋ Punkt", "deletePoint": "Punkt löschen",
+            "curve": "Kurve", "selectLine": "Linie auswählen", "step": "Stufen", "linear": "Linear", "smooth": "Glatt",
+            "pieceCount": "Figurenanzahl", "moveNumber": "Zugnummer", "evaluation": "Bewertung (dein Vorteil, cp)",
+            "close": "Editor schließen", "variable": "Diagrammvariable", "chooseSetting": "Einstellung bearbeiten",
+            "zoomIn": "Vergrößern", "zoomOut": "Verkleinern", "fit": "Diagramm einpassen", "coordinates": "Punktkoordinaten", "pointX": "X-Wert des Punktes", "pointY": "Y-Wert des Punktes",
+            "evaluationHint": "Dein Vorteil: negativ bedeutet Verlust, null Gleichstand, positiv Gewinn. Letzte abgeschlossene Hauptbewertung.",
+            "fitHint": "Beide Achsen mit Abstand zur Linie einpassen", "graphHint": "Punkte zum Verschieben ziehen, freie Fläche zum Schwenken. Zum Zoomen scrollen oder zusammenziehen. Pfeile bewegen Punkte, Umschalt um zehn Schritte, Entf löscht.",
+            "exitFullscreen": "Vollbild verlassen", "fullscreen": "Diagramm im Vollbild", "instance": "Instanz", "equal": "Gleichstand (0 cp)",
+            "visibility": "Kurve anzeigen und anwenden oder ausblenden und deaktivieren", "enableLine": "{setting} von {profile} aktivieren und anzeigen", "selectedLine": "Ausgewählt: {setting}, {profile}", "chooseLine": "{setting}, {profile} auswählen", "currentValue": "Aktueller Wert von {setting}",
+            "otherVariable": "Keine Linien für {variable}. Vorhandene Kurven nutzen ", "noLines": "Keine Linien. Einstellung auswählen, dann ＋ Linie.",
+            "existingCurve": "Eine Kurve je Einstellung und Profil verhindert Konflikte. Aktuelle Variable: {variable}. Zum Wechseln Kurve bearbeiten oder entfernen.",
+            "addForProfile": "{setting} für {profile} hinzufügen", "enableFirst": "Linie in der Legende aktivieren, um Punkte hinzuzufügen", "addPointHint": "Ganzzahligen Punkt hinzufügen", "stepLocked": "Stufen sind für diese Einstellung festgelegt.",
+            "editing": "{setting} von {profile} bearbeiten.", "removeFromProfile": "{setting} von {profile} entfernen", "point": "Punkt {number}", "selectPoint": "Punkt auswählen, um Koordinaten zu bearbeiten.", "profileLines": "Profillinien für {setting}",
+            "saveError": "Diagramm konnte nicht gespeichert werden. Userscript-Verbindung prüfen.", "variableLink": "Vorhandene Kurven für {variable} öffnen", "removeConfirm": "Linie {setting} aus Profil \"{profile}\" entfernen?\n\nAlle Punkte werden gelöscht und der gespeicherte Standardwert wird wiederhergestellt.",
+            "none": "Keine", "savedDefault": "Gespeicherter Standard", "unavailable": "{value} (nicht verfügbar)", "override": "Dynamische Überschreibung aktiv: {value} ({variable}: {position}).", "waiting": "Kurve aktiviert · warte auf {variable}.", "defaultActive": "Kurve aktiviert · gespeicherter Standard wird verwendet.", "disabled": "Dynamische Kurve deaktiviert.", "noCurve": "Keine dynamische Kurve aktiviert.",
+            "description": "Gespeicherter Wert: {value}. Das Feld behält diesen bearbeitbaren Wert, der ohne Kurve verwendet wird. Dynamische Einstellungen zum Bearbeiten öffnen.", "openSetting": "Dynamische Einstellungen für {setting} öffnen"
+        },
+        "activityLog": {
+            "title": "Aktivitätsprotokoll", "subtitle": "Engine-Nachrichten, dynamische Änderungen, Warnungen und Fehler", "show": "Anzeigen", "clear": "Protokoll leeren", "filter": "Nach Typ filtern", "all": "Alle Aktivitäten", "close": "Protokoll schließen", "instance": "Instanz", "empty": "Noch keine Einträge.", "status": "{shown} angezeigt · {total} insgesamt · letzte {limit} dieser Sitzung gespeichert",
+            "types": { "engine-input": "Engine-Eingabe", "engine-output": "Engine-Ausgabe", "dynamic-change": "Dynamische Änderungen", "setting-change": "Einstellungsänderungen", "engine": "Engine-Lebenszyklus", "instance": "Instanz-Lebenszyklus", "game": "Spielereignisse", "site": "Seitennachrichten", "warning": "Warnungen", "error": "Fehler", "app": "App-Ereignisse" }
+        },
         "profileRemovalWarning": "Bist du sicher, dass du dieses Profil entfernen möchtest?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
         "settingsResetWarning": "Bist du sicher, dass du die Einstellungen zurücksetzen möchtest?\n\nACHTUNG: Diese Aktion ist irreversibel und setzt die gesamte Konfiguration zurück!",
         "refreshSiteNotification": "Lade die externe Seite neu, um Änderungen zu sehen!",

@@ -100,6 +100,10 @@
         "#des-no-result-text": "Egyes beállítások dinamikusan kerülnek elemzésre a motor UCI kimenetéből. Nyisson meg egy sakk táblát a motor elindításához és a dinamikus beállítások betöltéséhez."
     },
     "configTranslations": {
+        "pipSan": ["SAN-lépésjelölés", "SAN használata a lebegő panelben és a beszédben"],
+        "ttsAnnounceEnemyMoves": ["Ellenfél lépéseinek felolvasása", "Halld az ellenfél legutóbbi lépését"],
+        "ttsAnnounceEvaluation": ["Előnyváltozások felolvasása", "Halld, amikor előnyt szerzel vagy veszítesz"],
+        "ttsTranslateAudio": ["Hang fordítása", "Lépések felolvasása a kiválasztott nyelven"],
         "engineEnabled": ["Engedélyezve", "Engedélyezve van a motor?"],
         "chessEngine": ["Sakkmotor", "Tudd meg itt"],
         "chessVariant": ["Sakkvariáns", "Tudd meg itt"],
@@ -173,6 +177,29 @@
         "concealAssistanceAutoDelayMs": ["Automatikus elrejtés (ms)", "Rejtse el automatikusan a segítségfunkciókat ezen idő után"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Semleges", "Pontatlanság", "Hiba", "Súlyos hiba", "Katasztrofális", "Jó lépés", "Kiváló", "Legjobb lépés", "Gyenge lépés"],
+            "forced": "Kényszerlépés", "provisional": "előzetes", "eval": "Értékelés", "best": "Legjobb", "loss": "Értékelésveszteség",
+            "depth": "Mélység", "engine": "Motor", "bestLine": "Legjobb folytatás", "playedLine": "Játszott folytatás", "critical": "Kritikus lépés.",
+            "waiting": "Várakozás egy rögzített lépésre.", "mismatch": "A lépéselőzmény nem egyezik vagy a változat nem támogatott.",
+            "analyzing": "Elemzés: {move}…", "unavailable": "Az értékelés nem érhető el."
+        },
+        "moveSpeech": {
+            "opponent": "Ellenfél: {move}",
+            "advantage": ["Jelentős hátrányban vagy", "Vesztésre állsz", "Kis hátrányban vagy", "Az állás egyenlő", "Kis előnyben vagy", "Nyerésre állsz", "Jelentős előnyben vagy"],
+            "lang": "hu-HU", "pieces": { "K": "Király", "Q": "Vezér", "R": "Bástya", "B": "Futó", "N": "Huszár" },
+            "move": "{piece} ide: {square}", "capture": "{piece} üt itt: {square}", "origin": "{piece} innen: {square}",
+            "promotion": "átváltozás: {piece}", "castleKingside": "Rövid sáncolás", "castleQueenside": "Hosszú sáncolás",
+            "check": "sakk", "checkmate": "matt"
+        },
+        "dynamicSettings": {
+            "title": "Dinamikus beállítások", "subtitle": "Grafikonszerkesztő · a játékhoz igazodó beállítások", "addLine": "＋ Vonal", "removeLine": "Vonal eltávolítása", "addPoint": "＋ Pont", "deletePoint": "Pont törlése", "curve": "Görbe", "selectLine": "Vonal kiválasztása", "step": "Lépcsős", "linear": "Lineáris", "smooth": "Sima", "pieceCount": "Bábuk száma", "moveNumber": "Lépésszám", "evaluation": "Értékelés (saját előny, cp)", "close": "Szerkesztő bezárása", "variable": "Grafikonváltozó", "chooseSetting": "Szerkesztendő beállítás", "zoomIn": "Nagyítás", "zoomOut": "Kicsinyítés", "fit": "Grafikon illesztése", "coordinates": "Pont koordinátái", "pointX": "Pont X értéke", "pointY": "Pont Y értéke",
+            "evaluationHint": "Negatív: hátrány, nulla: egyenlő, pozitív: előny. A legutóbbi befejezett főértékelés.", "fitHint": "Mindkét tengely illesztése térközzel a vonal körül", "graphHint": "Húzza a pontokat és az üres területet. Görgetéssel vagy csippentéssel nagyíthat. Nyilak mozgatják a pontot, Shift tíz lépéssel, Delete törli.", "exitFullscreen": "Kilépés a teljes képernyőből", "fullscreen": "Teljes képernyős grafikon", "instance": "Példány", "equal": "Egyenlő (0 cp)", "visibility": "Görbe megjelenítése és alkalmazása vagy elrejtése és kikapcsolása", "enableLine": "{setting} bekapcsolása és megjelenítése: {profile}", "selectedLine": "Kiválasztva: {setting}, {profile}", "chooseLine": "Kiválasztás: {setting}, {profile}", "currentValue": "{setting} aktuális értéke", "otherVariable": "Nincs vonal ehhez: {variable}. A meglévő görbék változója: ", "noLines": "Nincs vonal. Válasszon beállítást, majd ＋ Vonal.", "existingCurve": "Beállításonként és profilonként egy görbe elkerüli az ütközéseket. Változó: {variable}. Váltáshoz szerkessze vagy törölje a görbét.", "addForProfile": "{setting} hozzáadása: {profile}", "enableFirst": "Először kapcsolja be a vonalat a jelmagyarázatban", "addPointHint": "Egész értékű pont hozzáadása", "stepLocked": "Ehhez a beállításhoz lépcsős görbe kötelező.", "editing": "Szerkesztés: {setting}, {profile}.", "removeFromProfile": "{setting} eltávolítása: {profile}", "point": "{number}. pont", "selectPoint": "Válasszon pontot a koordináták szerkesztéséhez.", "profileLines": "{setting} profilvonalai", "saveError": "A grafikon mentése sikertelen. Ellenőrizze a userscript-kapcsolatot.", "variableLink": "{variable} görbéinek megnyitása", "removeConfirm": "Eltávolítja a(z) {setting} vonalat a(z) \"{profile}\" profilból?\n\nMinden pont törlődik és visszaáll a mentett alapérték.", "none": "Nincs", "savedDefault": "Mentett alapérték", "unavailable": "{value} (nem elérhető)", "override": "Dinamikus felülírás aktív: {value} ({variable}: {position}).", "waiting": "Görbe bekapcsolva · várakozás: {variable}.", "defaultActive": "Görbe bekapcsolva · mentett alapérték használata.", "disabled": "Dinamikus görbe kikapcsolva.", "noCurve": "Nincs bekapcsolt dinamikus görbe.", "description": "Mentett érték: {value}. A mező megőrzi a görbe nélkül használt szerkeszthető értéket. A görbe a dinamikus beállításokban szerkeszthető.", "openSetting": "{setting} dinamikus beállításainak megnyitása"
+        },
+        "activityLog": {
+            "title": "Tevékenységnapló", "subtitle": "Motorüzenetek, dinamikus változások, figyelmeztetések és hibák", "show": "Megjelenítés", "clear": "Napló törlése", "filter": "Szűrés típus szerint", "all": "Minden tevékenység", "close": "Napló bezárása", "instance": "Példány", "empty": "Még nincs naplóbejegyzés.", "status": "{shown} látható · összesen {total} · a munkamenet utolsó {limit} bejegyzése tárolva",
+            "types": { "engine-input": "Motor bemenet", "engine-output": "Motor kimenet", "dynamic-change": "Dinamikus változások", "setting-change": "Beállításváltozások", "engine": "Motor életciklusa", "instance": "Példány életciklusa", "game": "Játékesemények", "site": "Webhelyüzenetek", "warning": "Figyelmeztetések", "error": "Hibák", "app": "Alkalmazásesemények" }
+        },
         "profileRemovalWarning": "Biztosan el akarod távolítani ezt a profilt?\n\nEz a művelet nem vonható vissza.",
         "settingsResetWarning": "Biztosan vissza akarod állítani a beállításokat?\n\nVESZÉLY: Ez a művelet visszafordíthatatlan, és visszaállítja az egész konfigurációdat!",
         "refreshSiteNotification": "Frissítsd a külső oldalt a változások megtekintéséhez!",

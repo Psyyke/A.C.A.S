@@ -1,5 +1,6 @@
 import { externalChessEngineDropdown } from './elementDeclarations.js';
 import { setInputValue, initializeSettingInputElem } from './domInputs.js';
+import { saveSetting } from './settings.js';
 
 export async function updateEnginesList(engines) {
     const installText = document.querySelector('#install-acas-server-text');
@@ -28,7 +29,7 @@ export async function updateEnginesList(engines) {
         const id = el.dataset.value;
         if(!currentIds.has(id)) {
             const paramInputElem = document.querySelector(`input[data-key="${GET_EXTERNAL_PARAM_DB_KEY(id)}"]`);
-            if(paramInputElem) paramInputElem.parentElement.remove();
+            if(paramInputElem) paramInputElem.closest('.direct-engine-settings-container')?.remove();
 
             el.remove();
         }
@@ -74,7 +75,6 @@ export async function updateEnginesList(engines) {
 
         if(alreadyExistingItem) {
             if(engineId === String(selectedEngineID)) {
-                alreadyExistingItem.click();
                 foundSelectedEngineID = true;
             }
 
@@ -127,10 +127,17 @@ export async function updateEnginesList(engines) {
             toast.warning(`${notAvailableText}\n\n(ID: ${selectedEngineID})`, 5000);
         }
 
-        // Fall back to the first available engine so one stays active after a refresh.
-        setTimeout(() => {
-            dropdownListContainer?.firstChild?.click();
-        }, 100);
+        // Persist the fallback immediately, not via two delayed click handlers.
+        const firstEngine = dropdownListContainer.querySelector('.dropdown-item');
+        setInputValue(input, firstEngine?.dataset.value || '');
+        if(firstEngine) {
+            input.dispatchEvent(new Event('input'));
+            await saveSetting(input);
+        }
+    } else {
+        // Restoring the selection is not a setting change and must not reload engines.
+        setInputValue(input, String(selectedEngineID));
+        input.dispatchEvent(new Event('input'));
     }
 }
 

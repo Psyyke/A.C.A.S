@@ -26,6 +26,7 @@ function sendToRenderer(channel, payload) {
 
 export function renderEngineGrid() {
     sendToRenderer('renderEngineGrid', { savedEngines });
+    refreshEngineCards(aliveEngineProcesses);
 }
 
 export function addConsoleView(identifierObj) {
@@ -84,7 +85,16 @@ function killSpecificEngine(identifierObj, code) {
     const engineObjToKill = findAliveEngineObj(identifierObj);
 
     if(engineObjToKill) {
-        engineObjToKill.engineProcess.kill();
+        try {
+            if(!engineObjToKill.engineProcess.kill()) return false;
+        } catch(error) {
+            console.error('[engine] failed to kill process:', error);
+            return false;
+        }
+        // Suppress buffered output and the delayed close event from this process after relaunch.
+        engineObjToKill.engineProcess.acasTerminated = true;
+        sendEngineDeathCertificateToClient(code || 'Engine killed', engineObjToKill.currentFen,
+            identifierObj.engineId, identifierObj.profileName, identifierObj.instanceId);
 
         // toast() and sendToRenderer() already no-op once the window is gone. The early
         // return that used to sit here also skipped the cleanup below, so quitting on
@@ -93,10 +103,31 @@ function killSpecificEngine(identifierObj, code) {
 
         removeAliveEngineObj(identifierObj);
         refreshEngineCards(aliveEngineProcesses);
+        return true;
     }
+    return false;
 }
 
-const KILLABLE_FIELDS = new Set(['engineId', 'instanceId', 'profileName']);
+const KILLABLE_FIELDS = new Set(['engineId', 'instanceId', 'profileName', 'identifierKey']);
+
+export async function killEngine(identifierObj) {
+    if(!identifierObj || !['engineId', 'profileName', 'instanceId'].every(field =>
+        typeof identifierObj[field] === 'string' && identifierObj[field].trim())) {
+        return 'Invalid engine identifier.';
+    }
+
+    // A console is created just before startup completes. Wait for that process only.
+    const key = JSON.stringify([identifierObj.engineId, identifierObj.profileName, identifierObj.instanceId]);
+    const starting = engineStartLocks.get(key);
+    if(starting) {
+        try { await starting; } catch { return false; }
+    }
+
+    const engineObj = findAliveEngineObj(identifierObj);
+    if(!engineObj) return false;
+    return killSpecificEngine(engineObj.identifierObj, 'Killed from server GUI')
+        ? true : 'Could not terminate this engine process.';
+}
 
 function findAliveBy(field, value) {
     return aliveEngineProcesses.filter(ep => ep.identifierObj[field] === value);
@@ -123,14 +154,13 @@ export function clearCache() {
 }
 
 export function saveEngineOptions(command, identifierObj) {
+    const text = command.trim();
+    if(!text.startsWith('setoption')) return false;
     const engineIndex = identifierObj.savedOptionsIdentifierKey;
 
     if(!savedEngineOptions[engineIndex]) {
         savedEngineOptions[engineIndex] = {};
     }
-
-    const text = command.trim();
-    if(!text.startsWith('setoption')) return false;
 
     const tokens = text.split(/\s+/);
 
@@ -175,6 +205,7 @@ export function saveEngineOptions(command, identifierObj) {
     }
     if(!name) return false;
 
+    if(Object.is(savedEngineOptions[engineIndex][name], value)) return true;
     savedEngineOptions[engineIndex][name] = value;
 
     try {
@@ -274,41 +305,28 @@ async function startEngineProcess(enginePath, identifierObj) {
                 }, 5000);
 
                 engineProcess.on('spawn', () => {
+                    if(settled) return;
+                    settled = true;
+                    clearTimeout(launchTimeout);
                     addConsoleView(identifierObj);
 
-                    setTimeout(() => {
-                        if(settled) return;
+                    // stdin is ready on spawn; don't delay every engine's first command.
+                    addAliveEngineObj({
+                        engineProcess,
+                        identifierObj,
+                        currentFen: null
+                    });
 
-                        // The engine can die inside this delay (missing DLL, missing weights).
-                        // Registering it then would hand applySavedEngineOptions a dead stdin.
-                        if(engineProcess.exitCode !== null || engineProcess.signalCode !== null) {
-                            settled = true;
-                            clearTimeout(launchTimeout);
-
-                            return reject(new Error('Engine exited during startup'));
-                        }
-
-                        settled = true;
-                        clearTimeout(launchTimeout);
-
-                        // Do not change the variable names because other code assumes those keys
-                        addAliveEngineObj({
-                            engineProcess,
-                            identifierObj,
-                            currentFen: null
-                        });
-
-                        toast('message', `Launched: ${path.basename(enginePath)}`, 1500);
-
-                        applySavedEngineOptions(identifierObj);
-                        refreshEngineCards(aliveEngineProcesses);
-                        resolve(engineProcess);
-                    }, 100);
+                    toast('message', `Launched: ${path.basename(enginePath)}`, 1500);
+                    applySavedEngineOptions(identifierObj);
+                    refreshEngineCards(aliveEngineProcesses);
+                    resolve(engineProcess);
                 });
 
                 let stdoutBuffer = '';
 
                 engineProcess.stdout.on('data', (data) => {
+                    if(engineProcess.acasTerminated) return;
                     stdoutBuffer += data.toString();
 
                     const lines = stdoutBuffer.split(/\r?\n/);
@@ -320,7 +338,9 @@ async function startEngineProcess(enginePath, identifierObj) {
                     });
                 });
 
-                engineProcess.stderr.on('data', (data) => log(`${data}`, 'info', identifierObj));
+                engineProcess.stderr.on('data', (data) => {
+                    if(!engineProcess.acasTerminated) log(`${data}`, 'info', identifierObj);
+                });
 
                 // Streams throw on an unhandled 'error', which kills the main process
                 for(const stream of [engineProcess.stdin, engineProcess.stdout, engineProcess.stderr]) {
@@ -336,7 +356,8 @@ async function startEngineProcess(enginePath, identifierObj) {
                     reject(err);
                 });
 
-                engineProcess.on('close', (code) => {
+                engineProcess.on('close', (code, signal) => {
+                    if(engineProcess.acasTerminated) return;
                     const engineObj = findAliveEngineObj(identifierObj);
 
                     // A relaunch registers the replacement under the same identifier, and a
@@ -347,10 +368,15 @@ async function startEngineProcess(enginePath, identifierObj) {
 
                     const fen = engineObj?.currentFen;
 
-                    sendEngineDeathCertificateToClient('Engine process closed', fen, engineId, profileName, instanceId);
-
                     removeAliveEngineObj(identifierObj);
                     refreshEngineCards(aliveEngineProcesses);
+
+                    const accessViolation = typeof code === 'number' && (code >>> 0) === 0xC0000005;
+                    const reason = accessViolation ? 'Engine crashed: Windows access violation (0xC0000005)'
+                        : `Engine process closed${code != null ? ` (exit code ${code})` : signal ? ` (${signal})` : ''}`;
+                    sendEngineDeathCertificateToClient(reason, fen, engineId, profileName, instanceId, {
+                        recoverable: true, exitCode: code, signal
+                    });
 
                     toast('warning', `Engine ID ${engineId} closed. ${code ? '('+code+')' : ''}`, 3000);
                 });

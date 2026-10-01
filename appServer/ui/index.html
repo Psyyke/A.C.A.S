@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>A.C.A.S Calculation Server</title>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:*; img-src 'self' data: blob:;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Local chess engine WebSocket server for A.C.A.S GUI.">
@@ -20,7 +21,7 @@
     <a id="acas-logo" class="external" href="https://psyyke.github.io/A.C.A.S/" target="_blank">
         <img id="acas-logo-img" src="./images/logo.png">
         <div id="acas-logo-text-container">
-            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">V2</div></div>
+            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.0</div></div>
             <div id="acas-logo-secondary">Calculation Server</div>
         </div>
     </a>
@@ -47,7 +48,7 @@
             />
 
         </div>
-        <button id="stopBtn" class="acas-fancy-button"><i class="bi bi-x-lg"></i> KILL ENGINES</button>
+        <button id="stopBtn" class="acas-fancy-button" title="Kill every running engine process"><i class="bi bi-x-lg"></i> KILL ALL ENGINES</button>
         <button id="clearBtn" class="acas-fancy-button"><i class="bi bi-x-lg"></i> CLEAR CACHE</button>
     </div>
     <div class="server-info acas-fancy-button">
@@ -56,7 +57,11 @@
     </div>
 </header>
 
-<div class="engine-grid" id="engineGrid"></div>
+<div class="engine-library-heading">
+    <h1>Engine library</h1>
+    <span id="engineSummary">0 saved · 0 running</span>
+</div>
+<div class="engine-grid" id="engineGrid" aria-label="Saved chess engines"></div>
 <div id="consoles-container"></div>
 
 <div id="acas-toast-container"></div>

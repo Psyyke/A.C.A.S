@@ -100,6 +100,10 @@
         "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
     },
     "configTranslations": {
+        "pipSan": ["SAN gediş yazılışı", "Üzən paneldə və nitqdə SAN istifadə et"],
+        "ttsAnnounceEnemyMoves": ["Rəqibin gedişlərini səsləndir", "Rəqibin son gedişini dinlə"],
+        "ttsAnnounceEvaluation": ["Üstünlük dəyişikliklərini səsləndir", "Üstünlük qazandıqda və ya itirdikdə dinlə"],
+        "ttsTranslateAudio": ["Səsi tərcümə et", "Gedişləri seçilmiş dildə dinlə"],
         "engineEnabled": ["Aktiv", "Mühərrik aktivdir?"],
         "chessEngine": ["Şahmat mühərriki", "Burada daha çox oxuyun"],
         "chessVariant": ["Şahmat variantı", "Burada daha çox oxuyun"],
@@ -173,6 +177,29 @@
         "concealAssistanceAutoDelayMs": ["Avtomatik Gizlət (ms)", "Bu vaxtdan sonra avtomatik olaraq yardım xüsusiyyətlərini gizlət"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neytral", "Qeyri-dəqiqlik", "Səhv", "Kobud səhv", "Fəlakətli", "Yaxşı gediş", "Əla", "Ən yaxşı gediş", "Zəif gediş"],
+            "forced": "Məcburi gediş", "provisional": "ilkin", "eval": "Qiymət", "best": "Ən yaxşı", "loss": "Qiymət itkisi",
+            "depth": "Dərinlik", "engine": "Mühərrik", "bestLine": "Ən yaxşı davam", "playedLine": "Oynanmış davam", "critical": "Kritik gediş.",
+            "waiting": "Qeydə alınmış gediş gözlənilir.", "mismatch": "Gediş tarixçəsi uyğun deyil və ya variant dəstəklənmir.",
+            "analyzing": "{move} təhlil edilir…", "unavailable": "Qiymətləndirmə mövcud deyil."
+        },
+        "moveSpeech": {
+            "opponent": "Rəqib: {move}",
+            "advantage": ["Açıq fərqlə uduzursunuz", "Uduzursunuz", "Bir az geridəsiniz", "Mövqe bərabərdir", "Bir az öndəsiniz", "Udursunuz", "Açıq fərqlə udursunuz"],
+            "lang": "az-AZ", "pieces": { "K": "Şah", "Q": "Vəzir", "R": "Top", "B": "Fil", "N": "At" },
+            "move": "{piece}, hədəf xana: {square}", "capture": "{piece}, {square} xanasında alır", "origin": "{piece}, başlanğıc xana: {square}",
+            "promotion": "çevrilmə: {piece}", "castleKingside": "Qısa qalaqurma", "castleQueenside": "Uzun qalaqurma",
+            "check": "şah", "checkmate": "mat"
+        },
+        "dynamicSettings": {
+            "title": "Dinamik parametrlər", "subtitle": "Qrafik redaktoru · parametrləri oyuna uyğunlaşdırın", "addLine": "＋ Xətt", "removeLine": "Xətti sil", "addPoint": "＋ Nöqtə", "deletePoint": "Nöqtəni sil", "curve": "Əyri", "selectLine": "Xətt seçin", "step": "Pilləli", "linear": "Xətti", "smooth": "Hamar", "pieceCount": "Fiqur sayı", "moveNumber": "Gediş nömrəsi", "evaluation": "Qiymətləndirmə (üstünlüyünüz, cp)", "close": "Redaktoru bağla", "variable": "Qrafik dəyişəni", "chooseSetting": "Redaktə ediləcək parametr", "zoomIn": "Yaxınlaşdır", "zoomOut": "Uzaqlaşdır", "fit": "Qrafiki sığdır", "coordinates": "Nöqtə koordinatları", "pointX": "Nöqtənin X qiyməti", "pointY": "Nöqtənin Y qiyməti",
+            "evaluationHint": "Mənfi geridə, sıfır bərabər, müsbət öndə deməkdir. Son tamamlanmış əsas qiymətləndirmə.", "fitHint": "Xətt ətrafında boşluq saxlayaraq hər iki oxu sığdır", "graphHint": "Nöqtələri və boş sahəni sürüşdürün. Miqyası dəyişmək üçün sıxın və ya diyirləyin. Oxlar nöqtəni, Shift on addım hərəkət etdirir. Delete silir.", "exitFullscreen": "Tam ekrandan çıx", "fullscreen": "Tam ekran qrafik", "instance": "Nüsxə", "equal": "Bərabər (0 cp)", "visibility": "Əyrini göstər və tətbiq et və ya gizlət və söndür", "enableLine": "{profile} profilindən {setting} parametrini aktivləşdir və göstər", "selectedLine": "Seçilib: {setting}, {profile}", "chooseLine": "{setting}, {profile} seç", "currentValue": "{setting} cari qiyməti", "otherVariable": "{variable} üçün xətt yoxdur. Mövcud əyrilər istifadə edir: ", "noLines": "Xətt yoxdur. Parametri seçin, sonra ＋ Xətt.", "existingCurve": "Hər parametr və profil üçün bir əyri münaqişələrin qarşısını alır. Dəyişən: {variable}. Dəyişmək üçün əyrini redaktə edin və ya silin.", "addForProfile": "{profile} üçün {setting} əlavə et", "enableFirst": "Əvvəlcə izahatda xətti aktivləşdirin", "addPointHint": "Tam ədədli nöqtə əlavə et", "stepLocked": "Bu parametr üçün pilləli əyri məcburidir.", "editing": "{profile} profilində {setting} redaktə olunur.", "removeFromProfile": "{profile} profilindən {setting} sil", "point": "Nöqtə {number}", "selectPoint": "Koordinatları redaktə etmək üçün nöqtə seçin.", "profileLines": "{setting} profil xətləri", "saveError": "Qrafik saxlanmadı. Userscript bağlantısını yoxlayın.", "variableLink": "{variable} əyrilərini aç", "removeConfirm": "\"{profile}\" profilindən {setting} xətti silinsin?\n\nBütün nöqtələr silinir və saxlanmış standart qiymət bərpa olunur.", "none": "Yoxdur", "savedDefault": "Saxlanmış standart", "unavailable": "{value} (mövcud deyil)", "override": "Dinamik əvəzetmə aktivdir: {value} ({variable}: {position}).", "waiting": "Əyri aktivdir · {variable} gözlənilir.", "defaultActive": "Əyri aktivdir · saxlanmış standart istifadə olunur.", "disabled": "Dinamik əyri söndürülüb.", "noCurve": "Aktiv dinamik əyri yoxdur.", "description": "Saxlanmış qiymət: {value}. Sahə əyri olmadan istifadə edilən redaktə edilə bilən qiyməti saxlayır. Əyrini redaktə etmək üçün dinamik parametrləri açın.", "openSetting": "{setting} üçün dinamik parametrləri aç"
+        },
+        "activityLog": {
+            "title": "Fəaliyyət jurnalı", "subtitle": "Mühərrik mesajları, dinamik dəyişikliklər, xəbərdarlıqlar və xətalar", "show": "Göstər", "clear": "Jurnalı təmizlə", "filter": "Növə görə süzgəc", "all": "Bütün fəaliyyət", "close": "Jurnalı bağla", "instance": "Nüsxə", "empty": "Hələ qeyd yoxdur.", "status": "{shown} göstərilir · cəmi {total} · sessiyanın son {limit} qeydi saxlanır",
+            "types": { "engine-input": "Mühərrik girişi", "engine-output": "Mühərrik çıxışı", "dynamic-change": "Dinamik dəyişikliklər", "setting-change": "Parametr dəyişiklikləri", "engine": "Mühərrik həyat dövrü", "instance": "Nüsxə həyat dövrü", "game": "Oyun hadisələri", "site": "Sayt mesajları", "warning": "Xəbərdarlıqlar", "error": "Xətalar", "app": "Tətbiq hadisələri" }
+        },
         "profileRemovalWarning": "Bu profili silmək istədiyinizə əminsinizmi?\n\nBu əməliyyat geri qaytarıla bilməz.",
         "settingsResetWarning": "Parametrləri sıfırlamaq istədiyinizə əminsinizmi?\n\nTƏHLÜKƏ: Bu əməliyyat geri qaytarıla bilməz və bütün konfiqurasiyanızı sıfırlayacaq!",
         "refreshSiteNotification": "Dəyişiklikləri görmək üçün xarici saytı yeniləyin!",

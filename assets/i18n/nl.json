@@ -100,6 +100,10 @@
         "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden."
     },
     "configTranslations": {
+        "pipSan": ["SAN-zetnotatie", "Gebruik SAN in het zwevende paneel en de spraak"],
+        "ttsAnnounceEnemyMoves": ["Tegenstanderzetten aankondigen", "Hoor de laatste zet van je tegenstander"],
+        "ttsAnnounceEvaluation": ["Veranderingen in voordeel aankondigen", "Hoor wanneer je voordeel wint of verliest"],
+        "ttsTranslateAudio": ["Audio vertalen", "Hoor zetten in de geselecteerde taal"],
         "engineEnabled": ["Ingeschakeld", "Is de engine ingeschakeld"],
         "chessEngine": ["Schaakengine", "Lees hier meer"],
         "chessVariant": ["Schaakvariant", "Lees hier meer"],
@@ -173,6 +177,33 @@
         "concealAssistanceAutoDelayMs": ["Automatisch verbergen (ms)", "Hulpfuncties na deze tijd automatisch verbergen"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutraal", "Onnauwkeurigheid", "Fout", "Blunder", "Catastrofaal", "Goede zet", "Uitstekend", "Beste zet", "Zwakke zet"],
+            "forced": "Gedwongen zet", "provisional": "voorlopig", "eval": "Evaluatie", "best": "Beste", "loss": "Evaluatieverlies",
+            "depth": "Diepte", "engine": "Engine", "bestLine": "Beste variant", "playedLine": "Gespeelde variant", "critical": "Kritieke zet.",
+            "waiting": "Wachten op een vastgelegde zet.", "mismatch": "Zetgeschiedenis klopt niet of variant wordt niet ondersteund.",
+            "analyzing": "Analyse van {move}…", "unavailable": "Evaluatie niet beschikbaar."
+        },
+        "moveSpeech": {
+            "opponent": "Tegenstander: {move}",
+            "advantage": ["Je staat duidelijk verloren", "Je staat verloren", "Je staat iets slechter", "De stelling is gelijk", "Je staat iets beter", "Je staat gewonnen", "Je staat duidelijk gewonnen"],
+            "lang": "nl-NL", "pieces": { "K": "Koning", "Q": "Dame", "R": "Toren", "B": "Loper", "N": "Paard" },
+            "move": "{piece} naar {square}", "capture": "{piece} slaat op {square}", "origin": "{piece} van {square}",
+            "promotion": "promotie tot {piece}", "castleKingside": "Korte rokade", "castleQueenside": "Lange rokade",
+            "check": "schaak", "checkmate": "schaakmat"
+        },
+        "dynamicSettings": {
+            "title": "Dynamische instellingen", "subtitle": "Grafiekeditor · pas instellingen aan het spel aan", "addLine": "＋ Lijn", "removeLine": "Lijn verwijderen", "addPoint": "＋ Punt", "deletePoint": "Punt verwijderen", "curve": "Curve", "selectLine": "Selecteer een lijn", "step": "Trappen", "linear": "Lineair", "smooth": "Vloeiend",
+            "pieceCount": "Aantal stukken", "moveNumber": "Zetnummer", "evaluation": "Evaluatie (jouw voordeel, cp)", "close": "Editor sluiten", "variable": "Grafiekvariabele", "chooseSetting": "Instelling bewerken", "zoomIn": "Inzoomen", "zoomOut": "Uitzoomen", "fit": "Grafiek passend maken", "coordinates": "Puntcoördinaten", "pointX": "X-waarde van punt", "pointY": "Y-waarde van punt",
+            "evaluationHint": "Jouw voordeel: negatief is verlies, nul gelijk, positief winst. Gebruikt de laatst voltooide hoofdevaluatie.", "fitHint": "Beide assen passend maken met ruimte rond de lijn", "graphHint": "Sleep punten om ze te verplaatsen en lege ruimte om te pannen. Knijp of scroll om te zoomen. Pijlen verplaatsen het punt; Shift tien stappen. Delete verwijdert het.", "exitFullscreen": "Volledig scherm verlaten", "fullscreen": "Grafiek op volledig scherm", "instance": "Instantie", "equal": "Gelijk (0 cp)",
+            "visibility": "Curve tonen en toepassen of verbergen en uitschakelen", "enableLine": "{setting} van {profile} inschakelen en tonen", "selectedLine": "Geselecteerd: {setting}, {profile}", "chooseLine": "Selecteer {setting}, {profile}", "currentValue": "Huidige waarde van {setting}", "otherVariable": "Geen lijnen voor {variable}. Bestaande curves gebruiken ", "noLines": "Geen lijnen. Kies een instelling en daarna ＋ Lijn.", "existingCurve": "Eén curve per instelling en profiel voorkomt conflicten. Huidige variabele: {variable}. Bewerk of verwijder de curve om te wisselen.",
+            "addForProfile": "{setting} toevoegen voor {profile}", "enableFirst": "Schakel de lijn in de legenda in om punten toe te voegen", "addPointHint": "Punt met gehele waarden toevoegen", "stepLocked": "Trappen zijn vastgelegd voor deze instelling.", "editing": "{setting} van {profile} bewerken.", "removeFromProfile": "{setting} uit {profile} verwijderen", "point": "Punt {number}", "selectPoint": "Kies een punt om de coördinaten te bewerken.", "profileLines": "Profiellijnen voor {setting}",
+            "saveError": "Grafiek opslaan mislukt. Controleer de userscript-verbinding.", "variableLink": "Bestaande curves van {variable} openen", "removeConfirm": "Lijn {setting} uit profiel \"{profile}\" verwijderen?\n\nAlle punten worden verwijderd en de opgeslagen standaardwaarde wordt hersteld.", "none": "Geen", "savedDefault": "Opgeslagen standaard", "unavailable": "{value} (niet beschikbaar)", "override": "Dynamische overschrijving actief: {value} ({variable}: {position}).", "waiting": "Curve ingeschakeld · wachten op {variable}.", "defaultActive": "Curve ingeschakeld · opgeslagen standaard gebruikt.", "disabled": "Dynamische curve uitgeschakeld.", "noCurve": "Geen dynamische curve ingeschakeld.", "description": "Opgeslagen waarde: {value}. Het veld bewaart deze bewerkbare waarde voor gebruik zonder curve. Open dynamische instellingen om de curve te bewerken.", "openSetting": "Dynamische instellingen voor {setting} openen"
+        },
+        "activityLog": {
+            "title": "Activiteitenlogboek", "subtitle": "Engineberichten, dynamische wijzigingen, waarschuwingen en fouten", "show": "Toon", "clear": "Logboek wissen", "filter": "Filter op type", "all": "Alle activiteit", "close": "Logboek sluiten", "instance": "Instantie", "empty": "Nog geen vermeldingen.", "status": "{shown} getoond · {total} totaal · laatste {limit} van deze sessie bewaard",
+            "types": { "engine-input": "Engine-invoer", "engine-output": "Engine-uitvoer", "dynamic-change": "Dynamische wijzigingen", "setting-change": "Instellingswijzigingen", "engine": "Enginelevenscyclus", "instance": "Instantielevenscyclus", "game": "Spelgebeurtenissen", "site": "Siteberichten", "warning": "Waarschuwingen", "error": "Fouten", "app": "Appgebeurtenissen" }
+        },
         "profileRemovalWarning": "Weet je zeker dat je dit profiel wilt verwijderen?\n\nDeze actie kan niet ongedaan worden gemaakt.",
         "settingsResetWarning": "Weet je zeker dat je de instellingen wilt resetten?\n\nGEOORDELD: Deze actie is onomkeerbaar en zal je volledige configuratie resetten!",
         "refreshSiteNotification": "Ververs de externe site om veranderingen te zien!",

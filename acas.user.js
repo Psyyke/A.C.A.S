@@ -80,7 +80,7 @@
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.4.9
+// @version     2.5.0
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -107,6 +107,248 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 //////////////////////////////////////////////////////////////////
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
+
+const DynamicSettingsCore = (() => {
+    const variables = Object.freeze({
+        __proto__: null,
+        pieceCount: Object.freeze({
+            label: 'Piece Count',
+            min: 0,
+            max: 32,
+            getValue: safeMethod(context => context?.pieceCount, () => null)
+        }),
+        moveNumber: Object.freeze({ label: 'Move Number', min: 1, max: 200,
+            getValue: safeMethod(context => context?.moveNumber, () => null) }),
+        evaluation: Object.freeze({ label: 'Evaluation (your advantage, cp)', min: -1000, max: 1000,
+            getValue: safeMethod(context => context?.evaluation, () => null) })
+    });
+
+    // Accept data, not objects with custom coercion or values such as Symbols.
+    function finiteNumber(value, fallback = null) {
+        const type = typeof value;
+        if(type !== 'number' && type !== 'string' && type !== 'boolean') return fallback;
+        if(type === 'string' && !value.trim()) return fallback;
+        const number = Number(value);
+        return Number.isFinite(number) ? number : fallback;
+    }
+
+    function contextKey(instanceID) {
+        return typeof instanceID === 'string' || typeof instanceID === 'number' && Number.isFinite(instanceID)
+            ? String(instanceID) : null;
+    }
+
+    function baseFallback(baseValue) {
+        return typeof baseValue === 'number' && Number.isFinite(baseValue) ? Math.round(baseValue) : baseValue;
+    }
+
+    // One boundary protects every public method, including hostile getters/proxies.
+    // Fallbacks only inspect primitive types or create fresh, safe return values.
+    function safeMethod(method, fallback) {
+        return (...args) => {
+            try { return method(...args); }
+            catch(e) { return fallback(...args); }
+        };
+    }
+
+    function getVariableValue(variable, context) {
+        if(typeof variable !== 'string' || !Object.hasOwn(variables, variable)) return null;
+        const definition = variables[variable];
+        const value = finiteNumber(definition.getValue(context));
+        if(value === null) return null;
+        return variable === 'pieceCount' ? Math.max(definition.min, Math.min(definition.max, Math.round(value))) : Math.round(value);
+    }
+
+    function formatVariableValue(variable, value) {
+        if(variable !== 'evaluation') {
+            return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? String(value) : '';
+        }
+        value = finiteNumber(value);
+        if(value === null) return '';
+        return value === 0 ? 'Equal (0 cp)' : `${value > 0 ? 'Winning' : 'Losing'} (${value > 0 ? '+' : ''}${value} cp)`;
+    }
+
+    function normalizePoints(points) {
+        if(!Array.isArray(points)) return [];
+        const byX = new Map();
+        points.forEach(point => {
+            if(!point || typeof point !== 'object') return;
+            const x = finiteNumber(point.x);
+            const y = finiteNumber(point.y);
+            if(x !== null && y !== null) byX.set(Math.round(x), Math.round(y));
+        });
+        return [...byX].map(([x, y]) => ({ x, y })).sort((a, b) => a.x - b.x);
+    }
+
+    function normalizeCurve(curve, baseValue) {
+        if(!curve || typeof curve !== 'object' || Array.isArray(curve)) return { points: [] };
+        const boolean = typeof baseValue === 'boolean' || curve.boolean === true;
+        const normalized = { ...curve, points: normalizePoints(curve.points) };
+        if(curve.variable === 'pieceCount') {
+            normalized.points = normalizePoints(normalized.points.map(point => ({ ...point,
+                x: Math.max(variables.pieceCount.min, Math.min(variables.pieceCount.max, point.x)) })));
+        }
+        if(boolean) Object.assign(normalized, { boolean: true, interpolation: 'step', minY: 0, maxY: 1 });
+        if(Array.isArray(curve.values)) {
+            normalized.values = [...curve.values];
+            Object.assign(normalized, { interpolation: 'step', minY: 0, maxY: Math.max(0, curve.values.length - 1) });
+        }
+        const minY = Math.ceil(finiteNumber(normalized.minY, -Infinity));
+        const maxY = Math.floor(finiteNumber(normalized.maxY, Infinity));
+        if(minY > maxY) return { ...normalized, points: [] };
+        normalized.points.forEach(point => {
+            point.y = Math.max(minY, Math.min(maxY, point.y));
+        });
+        return normalized;
+    }
+
+    function evaluateCurve(curve, variableValue) {
+        if(!curve || typeof curve !== 'object' || Array.isArray(curve) || !curve.enabled) return null;
+        const x = finiteNumber(variableValue);
+        if(x === null) return null;
+        curve = normalizeCurve(curve);
+        const points = curve.points;
+        if(!points.length) return null;
+        const last = points[points.length - 1];
+        if(curve.outsideRange === 'default' && (x < points[0].x || x > last.x)) return null;
+        if(x <= points[0].x) return points[0].y;
+        if(x >= last.x) return last.y;
+
+        const rightIndex = points.findIndex(point => point.x >= x);
+        const left = points[rightIndex - 1];
+        const right = points[rightIndex];
+        if(!left || !right) return null;
+        // A step changes at the point itself, not just after its X coordinate.
+        if(x === right.x) return right.y;
+        const width = right.x - left.x;
+        if(width <= 0 || curve.interpolation === 'step') return left.y;
+
+        const t = (x - left.x) / width;
+        if(curve.interpolation === 'smooth') {
+            const slopes = points.slice(0, -1).map((point, index) =>
+                (points[index + 1].y - point.y) / (points[index + 1].x - point.x)
+            );
+            const tangent = index => {
+                if(index === 0 || index === points.length - 1) return 0;
+                const before = slopes[index - 1];
+                const after = slopes[index];
+                if(before === 0 || after === 0 || Math.sign(before) !== Math.sign(after)) return 0;
+                const beforeWidth = points[index].x - points[index - 1].x;
+                const afterWidth = points[index + 1].x - points[index].x;
+                const w1 = 2 * afterWidth + beforeWidth;
+                const w2 = afterWidth + 2 * beforeWidth;
+                return (w1 + w2) / (w1 / before + w2 / after);
+            };
+            const m0 = tangent(rightIndex - 1) * width;
+            const m1 = tangent(rightIndex) * width;
+            const t2 = t * t;
+            const t3 = t2 * t;
+            return finiteNumber((2 * t3 - 3 * t2 + 1) * left.y
+                + (t3 - 2 * t2 + t) * m0
+                + (-2 * t3 + 3 * t2) * right.y
+                + (t3 - t2) * m1);
+        }
+
+        return finiteNumber(left.y + (right.y - left.y) * t);
+    }
+
+    function coerceSettingValue(value, baseValue, curve) {
+        if(Array.isArray(curve.values)) {
+            const choice = curve.values[Math.round(value)];
+            return typeof choice === typeof baseValue && (typeof choice === 'string' || typeof choice === 'boolean'
+                || typeof choice === 'number' && Number.isFinite(choice)) ? choice : baseValue;
+        }
+        if(typeof baseValue === 'boolean') return Number(value) >= 0.5;
+        if(typeof baseValue === 'number') {
+            const numericValue = finiteNumber(value);
+            if(numericValue === null) return baseValue;
+            const bounded = Math.max(
+                finiteNumber(curve.minY, -Infinity),
+                Math.min(finiteNumber(curve.maxY, Infinity), numericValue)
+            );
+            const rounded = Math.round(bounded);
+            return Number.isFinite(rounded) ? rounded : baseValue;
+        }
+        return baseValue;
+    }
+
+    function resolveValue(baseValue, curve, context) {
+        // Ordinary settings without a graph keep their existing value/type semantics.
+        if(!curve || typeof curve !== 'object' || Array.isArray(curve)) return baseValue;
+        const fallback = baseFallback(baseValue);
+        if(baseValue === undefined || !curve.enabled) return fallback;
+        if(curve.resetAtStart && (finiteNumber(context?.gameStart, 0) !== 0 || finiteNumber(context?.moveNumber) === 1)) return fallback;
+        curve = normalizeCurve(curve, baseValue);
+        const variableValue = getVariableValue(curve.variable, context);
+        const result = evaluateCurve(curve, variableValue);
+        if(result === null) return fallback;
+        return coerceSettingValue(result, fallback, curve);
+    }
+
+    function getContextFromFen(fen) {
+        if(typeof fen !== 'string' || !fen.trim()) return {};
+        const fields = fen.trim().split(/\s+/);
+        return {
+            pieceCount: (fields[0].match(/[rnbqkpRNBQKP]/g) ?? []).length,
+            moveNumber: Math.max(1, Math.round(finiteNumber(fields[5], 1))),
+            gameStart: 0
+        };
+    }
+
+    const contexts = new Map();
+    const defaultContext = Object.create(null);
+
+    function setContext(instanceID, context) {
+        if(!context || typeof context !== 'object' || Array.isArray(context)) return;
+        const instanceKey = contextKey(instanceID);
+        if(instanceID != null && instanceKey === null) return;
+        // Validate the entire update before committing it, so a getter failure
+        // cannot leave a previously valid instance context partially changed.
+        const target = Object.assign(Object.create(null), instanceID == null ? defaultContext : contexts.get(instanceKey));
+        Object.entries(context ?? {}).forEach(([key, value]) => {
+            if(!Object.hasOwn(variables, key) && key !== 'gameStart') return;
+            if(value === undefined) return;
+            const number = finiteNumber(value);
+            if(number === null) {
+                delete target[key];
+                return;
+            }
+            target[key] = number;
+        });
+        if(instanceID != null) contexts.set(instanceKey, target);
+        else {
+            Object.keys(defaultContext).forEach(key => delete defaultContext[key]);
+            Object.assign(defaultContext, target);
+        }
+    }
+
+    function getContext(instanceID) {
+        return { ...defaultContext, ...(instanceID == null ? {} : contexts.get(contextKey(instanceID))) };
+    }
+
+    function removeContext(instanceID) {
+        const instanceKey = contextKey(instanceID);
+        if(instanceKey !== null) contexts.delete(instanceKey);
+    }
+
+    function getContexts() {
+        return [...contexts].map(([instanceID, context]) => ({ instanceID, context: { ...defaultContext, ...context } }));
+    }
+
+    return Object.freeze({
+        variables,
+        getVariableValue: safeMethod(getVariableValue, () => null),
+        formatVariableValue: safeMethod(formatVariableValue, () => ''),
+        normalizePoints: safeMethod(normalizePoints, () => []),
+        normalizeCurve: safeMethod(normalizeCurve, () => ({ points: [] })),
+        evaluateCurve: safeMethod(evaluateCurve, () => null),
+        resolveValue: safeMethod(resolveValue, baseFallback),
+        getContextFromFen: safeMethod(getContextFromFen, () => ({})),
+        setContext: safeMethod(setContext, () => undefined),
+        getContext: safeMethod(getContext, () => ({})),
+        getContexts: safeMethod(getContexts, () => []),
+        removeContext: safeMethod(removeContext, () => undefined)
+    });
+})();
 
 (async () => { try { await LOAD_LEGACY_GM_SUPPORT();
 /*
@@ -390,7 +632,7 @@ const configKeys = Object.freeze([
     'chessVariant', 'chessEngine', 'lc0Weight',
     'engineNodes', 'chessFont', 'useChess960',
     'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
-    'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
+    'ttsVoiceSpeed', 'ttsTranslateAudio', 'ttsAnnounceEnemyMoves', 'ttsAnnounceEvaluation', 'chessEngineProfile', 'primaryArrowColorHex',
     'secondaryArrowColorHex', 'opponentArrowColorHex', 'bookMoveColorHex',
     'bookMoveOpacity', 'reverseSide', 'engineEnabled', 'autoMove', 'autoMoveLegit',
     'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType',
@@ -456,42 +698,97 @@ Object.values(configKeys).forEach(key => {
     };
 });
 
-function getGmConfigValue(key, instanceID, profileID) {
-    if(typeof profileID === 'object') {
-        profileID = profileID.name;
-    }
+// Dynamic settings are optional: missing/older @require files or malformed
+// stored data must never interrupt normal userscript board processing.
+function withDynamicSettings(callback, fallback = () => undefined) {
+    try { return callback(); }
+    catch(e) { return fallback(); }
+}
 
-    const config = GM_getValue(dbValues.AcasConfig);
+function getDynamicSettingsCore() {
+    return withDynamicSettings(() => typeof DynamicSettingsCore !== 'undefined' ? DynamicSettingsCore : null, () => null);
+}
 
-    const instanceValue = config?.instance?.[instanceID]?.[key];
-    const globalValue = config?.global?.[key];
+function resolveDynamicSetting(baseValue, curve, instanceID) {
+    return withDynamicSettings(() => {
+        const core = getDynamicSettingsCore();
+        if(!curve || typeof curve !== 'object' || Array.isArray(curve)
+            || typeof core?.resolveValue !== 'function' || typeof core?.getContext !== 'function') return baseValue;
+        const resolved = core.resolveValue(baseValue, curve, core.getContext(instanceID));
+        return typeof resolved === typeof baseValue && (typeof resolved === 'boolean' || typeof resolved === 'string'
+            || typeof resolved === 'number' && Number.isFinite(resolved)) ? resolved : baseValue;
+    }, () => baseValue);
+}
 
-    if(instanceValue !== undefined) {
-        return instanceValue;
-    }
-
-    if(globalValue !== undefined) {
-        return globalValue;
-    }
-
-    if(profileID) {
-        const globalProfileValue = config?.global?.['profiles']?.[profileID]?.[key];
-        const instanceProfileValue = config?.instance?.[instanceID]?.['profiles']?.[profileID]?.[key];
-
-        if(instanceProfileValue !== undefined) {
-            return instanceProfileValue;
+function updateUserscriptDynamicContext(context, fen) {
+    return withDynamicSettings(() => {
+        const core = getDynamicSettingsCore();
+        let updated = false;
+        if(typeof core?.setContext === 'function') {
+            const fenContext = typeof fen === 'string' && typeof core.getContextFromFen === 'function'
+                ? core.getContextFromFen(fen) : {};
+            const state = context && typeof context === 'object' && !Array.isArray(context) ? context : {};
+            core.setContext(commLinkInstanceID, { ...fenContext, ...state });
+            updated = true;
         }
+        refreshSettings();
+        return updated;
+    }, () => false);
+}
 
-        if(globalProfileValue !== undefined) {
-            return globalProfileValue;
-        }
-    }
+function getGmConfigValue(key, instanceID, profileID, baseOnly = false) {
+    let baseValue;
+    return withDynamicSettings(() => {
+        if(typeof profileID === 'object') profileID = profileID?.name;
+        if(typeof key !== 'string' || (profileID != null && typeof profileID !== 'string')) return null;
+        const config = GM_getValue(dbValues.AcasConfig);
+        const profileKey = profileID ? getProfileStorageKey(profileID) : null;
+        const globalProfile = profileKey ? config?.global?.profiles?.[profileKey] : null;
+        const instanceProfile = profileKey ? config?.instance?.[instanceID]?.profiles?.[profileKey] : null;
 
-    return null;
+        if(instanceProfile?.[key] !== undefined) baseValue = instanceProfile[key];
+        else if(globalProfile?.[key] !== undefined) baseValue = globalProfile[key];
+        else if(config?.instance?.[instanceID]?.[key] !== undefined) baseValue = config.instance[instanceID][key];
+        else baseValue = config?.global?.[key];
+
+        if(baseValue === undefined || baseOnly) return baseValue ?? null;
+        const curve = instanceProfile?.dynamicSettings?.[key] ?? globalProfile?.dynamicSettings?.[key];
+        return resolveDynamicSetting(baseValue, curve, instanceID);
+    }, () => baseValue ?? null);
+}
+
+function getProfileStorageKey(profileName) {
+    if(profileName === 'default') return 'default';
+    if(typeof profileName !== 'string' || profileName.startsWith('__B64__')) return profileName;
+    const encoded = btoa(unescape(encodeURIComponent(profileName)));
+    return `__B64__${encoded}`;
+}
+
+function getProfileStorageName(profileKey) {
+    if(typeof profileKey !== 'string' || !profileKey.startsWith('__B64__')) return profileKey;
+    try { return decodeURIComponent(escape(atob(profileKey.slice(7)))); }
+    catch(e) { return profileKey; }
+}
+
+function resolveProfileConfig(profile) {
+    return withDynamicSettings(() => {
+        const config = profile?.config;
+        if(!config || typeof config !== 'object' || Array.isArray(config)) return profile;
+        const curves = config.dynamicSettings;
+        if(!curves || typeof curves !== 'object' || Array.isArray(curves)) return profile;
+        Object.entries(curves).forEach(([key, curve]) => {
+            if(key === '__proto__' || key === 'constructor' || key === 'prototype' || !Object.hasOwn(config, key)) return;
+            const baseValue = config[key];
+            if(baseValue === undefined) return;
+            const resolved = resolveDynamicSetting(baseValue, curve, commLinkInstanceID);
+            if(!Object.is(resolved, baseValue)) config[key] = resolved;
+        });
+        return profile;
+    }, () => profile);
 }
 
 function getConfigValue(key, profile) {
-    return config[key]?.get(profile);
+    return getGmConfigValue(key, commLinkInstanceID, profile);
 }
 
 function setConfigValue(key, val) {
@@ -533,7 +830,16 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 return `pong (took ${Date.now() - packet.date}ms)`;
             case 'getFen':
                 return getFen();
+            case 'updateDynamicContext':
+                if(!packet.data || typeof packet.data !== 'object' || Array.isArray(packet.data)) return false;
+                if(packet.data.fen && packet.data.fen !== gameState?.fen?.full) return false;
+                return updateUserscriptDynamicContext({ ...packet.data, gameStart: 0 });
             case 'renderVisualsToSite':
+                if(Array.isArray(packet.data) && packet.data[0]?.category === 'feedback') {
+                    if(packet.data[0].feedbackFen && packet.data[0].feedbackFen !== gameState?.fen?.full) return false;
+                    renderStuffToBoard(packet.data);
+                    return true;
+                }
                 renderStuffToBoard(packet.data);
                 handleAutoMove(packet.data);
 
@@ -745,6 +1051,8 @@ function handleAutoMove(markings) {
     }
 }
 
+const feedbackVisualRevisions = new Map();
+
 function renderStuffToBoard(markings) {
     if(!BoardDrawer || !Array.isArray(markings) || !markings.length) {
         return;
@@ -752,6 +1060,20 @@ function renderStuffToBoard(markings) {
 
     const profileID = markings[0]?.profileID;
     const category = markings[0]?.category;
+
+    // A rating can cross the CommLink after another move has already reached
+    // the DOM. Never draw it (or clear newer feedback) on that newer position.
+    if(category === 'feedback' && markings[0]?.feedbackFen
+        && markings[0].feedbackFen !== gameState?.fen?.full) return;
+    if(category === 'feedback' && markings[0]?.feedbackFen
+        && markings[0].feedbackFen.split(' ')[0] !== getFen(true)) return;
+    if(category === 'feedback' && Number.isFinite(markings[0]?.feedbackRevision)) {
+        const revision = markings[0].feedbackRevision;
+        // Settings can produce a replacement/clear on the SAME board. A late
+        // packet must not undo a newer toggle or resurrect its old rating.
+        if(revision <= (feedbackVisualRevisions.get(profileID) || 0)) return;
+        feedbackVisualRevisions.set(profileID, revision);
+    }
 
     clearVisuals({
         profileID,
@@ -780,6 +1102,13 @@ function renderStuffToBoard(markings) {
 
         if(!shape) {
             return;
+        }
+
+        if(marking.feedbackDescription) {
+            shape.setAttribute('aria-label', marking.feedbackDescription);
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = marking.feedbackDescription;
+            shape.appendChild(title);
         }
 
         let hoverListener = null;
@@ -1373,35 +1702,35 @@ function getPieceAmount() {
 }
 
 function isBoardDrawerNeeded() {
-    const config = GM_getValue(dbValues.AcasConfig);
+    return withDynamicSettings(() => {
+        const config = GM_getValue(dbValues.AcasConfig);
+        const gP = config?.global?.['profiles'];
+        const iP = config?.instance?.[commLinkInstanceID]?.['profiles'];
+        if(config?.global?.[configKeys.isUserscriptGhost]) return false;
 
-    const gP = config?.global?.['profiles'];
-    const iP = config?.instance?.[commLinkInstanceID]?.['profiles'];
+        function check(cfg) {
+            if(!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) return false;
+            for(const profile of Object.values(cfg)) {
+                if(!profile || typeof profile !== 'object' || Array.isArray(profile)) continue;
+                const externalMoves = profile[configKeys.displayMovesOnExternalSite];
+                const renderingNeeded = profile[configKeys.renderOnExternalSite];
+                const feedbackNeeded = profile[configKeys.feedbackOnExternalSite];
+                const movesOnDemand = profile[configKeys.movesOnDemand];
+                const curves = profile.dynamicSettings;
+                const mayEnableDynamically = curves && typeof curves === 'object' && !Array.isArray(curves)
+                    && [configKeys.displayMovesOnExternalSite, configKeys.renderOnExternalSite,
+                        configKeys.feedbackOnExternalSite, configKeys.movesOnDemand].some(key => {
+                        const curve = curves[key];
+                        return curve && typeof curve === 'object' && !Array.isArray(curve) && curve.enabled;
+                    });
 
-    const isGhost = config?.global?.[configKeys.isUserscriptGhost];
-    if(isGhost) return false;
-
-    function check(cfg) {
-        const profiles = Object.keys(cfg);
-
-        for(const profileName of profiles) {
-            const profile = cfg[profileName];
-
-            const externalMoves = profile[configKeys.displayMovesOnExternalSite];
-            const renderingNeeded = profile[configKeys.renderOnExternalSite];
-            const feedbackNeeded = profile[configKeys.feedbackOnExternalSite];
-            const movesOnDemand = profile[configKeys.movesOnDemand];
-
-            if(externalMoves || renderingNeeded || feedbackNeeded || movesOnDemand) {
-                return true;
+                if(externalMoves || renderingNeeded || feedbackNeeded || movesOnDemand || mayEnableDynamically) return true;
             }
+            return false;
         }
-    }
 
-    if(gP && check(gP)) return true;
-    if(iP && check(iP)) return true;
-
-    return false;
+        return check(gP) || check(iP);
+    }, () => false);
 }
 
 function squeezeEmptySquares(fenStr) {
@@ -2731,6 +3060,8 @@ async function processBoardPosition() {
     const latestState = stateHistory[0];
     const squareChangeAmount = latestState?.boardChanges?.changedSquaresAmount || 0;
 
+    updateUserscriptDynamicContext({ gameStart: 0 }, gameState?.fen?.full);
+
     instanceVars.fen.set(commLinkInstanceID, gameState.fen.full);
 
     const didBoardOrientationChange = await checkBoardOrientationChange();
@@ -2750,6 +3081,7 @@ async function processBoardPosition() {
         ( defaultPosBasicFens.includes(gameState.fen.basic) && (squareChangeAmount > 1) )
     ) {
         resetStoredMatchVariables();
+        updateUserscriptDynamicContext({ evaluation: null, gameStart: 1 });
 
         matchFirstSuggestionGiven = false;
         gameState.turn = getBoardOrientation();
@@ -3824,14 +4156,21 @@ async function isAcasBackendReady() {
     return res ? true : false;
 }
 
-async function refreshSettings() {
+function refreshSettings() {
+    // This work is synchronous; do not create an unobserved rejected promise
+    // when invoked by a timer or a board-context update.
+    return withDynamicSettings(() => {
         const config = GM_getValue(dbValues.AcasConfig);
-        const profiles = config?.global?.profiles;
-
-        if(typeof profiles != 'object') return;
-
-        isMovesOnDemandActive = Object.keys(profiles).some(profileName =>
-            profiles[profileName]?.movesOnDemand === true);
+        const globalProfiles = config?.global?.profiles;
+        const instanceProfiles = config?.instance?.[commLinkInstanceID]?.profiles;
+        const names = new Set([
+            ...Object.keys(globalProfiles && typeof globalProfiles === 'object' && !Array.isArray(globalProfiles) ? globalProfiles : {}),
+            ...Object.keys(instanceProfiles && typeof instanceProfiles === 'object' && !Array.isArray(instanceProfiles) ? instanceProfiles : {})
+        ]);
+        isMovesOnDemandActive = [...names].some(profileName =>
+            getGmConfigValue(configKeys.movesOnDemand, commLinkInstanceID, profileName) === true);
+        return true;
+    }, () => false);
 }
 
 async function start() {
@@ -3875,6 +4214,7 @@ async function start() {
     observeNewMoves();
 
     CommLink.setIntervalAsync(async () => {
+        refreshSettings();
         await CommLink.commands.createInstance(commLinkInstanceID);
     }, 1000);
 

@@ -78,5 +78,6 @@ export const hiddenSettingPanel = document.querySelector('#hidden-setting-panel'
 export const basicAdvancedSettingsPanel = document.querySelector('#basic-advanced-settings-panel');
 
 export const pipBoardInput = document.querySelector('input[data-key="pipBoard"]');
+export const pipSanInput = document.querySelector('input[data-key="pipSan"]');
 
 export const profileListContainerElem = document.querySelector('#chess-engine-profile-tabs .tabs-list-container');

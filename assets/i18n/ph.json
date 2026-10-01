@@ -100,6 +100,10 @@
         "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting."
     },
     "configTranslations": {
+        "pipSan": ["Notasyong SAN", "Gamitin ang SAN sa lumulutang na panel at boses"],
+        "ttsAnnounceEnemyMoves": ["Ipahayag ang tira ng kalaban", "Pakinggan ang huling tira ng kalaban"],
+        "ttsAnnounceEvaluation": ["Ipahayag ang pagbabago ng lamang", "Pakinggan kapag lumalamang o nahuhuli ka"],
+        "ttsTranslateAudio": ["Isalin ang audio", "Pakinggan ang mga tira sa napiling wika"],
         "engineEnabled": ["Aktibo", "Ang engine ba ay aktibo?"],
         "chessEngine": ["Chess Engine", "Magbasa pa dito"],
         "chessVariant": ["Chess Variant", "Magbasa pa dito"],
@@ -173,6 +177,29 @@
         "concealAssistanceAutoDelayMs": ["Awtomatikong Itago (ms)", "Awtomatikong itago ang mga feature ng tulong pagkatapos ng oras na ito"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutral", "Hindi eksakto", "Pagkakamali", "Malaking pagkakamali", "Napakasama", "Magandang tira", "Napakahusay", "Pinakamahusay na tira", "Mahinang tira"],
+            "forced": "Sapilitang tira", "provisional": "pansamantala", "eval": "Pagsusuri", "best": "Pinakamahusay", "loss": "Nawalang halaga",
+            "depth": "Lalim", "engine": "Engine", "bestLine": "Pinakamahusay na kasunod", "playedLine": "Nilarong kasunod", "critical": "Mahalagang tira.",
+            "waiting": "Naghihintay ng naitalang tira.", "mismatch": "Hindi tugma ang kasaysayan o hindi suportado ang variant.",
+            "analyzing": "Sinusuri ang {move}…", "unavailable": "Walang pagsusuri."
+        },
+        "moveSpeech": {
+            "opponent": "Kalaban: {move}",
+            "advantage": ["Malaki ang lamang ng kalaban", "Natatalo ka", "Bahagya kang nahuhuli", "Pantay ang posisyon", "Bahagya kang lamang", "Nananalo ka", "Malaki ang lamang mo"],
+            "lang": "fil-PH", "pieces": { "K": "Hari", "Q": "Reyna", "R": "Tore", "B": "Obispo", "N": "Kabayo" },
+            "move": "{piece} sa {square}", "capture": "{piece} kumukuha sa {square}", "origin": "{piece} mula sa {square}",
+            "promotion": "promosyon sa {piece}", "castleKingside": "Castling sa panig ng hari", "castleQueenside": "Castling sa panig ng reyna",
+            "check": "check", "checkmate": "checkmate"
+        },
+        "dynamicSettings": {
+            "title": "Mga dinamikong setting", "subtitle": "Editor ng graph · iangkop ang setting sa laro", "addLine": "＋ Linya", "removeLine": "Alisin ang linya", "addPoint": "＋ Punto", "deletePoint": "Burahin ang punto", "curve": "Kurba", "selectLine": "Pumili ng linya", "step": "Hagdan", "linear": "Linear", "smooth": "Makinis", "pieceCount": "Bilang ng piyesa", "moveNumber": "Numero ng tira", "evaluation": "Pagsusuri (iyong lamang, cp)", "close": "Isara ang editor", "variable": "Variable ng graph", "chooseSetting": "Setting na ie-edit", "zoomIn": "Palakihin", "zoomOut": "Paliitin", "fit": "Iangkop ang graph", "coordinates": "Coordinate ng punto", "pointX": "X value ng punto", "pointY": "Y value ng punto",
+            "evaluationHint": "Negatibo ay dehado, zero ay pantay, positibo ay lamang. Huling nakumpletong pangunahing pagsusuri.", "fitHint": "Iangkop ang dalawang axis na may puwang sa paligid ng linya", "graphHint": "I-drag ang mga punto at bakanteng lugar. Mag-pinch o mag-scroll para mag-zoom. Arrow keys ang galaw ng punto, Shift sampung hakbang, Delete ang burahin.", "exitFullscreen": "Lumabas sa buong screen", "fullscreen": "Graph sa buong screen", "instance": "Instance", "equal": "Pantay (0 cp)", "visibility": "Ipakita at gamitin ang kurba o itago at huwag paganahin", "enableLine": "Paganahin at ipakita ang {setting} mula sa {profile}", "selectedLine": "Napili: {setting}, {profile}", "chooseLine": "Piliin ang {setting}, {profile}", "currentValue": "Kasalukuyang halaga ng {setting}", "otherVariable": "Walang linya para sa {variable}. Ang mga kurba ay gumagamit ng ", "noLines": "Wala pang linya. Pumili ng setting, pagkatapos ＋ Linya.", "existingCurve": "Isang kurba bawat setting at profile ang umiiwas sa salungatan. Variable: {variable}. I-edit o alisin ang kurba para palitan.", "addForProfile": "Idagdag ang {setting} para sa {profile}", "enableFirst": "Paganahin muna ang linya sa legend", "addPointHint": "Magdagdag ng puntong buumbilang", "stepLocked": "Hagdan lang ang maaaring gamitin sa setting na ito.", "editing": "Ine-edit ang {setting} mula sa {profile}.", "removeFromProfile": "Alisin ang {setting} mula sa {profile}", "point": "Punto {number}", "selectPoint": "Pumili ng punto upang i-edit ang coordinate.", "profileLines": "Mga linya ng profile para sa {setting}", "saveError": "Hindi ma-save ang graph. Suriin ang koneksyon sa userscript.", "variableLink": "Buksan ang mga kurba para sa {variable}", "removeConfirm": "Alisin ang linyang {setting} mula sa profile na \"{profile}\"?\n\nMabubura ang lahat ng punto at maibabalik ang naka-save na default.", "none": "Wala", "savedDefault": "Naka-save na default", "unavailable": "{value} (hindi available)", "override": "Aktibo ang dinamikong override: {value} ({variable}: {position}).", "waiting": "Aktibo ang kurba · hinihintay ang {variable}.", "defaultActive": "Aktibo ang kurba · gamit ang naka-save na default.", "disabled": "Hindi aktibo ang dinamikong kurba.", "noCurve": "Walang aktibong dinamikong kurba.", "description": "Naka-save na halaga: {value}. Pinananatili ng field ang nae-edit na halagang ginagamit kapag walang kurba. Buksan ang dinamikong setting para i-edit ang kurba.", "openSetting": "Buksan ang dinamikong setting para sa {setting}"
+        },
+        "activityLog": {
+            "title": "Talaan ng aktibidad", "subtitle": "Mga mensahe ng engine, dinamikong pagbabago, babala at error", "show": "Ipakita", "clear": "Burahin ang talaan", "filter": "I-filter ayon sa uri", "all": "Lahat ng aktibidad", "close": "Isara ang talaan", "instance": "Instance", "empty": "Wala pang tala.", "status": "{shown} ipinakita · {total} kabuuan · pinapanatili ang huling {limit} sa sesyon",
+            "types": { "engine-input": "Input ng engine", "engine-output": "Output ng engine", "dynamic-change": "Dinamikong pagbabago", "setting-change": "Pagbabago ng setting", "engine": "Siklo ng engine", "instance": "Siklo ng instance", "game": "Mga kaganapan sa laro", "site": "Mga mensahe ng site", "warning": "Mga babala", "error": "Mga error", "app": "Mga kaganapan ng app" }
+        },
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",
         "settingsResetWarning": "Sigurado ka bang nais mong i-reset ang mga setting?\n\nPANGANIB: Ang aksyong ito ay hindi maibabalik at i-reset ang lahat ng iyong configuration!",
         "refreshSiteNotification": "I-refresh ang panlabas na site upang makita ang mga pagbabago!",

@@ -98,6 +98,10 @@
         "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
     },
     "configTranslations": {
+        "pipSan": ["SAN-käigunotatsioon", "Kasuta SAN-i hõljuvas paneelis ja kõnes"],
+        "ttsAnnounceEnemyMoves": ["Teata vastase käikudest", "Kuula vastase viimast käiku"],
+        "ttsAnnounceEvaluation": ["Teata eelise muutustest", "Kuula, kui saad või kaotad eelise"],
+        "ttsTranslateAudio": ["Tõlgi heli", "Kuula käike valitud keeles"],
         "engineEnabled": ["Aktiveeritud", "Kas mootor on aktiveeritud?"],
         "chessEngine": ["Šahhi mootor", "Lugege siit rohkem"],
         "chessVariant": ["Šahhi variant", "Lugege siit rohkem"],
@@ -172,6 +176,29 @@
 
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutraalne", "Ebatäpsus", "Viga", "Raske viga", "Katastroofiline", "Hea käik", "Suurepärane", "Parim käik", "Nõrk käik"],
+            "forced": "Sunnitud käik", "provisional": "esialgne", "eval": "Hinnang", "best": "Parim", "loss": "Hinnangu langus",
+            "depth": "Sügavus", "engine": "Mootor", "bestLine": "Parim jätk", "playedLine": "Mängitud jätk", "critical": "Kriitiline käik.",
+            "waiting": "Ootan salvestatud käiku.", "mismatch": "Käiguajalugu ei klapi või varianti ei toetata.",
+            "analyzing": "Analüüsin {move}…", "unavailable": "Hinnang pole saadaval."
+        },
+        "moveSpeech": {
+            "opponent": "Vastane: {move}",
+            "advantage": ["Oled tugevalt kaotusseisus", "Oled kaotusseisus", "Oled veidi halvemas seisus", "Seis on võrdne", "Oled veidi paremas seisus", "Oled võiduseisus", "Oled tugevalt võiduseisus"],
+            "lang": "et-EE", "pieces": { "K": "Kuningas", "Q": "Lipp", "R": "Vanker", "B": "Oda", "N": "Ratsu" },
+            "move": "{piece} väljale {square}", "capture": "{piece} lööb väljal {square}", "origin": "{piece} väljalt {square}",
+            "promotion": "muundumine: {piece}", "castleKingside": "Lühike vangerdus", "castleQueenside": "Pikk vangerdus",
+            "check": "tuli", "checkmate": "matt"
+        },
+        "dynamicSettings": {
+            "title": "Dünaamilised seaded", "subtitle": "Graafikuredaktor · seaded muutuvad koos mänguga", "addLine": "＋ Joon", "removeLine": "Eemalda joon", "addPoint": "＋ Punkt", "deletePoint": "Kustuta punkt", "curve": "Kõver", "selectLine": "Vali joon", "step": "Astmeline", "linear": "Lineaarne", "smooth": "Sujuv", "pieceCount": "Malendite arv", "moveNumber": "Käigu number", "evaluation": "Hinnang (sinu eelis, cp)", "close": "Sulge redaktor", "variable": "Graafiku muutuja", "chooseSetting": "Muudetav seade", "zoomIn": "Suurenda", "zoomOut": "Vähenda", "fit": "Sobita graafik", "coordinates": "Punkti koordinaadid", "pointX": "Punkti X-väärtus", "pointY": "Punkti Y-väärtus",
+            "evaluationHint": "Negatiivne tähendab kaotusseisu, null võrdsust, positiivne võiduseisu. Viimane lõpetatud põhihinnang.", "fitHint": "Sobita mõlemad teljed, jättes joone ümber ruumi", "graphHint": "Lohista punkte ja tühja ala. Suumi näpistamise või kerimisega. Nooled liigutavad punkti, Shift kümne sammu võrra, Delete kustutab.", "exitFullscreen": "Välju täisekraanilt", "fullscreen": "Täisekraani graafik", "instance": "Eksemplar", "equal": "Võrdne (0 cp)", "visibility": "Näita ja rakenda kõverat või peida ja keela", "enableLine": "Luba ja näita {setting} profiilist {profile}", "selectedLine": "Valitud: {setting}, {profile}", "chooseLine": "Vali {setting}, {profile}", "currentValue": "Seade {setting}: praegune väärtus", "otherVariable": "Muutuja {variable} jaoks jooni pole. Olemasolevad kõverad kasutavad ", "noLines": "Jooni pole. Vali seade ja siis ＋ Joon.", "existingCurve": "Üks kõver seade ja profiili kohta väldib konflikte. Muutuja: {variable}. Muutmiseks redigeeri või eemalda kõver.", "addForProfile": "Lisa {setting} profiilile {profile}", "enableFirst": "Luba esmalt joon legendis", "addPointHint": "Lisa täisarvuline punkt", "stepLocked": "See seade kasutab ainult astmelist kõverat.", "editing": "Muudetakse: {setting}, {profile}.", "removeFromProfile": "Eemalda {setting} profiilist {profile}", "point": "Punkt {number}", "selectPoint": "Vali punkt koordinaatide muutmiseks.", "profileLines": "Seade {setting}: profiilijooned", "saveError": "Graafiku salvestamine nurjus. Kontrolli kasutajaskripti ühendust.", "variableLink": "Ava muutuja {variable} kõverad", "removeConfirm": "Eemaldada joon {setting} profiilist \"{profile}\"?\n\nKõik punktid kustutatakse ja salvestatud vaikeväärtus taastatakse.", "none": "Puudub", "savedDefault": "Salvestatud vaikeväärtus", "unavailable": "{value} (pole saadaval)", "override": "Dünaamiline asendus aktiivne: {value} ({variable}: {position}).", "waiting": "Kõver lubatud · oodatakse muutujat {variable}.", "defaultActive": "Kõver lubatud · kasutatakse salvestatud vaikeväärtust.", "disabled": "Dünaamiline kõver keelatud.", "noCurve": "Dünaamilist kõverat pole lubatud.", "description": "Salvestatud väärtus: {value}. Väli säilitab muudetava väärtuse, mida kasutatakse kõverata. Ava dünaamilised seaded kõvera muutmiseks.", "openSetting": "Ava seade {setting} dünaamilised seaded"
+        },
+        "activityLog": {
+            "title": "Tegevuslogi", "subtitle": "Mootori sõnumid, dünaamilised muudatused, hoiatused ja vead", "show": "Näita", "clear": "Tühjenda logi", "filter": "Filtreeri tüübi järgi", "all": "Kõik tegevused", "close": "Sulge logi", "instance": "Eksemplar", "empty": "Logikirjeid veel pole.", "status": "Näidatud {shown} · kokku {total} · säilitatakse seansi viimased {limit}",
+            "types": { "engine-input": "Mootori sisend", "engine-output": "Mootori väljund", "dynamic-change": "Dünaamilised muudatused", "setting-change": "Seadete muudatused", "engine": "Mootori elutsükkel", "instance": "Eksemplari elutsükkel", "game": "Mängusündmused", "site": "Saidi sõnumid", "warning": "Hoiatused", "error": "Vead", "app": "Rakenduse sündmused" }
+        },
         "profileRemovalWarning": "Kas olete kindel, et soovite selle profiili eemaldada?\n\nSeda toimingut ei saa tühistada.",
         "settingsResetWarning": "Kas olete kindel, et soovite seaded lähtestada?\n\nOHT: See toiming on pöördumatu ja lähtestab kogu teie konfiguratsiooni!",
         "refreshSiteNotification": "Värskendage välist saiti, et näha muudatusi!",

@@ -42,13 +42,22 @@ function getIdentifierKey(identifierObj) {
     return JSON.stringify([identifierObj.engineId, identifierObj.profileName, identifierObj.instanceId]);
 }
 
+function reportCommandFailure(command, error) {
+    console.error('[server] Command rejected:', error?.message ?? error);
+    toast('error', `Engine command failed: ${error?.message ?? error}`, 5000);
+}
+
 async function handleClientUciCommand(cmdObj) {
     const { engineId, profileName, instanceId, command, launchParams } = cmdObj;
 
     if(typeof engineId !== 'string')
         throw new Error('Invalid engine ID! Must be a string.');
+    // Older clients can send startup/stop commands before selecting an engine.
+    if(!engineId.trim()) return;
     if(typeof instanceId !== 'string')
         throw new Error('Instance ID must be a string');
+    if(typeof profileName !== 'string' || !profileName.trim())
+        throw new Error('Profile name must be a nonempty string');
     if(typeof command !== 'string')
         throw new Error('Command must be a string');
     if(/[\n\r&;|]/.test(command))
@@ -75,13 +84,9 @@ async function handleClientUciCommand(cmdObj) {
 
     saveEngineOptions(command, identifierObj);
 
-    // Update engineObj currentFen
-    if(command.startsWith('position fen')) {
-        const fen = command.slice(13);
-        updateAliveEngineObjFen(fen, identifierObj);
-    }
-
     if(!engineProcess?.stdin?.writable) {
+        // A stop for an engine which isn't running must not launch a new process.
+        if(command.trim() === 'stop') return;
         const process = await startEngine(savedEngineObj.path, identifierObj); // includes logic to avoid spamming
 
         if(!process) {
@@ -90,27 +95,23 @@ async function handleClientUciCommand(cmdObj) {
         }
     }
 
+    if(command.startsWith('position fen')) {
+        updateAliveEngineObjFen(command.slice(13), identifierObj);
+    }
+
     sendToProcess(command, identifierObj);
 }
 
 // Expects e.g. { "type": "uci", "msg": { "engineId": 12345, "profileName": "default", "command": "position startpos" } }
-function onCommandReceived(remoteCommand) {
-    if(typeof remoteCommand !== 'string' || remoteCommand.length > 4096) {
-        toast('error', 'Rejected oversized or non-string payload', 10000);
-        return;
-    }
-
+async function onCommandReceived(remoteCommand) {
     try {
-        const parsed = JSON.parse(remoteCommand);
-        const { type, msg } = parsed;
+        const { type, msg } = remoteCommand;
 
         if(!type) throw new Error('Missing type field');
 
         switch (type) {
             case 'uci':
-                // Async, so its throws land as rejections that this try/catch can't see.
-                // Every input validation in handleClientUciCommand went unreported before.
-                handleClientUciCommand(msg).catch(e => reportCommandFailure(remoteCommand, e));
+                await handleClientUciCommand(msg);
                 break;
 
             case 'getEngines':
@@ -159,7 +160,7 @@ export function startLocalWSS() {
         req.socket.destroy();
     });
 
-    const wss = new WebSocketServer({ noServer: true });
+    const wss = new WebSocketServer({ noServer: true, maxPayload: 16384, perMessageDeflate: false });
     wss.httpServer = server;
 
     server.on('upgrade', (request, socket, head) => {
@@ -183,8 +184,33 @@ export function startLocalWSS() {
 
         if(wss.onClientChange) wss.onClientChange(true, request.headers.origin);
 
+        const commandQueues = new Map();
+        let commandBarrier = Promise.resolve();
         ws.on('message', (msg) => {
-            onCommandReceived(msg.toString());
+            const command = msg.toString();
+            try {
+                if(command.length > 4096) throw new Error('Command payload too long');
+                const parsed = JSON.parse(command);
+                if(parsed?.type === 'uci') {
+                    const key = getIdentifierKey(parsed.msg);
+                    // Preserve each engine's wire order without blocking other engines on startup.
+                    const operation = (commandQueues.get(key) ?? commandBarrier)
+                        .then(() => onCommandReceived(parsed));
+                    commandQueues.set(key, operation);
+                    operation.then(() => {
+                        if(commandQueues.get(key) === operation) commandQueues.delete(key);
+                    });
+                } else if(parsed?.type === 'closeEnginesByIdentifier') {
+                    // Closing is a barrier: previous commands finish, later commands wait.
+                    commandBarrier = Promise.all([commandBarrier, ...commandQueues.values()])
+                        .then(() => onCommandReceived(parsed));
+                    commandQueues.clear();
+                } else {
+                    onCommandReceived(parsed).catch(error => reportCommandFailure(command, error));
+                }
+            } catch(error) {
+                reportCommandFailure(command, error);
+            }
         });
 
         ws.on('close', () => {
@@ -274,7 +300,7 @@ export function sendUciLineToClient(line, engineId, profileName, instanceId) {
 
 // Called from engine.js
 // Expected death certificate includes reason, fen, profileName, engineId and instanceId
-export function sendEngineDeathCertificateToClient(reason = 'not given', fen, engineId, profileName, instanceId) {
+export function sendEngineDeathCertificateToClient(reason = 'not given', fen, engineId, profileName, instanceId, details = {}) {
     if(!profileName) {
         console.error('No profileName given to sendEngineDeathCertificate function, cannot send!'); return; }
     if(!instanceId){
@@ -284,7 +310,7 @@ export function sendEngineDeathCertificateToClient(reason = 'not given', fen, en
         'type': 'engineStatusUpdate',
         'msg': {
             'statusType': 'engineDeathCertificate',
-            reason, fen, engineId, profileName, instanceId
+            reason, fen, engineId, profileName, instanceId, ...details
         }
     });
 }

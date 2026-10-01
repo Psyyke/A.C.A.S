@@ -100,6 +100,10 @@
         "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis."
     },
     "configTranslations": {
+        "pipSan": ["Notasi langkah SAN", "Gunakan SAN di panel mengambang dan suara"],
+        "ttsAnnounceEnemyMoves": ["Umumkan langkah lawan", "Dengarkan langkah terakhir lawan"],
+        "ttsAnnounceEvaluation": ["Umumkan perubahan keunggulan", "Dengarkan saat mendapat atau kehilangan keunggulan"],
+        "ttsTranslateAudio": ["Terjemahkan audio", "Dengarkan langkah dalam bahasa yang dipilih"],
         "engineEnabled": ["Diaktifkan", "Apakah mesin diaktifkan"],
         "chessEngine": ["Mesin Catur", "Baca lebih lanjut di sini"],
         "chessVariant": ["Varian Catur", "Baca lebih lanjut di sini"],
@@ -173,6 +177,29 @@
         "concealAssistanceAutoDelayMs": ["Sembunyikan Otomatis (ms)", "Secara otomatis sembunyikan fitur bantuan setelah waktu ini"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Netral", "Ketidakakuratan", "Kesalahan", "Kesalahan besar", "Fatal", "Langkah bagus", "Sangat baik", "Langkah terbaik", "Langkah lemah"],
+            "forced": "Langkah terpaksa", "provisional": "sementara", "eval": "Evaluasi", "best": "Terbaik", "loss": "Penurunan evaluasi",
+            "depth": "Kedalaman", "engine": "Mesin", "bestLine": "Lanjutan terbaik", "playedLine": "Lanjutan yang dimainkan", "critical": "Langkah kritis.",
+            "waiting": "Menunggu langkah tercatat.", "mismatch": "Riwayat langkah tidak cocok atau varian tidak didukung.",
+            "analyzing": "Menganalisis {move}…", "unavailable": "Evaluasi tidak tersedia."
+        },
+        "moveSpeech": {
+            "opponent": "Lawan: {move}",
+            "advantage": ["Anda tertinggal jauh", "Anda sedang kalah", "Anda sedikit tertinggal", "Posisi seimbang", "Anda sedikit unggul", "Anda sedang menang", "Anda unggul jauh"],
+            "lang": "id-ID", "pieces": { "K": "Raja", "Q": "Menteri", "R": "Benteng", "B": "Gajah", "N": "Kuda" },
+            "move": "{piece} ke {square}", "capture": "{piece} memakan di {square}", "origin": "{piece} dari {square}",
+            "promotion": "promosi menjadi {piece}", "castleKingside": "Rokade pendek", "castleQueenside": "Rokade panjang",
+            "check": "skak", "checkmate": "skakmat"
+        },
+        "dynamicSettings": {
+            "title": "Pengaturan dinamis", "subtitle": "Editor grafik · sesuaikan pengaturan dengan permainan", "addLine": "＋ Garis", "removeLine": "Hapus garis", "addPoint": "＋ Titik", "deletePoint": "Hapus titik", "curve": "Kurva", "selectLine": "Pilih garis", "step": "Bertangga", "linear": "Linear", "smooth": "Halus", "pieceCount": "Jumlah buah", "moveNumber": "Nomor langkah", "evaluation": "Evaluasi (keunggulanmu, cp)", "close": "Tutup editor", "variable": "Variabel grafik", "chooseSetting": "Pengaturan yang diedit", "zoomIn": "Perbesar", "zoomOut": "Perkecil", "fit": "Sesuaikan grafik", "coordinates": "Koordinat titik", "pointX": "Nilai X titik", "pointY": "Nilai Y titik",
+            "evaluationHint": "Negatif berarti kalah, nol seimbang, positif menang. Evaluasi utama terakhir yang selesai.", "fitHint": "Sesuaikan kedua sumbu dengan ruang di sekitar garis", "graphHint": "Seret titik dan ruang kosong. Cubit atau gulir untuk memperbesar. Panah menggeser titik, Shift sepuluh langkah, Delete menghapusnya.", "exitFullscreen": "Keluar layar penuh", "fullscreen": "Grafik layar penuh", "instance": "Instans", "equal": "Seimbang (0 cp)", "visibility": "Tampilkan dan terapkan kurva atau sembunyikan dan nonaktifkan", "enableLine": "Aktifkan dan tampilkan {setting} dari {profile}", "selectedLine": "Dipilih: {setting}, {profile}", "chooseLine": "Pilih {setting}, {profile}", "currentValue": "Nilai saat ini untuk {setting}", "otherVariable": "Tidak ada garis untuk {variable}. Kurva yang ada memakai ", "noLines": "Belum ada garis. Pilih pengaturan, lalu ＋ Garis.", "existingCurve": "Satu kurva per pengaturan dan profil mencegah konflik. Variabel: {variable}. Edit atau hapus kurva untuk menggantinya.", "addForProfile": "Tambahkan {setting} untuk {profile}", "enableFirst": "Aktifkan garis di legenda terlebih dahulu", "addPointHint": "Tambahkan titik bilangan bulat", "stepLocked": "Kurva bertangga wajib untuk pengaturan ini.", "editing": "Mengedit {setting} dari {profile}.", "removeFromProfile": "Hapus {setting} dari {profile}", "point": "Titik {number}", "selectPoint": "Pilih titik untuk mengedit koordinat.", "profileLines": "Garis profil untuk {setting}", "saveError": "Grafik tidak dapat disimpan. Periksa koneksi userscript.", "variableLink": "Buka kurva untuk {variable}", "removeConfirm": "Hapus garis {setting} dari profil \"{profile}\"?\n\nSemua titik dihapus dan nilai bawaan tersimpan dipulihkan.", "none": "Tidak ada", "savedDefault": "Bawaan tersimpan", "unavailable": "{value} (tidak tersedia)", "override": "Penggantian dinamis aktif: {value} ({variable}: {position}).", "waiting": "Kurva aktif · menunggu {variable}.", "defaultActive": "Kurva aktif · memakai bawaan tersimpan.", "disabled": "Kurva dinamis nonaktif.", "noCurve": "Tidak ada kurva dinamis aktif.", "description": "Nilai tersimpan: {value}. Kolom menyimpan nilai yang bisa diedit, digunakan tanpa kurva. Buka pengaturan dinamis untuk mengedit kurva.", "openSetting": "Buka pengaturan dinamis untuk {setting}"
+        },
+        "activityLog": {
+            "title": "Log aktivitas", "subtitle": "Pesan mesin, perubahan dinamis, peringatan dan kesalahan", "show": "Tampilkan", "clear": "Bersihkan log", "filter": "Filter berdasarkan jenis", "all": "Semua aktivitas", "close": "Tutup log", "instance": "Instans", "empty": "Belum ada entri log.", "status": "{shown} ditampilkan · {total} total · {limit} terbaru disimpan selama sesi",
+            "types": { "engine-input": "Masukan mesin", "engine-output": "Keluaran mesin", "dynamic-change": "Perubahan dinamis", "setting-change": "Perubahan pengaturan", "engine": "Siklus mesin", "instance": "Siklus instans", "game": "Peristiwa permainan", "site": "Pesan situs", "warning": "Peringatan", "error": "Kesalahan", "app": "Peristiwa aplikasi" }
+        },
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",
         "settingsResetWarning": "Apakah Anda yakin ingin mereset pengaturan?\n\nBAHAYA: Tindakan ini tidak dapat dibatalkan dan akan mereset seluruh konfigurasi Anda!",
         "refreshSiteNotification": "Segarkan situs eksternal untuk melihat perubahan!",

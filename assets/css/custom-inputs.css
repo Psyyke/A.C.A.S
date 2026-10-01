@@ -23,6 +23,136 @@ input:focus,
     margin-bottom: 2.5px;
     overflow-wrap: anywhere;
 }
+.dynamic-setting-copy {
+    flex: 1 1 0;
+    min-width: 0;
+}
+.dynamic-setting-title-row {
+    --dynamic-setting-shortcut-size: 32px;
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: var(--dynamic-setting-shortcut-size);
+    padding-right: calc(var(--dynamic-setting-shortcut-size) + 6px);
+    align-items: center;
+    column-gap: 6px;
+    box-sizing: border-box;
+}
+.dynamic-setting-title-row .input-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-bottom: 2.5px;
+}
+.dynamic-setting-shortcut {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--dynamic-setting-shortcut-size);
+    height: var(--dynamic-setting-shortcut-size);
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: rgb(255 255 255 / 65%);
+    font: inherit;
+    font-size: 15px;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
+    transition: opacity 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+.custom-input:is(:hover, :focus-within) > .dynamic-setting-copy > .dynamic-setting-title-row > .dynamic-setting-shortcut,
+.custom-input:is(:hover, :focus-within) > .dynamic-setting-title-row > .dynamic-setting-shortcut,
+.dynamic-setting-shortcut:focus-visible,
+.dynamic-setting-shortcut.is-dynamic {
+    opacity: 0.82;
+    pointer-events: auto;
+}
+.dynamic-setting-shortcut:hover,
+.dynamic-setting-shortcut:focus-visible {
+    color: white;
+    background: rgb(255 255 255 / 10%);
+    outline: 2px solid rgb(255 255 255 / 30%);
+    outline-offset: 1px;
+}
+.dynamic-setting-shortcut.is-dynamic {
+    color: rgb(255 255 255 / 85%);
+}
+.dynamic-setting-shortcut.is-dynamic::after {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    background: transparent;
+    content: "";
+}
+.dynamic-setting-shortcut.is-overridden::after {
+    background: currentColor;
+}
+.dynamic-setting-live-value {
+    position: absolute;
+    z-index: 5;
+    right: calc(var(--dynamic-setting-shortcut-size) / 2);
+    bottom: calc(50% + var(--dynamic-setting-shortcut-size) / 2 + 6px);
+    transform: translateX(50%);
+    width: max-content;
+    min-width: 0;
+    max-width: min(220px, calc(100vw - 40px));
+    padding: 4px 7px;
+    border: 1px solid rgb(255 255 255 / 20%);
+    border-radius: 4px;
+    background: rgb(0 0 0 / 85%);
+    color: rgb(255 255 255 / 80%);
+    font-size: 12px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+.dynamic-setting-live-value::after {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: rgb(0 0 0 / 85%);
+    content: "";
+}
+.dynamic-setting-live-value[hidden] {
+    display: none;
+}
+.dynamic-setting-shortcut:hover + .dynamic-setting-live-value {
+    opacity: 1;
+    visibility: visible;
+}
+@media (hover: none), (pointer: coarse), (any-pointer: coarse) {
+    .dynamic-setting-title-row {
+        --dynamic-setting-shortcut-size: 44px;
+    }
+    .dynamic-setting-shortcut {
+        opacity: 0.6;
+        pointer-events: auto;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dynamic-setting-shortcut {
+        transition: none;
+    }
+}
 .input-subtitle {
     font-size: 12px;
     color: rgb(255 255 255 / 25%);

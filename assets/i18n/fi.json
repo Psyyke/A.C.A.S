@@ -98,6 +98,10 @@
         "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset."
     },
     "configTranslations": {
+        "pipSan": ["SAN-siirtomerkintä", "Käytä SAN-merkintää kelluvassa paneelissa ja puheessa"],
+        "ttsAnnounceEnemyMoves": ["Vastustajan siirtojen selostus", "Kuule vastustajan viimeisin siirto"],
+        "ttsAnnounceEvaluation": ["Aseman muutosten selostus", "Kuule, kun pääset voitolle tai joudut tappiolle"],
+        "ttsTranslateAudio": ["Käännä puhe", "Kuule siirrot valitsemallasi kielellä"],
         "engineEnabled": ["Päällä", "Onko moottori päällä"],
         "chessEngine": ["Shakkimoottori", "Lue lisää täältä"],
         "chessVariant": ["Shakin variantti", "Lue lisää täältä"],
@@ -171,6 +175,62 @@
         "concealAssistanceAutoDelayMs": ["Automaattinen piilotus (ms)", "Piilota avustajatoiminnot automaattisesti tämän ajan jälkeen"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["Neutraali", "Epätarkkuus", "Virhe", "Vakava virhe", "Katastrofaalinen", "Hyvä siirto", "Erinomainen", "Paras siirto", "Heikko siirto"],
+            "forced": "Pakotettu siirto", "provisional": "alustava", "eval": "Arvio", "best": "Paras", "loss": "Arvion menetys",
+            "depth": "Syvyys", "engine": "Moottori", "bestLine": "Paras jatko", "playedLine": "Pelattu jatko", "critical": "Kriittinen siirto.",
+            "waiting": "Odotetaan tallennettua siirtoa.", "mismatch": "Siirtohistoria ei täsmää tai varianttia ei tueta.",
+            "analyzing": "Analysoidaan {move}…", "unavailable": "Arvio ei ole saatavilla."
+        },
+        "moveSpeech": {
+            "opponent": "Vastustaja: {move}",
+            "advantage": ["Olet vahvasti tappiolla", "Olet häviämässä", "Olet hieman tappiolla", "Asema on tasan", "Olet hieman voitolla", "Olet voittamassa", "Olet vahvasti voitolla"],
+            "lang": "fi-FI", "pieces": { "K": "Kuningas", "Q": "Kuningatar", "R": "Torni", "B": "Lähetti", "N": "Ratsu" },
+            "move": "{piece} ruutuun {square}", "capture": "{piece} lyö ruutuun {square}", "origin": "{piece} ruudusta {square}",
+            "promotion": "korotus: {piece}", "castleKingside": "Lyhyt linnoitus", "castleQueenside": "Pitkä linnoitus",
+            "check": "shakki", "checkmate": "shakkimatti"
+        },
+        "dynamicSettings": {
+            "title": "Dynaamiset asetukset", "subtitle": "Kuvaajaeditori · asetukset muuttuvat pelin mukana",
+            "addLine": "＋ Viiva", "removeLine": "Poista viiva", "addPoint": "＋ Piste", "deletePoint": "Poista piste",
+            "curve": "Käyrä", "selectLine": "Valitse viiva", "step": "Porras", "linear": "Lineaarinen", "smooth": "Sileä",
+            "pieceCount": "Nappuloiden määrä", "moveNumber": "Siirron numero", "evaluation": "Arvio (oma etu, cp)",
+            "close": "Sulje kuvaajaeditori", "variable": "Kuvaajan muuttuja", "chooseSetting": "Tarkasteltava asetus",
+            "zoomIn": "Lähennä", "zoomOut": "Loitonna", "fit": "Sovita kuvaaja", "coordinates": "Valitun pisteen koordinaatit",
+            "pointX": "Pisteen X-arvo", "pointY": "Pisteen Y-arvo",
+            "evaluationHint": "Oma etu: negatiivinen tarkoittaa tappiota, nolla tasatilannetta ja positiivinen voittoa. Käyttää viimeisintä valmista pääarviota.",
+            "fitHint": "Sovita molemmat akselit ja jätä tilaa viivan ympärille",
+            "graphHint": "Siirrä pisteitä vetämällä. Panoroi vetämällä tyhjää aluetta, zoomaa nipistämällä tai vierittämällä. Nuolinäppäimet siirtävät pistettä, Shift kymmenen askelta. Delete poistaa sen.",
+            "exitFullscreen": "Poistu koko näytöstä", "fullscreen": "Koko näytön kuvaaja", "instance": "Instanssi", "equal": "Tasatilanne (0 cp)",
+            "visibility": "Näytä ja käytä käyrää tai piilota ja poista se käytöstä",
+            "enableLine": "Näytä ja ota käyttöön {setting}, profiili {profile}", "selectedLine": "Valittu: {setting}, {profile}",
+            "chooseLine": "Valitse {setting}, {profile}", "currentValue": "Asetuksen {setting} nykyinen arvo",
+            "otherVariable": "Muuttujalle {variable} ei ole viivoja. Nykyiset käyrät käyttävät: ",
+            "noLines": "Ei profiiliviivoja. Valitse asetus ja sitten ＋ Viiva.",
+            "existingCurve": "Yksi käyrä per asetus ja profiili ehkäisee ristiriitoja. Nykyinen muuttuja: {variable}. Muokkaa tai poista käyrä vaihtaaksesi muuttujaa.",
+            "addForProfile": "Lisää {setting} profiilille {profile}", "enableFirst": "Ota viiva käyttöön selitteestä ennen pisteen lisäämistä",
+            "addPointHint": "Lisää kokonaislukupiste valitulle viivalle", "stepLocked": "Porras on lukittu tälle asetukselle.",
+            "editing": "Muokataan: {setting}, profiili {profile}.", "removeFromProfile": "Poista {setting} profiilista {profile}",
+            "point": "Piste {number}", "selectPoint": "Valitse piste muokataksesi koordinaatteja.", "profileLines": "Asetuksen {setting} profiiliviivat",
+            "saveError": "Kuvaajan tallennus epäonnistui. Tarkista userscript-yhteys.", "variableLink": "Avaa muuttujan {variable} nykyiset käyrät",
+            "removeConfirm": "Poistetaanko asetuksen {setting} viiva profiilista \"{profile}\"?\n\nKaikki pisteet poistetaan ja tallennettu oletusarvo palautetaan.",
+            "none": "Ei mitään", "savedDefault": "Tallennettu oletus", "unavailable": "{value} (ei saatavilla)",
+            "override": "Dynaaminen ohitus käytössä: {value} ({variable}: {position}).", "waiting": "Käyrä käytössä · odotetaan muuttujaa {variable}.",
+            "defaultActive": "Käyrä käytössä · käytetään tallennettua oletusta.", "disabled": "Dynaaminen käyrä pois käytöstä.", "noCurve": "Ei dynaamista käyrää käytössä.",
+            "description": "Tallennettu arvo: {value}. Kenttä säilyttää muokattavan arvon, jota käytetään ilman käyrää. Muokkaa käyrää dynaamisista asetuksista.",
+            "openSetting": "Avaa asetuksen {setting} dynaamiset asetukset"
+        },
+        "activityLog": {
+            "title": "Tapahtumaloki", "subtitle": "Moottoriviestit, dynaamiset muutokset, varoitukset ja virheet",
+            "show": "Näytä", "clear": "Tyhjennä loki", "filter": "Suodata tapahtumatyypin mukaan", "all": "Kaikki tapahtumat",
+            "close": "Sulje tapahtumaloki", "instance": "Instanssi", "empty": "Ei vielä lokimerkintöjä.",
+            "status": "Näytetään {shown} · yhteensä {total} · istunnon viimeiset {limit} säilytetään",
+            "types": {
+                "engine-input": "Moottorin syöte", "engine-output": "Moottorin tuloste", "dynamic-change": "Dynaamiset muutokset",
+                "setting-change": "Asetusmuutokset", "engine": "Moottorin elinkaari", "instance": "Instanssin elinkaari",
+                "game": "Pelitapahtumat", "site": "Sivuston viestit", "warning": "Varoitukset", "error": "Virheet", "app": "Sovelluksen tapahtumat"
+            }
+        },
         "profileRemovalWarning": "Oletko varma, että haluat poistaa tämän profiilin?\n\nTätä toimintoa ei voi peruuttaa.",
         "settingsResetWarning": "Oletko varma, että haluat palauttaa asetukset?\n\nVaarallinen toiminto: Tämä ei ole peruutettavissa ja palauttaa koko kokoonpanosi!",
         "refreshSiteNotification": "Päivitä ulkoinen sivusto nähdäksesi muutokset!",

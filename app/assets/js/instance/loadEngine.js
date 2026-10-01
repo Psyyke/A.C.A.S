@@ -1,8 +1,15 @@
 import { setProfileBubbleStatus } from '../gui/profiles.js';
+import { logActivity } from '../misc/activityLog.js';
 
 export default async function loadEngine(profileName, engineName, attempt = 0) {
-    const profileObj = await GET_PROFILE(profileName);
-    const profileChessEngine = engineName || profileObj.config.chessEngine;
+    const profileVariables = this.pV[profileName];
+    const profileObj = await GET_PROFILE_FOR_INSTANCE(profileName, this.instanceID);
+    const isCurrentLoad = () => !this.instanceClosed && this.pV[profileName] === profileVariables;
+    if(!profileObj || !isCurrentLoad()) return;
+    const profileChessEngine = engineName || profileVariables.startupConfig?.chessEngine || profileObj.config.chessEngine;
+    logActivity('engine', `Loading ${profileChessEngine}${attempt ? ` (attempt ${attempt})` : ''}`, {
+        instanceID: this.instanceID, profile: profileName
+    });
     const isReload = attempt > 0;
     let alreadyRestarted = false;
 
@@ -21,11 +28,10 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     }
 
     const processEngineMessage = msg => {
-        try {
-            this.engineMessageProcessor(msg, profileName);
-        } catch(e) {
+        if(!isCurrentLoad()) return;
+        this.engineMessageProcessor(msg, profileName).catch(e => {
             console.error('Engine', this.instanceID, profileName, 'error:', e);
-        }
+        });
     };
 
     // Load pollers were cleared only when the engine reported back. If the worker failed
@@ -35,7 +41,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     this.pendingEngineLoads ??= new Set();
 
     const trackLoad = (worker, intervalId) => {
-        const entry = { worker, intervalId };
+        const entry = { worker, intervalId, profileName };
 
         this.pendingEngineLoads.add(entry);
 
@@ -58,6 +64,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     };
 
     function restartEngine(name, e, loadEntry) {
+        if(!isCurrentLoad()) return;
         abandonLoad(loadEntry);
 
         // This guard was dead, the flag was never set, so every onerror re-closed the instance
@@ -70,11 +77,12 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         this.close(); // closing whole instance!
     }
 
-    async function startGame(variant = 'chess') {
+    async function startGame(variant = profileVariables.chessVariant ?? 'chess') {
+        if(!isCurrentLoad()) return;
         await this.engineStartNewGame(variant, profileName);
         await WAIT_UNTIL_VAR(() => this.instanceReady);
-
-        this.Interface.updateBoardFen({ 'skipValidityChecks': true, 'specificProfileName': profileName });
+        if(!isCurrentLoad()) return;
+        await this.Interface.updateBoardFen({ 'skipValidityChecks': true, 'specificProfileName': profileName });
     }
     
     function loadStockfish(folderName, fileName = folderName) {
@@ -82,6 +90,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let stockfish_loaded = false;
 
         stockfish.onmessage = async e => {
+            if(!isCurrentLoad()) { stockfish.terminate(); return; }
             if(!stockfish_loaded) {
                 stockfish_loaded = true;
 
@@ -102,6 +111,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         stockfish.onerror = e => {
             restartEngine.bind(this)(folderName, e);
         };
+        trackLoad(stockfish, null);
     }
 
     function loadFairyStockfish() {
@@ -109,6 +119,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let stockfish_loaded = false;
 
         stockfish.onmessage = async e => {
+            if(!isCurrentLoad()) { stockfish.terminate(); return; }
             if(e.data === true) {
                 stockfish_loaded = true;
 
@@ -145,6 +156,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let stockfish_loaded = false;
 
         stockfish.onmessage = async e => {
+            if(!isCurrentLoad()) { stockfish.terminate(); return; }
             if(e.data === true) {
                 stockfish_loaded = true;
 
@@ -156,7 +168,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
                     profileName
                 });
 
-                startGame.bind(this)('chess');
+                startGame.bind(this)();
             } else if(e.data) {
                 processEngineMessage(e.data);
             }
@@ -181,6 +193,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let lc0_loaded = false;
 
         lc0.onmessage = async e => {
+            if(!isCurrentLoad()) { lc0.terminate(); return; }
             if(e.data === true && !lc0_loaded) {
                 lc0_loaded = true;
 
@@ -219,6 +232,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let fusion_loaded = false;
 
         Fusion.onmessage = async e => {
+            if(!isCurrentLoad()) { Fusion.terminate(); return; }
             if(e.data === true) {
                 fusion_loaded = true;
 
@@ -272,6 +286,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let maia_loaded = false;
 
         maia.onmessage = async e => {
+            if(!isCurrentLoad()) { maia.terminate(); return; }
             if(e.data === true) {
                 maia_loaded = true;
 
@@ -292,6 +307,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         maia.onerror = e => {
             restartEngine.bind(this)('maia3', e);
         };
+        trackLoad(maia, null);
     }
 
     function loadMaia2() {
@@ -299,6 +315,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         let maia_loaded = false;
 
         maia.onmessage = async e => {
+            if(!isCurrentLoad()) { maia.terminate(); return; }
             if(e.data === true) {
                 maia_loaded = true;
 
@@ -330,6 +347,17 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         };
     }
     
+    if(profileVariables.useExternalChessEngine) {
+        if(typeof profileVariables.externalChessEngine !== 'string' || !profileVariables.externalChessEngine.trim()) {
+            setProfileBubbleStatus('warning', profileName, 'Select an external engine before starting analysis.');
+            return;
+        }
+
+        // External engines have their own UCI handshake; don't load an unrelated web worker.
+        startGame.bind(this)().catch(console.error);
+        return;
+    }
+
     // When using loadStockfish(folderName, fileName), make sure the folder name
     // is exactly the same as the switch case string, since otherwise reloading wont work
     // "Maia 3" is the default

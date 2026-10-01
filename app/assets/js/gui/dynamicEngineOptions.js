@@ -2,73 +2,9 @@ import { dynamicSettingsContainer, dynamicEngineSettingNoResultText } from './el
 import { setInputValue, initializeSettingInputElem } from './domInputs.js';
 import { scheduleSettingsUpdate } from './settings.js';
 import { initializeDropdown } from './domDropdown.js';
-
-const dynamicOptionValues = {};
-const dynamicOptionsWaiters = {};
-let dynamicOptionsReady = {};
-
-export function resetDynamicOptionsReady() {
-    dynamicOptionsReady = {};
-}
-
-export function setDynamicOptionsReady(profileName) {
-    dynamicOptionsReady[profileName] = true;
-
-    const waiters = dynamicOptionsWaiters[profileName];
-
-    if(waiters) {
-        waiters.forEach(({ resolve }) => resolve());
-        delete dynamicOptionsWaiters[profileName];
-    }
-}
-
-export function onDynamicOptionsReady(profileName, timeout = 5000) {
-    if(dynamicOptionsReady[profileName]) {
-        return Promise.resolve();
-    }
-
-    if(!dynamicOptionsWaiters[profileName])
-        dynamicOptionsWaiters[profileName] = [];
-
-    return new Promise((resolve, reject) => {
-        let timer;
-
-        const waiter = {
-            resolve: () => {
-                clearTimeout(timer);
-                resolve();
-            },
-            reject
-        };
-
-        timer = setTimeout(() => {
-            dynamicOptionsWaiters[profileName] = dynamicOptionsWaiters[profileName]
-                .filter(w => w !== waiter);
-
-            reject(new Error(`Timeout waiting for profile "${profileName}", did not receive UCI options from engine!`));
-        }, timeout);
-
-        dynamicOptionsWaiters[profileName].push(waiter);
-    });
-}
-
-function setDynamicOption(dbKey, value, profileName) {
-    if(!dynamicOptionValues[profileName]) {
-       dynamicOptionValues[profileName] = {};
-    }
-
-    dynamicOptionValues[profileName][dbKey] = value;
-}
-
-export function getDynamicOption(dbKey, profileName) {
-    const value = dynamicOptionValues?.[profileName]?.[dbKey];
-
-    if(value) return value;
-}
-
-export function getDynamicEngineDbKeyPrefix(engineId) {
-    return `DYNAMIC_${engineId}_`;
-}
+import { setDynamicOption, getDynamicEngineDbKeyPrefix } from './dynamicEngineOptionState.js';
+export { resetDynamicOptionsReady, setDynamicOptionsReady, onDynamicOptionsReady,
+    setDynamicOption, getDynamicOption, getDynamicEngineDbKeyPrefix } from './dynamicEngineOptionState.js';
 
 function getDynamicEngineSettingDatasetKey(engineId, profileName) {
     return `DYNAMIC_${engineId}_${profileName}`;
@@ -96,7 +32,7 @@ export function ensureOneDynamicEngineSettingVisible(engineId) {
         dynamicEngineSettingNoResultText.classList.remove('hidden');
 }
 
-export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
+export async function fillDynamicEngineOptionContainer(uciMsg, profileName, instanceID = SETTING_FILTER_OBJ.instanceID, loadedEngineId) {
     // PARSE_UCI_OPTION returns null for a line with no type token and throws on
     // over-long ones. The caller doesn't await this, so either used to escape as an
     // unhandled rejection and leave the settings panel half built.
@@ -112,16 +48,19 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
     if(!parsedOption?.name) return;
 
     let { name, type, def, min, max, vars } = parsedOption;
-    const currentEngineId = await GET_ACTIVE_ENGINE_NAME(profileName);
+    const currentEngineId = loadedEngineId ?? (await GET_GM_CFG_VALUE('useExternalChessEngine', instanceID, profileName)
+        ? await GET_GM_CFG_VALUE('externalChessEngine', instanceID, profileName)
+        : await GET_GM_CFG_VALUE('chessEngine', instanceID, profileName));
     const dbKey = getDynamicEngineDbKeyPrefix(currentEngineId) + name.replaceAll(' ', '-');
 
-    const existingDbValue = await GET_GM_CFG_VALUE(dbKey, SETTING_FILTER_OBJ.instanceID, profileName);
+    // Inputs edit the saved fallback, never the live value produced by a curve.
+    const existingDbValue = await GET_GM_CFG_BASE_VALUE(dbKey, SETTING_FILTER_OBJ.instanceID, profileName);
     const profileContainerId = getDynamicEngineSettingDatasetKey(currentEngineId, profileName);
 
     const defaultValue = def === null ? '' : def;
-    const inputValue = existingDbValue ? existingDbValue : defaultValue;
+    const inputValue = existingDbValue ?? defaultValue;
 
-    setDynamicOption(dbKey, { name, defaultValue }, profileName);
+    setDynamicOption(dbKey, { name, defaultValue, type, min, max, vars }, profileName, instanceID);
 
     let profileContainer = dynamicSettingsContainer.querySelector(`.dynamic-setting-profile-container[data-id="${profileContainerId}"]`);
     if(!profileContainer) {
@@ -212,6 +151,8 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
                 break;
 
             case 'combo':
+                input.type = 'text';
+                input.setAttribute('additional-type', 'dropdown');
                 const dropdownContainer = document.createElement('div');
                 const dropdownIcon = document.createElement('div');
                 const dropdownListContainer = document.createElement('div');
@@ -226,7 +167,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName) {
 
                 // A combo option without any var tokens leaves vars undefined
                 (vars ?? []).forEach(v => {
-                    dropdownListContainer.appendChild(createDropdownItem(v.replaceAll(' ', '')));
+                    dropdownListContainer.appendChild(createDropdownItem(v));
                 });
 
                 container.classList.add('dropdown-input');

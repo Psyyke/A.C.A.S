@@ -98,6 +98,10 @@
         "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
     },
     "configTranslations": {
+        "pipSan": ["SAN走法记谱", "在浮动面板和语音中使用SAN"],
+        "ttsAnnounceEnemyMoves": ["播报对手走法", "听取对手刚走的一步"],
+        "ttsAnnounceEvaluation": ["播报优势变化", "在获得或失去优势时播报"],
+        "ttsTranslateAudio": ["翻译语音", "用所选语言播报走法"],
         "engineEnabled": ["启用", "引擎是否启用"],
         "chessEngine": ["国际象棋引擎", "在这里阅读更多"],
         "chessVariant": ["国际象棋变体", "在这里阅读更多"],
@@ -171,6 +175,29 @@
         "concealAssistanceAutoDelayMs": ["自动隐藏（毫秒）", "此时间后自动隐藏辅助功能"]
     },
     "translations": {
+        "moveFeedback": {
+            "labels": ["中性", "不精确", "失误", "严重失误", "灾难性", "好棋", "优秀", "最佳走法", "弱棋"],
+            "forced": "唯一合法走法", "provisional": "暂定", "eval": "评估", "best": "最佳", "loss": "评估损失",
+            "depth": "深度", "engine": "引擎", "bestLine": "最佳续着", "playedLine": "实战续着", "critical": "关键走法。",
+            "waiting": "等待记录的走法。", "mismatch": "走法记录不匹配或变体不受支持。",
+            "analyzing": "正在分析{move}…", "unavailable": "评估不可用。"
+        },
+        "moveSpeech": {
+            "opponent": "对手：{move}",
+            "advantage": ["你处于严重劣势", "你处于劣势", "你稍处劣势", "局面均势", "你稍有优势", "你处于优势", "你处于明显优势"],
+            "lang": "zh-CN", "pieces": { "K": "王", "Q": "后", "R": "车", "B": "象", "N": "马" },
+            "move": "{piece}到{square}", "capture": "{piece}吃{square}", "origin": "来自{square}的{piece}",
+            "promotion": "升变为{piece}", "castleKingside": "王翼易位", "castleQueenside": "后翼易位",
+            "check": "将军", "checkmate": "将死"
+        },
+        "dynamicSettings": {
+            "title": "动态设置", "subtitle": "图表编辑器 · 随对局变化调整设置", "addLine": "＋ 曲线", "removeLine": "移除曲线", "addPoint": "＋ 点", "deletePoint": "删除点", "curve": "曲线", "selectLine": "选择曲线", "step": "阶梯", "linear": "线性", "smooth": "平滑", "pieceCount": "棋子数量", "moveNumber": "回合数", "evaluation": "评估（你的优势，cp）", "close": "关闭编辑器", "variable": "图表变量", "chooseSetting": "选择要编辑的设置", "zoomIn": "放大", "zoomOut": "缩小", "fit": "适应图表", "coordinates": "所选点坐标", "pointX": "点的 X 值", "pointY": "点的 Y 值",
+            "evaluationHint": "负值表示劣势，零表示均势，正值表示优势。使用最近完成的主要评估。", "fitHint": "调整两个坐标轴并在曲线周围留出空间", "graphHint": "拖动点以移动，拖动空白处以平移，捏合或滚动以缩放。方向键移动点，Shift 移动十步，Delete 删除点。", "exitFullscreen": "退出全屏", "fullscreen": "全屏图表", "instance": "实例", "equal": "均势（0 cp）", "visibility": "显示并应用曲线，或隐藏并禁用", "enableLine": "启用并显示 {profile} 的 {setting}", "selectedLine": "已选：{setting}，{profile}", "chooseLine": "选择 {setting}，{profile}", "currentValue": "{setting} 的当前值", "otherVariable": "{variable} 没有曲线。现有曲线使用：", "noLines": "尚无曲线。选择设置，再点击 ＋ 曲线。", "existingCurve": "每个设置和配置文件只能有一条曲线。当前变量：{variable}。请编辑或删除现有曲线。", "addForProfile": "为 {profile} 添加 {setting}", "enableFirst": "先在图例中启用曲线", "addPointHint": "添加整数坐标点", "stepLocked": "此设置固定使用阶梯曲线。", "editing": "正在编辑 {profile} 的 {setting}。", "removeFromProfile": "移除 {profile} 的 {setting}", "point": "点 {number}", "selectPoint": "选择点以编辑坐标。", "profileLines": "{setting} 的配置文件曲线", "saveError": "无法保存图表。请检查用户脚本连接。", "variableLink": "打开 {variable} 的现有曲线", "removeConfirm": "移除配置文件“{profile}”的 {setting} 曲线？\n\n所有点将被删除，并恢复已保存的默认值。", "none": "无", "savedDefault": "已保存的默认值", "unavailable": "{value}（不可用）", "override": "动态覆盖生效：{value}（{variable}：{position}）。", "waiting": "曲线已启用 · 等待 {variable}。", "defaultActive": "曲线已启用 · 使用已保存的默认值。", "disabled": "动态曲线已禁用。", "noCurve": "未启用动态曲线。", "description": "已保存值：{value}。没有曲线生效时使用此可编辑值。打开动态设置以编辑曲线。", "openSetting": "打开 {setting} 的动态设置"
+        },
+        "activityLog": {
+            "title": "活动日志", "subtitle": "引擎消息、动态更改、警告与错误", "show": "显示", "clear": "清空日志", "filter": "按类型筛选", "all": "全部活动", "close": "关闭日志", "instance": "实例", "empty": "暂无日志。", "status": "显示 {shown} 条 · 共 {total} 条 · 保留本次会话最近 {limit} 条",
+            "types": { "engine-input": "引擎输入", "engine-output": "引擎输出", "dynamic-change": "动态更改", "setting-change": "设置更改", "engine": "引擎生命周期", "instance": "实例生命周期", "game": "对局事件", "site": "网站消息", "warning": "警告", "error": "错误", "app": "应用事件" }
+        },
         "profileRemovalWarning": "您确定要删除这个配置文件吗？\n\n此操作无法恢复。",
         "settingsResetWarning": "您确定要重置设置吗？\n\n危险：此操作不可恢复，并且会重置您的所有配置！",
         "refreshSiteNotification": "刷新外部网站以查看更改！",

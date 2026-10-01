@@ -1,17 +1,21 @@
 import loadEngine from './instance/loadEngine.js';
 import engineMessageProcessor from './instance/engineMessageProcessor.js';
 import renderMetric from './instance/renderMetric.js';
-import renderFeedback from './instance/renderFeedback.js';
+import renderFeedback, { clearFeedback } from './instance/renderFeedback.js';
 import Interface from './instance/Interface.js';
 import updateSettings from './instance/updateSettings.js';
 import calculateBestMoves from './instance/calculateBestMoves.js';
 import setupEnvironment from './instance/setupEnvironment.js';
 import engineStartNewGame from './instance/engineStartNewGame.js';
+import syncDynamicSettings from './instance/syncDynamicSettings.js';
+import applyDynamicOption from './instance/applyDynamicOption.js';
+import { setDynamicSettingsContext, removeDynamicSettingsContext } from './gui/dynamicSettings.js';
 import { sendUciToExternalEngine, closeAllExternalEnginesWithId } from './AcasWebSocketClient.js';
-import { getDynamicEngineDbKeyPrefix } from './gui/dynamicEngineOptions.js';
-import { getDynamicOption } from './gui/dynamicEngineOptions.js';
 import { removeInstance } from './instanceManager.js';
 import { updatePipData } from './gui/pip.js';
+import { pipSanInput } from './gui/elementDeclarations.js';
+import { formatMoveNotationAsync, getMoveSpeechConfig } from './misc/moveNotation.js';
+import { logActivity } from './misc/activityLog.js';
 
 const logEngineMessages = false,
       debugLogsEnabled = false;
@@ -23,7 +27,7 @@ const configKeys = Object.freeze([
     'chessVariant', 'chessEngine', 'useExternalChessEngine', 'lc0Weight',
     'engineNodes', 'chessFont', 'useChess960', 'alwaysMyTurn', 'openingBookName',
     'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
-    'ttsVoiceSpeed', 'chessEngineProfile', 'primaryArrowColorHex',
+    'ttsVoiceSpeed', 'ttsTranslateAudio', 'ttsAnnounceEnemyMoves', 'ttsAnnounceEvaluation', 'chessEngineProfile', 'primaryArrowColorHex',
     'secondaryArrowColorHex', 'opponentArrowColorHex', 'bookMoveColorHex',
     'bookMoveOpacity', 'reverseSide', 'engineEnabled', 'autoMove', 'autoMoveLegit',
     'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType', 'enableEveryPieceEvals',
@@ -43,6 +47,8 @@ export default class AcasInstance {
         this.renderMetric = renderMetric;
         this.renderFeedback = renderFeedback;
         this.updateSettings = updateSettings;
+        this.syncDynamicSettings = syncDynamicSettings;
+        this.applyDynamicOption = applyDynamicOption;
         this.calculateBestMoves = calculateBestMoves;
         this.setupEnvironment = setupEnvironment;
         this.engineStartNewGame = engineStartNewGame;
@@ -59,6 +65,10 @@ export default class AcasInstance {
         });
 
         this.getConfigValue = async (key, profile) => {
+            const name = typeof profile === 'object' ? profile?.name : profile;
+            const snapshot = this.applyingSettings?.get(name)
+                ?? (!this.pV?.[name]?.engineSettingsReady ? this.pV?.[name]?.startupConfig : null);
+            if(snapshot && Object.hasOwn(snapshot, key)) return snapshot[key];
             return await this.config[key]?.get(profile);
         }
     
@@ -72,6 +82,7 @@ export default class AcasInstance {
 
         this.domain = domain;
         this.instanceID = instanceID;
+        logActivity('instance', `Instance created for ${domain}.`, { instanceID });
 
         this.onLoadCallbackFunction = onLoadCallbackFunction;
 
@@ -117,6 +128,7 @@ export default class AcasInstance {
                 this.multiPV = 2;
         
                 this.currentMovetimeTimeout = null;
+                this.currentStopTimeout = null;
         
                 this.pastMoveObjects = [];
                 this.bestMoveMarkingElem = null;
@@ -142,19 +154,23 @@ export default class AcasInstance {
                 this.currentSpeeches = [];
             }
         
-            static async create(t, profileName) {
+            static async create(t, profileName, resolvedConfig) {
                 const instance = new this();
         
                 const variantFromConfig = await t.getConfigValue(t.configKeys.chessVariant, profileName);
                 const use960FromConfig = await t.getConfigValue(t.configKeys.useChess960, profileName);
 
-                const detectedVariant = chessVariant || variantFromConfig;
+                const detectedVariant = resolvedConfig?.dynamicSettings?.chessVariant?.enabled
+                    ? variantFromConfig : chessVariant || variantFromConfig;
 
                 instance.chessVariant = IS_VARIANT_960(detectedVariant)
                     ? FORMAT_VARIANT('chess')
                     : FORMAT_VARIANT(detectedVariant || 'chess');
                 instance.useChess960 = IS_VARIANT_960(detectedVariant) ? true : use960FromConfig;
                 instance.lc0WeightName = await t.getConfigValue(t.configKeys.lc0Weight, profileName);
+                instance.useExternalChessEngine = await t.getConfigValue(t.configKeys.useExternalChessEngine, profileName);
+                instance.requestedEngine = await t.getConfigValue(t.configKeys.chessEngine, profileName);
+                instance.externalChessEngine = await t.getConfigValue(t.configKeys.externalChessEngine, profileName);
         
                 return instance;
             }
@@ -176,6 +192,7 @@ export default class AcasInstance {
         this.CommLink.registerSendCommand('ping');
         this.CommLink.registerSendCommand('getFen');
         this.CommLink.registerSendCommand('renderVisualsToSite');
+        this.CommLink.registerSendCommand('updateDynamicContext');
         this.CommLink.registerSendCommand('updateRestartListener');
         this.CommLink.registerSendCommand('updateConcealAssistanceListener');
         this.CommLink.registerSendCommand('applyAssistanceConcealment');
@@ -196,13 +213,21 @@ export default class AcasInstance {
 
         this.externalEngineStatusChannel = new BroadcastChannel(EXTERNAL_STATUS_BROADCAST_NAME);
         this.externalEngineStatusChannel.onmessage = (event) => {
-            const { statusType, reason, fen, engineId, profileName, instanceId } = event.data;
+            const { statusType, reason, fen, engineId, profileName, instanceId, recoverable } = event.data;
 
             if(this.instanceID !== instanceId) return;
+            const profileVariables = this.pV[profileName];
+            if(this.instanceClosed || !profileVariables?.useExternalChessEngine
+                || String(profileVariables.externalChessEngine) !== String(engineId)) return;
 
             switch(statusType) {
                 case 'engineDeathCertificate':
-                    this.notifyAcasAboutEngineClosing(profileName);
+                    if(recoverable || reason === 'Engine process closed') {
+                        this.recoverExternalEngineSearch(profileName, null, reason).catch(console.error);
+                    } else if(!profileVariables.recoveringSearch || (reason !== 'Relaunch'
+                        && reason !== `All engines with identifierKey "${JSON.stringify([profileVariables.externalChessEngine, profileName, this.instanceID])}" were closed by client`)) {
+                        this.notifyAcasAboutEngineClosing(profileName);
+                    }
 
                     break;
             }
@@ -213,24 +238,44 @@ export default class AcasInstance {
             const { line, profileName, engineId, instanceId } = event.data;
 
             if(this.instanceID !== instanceId) return;
+            if(this.instanceClosed || !this.pV[profileName]?.useExternalChessEngine
+                || String(this.pV[profileName].externalChessEngine) !== String(engineId)) return;
 
             //console.warn('Received UCI line', event?.data?.line);
 
-            this.engineMessageProcessor(line, profileName);
+            this.engineMessageProcessor(line, profileName).catch(console.error);
         };
 
         this.guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
         this.guiBroadcastChannel.onmessage = async e => {
-            if(!this.instanceReady || this.instanceClosed) return;
-            
+            if(this.instanceClosed) return;
             const msg = e.data;
+            // A profile waiting for its first external engine cannot become ready until this save.
+            if(!this.instanceReady && !(msg.type === 'settingSave' && msg.data?.key === 'externalChessEngine')) return;
 
             switch(msg.type) {
-                case 'settingSave':
+                case 'settingSave': {
                     const isFirstTime = msg?.data?.isFirstTime;
-                    if(!isFirstTime) this.updateSettings(msg);
-
+                    if(msg.data?.instanceID != null && String(msg.data.instanceID) !== String(this.instanceID)) break;
+                    if(!isFirstTime && !msg.data?.noProfile && msg.data?.profile?.name)
+                        await this.syncDynamicSettings(msg.data.profile.name, [msg.data.key]);
+                    else if(!isFirstTime) await this.updateSettings(msg);
                     break;
+                }
+                case 'dynamicSettingsChange': {
+                    const data = msg.data;
+                    if(data?.instanceID != null && String(data.instanceID) !== String(this.instanceID)) break;
+                    if(!data?.profile || !data?.key) break;
+                    this.engineStopCalculating(data.profile, 'Dynamic graph changed');
+                    await this.syncDynamicSettings(data.profile, [data.key]);
+                    if(this.currentFen && this.pV[data.profile]?.engineSettingsReady) {
+                        this.engineStopCalculating(data.profile, 'Dynamic graph changed');
+                        await this.renderMetric(this.currentFen, data.profile).catch(console.error);
+                        this.pV[data.profile]?.pendingCalculations?.forEach(calculation => { calculation.fen = null; });
+                        this.calculateBestMoves(this.currentFen, { specificProfileName: data.profile, skipValidityChecks: true });
+                    }
+                    break;
+                }
                 case 'newProfileMade':
                     const profileName = msg?.data?.profileName;
                     await this.createAndLoadSpecificEngine(profileName);
@@ -259,28 +304,43 @@ export default class AcasInstance {
             : await this.getConfigValue(this.configKeys.enableAdvancedElo, profileName);
     }
 
-    async createAndLoadSpecificEngine(profileName) {
+    async createAndLoadSpecificEngine(profileName, resolvedConfig) {
         this.currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
+        if(this.instanceClosed) return;
+        if(this.currentFen && DynamicSettingsCore.getVariableValue('pieceCount', DynamicSettingsCore.getContext(this.instanceID)) === null)
+            setDynamicSettingsContext(this.instanceID, this.currentFen);
+        this.killEngine(profileName);
 
-        const engineIndex = this.engines.findIndex(e => e.profileName === profileName);
-
-        if(engineIndex !== -1) this.killEngine(profileName);
-
-        this.pV[profileName] = await this.profileVariables.create(this, profileName);
+        this.pV[profileName] = await this.profileVariables.create(this, profileName, resolvedConfig);
+        this.pV[profileName].startupConfig = resolvedConfig;
+        if(this.instanceClosed) { delete this.pV[profileName]; return; }
+        this.effectiveSettings ??= new Map();
+        const profile = resolvedConfig ? { config: resolvedConfig } : await GET_PROFILE_FOR_INSTANCE(profileName, this.instanceID);
+        if(profile) this.effectiveSettings.set(profileName, structuredClone(profile.config));
+        if(profile && !this.pendingDynamicSettingChanges?.has(profileName)) {
+            this.pendingDynamicSettingChanges ??= new Map();
+            this.pendingDynamicSettingChanges.set(profileName, { previous: null, current: profile.config,
+                keys: Object.keys(profile.config.dynamicSettings ?? {}) });
+        }
 
         await this.updateAdvancedModeStatus(profileName);
 
-        this.loadEngine(profileName);
+        await this.loadEngine(profileName);
     }
 
     notifyAcasAboutEngineClosing(profileName) {
-        this.engineMessageProcessor('error Engine closed!', profileName);
-
-        if(profileName) {
-            setTimeout(() => {
-                this.pV[profileName]?.pendingCalculations?.forEach(x => x.finished = true);
-            }, 25);
+        const variables = this.pV[profileName];
+        clearTimeout(variables?.currentMovetimeTimeout);
+        clearTimeout(variables?.currentStopTimeout);
+        variables?.pendingCalculations?.forEach(x => x.finished = true);
+        if(variables) {
+            variables.engineSettingsReady = false;
+            variables.externalCommandGeneration = (variables.externalCommandGeneration ?? 0) + 1;
+            if(variables.recoveringSearch) variables.externalRecoveryCancelled = true;
+            delete variables.externalCrashPending;
+            delete variables.pendingCalculationRequest;
         }
+        this.engineMessageProcessor('error Engine closed!', profileName).catch(console.error);
     }
 
     async getSelectedExternalEngineId(profileName) {
@@ -290,7 +350,7 @@ export default class AcasInstance {
     }
 
     async loadEngines() {
-        const profiles = await GET_PROFILES();
+        const profiles = await GET_PROFILES(this.instanceID);
         const activeProfiles = profiles.filter(p => p.config.engineEnabled);
 
         for(const profileObj of activeProfiles) {
@@ -298,7 +358,7 @@ export default class AcasInstance {
         }
     }
 
-    processPacket(packet) {
+    async processPacket(packet) {
         switch(packet.command) {
             case 'ping':
                 return `pong (took ${Date.now() - packet.date}ms)`;
@@ -312,7 +372,7 @@ export default class AcasInstance {
                 this.Interface.updateBoardFen();
                 return true;
             case 'newMatchStarted':
-                this.engineStartNewGame();
+                this.startNewMatch().catch(console.error);
                 return true;
             case 'calculateBestMoves':
                 this.calculateBestMoves(packet.data);
@@ -329,48 +389,32 @@ export default class AcasInstance {
         }
     }
 
-    async applyDynamicOption(userscriptDbKey, optionValue, profileName, isApplyCausedByHuman) {
-        const currentEngineId = await GET_ACTIVE_ENGINE_NAME(profileName);
-        const dbPrefix = getDynamicEngineDbKeyPrefix(currentEngineId);
-        //console.log(userscriptDbKey, profileName);
-        const { name, defaultValue } = getDynamicOption(userscriptDbKey, profileName) ?? {};
-
-        if(name === undefined || defaultValue === undefined) return false;
-
-        const isNotForThisEngine = !userscriptDbKey.startsWith(dbPrefix);
-        const isDefaultValue = VAR_TO_CORRECT_TYPE(optionValue) === VAR_TO_CORRECT_TYPE(defaultValue);
-        const isWeirdValue = (typeof optionValue === 'string' && (/[<>]/.test(optionValue) || optionValue === 'value'));
-
-        switch(name) { // name means the UCI option name
-            case 'MultiPV':
-                this.pV[profileName].multiPV = optionValue;
-                break;
-            case 'UCI_Chess960':
-                this.pV[profileName].useChess960 = optionValue;
-                break;
-            case 'UCI_Variant':
-                //this.pV[profileName].chessVariant = FORMAT_VARIANT(optionValue);
-                break;
-        }
-
-        if(
-            optionValue === null
-            || isNotForThisEngine
-            || (isDefaultValue && !isApplyCausedByHuman)
-            || isWeirdValue
-        ) return false;
-
-        this.setEngineOption(name, optionValue, true, profileName);
+    startNewMatch() {
+        if(this.newMatchPromise) return this.newMatchPromise;
+        logActivity('game', 'New game started; resetting dynamic settings and engines.', { instanceID: this.instanceID });
+        this.newMatchPromise = (async () => {
+            this.dynamicEvaluationFen = null;
+            DynamicSettingsCore.setContext(this.instanceID, { gameStart: 1, evaluation: null });
+            await this.syncDynamicSettings();
+            await this.engineStartNewGame();
+            this.Interface.lastAcceptedBasicFen = null;
+            await this.Interface.updateBoardFen({ skipValidityChecks: true });
+        })().finally(() => { this.newMatchPromise = null; });
+        return this.newMatchPromise;
     }
 
     async setEngineElo(elo, didUserUpdateSetting, profile) {
         if(typeof elo === 'number') {
+            const profileVariables = this.pV[profile];
+            if(!profileVariables) return false;
             const limitStrength = 0 < elo && elo <= 2300;
             const engineType = await this.getEngineName(profile);
-            const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[profile];
+            const isExternal = await this.getConfigValue(this.configKeys.useExternalChessEngine, profile);
 
             const isMaiaEngine = engineType.includes('maia');
             const engineEnemyElo = await this.getConfigValue(this.configKeys.engineEnemyElo, profile);
+            if(this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+            const appliedSettings = profileVariables.appliedSettings ??= {};
             const maiaEloRanges = {
                 maia2: [1100, 2000],
                 maia3: [600, 2600]
@@ -382,17 +426,25 @@ export default class AcasInstance {
                 const clampedEngineElo = Math.max(min, Math.min(max, elo));
                 const clampedEnemyElo = Math.max(min, Math.min(max, engineEnemyElo));
 
-                if(clampedEngineElo !== elo || clampedEnemyElo !== engineEnemyElo) {
+                if(didUserUpdateSetting && (clampedEngineElo !== elo || clampedEnemyElo !== engineEnemyElo)) {
                     toast.warning(`"Maia ${engineType === 'maia3' ? 3 : 2}" ELO: ${min}–${max}`, 30000);
                 }
 
-                this.sendMsgToEngine(`setoption name Enemy_Elo value ${clampedEnemyElo}`, profile);
-                this.sendMsgToEngine(`setoption name UCI_Elo value ${clampedEngineElo}`, profile);
+                if(await this.sendMsgToEngine(`setoption name Enemy_Elo value ${clampedEnemyElo}`, profile) === false
+                    || this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+                if(await this.sendMsgToEngine(`setoption name UCI_Elo value ${clampedEngineElo}`, profile) === false
+                    || this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+                appliedSettings.engineElo = clampedEngineElo;
+                appliedSettings.engineEnemyElo = clampedEnemyElo;
 
                 if(didUserUpdateSetting) {
                     toast.message(`Maia ELO: ${clampedEngineElo} (${clampedEnemyElo})`, 3000);
                 }
-            } else this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile);
+            } else {
+                if(await this.sendMsgToEngine(`setoption name UCI_Elo value ${elo}`, profile) === false
+                    || this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+                appliedSettings.engineElo = elo;
+            }
 
             const skillLevelMsg = TRANS_OBJ?.engineSkillLevel ?? 'Engine skill level';
             const searchDepthMsg = TRANS_OBJ?.engineSearchDepth ?? 'Search depth';
@@ -429,6 +481,7 @@ export default class AcasInstance {
                         toast.message(engineNoLimitations, 8000);
                 }
             }
+            return { appliedValue: appliedSettings.engineElo };
         }
     }
 
@@ -446,17 +499,17 @@ export default class AcasInstance {
     setEngineOption(name, value = null, isDynamicOption, profile) {
         if(Number.isNaN(value) || value === undefined) return;
 
-        this.sendMsgToEngine(`setoption name ${name}${value === null ? '' : ' value ' + value}`, profile, isDynamicOption);
+        return this.sendMsgToEngine(`setoption name ${name}${value === null ? '' : ' value ' + value}`, profile, isDynamicOption);
     }
 
     disableEngineElo(profile) {
         this.sendMsgToEngine(`setoption name UCI_LimitStrength value false`, profile);
     }
 
-    setEngineMultiPV(amount, profile) {
+    setEngineMultiPV(amount, profile, isDynamicOption = false) {
         if(typeof amount === 'number') {
             this.pV[profile].multiPV = amount;
-            this.sendMsgToEngine(`setoption name MultiPV value ${amount}`, profile);
+            this.sendMsgToEngine(`setoption name MultiPV value ${Math.max(1, amount)}`, profile, isDynamicOption);
         }
     }
 
@@ -508,17 +561,17 @@ export default class AcasInstance {
         }
     }
 
-    set960Mode(val, profile) {
+    set960Mode(val, profile, isDynamicOption = false) {
         const bool = val ? true : false;
 
-        this.sendMsgToEngine(`setoption name UCI_Chess960 value ${bool}`, profile);
+        this.sendMsgToEngine(`setoption name UCI_Chess960 value ${bool}`, profile, isDynamicOption);
 
         this.pV[profile].useChess960 = bool;
     }
 
-    async setEngineVariant(variant, profile) {
+    async setEngineVariant(variant, profile, isDynamicOption = false) {
         if(typeof variant === 'string') {
-            this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`, profile);
+            this.sendMsgToEngine(`setoption name UCI_Variant value ${variant}`, profile, isDynamicOption);
 
             this.pV[profile].chessVariant = FORMAT_VARIANT(variant);
             this.pV[profile].useChess960 = IS_VARIANT_960(variant) || await this.getConfigValue(this.configKeys.useChess960, profile);
@@ -545,18 +598,35 @@ export default class AcasInstance {
     }
 
     async getEngineName(profile) {
-        return await this.getConfigValue(this.configKeys.chessEngine, profile);
+        return this.getEngineAcasObj(profile)?.type ?? await this.getConfigValue(this.configKeys.chessEngine, profile);
     }
 
     clearHistoryVariables(profileName) {
         this.pV[profileName].lastFen = null;
+        delete this.pV[profileName].spokenAdvantage;
+        delete this.pV[profileName].spokenEvaluationFen;
     }
 
     engineStopCalculating(profile, reason) {
         const profileStopCalculating = p => {
-            if(this.isEngineCalculating(p)) clearTimeout(this.pV[p].currentMovetimeTimeout);
+            const profileVariables = this.pV[p];
+            const calculation = profileVariables?.pendingCalculations.find(x => !x.finished);
+            if(!calculation || calculation.stopRequested || profileVariables.recoveringSearch) return;
 
-            this.sendMsgToEngine('stop', p);
+            calculation.stopRequested = true;
+            clearTimeout(profileVariables.currentMovetimeTimeout);
+            // A search still sending its position/go will either cancel or stop after go is sent.
+            if(profileVariables.useExternalChessEngine && calculation.goSent === false) return;
+            this.sendMsgToEngine('stop', p).catch(console.error);
+
+            if(profileVariables.useExternalChessEngine) {
+                // UCI requires bestmove after stop, but some external engines never send it.
+                // Restart only this engine/profile/instance; don't attribute late output to a new search.
+                profileVariables.currentStopTimeout = setTimeout(() => {
+                    if(this.instanceClosed || this.pV[p] !== profileVariables || calculation.finished) return;
+                    this.recoverExternalEngineSearch(p, calculation).catch(console.error);
+                }, 5000);
+            }
                 
             if(this.debugLogsEnabled) console.error('STOP CALCULATION ORDERED!', 'Reason:', reason, 'Profile:', profile);
         }
@@ -570,6 +640,85 @@ export default class AcasInstance {
         }
     }
 
+    async recoverExternalEngineSearch(profile, calculation, crashReason) {
+        const variables = this.pV[profile];
+        if(this.instanceClosed || !variables?.useExternalChessEngine || variables.externalRecoveryCancelled
+            || (!crashReason && calculation?.finished)) return;
+        const isCurrentRecovery = () => !this.instanceClosed && this.pV[profile] === variables
+            && !variables.externalRecoveryCancelled;
+        if(variables.recoveringSearch) {
+            // A replacement can crash during startup. Retain it for the recovery owner, not a parallel restart.
+            if(crashReason) {
+                variables.externalCrashPending = crashReason;
+                variables.engineSettingsReady = false;
+                variables.externalCommandGeneration = (variables.externalCommandGeneration ?? 0) + 1;
+                variables.pendingCalculations.forEach(x => x.finished = true);
+            }
+            return;
+        }
+        variables.recoveringSearch = true;
+        variables.externalCommandGeneration = (variables.externalCommandGeneration ?? 0) + 1;
+        variables.engineSettingsReady = false;
+        clearTimeout(variables.currentMovetimeTimeout);
+        clearTimeout(variables.currentStopTimeout);
+        variables.pendingCalculations.forEach(x => x.finished = true);
+        logActivity('warning', crashReason ? `${crashReason}; attempting automatic recovery.`
+            : 'External engine did not finish after stop; restarting its search.', {
+            instanceID: this.instanceID, profile
+        });
+
+        try {
+            const identifierKey = JSON.stringify([variables.externalChessEngine, profile, this.instanceID]);
+            if(await closeAllExternalEnginesWithId(identifierKey, 'identifierKey') === false) return;
+            if(!isCurrentRecovery()) return;
+            if(crashReason) {
+                const now = Date.now();
+                if(now - (variables.externalLastCrashAt ?? 0) > 60000) variables.externalCrashRecoveryAttempts = 0;
+                variables.externalLastCrashAt = now;
+                if((variables.externalCrashRecoveryAttempts ?? 0) >= 3) {
+                    delete variables.pendingCalculationRequest;
+                    delete variables.externalCrashPending;
+                    logActivity('error', 'External engine keeps crashing; automatic recovery paused after three retries. Reload the engine to retry.', {
+                        instanceID: this.instanceID, profile
+                    });
+                    return;
+                }
+                variables.externalCrashRecoveryAttempts = (variables.externalCrashRecoveryAttempts ?? 0) + 1;
+                await new Promise(resolve => setTimeout(resolve, 200 * 2 ** (variables.externalCrashRecoveryAttempts - 1)));
+                if(!isCurrentRecovery()) return;
+            } else if((variables.externalSearchRecoveryAttempts ?? 0) >= 2) {
+                delete variables.pendingCalculationRequest;
+                logActivity('error', 'External engine repeatedly failed to stop; automatic recovery paused. Reload the engine to retry.', {
+                    instanceID: this.instanceID, profile
+                });
+                return;
+            } else {
+                variables.externalSearchRecoveryAttempts = (variables.externalSearchRecoveryAttempts ?? 0) + 1;
+            }
+            await this.engineStartNewGame(variables.chessVariant, profile);
+        } catch(error) {
+            variables.engineSettingsReady = false;
+            logActivity('error', `External engine recovery failed: ${error?.message ?? error}`, {
+                instanceID: this.instanceID, profile
+            });
+        } finally {
+            variables.recoveringSearch = false;
+        }
+
+        if(!isCurrentRecovery()) return;
+        if(variables.externalCrashPending) {
+            const reason = variables.externalCrashPending;
+            delete variables.externalCrashPending;
+            variables.engineSettingsReady = false;
+            return this.recoverExternalEngineSearch(profile, null, reason);
+        }
+        if(this.instanceClosed || this.pV[profile] !== variables || !variables.engineSettingsReady) return;
+        const request = variables.pendingCalculationRequest;
+        delete variables.pendingCalculationRequest;
+        await this.calculateBestMoves(this.currentFen, request?.fen === this.currentFen
+            ? request.config : { specificProfileName: profile });
+    }
+
     async isPlayerTurn(profile) {
         const playerColor = await this.getPlayerColor(profile);
         const turn = await this.getCurrentTurn();
@@ -579,24 +728,59 @@ export default class AcasInstance {
         return turn === playerColor;
     }
 
-    async speak(spokenText, profile) {
-        const isTTSEnabled = await this.getConfigValue(this.configKeys.ttsVoiceEnabled, profile);
+    async speak(moveObj, profile, settingKey = 'ttsVoiceEnabled', options = {}) {
+        const variables = this.pV[profile];
+        const speechFen = this.currentFen;
+        if(!variables || this.instanceClosed || CONCEAL_ASSISTANCE_ACTIVE) return;
+        const isTTSEnabled = await this.getConfigValue(this.configKeys[settingKey], profile);
 
         if(isTTSEnabled) {
-            const ttsVoiceName = await this.getConfigValue(this.configKeys.ttsVoiceName, profile);
-            const ttsVoiceSpeed = await this.getConfigValue(this.configKeys.ttsVoiceSpeed, profile);
+            const [ttsVoiceName, ttsVoiceSpeed, translateAudio] = await Promise.all([
+                this.getConfigValue(this.configKeys.ttsVoiceName, profile),
+                this.getConfigValue(this.configKeys.ttsVoiceSpeed, profile),
+                this.getConfigValue(this.configKeys.ttsTranslateAudio, profile)
+            ]);
+            if(this.pV[profile] !== variables || this.instanceClosed || CONCEAL_ASSISTANCE_ACTIVE
+                || options.isCurrent && !options.isCurrent()) return;
+            if(!await this.getConfigValue(this.configKeys[settingKey], profile)) return;
+            if(this.pV[profile] !== variables || this.instanceClosed || CONCEAL_ASSISTANCE_ACTIVE
+                || options.isCurrent && !options.isCurrent()) return;
+            const speech = getMoveSpeechConfig(translateAudio);
+            const useSan = Boolean(options.useSan ?? pipSanInput?.checked);
+            const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed && !CONCEAL_ASSISTANCE_ACTIVE
+                && (!options.isCurrent || options.isCurrent())
+                // Opponent annotations use the preceding FEN; turn overrides
+                // also differ from the displayed board. Track the live board,
+                // not the notation root, while conversion is asynchronous.
+                && this.currentFen === speechFen
+                && Boolean(options.useSan ?? pipSanInput?.checked) === useSan;
+            let spokenText = moveObj.advantageBand !== undefined ? speech.advantage[moveObj.advantageBand]
+                : await formatMoveNotationAsync(moveObj, useSan, true, speech, isCurrent);
+            if(!isCurrent() || !await this.getConfigValue(this.configKeys[settingKey], profile) || !isCurrent()) return;
+            if(options.opponent) spokenText = speech.opponent.replace('{move}', spokenText);
+            if(!spokenText) return;
 
             const speechConfig = {
                 rate: ttsVoiceSpeed / 10,
                 pitch: 1,
-                volume: 1
+                volume: 1,
+                lang: speech.lang,
+                preferLanguage: Boolean(translateAudio)
             };
 
             if(ttsVoiceName?.toLowerCase() !== 'default') {
                 speechConfig.voiceName = ttsVoiceName;
             }
 
-            this.pV[profile].currentSpeeches.push(SPEAK_TEXT(spokenText, speechConfig));
+            if(options.announcementKey) {
+                this.audioAnnouncementKeys ??= new Set();
+                if(this.audioAnnouncementKeys.has(options.announcementKey)) return;
+                this.audioAnnouncementKeys.add(options.announcementKey);
+                if(this.audioAnnouncementKeys.size > 64) this.audioAnnouncementKeys.delete(this.audioAnnouncementKeys.values().next().value);
+            }
+            const synthesis = SPEAK_TEXT(spokenText, speechConfig);
+            if(!synthesis && options.announcementKey) this.audioAnnouncementKeys.delete(options.announcementKey);
+            if(synthesis) variables.currentSpeeches.push(synthesis);
         }
     }
 
@@ -745,42 +929,69 @@ export default class AcasInstance {
         return this.getEngineAcasObj(i)['engine'](method, args);
     }
 
-    async sendMsgToEngine(msg, i, isDynamicOption) {
+    async sendMsgToEngine(msg, i, isDynamicOption, isCurrent = () => true) {
+        if(this.instanceClosed || !isCurrent()) return false;
         const isProfile = typeof i === 'string' && this.pV[i];
         const engineExists = this.getEngineAcasObj(i)?.sendMsg;
         const isBannedOptionSet = msg.startsWith('setoption name')
             && (isProfile && this.pV[i].usingAdvancedMode && !isDynamicOption);
 
-        if(isBannedOptionSet) return;
+        if(isBannedOptionSet) return false;
+        const context = { instanceID: this.instanceID, profile: this.getEngineAcasObj(i)?.profileName ?? this.getProfileName(i) };
         
-        if(IS_EXTERNAL_ENGINE_SETTING_ACTIVE?.[i] && isProfile) {
+        if(isProfile && this.pV[i].useExternalChessEngine) {
             const profileName = this.getProfileName(i);
-            const engineId = await this.getSelectedExternalEngineId(profileName);
+            const engineId = this.pV[i].externalChessEngine;
+            const generation = isProfile.externalCommandGeneration;
 
-            sendUciToExternalEngine(msg, engineId, profileName, this.instanceID);
+            const sent = await sendUciToExternalEngine(msg, engineId, profileName, this.instanceID,
+                () => !this.instanceClosed && this.pV[i] === isProfile
+                    && isProfile.externalCommandGeneration === generation && isCurrent()
+                    && !isProfile.externalRecoveryCancelled
+                    && !(isProfile.recoveringSearch && isProfile.externalCrashPending));
+            if(sent === false) return false;
+            logActivity('engine-input', msg, context);
+            return true;
 
         } else if(!engineExists && isProfile) {
             let elapsed = 0;
-
-            const waitForEngineToLoad = setInterval(() => {
-
-                if(this.getEngineAcasObj(i)?.sendMsg && isProfile) {
-                    this.getEngineAcasObj(i).sendMsg(msg);
-    
-                    clearInterval(waitForEngineToLoad);
-                } else {
-                    // Wait max 10 seconds
-                    if(elapsed++ > 100) {
-                        if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
+            return new Promise(resolve => {
+                const waitForEngineToLoad = setInterval(() => {
+                    if(this.instanceClosed || this.pV[i] !== isProfile) {
                         clearInterval(waitForEngineToLoad);
+                        resolve(false);
+                        return;
                     }
-                }
 
-            }, 100);
+                    if(this.getEngineAcasObj(i)?.sendMsg) {
+                        clearInterval(waitForEngineToLoad);
+                        try {
+                            this.getEngineAcasObj(i).sendMsg(msg);
+                            logActivity('engine-input', msg, context);
+                            resolve(true);
+                        } catch(error) {
+                            console.error('Could not send engine input:', context, msg, error);
+                            resolve(false);
+                        }
+                    } else {
+                        // Wait max 10 seconds
+                        if(elapsed++ > 100) {
+                            logActivity('error', `Engine input timed out while waiting for the engine: ${msg}`, context);
+                            if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
+                            clearInterval(waitForEngineToLoad);
+                            resolve(false);
+                        }
+                    }
+                }, 100);
+            });
         } else if(engineExists) {
             this.getEngineAcasObj(i).sendMsg(msg);
+            logActivity('engine-input', msg, context);
+            return true;
         } else {
+            logActivity('warning', `Cannot send input to a missing engine: ${msg}`, context);
             if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
+            return false;
         }
     }
 
@@ -793,7 +1004,7 @@ export default class AcasInstance {
     }
 
     async getAndDisplayBookMoves(fen = this.currentFen, profile) {
-        const book = POLY_OPENING_BOOKS.get(profile);
+        const book = this.openingBooks?.get(profile);
 
         if(!book) {
             this.Interface.removeBookMarkings();
@@ -814,14 +1025,15 @@ export default class AcasInstance {
     }
 
     async loadOpeningBook() {
-        const profiles = await GET_PROFILES();
+        this.openingBooks ??= new Map();
+        const profiles = await GET_PROFILES(this.instanceID);
 
         for(const profileObj of profiles) {
             const profileName = profileObj.name;
             const savedFileName = await this.getConfigValue(this.configKeys.openingBookName, profileName);
 
             if(!savedFileName || typeof savedFileName !== 'string' || !savedFileName.trim()) {
-                POLY_OPENING_BOOKS.set(profileName, null);
+                this.openingBooks.set(profileName, null);
                 continue;
             }
 
@@ -832,11 +1044,11 @@ export default class AcasInstance {
                     .replace('{profile}', profileName);
 
                 toast.error(openingBookMissingText, 8000);
-                POLY_OPENING_BOOKS.set(profileName, null);
+                this.openingBooks.set(profileName, null);
                 continue;
             }
 
-            POLY_OPENING_BOOKS.set(profileName, book);
+            this.openingBooks.set(profileName, book);
         }
     }
 
@@ -889,7 +1101,7 @@ export default class AcasInstance {
 
         if(moveObjects?.length === 0) return;
     
-        this.Interface.markMoves(moveObjects, profile);
+        await this.Interface.markMoves(moveObjects, profile);
 
         if(onlySuggestPieces && !movesOnDemand) {
             moveObjects.forEach(moveObj => {
@@ -905,15 +1117,7 @@ export default class AcasInstance {
             .forEach(moveObj => {
                 if(moveObj?.isFuture) return;
 
-                const spokenText = moveObj.player
-                    ?.map(x => {
-                        const [letter, number] = x.toUpperCase().split('');
-                        const spokenLetter = letter === 'A' ? 'AA' : letter;
-                        return `"${spokenLetter}"\n"${number}"`;
-                    })
-                    .join('\n');
-
-                this.speak(spokenText, profile);
+                this.speak(moveObj, profile);
             });
     }
 
@@ -989,6 +1193,26 @@ export default class AcasInstance {
 
         if(typeof i === 'string') {
             if(this.freezeEngineKilling?.[i]) return;
+            if(this.pV[i] || this.engines.some(engine => engine.profileName === i))
+                logActivity('engine', 'Stopping engine.', { instanceID: this.instanceID, profile: i });
+            this.pendingEngineLoads?.forEach(entry => {
+                if(entry.profileName !== i) return;
+                clearInterval(entry.intervalId);
+                entry.worker?.terminate?.();
+                this.pendingEngineLoads.delete(entry);
+            });
+            clearTimeout(this.pV[i]?.currentMovetimeTimeout);
+            clearTimeout(this.pV[i]?.currentStopTimeout);
+            const variables = this.pV[i];
+            if(variables) {
+                variables.feedbackRequest = (variables.feedbackRequest || 0) + 1;
+                clearFeedback.call(this, i);
+                ['activeMetrics', 'activeFeedbackDisplays', 'activePieceEvalDisplays'].forEach(key =>
+                    variables[key]?.forEach(marking => (marking.elem ?? marking)?.remove?.()));
+                variables.currentSpeeches?.forEach(speech => speech.cancel());
+                this.Interface.removeBookMarkings(i);
+                this.Interface.removeMarkings(i, 'Killing engine');
+            }
 
             const engineIndex = this.engines.findIndex(obj => obj.profileName === i);
             
@@ -1004,12 +1228,17 @@ export default class AcasInstance {
 
                 delete this.pV[i];
             }
+            delete this.pV[i];
         } else if(typeof i === 'number') {
             if(i >= 0 && i < this.engines.length) {
                 // Engine objects are built with profileName, not profile. This was always
                 // undefined, so pV[undefined] was falsy and closing an instance left its
                 // markings on the board and the whole pV map in memory.
                 const profileName = this.engines[i].profileName;
+                clearFeedback.call(this, profileName);
+                clearTimeout(this.pV[profileName]?.currentMovetimeTimeout);
+                clearTimeout(this.pV[profileName]?.currentStopTimeout);
+                logActivity('engine', 'Stopping engine.', { instanceID: this.instanceID, profile: profileName });
 
                 this.engines[i].worker?.terminate();
                 delete this.engines[i].worker;
@@ -1023,6 +1252,8 @@ export default class AcasInstance {
                 delete this.pV[profileName];
             }
         }
+        this.MoveEval?.cancelStaleRequests();
+        this.BoardPiecesEval?.cancelStaleRequests();
     }
 
     async killEngines() {
@@ -1032,7 +1263,9 @@ export default class AcasInstance {
     }
 
     close() {
+        if(!this.instanceClosed) logActivity('instance', 'Instance closed.', { instanceID: this.instanceID });
         this.instanceClosed = true;
+        removeDynamicSettingsContext(this.instanceID);
 
         if(this.externalEngineStatusChannel) {
             this.externalEngineStatusChannel.onmessage = null;
@@ -1059,6 +1292,8 @@ export default class AcasInstance {
         }
 
         this?.killEngines();
+        // External profiles have no worker in this.engines.
+        Object.keys(this.pV).forEach(profile => this.killEngine(profile));
 
         // Engines still in their load handshake are not in this.engines yet, so killEngines
         // can't reach them and both the worker and its poller would outlive the instance
