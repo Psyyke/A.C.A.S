@@ -34,6 +34,12 @@ function initializeWebhookTemplateEditor() {
     const highlight = document.querySelector('.webhook-template-highlight');
     if(!textarea || !highlight) return;
 
+    const translatePlaceholder = () => {
+        textarea.placeholder = TRANS_OBJ?.activityLog?.discordMessagePlaceholder ?? 'Write your Discord message here...';
+    };
+    document.addEventListener('acas-translations-updated', translatePlaceholder);
+    translatePlaceholder();
+
     const escapeHtml = value => value.replace(/[&<>"']/g, character => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[character]));

@@ -98,6 +98,18 @@ test('Type filters preserve order and isolate input, output, dynamic changes and
     assert(filterLogEntries(entries, 'warning').length === 0 && log.getEntries().length === 5, 'Filtering mutates history');
 });
 
+test('Activity log text search matches any entry text without case sensitivity', () => {
+    const log = createActivityLog();
+    log.add('engine-output', 'Stockfish ready', { instanceID: 'Board-A', profile: 'Rapid' });
+    log.add('error', 'Connection failed');
+    const entries = log.getEntries();
+    assert(filterLogEntries(entries, 'all', 'STOCK').length === 1, 'Message search is case-sensitive or not partial');
+    assert(filterLogEntries(entries, 'all', 'board-a').length === 1, 'Instance context is not searchable');
+    assert(filterLogEntries(entries, 'all', 'rapid').length === 1, 'Profile context is not searchable');
+    assert(filterLogEntries(entries, 'error', 'STOCK').length === 0, 'Text and type filters do not combine');
+    assert(filterLogEntries(entries, 'all', 'missing').length === 0, 'Non-matching text returned entries');
+});
+
 test('Evaluation matches the bar for both player colors and either analyzed side', () => {
     for(const player of ['w', 'b']) {
         for(const analyzed of ['w', 'b']) {
@@ -179,7 +191,7 @@ test('Line removal honors cancellation and names the setting/profile before dele
 
 await testAsync('Log viewer preserves closed-dialog history, clears cleanly and does not duplicate reopened entries', async () => {
     const fixture = document.createElement('div');
-    fixture.innerHTML = '<dialog id="log-floaty"><span id="activity-log-status"></span><select id="activity-log-filter"><option value="all">All</option><option value="engine-output">Output</option><option value="error">Errors</option></select><button id="activity-log-clear">Clear</button><div id="activity-log-entries"></div></dialog>';
+    fixture.innerHTML = '<div class="activity-log-launcher"><button class="open-floaty-btn"></button></div><dialog id="log-floaty"><div class="title"><h1 id="activity-log-title"></h1><p></p></div><button class="floaty-close-btn"></button><div class="activity-log-filter-label"><span></span><select id="activity-log-filter"><option value="all">All</option><option value="engine-output">Output</option><option value="error">Errors</option></select></div><label class="activity-log-search-label"><span></span><input id="activity-log-search"></label><span id="activity-log-status"></span><button id="activity-log-clear">Clear</button><div id="activity-log-entries"></div></dialog>';
     document.body.appendChild(fixture);
     const dialog = fixture.querySelector('dialog');
     const list = fixture.querySelector('#activity-log-entries');
@@ -216,7 +228,17 @@ await testAsync('Log viewer preserves closed-dialog history, clears cleanly and 
         filter.value = 'all';
         filter.dispatchEvent(new Event('change'));
         assert(list.childElementCount === 5, 'Restoring All loses or duplicates history');
-        fixture.querySelector('button').click();
+        const search = fixture.querySelector('#activity-log-search');
+        search.value = 'READYOK';
+        search.dispatchEvent(new Event('input'));
+        assert(list.childElementCount === 1 && list.textContent.includes('readyok'), 'Text search is not applied to existing entries');
+        logActivity('engine-output', 'READYOK still searching');
+        await waitForRender();
+        assert(list.childElementCount === 2, 'Text search is not applied to live entries');
+        search.value = '';
+        search.dispatchEvent(new Event('input'));
+        assert(list.childElementCount === 6, 'Clearing text search does not restore history');
+        fixture.querySelector('#activity-log-clear').click();
         assert(list.childElementCount === 0 && activityLog.getEntries().length === 0, 'Clear left stale entries');
         logActivity('app', 'after clear');
         await waitForRender();

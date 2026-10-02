@@ -265,7 +265,9 @@
         },
         "activityLog": {
             "title": "Activity Log", "subtitle": "Engine messages, dynamic changes, warnings and errors",
-            "show": "Show", "clear": "Clear log", "filter": "Filter activity by type", "all": "All activity",
+            "show": "Show", "search": "Search", "searchPlaceholder": "Search log entries...",
+            "discordMessagePlaceholder": "Write your Discord message here...",
+            "clear": "Clear log", "filter": "Filter activity by type", "all": "All activity",
             "close": "Close activity log", "instance": "Instance", "empty": "No log entries yet.",
             "status": "{shown} shown · {total} total · latest {limit} kept this session",
             "types": {

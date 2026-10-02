@@ -6,6 +6,11 @@
 	unicode-range: U+0000-00FF, U+0100-024F;
 }
 @font-face {
+    font-family: "Whisper";
+    src: url("../assets/fonts/Whisper-Regular.ttf") format("truetype");
+    font-weight: 400;
+}
+@font-face {
     font-family: "Rubik";
     src: url("../assets/fonts/Rubik.ttf") format("truetype");
     font-weight: 200 900;
@@ -223,7 +228,7 @@ cg-container {
 }
 #acas-logo-secondary {
 	font-size: 15px;
-	font-weight: 100;
+	font-weight: 400;
 }
 .acas-instance {
 	display: flex;
@@ -812,10 +817,14 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 }
 #no-instances-subtitle {
     margin: 20px;
-    font-weight: 300;
+    font-weight: 400;
     font-size: 20px;
     color: rgb(255 255 255 / 85%);
     text-shadow: 0px 2px 0px rgb(0 0 0 / 50%);
+}
+#no-instances-subtitle.has-whisper-font {
+    font-family: "Whisper", sans-serif;
+    font-size: 30px;
 }
 #no-instances-sites {
 	margin: 10px;
@@ -1852,12 +1861,30 @@ input[disabled] {
     gap: 6px;
     min-width: 0;
 }
+#log-floaty .activity-log-search-label {
+    display: flex;
+    flex: 1 1 220px;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
 #log-floaty #activity-log-filter {
     height: auto;
     padding: 5px 30px 5px 8px;
     min-width: 0;
     max-width: 100%;
     font: inherit;
+}
+#log-floaty #activity-log-search {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    padding: 5px 8px;
+    font: inherit;
+}
+#log-floaty #activity-log-search::-webkit-search-cancel-button {
+    display: none;
 }
 #log-floaty #activity-log-status {
     flex: 1;

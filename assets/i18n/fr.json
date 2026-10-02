@@ -230,6 +230,7 @@
             "openSetting": "Ouvrir les paramètres dynamiques de {setting}"
         },
         "activityLog": {
+            "search": "Rechercher", "searchPlaceholder": "Rechercher dans le journal…", "discordMessagePlaceholder": "Rédigez votre message Discord ici…",
             "title": "Journal d’activité", "subtitle": "Messages du moteur, changements dynamiques, avertissements et erreurs",
             "show": "Afficher", "clear": "Vider le journal", "filter": "Filtrer par type", "all": "Toute l’activité",
             "close": "Fermer le journal", "instance": "Instance", "empty": "Aucune entrée pour le moment.",

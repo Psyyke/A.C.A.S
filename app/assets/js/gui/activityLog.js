@@ -6,8 +6,19 @@ const text = (key, fallback, values) => featureText('activityLog', key, fallback
 const typeLabel = type => (typeof TRANS_OBJ === 'undefined' ? null : TRANS_OBJ)?.activityLog?.types?.[type]
     ?? type.replaceAll('-', ' ');
 
-export function filterLogEntries(entries, type = 'all') {
-    return type === 'all' ? entries : entries.filter(entry => entry.type === type);
+export function filterLogEntries(entries, type = 'all', query = '') {
+    const normalizedQuery = query.trim().toLowerCase();
+    return entries.filter(entry => {
+        if(type !== 'all' && entry.type !== type) return false;
+        if(!normalizedQuery) return true;
+        const date = new Date(entry.timestamp);
+        const searchableText = [
+            entry.type, typeLabel(entry.type), entry.message,
+            entry.instanceID && `${text('instance', 'Instance')} ${entry.instanceID}`,
+            entry.profile, date.toLocaleTimeString(), date.toLocaleString()
+        ].filter(Boolean).join(' ').toLowerCase();
+        return searchableText.includes(normalizedQuery);
+    });
 }
 
 export function createLogRow(entry) {
@@ -45,7 +56,8 @@ export function initializeActivityLog() {
     const status = document.getElementById('activity-log-status');
     const clear = document.getElementById('activity-log-clear');
     const filter = document.getElementById('activity-log-filter');
-    if(initialized || !dialog || !list || !status || !clear || !filter) return;
+    const search = document.getElementById('activity-log-search');
+    if(initialized || !dialog || !list || !status || !clear || !filter || !search) return;
     initialized = true;
     let pendingRender = null;
     let lastRenderedId = 0;
@@ -54,7 +66,7 @@ export function initializeActivityLog() {
         pendingRender = null;
         if(!dialog.open) return;
         const entries = activityLog.getEntries();
-        const visible = filterLogEntries(entries, filter.value);
+        const visible = filterLogEntries(entries, filter.value, search.value);
         const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
         while(list.firstElementChild && (!visible.length || Number(list.firstElementChild.dataset.id) < visible[0].id)) {
             list.firstElementChild.remove();
@@ -78,17 +90,22 @@ export function initializeActivityLog() {
     activityLog.subscribe(scheduleRender);
     new MutationObserver(scheduleRender).observe(dialog, { attributes: true, attributeFilter: ['open'] });
     clear.onclick = () => { activityLog.clear(); render(); };
-    filter.onchange = () => {
+    const resetVisibleEntries = () => {
         list.replaceChildren();
         lastRenderedId = 0;
         render();
     };
+    filter.onchange = resetVisibleEntries;
+    search.oninput = resetVisibleEntries;
     const translateUI = () => {
         document.querySelector('#activity-log-title').textContent = text('title', 'Activity Log');
         dialog.querySelector('.title p').textContent = text('subtitle', 'Engine messages, dynamic changes, warnings and errors');
         dialog.querySelector('.activity-log-filter-label span').textContent = text('show', 'Show');
+        dialog.querySelector('.activity-log-search-label span').textContent = text('search', 'Search');
+        search.placeholder = text('searchPlaceholder', 'Search log entries...');
         clear.textContent = text('clear', 'Clear log');
         filter.setAttribute('aria-label', text('filter', 'Filter activity by type'));
+        search.setAttribute('aria-label', text('search', 'Search'));
         [...filter.options].forEach(option => {
             option.textContent = option.value === 'all' ? text('all', 'All activity') : typeLabel(option.value);
         });

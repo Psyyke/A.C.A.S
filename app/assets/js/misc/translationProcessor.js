@@ -19,6 +19,13 @@
 		return `../assets/images/flags/${languageCode}.svg`;
 	}
 
+	function updateNoInstancesSubtitleFont() {
+		const subtitle = document.querySelector('#no-instances-subtitle');
+		if(!subtitle) return;
+		subtitle.classList.toggle('has-whisper-font',
+			/^[\p{Script_Extensions=Latin}\p{M}\p{N}\p{P}\p{Z}\s]*$/u.test(subtitle.textContent));
+	}
+
 	function initializeLanguageDropdown(dropdownElem) {
 		// Avoid re-attaching event listeners
 		if (dropdownElem.dataset.initialized) return;
@@ -85,6 +92,7 @@
 
 			updateTextContent();
 			translateConfig();
+			updateNoInstancesSubtitleFont();
 			document.dispatchEvent(new Event('acas-translations-updated'));
 
 			if(firstLoad) {

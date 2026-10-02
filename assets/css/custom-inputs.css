@@ -19,7 +19,7 @@ input:focus,
     font-size: 17px;
     pointer-events: none;
     text-transform: capitalize;
-    font-weight: 300;
+    font-weight: 400;
     margin-bottom: 2.5px;
     overflow-wrap: anywhere;
 }
@@ -211,6 +211,11 @@ textarea {
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
     resize: vertical;
+}
+.textfield-input input::placeholder,
+.textfield-input textarea::placeholder {
+    color: rgb(255 255 255 / 50%);
+    opacity: 1;
 }
 .webhook-template-editor {
     position: relative;

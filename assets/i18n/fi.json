@@ -230,6 +230,7 @@
             "openSetting": "Avaa asetuksen {setting} dynaamiset asetukset"
         },
         "activityLog": {
+            "search": "Hae", "searchPlaceholder": "Hae lokista…", "discordMessagePlaceholder": "Kirjoita Discord-viestisi tähän…",
             "title": "Tapahtumaloki", "subtitle": "Moottoriviestit, dynaamiset muutokset, varoitukset ja virheet",
             "show": "Näytä", "clear": "Tyhjennä loki", "filter": "Suodata tapahtumatyypin mukaan", "all": "Kaikki tapahtumat",
             "close": "Sulje tapahtumaloki", "instance": "Instanssi", "empty": "Ei vielä lokimerkintöjä.",

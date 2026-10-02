@@ -232,6 +232,7 @@
             "openSetting": "Abrir ajustes dinámicos de {setting}"
         },
         "activityLog": {
+            "search": "Buscar", "searchPlaceholder": "Buscar en el registro…", "discordMessagePlaceholder": "Escribe aquí tu mensaje de Discord…",
             "title": "Registro de actividad", "subtitle": "Mensajes del motor, cambios dinámicos, advertencias y errores",
             "show": "Mostrar", "clear": "Borrar registro", "filter": "Filtrar por tipo", "all": "Toda la actividad",
             "close": "Cerrar registro", "instance": "Instancia", "empty": "Todavía no hay registros.",
