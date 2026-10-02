@@ -118,6 +118,24 @@ test('Evaluation matches the bar for both player colors and either analyzed side
     assert(DynamicSettingsCore.formatVariableValue('evaluation', -100).startsWith('Losing'), 'Losing label missing');
 });
 
+test('Evaluation and move-number graph axes support their extended ranges', () => {
+    assert(DynamicSettingsCore.variables.evaluation.min === -10000
+        && DynamicSettingsCore.variables.evaluation.max === 10000, 'Evaluation range is too small');
+    assert(DynamicSettingsCore.variables.moveNumber.min === 1
+        && DynamicSettingsCore.variables.moveNumber.max === 1000, 'Move-number range is too small');
+
+    const evaluation = DynamicSettingsCore.normalizeCurve({
+        variable: 'evaluation', points: [{ x: -10000, y: 0 }, { x: 10000, y: 1 }]
+    });
+    const moveNumber = DynamicSettingsCore.normalizeCurve({
+        variable: 'moveNumber', points: [{ x: 1, y: 0 }, { x: 1000, y: 1 }]
+    });
+    assert(evaluation.points[0].x === -10000 && evaluation.points[1].x === 10000,
+        'Evaluation points were clipped to the old range');
+    assert(moveNumber.points[0].x === 1 && moveNumber.points[1].x === 1000,
+        'Move-number points were clipped to the old range');
+});
+
 test('Piece Count is bounded at 32 in shared resolution and legacy curve normalization', () => {
     close(DynamicSettingsCore.variables.pieceCount.max, 32);
     close(DynamicSettingsCore.getVariableValue('pieceCount', { pieceCount: 64 }), 32);

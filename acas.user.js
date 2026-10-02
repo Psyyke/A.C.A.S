@@ -117,9 +117,9 @@ const DynamicSettingsCore = (() => {
             max: 32,
             getValue: safeMethod(context => context?.pieceCount, () => null)
         }),
-        moveNumber: Object.freeze({ label: 'Move Number', min: 1, max: 200,
+        moveNumber: Object.freeze({ label: 'Move Number', min: 1, max: 1000,
             getValue: safeMethod(context => context?.moveNumber, () => null) }),
-        evaluation: Object.freeze({ label: 'Evaluation (your advantage, cp)', min: -1000, max: 1000,
+        evaluation: Object.freeze({ label: 'Evaluation (your advantage, cp)', min: -10000, max: 10000,
             getValue: safeMethod(context => context?.evaluation, () => null) })
     });
 
