@@ -80,7 +80,7 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             const enginesWithoutAdvancedElo = ['maia2', 'maia3', 'fairy-stockfish-nnue-wasm'];
             const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
 
-            ensureOneDynamicEngineSettingVisible(value);
+            ensureOneDynamicEngineSettingVisible();
 
             if(isExternal) {
                 chess960Checkbox.classList.remove('hidden');
@@ -123,14 +123,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             break;
         case 'externalChessEngine':
-            if(value) {
-                ensureOneDynamicEngineSettingVisible(value);
-            }
+            ensureOneDynamicEngineSettingVisible();
 
             break;
         case 'useExternalChessEngine':
             window.useExternalEngine = value;
             setIsExternalEngineSettingActive(value);
+            ensureOneDynamicEngineSettingVisible();
 
             if(IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID]) {
                 chessEngineDropdown.classList.add('blurred');

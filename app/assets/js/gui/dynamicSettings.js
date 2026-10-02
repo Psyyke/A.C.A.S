@@ -780,7 +780,12 @@ function fillAddSettingOptions() {
     const priorAddSetting = settingChosen ? ui['dynamic-add-setting'].value : '';
     ui['dynamic-add-setting'].replaceChildren();
     keys.forEach(key => {
-        const label = settingDisplayName(key);
+        const dynamicExternalSetting = /^DYNAMIC_([A-F\d]{32,})_(.+)$/i.exec(key);
+        const engineName = dynamicExternalSetting
+            ? GET_HUMAN_READABLE_EXTERNAL_ENGINE_NAME(dynamicExternalSetting[1]) : '';
+        const settingName = dynamicExternalSetting
+            ? settingDisplayName(dynamicExternalSetting[2]) : settingDisplayName(key);
+        const label = `${dynamicExternalSetting ? 'Dynamic ' : ''}${engineName ? `${engineName} ` : ''}${settingName}`;
         const option = new Option(label, key);
         option.title = key;
         ui['dynamic-add-setting'].appendChild(option);

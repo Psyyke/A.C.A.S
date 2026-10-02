@@ -6,6 +6,15 @@ import { guiBroadcastChannel } from '../gui.js';
 import { logActivity, formatLogValue } from '../misc/activityLog.js';
 
 let dynamicOptionThrottleSettingUpdate = null;
+let settingsUpdateVersion = 0;
+
+function getSettingFilter(settingElem) {
+    return {
+        ...SETTING_FILTER_OBJ,
+        profileID: settingElem.closest('.dynamic-setting-profile-container')?.dataset.profileId
+            ?? SETTING_FILTER_OBJ.profileID
+    };
+}
 
 export function importSettings() {
     const input = document.createElement('input');
@@ -110,6 +119,8 @@ export async function resetSettings() {
 }
 
 export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
+    // Capture the owner before storage awaits, so switching tabs cannot redirect a save.
+    const settingFilter = getSettingFilter(settingElem);
     const elemValue = getInputValue(settingElem);
 
     const settingObj = { 'key': settingElem.dataset.key, 'value': VAR_TO_CORRECT_TYPE(elemValue) };
@@ -119,57 +130,57 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
 
     const noProfile = settingElem.dataset.noProfile;
 
-    if(!noProfile && !SETTING_FILTER_OBJ.profileID) return;
+    if(!noProfile && !settingFilter.profileID) return;
 
-    const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
+    const profileKey = GET_PROFILE_STORAGE_KEY(settingFilter.profileID);
 
-    if(SETTING_FILTER_OBJ.instanceID) {
+    if(settingFilter.instanceID) {
         // Initialize the type object first
-        INIT_NESTED_OBJECT(config, [SETTING_FILTER_OBJ.type]);
-        let base = config[SETTING_FILTER_OBJ.type];
+        INIT_NESTED_OBJECT(config, [settingFilter.type]);
+        let base = config[settingFilter.type];
         
         // Initialize the instanceID object
-        INIT_NESTED_OBJECT(base, [SETTING_FILTER_OBJ.instanceID]);
+        INIT_NESTED_OBJECT(base, [settingFilter.instanceID]);
     
         if (noProfile) {
             const valueToSave = settingObj.key === 'chessEngineProfile'
                 ? GET_PROFILE_STORAGE_KEY(settingObj.value)
                 : settingObj.value;
 
-            config[SETTING_FILTER_OBJ.type][SETTING_FILTER_OBJ.instanceID][settingObj.key] = valueToSave;
+            config[settingFilter.type][settingFilter.instanceID][settingObj.key] = valueToSave;
         } else {
             // Initialize profiles and profileID objects
-            INIT_NESTED_OBJECT(base[SETTING_FILTER_OBJ.instanceID], ['profiles', profileKey]);
+            INIT_NESTED_OBJECT(base[settingFilter.instanceID], ['profiles', profileKey]);
     
-            config[SETTING_FILTER_OBJ.type][SETTING_FILTER_OBJ.instanceID]['profiles'][profileKey][settingObj.key] = settingObj.value;
+            config[settingFilter.type][settingFilter.instanceID]['profiles'][profileKey][settingObj.key] = settingObj.value;
         }
     } else {
         // Initialize the type object first so `base` is always defined
-        INIT_NESTED_OBJECT(config, [SETTING_FILTER_OBJ.type]);
-        let base = config[SETTING_FILTER_OBJ.type];
+        INIT_NESTED_OBJECT(config, [settingFilter.type]);
+        let base = config[settingFilter.type];
 
         if (noProfile) {
             const valueToSave = settingObj.key === 'chessEngineProfile'
                 ? GET_PROFILE_STORAGE_KEY(settingObj.value)
                 : settingObj.value;
 
-            config[SETTING_FILTER_OBJ.type][settingObj.key] = valueToSave;
+            config[settingFilter.type][settingObj.key] = valueToSave;
         } else {
             // Initialize profiles and profileID objects
             INIT_NESTED_OBJECT(base, ['profiles', profileKey]);
 
-            config[SETTING_FILTER_OBJ.type]['profiles'][profileKey][settingObj.key] = settingObj.value;
+            config[settingFilter.type]['profiles'][profileKey][settingObj.key] = settingObj.value;
         }
     }
 
     await USERSCRIPT.setValue(gmConfigKey, config);
 
     if(isDirectlyCausedByUser) logActivity('setting-change', `Saved ${settingObj.key}: ${formatLogValue(settingObj.value)}`, {
-        instanceID: SETTING_FILTER_OBJ.instanceID,
-        profile: noProfile ? null : GET_HUMAN_READABLE_PROFILE_NAME(SETTING_FILTER_OBJ.profileID)
+        instanceID: settingFilter.instanceID,
+        profile: noProfile ? null : GET_HUMAN_READABLE_PROFILE_NAME(settingFilter.profileID)
     });
 
-    const profile = await GET_PROFILE(SETTING_FILTER_OBJ.profileID);
+    const profile = await GET_PROFILE_FOR_INSTANCE(GET_HUMAN_READABLE_PROFILE_NAME(settingFilter.profileID), settingFilter.instanceID);
     if(profile?.config?.dynamicSettings) {
         // Keep the saved/default value in the setting broadcast. Dynamic values
         // are resolved when read for engine/runtime use, not written back here.
@@ -181,17 +192,18 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
         'data' : {
             'key': settingObj.key,
             'value': settingObj.value,
-            instanceID: SETTING_FILTER_OBJ.instanceID,
+            instanceID: settingFilter.instanceID,
             noProfile: Boolean(noProfile),
             isDirectlyCausedByUser,
             profile,
         }
     });
     
-    console.log(`[Setting Handler] Added config key ${settingObj.key} with value ${settingObj.value}\n-> Instance ${SETTING_FILTER_OBJ.instanceID ? SETTING_FILTER_OBJ.instanceID : '(No instance)'}, Profile ${noProfile ? '(No profile)' : SETTING_FILTER_OBJ.profileID}`);
+    console.log(`[Setting Handler] Added config key ${settingObj.key} with value ${settingObj.value}\n-> Instance ${settingFilter.instanceID ? settingFilter.instanceID : '(No instance)'}, Profile ${noProfile ? '(No profile)' : settingFilter.profileID}`);
 }
 
 export async function removeSetting(settingElem) {
+    const settingFilter = getSettingFilter(settingElem);
     const elemValue  = getInputValue(settingElem);
 
     const settingObj = { 'key': settingElem.dataset.key, 'value': VAR_TO_CORRECT_TYPE(elemValue) };
@@ -201,19 +213,19 @@ export async function removeSetting(settingElem) {
 
     const noProfile = settingElem.dataset.noProfile;
 
-    const profileKey = GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID);
+    const profileKey = GET_PROFILE_STORAGE_KEY(settingFilter.profileID);
 
-    if(SETTING_FILTER_OBJ.instanceID) {
+    if(settingFilter.instanceID) {
         if(noProfile) {
-            delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.[settingObj.key];
+            delete config?.[settingFilter.type]?.[settingFilter.instanceID]?.[settingObj.key];
         } else {
-            delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey]?.[settingObj.key];
+            delete config?.[settingFilter.type]?.[settingFilter.instanceID]?.['profiles']?.[profileKey]?.[settingObj.key];
         }
     } else {
         if(noProfile) {
-            delete config?.[SETTING_FILTER_OBJ.type]?.[settingObj.key];
+            delete config?.[settingFilter.type]?.[settingObj.key];
         } else {
-            delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey]?.[settingObj.key];
+            delete config?.[settingFilter.type]?.['profiles']?.[profileKey]?.[settingObj.key];
         }
     }
 
@@ -225,22 +237,32 @@ export async function removeSetting(settingElem) {
 }
 
 export async function loopThroughAndUpdateSettingsValues(isDirectlyCausedByUser) {
+    const version = ++settingsUpdateVersion;
+    const settingFilter = { ...SETTING_FILTER_OBJ };
+    const profileKey = GET_PROFILE_STORAGE_KEY(settingFilter.profileID);
     const inputElements = [...document.querySelectorAll('input[data-key], textarea[data-key]')];
 
     for(const inputElem of inputElements) {
+        const dynamicContainer = inputElem.closest('.dynamic-setting-profile-container');
+        // Hidden profiles have their own inputs, not shared controls for the selected profile.
+        if(dynamicContainer && dynamicContainer.dataset.profileId !== profileKey) continue;
+
         const key = inputElem.dataset.key;
         const noProfile = inputElem.dataset.noProfile;
 
         const value = noProfile
-            ? await GET_GM_CFG_BASE_VALUE(key, SETTING_FILTER_OBJ.instanceID, false)
-            : await GET_GM_CFG_BASE_VALUE(key, SETTING_FILTER_OBJ.instanceID, SETTING_FILTER_OBJ.profileID);
+            ? await GET_GM_CFG_BASE_VALUE(key, settingFilter.instanceID, false)
+            : await GET_GM_CFG_BASE_VALUE(key, settingFilter.instanceID, settingFilter.profileID);
+
+        if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
 
         if(typeof value === 'boolean' || value || value === 0) {
             setInputValue(inputElem, value);
             runSettingChangeObserver(inputElem, 50, true);
         } else {
             activateInputDefaultValue(inputElem);
-            saveSetting(inputElem, isDirectlyCausedByUser);
+            await saveSetting(inputElem, isDirectlyCausedByUser);
+            if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
             runSettingChangeObserver(inputElem, 5, true);
         }
     }

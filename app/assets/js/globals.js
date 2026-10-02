@@ -1334,6 +1334,26 @@ function GET_HUMAN_READABLE_PROFILE_NAME(profileName) {
     return profileName;
 }
 
+function GET_HUMAN_READABLE_EXTERNAL_ENGINE_NAME(engineId) {
+    if(typeof engineId !== 'string' || !engineId) return '';
+
+    const engineItem = [...document.querySelectorAll('#external-engine-dropdown .dropdown-item')]
+        .find(item => item.dataset.value === engineId);
+    const header = engineItem?.querySelector(':scope > div');
+    const executableName = header?.querySelector('.engine-type-tag')?.textContent?.trim() || '';
+    const title = [...(header?.childNodes ?? [])]
+        .filter(node => node.nodeType === Node.TEXT_NODE)
+        .map(node => node.textContent)
+        .join(' ').trim().replace(/\s+/g, ' ');
+
+    if(!title) return executableName;
+
+    const normalizeName = name => name.toLowerCase().replace(/\.(exe|com|bat|cmd)$/i, '').replace(/[^a-z\d]/g, '');
+    return normalizeName(title) === normalizeName(executableName)
+        ? title
+        : `${title} ${executableName}`.trim();
+}
+
 function GET_PROFILE_STORAGE_KEY(profileName) {
     if(profileName === 'default') return 'default';
     const rawName = String(GET_HUMAN_READABLE_PROFILE_NAME(profileName));

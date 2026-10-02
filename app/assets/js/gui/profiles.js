@@ -144,10 +144,8 @@ function addProfileTabItem(tabsElem, profileName, isDefault) {
             saveSetting(inputElem, true); // save the profile setting
             loopThroughAndUpdateSettingsValues(e.isTrusted); // update values since profile changed
 
-            setTimeout(async () => {
-                const engineId = await GET_ACTIVE_ENGINE_NAME(profileName);
-                ensureOneDynamicEngineSettingVisible(engineId);
-            }, 250);
+            // Use the current selection, even if another tab was clicked during the delay.
+            setTimeout(() => ensureOneDynamicEngineSettingVisible(), 250);
         }
     }
 

@@ -7,17 +7,22 @@ export { resetDynamicOptionsReady, setDynamicOptionsReady, onDynamicOptionsReady
     setDynamicOption, getDynamicOption, getDynamicEngineDbKeyPrefix } from './dynamicEngineOptionState.js';
 
 function getDynamicEngineSettingDatasetKey(engineId, profileName) {
-    return `DYNAMIC_${engineId}_${profileName}`;
+    // Engine messages use decoded names; profile tabs use storage keys.
+    return `DYNAMIC_${engineId}_${GET_PROFILE_STORAGE_KEY(profileName)}`;
 }
 
 export function ensureOneDynamicEngineSettingVisible(engineId) {
+    if(engineId === undefined) {
+        const isExternal = document.querySelector('input[data-key="useExternalChessEngine"]')?.checked;
+        engineId = document.querySelector(`input[data-key="${isExternal ? 'externalChessEngine' : 'chessEngine'}"]`)?.value;
+    }
+
     const dynamicEngineSettingContainers = [...document.querySelectorAll('.dynamic-setting-profile-container')];
+    const currentCorrectKey = getDynamicEngineSettingDatasetKey(engineId, SETTING_FILTER_OBJ.profileID);
 
     let didShowAtLeastOne = false;
 
     dynamicEngineSettingContainers.forEach(container => {
-        const currentCorrectKey = getDynamicEngineSettingDatasetKey(engineId, SETTING_FILTER_OBJ.profileID);
-
         if(container.dataset.id === currentCorrectKey) {
             container.classList.remove('hidden');
             didShowAtLeastOne = true;
@@ -54,7 +59,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     const dbKey = getDynamicEngineDbKeyPrefix(currentEngineId) + name.replaceAll(' ', '-');
 
     // Inputs edit the saved fallback, never the live value produced by a curve.
-    const existingDbValue = await GET_GM_CFG_BASE_VALUE(dbKey, SETTING_FILTER_OBJ.instanceID, profileName);
+    const existingDbValue = await GET_GM_CFG_BASE_VALUE(dbKey, instanceID, profileName);
     const profileContainerId = getDynamicEngineSettingDatasetKey(currentEngineId, profileName);
 
     const defaultValue = def === null ? '' : def;
@@ -67,12 +72,16 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
         profileContainer = document.createElement('div');
         profileContainer.classList.add('dynamic-setting-profile-container');
         profileContainer.dataset.id = profileContainerId;
+        profileContainer.dataset.profileId = GET_PROFILE_STORAGE_KEY(profileName);
 
-        if(profileName !== SETTING_FILTER_OBJ.profileID)
+        if(GET_PROFILE_STORAGE_KEY(profileName) !== GET_PROFILE_STORAGE_KEY(SETTING_FILTER_OBJ.profileID))
             profileContainer.classList.add('hidden');
 
         dynamicSettingsContainer.appendChild(profileContainer);
     }
+
+    // Options can arrive after the profile-switch visibility check has run.
+    ensureOneDynamicEngineSettingVisible();
 
     const doesOptionAlreadyExist = profileContainer.querySelector(`*[data-key="${dbKey}"]`);
     if(doesOptionAlreadyExist) return;
