@@ -823,7 +823,7 @@ async function GET_PROFILE_FOR_INSTANCE(profileName, instanceID) {
 
     for(const [key, curve] of Object.entries(profile.config?.[DYNAMIC_SETTINGS_STORAGE_KEY] ?? {})) {
         const baseValue = profile.config[key];
-        const resolved = DynamicSettingsCore?.resolveValue(
+        const resolved = (typeof AppDynamicSettingsCore === 'undefined' ? DynamicSettingsCore : AppDynamicSettingsCore).resolveValue(
             baseValue,
             curve,
             DynamicSettingsCore?.getContext(instanceID)
@@ -895,7 +895,7 @@ async function GET_GM_CFG_VALUE(key, instanceID, profileID) {
     const curve = instanceProfile?.[DYNAMIC_SETTINGS_STORAGE_KEY]?.[key]
         ?? globalProfile?.[DYNAMIC_SETTINGS_STORAGE_KEY]?.[key];
     if(curve && curve.enabled) {
-        return DynamicSettingsCore?.resolveValue(
+        return (typeof AppDynamicSettingsCore === 'undefined' ? DynamicSettingsCore : AppDynamicSettingsCore).resolveValue(
             value,
             curve,
             DynamicSettingsCore?.getContext(instanceID)

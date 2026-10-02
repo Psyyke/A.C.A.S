@@ -2548,7 +2548,8 @@ input[disabled] {
     flex: 0 0 auto;
     white-space: nowrap;
 }
-#dynamic-settings-floaty .dynamic-point-inspector > label {
+#dynamic-settings-floaty .dynamic-point-inspector > label,
+#dynamic-settings-floaty #dynamic-point-text-control {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -2570,6 +2571,36 @@ input[disabled] {
 #dynamic-settings-floaty #dynamic-point-choice {
     width: 200px;
     max-width: 40vw;
+}
+#dynamic-settings-floaty #dynamic-point-text {
+    width: 200px;
+    max-width: 40vw;
+}
+#dynamic-settings-floaty #dynamic-apply-text {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border: 1px solid rgb(255 255 255 / 20%);
+    border-radius: 4px;
+    background: rgb(0 0 0 / 30%);
+    color: white;
+    font: inherit;
+    cursor: pointer;
+}
+#dynamic-settings-floaty #dynamic-apply-text:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+#dynamic-settings-floaty #dynamic-apply-text:not(:disabled):is(:hover, :focus-visible) {
+    border-color: rgb(255 255 255 / 55%);
+    background: rgb(255 255 255 / 10%);
+}
+@media (max-width: 700px), (pointer: coarse) and (max-width: 1100px) {
+    #dynamic-settings-floaty #dynamic-point-text {
+        height: 44px;
+    }
+    #dynamic-settings-floaty #dynamic-apply-text {
+        min-height: 44px;
+    }
 }
 #log-floaty #activity-log-filter:not(:disabled):is(:hover, :focus-visible),
 #log-floaty #activity-log-clear:not(:disabled):is(:hover, :focus-visible),
@@ -2753,7 +2784,8 @@ input[disabled] {
     #dynamic-settings-floaty .dynamic-point-inspector > span {
         display: none;
     }
-    #dynamic-settings-floaty .dynamic-point-inspector > label {
+    #dynamic-settings-floaty .dynamic-point-inspector > label,
+    #dynamic-settings-floaty #dynamic-point-text-control {
         flex: 0 0 auto;
         min-width: 0;
     }

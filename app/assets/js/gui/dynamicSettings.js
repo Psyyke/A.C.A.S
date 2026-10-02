@@ -1,11 +1,11 @@
 import { clamp, fittedViewport, fittedCurveViewport, zoomAxis, panAxis, axisDomain, tickValues, formatTick, formatSettingValue, graphProfileStyle, moveCurvePoint, insertionX, modifierAxes, settingDisplayName, filterGraphLines, shouldCollapseVariableTabs, setInterpolationLockVisibility } from './dynamicGraph.js';
 import { getOwnedSettingInput, describeDynamicSetting, createDynamicSettingShortcut, updateDynamicSettingShortcut, restoreDynamicSettingShortcutFocus } from './dynamicSettingShortcuts.js';
-import { describeSettingInput, categoricalCurveDefinition, alignCategoricalCurves } from './dynamicSettingDefinitions.js';
+import { describeSettingInput, categoricalCurveDefinition, alignCategoricalCurves, coercePointY } from './dynamicSettingDefinitions.js';
 import { otherVariableLines, createVariableLinks, confirmLineRemoval } from './dynamicSettingActions.js';
 import { logActivity } from '../misc/activityLog.js';
 import { dynamicText as text, dynamicVariableLabel } from '../misc/featureTranslations.js';
 
-const core = DynamicSettingsCore;
+const core = AppDynamicSettingsCore;
 const STORAGE_KEY = DYNAMIC_SETTINGS_STORAGE_KEY;
 const graph = document.querySelector('#dynamic-settings-graph');
 const svgNS = 'http://www.w3.org/2000/svg';
@@ -18,7 +18,8 @@ const ui = Object.fromEntries([
     'dynamic-zoom-in', 'dynamic-zoom-out', 'dynamic-fit-graph',
     'dynamic-current-values', 'dynamic-lines-list', 'dynamic-add-point',
     'dynamic-variable-control', 'dynamic-variable-compact',
-    'dynamic-point-x', 'dynamic-point-y', 'dynamic-point-status', 'dynamic-point-choice'
+    'dynamic-point-x', 'dynamic-point-y', 'dynamic-point-status', 'dynamic-point-choice',
+    'dynamic-point-text-control', 'dynamic-point-text', 'dynamic-apply-text'
 ].map(id => [id, document.getElementById(id)]));
 
 let curves = [];
@@ -55,6 +56,8 @@ function translateUI() {
         ['#dynamic-delete-line', 'removeLine', 'Remove line'],
         ['#dynamic-add-point', 'addPoint', '＋ Point'],
         ['#dynamic-delete-point', 'deletePoint', 'Delete point'],
+        ['#dynamic-apply-text', 'useText', 'Use text'],
+        ['#dynamic-point-text-control label', 'textLabel', 'Text'],
         ['.dynamic-field-label', 'curve', 'Curve'],
         ['#dynamic-interpolation option[value=""]', 'selectLine', 'Select line'],
         ['#dynamic-interpolation option[value="step"]', 'step', 'Step'],
@@ -78,12 +81,15 @@ function translateUI() {
         ['#dynamic-point-x', 'pointX', 'Selected point X value'],
         ['#dynamic-point-y', 'pointY', 'Selected point Y value'],
         ['#dynamic-point-choice', 'pointY', 'Selected point Y value'],
+        ['#dynamic-point-text', 'pointText', 'Custom text for selected point'],
         ['#dynamic-settings-graph', 'title', 'Dynamic Settings']
     ].forEach(([selector, key, fallback]) => { dialog.querySelector(selector).setAttribute('aria-label', text(key, fallback)); });
     const evaluationHint = text('evaluationHint', 'Your advantage: negative means losing, zero means equal, positive means winning. Uses the latest completed primary evaluation.');
     dialog.querySelector('#dynamic-tab-evaluation').title = evaluationHint;
     ui['dynamic-variable-compact'].title = variable === 'evaluation' ? evaluationHint : '';
     ui['dynamic-fit-graph'].title = text('fitHint', 'Fit both axes with space around the line');
+    ui['dynamic-point-text'].placeholder = text('customText', 'Custom text');
+    ui['dynamic-apply-text'].title = text('useTextHint', 'Use this exact text at the selected point. Empty text is allowed.');
     graph.setAttribute('aria-description', text('graphHint', 'Drag points to move them, drag empty space to pan, pinch or scroll to zoom. Arrow keys move a selected point by the current scale; Shift moves it by ten steps. Delete removes the selected point.'));
     const fullscreen = dialog.classList.contains('is-graph-fullscreen');
     ui['dynamic-fullscreen-toggle'].setAttribute('aria-label', text(fullscreen ? 'exitFullscreen' : 'fullscreen', fullscreen ? 'Exit fullscreen graph' : 'Fullscreen graph'));
@@ -124,9 +130,9 @@ function refreshSettingShortcuts(event) {
         const line = curves.find(item => item.profile === activeProfile && item.key === key);
         const input = getOwnedSettingInput(button.closest('.custom-input'));
         const rawBase = input?.type === 'checkbox' ? input.checked : input?.value;
-        const base = rawBase === '' || rawBase == null
-            ? settingBase(activeProfile, key)
-            : VAR_TO_CORRECT_TYPE(rawBase);
+        const definition = getSettingDefinition(key);
+        const base = definition?.text && rawBase != null ? rawBase
+            : rawBase === '' || rawBase == null ? settingBase(activeProfile, key) : VAR_TO_CORRECT_TYPE(rawBase);
         const settingName = settingLabel(key);
         const contexts = previewContexts();
         const state = describeDynamicSetting(core, base, line?.curve, currentContext, settingName);
@@ -198,7 +204,11 @@ function selectedLine() {
 
 function yBounds(line) {
     const definition = getSettingDefinition(line?.key ?? ui['dynamic-add-setting'].value);
-    return { min: definition?.min ?? 0, max: definition?.max ?? 1 };
+    // A finite coordinate reference is independent of optional value constraints.
+    // Keep it stable during dragging, even when a point moves beyond this range.
+    const min = definition?.min ?? (definition?.max != null ? definition.max - 1 : 0);
+    const max = definition?.max ?? min + 1;
+    return { min, max: max > min ? max : min + 1 };
 }
 
 function yDomain(line) {
@@ -209,20 +219,27 @@ function yDomain(line) {
 function fitGraphViewport() {
     // Step, linear and monotone smooth curves stay within their point bounds.
     // Hidden profiles and live-position markers must not expand the fitted view.
+    const definition = getSettingDefinition(ui['dynamic-add-setting'].value);
     return fittedCurveViewport(visibleLines().flatMap(line => line.curve.points),
-        core.variables[variable], yBounds(), Boolean(getSettingDefinition(ui['dynamic-add-setting'].value)?.boolean));
+        core.variables[variable], yBounds(), Boolean(definition?.boolean),
+        Boolean(definition?.decimal || definition?.type === 'number' && (definition.min == null || definition.max == null)));
 }
 
 function zoomViewportAxis(axis, view, factor, anchor) {
     const bounds = axis === 'x' ? core.variables[variable] : yBounds();
     // Allow tight fits even for settings whose full domain spans millions of values.
-    const minimumSpan = Math.min(1 / 64, 1 / (bounds.max - bounds.min || 1));
-    return zoomAxis(view, factor, anchor, minimumSpan);
+    const definition = axis === 'y' && getSettingDefinition(ui['dynamic-add-setting'].value);
+    const decimal = definition?.decimal;
+    const minimumSpan = decimal ? 1e-12 / (bounds.max - bounds.min || 1)
+        : Math.min(1 / 64, 1 / (bounds.max - bounds.min || 1));
+    const unbounded = definition?.type === 'number' && (definition.min == null || definition.max == null);
+    return zoomAxis(view, factor, anchor, minimumSpan, unbounded ? Number.MAX_VALUE : Math.max(16, view.span));
 }
 
-function snapStep(domain) {
+function snapStep(domain, decimal = false) {
     // Use finer increments as the visible axis range shrinks with zoom.
-    return 10 ** Math.floor(Math.log10(Math.max(1, (domain.max - domain.min) / 10)));
+    const extent = (domain.max - domain.min) / (decimal ? 100 : 10);
+    return 10 ** Math.floor(Math.log10(Math.max(decimal ? 1e-12 : 1, extent)));
 }
 
 function selectLine(line, pointIndex = -1) {
@@ -299,7 +316,9 @@ function createSvg(tag, attrs = {}, text = '') {
 function settingBase(profileName, key) {
     const profile = profileInfo.find(item => item.name === profileName);
     const value = profile?.config?.[key];
-    return value ?? VAR_TO_CORRECT_TYPE(getSettingDefinition(key)?.input.dataset.defaultValue ?? 0);
+    const definition = getSettingDefinition(key);
+    const fallback = definition?.input.dataset.defaultValue ?? 0;
+    return definition?.text ? String(value ?? fallback) : value ?? VAR_TO_CORRECT_TYPE(fallback);
 }
 
 function lineValue(line) {
@@ -329,11 +348,10 @@ function render() {
     const compact = graph.getBoundingClientRect().width < 600;
     const axisDefinition = getSettingDefinition(ui['dynamic-add-setting'].value);
     const booleanAxis = Boolean(axisDefinition?.boolean);
-    const bounds = yBounds(activeLine);
     const yTicks = axisDefinition?.categorical ? axisDefinition.values.map((_, index) => index).filter(value => value >= activeY.min && value <= activeY.max)
         : booleanAxis ? [0, 1].filter(value => value >= activeY.min && value <= activeY.max)
-        : tickValues(activeY.min, activeY.max, 5, true);
-    [bounds.min, bounds.max].forEach(value => {
+        : tickValues(activeY.min, activeY.max, 5, !axisDefinition?.decimal);
+    [axisDefinition?.min, axisDefinition?.max].filter(Number.isFinite).forEach(value => {
         if(value >= activeY.min && value <= activeY.max && !yTicks.includes(value)
             && viewport.y.span >= 1) yTicks.push(value);
     });
@@ -341,7 +359,8 @@ function render() {
     const tickLabel = value => axisDefinition?.categorical ? axisDefinition.labels[value] : formatTick(value);
     const widestTick = Math.max(1, ...yTicks.map(value => tickLabel(value).length));
     // Do not move the coordinate origin underneath an active drag/pinch.
-    if(!pointers.size) plot.left = clamp(widestTick * (compact ? 6 : 7) + 10, compact ? 28 : 32,
+    // Match the label truncation padding so four-digit values fit without an ellipsis.
+    if(!pointers.size) plot.left = clamp(widestTick * (compact ? 6 : 7) + 12, compact ? 28 : 32,
         axisDefinition?.categorical ? Math.min(compact ? 135 : 210, graph.getBoundingClientRect().width * 0.36) : compact ? 66 : 78);
     const width = plot.right - plot.left;
     const xToPixel = x => plot.left + (x - domain.min) / (domain.max - domain.min || 1) * width;
@@ -656,12 +675,14 @@ function syncSelectedLine() {
     const definition = line && getSettingDefinition(line.key);
     const boolean = Boolean(definition?.boolean || definition?.categorical);
     ui['dynamic-add-point'].disabled = disabled || !line.curve.enabled;
-    ui['dynamic-add-point'].title = disabled ? text('selectLine', 'Select a line first') : !line.curve.enabled ? text('enableFirst', 'Enable this line in the legend to add a point') : text('addPointHint', 'Add a whole-number point to the selected line');
+    ui['dynamic-add-point'].title = disabled ? text('selectLine', 'Select a line first') : !line.curve.enabled ? text('enableFirst', 'Enable this line in the legend to add a point') : text('addValuePointHint', 'Add a point to the selected line');
     ui['dynamic-interpolation'].disabled = disabled || boolean;
     ui['dynamic-interpolation'].title = boolean ? text('stepLocked', 'Step is locked for this setting.') : disabled ? text('selectLine', 'Select a line first') : text('editing', 'Editing {setting} from {profile}.', { setting: line.label, profile: GET_HUMAN_READABLE_PROFILE_NAME(line.profile) });
     if(boolean) ui['dynamic-interpolation'].value = 'step';
     setInterpolationLockVisibility(ui['dynamic-interpolation-lock'], boolean);
-    ui['dynamic-interpolation-status'].textContent = boolean ? text('stepLocked', 'Step is locked for this setting.') : disabled ? text('selectLine', 'Select a line to edit its curve.') : text('editing', 'Editing {setting} from {profile}.', { setting: line.label, profile: GET_HUMAN_READABLE_PROFILE_NAME(line.profile) });
+    ui['dynamic-interpolation-status'].textContent = definition?.text
+        ? text('textStepHint', 'Text changes at each point. Select a saved choice or enter custom text and choose Use text; labels are not interpolated.')
+        : boolean ? text('stepLocked', 'Step is locked for this setting.') : disabled ? text('selectLine', 'Select a line to edit its curve.') : text('editing', 'Editing {setting} from {profile}.', { setting: line.label, profile: GET_HUMAN_READABLE_PROFILE_NAME(line.profile) });
     ui['dynamic-interpolation'].closest('label').classList.toggle('is-locked', ui['dynamic-interpolation'].disabled);
     ui['dynamic-interpolation'].closest('label').title = ui['dynamic-interpolation'].title;
     ui['dynamic-delete-line'].title = disabled ? text('selectLine', 'Select a line first') : text('removeFromProfile', 'Remove {setting} from {profile}', { setting: line.label, profile: GET_HUMAN_READABLE_PROFILE_NAME(line.profile) });
@@ -676,6 +697,15 @@ function updatePointInspector() {
     ui['dynamic-point-y'].hidden = categorical;
     ui['dynamic-point-choice'].hidden = !categorical;
     ui['dynamic-point-choice'].disabled = !point;
+    ui['dynamic-point-text-control'].hidden = !definition?.text;
+    ui['dynamic-point-text'].disabled = !point;
+    ui['dynamic-apply-text'].disabled = !point;
+    const textPoint = point ? `${lineId(line)}\u0000${selectedPointIndex}` : '';
+    if(ui['dynamic-point-text'].dataset.point !== textPoint || document.activeElement !== ui['dynamic-point-text']) {
+        ui['dynamic-point-text'].value = point && definition?.text ? definition.values[point.y] ?? '' : '';
+        ui['dynamic-point-text'].dataset.point = textPoint;
+        ui['dynamic-point-text'].setCustomValidity('');
+    }
     if(categorical) {
         const choices = ui['dynamic-point-choice'];
         const signature = JSON.stringify([definition.values, definition.labels]);
@@ -689,9 +719,10 @@ function updatePointInspector() {
     ['x', 'y'].forEach(axis => {
         const input = ui[`dynamic-point-${axis}`];
         input.disabled = !point;
-        const bounds = axis === 'x' ? core.variables[variable] : yBounds(line);
-        input.min = bounds.min;
-        input.max = bounds.max;
+        const bounds = axis === 'x' ? core.variables[variable] : definition;
+        input.min = bounds?.min ?? '';
+        input.max = bounds?.max ?? '';
+        input.step = axis === 'y' && definition?.decimal ? 'any' : '1';
         if(document.activeElement !== input) input.value = point ? point[axis] : '';
     });
     ui['dynamic-point-status'].textContent = point
@@ -729,6 +760,7 @@ async function loadCurves() {
             if(!definition || !curve || !Array.isArray(curve.points) || !core.variables[curve.variable]) return;
             const dropdown = categoricalCurveDefinition(definition, curve);
             const normalized = core.normalizeCurve({ ...curve, boolean: Boolean(definition.boolean),
+                decimal: Boolean(definition.decimal), text: Boolean(definition.text),
                 ...(dropdown.categorical ? { values: dropdown.values } : {}), minY: dropdown.min, maxY: dropdown.max });
             const points = normalized.points;
             if(!points.length) return;
@@ -847,6 +879,7 @@ function saveLine(line) {
     const definition = getSettingDefinition(line.key);
     if(!definition || !line.curve.points.length) return pendingSaves;
     line.curve = core.normalizeCurve({ ...line.curve, boolean: Boolean(definition.boolean),
+        decimal: Boolean(definition.decimal), text: Boolean(definition.text),
         ...(definition.categorical ? { values: definition.values } : {}),
         outsideRange: 'default', resetAtStart: line.key === 'chessEngine', minY: definition.min, maxY: definition.max });
     const snapshot = structuredClone(line);
@@ -882,12 +915,14 @@ function addLine() {
         selectLine(line);
         return;
     }
-    const base = definition.categorical ? 0 : clamp(Math.round(Number(settingBase(profile, key))), definition.min, definition.max);
+    const rawBase = Number(settingBase(profile, key));
+    const base = definition.categorical ? 0 : coercePointY(Number.isFinite(rawBase) ? rawBase : 0, definition);
     line = {
         profile, key, label: settingLabel(key),
         curve: {
             enabled: true,
             boolean: Boolean(definition.boolean),
+            decimal: Boolean(definition.decimal), text: Boolean(definition.text),
             ...(definition.categorical ? { values: definition.values } : {}),
             outsideRange: 'default', resetAtStart: key === 'chessEngine',
             variable,
@@ -941,10 +976,34 @@ function setPointPosition(x, y) {
     const line = selectedLine();
     const definition = getSettingDefinition(line?.key);
     if(!definition || !line.curve.points[selectedPointIndex] || !Number.isFinite(x) || !Number.isFinite(y)) return;
-    y = clamp(Math.round(y), definition.min, definition.max);
+    y = coercePointY(y, definition);
     const domain = graphDomain();
     ++loadVersion;
-    selectedPointIndex = moveCurvePoint(line.curve.points, selectedPointIndex, x, y, domain.absoluteMin, domain.absoluteMax);
+    selectedPointIndex = moveCurvePoint(line.curve.points, selectedPointIndex, x, y, domain.absoluteMin, domain.absoluteMax, definition.decimal);
+    render();
+}
+
+function applyPointText() {
+    const line = selectedLine();
+    const point = line?.curve.points[selectedPointIndex];
+    const definition = line && getSettingDefinition(line.key);
+    if(!point || !definition?.text) return;
+    ++loadVersion;
+    const value = ui['dynamic-point-text'].value;
+    const valid = !/[<>\r\n\u0000]/.test(value) && value !== 'value';
+    ui['dynamic-point-text'].setCustomValidity(valid ? '' : text('invalidEngineText', 'This engine option cannot contain angle brackets or control characters, or be the reserved word "value".'));
+    if(!valid) { ui['dynamic-point-text'].reportValidity(); return; }
+    line.curve.values = [...definition.values];
+    if(!line.curve.values.includes(value)) line.curve.values.push(value);
+    point.y = line.curve.values.indexOf(value);
+    const lines = curves.filter(item => item.key === line.key);
+    // Every profile needs the same label coordinates. Reindex other profiles by
+    // their saved text, never by the newly inserted label's numeric position.
+    alignCategoricalCurves(lines, getSettingDefinition(line.key));
+    viewport = fitGraphViewport();
+    fitted = true;
+    lines.forEach(item => saveLine(item));
+    syncSelectedLine();
     render();
 }
 
@@ -957,10 +1016,9 @@ function addPoint() {
     // Insert into the largest available integer gap; background clicks never add points.
     const x = insertionX(line.curve.points, min, max);
     if(x === null) return;
-    const bounds = yBounds(line);
     const definition = getSettingDefinition(line.key);
-    const y = clamp(Math.round(core.evaluateCurve({ ...line.curve, enabled: true }, x)
-        ?? (definition.categorical ? 0 : Number(settingBase(line.profile, line.key)))), bounds.min, bounds.max);
+    const y = coercePointY(core.evaluateCurve({ ...line.curve, enabled: true }, x)
+        ?? (definition.categorical ? 0 : Number(settingBase(line.profile, line.key))), definition);
     const point = { x, y };
     line.curve.points.push(point);
     line.curve.points.sort((a, b) => a.x - b.x);
@@ -1047,10 +1105,10 @@ function onGraphPointerMove(event) {
         if(!line) return;
         const x = graphDomain(), y = yDomain(line);
         const definition = getSettingDefinition(line.key);
-        const stepX = snapStep(x), stepY = definition.boolean || definition.categorical ? 1 : snapStep(y);
+        const stepX = snapStep(x), stepY = definition.boolean || definition.categorical ? 1 : snapStep(y, definition.decimal);
         setPointPosition(
             Math.round((x.min + position.x * (x.max - x.min)) / stepX) * stepX,
-            Math.round((y.min + position.y * (y.max - y.min)) / stepY) * stepY
+            Number((Math.round((y.min + position.y * (y.max - y.min)) / stepY) * stepY).toPrecision(12))
         );
         drag.changed = true;
         return;
@@ -1094,7 +1152,7 @@ function onGraphKeyDown(event) {
     const dx = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0;
     const dy = event.key === 'ArrowDown' ? -1 : event.key === 'ArrowUp' ? 1 : 0;
     setPointPosition(point.x + dx * multiplier * snapStep(graphDomain()),
-        point.y + dy * (definition.boolean || definition.categorical ? 1 : multiplier * snapStep(yDomain(line))));
+        Number((point.y + dy * (definition.boolean || definition.categorical ? 1 : multiplier * snapStep(yDomain(line), definition.decimal))).toPrecision(12)));
     saveLine(line);
 }
 
@@ -1133,6 +1191,11 @@ function initialize() {
     };
     ui['dynamic-add-point'].onclick = addPoint;
     ui['dynamic-delete-point'].onclick = deletePoint;
+    ui['dynamic-apply-text'].onclick = applyPointText;
+    ui['dynamic-point-text'].oninput = () => ui['dynamic-point-text'].setCustomValidity('');
+    ui['dynamic-point-text'].onkeydown = event => {
+        if(event.key === 'Enter' && !event.isComposing) { event.preventDefault(); applyPointText(); }
+    };
     ui['dynamic-point-choice'].onchange = () => {
         const line = selectedLine();
         const point = line?.curve.points[selectedPointIndex];
@@ -1146,14 +1209,19 @@ function initialize() {
             const point = selectedLine()?.curve.points[selectedPointIndex];
             if(!point || input.value === '' || !Number.isFinite(input.valueAsNumber)) return;
             setPointPosition(axis === 'x' ? input.valueAsNumber : point.x, axis === 'y' ? input.valueAsNumber : point.y);
-            // Permit completing typed decimal text; the point is already snapped,
-            // and the committed input is replaced with its integer on change.
+            // Allow incomplete numeric text while typing. Only integer settings
+            // snap Y; continuous settings retain the entered fractional value.
         };
         input.onchange = () => {
             const line = selectedLine();
             const point = line?.curve.points[selectedPointIndex];
             if(!point) return;
             input.value = point[axis];
+            const domain = axis === 'x' ? graphDomain() : yDomain(line);
+            if(point[axis] < domain.min || point[axis] > domain.max) {
+                viewport = fitGraphViewport();
+                fitted = true;
+            }
             saveLine(line);
         };
     });

@@ -13,7 +13,7 @@ export default async function applyDynamicOption(userscriptDbKey, optionValue, p
     if(this.pV[profileName] !== profileVariables || this.instanceClosed
         || name === undefined || defaultValue === undefined
         || !userscriptDbKey.startsWith(dbPrefix) || optionValue == null
-        || (typeof optionValue === 'string' && (/[<>]/.test(optionValue) || optionValue === 'value')))
+        || (typeof optionValue === 'string' && (/[<>\r\n\u0000]/.test(optionValue) || optionValue === 'value')))
         return false;
 
     // Use loaded-engine bounds, even when an older saved curve has a wider range.

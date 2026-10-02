@@ -33,6 +33,7 @@
 		<script src="../assets/libraries/FileSaver/FileSaver.js"></script>
 		<script src="../userscript-components/UniversalBoardDrawer.js"></script>
 		<script src="../userscript-components/DynamicSettings.js"></script>
+		<script src="./assets/js/dynamicSettingsCore.js"></script>
 		<script src="../assets/libraries/SnapDOM/snapdom.min.js"></script>
 		<script type="module" src="./assets/js/misc/exposeModules.js"></script>
 		<script src="./assets/js/globals.js"></script>
@@ -311,6 +312,7 @@
 												<span id="dynamic-point-status">Select a point to edit its coordinates.</span>
 												<label>X <input id="dynamic-point-x" type="number" step="1" aria-label="Selected point X value" disabled></label>
 												<label>Y <input id="dynamic-point-y" type="number" step="1" aria-label="Selected point Y value" disabled><select id="dynamic-point-choice" aria-label="Selected point dropdown value" hidden disabled></select></label>
+												<div id="dynamic-point-text-control" hidden><label for="dynamic-point-text">Text</label><input id="dynamic-point-text" type="text" aria-label="Custom text for selected point" placeholder="Custom text" disabled><button id="dynamic-apply-text" type="button" disabled>Use text</button></div>
 											</div>
 										</div>
 										<div id="dynamic-lines-list" class="dynamic-lines-list" role="group" aria-label="Profiles for the selected setting"></div>

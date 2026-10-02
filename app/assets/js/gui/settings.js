@@ -123,7 +123,8 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
     const settingFilter = getSettingFilter(settingElem);
     const elemValue = getInputValue(settingElem);
 
-    const settingObj = { 'key': settingElem.dataset.key, 'value': VAR_TO_CORRECT_TYPE(elemValue) };
+    const settingObj = { 'key': settingElem.dataset.key,
+        'value': settingElem.dataset.dynamicValueType === 'text' ? String(elemValue) : VAR_TO_CORRECT_TYPE(elemValue) };
 
     const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
@@ -256,7 +257,8 @@ export async function loopThroughAndUpdateSettingsValues(isDirectlyCausedByUser)
 
         if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
 
-        if(typeof value === 'boolean' || value || value === 0) {
+        if(typeof value === 'boolean' || value || value === 0
+            || value === '' && inputElem.dataset.dynamicValueType === 'text') {
             setInputValue(inputElem, value);
             runSettingChangeObserver(inputElem, 50, true);
         } else {

@@ -11,7 +11,7 @@ export function describeDynamicSetting(core, base, curve, context, name) {
     const format = formatSettingValue;
     const variableName = core.variables[curve?.variable]
         ? dynamicVariableLabel(curve.variable, core.variables[curve.variable].label) : null;
-    const enabled = Boolean(curve?.enabled && variableName && core.normalizePoints(curve.points).length);
+    const enabled = Boolean(curve?.enabled && variableName && core.normalizeCurve(curve).points.length);
     const variableValue = enabled ? core.getVariableValue(curve.variable, context) : null;
     const result = variableValue === null ? null : core.evaluateCurve(curve, variableValue);
     const usesSavedChoice = result !== null && Array.isArray(curve?.values) && curve.values[Math.round(result)] == null;

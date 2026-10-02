@@ -30,7 +30,7 @@ export function setInputValue(elem, val, min, max) {
             }
         }
 
-        elem.value = VAR_TO_CORRECT_TYPE(val);
+        elem.value = elem.dataset.dynamicValueType === 'text' ? String(val ?? '') : VAR_TO_CORRECT_TYPE(val);
     }
 
     // Notify descriptions/highlights after both text and checkbox updates.

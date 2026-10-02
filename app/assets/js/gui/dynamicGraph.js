@@ -11,7 +11,7 @@ export function fittedViewport(boolean = false) {
     return { x: { start: -0.06, span: 1.12 }, y: { start: -paddingY, span: 1 + 2 * paddingY } };
 }
 
-export function fittedCurveViewport(points, xBounds, yBounds, boolean = false) {
+export function fittedCurveViewport(points, xBounds, yBounds, boolean = false, relativeFlat = false) {
     const bounds = { x: { min: Infinity, max: -Infinity }, y: { min: Infinity, max: -Infinity } };
     points.forEach(point => {
         if(!Number.isFinite(point.x) || !Number.isFinite(point.y)) return;
@@ -26,7 +26,7 @@ export function fittedCurveViewport(points, xBounds, yBounds, boolean = false) {
     Object.entries({ x: xBounds, y: yBounds }).forEach(([axis, domain]) => {
         const { min, max } = bounds[axis];
         // Flat lines and single points still need a nonzero, useful visible range.
-        const extent = max - min || 1;
+        const extent = max - min || (axis === 'y' && relativeFlat && min !== 0 ? Math.max(Math.abs(min) * 0.2, 1e-12) : 1);
         const margin = extent * 0.08;
         const lower = (min + max - extent) / 2 - margin;
         const range = domain.max - domain.min || 1;
@@ -51,8 +51,8 @@ export function setInterpolationLockVisibility(icon, locked) {
     icon.toggleAttribute('hidden', !locked);
 }
 
-export function zoomAxis(axis, factor, anchor, minimumSpan = 1 / 64) {
-    const span = clamp(axis.span / factor, minimumSpan, Math.max(16, axis.span));
+export function zoomAxis(axis, factor, anchor, minimumSpan = 1 / 64, maximumSpan = Math.max(16, axis.span)) {
+    const span = clamp(axis.span / factor, minimumSpan, maximumSpan);
     return { start: axis.start + anchor * (axis.span - span), span };
 }
 
@@ -96,14 +96,14 @@ export function graphProfileStyle(index = 0) {
     return { color: 'rgb(255 255 255 / 85%)', dashArray: patterns[profileIndex % patterns.length] };
 }
 
-export function moveCurvePoint(points, index, x, y, minX, maxX) {
+export function moveCurvePoint(points, index, x, y, minX, maxX, decimal = false) {
     if(!points[index] || !Number.isFinite(x) || !Number.isFinite(y)) return index;
     // Keep the selected object intact across sorting, and never merge neighboring points.
     const point = points[index];
     const lower = Math.ceil(index > 0 ? Math.max(minX, points[index - 1].x + 1) : minX);
     const upper = Math.floor(index < points.length - 1 ? Math.min(maxX, points[index + 1].x - 1) : maxX);
     if(lower <= upper) point.x = clamp(Math.round(x), lower, upper);
-    point.y = Math.round(y);
+    point.y = decimal ? y : Math.round(y);
     points.sort((a, b) => a.x - b.x);
     return points.indexOf(point);
 }
