@@ -1986,10 +1986,6 @@ input[disabled] {
 #dynamic-settings-floaty .floaty-header {
     border-bottom-color: rgb(255 255 255 / 15%);
 }
-#dynamic-settings-floaty .floaty-header .title p {
-    margin: 5px 0 0;
-    color: rgb(255 255 255 / 48%);
-}
 #dynamic-settings-floaty .dynamic-settings-body {
     max-height: calc(96vh - 90px);
     overflow: auto;

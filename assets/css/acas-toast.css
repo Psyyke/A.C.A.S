@@ -83,20 +83,12 @@
     color: white;
     width: 50px;
 }
-.acas-toast-success {
-    background-color: #35b334;
-}
-.acas-toast-message {
-    background-color: #24A0ED;
-}
-.acas-toast-warning {
-    background-color: #ff9100;
-}
-.acas-toast-error {
-    background-color: #ff0000;
-}
+.acas-toast-success,
+.acas-toast-message,
+.acas-toast-warning,
+.acas-toast-error,
 .acas-toast-instance {
-    background-color: #5f8895;
+    background-color: #a3a3a3;
     transition: all 0.5s ease;
 }
 @-webkit-keyframes fadein {
