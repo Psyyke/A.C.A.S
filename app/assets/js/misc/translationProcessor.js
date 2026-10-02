@@ -21,11 +21,13 @@
 
 	function updateWhisperFontEligibility() {
 		const supportsWhisper = text => /^[\p{Script_Extensions=Latin}\p{M}\p{N}\p{P}\p{Z}\s]*$/u.test(text);
-		['#no-instances-subtitle', '#acas-logo-secondary'].forEach(selector => {
-			const element = document.querySelector(selector);
-			if(element) element.classList.toggle('has-whisper-font', supportsWhisper(element.textContent));
+		['#no-instances-subtitle', '#acas-logo-secondary', '.floaty-header .title p']
+			.flatMap(selector => [...document.querySelectorAll(selector)])
+			.forEach(element => {
+				element.classList.toggle('has-whisper-font', supportsWhisper(element.textContent));
 		});
 	}
+	document.addEventListener('acas-translations-updated', () => queueMicrotask(updateWhisperFontEligibility));
 
 	function initializeLanguageDropdown(dropdownElem) {
 		// Avoid re-attaching event listeners
