@@ -9,7 +9,7 @@ const core = AppDynamicSettingsCore;
 const STORAGE_KEY = DYNAMIC_SETTINGS_STORAGE_KEY;
 const graph = document.querySelector('#dynamic-settings-graph');
 const svgNS = 'http://www.w3.org/2000/svg';
-const plot = { left: 48, top: 22, right: 986, bottom: 460 };
+const plot = { left: 48, top: 28, right: 986, bottom: 448 };
 
 const ui = Object.fromEntries([
     'dynamic-variable-select', 'dynamic-fullscreen-toggle',
@@ -404,10 +404,10 @@ function render() {
         const y = yToPixel(0, activeY);
         graph.appendChild(createSvg('line', { x1: plot.left, y1: y, x2: plot.right, y2: y, class: 'dynamic-zero-line' }));
     }
-    graph.appendChild(createSvg('text', { x: plot.left + width / 2, y: graph.viewBox.baseVal.height - 5, class: 'dynamic-axis-title', 'text-anchor': 'middle' }, variableLabel(variable)));
+    graph.appendChild(createSvg('text', { x: plot.left + width / 2, y: graph.viewBox.baseVal.height - 10, class: 'dynamic-axis-title', 'text-anchor': 'middle' }, variableLabel(variable)));
     const axisTitle = settingLabel(ui['dynamic-add-setting'].value) || text('chooseSetting', 'Setting value');
     const maxTitleLength = Math.max(8, Math.floor(width * 0.55 / 7));
-    const yTitle = createSvg('text', { x: plot.left + 4, y: 14, class: 'dynamic-axis-title' }, axisTitle.length > maxTitleLength ? `${axisTitle.slice(0, maxTitleLength - 1)}…` : axisTitle);
+    const yTitle = createSvg('text', { x: plot.left + 4, y: 20, class: 'dynamic-axis-title' }, axisTitle.length > maxTitleLength ? `${axisTitle.slice(0, maxTitleLength - 1)}…` : axisTitle);
     yTitle.appendChild(createSvg('title', {}, axisTitle));
     graph.appendChild(yTitle);
     const layer = createSvg('g', { 'clip-path': 'url(#dynamic-plot-clip)' });
@@ -946,8 +946,8 @@ function resizeGraph() {
     if(!rect.width || !rect.height) return;
     graph.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
     plot.right = rect.width - 12;
-    plot.top = 22;
-    plot.bottom = Math.max(plot.top + 20, rect.height - 40);
+    plot.top = 28;
+    plot.bottom = Math.max(plot.top + 20, rect.height - 52);
     render();
 }
 
