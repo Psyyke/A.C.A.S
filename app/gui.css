@@ -227,8 +227,15 @@ cg-container {
     font-family: "Mona Sans";
 }
 #acas-logo-secondary {
-	font-size: 15px;
+    font-family: inherit;
+    font-size: 15px;
 	font-weight: 400;
+    margin-top: 0;
+}
+#acas-logo-secondary.has-whisper-font {
+    font-family: "Whisper", sans-serif;
+    font-size: 23px;
+    margin-top: -10px;
 }
 .acas-instance {
 	display: flex;
