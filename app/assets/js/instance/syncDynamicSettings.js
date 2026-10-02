@@ -50,7 +50,8 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
                 }
                 const identityKeys = ['chessEngine', 'useExternalChessEngine', 'externalChessEngine', 'enableAdvancedElo'];
                 const loadedEngine = this.getEngineAcasObj?.(name);
-                const needsReload = Boolean(previous && identityKeys.some(key => changed.includes(key))
+                const needsReload = Boolean(previous && identityKeys.some(key =>
+                    !Object.is(previous[key], current[key]))
                     || !current.useExternalChessEngine && loadedEngine && loadedEngine.type !== current.chessEngine
                     || this.pV[name]?.requestedEngine && this.pV[name].requestedEngine !== current.chessEngine
                     || this.pV[name] && Boolean(this.pV[name].useExternalChessEngine) !== Boolean(current.useExternalChessEngine)
