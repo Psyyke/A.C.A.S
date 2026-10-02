@@ -276,6 +276,9 @@ cg-container {
     padding: 7px;
     text-align: center;
 }
+.instance-opening-container:has(+ .instance-feedback-container:empty) {
+    border-radius: 0 0 5px 5px;
+}
 #polyglot-book-input {
     display: flex;
     flex-direction: column;
