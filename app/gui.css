@@ -2105,7 +2105,6 @@ input[disabled] {
 #dynamic-settings-floaty .dynamic-settings-toolbar > button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    padding: 0 20px;
 }
 #dynamic-settings-floaty .dynamic-line-row input[type="checkbox"] {
     display: inline-block;
@@ -2409,6 +2408,7 @@ input[disabled] {
     color: white;
     font: 500 var(--dynamic-control-font-size) "Rubik", "IBM Plex Sans", sans-serif;
     cursor: pointer;
+    border-radius: 2px;
 }
 #dynamic-settings-floaty .dynamic-graph-panel {
     overflow: hidden;
@@ -2845,6 +2845,9 @@ input[disabled] {
     border: 0;
     border-radius: 0;
     overflow: hidden;
+}
+#dynamic-point-status {
+    display: none;
 }
 #dynamic-settings-floaty.is-graph-fullscreen .floaty-container {
     display: flex;
