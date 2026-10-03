@@ -3327,7 +3327,8 @@ addSupportedChessSite('chess.com', {
 
 addSupportedChessSite('lichess.org', {
     'boardElem': obj => {
-        return document.querySelector('cg-board');
+        return document.querySelector('.main-board cg-board')
+            || document.querySelector('cg-board');
     },
 
     'pieceElem': obj => {
@@ -3351,7 +3352,14 @@ addSupportedChessSite('lichess.org', {
     },
 
     'boardOrientation': obj => {
-        const filesElem = document.querySelector('coords.files');
+        const boardWrap = getBoardElem()?.closest('.cg-wrap');
+
+        // Chessground sets these even when coordinates are hidden or inside squares.
+        if(boardWrap?.classList.contains('orientation-black')) return 'b';
+        if(boardWrap?.classList.contains('orientation-white')) return 'w';
+
+        // Keep the legacy fallback on this board, not an unrelated preview board.
+        const filesElem = boardWrap?.querySelector('coords.files');
 
         return filesElem?.classList?.contains('black') ? 'b' : 'w';
     },
