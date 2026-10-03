@@ -122,6 +122,87 @@ body {
 	display: flex;
 	flex-direction: column;
 }
+#acas-loading-screen {
+	position: fixed;
+	inset: 0;
+	z-index: 9999999998;
+	display: none;
+	padding: 20px;
+	box-sizing: border-box;
+	background-color: rgb(0 0 0 / var(--loading-veil-opacity, 100%));
+	-webkit-backdrop-filter: grayscale(1) blur(16px);
+	backdrop-filter: grayscale(1) blur(16px);
+	opacity: 1;
+	transition: background-color 450ms ease, opacity 500ms ease;
+}
+html.acas-loading #acas-loading-screen {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 30px;
+}
+#acas-loading-screen[hidden] {
+	display: none;
+}
+#acas-loading-screen.is-leaving {
+	opacity: 0;
+	pointer-events: none;
+}
+#acas-loading-orbit {
+	position: relative;
+	display: grid;
+	width: 118px;
+	height: 118px;
+	place-items: center;
+	overflow: hidden;
+	border-radius: 50%;
+}
+#acas-loading-orbit::before {
+	position: absolute;
+	z-index: 1;
+	inset: 1px;
+	border: 3px solid rgb(255 255 255 / 35%);
+	border-top-color: white;
+	border-right-color: rgb(255 255 255 / 75%);
+	border-bottom-color: transparent;
+	border-radius: inherit;
+	content: "";
+	animation: acas-loading-orbit 2s linear infinite;
+}
+#acas-loading-logo {
+	position: relative;
+	z-index: 0;
+	width: 158px;
+	height: 158px;
+	transform: translateX(-5px);
+	max-width: none;
+	object-fit: cover;
+}
+#acas-loading-progress {
+	position: relative;
+	width: min(240px, 65vw);
+	height: 2px;
+	overflow: hidden;
+	background: rgb(255 255 255 / 24%);
+}
+#acas-loading-progress-fill {
+	width: var(--loading-progress, 8%);
+	height: 100%;
+	background: white;
+	transition: width 350ms ease;
+}
+@keyframes acas-loading-orbit {
+	to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+	#acas-loading-screen,
+	#acas-loading-orbit::before,
+	#acas-loading-progress-fill {
+		animation: none;
+		transition: none;
+	}
+}
 cg-board {
 	background-color: rgb(255 255 255 / 70%);
 	cursor: inherit;

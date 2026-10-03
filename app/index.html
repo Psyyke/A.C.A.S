@@ -2,6 +2,150 @@
 <html>
 	<head>
 		<title>A.C.A.S</title>
+		<script>
+			window.ACAS_LOADING_SIMULATE_DELAY = false;
+			document.documentElement.classList.add('acas-loading');
+
+			window.ACAS_LOADING = (() => {
+				const timeoutMs = 10000;
+				const startedAt = performance.now();
+				const deadline = startedAt + timeoutMs;
+				let timeoutId;
+				let isDismissed = false;
+				let startupReady = false;
+				let translationsReady = false;
+				let startupProgress = 8;
+				let translationsProgress = 8;
+				let progress = 8;
+				const delayedReadySignals = new Set();
+
+				function getElements() {
+					return {
+						overlay: document.querySelector('#acas-loading-screen'),
+						bar: document.querySelector('#acas-loading-progress')
+					};
+				}
+
+				function updateProgress() {
+					progress = Math.max(progress,
+						Math.min(99, Math.round((startupProgress + translationsProgress) / 2)));
+					const { bar } = getElements();
+					if(bar) {
+						bar.setAttribute('aria-valuenow', String(progress));
+						bar.style.setProperty('--loading-progress', `${progress}%`);
+					}
+					updateVeil();
+				}
+
+				function updateVeil() {
+					const { overlay } = getElements();
+					if(overlay) {
+						const progressRatio = progress / 100;
+						const opacity = Math.max(52, 100 - progressRatio * progressRatio * 48);
+						overlay.style.setProperty('--loading-veil-opacity', `${opacity}%`);
+					}
+				}
+
+				function setStage(nextProgress, source = 'startup') {
+					if(isDismissed) return;
+
+					if(source === 'translations')
+						translationsProgress = Math.max(translationsProgress, Math.min(100, nextProgress));
+					else
+						startupProgress = Math.max(startupProgress, Math.min(100, nextProgress));
+
+					updateProgress();
+				}
+
+				function dismiss(immediate = false, fadeDuration = 500) {
+					if(isDismissed) return;
+
+					isDismissed = true;
+					clearTimeout(timeoutId);
+
+					const { overlay } = getElements();
+					if(!overlay) {
+						document.documentElement.classList.remove('acas-loading');
+						return;
+					}
+
+					if(immediate) {
+						overlay.hidden = true;
+						document.documentElement.classList.remove('acas-loading');
+						return;
+					}
+
+					overlay.classList.add('is-leaving');
+					overlay.style.transitionDuration = `${fadeDuration}ms`;
+					setTimeout(() => {
+						overlay.hidden = true;
+						document.documentElement.classList.remove('acas-loading');
+					}, fadeDuration);
+				}
+
+				function checkReady() {
+					if(startupReady && translationsReady) dismiss();
+				}
+
+				function completeReady(type) {
+					if(isDismissed) return;
+
+					if(type === 'startup') {
+						startupReady = true;
+						startupProgress = 100;
+					}
+					if(type === 'translations') {
+						translationsReady = true;
+						translationsProgress = 100;
+					}
+					updateProgress();
+					if(startupReady && translationsReady) {
+						progress = 100;
+						const { bar } = getElements();
+						if(bar) {
+							bar.setAttribute('aria-valuenow', '100');
+							bar.style.setProperty('--loading-progress', '100%');
+						}
+					}
+					checkReady();
+				}
+
+				function expire() {
+					const remaining = deadline - performance.now();
+					if(remaining > 250) {
+						timeoutId = setTimeout(expire, remaining - 250);
+						return;
+					}
+
+					dismiss(remaining <= 0, Math.max(0, remaining));
+				}
+				timeoutId = setTimeout(expire, timeoutMs - 250);
+				timeoutId = setTimeout(expire, timeoutMs - 250);
+				document.addEventListener('visibilitychange', () => {
+					if(document.visibilityState === 'visible') updateVeil();
+					if(document.visibilityState === 'visible' && performance.now() >= deadline)
+						dismiss(true);
+				});
+
+				return {
+					setStage,
+					markReady(type) {
+						if(isDismissed || delayedReadySignals.has(type)) return;
+
+						if(window.ACAS_LOADING_SIMULATE_DELAY) {
+							delayedReadySignals.add(type);
+							setTimeout(() => {
+								delayedReadySignals.delete(type);
+								completeReady(type);
+							}, 6500);
+							return;
+						}
+
+						completeReady(type);
+					}
+				};
+			})();
+		</script>
 		<link rel="stylesheet" type="text/css" href="gui.css"/>
 		<meta charset="UTF-8">
 		<meta name="description" content="Real-time chess assistant and move suggestions for Chess.com, Lichess, and more. Works on Android, Windows, and on so many other devices!">
@@ -53,6 +197,15 @@
 		<link rel="icon" type="image/x-icon" href="../favicon.ico"/>
 	</head>
 	<body>
+		<div id="acas-loading-screen">
+			<div id="acas-loading-orbit" aria-hidden="true">
+				<img id="acas-loading-logo" src="../assets/images/logo.png" alt="">
+			</div>
+			<div id="acas-loading-progress" role="progressbar" aria-label="A.C.A.S loading progress"
+					aria-valuemin="0" aria-valuemax="100" aria-valuenow="8">
+				<div id="acas-loading-progress-fill"></div>
+			</div>
+		</div>
 		<audio id="silence-audio" class="hidden" src="assets/audio/sound_of_silence.wav" autoplay loop controls></audio>
 
 		<!-- TOS CONTAINER-->

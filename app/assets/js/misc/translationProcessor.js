@@ -131,7 +131,7 @@
 				currentLang = 'us';
 				localStorage.setItem(storageLanguageKey, currentLang);
 
-				load(currentLang);
+				await load(currentLang);
 			}
 		}
 
@@ -189,5 +189,18 @@
 
 	const savedLanguage = localStorage.getItem(storageLanguageKey) || currentLang;
 
-	load(savedLanguage);
+	window.ACAS_LOADING?.setStage(12, 'translations');
+	load(savedLanguage).then(() => {
+		const fontsReady = document.fonts?.ready ?? Promise.resolve();
+		fontsReady.then(() => {
+			window.ACAS_LOADING?.setStage(85, 'translations');
+			window.ACAS_LOADING?.markReady('translations');
+		}, error => {
+			console.error('Failed while waiting for translated fonts:', error);
+			window.ACAS_LOADING?.markReady('translations');
+		});
+	}, error => {
+		console.error(`Initial language setup failed for ${savedLanguage}:`, error);
+		window.ACAS_LOADING?.markReady('translations');
+	});
 })();

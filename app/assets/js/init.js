@@ -166,6 +166,7 @@ async function attemptStarting() {
     if(started)
         return;
 
+    window.ACAS_LOADING?.setStage(20);
     const isUserscriptActive = window.isUserscriptActive;
     const isTosAccepted = isUserscriptActive
         ? await USERSCRIPT.getValue(TOS_ACCEPTED_DB_KEY)
@@ -179,18 +180,23 @@ async function attemptStarting() {
         
     if(!isUserscriptActive) {
         displayNoUserscriptNotification();
+        window.ACAS_LOADING?.setStage(70);
+        window.ACAS_LOADING?.markReady('startup');
 
     } else if(!isTosAccepted) {
         displayNoUserscriptNotification(true); // failsafe
         started = true; // failsafe
 
         displayTOS();
+        window.ACAS_LOADING?.setStage(70);
+        window.ACAS_LOADING?.markReady('startup');
 
     } else {
         displayNoUserscriptNotification(true); // failsafe
         started = true; // failsafe
 
         try {
+            window.ACAS_LOADING?.setStage(45);
             await initializeDatabase();
         } catch(e) {
             // If migration fails, don't leave the app half-initialized: clear the
@@ -201,10 +207,13 @@ async function attemptStarting() {
             return;
         }
 
-        initGUI();
+        window.ACAS_LOADING?.setStage(75);
+        await initGUI();
         processUrlParams();
         startCommLink();
 
+        window.ACAS_LOADING?.setStage(95);
+        window.ACAS_LOADING?.markReady('startup');
         console.log('Userscript ready! Listening to instance calls...');
     }
 }
