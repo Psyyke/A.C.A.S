@@ -54,6 +54,7 @@
             listValues: () => messageUserscript('USERSCRIPT_listValues'),
             instanceVars: {
                 playerColor: createInstanceVar('playerColor'),
+                boardOrientation: createInstanceVar('boardOrientation'),
                 turn: createInstanceVar('turn'),
                 fen: createInstanceVar('fen'),
                 gameStateHistory: createInstanceVar('gameStateHistory')
