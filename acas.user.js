@@ -453,6 +453,7 @@ const tempValueIndicator = '-temp-value-';
 const dbValues = {
     AcasConfig: 'AcasConfig',
     playerColor: instanceID => 'playerColor' + tempValueIndicator + instanceID,
+    boardOrientation: instanceID => 'boardOrientation' + tempValueIndicator + instanceID,
     turn: instanceID => 'turn' + tempValueIndicator + instanceID,
     fen: instanceID => 'fen' + tempValueIndicator + instanceID,
     gameStateHistory: instanceID => 'gameStateHistory' + tempValueIndicator + instanceID,
@@ -461,6 +462,7 @@ const dbValues = {
 // Also make sure dbValues (above) have these instanceVars
 const instanceVars = {
     playerColor: createInstanceVariable('playerColor'),
+    boardOrientation: createInstanceVariable('boardOrientation'),
     turn: createInstanceVariable('turn'),
     fen: createInstanceVariable('fen'),
     gameStateHistory: createInstanceVariable('gameStateHistory')
@@ -808,7 +810,7 @@ CommLink.commands['createInstance'] = async () => {
         'domain': domain,
         'instanceID': commLinkInstanceID,
         'chessVariant': getChessVariant(),
-        'playerColor': getBoardOrientation()
+        'playerColor': getPlayerColor()
     });
 }
 
@@ -1599,7 +1601,7 @@ function addMovesOnDemandListeners() {
 
             const pieceFen = modLastEnteredSquare.pieceFen;
             const isPieceWhite = pieceFen >= 'A' && pieceFen <= 'Z';
-            const isPlayerPiece = (lastBoardOrientation === 'w') === isPieceWhite;
+            const isPlayerPiece = (getPlayerColor() === 'w') === isPieceWhite;
 
             if(!pieceFen) return;
 
@@ -1889,6 +1891,15 @@ function getBoardOrientation() {
     return boardOrientation || null;
 }
 
+// The player's side and the board's visual orientation are independent.
+function getPlayerColor() {
+    const playerColor = getSiteData('playerColor');
+
+    return playerColor === 'w' || playerColor === 'b'
+        ? playerColor
+        : getBoardOrientation();
+}
+
 function getPieceElemFen(pieceElem) {
     const pieceFen = getSiteData('pieceElemFen', { pieceElem });
 
@@ -1974,7 +1985,7 @@ function getFen(onlyBasic, turn, basicFenToUse, state = gameState) {
 
     if(onlyBasic) return basicFen;
 
-    const sideToMove = turn || state.turn || 'w'; // whose turn it is
+    const sideToMove = turn || getSiteData('turn') || state.turn || 'w'; // not the player's color
 
     // FEN structure: [fen] [player color] [castling rights] [en passant targets] [halfmove clock] [fullmove clock]
     return `${basicFen} ${sideToMove} ${state.castlingRights} ${state.enPassantTarget} ${state.halfmoveClock} ${state.fullmoveNumber}`;
@@ -2812,6 +2823,9 @@ async function determineBoardPositionValidity() {
         return determineBoardPositionValidity();
     }
 
+    // A flip changes coordinate mapping, even when the actual position is unchanged.
+    await checkBoardOrientationChange();
+
     const history = gameStateHistory.get();
     const currentBasicFen = getFen(true);
     const lastTurn = history[0]?.turn;
@@ -2886,7 +2900,9 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
     const previousBasicFen = stateHistory[0]?.fen?.basic;
     const isTurnForced = typeof forcedTurn === 'string';
 
-    const turn = forcedTurn || (boardChanges?.movedPieceColor === 'w' ? 'b' : 'w');
+    const movedPieceColor = boardChanges?.movedPieceColor;
+    const turn = forcedTurn || (movedPieceColor === 'w' ? 'b' : movedPieceColor === 'b' ? 'w' :
+        getSiteData('turn') || stateHistory[0]?.turn || 'w');
 
     const isStandardChessBoard =
         lastBoardRanks === 8 &&
@@ -3062,9 +3078,7 @@ async function processBoardPosition() {
 
     updateUserscriptDynamicContext({ gameStart: 0 }, gameState?.fen?.full);
 
-    instanceVars.fen.set(commLinkInstanceID, gameState.fen.full);
-
-    const didBoardOrientationChange = await checkBoardOrientationChange();
+    await checkBoardOrientationChange();
 
     lastMoveRequestTime = Date.now();
     modLastEnteredSquare.squareFen = null;
@@ -3075,21 +3089,20 @@ async function processBoardPosition() {
     if(!modListeners.length)
         addMovesOnDemandListeners();
 
-    if( // ...if a new match started
-        didBoardOrientationChange ||
-        squareChangeAmount > 6 ||
-        ( defaultPosBasicFens.includes(gameState.fen.basic) && (squareChangeAmount > 1) )
-    ) {
+    const isNewMatch = squareChangeAmount > 6 ||
+        (defaultPosBasicFens.includes(gameState.fen.basic) && squareChangeAmount > 1);
+
+    if(isNewMatch) {
         resetStoredMatchVariables();
         updateUserscriptDynamicContext({ evaluation: null, gameStart: 1 });
 
         matchFirstSuggestionGiven = false;
-        gameState.turn = getBoardOrientation();
-        instanceVars.turn.set(commLinkInstanceID, gameState.turn);
+    }
 
-        CommLink.commands.newMatchStarted();
-    } else if(gameState.turn)
-        instanceVars.turn.set(commLinkInstanceID, gameState.turn);
+    // Publish the same state after any reset; never derive the turn from orientation.
+    instanceVars.fen.set(commLinkInstanceID, gameState.fen.full);
+    if(gameState.turn) instanceVars.turn.set(commLinkInstanceID, gameState.turn);
+    if(isNewMatch) CommLink.commands.newMatchStarted();
 
     // The GUI loads the current board state from instanceVars.gameStateHistory
     CommLink.commands.updateBoardFen();
@@ -3123,16 +3136,21 @@ function observeNewMoves() {
     boardObserver.observe(chessBoardElem, { childList: true, subtree: true, attributes: true });
 }
 
-async function checkBoardOrientationChange() {
+async function checkBoardOrientationChange(forceUpdate = false) {
     const boardOrientation = getBoardOrientation();
+    const playerColor = getPlayerColor();
+
+    // Identity can become available after the board, without an orientation change.
+    if(instanceVars.playerColor.get(commLinkInstanceID) !== playerColor)
+        instanceVars.playerColor.set(commLinkInstanceID, playerColor);
 
     const boardOrientationChanged = lastBoardOrientation !== boardOrientation;
     const boardOrientationDiffers = BoardDrawer && BoardDrawer?.orientation !== boardOrientation;
 
-    if(boardOrientationChanged || boardOrientationDiffers) {
+    if(forceUpdate || boardOrientationChanged || boardOrientationDiffers) {
         lastBoardOrientation = boardOrientation;
 
-        instanceVars.playerColor.set(commLinkInstanceID, boardOrientation);
+        instanceVars.boardOrientation.set(commLinkInstanceID, boardOrientation);
 
         if(BoardDrawer) BoardDrawer.setOrientation(boardOrientation);
 
@@ -3327,7 +3345,8 @@ addSupportedChessSite('chess.com', {
 
 addSupportedChessSite('lichess.org', {
     'boardElem': obj => {
-        return document.querySelector('cg-board');
+        return document.querySelector('.main-board cg-board')
+            || document.querySelector('cg-board');
     },
 
     'pieceElem': obj => {
@@ -3351,9 +3370,52 @@ addSupportedChessSite('lichess.org', {
     },
 
     'boardOrientation': obj => {
-        const filesElem = document.querySelector('coords.files');
+        const boardWrap = getBoardElem()?.closest('.cg-wrap');
+
+        // Chessground sets these even when coordinates are hidden or inside squares.
+        if(boardWrap?.classList.contains('orientation-black')) return 'b';
+        if(boardWrap?.classList.contains('orientation-white')) return 'w';
+
+        // Keep the legacy fallback on this board, not an unrelated preview board.
+        const filesElem = boardWrap?.querySelector('coords.files');
 
         return filesElem?.classList?.contains('black') ? 'b' : 'w';
+    },
+
+    'playerColor': obj => {
+        const round = getBoardElem()?.closest('main.round');
+        const userId = document.body?.dataset?.user?.toLowerCase();
+        if(!round || !userId) return null;
+
+        // The sidebar labels each player by actual color, independent of flips.
+        for(const player of round.querySelectorAll('.game__meta__players .player')) {
+            const href = player.querySelector('a[href]')?.getAttribute('href');
+            const playerId = href?.match(/^\/@\/([^/?#]+)/)?.[1]?.toLowerCase();
+            if(playerId !== userId) continue;
+            if(player.classList.contains('white')) return 'w';
+            if(player.classList.contains('black')) return 'b';
+        }
+        return null;
+    },
+
+    'turn': obj => {
+        const round = getBoardElem()?.closest('.round__app');
+        if(!round) return null;
+
+        // Prefer the selected move when replaying. Lichess changes its custom tag
+        // names, so use the active marker and numeric move-number sibling instead.
+        const activeMove = round.querySelector('.a1t');
+        const previous = activeMove?.previousElementSibling;
+        const isMoveNumber = elem => /^\d+\.?$/.test(elem?.textContent?.trim() || '');
+        if(isMoveNumber(previous)) return 'b';
+        if(previous && isMoveNumber(previous.previousElementSibling)) return 'w';
+
+        // Live games also expose the active side on the clock, including reloads.
+        const clocks = round.querySelectorAll('.rclock.running');
+        if(clocks.length !== 1) return null;
+        if(clocks[0].classList.contains('rclock-white')) return 'w';
+        if(clocks[0].classList.contains('rclock-black')) return 'b';
+        return null;
     },
 
     'pieceElemFen': obj => {
@@ -4174,13 +4236,18 @@ function refreshSettings() {
 }
 
 async function start() {
-    await CommLink.commands.createInstance(commLinkInstanceID);
-
     const pathname = window.location.pathname;
     const boardOrientation = getBoardOrientation();
 
-    instanceVars.playerColor.set(commLinkInstanceID, boardOrientation);
-    instanceVars.fen.set(commLinkInstanceID, getFen());
+    // Seed identity, coordinate mapping and turn before the backend reads them.
+    lastBoardOrientation = boardOrientation;
+    instanceVars.boardOrientation.set(commLinkInstanceID, boardOrientation);
+    instanceVars.playerColor.set(commLinkInstanceID, getPlayerColor());
+    const initialFen = getFen();
+    instanceVars.fen.set(commLinkInstanceID, initialFen);
+    instanceVars.turn.set(commLinkInstanceID, initialFen.split(' ')[1]);
+
+    await CommLink.commands.createInstance(commLinkInstanceID);
 
     if(isBoardDrawerNeeded()) {
         if(BoardDrawer) BoardDrawer?.terminate();
@@ -4208,7 +4275,7 @@ async function start() {
         }, 50);
     }
 
-    await checkBoardOrientationChange();
+    await checkBoardOrientationChange(true);
 
     refreshSettings();
     observeNewMoves();
