@@ -15,7 +15,7 @@ import { removeInstance } from './instanceManager.js';
 import { updatePipData } from './gui/pip.js';
 import { pipSanInput } from './gui/elementDeclarations.js';
 import { formatMoveNotationAsync, getMoveSpeechConfig } from './misc/moveNotation.js';
-import { logActivity } from './misc/activityLog.js';
+import { isActivityLoggingEnabled, logActivity } from './misc/activityLog.js';
 
 const logEngineMessages = false,
       debugLogsEnabled = false;
@@ -955,10 +955,13 @@ export default class AcasInstance {
 
         if(isBannedOptionSet) return false;
         const profile = this.getEngineAcasObj(i)?.profileName ?? this.getProfileName(i);
-        const context = {
-            instanceID: this.instanceID,
-            profile,
-            ...this.getEngineActivityContext(profile)
+        const context = { instanceID: this.instanceID, profile };
+        const logEngineInput = () => {
+            if(!isActivityLoggingEnabled()) return;
+            logActivity('engine-input', msg, {
+                ...context,
+                ...this.getEngineActivityContext(profile)
+            });
         };
         
         if(isProfile && this.pV[i].useExternalChessEngine) {
@@ -972,7 +975,7 @@ export default class AcasInstance {
                     && !isProfile.externalRecoveryCancelled
                     && !(isProfile.recoveringSearch && isProfile.externalCrashPending));
             if(sent === false) return false;
-            logActivity('engine-input', msg, context);
+            logEngineInput();
             return true;
 
         } else if(!engineExists && isProfile) {
@@ -989,7 +992,7 @@ export default class AcasInstance {
                         clearInterval(waitForEngineToLoad);
                         try {
                             this.getEngineAcasObj(i).sendMsg(msg);
-                            logActivity('engine-input', msg, context);
+                            logEngineInput();
                             resolve(true);
                         } catch(error) {
                             console.error('Could not send engine input:', context, msg, error);
@@ -1008,7 +1011,7 @@ export default class AcasInstance {
             });
         } else if(engineExists) {
             this.getEngineAcasObj(i).sendMsg(msg);
-            logActivity('engine-input', msg, context);
+            logEngineInput();
             return true;
         } else {
             logActivity('warning', `Cannot send input to a missing engine: ${msg}`, context);

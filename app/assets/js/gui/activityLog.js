@@ -1,4 +1,8 @@
-import { activityLog } from '../misc/activityLog.js';
+import {
+    activityLog,
+    isActivityLoggingEnabled,
+    setActivityLoggingEnabled
+} from '../misc/activityLog.js';
 import { featureText } from '../misc/featureTranslations.js';
 
 let initialized = false;
@@ -169,9 +173,11 @@ export function initializeActivityLog() {
     const clear = document.getElementById('activity-log-clear');
     const copy = document.getElementById('activity-log-copy');
     const timeToggle = document.getElementById('activity-log-time-toggle');
+    const loggingToggle = document.getElementById('activity-log-toggle');
     const filter = document.getElementById('activity-log-filter');
     const search = document.getElementById('activity-log-search');
-    if(initialized || !dialog || !list || !status || !clear || !copy || !timeToggle || !filter || !search) return;
+    if(initialized || !dialog || !list || !status || !clear || !copy || !timeToggle
+        || !loggingToggle || !filter || !search) return;
     initialized = true;
     try {
         const savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || 'null');
@@ -212,6 +218,21 @@ export function initializeActivityLog() {
         updateTimeDisplay();
     };
     updateTimeDisplay();
+    const updateLoggingToggle = () => {
+        const enabled = isActivityLoggingEnabled();
+        const label = enabled
+            ? text('disableLogging', 'Activity logging is on — click to disable')
+            : text('enableLogging', 'Activity logging is OFF — click to enable');
+        loggingToggle.setAttribute('aria-pressed', String(enabled));
+        loggingToggle.setAttribute('aria-label', label);
+        loggingToggle.title = label;
+    };
+    loggingToggle.onclick = () => {
+        setActivityLoggingEnabled(!isActivityLoggingEnabled());
+        updateLoggingToggle();
+        render();
+    };
+    updateLoggingToggle();
     const header = dialog.querySelector('.floaty-header');
     const desktopPanel = window.matchMedia('(min-width: 768px) and (any-pointer: fine)');
     let drag = null;
@@ -471,6 +492,7 @@ export function initializeActivityLog() {
     const translateUI = () => {
         dialog.setAttribute('aria-label', text('title', 'Activity Log'));
         updateTimeDisplay();
+        updateLoggingToggle();
         const filterToggle = dialog.querySelector('.activity-log-filters summary');
         filterToggle.setAttribute('aria-label', text('filter', 'Filter activity by type'));
         filterToggle.title = text('filter', 'Filter activity by type');

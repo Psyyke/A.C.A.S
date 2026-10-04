@@ -269,6 +269,7 @@
             "discordMessagePlaceholder": "Write your Discord message here...",
             "clear": "Clear log", "filter": "Filter activity by type", "all": "All activity",
             "close": "Close activity log", "instance": "Instance", "empty": "No log entries yet.",
+            "enableLogging": "Enable activity logging", "disableLogging": "Disable activity logging",
             "status": "{shown} shown · {total} total",
             "types": {
                 "engine-input": "Engine input", "engine-output": "Engine output", "dynamic-change": "Dynamic changes",

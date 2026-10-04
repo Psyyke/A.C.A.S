@@ -1,5 +1,6 @@
 export const ACTIVITY_LOG_LIMIT = 2000;
 const ACTIVITY_LOG_STORAGE_KEY = 'acas.activity-log.entries';
+export const ACTIVITY_LOG_ENABLED_STORAGE_KEY = 'acas.activity-log.enabled';
 
 export function formatLogValue(value) {
     if(value instanceof Error) return value.stack || value.message;
@@ -118,24 +119,89 @@ export function createActivityLog(limit = ACTIVITY_LOG_LIMIT, storageKey = null)
 }
 
 export const activityLog = createActivityLog(ACTIVITY_LOG_LIMIT, ACTIVITY_LOG_STORAGE_KEY);
-export const logActivity = (type, message, context) => activityLog.add(type, message, context);
+let activityLoggingEnabled = false;
 let initialized = false;
+let captureHooksInstalled = false;
+const originalConsoleMethods = new Map();
+const captureHandlers = {};
+try {
+    activityLoggingEnabled = localStorage.getItem(ACTIVITY_LOG_ENABLED_STORAGE_KEY) === 'true';
+} catch(error) {
+    console.error('Activity logging preference could not be restored.', error);
+}
+
+export const logActivity = (type, message, context) => {
+    if(!activityLoggingEnabled) return null;
+    return activityLog.add(type, message, context);
+};
+
+function installActivityCapture() {
+    if(captureHooksInstalled) return;
+    captureHooksInstalled = true;
+    ['warn', 'error'].forEach(level => {
+        const original = console[level];
+        const wrapped = function(...args) {
+            original.apply(console, args);
+            if(activityLoggingEnabled) {
+                if(level === 'warn' && typeof args[0] === 'string' && args[0].startsWith('Translated:')) return;
+                logActivity(level === 'warn' ? 'warning' : 'error', args.map(formatLogValue).join(' '));
+            }
+        };
+        originalConsoleMethods.set(level, { original, wrapped });
+        console[level] = wrapped;
+    });
+    captureHandlers.error = event => {
+        if(!activityLoggingEnabled) return;
+        const target = event.target;
+        const message = event.error || event.message || `Failed to load resource: ${target?.src || target?.href || 'unknown'}`;
+        logActivity('error', message);
+    };
+    captureHandlers.unhandledrejection = event => {
+        if(activityLoggingEnabled) logActivity('error', event.reason);
+    };
+    window.addEventListener('error', captureHandlers.error, true);
+    window.addEventListener('unhandledrejection', captureHandlers.unhandledrejection);
+}
+
+function removeActivityCapture() {
+    if(!captureHooksInstalled) return;
+    captureHooksInstalled = false;
+    originalConsoleMethods.forEach(({ original, wrapped }, level) => {
+        if(console[level] === wrapped) console[level] = original;
+    });
+    originalConsoleMethods.clear();
+    window.removeEventListener('error', captureHandlers.error, true);
+    window.removeEventListener('unhandledrejection', captureHandlers.unhandledrejection);
+}
+
+export function isActivityLoggingEnabled() {
+    return activityLoggingEnabled;
+}
+
+export function setActivityLoggingEnabled(enabled) {
+    const nextEnabled = Boolean(enabled);
+    if(activityLoggingEnabled === nextEnabled) return;
+    if(!nextEnabled && activityLoggingEnabled) {
+        logActivity('app', 'Activity logging disabled');
+    }
+    activityLoggingEnabled = nextEnabled;
+    try {
+        localStorage.setItem(ACTIVITY_LOG_ENABLED_STORAGE_KEY, String(nextEnabled));
+    } catch(error) {
+        console.error('Activity logging preference could not be saved.', error);
+    }
+    if(nextEnabled) {
+        installActivityCapture();
+        if(initialized) logActivity('app', 'Activity logging enabled');
+    } else {
+        removeActivityCapture();
+    }
+}
 
 export function initializeActivityLogging() {
     if(initialized) return;
     initialized = true;
-    ['warn', 'error'].forEach(level => {
-        const original = console[level];
-        console[level] = function(...args) {
-            original.apply(console, args);
-            logActivity(level === 'warn' ? 'warning' : 'error', args.map(formatLogValue).join(' '));
-        };
-    });
-    window.addEventListener('error', event => {
-        const target = event.target;
-        const message = event.error || event.message || `Failed to load resource: ${target?.src || target?.href || 'unknown'}`;
-        logActivity('error', message);
-    }, true);
-    window.addEventListener('unhandledrejection', event => logActivity('error', event.reason));
+    if(!activityLoggingEnabled) return;
+    installActivityCapture();
     logActivity('session-start', 'App started');
 }
