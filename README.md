@@ -74,10 +74,20 @@ There might be more, please let us know if anything is missing, thank you!
 
 ## How does it work?
 
-| A.C.A.S (Tab #1)    | Chess Website (Tab #2)  |
-|----------------------|----------------------|
-| ![A.C.A.S Tab](https://github.com/user-attachments/assets/4d5d80ac-3a1a-4529-889d-64403dd2adbe) | ![Lichess.org Tab](https://github.com/user-attachments/assets/97cb9650-19d5-41dc-bfbf-f071ee39eb92) |
-| The engine runs on a completely different tab than the chess game page, completely isolated from it. The site cannot block the usage of A.C.A.S. | A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink) and the userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If "Display Moves On External Site" setting is activated!*) |
+<table>
+<tr>
+<th>A.C.A.S (Tab #1)</th>
+<th>Chess Website (Tab #2)</th>
+</tr>
+<tr>
+<td><img alt="image" src="https://github.com/user-attachments/assets/7b6e264f-1918-4e6f-ba0a-69b567faa9f3" style="max-width:100%; max-height:500px; width:auto; height:auto;" /></td>
+<td><img alt="image" src="https://github.com/user-attachments/assets/ea35a737-570c-4b12-a15b-187d41e9a0c9" style="max-width:100%; max-height:500px; width:auto; height:auto;" /></td>
+</tr>
+<tr>
+<td>The engine runs in a completely separate tab from the chess game, keeping it fully isolated from the game page. The chess website cannot block or interfere with A.C.A.S.</td>
+<td>A.C.A.S sends move data via <a href="https://github.com/AugmentedWeb/CommLink">CommLink</a>, while the userscript displays the data on the chessboard using <a href="https://github.com/Hakorr/UniversalBoardDrawer">UniversalBoardDrawer</a>. <i>This requires the "Display Moves On External Site" setting to be enabled.</i></td>
+</tr>
+</table>
 
 If you're having issues, please visit the [troubleshoot](https://psyyke.github.io/A.C.A.S/troubleshoot/) page. Developers can visit the [development](https://psyyke.github.io/A.C.A.S/development/) page. Thank you!
 
