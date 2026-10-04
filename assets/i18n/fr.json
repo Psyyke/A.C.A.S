@@ -201,7 +201,7 @@
             "addValuePointHint": "Ajouter un point à la ligne sélectionnée",
             "textStepHint": "Le texte change à chaque point. Choisis une option enregistrée ou saisis un texte personnalisé et clique sur Utiliser le texte ; les libellés ne sont pas interpolés.",
             "invalidEngineText": "Cette option du moteur ne peut pas contenir de chevrons ni de caractères de contrôle, ni être le mot réservé \"value\".",
-            "title": "Paramètres dynamiques", "subtitle": "Éditeur de graphiques · adapte les paramètres à la partie",
+            "title": "Paramètres dynamiques", "subtitle": "Adapte les paramètres à la partie",
             "addLine": "＋ Ligne", "removeLine": "Supprimer la ligne", "addPoint": "＋ Point", "deletePoint": "Supprimer le point",
             "curve": "Courbe", "selectLine": "Sélectionner une ligne", "step": "Paliers", "linear": "Linéaire", "smooth": "Lisse",
             "pieceCount": "Nombre de pièces", "moveNumber": "Numéro du coup", "evaluation": "Évaluation (votre avantage, cp)",

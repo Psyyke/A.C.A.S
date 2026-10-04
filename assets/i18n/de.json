@@ -202,7 +202,7 @@
             "addValuePointHint": "Einen Punkt zur ausgewählten Linie hinzufügen",
             "textStepHint": "Der Text wechselt an jedem Punkt. Eine gespeicherte Option wählen oder eigenen Text eingeben und Text verwenden auswählen; Beschriftungen werden nicht interpoliert.",
             "invalidEngineText": "Diese Engine-Option darf keine spitzen Klammern oder Steuerzeichen enthalten und nicht das reservierte Wort \"value\" sein.",
-            "title": "Dynamische Einstellungen", "subtitle": "Diagrammeditor · Einstellungen an den Spielverlauf anpassen",
+            "title": "Dynamische Einstellungen", "subtitle": "Einstellungen an den Spielverlauf anpassen",
             "addLine": "＋ Linie", "removeLine": "Linie entfernen", "addPoint": "＋ Punkt", "deletePoint": "Punkt löschen",
             "curve": "Kurve", "selectLine": "Linie auswählen", "step": "Stufen", "linear": "Linear", "smooth": "Glatt",
             "pieceCount": "Figurenanzahl", "moveNumber": "Zugnummer", "evaluation": "Bewertung (dein Vorteil, cp)",

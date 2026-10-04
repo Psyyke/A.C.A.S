@@ -203,7 +203,7 @@
             "addValuePointHint": "Añadir un punto a la línea seleccionada",
             "textStepHint": "El texto cambia en cada punto. Selecciona una opción guardada o escribe un texto personalizado y pulsa Usar texto; las etiquetas no se interpolan.",
             "invalidEngineText": "Esta opción del motor no puede contener corchetes angulares ni caracteres de control, ni ser la palabra reservada \"value\".",
-            "title": "Ajustes dinámicos", "subtitle": "Editor de gráficos · adapta los ajustes al juego",
+            "title": "Ajustes dinámicos", "subtitle": "Adapta los ajustes al juego",
             "addLine": "＋ Línea", "removeLine": "Eliminar línea", "addPoint": "＋ Punto", "deletePoint": "Eliminar punto",
             "curve": "Curva", "selectLine": "Selecciona una línea", "step": "Escalonada", "linear": "Lineal", "smooth": "Suave",
             "pieceCount": "Número de piezas", "moveNumber": "Número de jugada", "evaluation": "Evaluación (tu ventaja, cp)",

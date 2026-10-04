@@ -200,7 +200,7 @@
             "addValuePointHint": "Adicionar um ponto à linha selecionada",
             "textStepHint": "O texto muda em cada ponto. Selecione uma opção salva ou insira um texto personalizado e escolha Usar texto; os rótulos não são interpolados.",
             "invalidEngineText": "Esta opção do motor não pode conter sinais de menor e maior nem caracteres de controle, nem ser a palavra reservada \"value\".",
-            "title": "Configurações dinâmicas", "subtitle": "Editor de gráficos · adapte as configurações ao jogo",
+            "title": "Configurações dinâmicas", "subtitle": "Adapte as configurações ao jogo",
             "addLine": "＋ Linha", "removeLine": "Remover linha", "addPoint": "＋ Ponto", "deletePoint": "Excluir ponto", "curve": "Curva", "selectLine": "Selecione uma linha", "step": "Degraus", "linear": "Linear", "smooth": "Suave",
             "pieceCount": "Número de peças", "moveNumber": "Número da jogada", "evaluation": "Avaliação (sua vantagem, cp)", "close": "Fechar editor", "variable": "Variável do gráfico", "chooseSetting": "Configuração a editar",
             "zoomIn": "Ampliar", "zoomOut": "Reduzir", "fit": "Ajustar gráfico", "coordinates": "Coordenadas do ponto", "pointX": "Valor X do ponto", "pointY": "Valor Y do ponto",

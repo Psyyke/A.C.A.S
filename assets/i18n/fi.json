@@ -200,7 +200,7 @@
             "addValuePointHint": "Lisää piste valittuun viivaan",
             "textStepHint": "Teksti vaihtuu kussakin pisteessä. Valitse tallennettu vaihtoehto tai kirjoita mukautettu teksti ja valitse Käytä tekstiä; tekstejä ei interpoloida.",
             "invalidEngineText": "Tämä moottorin asetus ei saa sisältää kulmasulkeita tai ohjausmerkkejä eikä olla varattu sana \"value\".",
-            "title": "Dynaamiset asetukset", "subtitle": "Kuvaajaeditori · asetukset muuttuvat pelin mukana",
+            "title": "Dynaamiset asetukset", "subtitle": "Asetukset muuttuvat pelin mukana",
             "addLine": "＋ Viiva", "removeLine": "Poista viiva", "addPoint": "＋ Piste", "deletePoint": "Poista piste",
             "curve": "Käyrä", "selectLine": "Valitse viiva", "step": "Porras", "linear": "Lineaarinen", "smooth": "Sileä",
             "pieceCount": "Nappuloiden määrä", "moveNumber": "Siirron numero", "evaluation": "Arvio (oma etu, cp)",

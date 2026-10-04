@@ -21,7 +21,7 @@
 
 	function updateWhisperFontEligibility() {
 		const supportsWhisper = text => /^[\p{Script_Extensions=Latin}\p{M}\p{N}\p{P}\p{Z}\s]*$/u.test(text);
-		['#no-instances-subtitle', '#acas-logo-secondary', '.floaty-header .title p']
+		['#no-instances-subtitle', '#acas-logo-secondary']
 			.flatMap(selector => [...document.querySelectorAll(selector)])
 			.forEach(element => {
 				element.classList.toggle('has-whisper-font', supportsWhisper(element.textContent));

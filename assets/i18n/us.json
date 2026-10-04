@@ -203,7 +203,7 @@
             "textStepHint": "Text changes at each point. Select a saved choice or enter custom text and choose Use text; labels are not interpolated.",
             "invalidEngineText": "This engine option cannot contain angle brackets or control characters, or be the reserved word \"value\".",
             "title": "Dynamic Settings",
-            "subtitle": "Graph editor · shape settings as the game changes",
+            "subtitle": "Shape settings as the game changes",
             "addLine": "＋ Line",
             "removeLine": "Remove line",
             "addPoint": "＋ Point",

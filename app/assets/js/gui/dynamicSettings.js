@@ -51,7 +51,7 @@ function translateUI() {
     const dialog = document.getElementById('dynamic-settings-floaty');
     [
         ['.title h1', 'title', 'Dynamic Settings'],
-        ['.title p', 'subtitle', 'Graph editor · shape settings as the game changes'],
+        ['.title p', 'subtitle', 'Shape settings as the game changes'],
         ['#dynamic-add-line', 'addLine', '＋ Line'],
         ['#dynamic-delete-line', 'removeLine', 'Remove line'],
         ['#dynamic-add-point', 'addPoint', '＋ Point'],

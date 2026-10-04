@@ -914,11 +914,6 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     font-family: "Whisper", sans-serif;
     font-size: 30px;
 }
-dialog .floaty-header .title p.has-whisper-font {
-    font-family: "Whisper", sans-serif;
-    font-size: 25px;
-    margin-top: -10px;
-}
 #no-instances-sites {
 	margin: 10px;
 	padding: 20px;
