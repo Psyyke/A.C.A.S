@@ -11,11 +11,12 @@ import { parseVariantMove } from '../misc/variantPosition.js';
 export default async function engineMessageProcessor(msg, profile) {
     msg = msg?.trim();
     if(!msg) return;
-    logActivity(/^(?:info string )?(?:error|failed|failure)\b|\bno such option\b/i.test(msg) ? 'error' : 'engine-output', msg, {
-        instanceID: this.instanceID, profile
-    });
-
     const profileObj = this.pV[profile];
+    logActivity(/^(?:info string )?(?:error|failed|failure)\b|\bno such option\b/i.test(msg) ? 'error' : 'engine-output', msg, {
+        instanceID: this.instanceID,
+        profile,
+        ...this.getEngineActivityContext(profile)
+    });
 
     if(!profileObj) {
         if(this.debugLogsEnabled) console.warn('Attempted to process an engine message from a nonexisting engine, uhh, ghosts?');

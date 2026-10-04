@@ -11,6 +11,16 @@ let preciseTimestamps = false;
 const text = (key, fallback, values) => featureText('activityLog', key, fallback, values);
 const typeLabel = type => (typeof TRANS_OBJ === 'undefined' ? null : TRANS_OBJ)?.activityLog?.types?.[type]
     ?? (type === 'session-start' ? 'Session start' : type.replaceAll('-', ' '));
+const externalEngineTag = engineId => typeof document === 'undefined' ? '' :
+    [...document.querySelectorAll('#external-engine-dropdown .dropdown-item')]
+        .find(item => item.dataset.value === engineId)
+        ?.querySelector('.engine-type-tag.list-tag')?.textContent?.trim() || '';
+const isExternalEngineId = value => /^[a-f\d]{64}$/i.test(value || '');
+const engineLabelForEntry = entry => entry.engineId
+    ? entry.engine || externalEngineTag(entry.engineId) || 'External engine'
+    : isExternalEngineId(entry.engine)
+        ? externalEngineTag(entry.engine) || 'External engine'
+        : entry.engine || '';
 const formatLogTime = (timestamp, type, precise) => {
     const date = new Date(timestamp);
     if(!precise) return type === 'session-start' ? date.toLocaleString() : date.toLocaleTimeString();
@@ -19,19 +29,69 @@ const formatLogTime = (timestamp, type, precise) => {
         .find(part => part.type === 'second')?.value;
     return `${seconds}.${String(date.getMilliseconds()).padStart(3, '0')}`;
 };
+export function formatLogForClipboard(entries) {
+    const sites = new Set();
+    const engines = new Set();
+    const instanceLabels = new Map();
+    entries.forEach(entry => {
+        const site = entry.site || (entry.type === 'instance'
+            ? entry.message.match(/^Instance created for (.+)\.$/)?.[1]
+            : '');
+        const legacyExternalId = !entry.engineId && isExternalEngineId(entry.engine) ? entry.engine : '';
+        const engineId = entry.engineId || legacyExternalId;
+        const engineTag = engineId ? engineLabelForEntry(entry) : '';
+        const engine = engineTag || entry.engine || (entry.type === 'engine'
+            ? entry.message.match(/^Loading (.+?)(?: \(attempt \d+\))?$/)?.[1]
+                || entry.message.match(/^(.+?) ready for a new game\.?$/)?.[1]
+            : '');
+        if(entry.instanceID && !instanceLabels.has(entry.instanceID)) {
+            instanceLabels.set(entry.instanceID, instanceLabels.size + 1);
+        }
+        if(site) sites.add(site);
+        if(engineId) engines.add(`${engineId} (${engine})`);
+        else if(engine) engines.add(engine);
+    });
+    const summary = [
+        sites.size && `Sites: ${[...sites].join(', ')}`,
+        engines.size && `Engines: ${[...engines].join(', ')}`
+    ].filter(Boolean);
+    const sections = entries.map(entry => {
+        const date = new Date(entry.timestamp);
+        const timestamp = `${date.toLocaleString()}.${String(date.getMilliseconds()).padStart(3, '0')}`;
+        const context = [
+            entry.instanceID && String(instanceLabels.get(entry.instanceID)),
+            entry.profile,
+            engineLabelForEntry(entry),
+            entry.site
+        ].filter(Boolean).join(', ');
+        const heading = [
+            `[${timestamp}]`,
+            `[${typeLabel(entry.type)}]`,
+            context ? `[${context}]` : ''
+        ].filter(Boolean).join(' ');
+        const message = entry.message.split(/\r?\n/).map(line => `    ${line}`).join('\n');
+        return `${heading}\n${message}`;
+    });
+    return [
+        `A.C.A.S Activity Log (${entries.length} entries)`,
+        ...summary,
+        ...sections
+    ].join('\n\n');
+}
 
 export function filterLogEntries(entries, type = 'all', query = '') {
-    const normalizedQuery = query.trim().toLowerCase();
+    const searchTerms = query.split(',').map(term => term.trim().toLowerCase()).filter(Boolean);
     return entries.filter(entry => {
         if(type !== 'all' && entry.type !== type) return false;
-        if(!normalizedQuery) return true;
+        if(!searchTerms.length) return true;
         const date = new Date(entry.timestamp);
         const searchableText = [
             entry.type, typeLabel(entry.type), entry.message,
             entry.instanceID && `${text('instance', 'Instance')} ${entry.instanceID}`,
-            entry.profile, date.toLocaleTimeString(), date.toLocaleString()
+            entry.profile, entry.engine, entry.site,
+            date.toLocaleTimeString(), date.toLocaleString()
         ].filter(Boolean).join(' ').toLowerCase();
-        return searchableText.includes(normalizedQuery);
+        return searchTerms.some(term => searchableText.includes(term));
     });
 }
 
@@ -54,6 +114,10 @@ export function createLogRow(entry, previousEntry) {
     time.dataset.timestamp = String(entry.timestamp);
     time.textContent = formatLogTime(entry.timestamp, entry.type, preciseTimestamps);
     time.title = date.toLocaleString();
+    const engine = document.createElement('span');
+    engine.className = 'activity-log-engine';
+    engine.textContent = engineLabelForEntry(entry);
+    engine.hidden = !engine.textContent;
     const category = document.createElement('span');
     category.className = 'activity-log-category';
     category.textContent = typeLabel(entry.type);
@@ -71,14 +135,15 @@ export function createLogRow(entry, previousEntry) {
     meta.hidden = true;
     summary.setAttribute('aria-controls', meta.id);
     meta.appendChild(category);
-    if(entry.instanceID || entry.profile) {
+    if(entry.instanceID || entry.profile || entry.engine || entry.site) {
         const context = document.createElement('span');
         context.className = 'activity-log-context';
         context.textContent = [
-            entry.instanceID && `${text('instance', 'Instance')} ${entry.instanceID}`,
-            entry.profile && `${text('profile', 'Profile')} ${entry.profile}`
-        ]
-            .filter(Boolean).join(' · ');
+            entry.instanceID && `${text('instance', 'Instance')}: ${entry.instanceID}`,
+            entry.profile && `${text('profile', 'Profile')}: ${entry.profile}`,
+            engineLabelForEntry(entry) && `Engine: ${engineLabelForEntry(entry)}`,
+            entry.site && `Site: ${entry.site}`
+        ].filter(Boolean).join('\n');
         summary.title = context.textContent;
         meta.appendChild(context);
     }
@@ -92,7 +157,7 @@ export function createLogRow(entry, previousEntry) {
         summary.classList.toggle('is-expanded', expanded);
         meta.hidden = !expanded;
     };
-    summary.append(time, message, disclosure);
+    summary.append(time, engine, message, disclosure);
     row.append(summary, meta);
     return row;
 }
@@ -102,10 +167,11 @@ export function initializeActivityLog() {
     const list = document.getElementById('activity-log-entries');
     const status = document.getElementById('activity-log-status');
     const clear = document.getElementById('activity-log-clear');
+    const copy = document.getElementById('activity-log-copy');
     const timeToggle = document.getElementById('activity-log-time-toggle');
     const filter = document.getElementById('activity-log-filter');
     const search = document.getElementById('activity-log-search');
-    if(initialized || !dialog || !list || !status || !clear || !timeToggle || !filter || !search) return;
+    if(initialized || !dialog || !list || !status || !clear || !copy || !timeToggle || !filter || !search) return;
     initialized = true;
     try {
         const savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || 'null');
@@ -363,6 +429,22 @@ export function initializeActivityLog() {
         scheduleRender();
     }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
     clear.onclick = () => { activityLog.clear(); render(); };
+    copy.onclick = async () => {
+        const entries = filterLogEntries(activityLog.getEntries(), filter.value, search.value);
+        const originalTitle = text('copyLog', 'Copy visible log entries');
+        try {
+            await navigator.clipboard.writeText(formatLogForClipboard(entries));
+            copy.title = text('copiedLog', 'Copied');
+            status.textContent = `Copied ${entries.length} entries`;
+            setTimeout(() => {
+                copy.title = originalTitle;
+                render();
+            }, 1500);
+        } catch(error) {
+            console.error('Activity log could not be copied to the clipboard.', error);
+            status.textContent = `Copy failed: ${error.message}`;
+        }
+    };
     const resetVisibleEntries = () => {
         list.replaceChildren();
         lastRenderedId = 0;
@@ -397,6 +479,8 @@ export function initializeActivityLog() {
         search.placeholder = text('searchPlaceholder', 'Search log entries...');
         clear.setAttribute('aria-label', text('clear', 'Clear log'));
         clear.title = text('clear', 'Clear log');
+        copy.setAttribute('aria-label', text('copyLog', 'Copy visible log entries'));
+        copy.title = text('copyLog', 'Copy visible log entries');
         filter.setAttribute('aria-label', text('filter', 'Filter activity by type'));
         search.setAttribute('aria-label', text('search', 'Search'));
         [...filter.options].forEach(option => {

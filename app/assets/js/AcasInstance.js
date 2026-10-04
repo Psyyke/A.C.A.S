@@ -82,7 +82,7 @@ export default class AcasInstance {
 
         this.domain = domain;
         this.instanceID = instanceID;
-        logActivity('instance', `Instance created for ${domain}.`, { instanceID });
+        logActivity('instance', `Instance created for ${domain}.`, { instanceID, site: domain });
 
         this.onLoadCallbackFunction = onLoadCallbackFunction;
 
@@ -601,6 +601,23 @@ export default class AcasInstance {
         return this.getEngineAcasObj(profile)?.type ?? await this.getConfigValue(this.configKeys.chessEngine, profile);
     }
 
+    getEngineActivityContext(profile) {
+        const profileVariables = this.pV[profile];
+        if(!profileVariables) return { site: this.domain };
+        if(profileVariables.useExternalChessEngine) {
+            const engineId = profileVariables.externalChessEngine;
+            const engineItem = [...document.querySelectorAll('#external-engine-dropdown .dropdown-item')]
+                .find(item => item.dataset.value === engineId);
+            const engine = engineItem?.querySelector('.engine-type-tag.list-tag')?.textContent?.trim()
+                || 'External engine';
+            return { engine, engineId, site: this.domain };
+        }
+        return {
+            engine: this.getEngineAcasObj(profile)?.type ?? profileVariables.requestedEngine,
+            site: this.domain
+        };
+    }
+
     clearHistoryVariables(profileName) {
         this.pV[profileName].lastFen = null;
         delete this.pV[profileName].spokenAdvantage;
@@ -937,7 +954,12 @@ export default class AcasInstance {
             && (isProfile && this.pV[i].usingAdvancedMode && !isDynamicOption);
 
         if(isBannedOptionSet) return false;
-        const context = { instanceID: this.instanceID, profile: this.getEngineAcasObj(i)?.profileName ?? this.getProfileName(i) };
+        const profile = this.getEngineAcasObj(i)?.profileName ?? this.getProfileName(i);
+        const context = {
+            instanceID: this.instanceID,
+            profile,
+            ...this.getEngineActivityContext(profile)
+        };
         
         if(isProfile && this.pV[i].useExternalChessEngine) {
             const profileName = this.getProfileName(i);

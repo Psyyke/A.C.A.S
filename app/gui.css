@@ -2054,6 +2054,7 @@ input[disabled] {
 }
 #log-floaty .activity-log-filters > summary,
 #log-floaty #activity-log-time-toggle,
+#log-floaty #activity-log-copy,
 #log-floaty #activity-log-filter,
 #log-floaty #activity-log-search,
 #log-floaty #activity-log-clear {
@@ -2097,6 +2098,33 @@ input[disabled] {
     background: rgb(255 255 255 / 14%);
 }
 #log-floaty #activity-log-time-toggle:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 35%);
+    outline-offset: 1px;
+}
+#log-floaty #activity-log-copy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    padding: 0;
+    border: 2px solid rgb(255 255 255 / 20%);
+    border-bottom-width: 5px;
+    border-radius: var(--settings-input-border-radius);
+    background: rgb(255 255 255 / 6%);
+    color: rgb(255 255 255 / 72%);
+    cursor: pointer;
+}
+#log-floaty #activity-log-copy svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+#log-floaty #activity-log-copy:hover,
+#log-floaty #activity-log-copy:focus-visible {
+    border-color: rgb(255 255 255 / 55%);
+    background: rgb(255 255 255 / 14%);
+}
+#log-floaty #activity-log-copy:focus-visible {
     outline: 2px solid rgb(255 255 255 / 35%);
     outline-offset: 1px;
 }
@@ -2303,7 +2331,7 @@ input[disabled] {
 }
 #log-floaty .activity-log-summary {
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr) 14px;
+    grid-template-columns: max-content max-content minmax(0, 1fr) 14px;
     align-items: center;
     gap: 10px;
     width: 100%;
@@ -2325,11 +2353,31 @@ input[disabled] {
     outline-offset: -2px;
 }
 #log-floaty .activity-log-date {
+    grid-column: 1;
     color: rgb(255 255 255 / 42%);
     font: 12px "Cascadia Code", Consolas, monospace;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-transform: none;
+}
+#log-floaty .activity-log-engine {
+    grid-column: 2;
+    max-width: 120px;
+    overflow: hidden;
+    color: rgb(255 255 255 / 58%);
+    font: 10px "Cascadia Code", Consolas, monospace;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#log-floaty .activity-log-engine[hidden] {
+    display: none;
+}
+#log-floaty .activity-log-message {
+    grid-column: 3;
+}
+#log-floaty .activity-log-disclosure {
+    grid-column: 4;
+    justify-self: end;
 }
 #log-floaty .activity-log-entry[data-type="session-start"] {
     margin: 0;
@@ -2412,6 +2460,7 @@ input[disabled] {
     display: block;
     color: rgb(255 255 255 / 48%);
     font: 11px "Cascadia Code", Consolas, monospace;
+    white-space: pre-line;
 }
 #log-floaty .activity-log-full-message {
     margin: 0;
@@ -2426,7 +2475,7 @@ input[disabled] {
 }
 @media (max-width: 600px) {
     #log-floaty .activity-log-summary {
-        grid-template-columns: max-content minmax(0, 1fr) 12px;
+        grid-template-columns: max-content max-content minmax(0, 1fr) 12px;
         gap: 6px;
         padding-inline: 4px;
     }
@@ -3107,6 +3156,7 @@ input[disabled] {
 }
 #log-floaty #activity-log-filter:not(:disabled):is(:hover, :focus-visible),
 #log-floaty #activity-log-time-toggle:not(:disabled):is(:hover, :focus-visible),
+#log-floaty #activity-log-copy:not(:disabled):is(:hover, :focus-visible),
 #log-floaty #activity-log-clear:not(:disabled):is(:hover, :focus-visible),
 :is(#log-floaty, #dynamic-settings-floaty) .floaty-close-btn:not(:disabled):is(:hover, :focus-visible),
 #dynamic-settings-floaty .dynamic-settings-toolbar > button:not(:disabled):is(:hover, :focus-visible),

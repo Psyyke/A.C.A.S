@@ -7,8 +7,9 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     const isCurrentLoad = () => !this.instanceClosed && this.pV[profileName] === profileVariables;
     if(!profileObj || !isCurrentLoad()) return;
     const profileChessEngine = engineName || profileVariables.startupConfig?.chessEngine || profileObj.config.chessEngine;
-    logActivity('engine', `Loading ${profileChessEngine}${attempt ? ` (attempt ${attempt})` : ''}`, {
-        instanceID: this.instanceID, profile: profileName
+    const engineContext = this.getEngineActivityContext(profileName);
+    logActivity('engine', `Loading ${engineContext.engine}${attempt ? ` (attempt ${attempt})` : ''}`, {
+        instanceID: this.instanceID, profile: profileName, ...engineContext
     });
     const isReload = attempt > 0;
     let alreadyRestarted = false;

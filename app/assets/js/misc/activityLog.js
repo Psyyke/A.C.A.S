@@ -56,7 +56,10 @@ export function createActivityLog(limit = ACTIVITY_LOG_LIMIT, storageKey = null)
                                 ? 'App started'
                                 : entry.message.slice(0, 12000),
                             instanceID: typeof entry.instanceID === 'string' ? entry.instanceID : '',
-                            profile: typeof entry.profile === 'string' ? entry.profile : ''
+                            profile: typeof entry.profile === 'string' ? entry.profile : '',
+                            engine: typeof entry.engine === 'string' ? entry.engine : '',
+                            engineId: typeof entry.engineId === 'string' ? entry.engineId : '',
+                            site: typeof entry.site === 'string' ? entry.site : ''
                         }));
                     sequence = entries.reduce((latest, entry) => Math.max(latest, entry.id), 0);
                 }
@@ -97,7 +100,10 @@ export function createActivityLog(limit = ACTIVITY_LOG_LIMIT, storageKey = null)
                 type: String(type),
                 message: formatLogValue(message).slice(0, 12000),
                 instanceID: context.instanceID == null ? '' : String(context.instanceID),
-                profile: context.profile == null ? '' : String(context.profile)
+                profile: context.profile == null ? '' : String(context.profile),
+                engine: context.engine == null ? '' : String(context.engine),
+                engineId: context.engineId == null ? '' : String(context.engineId),
+                site: context.site == null ? '' : String(context.site)
             });
             entries.push(entry);
             if(entries.length > capacity) entries.splice(0, entries.length - capacity);

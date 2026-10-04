@@ -152,7 +152,10 @@ export default async function engineStartNewGame(variant, profile, isDynamicChan
         profileVariables.engineSettingsReady = true;
         delete profileVariables.startupConfig;
         finishPendingSettingChanges(this, profileName);
-        logActivity('engine', `${engineName} ready for a new game.`, { instanceID: this.instanceID, profile: profileName });
+        const engineContext = this.getEngineActivityContext(profileName);
+        logActivity('engine', `${engineContext.engine} ready for a new game.`, {
+            instanceID: this.instanceID, profile: profileName, ...engineContext
+        });
 
         this.sendMsgToEngine('position startpos', profileName, false, isCurrentStart);
         if(engineName !== 'lc0') this.sendMsgToEngine('d', profileName, false, isCurrentStart);
