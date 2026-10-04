@@ -139,7 +139,7 @@ input:focus,
     opacity: 1;
     visibility: visible;
 }
-@media (hover: none), (pointer: coarse), (any-pointer: coarse) {
+@media (hover: none), (pointer: coarse) {
     .dynamic-setting-title-row {
         --dynamic-setting-shortcut-size: 44px;
     }
