@@ -74,6 +74,8 @@ There might be more, please let us know if anything is missing, thank you!
   style="width: 100%; height: auto;"
 />
 
+<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/fa9d32eb-3281-49df-a388-bd30c2951acd" />
+
 ## How does it work?
 
 | A.C.A.S (Tab #1)    | Chess Website (Tab #2)  |
