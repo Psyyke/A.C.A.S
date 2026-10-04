@@ -71,7 +71,7 @@ There might be more, please let us know if anything is missing, thank you!
 <img
   src="https://github.com/user-attachments/assets/b8c23043-57ec-465c-8f8d-11298c15612d"
   alt="image"
-  style="width: 87%; height: auto;"
+  style="width: 100%; height: auto;"
 />
 
 ## How does it work?
