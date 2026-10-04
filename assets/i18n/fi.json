@@ -234,7 +234,7 @@
             "title": "Tapahtumaloki", "subtitle": "Moottoriviestit, dynaamiset muutokset, varoitukset ja virheet",
             "show": "Näytä", "clear": "Tyhjennä loki", "filter": "Suodata tapahtumatyypin mukaan", "all": "Kaikki tapahtumat",
             "close": "Sulje tapahtumaloki", "instance": "Instanssi", "empty": "Ei vielä lokimerkintöjä.",
-            "status": "Näytetään {shown} · yhteensä {total} · istunnon viimeiset {limit} säilytetään",
+            "status": "Näytetään {shown} · yhteensä {total}",
             "types": {
                 "engine-input": "Moottorin syöte", "engine-output": "Moottorin tuloste", "dynamic-change": "Dynaamiset muutokset",
                 "setting-change": "Asetusmuutokset", "engine": "Moottorin elinkaari", "instance": "Instanssin elinkaari",

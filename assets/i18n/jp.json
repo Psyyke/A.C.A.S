@@ -205,7 +205,7 @@
         },
         "activityLog": {
             "search": "検索", "searchPlaceholder": "ログを検索…", "discordMessagePlaceholder": "Discordに送信するメッセージを入力…",
-            "title": "活動ログ", "subtitle": "エンジンのメッセージ、動的変更、警告とエラー", "show": "表示", "clear": "ログを消去", "filter": "種類で絞り込み", "all": "すべての活動", "close": "ログを閉じる", "instance": "インスタンス", "empty": "ログはまだありません。", "status": "{shown} 件表示 · 合計 {total} 件 · このセッションの最新 {limit} 件を保持",
+            "title": "活動ログ", "subtitle": "エンジンのメッセージ、動的変更、警告とエラー", "show": "表示", "clear": "ログを消去", "filter": "種類で絞り込み", "all": "すべての活動", "close": "ログを閉じる", "instance": "インスタンス", "empty": "ログはまだありません。", "status": "{shown} 件表示 · 合計 {total} 件",
             "types": { "engine-input": "エンジン入力", "engine-output": "エンジン出力", "dynamic-change": "動的変更", "setting-change": "設定変更", "engine": "エンジンの状態", "instance": "インスタンスの状態", "game": "対局イベント", "site": "サイトのメッセージ", "warning": "警告", "error": "エラー", "app": "アプリのイベント" }
         },
         "profileRemovalWarning": "このプロフィールを削除してもよろしいですか？\n\nこの操作は取り消せません。",

@@ -395,36 +395,58 @@
 					<div id="import-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Import Settings">📂</div>
                     <div class="floaty-wrapper activity-log-launcher">
 						<button class="open-floaty-btn acas-fancy-button" type="button" title="Activity Log" aria-label="Open activity log" aria-controls="log-floaty">📜</button>
-						<dialog id="log-floaty" aria-labelledby="activity-log-title">
+						<dialog id="log-floaty" aria-label="Activity Log">
 							<div class="floaty-container">
 								<section class="floaty-header">
-									<div class="title"><h1 id="activity-log-title">Activity Log</h1><p>Engine messages, dynamic changes, warnings and errors</p></div>
-									<div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" aria-label="Close activity log">💾</button></div>
+									<div class="activity-log-toolbar">
+										<div class="activity-log-filter-tools">
+											<details class="activity-log-filters">
+												<summary aria-label="Filter activity by type" title="Filter activity by type">
+													<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+														<path d="M3 5h18l-7.5 8.5V19l-3 1v-6.5L3 5z"></path>
+													</svg>
+												</summary>
+												<div class="activity-log-filter-controls">
+													<label class="activity-log-filter-label"><span>Show</span>
+														<select id="activity-log-filter" aria-label="Filter activity by type">
+															<option value="all">All activity</option>
+															<option value="engine-input">Engine input</option>
+															<option value="engine-output">Engine output</option>
+															<option value="dynamic-change">Dynamic changes</option>
+															<option value="setting-change">Setting changes</option>
+															<option value="engine">Engine lifecycle</option>
+															<option value="instance">Instance lifecycle</option>
+															<option value="game">Game events</option>
+															<option value="site">Site messages</option>
+															<option value="warning">Warnings</option>
+															<option value="error">Errors</option>
+															<option value="app">App events</option>
+														</select>
+													</label>
+													<label class="activity-log-search-label textfield-input"><span>Search</span>
+														<input id="activity-log-search" type="search" aria-label="Search" placeholder="Search log entries...">
+													</label>
+												</div>
+											</details>
+											<button id="activity-log-time-toggle" type="button" aria-label="Show milliseconds" title="Show milliseconds" aria-pressed="false">
+												<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+													<circle cx="12" cy="12" r="8.5"></circle>
+													<path d="M12 7v5l3 2M8 2.8l1.2 1.5m6.8-1.5-1.2 1.5M12 1.8v2"></path>
+												</svg>
+											</button>
+										</div>
+										<div class="activity-log-toolbar-actions">
+											<span id="activity-log-status" role="status">No log entries yet.</span>
+											<button id="activity-log-clear" type="button" aria-label="Clear log" title="Clear log" disabled>
+												<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+													<path d="M9 3h6l1 2h5v2H3V5h5l1-2zm-3 6h12l-1 12H7L6 9zm3 2v8h2v-8H9zm4 0v8h2v-8h-2z"></path>
+												</svg>
+											</button>
+											<button class="floaty-close-btn acas-fancy-button" type="button" aria-label="Close activity log" title="Close activity log">×</button>
+										</div>
+									</div>
 								</section>
 								<section class="floaty-body activity-log-body">
-									<div class="activity-log-toolbar">
-										<label class="activity-log-filter-label"><span>Show</span>
-											<select id="activity-log-filter" aria-label="Filter activity by type">
-												<option value="all">All activity</option>
-												<option value="engine-input">Engine input</option>
-												<option value="engine-output">Engine output</option>
-												<option value="dynamic-change">Dynamic changes</option>
-												<option value="setting-change">Setting changes</option>
-												<option value="engine">Engine lifecycle</option>
-												<option value="instance">Instance lifecycle</option>
-												<option value="game">Game events</option>
-												<option value="site">Site messages</option>
-												<option value="warning">Warnings</option>
-												<option value="error">Errors</option>
-												<option value="app">App events</option>
-											</select>
-										</label>
-										<label class="activity-log-search-label textfield-input"><span>Search</span>
-											<input id="activity-log-search" type="search" aria-label="Search" placeholder="Search log entries...">
-										</label>
-										<span id="activity-log-status" role="status">No log entries yet.</span>
-										<button id="activity-log-clear" type="button" disabled>Clear log</button>
-									</div>
 									<div id="activity-log-entries" role="log" aria-live="off" aria-label="Session activity log" tabindex="0"></div>
 								</section>
 							</div>

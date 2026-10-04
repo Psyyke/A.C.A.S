@@ -148,36 +148,82 @@ function fillTextToSpeechVoices() {
 }
 
 function initializeFloatyButtons() {
-    document.querySelectorAll('.floaty-wrapper > dialog').forEach(floatyDialog => {
-        const btn = floatyDialog.parentElement.querySelector('.open-floaty-btn');
+    const activityLogDialog = document.getElementById('log-floaty');
+    if(activityLogDialog && activityLogDialog.parentElement !== document.body) {
+        document.body.appendChild(activityLogDialog);
+    }
+    const floatyDialogs = [...document.querySelectorAll('.floaty-wrapper > dialog')];
+    if(activityLogDialog) floatyDialogs.push(activityLogDialog);
+    floatyDialogs.forEach(floatyDialog => {
+        const btn = floatyDialog.id === 'log-floaty'
+            ? document.querySelector('.activity-log-launcher .open-floaty-btn')
+            : floatyDialog.parentElement.querySelector('.open-floaty-btn');
         const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
+        const activityLogOpenKey = 'acas.activity-log.open';
+        const isDesktopActivityLog = dialog => dialog.id === 'log-floaty'
+            && window.matchMedia('(min-width: 768px) and (any-pointer: fine)').matches;
+
+        function rememberActivityLogOpenState(isOpen) {
+            if(floatyDialog.id !== 'log-floaty') return;
+            try {
+                localStorage.setItem(activityLogOpenKey, String(isOpen));
+            } catch(error) {
+                console.error('Activity log open state could not be saved.', error);
+            }
+        }
+
+        function updatePageScrollLock() {
+            const hasModalDialog = [...document.querySelectorAll('dialog[open]')]
+                .some(dialog => !isDesktopActivityLog(dialog));
+            document.body.style.overflow = hasModalDialog ? 'hidden' : '';
+        }
 
         function open() {
+            if(isDesktopActivityLog(floatyDialog)) {
+                rememberActivityLogOpenState(true);
+                floatyDialog.show();
+                return;
+            }
             floatyDialog.showModal();
-            document.body.style.overflow = 'hidden'; // stop background scrolling
+            document.body.style.overflow = 'hidden';
         }
 
         function close() {
             floatyDialog.close();
-            document.body.style.overflow = document.querySelector('dialog[open]') ? 'hidden' : '';
+            if(floatyDialog.id === 'log-floaty') rememberActivityLogOpenState(false);
+            updatePageScrollLock();
         }
 
         // The graph editor now opens through setting shortcuts, without a launcher.
         if(btn) btn.onclick = () => (floatyDialog.open ? close() : open());
         if(closeBtn) closeBtn.onclick = () => close();
+        if(floatyDialog.id === 'log-floaty') {
+            floatyDialog.addEventListener('close', () => rememberActivityLogOpenState(false));
+        }
 
         floatyDialog.onclick = (e) => {
             const selection = window.getSelection().toString();
+            if(floatyDialog.id === 'log-floaty') {
+                return;
+            }
             if(!selection && e.target === floatyDialog) close();
         };
 
         const observer = new MutationObserver(() => {
-            if(!floatyDialog.open) {
+            if(!floatyDialog.open || isDesktopActivityLog(floatyDialog)) {
                 // A setting shortcut can stack the graph above another modal.
-                document.body.style.overflow = document.querySelector('dialog[open]') ? 'hidden' : '';
+                updatePageScrollLock();
             }
         });
         observer.observe(floatyDialog, { attributes: true, attributeFilter: ['open'] });
+
+        if(isDesktopActivityLog(floatyDialog)) {
+            try {
+                if(localStorage.getItem(activityLogOpenKey) === 'true') open();
+            } catch(error) {
+                console.error('Activity log open state could not be restored.', error);
+            }
+        }
     });
 }
 

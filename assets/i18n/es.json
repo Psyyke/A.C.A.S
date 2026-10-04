@@ -236,7 +236,7 @@
             "title": "Registro de actividad", "subtitle": "Mensajes del motor, cambios dinámicos, advertencias y errores",
             "show": "Mostrar", "clear": "Borrar registro", "filter": "Filtrar por tipo", "all": "Toda la actividad",
             "close": "Cerrar registro", "instance": "Instancia", "empty": "Todavía no hay registros.",
-            "status": "{shown} visibles · {total} en total · se conservan los últimos {limit} de esta sesión",
+            "status": "{shown} visibles · {total} en total",
             "types": { "engine-input": "Entrada del motor", "engine-output": "Salida del motor", "dynamic-change": "Cambios dinámicos", "setting-change": "Cambios de ajustes", "engine": "Ciclo del motor", "instance": "Ciclo de instancia", "game": "Eventos de partida", "site": "Mensajes del sitio", "warning": "Advertencias", "error": "Errores", "app": "Eventos de la aplicación" }
         },
         "profileRemovalWarning": "¿Estás seguro de que quieres eliminar este perfil?\n\nEsta acción no se puede deshacer.",

@@ -205,7 +205,7 @@
         },
         "activityLog": {
             "search": "搜索", "searchPlaceholder": "搜索日志条目…", "discordMessagePlaceholder": "在此输入要发送到 Discord 的消息…",
-            "title": "活动日志", "subtitle": "引擎消息、动态更改、警告与错误", "show": "显示", "clear": "清空日志", "filter": "按类型筛选", "all": "全部活动", "close": "关闭日志", "instance": "实例", "empty": "暂无日志。", "status": "显示 {shown} 条 · 共 {total} 条 · 保留本次会话最近 {limit} 条",
+            "title": "活动日志", "subtitle": "引擎消息、动态更改、警告与错误", "show": "显示", "clear": "清空日志", "filter": "按类型筛选", "all": "全部活动", "close": "关闭日志", "instance": "实例", "empty": "暂无日志。", "status": "显示 {shown} 条 · 共 {total} 条",
             "types": { "engine-input": "引擎输入", "engine-output": "引擎输出", "dynamic-change": "动态更改", "setting-change": "设置更改", "engine": "引擎生命周期", "instance": "实例生命周期", "game": "对局事件", "site": "网站消息", "warning": "警告", "error": "错误", "app": "应用事件" }
         },
         "profileRemovalWarning": "您确定要删除这个配置文件吗？\n\n此操作无法恢复。",

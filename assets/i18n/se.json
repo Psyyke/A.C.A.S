@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Sök", "searchPlaceholder": "Sök i loggen…", "discordMessagePlaceholder": "Skriv ditt Discord-meddelande här…",
-            "title": "Aktivitetslogg", "subtitle": "Motormeddelanden, dynamiska ändringar, varningar och fel", "show": "Visa", "clear": "Rensa loggen", "filter": "Filtrera efter typ", "all": "All aktivitet", "close": "Stäng loggen", "instance": "Instans", "empty": "Inga loggposter ännu.", "status": "{shown} visas · {total} totalt · senaste {limit} sparas under sessionen",
+            "title": "Aktivitetslogg", "subtitle": "Motormeddelanden, dynamiska ändringar, varningar och fel", "show": "Visa", "clear": "Rensa loggen", "filter": "Filtrera efter typ", "all": "All aktivitet", "close": "Stäng loggen", "instance": "Instans", "empty": "Inga loggposter ännu.", "status": "{shown} visas · {total} totalt",
             "types": { "engine-input": "Motorindata", "engine-output": "Motorutdata", "dynamic-change": "Dynamiska ändringar", "setting-change": "Inställningsändringar", "engine": "Motorns livscykel", "instance": "Instansens livscykel", "game": "Spelhändelser", "site": "Webbplatsmeddelanden", "warning": "Varningar", "error": "Fel", "app": "Apphändelser" }
         },
         "profileRemovalWarning": "Är du säker på att du vill ta bort denna profil?\n\nDenna åtgärd kan inte ångras.",

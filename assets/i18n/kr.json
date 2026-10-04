@@ -206,7 +206,7 @@
         },
         "activityLog": {
             "search": "검색", "searchPlaceholder": "로그 항목 검색…", "discordMessagePlaceholder": "Discord 메시지를 여기에 입력하세요…",
-            "title": "활동 로그", "subtitle": "엔진 메시지, 동적 변경, 경고 및 오류", "show": "표시", "clear": "로그 지우기", "filter": "유형별 필터", "all": "모든 활동", "close": "로그 닫기", "instance": "인스턴스", "empty": "아직 로그가 없습니다.", "status": "{shown}개 표시 · 총 {total}개 · 세션의 최근 {limit}개 보관",
+            "title": "활동 로그", "subtitle": "엔진 메시지, 동적 변경, 경고 및 오류", "show": "표시", "clear": "로그 지우기", "filter": "유형별 필터", "all": "모든 활동", "close": "로그 닫기", "instance": "인스턴스", "empty": "아직 로그가 없습니다.", "status": "{shown}개 표시 · 총 {total}개",
             "types": { "engine-input": "엔진 입력", "engine-output": "엔진 출력", "dynamic-change": "동적 변경", "setting-change": "설정 변경", "engine": "엔진 수명 주기", "instance": "인스턴스 수명 주기", "game": "게임 이벤트", "site": "사이트 메시지", "warning": "경고", "error": "오류", "app": "앱 이벤트" }
         },
         "profileRemovalWarning": "이 프로필을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",

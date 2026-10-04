@@ -213,7 +213,7 @@
         },
         "activityLog": {
             "search": "Pesquisar", "searchPlaceholder": "Pesquisar no registro…", "discordMessagePlaceholder": "Escreva sua mensagem do Discord aqui…",
-            "title": "Registro de atividade", "subtitle": "Mensagens do motor, mudanças dinâmicas, avisos e erros", "show": "Mostrar", "clear": "Limpar registro", "filter": "Filtrar por tipo", "all": "Toda a atividade", "close": "Fechar registro", "instance": "Instância", "empty": "Ainda sem registros.", "status": "{shown} exibidos · {total} no total · últimos {limit} mantidos nesta sessão",
+            "title": "Registro de atividade", "subtitle": "Mensagens do motor, mudanças dinâmicas, avisos e erros", "show": "Mostrar", "clear": "Limpar registro", "filter": "Filtrar por tipo", "all": "Toda a atividade", "close": "Fechar registro", "instance": "Instância", "empty": "Ainda sem registros.", "status": "{shown} exibidos · {total} no total",
             "types": { "engine-input": "Entrada do motor", "engine-output": "Saída do motor", "dynamic-change": "Mudanças dinâmicas", "setting-change": "Mudanças de configuração", "engine": "Ciclo do motor", "instance": "Ciclo da instância", "game": "Eventos do jogo", "site": "Mensagens do site", "warning": "Avisos", "error": "Erros", "app": "Eventos do aplicativo" }
         },
         "profileRemovalWarning": "Tem certeza de que deseja remover este perfil?\n\nEsta ação não pode ser desfeita.",

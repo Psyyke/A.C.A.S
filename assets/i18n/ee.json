@@ -206,7 +206,7 @@
         },
         "activityLog": {
             "search": "Otsi", "searchPlaceholder": "Otsi logist…", "discordMessagePlaceholder": "Kirjuta siia oma Discordi sõnum…",
-            "title": "Tegevuslogi", "subtitle": "Mootori sõnumid, dünaamilised muudatused, hoiatused ja vead", "show": "Näita", "clear": "Tühjenda logi", "filter": "Filtreeri tüübi järgi", "all": "Kõik tegevused", "close": "Sulge logi", "instance": "Eksemplar", "empty": "Logikirjeid veel pole.", "status": "Näidatud {shown} · kokku {total} · säilitatakse seansi viimased {limit}",
+            "title": "Tegevuslogi", "subtitle": "Mootori sõnumid, dünaamilised muudatused, hoiatused ja vead", "show": "Näita", "clear": "Tühjenda logi", "filter": "Filtreeri tüübi järgi", "all": "Kõik tegevused", "close": "Sulge logi", "instance": "Eksemplar", "empty": "Logikirjeid veel pole.", "status": "Näidatud {shown} · kokku {total}",
             "types": { "engine-input": "Mootori sisend", "engine-output": "Mootori väljund", "dynamic-change": "Dünaamilised muudatused", "setting-change": "Seadete muudatused", "engine": "Mootori elutsükkel", "instance": "Eksemplari elutsükkel", "game": "Mängusündmused", "site": "Saidi sõnumid", "warning": "Hoiatused", "error": "Vead", "app": "Rakenduse sündmused" }
         },
         "profileRemovalWarning": "Kas olete kindel, et soovite selle profiili eemaldada?\n\nSeda toimingut ei saa tühistada.",

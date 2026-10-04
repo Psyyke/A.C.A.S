@@ -210,6 +210,7 @@ body.panels-collapsed > #console-toolbar button {
     flex: 1;
     min-height: 0;
     overflow-y: auto !important;
+    overflow-x: auto;
     padding: 15px;
     font-family: 'Cascadia Code', Consolas, monospace;
     font-size: var(--log-font-size);
@@ -217,6 +218,13 @@ body.panels-collapsed > #console-toolbar button {
     background: #000;
 }
 .log * { font-family: inherit; }
+.log .log-entry { min-width: 100%; }
+.log.no-wrap .log-entry { width: max-content; }
+.log.no-wrap .msg-body {
+    flex: 0 0 auto;
+    white-space: pre;
+    overflow-wrap: normal;
+}
 .input-area {
     display: flex;
     padding: 10px;

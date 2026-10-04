@@ -211,7 +211,7 @@
         },
         "activityLog": {
             "search": "Cerca", "searchPlaceholder": "Cerca nel registro…", "discordMessagePlaceholder": "Scrivi qui il tuo messaggio Discord…",
-            "title": "Registro attività", "subtitle": "Messaggi del motore, modifiche dinamiche, avvisi ed errori", "show": "Mostra", "clear": "Svuota registro", "filter": "Filtra per tipo", "all": "Tutte le attività", "close": "Chiudi registro", "instance": "Istanza", "empty": "Nessuna voce ancora.", "status": "{shown} visibili · {total} totali · ultime {limit} conservate nella sessione",
+            "title": "Registro attività", "subtitle": "Messaggi del motore, modifiche dinamiche, avvisi ed errori", "show": "Mostra", "clear": "Svuota registro", "filter": "Filtra per tipo", "all": "Tutte le attività", "close": "Chiudi registro", "instance": "Istanza", "empty": "Nessuna voce ancora.", "status": "{shown} visibili · {total} totali",
             "types": { "engine-input": "Input del motore", "engine-output": "Output del motore", "dynamic-change": "Modifiche dinamiche", "setting-change": "Modifiche alle impostazioni", "engine": "Ciclo del motore", "instance": "Ciclo dell’istanza", "game": "Eventi di partita", "site": "Messaggi del sito", "warning": "Avvisi", "error": "Errori", "app": "Eventi dell’app" }
         },
         "profileRemovalWarning": "Sei sicuro di voler rimuovere questo profilo?\n\nQuesta azione non può essere annullata.",

@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Maghanap", "searchPlaceholder": "Maghanap sa log…", "discordMessagePlaceholder": "Isulat dito ang iyong mensahe sa Discord…",
-            "title": "Talaan ng aktibidad", "subtitle": "Mga mensahe ng engine, dinamikong pagbabago, babala at error", "show": "Ipakita", "clear": "Burahin ang talaan", "filter": "I-filter ayon sa uri", "all": "Lahat ng aktibidad", "close": "Isara ang talaan", "instance": "Instance", "empty": "Wala pang tala.", "status": "{shown} ipinakita · {total} kabuuan · pinapanatili ang huling {limit} sa sesyon",
+            "title": "Talaan ng aktibidad", "subtitle": "Mga mensahe ng engine, dinamikong pagbabago, babala at error", "show": "Ipakita", "clear": "Burahin ang talaan", "filter": "I-filter ayon sa uri", "all": "Lahat ng aktibidad", "close": "Isara ang talaan", "instance": "Instance", "empty": "Wala pang tala.", "status": "{shown} ipinakita · {total} kabuuan",
             "types": { "engine-input": "Input ng engine", "engine-output": "Output ng engine", "dynamic-change": "Dinamikong pagbabago", "setting-change": "Pagbabago ng setting", "engine": "Siklo ng engine", "instance": "Siklo ng instance", "game": "Mga kaganapan sa laro", "site": "Mga mensahe ng site", "warning": "Mga babala", "error": "Mga error", "app": "Mga kaganapan ng app" }
         },
         "profileRemovalWarning": "Sigurado ka bang nais mong alisin ang profile na ito?\n\nAng aksyong ito ay hindi maibabalik.",

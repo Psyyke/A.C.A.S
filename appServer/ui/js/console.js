@@ -3,16 +3,23 @@
 const MAX_LOG_LINES = 2000;
 const CONSOLE_OBJS = new Map();
 const LOG_FONT_STORAGE_KEY = 'acas-server-log-font-size';
+const LOG_WRAP_STORAGE_KEY = 'acas-server-log-wrap-lines';
 const DEFAULT_LOG_FONT_SIZE = 14;
 const MIN_LOG_FONT_SIZE = 10;
 const MAX_LOG_FONT_SIZE = 24;
 let logFontSize = DEFAULT_LOG_FONT_SIZE;
+let wrapLogLines = true;
 
 try {
     const storedSize = Number(localStorage.getItem(LOG_FONT_STORAGE_KEY));
     if(Number.isFinite(storedSize) && storedSize >= MIN_LOG_FONT_SIZE && storedSize <= MAX_LOG_FONT_SIZE)
         logFontSize = Math.round(storedSize);
 } catch { /* Font resizing still works when storage is unavailable. */ }
+
+try {
+    const storedWrapMode = localStorage.getItem(LOG_WRAP_STORAGE_KEY);
+    if(storedWrapMode === 'false') wrapLogLines = false;
+} catch { /* Line wrapping still works when storage is unavailable. */ }
 
 document.documentElement.style.setProperty('--log-font-size', `${logFontSize}px`);
 
@@ -27,11 +34,35 @@ function setLogFontSize(size) {
 
     logFontSize = nextSize;
     document.documentElement.style.setProperty('--log-font-size', `${logFontSize}px`);
-    CONSOLE_OBJS.forEach(({ fontSizeBtn }) => { fontSizeBtn.textContent = `${logFontSize}px`; });
     scrollPositions.forEach(({ logDiv, atBottom, ratio }) => {
         logDiv.scrollTop = atBottom ? logDiv.scrollHeight : ratio * (logDiv.scrollHeight - logDiv.clientHeight);
     });
     try { localStorage.setItem(LOG_FONT_STORAGE_KEY, String(logFontSize)); } catch { /* Optional preference. */ }
+}
+
+function setLogWrapMode(wrapLines) {
+    if(wrapLogLines === wrapLines) return;
+    const scrollPositions = [...CONSOLE_OBJS.values()].map(({ logDiv }) => ({
+        logDiv,
+        atBottom: logDiv.scrollHeight - logDiv.clientHeight <= logDiv.scrollTop + 60,
+        ratio: logDiv.scrollTop / Math.max(1, logDiv.scrollHeight - logDiv.clientHeight)
+    }));
+    wrapLogLines = wrapLines;
+    CONSOLE_OBJS.forEach(({ logDiv, wrapBtn }) => {
+        updateLogWrapControl(logDiv, wrapBtn);
+    });
+    scrollPositions.forEach(({ logDiv, atBottom, ratio }) => {
+        logDiv.scrollTop = atBottom ? logDiv.scrollHeight : ratio * (logDiv.scrollHeight - logDiv.clientHeight);
+    });
+    try { localStorage.setItem(LOG_WRAP_STORAGE_KEY, String(wrapLogLines)); } catch { /* Optional preference. */ }
+}
+
+function updateLogWrapControl(logDiv, wrapBtn) {
+    logDiv.classList.toggle('no-wrap', !wrapLogLines);
+    wrapBtn.setAttribute('aria-pressed', String(!wrapLogLines));
+    wrapBtn.setAttribute('aria-label', wrapLogLines ? 'Allow horizontal overflow' : 'Wrap console lines');
+    wrapBtn.title = wrapLogLines ? 'Line wrapping on' : 'Horizontal overflow on';
+    wrapBtn.querySelector('i').className = `bi ${wrapLogLines ? 'bi-arrow-return-left' : 'bi-arrow-right'}`;
 }
 
 function createKillEngineButton(identifierObj) {
@@ -120,7 +151,9 @@ function addConsoleView(identifierObj) {
             <input type="text" class="logFilter" placeholder="Filter (depth, pv, ...)" />
             <button class="acas-fancy-button clearBtn" title="Clear console">Clear</button>
             <button class="pauseBtn acas-fancy-button">Pause</button>
-            <button class="fontSizeBtn acas-fancy-button" title="Ctrl + scroll over the log to resize text. Click to reset to 14px." aria-label="Reset log font size to 14 pixels"></button>
+            <button class="wrapBtn acas-fancy-button" type="button" aria-pressed="false">
+                <i class="bi bi-arrow-return-left" aria-hidden="true"></i>
+            </button>
         </div>
         <div class="log" title="Ctrl + scroll to resize log text"></div>
         <div class="input-area">
@@ -140,9 +173,9 @@ function addConsoleView(identifierObj) {
     const filterInput = consoleSection.querySelector('.logFilter');
     const pauseBtn = consoleSection.querySelector('.pauseBtn');
     const clearBtn = consoleSection.querySelector('.clearBtn');
-    const fontSizeBtn = consoleSection.querySelector('.fontSizeBtn');
-    fontSizeBtn.textContent = `${logFontSize}px`;
-    fontSizeBtn.onclick = () => setLogFontSize(DEFAULT_LOG_FONT_SIZE);
+    const wrapBtn = consoleSection.querySelector('.wrapBtn');
+    wrapBtn.onclick = () => setLogWrapMode(!wrapLogLines);
+    updateLogWrapControl(logDiv, wrapBtn);
     logDiv.addEventListener('wheel', event => {
         if(!event.ctrlKey) return;
         event.preventDefault();
@@ -208,7 +241,7 @@ function addConsoleView(identifierObj) {
         filterInput,
         pauseBtn,
         clearBtn,
-        fontSizeBtn,
+        wrapBtn,
         'isPaused': () => isPaused
     });
 }

@@ -234,7 +234,7 @@
             "title": "Journal d’activité", "subtitle": "Messages du moteur, changements dynamiques, avertissements et erreurs",
             "show": "Afficher", "clear": "Vider le journal", "filter": "Filtrer par type", "all": "Toute l’activité",
             "close": "Fermer le journal", "instance": "Instance", "empty": "Aucune entrée pour le moment.",
-            "status": "{shown} affichées · {total} au total · les {limit} dernières conservées pour cette session",
+            "status": "{shown} affichées · {total} au total",
             "types": { "engine-input": "Entrée du moteur", "engine-output": "Sortie du moteur", "dynamic-change": "Changements dynamiques", "setting-change": "Changements de paramètres", "engine": "Cycle du moteur", "instance": "Cycle de l’instance", "game": "Événements de partie", "site": "Messages du site", "warning": "Avertissements", "error": "Erreurs", "app": "Événements de l’application" }
         },
         "profileRemovalWarning": "Êtes-vous sûr(e) de vouloir supprimer ce profil ?\n\nCette action est irréversible.",

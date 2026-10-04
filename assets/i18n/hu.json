@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Keresés", "searchPlaceholder": "Keresés a naplóban…", "discordMessagePlaceholder": "Ide írd a Discord-üzenetedet…",
-            "title": "Tevékenységnapló", "subtitle": "Motorüzenetek, dinamikus változások, figyelmeztetések és hibák", "show": "Megjelenítés", "clear": "Napló törlése", "filter": "Szűrés típus szerint", "all": "Minden tevékenység", "close": "Napló bezárása", "instance": "Példány", "empty": "Még nincs naplóbejegyzés.", "status": "{shown} látható · összesen {total} · a munkamenet utolsó {limit} bejegyzése tárolva",
+            "title": "Tevékenységnapló", "subtitle": "Motorüzenetek, dinamikus változások, figyelmeztetések és hibák", "show": "Megjelenítés", "clear": "Napló törlése", "filter": "Szűrés típus szerint", "all": "Minden tevékenység", "close": "Napló bezárása", "instance": "Példány", "empty": "Még nincs naplóbejegyzés.", "status": "{shown} látható · összesen {total}",
             "types": { "engine-input": "Motor bemenet", "engine-output": "Motor kimenet", "dynamic-change": "Dinamikus változások", "setting-change": "Beállításváltozások", "engine": "Motor életciklusa", "instance": "Példány életciklusa", "game": "Játékesemények", "site": "Webhelyüzenetek", "warning": "Figyelmeztetések", "error": "Hibák", "app": "Alkalmazásesemények" }
         },
         "profileRemovalWarning": "Biztosan el akarod távolítani ezt a profilt?\n\nEz a művelet nem vonható vissza.",

@@ -205,7 +205,7 @@
         },
         "activityLog": {
             "search": "Hledat", "searchPlaceholder": "Hledat v protokolu…", "discordMessagePlaceholder": "Sem napište zprávu pro Discord…",
-            "title": "Protokol aktivit", "subtitle": "Zprávy enginu, dynamické změny, varování a chyby", "show": "Zobrazit", "clear": "Vymazat protokol", "filter": "Filtrovat podle typu", "all": "Všechny aktivity", "close": "Zavřít protokol", "instance": "Instance", "empty": "Zatím žádné záznamy.", "status": "Zobrazeno {shown} · celkem {total} · uchováno posledních {limit} této relace",
+            "title": "Protokol aktivit", "subtitle": "Zprávy enginu, dynamické změny, varování a chyby", "show": "Zobrazit", "clear": "Vymazat protokol", "filter": "Filtrovat podle typu", "all": "Všechny aktivity", "close": "Zavřít protokol", "instance": "Instance", "empty": "Zatím žádné záznamy.", "status": "Zobrazeno {shown} · celkem {total}",
             "types": { "engine-input": "Vstup enginu", "engine-output": "Výstup enginu", "dynamic-change": "Dynamické změny", "setting-change": "Změny nastavení", "engine": "Životní cyklus enginu", "instance": "Životní cyklus instance", "game": "Herní události", "site": "Zprávy webu", "warning": "Varování", "error": "Chyby", "app": "Události aplikace" }
         },
         "profileRemovalWarning": "Opravdu chcete odstranit tento profil?\n\nTuto akci nelze vrátit.",

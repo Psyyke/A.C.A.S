@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Axtar", "searchPlaceholder": "Jurnalda axtar…", "discordMessagePlaceholder": "Discord mesajınızı bura yazın…",
-            "title": "Fəaliyyət jurnalı", "subtitle": "Mühərrik mesajları, dinamik dəyişikliklər, xəbərdarlıqlar və xətalar", "show": "Göstər", "clear": "Jurnalı təmizlə", "filter": "Növə görə süzgəc", "all": "Bütün fəaliyyət", "close": "Jurnalı bağla", "instance": "Nüsxə", "empty": "Hələ qeyd yoxdur.", "status": "{shown} göstərilir · cəmi {total} · sessiyanın son {limit} qeydi saxlanır",
+            "title": "Fəaliyyət jurnalı", "subtitle": "Mühərrik mesajları, dinamik dəyişikliklər, xəbərdarlıqlar və xətalar", "show": "Göstər", "clear": "Jurnalı təmizlə", "filter": "Növə görə süzgəc", "all": "Bütün fəaliyyət", "close": "Jurnalı bağla", "instance": "Nüsxə", "empty": "Hələ qeyd yoxdur.", "status": "{shown} göstərilir · cəmi {total}",
             "types": { "engine-input": "Mühərrik girişi", "engine-output": "Mühərrik çıxışı", "dynamic-change": "Dinamik dəyişikliklər", "setting-change": "Parametr dəyişiklikləri", "engine": "Mühərrik həyat dövrü", "instance": "Nüsxə həyat dövrü", "game": "Oyun hadisələri", "site": "Sayt mesajları", "warning": "Xəbərdarlıqlar", "error": "Xətalar", "app": "Tətbiq hadisələri" }
         },
         "profileRemovalWarning": "Bu profili silmək istədiyinizə əminsinizmi?\n\nBu əməliyyat geri qaytarıla bilməz.",

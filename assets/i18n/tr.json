@@ -205,7 +205,7 @@
         },
         "activityLog": {
             "search": "Ara", "searchPlaceholder": "Günlükte ara…", "discordMessagePlaceholder": "Discord mesajınızı buraya yazın…",
-            "title": "Etkinlik günlüğü", "subtitle": "Motor mesajları, dinamik değişiklikler, uyarılar ve hatalar", "show": "Göster", "clear": "Günlüğü temizle", "filter": "Türe göre filtrele", "all": "Tüm etkinlikler", "close": "Günlüğü kapat", "instance": "Örnek", "empty": "Henüz kayıt yok.", "status": "{shown} gösteriliyor · toplam {total} · oturumun son {limit} kaydı tutulur",
+            "title": "Etkinlik günlüğü", "subtitle": "Motor mesajları, dinamik değişiklikler, uyarılar ve hatalar", "show": "Göster", "clear": "Günlüğü temizle", "filter": "Türe göre filtrele", "all": "Tüm etkinlikler", "close": "Günlüğü kapat", "instance": "Örnek", "empty": "Henüz kayıt yok.", "status": "{shown} gösteriliyor · toplam {total}",
             "types": { "engine-input": "Motor girdisi", "engine-output": "Motor çıktısı", "dynamic-change": "Dinamik değişiklikler", "setting-change": "Ayar değişiklikleri", "engine": "Motor yaşam döngüsü", "instance": "Örnek yaşam döngüsü", "game": "Oyun olayları", "site": "Site mesajları", "warning": "Uyarılar", "error": "Hatalar", "app": "Uygulama olayları" }
         },
         "profileRemovalWarning": "Bu profili silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.",

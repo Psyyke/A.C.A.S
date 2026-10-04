@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Hľadať", "searchPlaceholder": "Hľadať v denníku…", "discordMessagePlaceholder": "Sem napíšte správu pre Discord…",
-            "title": "Denník aktivít", "subtitle": "Správy enginu, dynamické zmeny, upozornenia a chyby", "show": "Zobraziť", "clear": "Vymazať denník", "filter": "Filtrovať podľa typu", "all": "Všetky aktivity", "close": "Zavrieť denník", "instance": "Inštancia", "empty": "Zatiaľ žiadne záznamy.", "status": "Zobrazené {shown} · spolu {total} · uchovaných posledných {limit} tejto relácie",
+            "title": "Denník aktivít", "subtitle": "Správy enginu, dynamické zmeny, upozornenia a chyby", "show": "Zobraziť", "clear": "Vymazať denník", "filter": "Filtrovať podľa typu", "all": "Všetky aktivity", "close": "Zavrieť denník", "instance": "Inštancia", "empty": "Zatiaľ žiadne záznamy.", "status": "Zobrazené {shown} · spolu {total}",
             "types": { "engine-input": "Vstup enginu", "engine-output": "Výstup enginu", "dynamic-change": "Dynamické zmeny", "setting-change": "Zmeny nastavení", "engine": "Životný cyklus enginu", "instance": "Životný cyklus inštancie", "game": "Herné udalosti", "site": "Správy webu", "warning": "Upozornenia", "error": "Chyby", "app": "Udalosti aplikácie" }
         },
         "profileRemovalWarning": "Ste si istí, že chcete odstrániť tento profil?\n\nTúto akciu nie je možné zrušiť.",

@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Tìm kiếm", "searchPlaceholder": "Tìm trong nhật ký…", "discordMessagePlaceholder": "Nhập tin nhắn Discord của bạn tại đây…",
-            "title": "Nhật ký hoạt động", "subtitle": "Thông báo engine, thay đổi động, cảnh báo và lỗi", "show": "Hiện", "clear": "Xóa nhật ký", "filter": "Lọc theo loại", "all": "Mọi hoạt động", "close": "Đóng nhật ký", "instance": "Phiên", "empty": "Chưa có mục nhật ký.", "status": "Hiện {shown} · tổng {total} · giữ {limit} mục mới nhất trong phiên",
+            "title": "Nhật ký hoạt động", "subtitle": "Thông báo engine, thay đổi động, cảnh báo và lỗi", "show": "Hiện", "clear": "Xóa nhật ký", "filter": "Lọc theo loại", "all": "Mọi hoạt động", "close": "Đóng nhật ký", "instance": "Phiên", "empty": "Chưa có mục nhật ký.", "status": "Hiện {shown} · tổng {total}",
             "types": { "engine-input": "Đầu vào engine", "engine-output": "Đầu ra engine", "dynamic-change": "Thay đổi động", "setting-change": "Thay đổi cài đặt", "engine": "Vòng đời engine", "instance": "Vòng đời phiên", "game": "Sự kiện ván đấu", "site": "Thông báo trang", "warning": "Cảnh báo", "error": "Lỗi", "app": "Sự kiện ứng dụng" }
         },
         "profileRemovalWarning": "Bạn có chắc muốn xóa hồ sơ này không?\n\nHành động này không thể hoàn tác.",

@@ -205,7 +205,7 @@
         },
         "activityLog": {
             "search": "Caută", "searchPlaceholder": "Caută în jurnal…", "discordMessagePlaceholder": "Scrie aici mesajul pentru Discord…",
-            "title": "Jurnal de activitate", "subtitle": "Mesaje ale motorului, modificări dinamice, avertismente și erori", "show": "Afișează", "clear": "Golește jurnalul", "filter": "Filtrează după tip", "all": "Toată activitatea", "close": "Închide jurnalul", "instance": "Instanță", "empty": "Încă nu sunt înregistrări.", "status": "{shown} afișate · {total} în total · ultimele {limit} păstrate în sesiune",
+            "title": "Jurnal de activitate", "subtitle": "Mesaje ale motorului, modificări dinamice, avertismente și erori", "show": "Afișează", "clear": "Golește jurnalul", "filter": "Filtrează după tip", "all": "Toată activitatea", "close": "Închide jurnalul", "instance": "Instanță", "empty": "Încă nu sunt înregistrări.", "status": "{shown} afișate · {total} în total",
             "types": { "engine-input": "Intrare motor", "engine-output": "Ieșire motor", "dynamic-change": "Modificări dinamice", "setting-change": "Modificări de setări", "engine": "Ciclul motorului", "instance": "Ciclul instanței", "game": "Evenimente de joc", "site": "Mesaje ale site-ului", "warning": "Avertismente", "error": "Erori", "app": "Evenimente ale aplicației" }
         },
         "profileRemovalWarning": "Ești sigur că vrei să elimini acest profil?\n\nAceastă acțiune nu poate fi inversată.",

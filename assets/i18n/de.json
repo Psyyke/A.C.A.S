@@ -222,7 +222,7 @@
         },
         "activityLog": {
             "search": "Suchen", "searchPlaceholder": "Protokolleinträge durchsuchen…", "discordMessagePlaceholder": "Gib hier deine Discord-Nachricht ein…",
-            "title": "Aktivitätsprotokoll", "subtitle": "Engine-Nachrichten, dynamische Änderungen, Warnungen und Fehler", "show": "Anzeigen", "clear": "Protokoll leeren", "filter": "Nach Typ filtern", "all": "Alle Aktivitäten", "close": "Protokoll schließen", "instance": "Instanz", "empty": "Noch keine Einträge.", "status": "{shown} angezeigt · {total} insgesamt · letzte {limit} dieser Sitzung gespeichert",
+            "title": "Aktivitätsprotokoll", "subtitle": "Engine-Nachrichten, dynamische Änderungen, Warnungen und Fehler", "show": "Anzeigen", "clear": "Protokoll leeren", "filter": "Nach Typ filtern", "all": "Alle Aktivitäten", "close": "Protokoll schließen", "instance": "Instanz", "empty": "Noch keine Einträge.", "status": "{shown} angezeigt · {total} insgesamt",
             "types": { "engine-input": "Engine-Eingabe", "engine-output": "Engine-Ausgabe", "dynamic-change": "Dynamische Änderungen", "setting-change": "Einstellungsänderungen", "engine": "Engine-Lebenszyklus", "instance": "Instanz-Lebenszyklus", "game": "Spielereignisse", "site": "Seitennachrichten", "warning": "Warnungen", "error": "Fehler", "app": "App-Ereignisse" }
         },
         "profileRemovalWarning": "Bist du sicher, dass du dieses Profil entfernen möchtest?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",

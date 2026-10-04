@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Szukaj", "searchPlaceholder": "Szukaj w dzienniku…", "discordMessagePlaceholder": "Wpisz tutaj wiadomość na Discorda…",
-            "title": "Dziennik aktywności", "subtitle": "Wiadomości silnika, zmiany dynamiczne, ostrzeżenia i błędy", "show": "Pokaż", "clear": "Wyczyść dziennik", "filter": "Filtruj według typu", "all": "Cała aktywność", "close": "Zamknij dziennik", "instance": "Instancja", "empty": "Brak wpisów.", "status": "Widoczne {shown} · razem {total} · zachowano ostatnie {limit} w tej sesji",
+            "title": "Dziennik aktywności", "subtitle": "Wiadomości silnika, zmiany dynamiczne, ostrzeżenia i błędy", "show": "Pokaż", "clear": "Wyczyść dziennik", "filter": "Filtruj według typu", "all": "Cała aktywność", "close": "Zamknij dziennik", "instance": "Instancja", "empty": "Brak wpisów.", "status": "Widoczne {shown} · razem {total}",
             "types": { "engine-input": "Wejście silnika", "engine-output": "Wyjście silnika", "dynamic-change": "Zmiany dynamiczne", "setting-change": "Zmiany ustawień", "engine": "Cykl życia silnika", "instance": "Cykl życia instancji", "game": "Zdarzenia gry", "site": "Wiadomości strony", "warning": "Ostrzeżenia", "error": "Błędy", "app": "Zdarzenia aplikacji" }
         },
         "profileRemovalWarning": "Jesteś pewien, że chcesz usunąć ten profil?\n\nTa akcja jest nieodwracalna.",

@@ -1,10 +1,23 @@
-import { activityLog, ACTIVITY_LOG_LIMIT } from '../misc/activityLog.js';
+import { activityLog } from '../misc/activityLog.js';
 import { featureText } from '../misc/featureTranslations.js';
 
 let initialized = false;
+const PANEL_STORAGE_KEY = 'acas.activity-log.panel';
+const PRECISE_TIME_STORAGE_KEY = 'acas.activity-log.precise-time';
+const reportStorageError = console.error.bind(console);
+let panelStorageErrorReported = false;
+let preciseTimestamps = false;
 const text = (key, fallback, values) => featureText('activityLog', key, fallback, values);
 const typeLabel = type => (typeof TRANS_OBJ === 'undefined' ? null : TRANS_OBJ)?.activityLog?.types?.[type]
-    ?? type.replaceAll('-', ' ');
+    ?? (type === 'session-start' ? 'Session start' : type.replaceAll('-', ' '));
+const formatLogTime = (timestamp, type, precise) => {
+    const date = new Date(timestamp);
+    if(!precise) return type === 'session-start' ? date.toLocaleString() : date.toLocaleTimeString();
+    const seconds = new Intl.DateTimeFormat(undefined, { second: '2-digit' })
+        .formatToParts(date)
+        .find(part => part.type === 'second')?.value;
+    return `${seconds}.${String(date.getMilliseconds()).padStart(3, '0')}`;
+};
 
 export function filterLogEntries(entries, type = 'all', query = '') {
     const normalizedQuery = query.trim().toLowerCase();
@@ -21,32 +34,65 @@ export function filterLogEntries(entries, type = 'all', query = '') {
     });
 }
 
-export function createLogRow(entry) {
+export function createLogRow(entry, previousEntry) {
     const row = document.createElement('div');
     row.className = 'activity-log-entry';
+    if(previousEntry && entry.timestamp - previousEntry.timestamp > 300) {
+        row.classList.add('has-time-gap');
+    }
     row.dataset.id = entry.id;
     row.dataset.type = entry.type;
-    const header = document.createElement('div');
-    header.className = 'activity-log-meta';
+    const summary = document.createElement('button');
+    summary.type = 'button';
+    summary.className = 'activity-log-summary';
+    summary.setAttribute('aria-expanded', 'false');
     const time = document.createElement('time');
+    time.className = 'activity-log-date';
     const date = new Date(entry.timestamp);
     time.dateTime = date.toISOString();
-    time.textContent = date.toLocaleTimeString();
+    time.dataset.timestamp = String(entry.timestamp);
+    time.textContent = formatLogTime(entry.timestamp, entry.type, preciseTimestamps);
     time.title = date.toLocaleString();
     const category = document.createElement('span');
     category.className = 'activity-log-category';
     category.textContent = typeLabel(entry.type);
-    header.append(time, category);
+    const message = document.createElement('span');
+    message.className = 'activity-log-message';
+    message.textContent = entry.message;
+    const disclosure = document.createElement('span');
+    disclosure.className = 'activity-log-disclosure';
+    disclosure.setAttribute('aria-hidden', 'true');
+    disclosure.textContent = '›';
+
+    const meta = document.createElement('div');
+    meta.className = 'activity-log-meta';
+    meta.id = `activity-log-meta-${entry.id}`;
+    meta.hidden = true;
+    summary.setAttribute('aria-controls', meta.id);
+    meta.appendChild(category);
     if(entry.instanceID || entry.profile) {
         const context = document.createElement('span');
         context.className = 'activity-log-context';
-        context.textContent = [entry.instanceID && `${text('instance', 'Instance')} ${entry.instanceID}`, entry.profile]
+        context.textContent = [
+            entry.instanceID && `${text('instance', 'Instance')} ${entry.instanceID}`,
+            entry.profile && `${text('profile', 'Profile')} ${entry.profile}`
+        ]
             .filter(Boolean).join(' · ');
-        header.appendChild(context);
+        summary.title = context.textContent;
+        meta.appendChild(context);
     }
-    const message = document.createElement('pre');
-    message.textContent = entry.message;
-    row.append(header, message);
+    const fullMessage = document.createElement('pre');
+    fullMessage.className = 'activity-log-full-message';
+    fullMessage.textContent = entry.message;
+    meta.appendChild(fullMessage);
+    summary.onclick = () => {
+        const expanded = summary.getAttribute('aria-expanded') !== 'true';
+        summary.setAttribute('aria-expanded', String(expanded));
+        summary.classList.toggle('is-expanded', expanded);
+        meta.hidden = !expanded;
+    };
+    summary.append(time, message, disclosure);
+    row.append(summary, meta);
     return row;
 }
 
@@ -55,10 +101,220 @@ export function initializeActivityLog() {
     const list = document.getElementById('activity-log-entries');
     const status = document.getElementById('activity-log-status');
     const clear = document.getElementById('activity-log-clear');
+    const timeToggle = document.getElementById('activity-log-time-toggle');
     const filter = document.getElementById('activity-log-filter');
     const search = document.getElementById('activity-log-search');
-    if(initialized || !dialog || !list || !status || !clear || !filter || !search) return;
+    if(initialized || !dialog || !list || !status || !clear || !timeToggle || !filter || !search) return;
     initialized = true;
+    try {
+        preciseTimestamps = localStorage.getItem(PRECISE_TIME_STORAGE_KEY) === 'true';
+    } catch(error) {
+        console.error('Activity log time format could not be restored.', error);
+    }
+    const updateTimeDisplay = () => {
+        timeToggle.setAttribute('aria-pressed', String(preciseTimestamps));
+        const label = text(
+            preciseTimestamps ? 'hideMilliseconds' : 'showMilliseconds',
+            preciseTimestamps ? 'Hide milliseconds' : 'Show milliseconds'
+        );
+        timeToggle.setAttribute('aria-label', label);
+        timeToggle.title = label;
+        list.querySelectorAll('.activity-log-date').forEach(time => {
+            const row = time.closest('.activity-log-entry');
+            time.textContent = formatLogTime(Number(time.dataset.timestamp), row.dataset.type, preciseTimestamps);
+        });
+    };
+    timeToggle.onclick = () => {
+        preciseTimestamps = !preciseTimestamps;
+        try {
+            localStorage.setItem(PRECISE_TIME_STORAGE_KEY, String(preciseTimestamps));
+        } catch(error) {
+            console.error('Activity log time format could not be saved.', error);
+        }
+        updateTimeDisplay();
+    };
+    updateTimeDisplay();
+    const header = dialog.querySelector('.floaty-header');
+    const desktopPanel = window.matchMedia('(min-width: 768px) and (any-pointer: fine)');
+    let drag = null;
+    let resizeDrag = null;
+    let panelSaveTimer = null;
+    const reportPanelStorageError = error => {
+        if(panelStorageErrorReported) return;
+        panelStorageErrorReported = true;
+        reportStorageError('Activity log panel settings could not be saved.', error);
+    };
+    const persistPanelGeometry = rect => {
+        if(!desktopPanel.matches) return;
+        try {
+            localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({
+                left: rect.left,
+                top: rect.top,
+                width: rect.width,
+                height: rect.height
+            }));
+        } catch(error) {
+            reportPanelStorageError(error);
+        }
+    };
+    const savePanelGeometry = () => {
+        if(dialog.open) persistPanelGeometry(dialog.getBoundingClientRect());
+    };
+    const schedulePanelSave = () => {
+        if(!dialog.open) return;
+        const rect = dialog.getBoundingClientRect();
+        if(panelSaveTimer !== null) clearTimeout(panelSaveTimer);
+        panelSaveTimer = setTimeout(() => {
+            panelSaveTimer = null;
+            persistPanelGeometry(rect);
+        }, 150);
+    };
+    const restorePanelGeometry = () => {
+        if(!desktopPanel.matches) return;
+        try {
+            const saved = JSON.parse(localStorage.getItem(PANEL_STORAGE_KEY) || 'null');
+            if(!saved || !['left', 'top', 'width', 'height'].every(key => Number.isFinite(saved[key]))) return;
+            const width = Math.max(360, Math.min(saved.width, window.innerWidth - 24));
+            const height = Math.max(260, Math.min(saved.height, window.innerHeight - 24));
+            const left = Math.max(0, Math.min(saved.left, window.innerWidth - width));
+            const top = Math.max(0, Math.min(saved.top, window.innerHeight - height));
+            dialog.classList.add('is-dragged');
+            dialog.style.width = `${width}px`;
+            dialog.style.height = `${height}px`;
+            dialog.style.left = `${left}px`;
+            dialog.style.top = `${top}px`;
+        } catch(error) {
+            reportPanelStorageError(error);
+        }
+    };
+    if(dialog.open) restorePanelGeometry();
+    ['left', 'right'].forEach(corner => {
+        const handle = document.createElement('button');
+        handle.type = 'button';
+        handle.className = `activity-log-resize-handle activity-log-resize-${corner}`;
+        handle.setAttribute('aria-label', `Resize activity log from bottom ${corner}`);
+        handle.title = `Resize from bottom ${corner}`;
+        handle.addEventListener('pointerdown', event => {
+            if(!desktopPanel.matches || event.button !== 0 || !dialog.open) return;
+            const rect = dialog.getBoundingClientRect();
+            dialog.classList.add('is-dragged');
+            dialog.style.left = `${rect.left}px`;
+            dialog.style.top = `${rect.top}px`;
+            resizeDrag = {
+                corner,
+                pointerId: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+                left: rect.left,
+                top: rect.top,
+                width: rect.width,
+                height: rect.height
+            };
+            event.preventDefault();
+            event.stopPropagation();
+        });
+        handle.addEventListener('keydown', event => {
+            if(!desktopPanel.matches || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+            const rect = dialog.getBoundingClientRect();
+            dialog.classList.add('is-dragged');
+            dialog.style.left = `${rect.left}px`;
+            dialog.style.top = `${rect.top}px`;
+            const direction = corner === 'left' ? -1 : 1;
+            const step = event.shiftKey ? 40 : 12;
+            if(event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                const delta = event.key === 'ArrowRight' ? step : -step;
+                const maxWidth = corner === 'left' ? rect.right - 24 : window.innerWidth - rect.left - 24;
+                const width = Math.max(360, Math.min(maxWidth, rect.width + delta * direction));
+                if(corner === 'left') dialog.style.left = `${rect.right - width}px`;
+                dialog.style.width = `${width}px`;
+            } else {
+                const delta = event.key === 'ArrowDown' ? step : -step;
+                dialog.style.height = `${Math.max(260, Math.min(window.innerHeight - rect.top - 24, rect.height + delta))}px`;
+            }
+            event.preventDefault();
+            savePanelGeometry();
+        });
+        dialog.appendChild(handle);
+    });
+    if(header) header.addEventListener('pointerdown', event => {
+        if(!desktopPanel.matches || event.button !== 0
+            || event.target.closest('button, input, select, summary, label, a')) return;
+        const rect = dialog.getBoundingClientRect();
+        dialog.classList.add('is-dragged');
+        dialog.style.left = `${rect.left}px`;
+        dialog.style.top = `${rect.top}px`;
+        drag = {
+            pointerId: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            left: rect.left,
+            top: rect.top
+        };
+        event.preventDefault();
+    });
+    window.addEventListener('pointermove', event => {
+        if(resizeDrag && event.pointerId === resizeDrag.pointerId) {
+            if(!desktopPanel.matches || !dialog.open) {
+                resizeDrag = null;
+                return;
+            }
+            const deltaX = event.clientX - resizeDrag.x;
+            const deltaY = event.clientY - resizeDrag.y;
+            const maxHeight = Math.max(260, window.innerHeight - resizeDrag.top - 24);
+            dialog.style.height = `${Math.max(260, Math.min(maxHeight, resizeDrag.height + deltaY))}px`;
+            if(resizeDrag.corner === 'right') {
+                const maxWidth = Math.max(360, window.innerWidth - resizeDrag.left - 24);
+                dialog.style.width = `${Math.max(360, Math.min(maxWidth, resizeDrag.width + deltaX))}px`;
+            } else {
+                const right = resizeDrag.left + resizeDrag.width;
+                const left = Math.max(0, Math.min(right - 360, resizeDrag.left + deltaX));
+                dialog.style.left = `${left}px`;
+                dialog.style.width = `${right - left}px`;
+            }
+            return;
+        }
+        if(!drag || event.pointerId !== drag.pointerId) return;
+        if(!desktopPanel.matches || !dialog.open) {
+            drag = null;
+            return;
+        }
+        const rect = dialog.getBoundingClientRect();
+        const left = drag.left + event.clientX - drag.x;
+        const top = drag.top + event.clientY - drag.y;
+        dialog.style.left = `${Math.max(0, Math.min(left, window.innerWidth - rect.width))}px`;
+        dialog.style.top = `${Math.max(0, Math.min(top, window.innerHeight - rect.height))}px`;
+    });
+    const stopDragging = event => {
+        if(resizeDrag?.pointerId === event.pointerId) {
+            resizeDrag = null;
+            savePanelGeometry();
+        }
+        if(drag?.pointerId === event.pointerId) {
+            drag = null;
+            savePanelGeometry();
+        }
+    };
+    window.addEventListener('pointerup', stopDragging);
+    window.addEventListener('pointercancel', stopDragging);
+    window.addEventListener('blur', () => {
+        drag = null;
+        resizeDrag = null;
+    });
+    window.addEventListener('resize', () => {
+        if(!desktopPanel.matches) {
+            dialog.classList.remove('is-dragged');
+            ['left', 'top', 'width', 'height'].forEach(property => dialog.style.removeProperty(property));
+            return;
+        }
+        if(!dialog.open) return;
+        const rect = dialog.getBoundingClientRect();
+        dialog.style.left = `${Math.max(0, Math.min(rect.left, window.innerWidth - rect.width))}px`;
+        dialog.style.top = `${Math.max(0, Math.min(rect.top, window.innerHeight - rect.height))}px`;
+        schedulePanelSave();
+    });
+    if(typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(schedulePanelSave).observe(dialog);
+    }
     let pendingRender = null;
     let lastRenderedId = 0;
     const render = () => {
@@ -73,13 +329,15 @@ export function initializeActivityLog() {
         }
         const fresh = visible.filter(entry => entry.id > lastRenderedId);
         const fragment = document.createDocumentFragment();
-        fresh.forEach(entry => fragment.appendChild(createLogRow(entry)));
+        const firstFreshIndex = visible.findIndex(entry => entry.id > lastRenderedId);
+        let previousEntry = firstFreshIndex > 0 ? visible[firstFreshIndex - 1] : undefined;
+        fresh.forEach(entry => {
+            fragment.appendChild(createLogRow(entry, previousEntry));
+            previousEntry = entry;
+        });
         list.appendChild(fragment);
         if(visible.length) lastRenderedId = visible.at(-1).id;
-        status.textContent = entries.length
-            ? text('status', '{shown} shown · {total} total · latest {limit} kept this session', {
-                shown: visible.length, total: entries.length, limit: ACTIVITY_LOG_LIMIT })
-            : text('empty', 'No log entries yet.');
+        status.textContent = `${visible.length}/${entries.length}`;
         clear.disabled = !entries.length;
         if(atBottom) list.scrollTop = list.scrollHeight;
     };
@@ -88,7 +346,10 @@ export function initializeActivityLog() {
         if(dialog.open && pendingRender === null) pendingRender = setTimeout(render, 100);
     };
     activityLog.subscribe(scheduleRender);
-    new MutationObserver(scheduleRender).observe(dialog, { attributes: true, attributeFilter: ['open'] });
+    new MutationObserver(() => {
+        if(dialog.open) restorePanelGeometry();
+        scheduleRender();
+    }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
     clear.onclick = () => { activityLog.clear(); render(); };
     const resetVisibleEntries = () => {
         list.replaceChildren();
@@ -98,12 +359,16 @@ export function initializeActivityLog() {
     filter.onchange = resetVisibleEntries;
     search.oninput = resetVisibleEntries;
     const translateUI = () => {
-        document.querySelector('#activity-log-title').textContent = text('title', 'Activity Log');
-        dialog.querySelector('.title p').textContent = text('subtitle', 'Engine messages, dynamic changes, warnings and errors');
+        dialog.setAttribute('aria-label', text('title', 'Activity Log'));
+        updateTimeDisplay();
+        const filterToggle = dialog.querySelector('.activity-log-filters summary');
+        filterToggle.setAttribute('aria-label', text('filter', 'Filter activity by type'));
+        filterToggle.title = text('filter', 'Filter activity by type');
         dialog.querySelector('.activity-log-filter-label span').textContent = text('show', 'Show');
         dialog.querySelector('.activity-log-search-label span').textContent = text('search', 'Search');
         search.placeholder = text('searchPlaceholder', 'Search log entries...');
-        clear.textContent = text('clear', 'Clear log');
+        clear.setAttribute('aria-label', text('clear', 'Clear log'));
+        clear.title = text('clear', 'Clear log');
         filter.setAttribute('aria-label', text('filter', 'Filter activity by type'));
         search.setAttribute('aria-label', text('search', 'Search'));
         [...filter.options].forEach(option => {
@@ -112,9 +377,11 @@ export function initializeActivityLog() {
         const launcher = document.querySelector('.activity-log-launcher .open-floaty-btn');
         launcher.title = text('title', 'Activity Log');
         launcher.setAttribute('aria-label', text('title', 'Activity Log'));
-        dialog.querySelector('.floaty-close-btn').setAttribute('aria-label', text('close', 'Close activity log'));
+        const close = dialog.querySelector('.floaty-close-btn');
+        close.setAttribute('aria-label', text('close', 'Close activity log'));
+        close.title = text('close', 'Close activity log');
         list.setAttribute('aria-label', text('title', 'Activity Log'));
-        status.textContent = text('empty', 'No log entries yet.');
+        status.textContent = '0/0';
         list.replaceChildren();
         lastRenderedId = 0;
         render();

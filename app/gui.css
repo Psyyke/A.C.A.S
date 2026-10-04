@@ -1935,65 +1935,236 @@ input[disabled] {
     font-family: inherit;
     font-size: 1rem;
     line-height: 1.4;
+    opacity: 1 !important;
+}
+#log-floaty .floaty-header {
+    gap: 0;
+    align-items: center;
+}
+#log-floaty .floaty-close-btn {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    border-width: 1px !important;
+    border-bottom-width: 2px !important;
+    font-family: Arial, sans-serif;
+    font-size: 23px;
+    font-weight: 600;
+    line-height: 1;
+    color: white !important;
 }
 #log-floaty .activity-log-body {
-    padding: 8px;
-    gap: 8px;
+    padding: 0;
+    gap: 0;
+    min-height: 0;
 }
 #log-floaty .activity-log-toolbar {
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 6px 10px;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
     color: rgb(255 255 255 / 75%);
+}
+#log-floaty .activity-log-filters {
+    min-width: 0;
+    flex: 0 0 auto;
+}
+#log-floaty .activity-log-filter-tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+#log-floaty .activity-log-filters > summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 36px;
+    min-height: 36px;
+    padding: 4px;
+    position: relative;
+    border: 2px solid rgb(255 255 255 / 20%);
+    border-bottom-width: 5px;
+    border-radius: var(--settings-input-border-radius);
+    background: rgb(255 255 255 / 10%);
+    color: rgb(255 255 255 / 78%);
+    font-size: 0;
+    cursor: pointer;
+    list-style: none;
+}
+#log-floaty .activity-log-filters > summary svg {
+    display: block;
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+}
+#log-floaty .activity-log-filters > summary::-webkit-details-marker {
+    display: none;
+}
+#log-floaty .activity-log-filters > summary::after {
+    content: "+";
+    position: absolute;
+    top: 1px;
+    right: 2px;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+#log-floaty .activity-log-filters > summary:hover,
+#log-floaty .activity-log-filters > summary:focus-visible {
+    border-color: rgb(255 255 255 / 55%);
+    background: rgb(255 255 255 / 14%);
+}
+#log-floaty .activity-log-filters > summary:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 35%);
+    outline-offset: 1px;
+}
+#log-floaty .activity-log-filters[open] > summary::after {
+    content: "−";
+}
+#log-floaty .activity-log-filter-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px 10px;
+    position: absolute;
+    z-index: 3;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    width: auto;
+    max-width: 100%;
+    padding: 8px;
+    border: 2px solid rgb(255 255 255 / 18%);
+    border-bottom-width: 5px;
+    border-radius: var(--settings-input-border-radius);
+    background: rgb(28 42 48 / 98%);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+}
+#log-floaty .activity-log-filters > summary,
+#log-floaty #activity-log-time-toggle,
+#log-floaty #activity-log-filter,
+#log-floaty #activity-log-search,
+#log-floaty #activity-log-clear {
+    box-sizing: border-box;
+    height: 36px;
+    font-size: 12px;
+    line-height: 1;
+}
+#log-floaty .activity-log-filters > summary {
+    font-size: 0;
+}
+#log-floaty #activity-log-time-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    padding: 0;
+    border: 2px solid rgb(255 255 255 / 20%);
+    border-bottom-width: 5px;
+    border-radius: var(--settings-input-border-radius);
+    background: rgb(255 255 255 / 6%);
+    color: rgb(255 255 255 / 72%);
+    cursor: pointer;
+}
+#log-floaty #activity-log-time-toggle svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+#log-floaty #activity-log-time-toggle[aria-pressed="true"] {
+    color: white;
+    background: rgb(255 255 255 / 14%);
+}
+#log-floaty #activity-log-time-toggle:hover,
+#log-floaty #activity-log-time-toggle:focus-visible {
+    border-color: rgb(255 255 255 / 55%);
+    background: rgb(255 255 255 / 14%);
+}
+#log-floaty #activity-log-time-toggle:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 35%);
+    outline-offset: 1px;
 }
 #log-floaty .activity-log-filter-label {
     display: flex;
     align-items: center;
     gap: 6px;
+    width: 100%;
     min-width: 0;
 }
 #log-floaty .activity-log-search-label {
     display: flex;
-    flex: 1 1 220px;
+    flex: 1 1 auto;
     align-items: center;
     gap: 6px;
+    width: 100%;
     min-width: 0;
 }
 #log-floaty #activity-log-filter {
-    height: auto;
+    flex: 1 1 auto;
     padding: 5px 30px 5px 8px;
     min-width: 0;
     max-width: 100%;
-    font: inherit;
+    width: 0;
+    font-family: inherit;
 }
 #log-floaty #activity-log-search {
     flex: 1;
     width: 100%;
     min-width: 0;
-    height: auto;
     padding: 5px 8px;
-    font: inherit;
+    font-family: inherit;
 }
 #log-floaty #activity-log-search::-webkit-search-cancel-button {
     display: none;
 }
 #log-floaty #activity-log-status {
-    flex: 1;
-    min-width: 120px;
+    min-width: 0;
     color: rgb(255 255 255 / 65%);
+    font-size: 12px;
+}
+#log-floaty .activity-log-toolbar-actions {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 6px;
 }
 #log-floaty #activity-log-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    padding: 5px 8px;
+    width: 36px;
+    padding: 5px;
     border: 2px solid rgb(255 255 255 / 20%);
     border-bottom-width: 5px;
     border-radius: 4px;
     background: rgb(255 255 255 / 6%);
     color: inherit;
-    font: inherit;
+    font-family: inherit;
+    font-weight: inherit;
     cursor: pointer;
+}
+#log-floaty #activity-log-clear svg {
+    display: block;
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
 }
 #log-floaty #activity-log-clear:hover:not(:disabled) {
     background: rgb(255 255 255 / 12%);
@@ -2011,44 +2182,258 @@ input[disabled] {
     height: min(55vh, 600px);
     min-height: 120px;
     overflow: auto;
-    border: 1px solid rgb(255 255 255 / 15%);
-    border-radius: 5px;
-    background: rgb(0 0 0 / 25%);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     overflow-anchor: none;
 }
+#log-floaty::backdrop {
+    background: transparent;
+    backdrop-filter: none;
+}
+#log-floaty .activity-log-resize-handle {
+    display: none;
+}
+@media (min-width: 768px) and (any-pointer: fine) {
+    #log-floaty {
+        box-sizing: border-box;
+        position: fixed;
+        z-index: 10000000000;
+        width: min(800px, calc(100vw - 40px));
+        height: min(560px, calc(100vh - 40px));
+        min-width: 360px;
+        min-height: 260px;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        margin: auto;
+        padding: 0;
+        overflow: hidden;
+        resize: none;
+    }
+    #log-floaty.is-dragged {
+        inset: auto;
+        margin: 0;
+    }
+    #log-floaty .floaty-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    #log-floaty .floaty-header {
+        flex: 0 0 auto;
+        padding: 4px 8px;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+    }
+    #log-floaty .floaty-header:active {
+        cursor: grabbing;
+    }
+    #log-floaty .floaty-header .floaty-buttons,
+    #log-floaty .floaty-header .floaty-close-btn {
+        cursor: pointer;
+    }
+    #log-floaty .activity-log-body {
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+    #log-floaty #activity-log-entries {
+        flex: 1 1 auto;
+        height: auto;
+        min-height: 0;
+    }
+    #log-floaty .activity-log-resize-handle {
+        position: absolute;
+        display: block;
+        z-index: 2;
+        bottom: 0;
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        touch-action: none;
+    }
+    #log-floaty .activity-log-resize-left {
+        left: 0;
+        cursor: nesw-resize;
+    }
+    #log-floaty .activity-log-resize-right {
+        right: 0;
+        cursor: nwse-resize;
+    }
+    #log-floaty .activity-log-resize-handle::after {
+        position: absolute;
+        bottom: 5px;
+        width: 9px;
+        height: 9px;
+        content: "";
+        opacity: 0.55;
+        background: repeating-linear-gradient(135deg, transparent 0 2px, rgb(255 255 255 / 75%) 2px 3px);
+    }
+    #log-floaty .activity-log-resize-left::after {
+        left: 5px;
+        transform: rotate(90deg);
+    }
+    #log-floaty .activity-log-resize-right::after {
+        right: 5px;
+    }
+}
 #log-floaty .activity-log-entry {
-    padding: 6px 10px;
-    border-bottom: 1px solid rgb(255 255 255 / 8%);
-    border-left: 2px solid var(--log-accent, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 7%);
 }
 #log-floaty .activity-log-entry:last-child {
     border-bottom: 0;
 }
+#log-floaty .activity-log-entry.has-time-gap {
+    margin: 12px 0 8px;
+    border-top: 1px dashed rgb(255 255 255 / 24%);
+    padding-top: 10px;
+}
+#log-floaty .activity-log-entry:has(+ .activity-log-entry.has-time-gap) {
+    border-bottom: 0;
+}
+#log-floaty .activity-log-summary {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) 14px;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 3px 6px;
+    border: 0;
+    background: transparent;
+    color: rgb(255 255 255 / 78%);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+#log-floaty .activity-log-summary:hover,
+#log-floaty .activity-log-summary:focus-visible {
+    background: rgb(255 255 255 / 4%);
+}
+#log-floaty .activity-log-summary:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 45%);
+    outline-offset: -2px;
+}
+#log-floaty .activity-log-date {
+    color: rgb(255 255 255 / 42%);
+    font: 12px "Cascadia Code", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-transform: none;
+}
+#log-floaty .activity-log-entry[data-type="session-start"] {
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    background: transparent;
+}
+#log-floaty .activity-log-entry[data-type="session-start"] .activity-log-summary {
+    min-height: 68px;
+    padding: 10px 6px;
+}
+#log-floaty .activity-log-entry[data-type="session-start"] .activity-log-date {
+    color: rgb(255 255 255 / 48%);
+    font-size: 11px;
+}
+#log-floaty .activity-log-entry[data-type="session-start"] .activity-log-message {
+    color: rgb(255 255 255 / 78%);
+    font-size: 12px;
+    font-weight: 500;
+}
 #log-floaty .activity-log-meta {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 2px 8px;
-    color: rgb(255 255 255 / 40%);
-    font-size: 13px;
+    align-items: baseline;
+    gap: 4px 12px;
+    padding: 2px 24px 6px 6px;
 }
-#log-floaty .activity-log-category {
-    color: var(--log-accent, inherit);
-    font-weight: 500;
+#log-floaty .activity-log-meta[hidden] {
+    display: none;
+}
+#log-floaty .activity-log-meta .activity-log-category {
+    justify-self: start;
+    padding: 0;
+    background: transparent;
+    color: rgb(255 255 255 / 50%);
+    font: 10px "Cascadia Code", Consolas, monospace;
     text-transform: capitalize;
+    white-space: nowrap;
 }
-#log-floaty .activity-log-entry[data-type="error"] {
-    --log-accent: rgb(255 120 120 / 85%);
+#log-floaty .activity-log-entry[data-type="error"] .activity-log-category {
+    background: transparent;
+    color: rgb(255 150 150 / 95%);
 }
-#log-floaty .activity-log-entry[data-type="warning"] {
-    --log-accent: rgb(255 200 100 / 85%);
+#log-floaty .activity-log-entry[data-type="error"] .activity-log-message,
+#log-floaty .activity-log-entry[data-type="error"] .activity-log-full-message {
+    color: rgb(255 150 150 / 95%);
 }
-#log-floaty .activity-log-entry pre {
-    margin: 2px 0 0;
-    color: rgb(255 255 255 / 85%);
-    font: inherit;
+#log-floaty .activity-log-entry[data-type="warning"] .activity-log-category {
+    background: transparent;
+    color: rgb(255 210 130 / 95%);
+}
+#log-floaty .activity-log-entry[data-type="warning"] .activity-log-message,
+#log-floaty .activity-log-entry[data-type="warning"] .activity-log-full-message {
+    color: rgb(255 190 100 / 95%);
+}
+#log-floaty .activity-log-entry[data-type="engine-output"] .activity-log-category {
+    border: 0;
+    background: transparent;
+    color: rgb(255 255 255 / 58%);
+}
+#log-floaty .activity-log-message {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 12px;
+}
+#log-floaty .activity-log-disclosure {
+    color: rgb(255 255 255 / 35%);
+    font-size: 19px;
+    line-height: 1;
+    text-align: center;
+    transition: transform 120ms ease;
+}
+#log-floaty .activity-log-summary.is-expanded .activity-log-disclosure {
+    transform: rotate(90deg);
+}
+#log-floaty .activity-log-context {
+    display: block;
+    color: rgb(255 255 255 / 48%);
+    font: 11px "Cascadia Code", Consolas, monospace;
+}
+#log-floaty .activity-log-full-message {
+    margin: 0;
+    flex: 1 0 100%;
+    padding: 6px 8px;
+    border-left: 2px solid rgb(255 255 255 / 20%);
+    background: rgb(0 0 0 / 18%);
+    color: rgb(255 255 255 / 78%);
+    font: 11px/1.5 "Cascadia Code", Consolas, monospace;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+    #log-floaty .activity-log-summary {
+        grid-template-columns: max-content minmax(0, 1fr) 12px;
+        gap: 6px;
+        padding-inline: 4px;
+    }
+    #log-floaty .activity-log-meta {
+        padding-right: 16px;
+        padding-left: 4px;
+    }
 }
 #dynamic-settings-floaty {
     --dynamic-control-font-size: 14px;
@@ -2721,6 +3106,7 @@ input[disabled] {
     }
 }
 #log-floaty #activity-log-filter:not(:disabled):is(:hover, :focus-visible),
+#log-floaty #activity-log-time-toggle:not(:disabled):is(:hover, :focus-visible),
 #log-floaty #activity-log-clear:not(:disabled):is(:hover, :focus-visible),
 :is(#log-floaty, #dynamic-settings-floaty) .floaty-close-btn:not(:disabled):is(:hover, :focus-visible),
 #dynamic-settings-floaty .dynamic-settings-toolbar > button:not(:disabled):is(:hover, :focus-visible),

@@ -207,7 +207,7 @@
         },
         "activityLog": {
             "search": "Cari", "searchPlaceholder": "Cari di log aktivitas…", "discordMessagePlaceholder": "Tulis pesan Discord Anda di sini…",
-            "title": "Log aktivitas", "subtitle": "Pesan mesin, perubahan dinamis, peringatan dan kesalahan", "show": "Tampilkan", "clear": "Bersihkan log", "filter": "Filter berdasarkan jenis", "all": "Semua aktivitas", "close": "Tutup log", "instance": "Instans", "empty": "Belum ada entri log.", "status": "{shown} ditampilkan · {total} total · {limit} terbaru disimpan selama sesi",
+            "title": "Log aktivitas", "subtitle": "Pesan mesin, perubahan dinamis, peringatan dan kesalahan", "show": "Tampilkan", "clear": "Bersihkan log", "filter": "Filter berdasarkan jenis", "all": "Semua aktivitas", "close": "Tutup log", "instance": "Instans", "empty": "Belum ada entri log.", "status": "{shown} ditampilkan · {total} total",
             "types": { "engine-input": "Masukan mesin", "engine-output": "Keluaran mesin", "dynamic-change": "Perubahan dinamis", "setting-change": "Perubahan pengaturan", "engine": "Siklus mesin", "instance": "Siklus instans", "game": "Peristiwa permainan", "site": "Pesan situs", "warning": "Peringatan", "error": "Kesalahan", "app": "Peristiwa aplikasi" }
         },
         "profileRemovalWarning": "Apakah Anda yakin ingin menghapus profil ini?\n\nTindakan ini tidak dapat dibatalkan.",
