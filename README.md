@@ -70,6 +70,8 @@ There might be more, please let us know if anything is missing, thank you!
 
 <img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5d7c0cc1-358a-4a93-b43c-b103490e9c61" />
 <img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/dada18bf-cf76-4465-bf60-68e4552dacfe" />
+<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5fc8a0ee-6bfc-411d-a709-33b129b7baa9" />
+
 
 ## How does it work?
 
