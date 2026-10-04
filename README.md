@@ -68,6 +68,11 @@ There might be more, please let us know if anything is missing, thank you!
 |---|---|
 | ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="Image 2" src="https://github.com/user-attachments/assets/3216a77d-7d7f-493f-8d93-f5a650650e03" /> |
 
+<img
+  src="https://github.com/user-attachments/assets/b8c23043-57ec-465c-8f8d-11298c15612d"
+  alt="image"
+  style="width: 87%; height: auto;"
+/>
 
 ## How does it work?
 
