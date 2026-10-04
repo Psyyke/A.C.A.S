@@ -94,6 +94,40 @@ form menu {
     box-sizing: border-box;
     flex-shrink: 0;
 }
+body.panels-collapsed > #acas-header,
+body.panels-collapsed > #server-controls,
+body.panels-collapsed > #engine-library-heading,
+body.panels-collapsed > #engineGrid {
+    display: none;
+}
+#console-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 4px 10px;
+    flex-shrink: 0;
+}
+#console-toolbar button { padding: 4px 7px; font-size: 12px; }
+body.panels-collapsed > #console-toolbar {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 50%;
+    justify-content: center;
+    width: 96px;
+    min-height: 44px;
+    padding: 0;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 150ms ease;
+}
+body.panels-collapsed > #console-toolbar:hover,
+body.panels-collapsed > #console-toolbar:focus-within {
+    opacity: 1;
+}
+body.panels-collapsed > #console-toolbar button {
+    width: 44px;
+    height: 36px;
+}
 .engine-card {
     flex: 0 0 280px;
     min-width: 0;

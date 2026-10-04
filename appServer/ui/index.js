@@ -7,10 +7,20 @@ const consolesContainer = document.getElementById('consoles-container');
 const addEngineBtn = document.getElementById('addEngineBtn');
 const engineFilePicker = document.getElementById('filePicker');
 const engineSummary = document.getElementById('engineSummary');
+const panelsToggle = document.getElementById('panelsToggle');
 
 let savedEngines = [];
 let runningEngines = [];
 let serverConnectionStatus = false;
+
+panelsToggle.addEventListener('click', () => {
+    const isExpanded = panelsToggle.getAttribute('aria-expanded') === 'true';
+    document.body.classList.toggle('panels-collapsed', isExpanded);
+    panelsToggle.setAttribute('aria-expanded', String(!isExpanded));
+    panelsToggle.setAttribute('aria-label', `${isExpanded ? 'Show' : 'Collapse'} panels`);
+    panelsToggle.title = `${isExpanded ? 'Show' : 'Collapse'} panels`;
+    panelsToggle.querySelector('i').className = `bi bi-chevron-${isExpanded ? 'down' : 'up'}`;
+});
 
 (async () => {
     try {

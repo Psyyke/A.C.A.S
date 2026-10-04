@@ -21,7 +21,7 @@
     <a id="acas-logo" class="external" href="https://psyyke.github.io/A.C.A.S/" target="_blank">
         <img id="acas-logo-img" src="./images/logo.png">
         <div id="acas-logo-text-container">
-            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.0</div></div>
+            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.1</div></div>
             <div id="acas-logo-secondary">Calculation Server</div>
         </div>
     </a>
@@ -37,7 +37,7 @@
         </div>
     </div>
 </div>
-<header>
+<header id="server-controls">
     <div class="header-buttons-container">
         <div>
             <button id="addEngineBtn" class="acas-fancy-button"><i class="bi bi-plus-lg"></i> ADD ENGINE BINARY</button>
@@ -57,11 +57,18 @@
     </div>
 </header>
 
-<div class="engine-library-heading">
+<div class="engine-library-heading" id="engine-library-heading">
     <h1>Engine library</h1>
     <span id="engineSummary">0 saved · 0 running</span>
 </div>
 <div class="engine-grid" id="engineGrid" aria-label="Saved chess engines"></div>
+<div id="console-toolbar">
+    <button id="panelsToggle" class="acas-fancy-button" type="button" aria-expanded="true"
+        aria-controls="acas-header server-controls engine-library-heading engineGrid"
+        aria-label="Collapse panels" title="Collapse panels">
+        <i class="bi bi-chevron-up" aria-hidden="true"></i>
+    </button>
+</div>
 <div id="consoles-container"></div>
 
 <div id="acas-toast-container"></div>
