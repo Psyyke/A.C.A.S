@@ -66,15 +66,28 @@ There might be more, please let us know if anything is missing, thank you!
 
 | Example 1 | Example 2 |
 |---|---|
-| ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="Image 2" src="https://github.com/user-attachments/assets/3216a77d-7d7f-493f-8d93-f5a650650e03" /> |
+| ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="image" src="https://github.com/user-attachments/assets/6a6e453a-46ac-41ff-b71e-ea7e9831af88" />
+ |
 
+<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5d7c0cc1-358a-4a93-b43c-b103490e9c61" />
+<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/dada18bf-cf76-4465-bf60-68e4552dacfe" />
 
 ## How does it work?
 
-| A.C.A.S (Tab #1)    | Chess Website (Tab #2)  |
-|----------------------|----------------------|
-| ![A.C.A.S Tab](https://github.com/user-attachments/assets/4d5d80ac-3a1a-4529-889d-64403dd2adbe) | ![Lichess.org Tab](https://github.com/user-attachments/assets/97cb9650-19d5-41dc-bfbf-f071ee39eb92) |
-| The engine runs on a completely different tab than the chess game page, completely isolated from it. The site cannot block the usage of A.C.A.S. | A.C.A.S sends move data via [CommLink](https://github.com/AugmentedWeb/CommLink) and the userscript displays the data on the board using [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer). (*If "Display Moves On External Site" setting is activated!*) |
+<table>
+<tr>
+<th>A.C.A.S (Tab #1)</th>
+<th>Chess Website (Tab #2)</th>
+</tr>
+<tr>
+<td><img alt="image" src="https://github.com/user-attachments/assets/7b6e264f-1918-4e6f-ba0a-69b567faa9f3" style="max-width:100%; max-height:500px; width:auto; height:auto;" /></td>
+<td><img alt="image" src="https://github.com/user-attachments/assets/ea35a737-570c-4b12-a15b-187d41e9a0c9" style="max-width:100%; max-height:500px; width:auto; height:auto;" /></td>
+</tr>
+<tr>
+<td>The engine runs in a completely separate tab from the chess game, keeping it fully isolated from the game page. The chess website cannot block or interfere with A.C.A.S.</td>
+<td>A.C.A.S sends move data via <a href="https://github.com/AugmentedWeb/CommLink">CommLink</a>, while the userscript displays the data on the chessboard using <a href="https://github.com/Hakorr/UniversalBoardDrawer">UniversalBoardDrawer</a>. <i>This requires the "Display Moves On External Site" setting to be enabled.</i></td>
+</tr>
+</table>
 
 If you're having issues, please visit the [troubleshoot](https://psyyke.github.io/A.C.A.S/troubleshoot/) page. Developers can visit the [development](https://psyyke.github.io/A.C.A.S/development/) page. Thank you!
 
