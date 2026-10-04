@@ -67,7 +67,6 @@ There might be more, please let us know if anything is missing, thank you!
 | Example 1 | Example 2 |
 |---|---|
 | ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="image" src="https://github.com/user-attachments/assets/6a6e453a-46ac-41ff-b71e-ea7e9831af88" />
- |
 
 <img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5d7c0cc1-358a-4a93-b43c-b103490e9c61" />
 <img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/dada18bf-cf76-4465-bf60-68e4552dacfe" />
