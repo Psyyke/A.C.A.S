@@ -129,7 +129,7 @@ body {
 	display: none;
 	padding: 20px;
 	box-sizing: border-box;
-	background-color: rgb(0 0 0 / var(--loading-veil-opacity, 100%));
+	background-color: rgb(35 35 35 / var(--loading-veil-opacity, 100%));
 	-webkit-backdrop-filter: grayscale(1) blur(16px);
 	backdrop-filter: grayscale(1) blur(16px);
 	opacity: 1;
