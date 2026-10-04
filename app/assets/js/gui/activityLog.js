@@ -4,6 +4,7 @@ import { featureText } from '../misc/featureTranslations.js';
 let initialized = false;
 const PANEL_STORAGE_KEY = 'acas.activity-log.panel';
 const PRECISE_TIME_STORAGE_KEY = 'acas.activity-log.precise-time';
+const FILTER_STORAGE_KEY = 'acas.activity-log.filters';
 const reportStorageError = console.error.bind(console);
 let panelStorageErrorReported = false;
 let preciseTimestamps = false;
@@ -106,6 +107,17 @@ export function initializeActivityLog() {
     const search = document.getElementById('activity-log-search');
     if(initialized || !dialog || !list || !status || !clear || !timeToggle || !filter || !search) return;
     initialized = true;
+    try {
+        const savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || 'null');
+        if(savedFilters && typeof savedFilters === 'object') {
+            if([...filter.options].some(option => option.value === savedFilters.type)) {
+                filter.value = savedFilters.type;
+            }
+            if(typeof savedFilters.query === 'string') search.value = savedFilters.query;
+        }
+    } catch(error) {
+        console.error('Activity log filters could not be restored.', error);
+    }
     try {
         preciseTimestamps = localStorage.getItem(PRECISE_TIME_STORAGE_KEY) === 'true';
     } catch(error) {
@@ -356,8 +368,24 @@ export function initializeActivityLog() {
         lastRenderedId = 0;
         render();
     };
-    filter.onchange = resetVisibleEntries;
-    search.oninput = resetVisibleEntries;
+    const saveFilters = () => {
+        try {
+            localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify({
+                type: filter.value,
+                query: search.value
+            }));
+        } catch(error) {
+            console.error('Activity log filters could not be saved.', error);
+        }
+    };
+    filter.onchange = () => {
+        saveFilters();
+        resetVisibleEntries();
+    };
+    search.oninput = () => {
+        saveFilters();
+        resetVisibleEntries();
+    };
     const translateUI = () => {
         dialog.setAttribute('aria-label', text('title', 'Activity Log'));
         updateTimeDisplay();
