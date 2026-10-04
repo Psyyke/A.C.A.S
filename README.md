@@ -69,13 +69,8 @@ There might be more, please let us know if anything is missing, thank you!
 | ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="image" src="https://github.com/user-attachments/assets/6a6e453a-46ac-41ff-b71e-ea7e9831af88" />
  |
 
-<img
-  src="https://github.com/user-attachments/assets/b8c23043-57ec-465c-8f8d-11298c15612d"
-  alt="image"
-  style="width: 100%; height: auto;"
-/>
-
-<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/fa9d32eb-3281-49df-a388-bd30c2951acd" />
+<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5d7c0cc1-358a-4a93-b43c-b103490e9c61" />
+<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/dada18bf-cf76-4465-bf60-68e4552dacfe" />
 
 ## How does it work?
 
