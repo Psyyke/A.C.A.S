@@ -52,7 +52,11 @@ export default async function setupEnvironment(startpos, dimensions) {
         const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
         const fen = currentFen || this.variantStartPosFen;
 
-        const orientation = await this.getPlayerColor();
+        let orientation = await this.getPlayerColor();
+        try {
+            const boardOrientation = await USERSCRIPT.instanceVars.boardOrientation?.get(this.instanceID);
+            if(boardOrientation === 'w' || boardOrientation === 'b') orientation = boardOrientation;
+        } catch(e) { /* Older userscripts do not expose boardOrientation. */ }
 
         const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
 
