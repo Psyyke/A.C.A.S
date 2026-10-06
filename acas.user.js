@@ -80,7 +80,7 @@
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.5.1
+// @version     2.5.2
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -849,9 +849,7 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
 
                 return true;
             case 'updateRestartListener':
-                createInputListener('instanceRestart', packet.data, () => {
-                    CommLink.commands.forceInstanceRestart();
-                });
+                createInputListener('instanceRestart', packet.data, restartInstanceWithCurrentFen);
                 return true;
             case 'updateConcealAssistanceListener':
                 createInputListener('concealAssistance', packet.data, toggleConcealAssistance);
@@ -2869,11 +2867,11 @@ async function determineBoardPositionValidity() {
         const actualChanges = getBoardChanges(missedFen, currentBasicFen);
         updateGameState(currentBasicFen, actualChanges, true);
 
-        processBoardPosition();
+        await processBoardPosition();
     } else {
         updateGameState(currentBasicFen, boardChanges);
 
-        processBoardPosition();
+        await processBoardPosition();
     }
 
     // IMPORTANT: lastAllowedFen must remain the previous FEN while processing
@@ -2881,6 +2879,15 @@ async function determineBoardPositionValidity() {
     // (Keep this declaration at the bottom of this function, will ya'?)
     lastAllowedFen = currentBasicFen;
     lastRejectedFen = '';
+}
+
+async function restartInstanceWithCurrentFen() {
+    try {
+        await determineBoardPositionValidity();
+        await instanceVars.fen.set(commLinkInstanceID, gameState.fen.full);
+        if(gameState.turn) await instanceVars.turn.set(commLinkInstanceID, gameState.turn);
+        await CommLink.commands.forceInstanceRestart();
+    } catch(error) { }
 }
 
 function forceUpdateGameState() {
@@ -4294,7 +4301,7 @@ async function start() {
     createInputListener(
         'instanceRestart',
         await getGmConfigValue('instanceRestartTriggerCode'),
-        () => { CommLink.commands.forceInstanceRestart() }
+        restartInstanceWithCurrentFen
     );
 }
 
