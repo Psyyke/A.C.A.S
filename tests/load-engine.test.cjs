@@ -23,6 +23,10 @@ beforeEach(async () => {
         return route.fulfill({ contentType: 'text/javascript', body: await fs.readFile(path.join(__dirname, '..', pathname), 'utf8') });
     });
     await page.goto('http://acas.test/');
+    const globals = await fs.readFile(path.join(__dirname, '..', 'app/assets/js/globals.js'), 'utf8');
+    const formatVariant = globals.match(/^function FORMAT_VARIANT\(str\) \{[\s\S]*?^\}/m);
+    assert.ok(formatVariant, 'Production variant formatter must be available');
+    await page.addScriptTag({ content: formatVariant[0] });
     await page.evaluate(async () => {
         window.loadEngine = (await import('/app/assets/js/instance/loadEngine.js')).default;
         window.statuses = [];
@@ -60,6 +64,33 @@ test('readiness starts the profile and refreshes the current FEN once', async ()
         ['start', 'chess', 'default'],
         ['fen', { skipValidityChecks: true, specificProfileName: 'default' }]
     ], engines: 1, pending: 0 });
+});
+
+for(const [variant, expected] of [['King of the Hill', 'kingofthehill'], ['Three-check', 'threecheck'], ['chess', 'chess']]) {
+    test(`Fairy-Stockfish normalizes ${variant} before starting the profile`, async () => {
+        const events = await page.evaluate(async variant => {
+            instance.pV.default.chessVariant = variant;
+            await loadEngine.call(instance, 'default', 'fairy-stockfish-nnue-wasm');
+            workers[0].onmessage({ data: true });
+            await new Promise(resolve => setTimeout(resolve, 0));
+            return window.events;
+        }, variant);
+        assert.deepEqual(events, [
+            ['start', expected, 'default'],
+            ['fen', { skipValidityChecks: true, specificProfileName: 'default' }]
+        ]);
+    });
+}
+
+test('other engines retain their variant input at the loader boundary', async () => {
+    const events = await page.evaluate(async () => {
+        instance.pV.default.chessVariant = 'King of the Hill';
+        await loadEngine.call(instance, 'default', 'maia3');
+        workers[0].onmessage({ data: true });
+        await new Promise(resolve => setTimeout(resolve, 0));
+        return window.events;
+    });
+    assert.deepEqual(events[0], ['start', 'King of the Hill', 'default']);
 });
 
 test('Lc0 loads its weights before starting analysis', async () => {

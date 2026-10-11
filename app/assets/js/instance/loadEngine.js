@@ -79,7 +79,11 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
                 await this.setEngineWeight(profileVariables.lc0WeightName, profileName);
                 if(!isCurrentLoad()) return;
             }
-            await startGame.call(this);
+            if(profileChessEngine === 'fairy-stockfish-nnue-wasm') {
+                await startGame.call(this, FORMAT_VARIANT(profileVariables.chessVariant));
+            } else {
+                await startGame.call(this);
+            }
         }
     });
 }
