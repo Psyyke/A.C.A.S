@@ -105,20 +105,42 @@ test('Lc0 loads its weights before starting analysis', async () => {
     assert.deepEqual(events[0], ['weight', 'maia-1500', 'default']);
 });
 
-test('profile replacement during weight loading cannot start the old engine', async () => {
-    const result = await page.evaluate(async () => {
-        let release;
-        instance.setEngineWeight = () => new Promise(resolve => { release = resolve; });
-        await loadEngine.call(instance, 'default', 'lc0');
-        workers[0].onmessage({ data: true });
-        instance.pV.default = {};
-        release();
-        await new Promise(resolve => setTimeout(resolve, 0));
-        workers[0].onmessage({ data: 'uciok' });
-        return { events, terminated: workers[0].terminated };
+for(const outcome of ['resolved', 'rejected']) {
+    test(`profile replacement cleans up Lc0 after weights are ${outcome} without another message`, async () => {
+        const result = await page.evaluate(async outcome => {
+            let resolveWeights, rejectWeights;
+            instance.setEngineWeight = () => new Promise((resolve, reject) => {
+                resolveWeights = resolve;
+                rejectWeights = reject;
+            });
+            await loadEngine.call(instance, 'default', 'lc0');
+            workers[0].onmessage({ data: true });
+            const oldEngine = instance.engines[0];
+            instance.pV.default = {};
+            // A replacement engine and another profile must survive old-worker cleanup.
+            const replacement = { profileName: 'default', worker: { terminated: false } };
+            const otherProfile = { profileName: 'other', worker: { terminated: false } };
+            instance.engines.push(replacement, otherProfile);
+            if(outcome === 'resolved') resolveWeights();
+            else rejectWeights(new Error('Weights failed after replacement'));
+            await new Promise(resolve => setTimeout(resolve, 0));
+            return {
+                events, terminated: workers[0].terminated,
+                oldEngineRetained: instance.engines.includes(oldEngine),
+                replacementRetained: instance.engines.includes(replacement),
+                otherProfileRetained: instance.engines.includes(otherProfile),
+                replacementTerminated: replacement.worker.terminated,
+                otherProfileTerminated: otherProfile.worker.terminated,
+                pending: instance.pendingEngineLoads.size
+            };
+        }, outcome);
+        assert.deepEqual(result, {
+            events: [], terminated: true, oldEngineRetained: false,
+            replacementRetained: true, otherProfileRetained: true,
+            replacementTerminated: false, otherProfileTerminated: false, pending: 0
+        });
     });
-    assert.deepEqual(result, { events: [], terminated: true });
-});
+}
 
 test('external engines start without creating a browser worker', async () => {
     const result = await page.evaluate(async () => {

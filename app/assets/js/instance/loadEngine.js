@@ -76,7 +76,16 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         onReady: async engine => {
             this.engines.push(engine);
             if(profileChessEngine === 'lc0') {
-                await this.setEngineWeight(profileVariables.lc0WeightName, profileName);
+                try {
+                    await this.setEngineWeight(profileVariables.lc0WeightName, profileName);
+                } finally {
+                    if(!isCurrentLoad()) {
+                        engine.worker.terminate();
+                        // Remove this worker only; the profile may already have a replacement.
+                        const index = this.engines.indexOf(engine);
+                        if(index !== -1) this.engines.splice(index, 1);
+                    }
+                }
                 if(!isCurrentLoad()) return;
             }
             if(profileChessEngine === 'fairy-stockfish-nnue-wasm') {
