@@ -2,6 +2,7 @@ import { toast } from './util.js';
 import { mainWindow } from './main.js';
 import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
+import CommandQueue from './commandQueue.js';
 
 import { findAliveEngineObj, updateAliveEngineObjFen, killAllBy,
     saveEngineOptions, sendToProcess, startEngine, savedEngines } from './engine.js';
@@ -184,8 +185,7 @@ export function startLocalWSS() {
 
         if(wss.onClientChange) wss.onClientChange(true, request.headers.origin);
 
-        const commandQueues = new Map();
-        let commandBarrier = Promise.resolve();
+        const commandQueue = new CommandQueue();
         ws.on('message', (msg) => {
             const command = msg.toString();
             try {
@@ -193,18 +193,11 @@ export function startLocalWSS() {
                 const parsed = JSON.parse(command);
                 if(parsed?.type === 'uci') {
                     const key = getIdentifierKey(parsed.msg);
-                    // Preserve each engine's wire order without blocking other engines on startup.
-                    const operation = (commandQueues.get(key) ?? commandBarrier)
-                        .then(() => onCommandReceived(parsed));
-                    commandQueues.set(key, operation);
-                    operation.then(() => {
-                        if(commandQueues.get(key) === operation) commandQueues.delete(key);
-                    });
+                    commandQueue.run(key, () => onCommandReceived(parsed))
+                        .catch(error => reportCommandFailure(command, error));
                 } else if(parsed?.type === 'closeEnginesByIdentifier') {
-                    // Closing is a barrier: previous commands finish, later commands wait.
-                    commandBarrier = Promise.all([commandBarrier, ...commandQueues.values()])
-                        .then(() => onCommandReceived(parsed));
-                    commandQueues.clear();
+                    commandQueue.barrier(() => onCommandReceived(parsed))
+                        .catch(error => reportCommandFailure(command, error));
                 } else {
                     onCommandReceived(parsed).catch(error => reportCommandFailure(command, error));
                 }
