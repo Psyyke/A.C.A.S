@@ -6,6 +6,7 @@ import Store from 'electron-store';
 import { sendUciLineToClient, sendEngineDeathCertificateToClient } from './server.js';
 import { verifyLaunchParams, createEngineID, toast } from './util.js';
 import { mainWindow } from './main.js';
+import { parseSetOption, formatSetOption } from './engineOptions.js';
 
 const store = new Store();
 const chessEnginesStorageKey = 'chessEngines';
@@ -154,56 +155,11 @@ export function clearCache() {
 }
 
 export function saveEngineOptions(command, identifierObj) {
-    const text = command.trim();
-    if(!text.startsWith('setoption')) return false;
+    const option = parseSetOption(command);
+    if(!option) return false;
+    const { name, value } = option;
     const engineIndex = identifierObj.savedOptionsIdentifierKey;
-
-    if(!savedEngineOptions[engineIndex]) {
-        savedEngineOptions[engineIndex] = {};
-    }
-
-    const tokens = text.split(/\s+/);
-
-    if(tokens[0] !== 'setoption') return false;
-
-    const nameIndex = tokens.indexOf('name');
-    const valueIndex = tokens.indexOf('value');
-
-    if(nameIndex === -1) return false;
-
-    let nameTokens, valueTokens;
-
-    if(valueIndex === -1 || valueIndex < nameIndex) {
-        nameTokens = tokens.slice(nameIndex + 1);
-        valueTokens = [];
-    } else {
-        nameTokens = tokens.slice(nameIndex + 1, valueIndex);
-        valueTokens = tokens.slice(valueIndex + 1);
-    }
-
-    if(valueTokens[0] === 'value') {
-        valueTokens.shift();
-    }
-
-    let name = nameTokens.join(' ').trim();
-    let value;
-
-    if(valueTokens.length === 0) {
-        value = true;
-    } else {
-        value = valueTokens.join(' ').trim();
-
-        if(value === 'true') value = true;
-        else if(value === 'false') value = false;
-        else if(!isNaN(value)) value = Number(value);
-    }
-
-    if(typeof value === 'string') {
-        value = value.replace('<empty>', '');
-
-        if(value.trim().toLowerCase() === 'value') return false;
-    }
-    if(!name) return false;
+    savedEngineOptions[engineIndex] ??= {};
 
     if(Object.is(savedEngineOptions[engineIndex][name], value)) return true;
     savedEngineOptions[engineIndex][name] = value;
@@ -225,12 +181,7 @@ function applySavedEngineOptions(identifierObj) {
     if(!options) return;
 
     for(const [key, value] of Object.entries(options)) {
-        let val = value;
-
-        if(typeof value === 'string') val = val.replace('<empty>', '');
-        if(typeof value === 'boolean') val = value ? 'true' : 'false';
-
-        sendToProcess(`setoption name ${key} value ${val}`, identifierObj, 'savedConfig');
+        sendToProcess(formatSetOption(key, value), identifierObj, 'savedConfig');
     }
 }
 
