@@ -1,0 +1,122 @@
+const { test, before, after, beforeEach, afterEach } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs/promises');
+const path = require('node:path');
+const { chromium } = require('playwright');
+
+let browser, page;
+before(async () => {
+    browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
+});
+after(async () => { await browser?.close(); });
+beforeEach(async () => {
+    page = await browser.newPage();
+    await page.route('http://acas.test/**', async route => {
+        const pathname = new URL(route.request().url()).pathname;
+        if(pathname.endsWith('/gui/profiles.js')) {
+            return route.fulfill({ contentType: 'text/javascript', body: 'export function setProfileBubbleStatus(...args) { window.statuses.push(args); }' });
+        }
+        if(pathname.endsWith('/misc/activityLog.js')) {
+            return route.fulfill({ contentType: 'text/javascript', body: 'export function isActivityLoggingEnabled() { return false; } export function logActivity() {}' });
+        }
+        if(pathname === '/') return route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Engine fixture</title>' });
+        return route.fulfill({ contentType: 'text/javascript', body: await fs.readFile(path.join(__dirname, '..', pathname), 'utf8') });
+    });
+    await page.goto('http://acas.test/');
+    await page.evaluate(async () => {
+        window.loadEngine = (await import('/app/assets/js/instance/loadEngine.js')).default;
+        window.statuses = [];
+        window.events = [];
+        window.workers = [];
+        window.GET_PROFILE_FOR_INSTANCE = async () => ({ config: { chessEngine: 'maia3' } });
+        window.WAIT_UNTIL_VAR = async predicate => { if(!predicate()) throw new Error('Instance not ready'); };
+        window.toast = { warning: message => events.push(['warning', message]) };
+        window.Worker = class {
+            constructor(url, options) { this.url = url; this.options = options; workers.push(this); }
+            postMessage() {}
+            terminate() { this.terminated = true; }
+        };
+        window.instance = {
+            instanceID: 'test', instanceReady: true, pV: { default: { chessVariant: 'chess' } }, engines: [],
+            engineStartNewGame: async (variant, profile) => events.push(['start', variant, profile]),
+            engineMessageProcessor: async (message, profile) => events.push(['message', message, profile]),
+            setEngineWeight: async (weight, profile) => events.push(['weight', weight, profile]),
+            Interface: { updateBoardFen: async options => events.push(['fen', options]) },
+            close() { this.instanceClosed = true; events.push(['close']); }
+        };
+    });
+});
+afterEach(async () => { await page?.close(); });
+
+test('readiness starts the profile and refreshes the current FEN once', async () => {
+    const result = await page.evaluate(async () => {
+        await loadEngine.call(instance, 'default');
+        workers[0].onmessage({ data: true });
+        workers[0].onmessage({ data: true });
+        await new Promise(resolve => setTimeout(resolve, 0));
+        return { events, engines: instance.engines.length, pending: instance.pendingEngineLoads.size };
+    });
+    assert.deepEqual(result, { events: [
+        ['start', 'chess', 'default'],
+        ['fen', { skipValidityChecks: true, specificProfileName: 'default' }]
+    ], engines: 1, pending: 0 });
+});
+
+test('Lc0 loads its weights before starting analysis', async () => {
+    const events = await page.evaluate(async () => {
+        instance.pV.default.lc0WeightName = 'maia-1500';
+        await loadEngine.call(instance, 'default', 'lc0');
+        workers[0].onmessage({ data: true });
+        await new Promise(resolve => setTimeout(resolve, 0));
+        return window.events;
+    });
+    assert.deepEqual(events.map(event => event[0]), ['weight', 'start', 'fen']);
+    assert.deepEqual(events[0], ['weight', 'maia-1500', 'default']);
+});
+
+test('profile replacement during weight loading cannot start the old engine', async () => {
+    const result = await page.evaluate(async () => {
+        let release;
+        instance.setEngineWeight = () => new Promise(resolve => { release = resolve; });
+        await loadEngine.call(instance, 'default', 'lc0');
+        workers[0].onmessage({ data: true });
+        instance.pV.default = {};
+        release();
+        await new Promise(resolve => setTimeout(resolve, 0));
+        workers[0].onmessage({ data: 'uciok' });
+        return { events, terminated: workers[0].terminated };
+    });
+    assert.deepEqual(result, { events: [], terminated: true });
+});
+
+test('external engines start without creating a browser worker', async () => {
+    const result = await page.evaluate(async () => {
+        Object.assign(instance.pV.default, { useExternalChessEngine: true, externalChessEngine: 'local-engine' });
+        await loadEngine.call(instance, 'default');
+        await new Promise(resolve => setTimeout(resolve, 0));
+        return { events, workers: workers.length };
+    });
+    assert.equal(result.workers, 0);
+    assert.deepEqual(result.events.map(event => event[0]), ['start', 'fen']);
+});
+
+test('an unselected external engine warns without starting analysis', async () => {
+    const result = await page.evaluate(async () => {
+        instance.pV.default.useExternalChessEngine = true;
+        await loadEngine.call(instance, 'default');
+        return { events, statuses, workers: workers.length };
+    });
+    assert.deepEqual(result.events, []);
+    assert.equal(result.workers, 0);
+    assert.equal(result.statuses[0][0], 'warning');
+});
+
+test('worker errors close the instance once and release pending loads', async () => {
+    const result = await page.evaluate(async () => {
+        await loadEngine.call(instance, 'default', 'maia2');
+        workers[0].onerror({ message: 'Failed to load' });
+        workers[0].onerror({ message: 'Failed to load again' });
+        return { events, pending: instance.pendingEngineLoads.size, terminated: workers[0].terminated };
+    });
+    assert.deepEqual(result, { events: [['close']], pending: 0, terminated: true });
+});
