@@ -22,7 +22,7 @@ const declarations = ['getSiteData', 'addSupportedChessSite', 'getBoardElem', 'g
     'getPlayerColor', 'getPieceElem', 'getPieceElemFen', 'getFen', 'getGameStateObjTemplate',
     'getBoardChangesObjTemplate', 'updateGameState', 'forceUpdateGameState', 'resetStoredMatchVariables',
     'processBoardPosition', 'checkBoardOrientationChange', 'determineBoardPositionValidity', 'start',
-    'inferCastlingRightsFromFen', 'seedLostCastlingRights'].map(declaration).join('\n');
+    'inferCastlingRightsFromFen', 'seedLostCastlingRights', 'restartInstanceWithCurrentFen'].map(declaration).join('\n');
 const harness = `
 let domain = 'lichess.org';
 const supportedSites = {};
@@ -32,7 +32,7 @@ let lastBoardOrientation = null, lastBoardRanks = 8, lastBoardFiles = 8, lastBoa
 let lastAllowedFen = '', lastRejectedFen = '', lastMoveRequestTime = 0, matchFirstSuggestionGiven = false;
 let chesscomVariantPlayerColorsTable = null, chessBoardElem = null;
 let modListeners = [true], modLastEnteredSquare = {};
-let resets = 0, createSnapshots = [], orientationPackets = [];
+let resets = 0, createSnapshots = [], orientationPackets = [], restartSnapshots = [];
 let testFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const defaultPosBasicFens = [testFen];
 const values = {}, instanceVars = {};
@@ -45,7 +45,8 @@ const BoardDrawer = { orientation: null, setOrientation(value) { this.orientatio
 const CommLink = { commands: {
     updateBoardOrientation: async value => { orientationPackets.push(value); },
     newMatchStarted: () => { resets++; }, updateBoardFen() {},
-    createInstance: async () => { createSnapshots.push(structuredClone(values)); }
+    createInstance: async () => { createSnapshots.push(structuredClone(values)); },
+    forceInstanceRestart: async () => { restartSnapshots.push(structuredClone(values)); }
 }, setIntervalAsync() {} };
 function getBoardMatrix() { return []; }
 function getBasicFen() { return testFen; }
@@ -168,6 +169,16 @@ test('startup publishes Black player and White initial turn before backend creat
 test('startup Black-to-move position does not begin with a White FEN', async () => {
     await setup({ extra: '<div class="rclock rclock-black running"></div>' }); await run('start()');
     assert.equal(await run('createSnapshots[0].fen.split(" ")[1]'), 'b');
+});
+test('manual restart publishes the current turn and FEN before restarting the backend', async () => {
+    await setup({ extra: '<div class="rclock rclock-black running"></div>' });
+    await run('start()');
+    await run('restartInstanceWithCurrentFen()');
+    const snapshot = (await run('restartSnapshots'))[0];
+    assert.equal(snapshot.playerColor, 'b');
+    assert.equal(snapshot.boardOrientation, 'b');
+    assert.equal(snapshot.turn, 'b');
+    assert.equal(snapshot.fen.split(' ')[1], 'b');
 });
 test('board flip is not a new match and does not change player identity', async () => {
     await setup(); await run('checkBoardOrientationChange(); updateGameState(testFen, getBoardChangesObjTemplate(), true, "w"); lastAllowedFen = testFen');
