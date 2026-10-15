@@ -480,6 +480,7 @@ cg-container {
     line-height: 1.5;
     color: rgb(255 255 255 / 85%);
     overflow-wrap: anywhere;
+    text-align: center;
 }
 .instance-buttons {
     display: flex;
