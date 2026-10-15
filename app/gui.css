@@ -374,6 +374,7 @@ cg-container {
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 50%, rgb(0 0 0 / 10%));
+    background-clip: padding-box;
 }
 #acas-instance-container {
 	/* Center artwork in the visible area below the overlapping header. */
@@ -415,7 +416,7 @@ cg-container {
     text-align: center;
 }
 .instance-opening-container:has(+ .instance-feedback-container:empty) {
-    border-radius: 0 0 11px 11px;
+    border-radius: 0 0 6px 6px;
 }
 #polyglot-book-input {
     display: flex;
@@ -499,7 +500,7 @@ cg-container {
     font-weight: 400;
     color: rgb(255 255 255 / 70%);
     border-bottom: 4px;
-    border-radius: 0 0 11px 11px;
+    border-radius: 0 0 6px 6px;
     background-color: rgb(0 0 0 / 16%);
 }
 .instance-feedback {
