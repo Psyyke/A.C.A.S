@@ -206,9 +206,21 @@ html.acas-loading #acas-loading-screen {
 	}
 }
 cg-board {
-	background-color: rgb(255 255 255 / 70%);
+	background-color: #c5b8a5;
 	cursor: inherit;
 	border-radius: 0 0 5px;
+}
+cg-board::before {
+    /* Texture only the board surface, without replacing its checker pattern. */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: var(--background-grain-image, none);
+    background-size: 160px 160px;
+    background-repeat: repeat;
 }
 cg-container {
 	width: 100% !important;
@@ -346,15 +358,16 @@ cg-container {
 	height: fit-content;
 	position: relative;
 	flex-direction: column;
-	border-radius: 10px;
-	transition: all 150ms ease;
+	border-radius: 14px;
+	/* Animate resizing only, not the frosted surface or its effects. */
+	transition: width 150ms ease;
 	z-index: 10;
-	border: 2px solid rgb(255 255 255 / 25%);
+	border: 2px solid rgb(255 255 255 / 14%);
 	border-bottom-width: 5px;
     /* Keep the grain sharp on the panel, rather than inside its backdrop blur. */
     background-image:
         var(--background-grain-image, none),
-        linear-gradient(to bottom, rgb(0 0 0 / 5%), rgb(0 0 0 / 40%));
+        linear-gradient(to bottom, rgb(0 0 0 / 4%), rgb(0 0 0 / 28%));
     background-size: 160px 160px, 100% 100%;
     background-repeat: repeat, no-repeat;
     -webkit-backdrop-filter: blur(20px);
@@ -380,7 +393,7 @@ cg-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: rgb(0 0 0 / 35%);
+	background-color: rgb(0 0 0 / 26%);
 	padding: 10px 20px 20px 20px;
 }
 .instance-opening-container {
@@ -393,14 +406,14 @@ cg-container {
     font-weight: 400;
     color: rgb(255 255 255 / 70%);
     border-bottom: 4px;
-    background-color: rgb(0 0 0 / 30%);
+    background-color: rgb(0 0 0 / 22%);
 }
 .instance-opening-container span {
     padding: 7px;
     text-align: center;
 }
 .instance-opening-container:has(+ .instance-feedback-container:empty) {
-    border-radius: 0 0 5px 5px;
+    border-radius: 0 0 11px 11px;
 }
 #polyglot-book-input {
     display: flex;
@@ -436,11 +449,11 @@ cg-container {
 	padding: 10px;
 	color: white;
 	height: fit-content;
-	background-color: rgb(0 0 0 / 70%);
+	background-image: linear-gradient(to bottom, rgb(0 0 0 / 70%), rgb(0 0 0 / 50%));
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	border-radius: 7px 7px 0 0;
+	border-radius: 12px 12px 0 0;
 }
 .instance-basic-info {
 	display: flex;
@@ -484,7 +497,7 @@ cg-container {
     font-weight: 400;
     color: rgb(255 255 255 / 70%);
     border-bottom: 4px;
-    border-radius: 0 0 5px 5px;
+    border-radius: 0 0 11px 11px;
     background-color: rgb(0 0 0 / 16%);
 }
 .instance-feedback {
@@ -919,13 +932,14 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	border-radius: 5px;
+	border-radius: 10px;
 	width: 500px;
 	text-align: center;
 	z-index: 5;
 	-webkit-backdrop-filter: blur(20px);
 	backdrop-filter: blur(20px);
 	border: 2px solid rgb(255 255 255 / 33%);
+    border-bottom-width: 6px;
 }
 #no-instances-title {
     font-size: 28px;
