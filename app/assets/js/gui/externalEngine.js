@@ -2,6 +2,14 @@ import { externalChessEngineDropdown } from './elementDeclarations.js';
 import { setInputValue, initializeSettingInputElem } from './domInputs.js';
 import { saveSetting } from './settings.js';
 
+function updateExternalEngineDropdownState() {
+    const hasEngines = !!externalChessEngineDropdown.querySelector('.dropdown-list-container .dropdown-item');
+    const isEnabled = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
+
+    // Keep the empty-state installation instructions readable and clickable.
+    externalChessEngineDropdown.classList.toggle('blurred', hasEngines && !isEnabled);
+}
+
 export async function updateEnginesList(engines) {
     const installText = document.querySelector('#install-acas-server-text');
     const dropdownListContainer = externalChessEngineDropdown.querySelector('.dropdown-list-container');
@@ -74,6 +82,18 @@ export async function updateEnginesList(engines) {
         const alreadyExistingItem = dropdownListContainer.querySelector(`[data-value="${engineId}"]`);
 
         if(alreadyExistingItem) {
+            const headerDiv = alreadyExistingItem.firstElementChild;
+            const typeTag = headerDiv?.querySelector('.engine-type-tag');
+            const small = alreadyExistingItem.querySelector('small');
+
+            if(headerDiv && typeTag) {
+                const titleText = `${engine?.title || ''} `;
+                if(headerDiv.firstChild) headerDiv.firstChild.textContent = titleText;
+                else headerDiv.prepend(document.createTextNode(titleText));
+                typeTag.textContent = engine?.name || '';
+            }
+            if(small) small.textContent = GET_NICE_PATH(engine?.path);
+
             if(engineId === String(selectedEngineID)) {
                 foundSelectedEngineID = true;
             }
@@ -119,6 +139,8 @@ export async function updateEnginesList(engines) {
         initializeSettingInputElem(paramsInput, true);
     }
 
+    updateExternalEngineDropdownState();
+
     if(!foundSelectedEngineID) {
         // If a previously selected engine was stored but is no longer available, warn the user.
         if(selectedEngineID) {
@@ -143,6 +165,8 @@ export async function updateEnginesList(engines) {
 
 export function setIsExternalEngineSettingActive(value) {
     IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID] = value;
+
+    updateExternalEngineDropdownState();
 
     localStorage.setItem(EE_ACTIVE_STORAGE_KEY, JSON.stringify(IS_EXTERNAL_ENGINE_SETTING_ACTIVE));
 }

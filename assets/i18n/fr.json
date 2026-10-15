@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Port du serveur",
+        "[data-translation-server-port-hint]": "Doit correspondre au port affiché dans l’application serveur A.C.A.S",
         "#acas-is-free-reminder-text": "Aidez-nous en donnant votre avis !",
         "#acas-logo-secondary": "Assistance aux échecs",
         "#no-instances-title": "En attente d'instances...",
@@ -176,6 +178,8 @@
         "concealAssistanceAutoDelayMs": ["Dissimulation automatique (ms)", "Dissimuler automatiquement les fonctionnalités après ce délai"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Les paramètres s’appliquent à toutes les instances",
+        "settingsNavbarInstanceSubtitle": "Les paramètres s’appliquent uniquement à l’instance \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutre", "Imprécision", "Erreur", "Gaffe", "Catastrophique", "Bon coup", "Excellent", "Meilleur coup", "Coup faible"],
             "forced": "Coup forcé", "provisional": "provisoire", "eval": "Évaluation", "best": "Meilleur", "loss": "Perte d’évaluation",
@@ -230,6 +234,15 @@
             "openSetting": "Ouvrir les paramètres dynamiques de {setting}"
         },
         "activityLog": {
+            "showMilliseconds": "Afficher uniquement les secondes et millisecondes",
+            "hideMilliseconds": "Afficher les horodatages complets",
+            "copyLog": "Copier les entrées visibles du journal",
+            "copiedLog": "Copié",
+            "copiedEntries": "{count} entrées copiées",
+            "copyFailed": "Échec de la copie : {error}",
+            "enableLogging": "La journalisation est DÉSACTIVÉE — cliquez pour l’activer",
+            "disableLogging": "La journalisation est activée — cliquez pour la désactiver",
+            "profile": "Profil", "engine": "Moteur", "site": "Site", "externalEngine": "Moteur externe",
             "search": "Rechercher", "searchPlaceholder": "Rechercher dans le journal…", "discordMessagePlaceholder": "Rédigez votre message Discord ici…",
             "title": "Journal d’activité", "subtitle": "Messages du moteur, changements dynamiques, avertissements et erreurs",
             "show": "Afficher", "clear": "Vider le journal", "filter": "Filtrer par type", "all": "Toute l’activité",

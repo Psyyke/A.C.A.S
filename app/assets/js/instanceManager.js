@@ -1,6 +1,7 @@
 import { externalChessEngineDropdown } from './gui/elementDeclarations.js';
 import AcasInstance from './AcasInstance.js';
 import { addInstanceToSettingsDropdown, removeInstanceFromSettingsDropdown } from './gui/instances.js';
+import { isBuiltInFairyEngine } from './instance/fairyVariant.js';
 
 window.AcasInstances = [];
 
@@ -42,8 +43,6 @@ async function _createInstanceSafe(domain, instanceID, chessVariant) {
             console.warn('Instance creation deferred: external engine not ready');
             return;
         }
-
-        if(isExternalReady) await new Promise(res => setTimeout(res, 1000));
 
         const instanceExists = window.AcasInstances.find(instanceObj => instanceObj.id === instanceID);
 
@@ -102,22 +101,33 @@ function prelongInstanceLife(domain, instanceID, chessVariant) {
         instanceObj.date = Date.now();
 
         const i = instanceObj.instance;
+        const newVariantFormatted = FORMAT_VARIANT(chessVariant);
+        if(!newVariantFormatted || newVariantFormatted === i.detectedChessVariant) return;
+
+        // A keep-alive reports the site's variant, not the engine's selected UCI
+        // variant. Comparing it with an explicit override restarted every heartbeat.
+        i.detectedChessVariant = newVariantFormatted;
         const instanceProfiles = Object.keys(i.pV);
         const currentActiveVariants = instanceProfiles.map(profileName => {
+            const variables = i.pV[profileName];
+
             return {
-                'currentVariant': i.pV[profileName].chessVariant,
-                'availableVariants': i.pV[profileName].chessVariants,
+                'currentVariant': variables.chessVariant,
+                'availableVariants': variables.chessVariants,
+                'managesFairyVariant': variables.usingAdvancedMode && isBuiltInFairyEngine(variables),
                 profileName
             };
         });
 
-        if(!chessVariant) return;
-
         currentActiveVariants.forEach(obj => {
-            const newVariantFormatted = FORMAT_VARIANT(chessVariant);
             const currentVariantFormatted = FORMAT_VARIANT(obj.currentVariant);
+            const newVariantExistsForEngine = obj.availableVariants.includes(newVariantFormatted);
 
-            const newVariantExistsForEngine = obj.availableVariants.find(x => x === newVariantFormatted) ? true : false;
+            if(obj.managesFairyVariant) {
+                i.createAndLoadSpecificEngine(obj.profileName).catch(console.error);
+
+                return;
+            }
 
             if(newVariantExistsForEngine && newVariantFormatted !== currentVariantFormatted) {
                 instanceObj.instance.engineStartNewGame(newVariantFormatted, obj.profileName);

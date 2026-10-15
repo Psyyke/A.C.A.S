@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Serverpoort",
+        "[data-translation-server-port-hint]": "Moet overeenkomen met de poort in de A.C.A.S-serverapp",
         "#acas-is-free-reminder-text": "Help door feedback te geven!",
         "#acas-logo-secondary": "Schaakassistentie",
         "#no-instances-title": "Wachten op instanties...",
@@ -177,6 +179,8 @@
         "concealAssistanceAutoDelayMs": ["Automatisch verbergen (ms)", "Hulpfuncties na deze tijd automatisch verbergen"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "De instellingen gelden voor alle instanties",
+        "settingsNavbarInstanceSubtitle": "De instellingen gelden alleen voor instantie \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutraal", "Onnauwkeurigheid", "Fout", "Blunder", "Catastrofaal", "Goede zet", "Uitstekend", "Beste zet", "Zwakke zet"],
             "forced": "Gedwongen zet", "provisional": "voorlopig", "eval": "Evaluatie", "best": "Beste", "loss": "Evaluatieverlies",
@@ -210,6 +214,15 @@
             "saveError": "Grafiek opslaan mislukt. Controleer de userscript-verbinding.", "variableLink": "Bestaande curves van {variable} openen", "removeConfirm": "Lijn {setting} uit profiel \"{profile}\" verwijderen?\n\nAlle punten worden verwijderd en de opgeslagen standaardwaarde wordt hersteld.", "none": "Geen", "savedDefault": "Opgeslagen standaard", "unavailable": "{value} (niet beschikbaar)", "override": "Dynamische overschrijving actief: {value} ({variable}: {position}).", "waiting": "Curve ingeschakeld · wachten op {variable}.", "defaultActive": "Curve ingeschakeld · opgeslagen standaard gebruikt.", "disabled": "Dynamische curve uitgeschakeld.", "noCurve": "Geen dynamische curve ingeschakeld.", "description": "Opgeslagen waarde: {value}. Het veld bewaart deze bewerkbare waarde voor gebruik zonder curve. Open dynamische instellingen om de curve te bewerken.", "openSetting": "Dynamische instellingen voor {setting} openen"
         },
         "activityLog": {
+            "showMilliseconds": "Alleen seconden en milliseconden tonen",
+            "hideMilliseconds": "Volledige tijdstempels tonen",
+            "copyLog": "Zichtbare logboekvermeldingen kopiëren",
+            "copiedLog": "Gekopieerd",
+            "copiedEntries": "{count} vermeldingen gekopieerd",
+            "copyFailed": "Kopiëren mislukt: {error}",
+            "enableLogging": "Activiteitenregistratie staat UIT — klik om in te schakelen",
+            "disableLogging": "Activiteitenregistratie staat aan — klik om uit te schakelen",
+            "profile": "Profiel", "engine": "Engine", "site": "Website", "externalEngine": "Externe engine",
             "search": "Zoeken", "searchPlaceholder": "Log doorzoeken…", "discordMessagePlaceholder": "Typ hier je Discord-bericht…",
             "title": "Activiteitenlogboek", "subtitle": "Engineberichten, dynamische wijzigingen, waarschuwingen en fouten", "show": "Toon", "clear": "Logboek wissen", "filter": "Filter op type", "all": "Alle activiteit", "close": "Logboek sluiten", "instance": "Instantie", "empty": "Nog geen vermeldingen.", "status": "{shown} getoond · {total} totaal",
             "types": { "engine-input": "Engine-invoer", "engine-output": "Engine-uitvoer", "dynamic-change": "Dynamische wijzigingen", "setting-change": "Instellingswijzigingen", "engine": "Enginelevenscyclus", "instance": "Instantielevenscyclus", "game": "Spelgebeurtenissen", "site": "Siteberichten", "warning": "Waarschuwingen", "error": "Fouten", "app": "Appgebeurtenissen" }

@@ -93,6 +93,7 @@ export default class AcasInstance {
 
         this.currentFen = null;
         this.defaultStartpos = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+        this.detectedChessVariant = FORMAT_VARIANT(chessVariant);
         this.activeVariant = '';
         this.variantStartPosFen = null;
         this.lastOrientation = null;
@@ -161,7 +162,7 @@ export default class AcasInstance {
                 const use960FromConfig = await t.getConfigValue(t.configKeys.useChess960, profileName);
 
                 const detectedVariant = resolvedConfig?.dynamicSettings?.chessVariant?.enabled
-                    ? variantFromConfig : chessVariant || variantFromConfig;
+                    ? variantFromConfig : t.detectedChessVariant || variantFromConfig;
 
                 instance.chessVariant = IS_VARIANT_960(detectedVariant)
                     ? FORMAT_VARIANT('chess')
@@ -213,20 +214,25 @@ export default class AcasInstance {
 
         this.externalEngineStatusChannel = new BroadcastChannel(EXTERNAL_STATUS_BROADCAST_NAME);
         this.externalEngineStatusChannel.onmessage = (event) => {
-            const { statusType, reason, fen, engineId, profileName, instanceId, recoverable } = event.data;
-
-            if(this.instanceID !== instanceId) return;
+            const { statusType, reason, engineId, profileName, instanceId, recoverable, restartOnRequest } = event.data;
             const profileVariables = this.pV[profileName];
-            if(this.instanceClosed || !profileVariables?.useExternalChessEngine
-                || String(profileVariables.externalChessEngine) !== String(engineId)) return;
+            const isCurrentEngine = this.instanceID === instanceId && !this.instanceClosed
+                && profileVariables?.useExternalChessEngine
+                && String(profileVariables.externalChessEngine) === String(engineId);
+
+            if(!isCurrentEngine) return;
+
+            const identifierKey = JSON.stringify([profileVariables.externalChessEngine, profileName, this.instanceID]);
+            const isRecoveryShutdown = reason === 'Relaunch'
+                || reason === `All engines with identifierKey "${identifierKey}" were closed by client`;
+            const shouldNotifyClosing = !profileVariables.recoveringSearch || !isRecoveryShutdown;
 
             switch(statusType) {
                 case 'engineDeathCertificate':
                     if(recoverable || reason === 'Engine process closed') {
                         this.recoverExternalEngineSearch(profileName, null, reason).catch(console.error);
-                    } else if(!profileVariables.recoveringSearch || (reason !== 'Relaunch'
-                        && reason !== `All engines with identifierKey "${JSON.stringify([profileVariables.externalChessEngine, profileName, this.instanceID])}" were closed by client`)) {
-                        this.notifyAcasAboutEngineClosing(profileName);
+                    } else if(shouldNotifyClosing) {
+                        this.notifyAcasAboutEngineClosing(profileName, restartOnRequest === true);
                     }
 
                     break;
@@ -235,13 +241,16 @@ export default class AcasInstance {
 
         this.externalEngineUciChannel = new BroadcastChannel(EXTERNAL_UCI_BROADCAST_NAME);
         this.externalEngineUciChannel.onmessage = (event) => {
-            const { line, profileName, engineId, instanceId } = event.data;
+            const { line, profileName, engineId, instanceId, optionsRestored } = event.data;
+            const profileVariables = this.pV[profileName];
+            const isCurrentEngine = this.instanceID === instanceId && !this.instanceClosed
+                && profileVariables?.useExternalChessEngine
+                && String(profileVariables.externalChessEngine) === String(engineId);
 
-            if(this.instanceID !== instanceId) return;
-            if(this.instanceClosed || !this.pV[profileName]?.useExternalChessEngine
-                || String(this.pV[profileName].externalChessEngine) !== String(engineId)) return;
+            if(!isCurrentEngine) return;
 
-            //console.warn('Received UCI line', event?.data?.line);
+            if(line.trim() === 'uciok')
+                profileVariables.externalEngineOptionsRestored = optionsRestored === true;
 
             this.engineMessageProcessor(line, profileName).catch(console.error);
         };
@@ -328,13 +337,14 @@ export default class AcasInstance {
         await this.loadEngine(profileName);
     }
 
-    notifyAcasAboutEngineClosing(profileName) {
+    notifyAcasAboutEngineClosing(profileName, restartOnRequest = false) {
         const variables = this.pV[profileName];
         clearTimeout(variables?.currentMovetimeTimeout);
         clearTimeout(variables?.currentStopTimeout);
         variables?.pendingCalculations?.forEach(x => x.finished = true);
         if(variables) {
             variables.engineSettingsReady = false;
+            variables.externalRestartPending = restartOnRequest;
             variables.externalCommandGeneration = (variables.externalCommandGeneration ?? 0) + 1;
             if(variables.recoveringSearch) variables.externalRecoveryCancelled = true;
             delete variables.externalCrashPending;
@@ -657,12 +667,15 @@ export default class AcasInstance {
         }
     }
 
-    async recoverExternalEngineSearch(profile, calculation, crashReason) {
+    async recoverExternalEngineSearch(profile, calculation, crashReason, restartOnRequest = false) {
         const variables = this.pV[profile];
-        if(this.instanceClosed || !variables?.useExternalChessEngine || variables.externalRecoveryCancelled
-            || (!crashReason && calculation?.finished)) return;
+        const cannotRecover = this.instanceClosed || !variables?.useExternalChessEngine
+            || variables?.externalRecoveryCancelled || (!crashReason && calculation?.finished);
         const isCurrentRecovery = () => !this.instanceClosed && this.pV[profile] === variables
             && !variables.externalRecoveryCancelled;
+
+        if(cannotRecover) return;
+
         if(variables.recoveringSearch) {
             // A replacement can crash during startup. Retain it for the recovery owner, not a parallel restart.
             if(crashReason) {
@@ -671,66 +684,103 @@ export default class AcasInstance {
                 variables.externalCommandGeneration = (variables.externalCommandGeneration ?? 0) + 1;
                 variables.pendingCalculations.forEach(x => x.finished = true);
             }
+
             return;
         }
+
+        const recoveryMessage = restartOnRequest ? 'Restarting the killed external engine for a new calculation request.'
+            : crashReason ? `${crashReason}; attempting automatic recovery.`
+            : 'External engine did not finish after stop; restarting its search.';
+        const identifierKey = JSON.stringify([variables.externalChessEngine, profile, this.instanceID]);
+
         variables.recoveringSearch = true;
         variables.externalCommandGeneration = (variables.externalCommandGeneration ?? 0) + 1;
         variables.engineSettingsReady = false;
         clearTimeout(variables.currentMovetimeTimeout);
         clearTimeout(variables.currentStopTimeout);
         variables.pendingCalculations.forEach(x => x.finished = true);
-        logActivity('warning', crashReason ? `${crashReason}; attempting automatic recovery.`
-            : 'External engine did not finish after stop; restarting its search.', {
+
+        logActivity('warning', recoveryMessage, {
             instanceID: this.instanceID, profile
         });
 
         try {
-            const identifierKey = JSON.stringify([variables.externalChessEngine, profile, this.instanceID]);
             if(await closeAllExternalEnginesWithId(identifierKey, 'identifierKey') === false) return;
             if(!isCurrentRecovery()) return;
+
             if(crashReason) {
                 const now = Date.now();
+
                 if(now - (variables.externalLastCrashAt ?? 0) > 60000) variables.externalCrashRecoveryAttempts = 0;
+
                 variables.externalLastCrashAt = now;
+
                 if((variables.externalCrashRecoveryAttempts ?? 0) >= 3) {
                     delete variables.pendingCalculationRequest;
                     delete variables.externalCrashPending;
+
                     logActivity('error', 'External engine keeps crashing; automatic recovery paused after three retries. Reload the engine to retry.', {
                         instanceID: this.instanceID, profile
                     });
+
                     return;
                 }
+
                 variables.externalCrashRecoveryAttempts = (variables.externalCrashRecoveryAttempts ?? 0) + 1;
                 await new Promise(resolve => setTimeout(resolve, 200 * 2 ** (variables.externalCrashRecoveryAttempts - 1)));
+
                 if(!isCurrentRecovery()) return;
-            } else if((variables.externalSearchRecoveryAttempts ?? 0) >= 2) {
+            } else if(!restartOnRequest && (variables.externalSearchRecoveryAttempts ?? 0) >= 2) {
                 delete variables.pendingCalculationRequest;
+
                 logActivity('error', 'External engine repeatedly failed to stop; automatic recovery paused. Reload the engine to retry.', {
                     instanceID: this.instanceID, profile
                 });
+
                 return;
-            } else {
+            } else if(!restartOnRequest) {
                 variables.externalSearchRecoveryAttempts = (variables.externalSearchRecoveryAttempts ?? 0) + 1;
             }
+
             await this.engineStartNewGame(variables.chessVariant, profile);
         } catch(error) {
             variables.engineSettingsReady = false;
+
             logActivity('error', `External engine recovery failed: ${error?.message ?? error}`, {
                 instanceID: this.instanceID, profile
             });
         } finally {
             variables.recoveringSearch = false;
+
+            const shouldRestartForPendingRequest = !this.instanceClosed && this.pV[profile] === variables
+                && variables.externalRestartPending && variables.pendingCalculationRequest;
+
+            // A manual kill may cancel an in-flight recovery. A request arriving
+            // during that cancellation must still be able to start its replacement.
+            if(shouldRestartForPendingRequest) {
+                const request = variables.pendingCalculationRequest;
+
+                delete variables.pendingCalculationRequest;
+                this.calculateBestMoves(this.currentFen, request.fen === this.currentFen
+                    ? request.config : { specificProfileName: profile }).catch(console.error);
+            }
         }
 
         if(!isCurrentRecovery()) return;
         if(variables.externalCrashPending) {
             const reason = variables.externalCrashPending;
+
             delete variables.externalCrashPending;
             variables.engineSettingsReady = false;
+
             return this.recoverExternalEngineSearch(profile, null, reason);
         }
-        if(this.instanceClosed || this.pV[profile] !== variables || !variables.engineSettingsReady) return;
+
+        const canResumeCalculation = isCurrentRecovery() && variables.engineSettingsReady;
         const request = variables.pendingCalculationRequest;
+
+        if(!canResumeCalculation) return;
+
         delete variables.pendingCalculationRequest;
         await this.calculateBestMoves(this.currentFen, request?.fen === this.currentFen
             ? request.config : { specificProfileName: profile });
@@ -946,43 +996,62 @@ export default class AcasInstance {
         return this.getEngineAcasObj(i)['engine'](method, args);
     }
 
-    async sendMsgToEngine(msg, i, isDynamicOption, isCurrent = () => true) {
+    async sendMsgToEngine(msg, i, isDynamicOption, isCurrent = () => true, optionsInitialized = false) {
         if(this.instanceClosed || !isCurrent()) return false;
-        const isProfile = typeof i === 'string' && this.pV[i];
+
+        const profileVariables = typeof i === 'string' ? this.pV[i] : null;
         const engineExists = this.getEngineAcasObj(i)?.sendMsg;
         const isBannedOptionSet = msg.startsWith('setoption name')
-            && (isProfile && this.pV[i].usingAdvancedMode && !isDynamicOption);
+            && profileVariables?.usingAdvancedMode && !isDynamicOption;
 
         if(isBannedOptionSet) return false;
+
         const profile = this.getEngineAcasObj(i)?.profileName ?? this.getProfileName(i);
         const context = { instanceID: this.instanceID, profile };
         const logEngineInput = () => {
             if(!isActivityLoggingEnabled()) return;
+
             logActivity('engine-input', msg, {
                 ...context,
                 ...this.getEngineActivityContext(profile)
             });
         };
         
-        if(isProfile && this.pV[i].useExternalChessEngine) {
+        if(profileVariables?.useExternalChessEngine) {
             const profileName = this.getProfileName(i);
-            const engineId = this.pV[i].externalChessEngine;
-            const generation = isProfile.externalCommandGeneration;
+            const engineId = profileVariables.externalChessEngine;
+            const generation = profileVariables.externalCommandGeneration;
+            const isWaitingForCalculation = profileVariables.externalRestartPending && !profileVariables.recoveringSearch;
+            const recoveryOptions = {
+                resumeEngineOptions: profileVariables.recoveringSearch === true,
+                optionsInitialized
+            };
+            const isCurrentCommand = () => {
+                const isCurrentProfile = !this.instanceClosed && this.pV[i] === profileVariables
+                    && profileVariables.externalCommandGeneration === generation;
+                const isRecoveryInterrupted = profileVariables.externalRecoveryCancelled
+                    || profileVariables.recoveringSearch && profileVariables.externalCrashPending;
+
+                return isCurrentProfile && !isRecoveryInterrupted && isCurrent();
+            };
+
+            if(isWaitingForCalculation) return false;
 
             const sent = await sendUciToExternalEngine(msg, engineId, profileName, this.instanceID,
-                () => !this.instanceClosed && this.pV[i] === isProfile
-                    && isProfile.externalCommandGeneration === generation && isCurrent()
-                    && !isProfile.externalRecoveryCancelled
-                    && !(isProfile.recoveringSearch && isProfile.externalCrashPending));
+                isCurrentCommand, recoveryOptions);
+
             if(sent === false) return false;
+
             logEngineInput();
+
             return true;
 
-        } else if(!engineExists && isProfile) {
+        } else if(!engineExists && profileVariables) {
             let elapsed = 0;
+
             return new Promise(resolve => {
                 const waitForEngineToLoad = setInterval(() => {
-                    if(this.instanceClosed || this.pV[i] !== isProfile) {
+                    if(this.instanceClosed || this.pV[i] !== profileVariables) {
                         clearInterval(waitForEngineToLoad);
                         resolve(false);
                         return;
@@ -1178,18 +1247,26 @@ export default class AcasInstance {
                 }
             });
 
-            if(this.activeEnginesAmount !== lastActiveEnginesAmount || this.variantNotSupportedByEngineAmount !== lastVariantNotSupportedByEngineAmount) {
+            if(this.activeEnginesAmount !== lastActiveEnginesAmount || this.variantNotSupportedByEngineAmount !== lastVariantNotSupportedByEngineAmount || this.interfaceTranslations !== TRANS_OBJ) {
                 const correctedActiveAmount = this.activeEnginesAmount - this.variantNotSupportedByEngineAmount;
 
-                const engineWord = TRANS_OBJ?.engineWord ?? 'engine';
-                const enginesWord = TRANS_OBJ?.enginesWord ?? 'engines';
+                // In "supported/total engines", the noun describes the total count.
+                const engineForms = TRANS_OBJ?.engineWordForms;
+                const engineCategory = engineForms
+                    ? new Intl.PluralRules(engineForms.locale).select(this.activeEnginesAmount)
+                    : null;
+                const engineWord = engineForms?.[engineCategory] ?? (this.activeEnginesAmount === 1
+                    ? (TRANS_OBJ?.engineWord ?? 'engine')
+                    : (TRANS_OBJ?.enginesWord ?? 'engines'));
                 const variantNotSupportedMsg = TRANS_OBJ?.variantNotSupported ?? 'Variant not supported';
 
+                this.interfaceTranslations = TRANS_OBJ;
+
                 if(correctedActiveAmount === this.activeEnginesAmount) {
-                    newInfoStr += ` (${this.activeEnginesAmount} ${this.activeEnginesAmount > 1 ? enginesWord : engineWord})`;
+                    newInfoStr += ` (${this.activeEnginesAmount} ${engineWord})`;
                 }
                 else if(correctedActiveAmount > 0) {
-                    newInfoStr += ` (${correctedActiveAmount}/${this.activeEnginesAmount} ${correctedActiveAmount > 1 ? enginesWord : engineWord})`;
+                    newInfoStr += ` (${correctedActiveAmount}/${this.activeEnginesAmount} ${engineWord})`;
                 } else {
                     newInfoStr += ` (${variantNotSupportedMsg})`;
                 }

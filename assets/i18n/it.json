@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Porta del server",
+        "[data-translation-server-port-hint]": "Deve corrispondere alla porta mostrata nell’app server A.C.A.S",
         "#acas-is-free-reminder-text": "Aiuta dando un feedback!",
         "#acas-logo-secondary": "Assistenza Scacchi",
         "#no-instances-title": "In attesa di istanze...",
@@ -177,6 +179,8 @@
         "concealAssistanceAutoDelayMs": ["Occultamento automatico (ms)", "Nascondi automaticamente le funzioni di assistenza dopo questo tempo"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Le impostazioni si applicano a tutte le istanze",
+        "settingsNavbarInstanceSubtitle": "Le impostazioni si applicano solo all’istanza \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutra", "Imprecisione", "Errore", "Errore grave", "Catastrofica", "Buona mossa", "Eccellente", "Mossa migliore", "Mossa debole"],
             "forced": "Mossa forzata", "provisional": "provvisoria", "eval": "Valutazione", "best": "Migliore", "loss": "Perdita di valutazione",
@@ -210,6 +214,15 @@
             "saveError": "Impossibile salvare il grafico. Controlla la connessione al userscript.", "variableLink": "Apri le curve di {variable}", "removeConfirm": "Rimuovere la linea {setting} dal profilo \"{profile}\"?\n\nTutti i punti saranno eliminati e il valore salvato sarà ripristinato.", "none": "Nessuno", "savedDefault": "Valore salvato", "unavailable": "{value} (non disponibile)", "override": "Sostituzione dinamica attiva: {value} ({variable}: {position}).", "waiting": "Curva attiva · in attesa di {variable}.", "defaultActive": "Curva attiva · valore salvato in uso.", "disabled": "Curva dinamica disattivata.", "noCurve": "Nessuna curva dinamica attiva.", "description": "Valore salvato: {value}. Il campo mantiene questo valore modificabile, usato senza curve. Apri le impostazioni dinamiche per modificare la curva.", "openSetting": "Apri impostazioni dinamiche di {setting}"
         },
         "activityLog": {
+            "showMilliseconds": "Mostra solo secondi e millisecondi",
+            "hideMilliseconds": "Mostra gli orari completi",
+            "copyLog": "Copia le voci visibili del registro",
+            "copiedLog": "Copiato",
+            "copiedEntries": "{count} voci copiate",
+            "copyFailed": "Copia non riuscita: {error}",
+            "enableLogging": "La registrazione delle attività è DISATTIVATA — fai clic per attivarla",
+            "disableLogging": "La registrazione delle attività è attiva — fai clic per disattivarla",
+            "profile": "Profilo", "engine": "Motore", "site": "Sito", "externalEngine": "Motore esterno",
             "search": "Cerca", "searchPlaceholder": "Cerca nel registro…", "discordMessagePlaceholder": "Scrivi qui il tuo messaggio Discord…",
             "title": "Registro attività", "subtitle": "Messaggi del motore, modifiche dinamiche, avvisi ed errori", "show": "Mostra", "clear": "Svuota registro", "filter": "Filtra per tipo", "all": "Tutte le attività", "close": "Chiudi registro", "instance": "Istanza", "empty": "Nessuna voce ancora.", "status": "{shown} visibili · {total} totali",
             "types": { "engine-input": "Input del motore", "engine-output": "Output del motore", "dynamic-change": "Modifiche dinamiche", "setting-change": "Modifiche alle impostazioni", "engine": "Ciclo del motore", "instance": "Ciclo dell’istanza", "game": "Eventi di partita", "site": "Messaggi del sito", "warning": "Avvisi", "error": "Errori", "app": "Eventi dell’app" }

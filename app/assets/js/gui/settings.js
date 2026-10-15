@@ -122,9 +122,10 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
     // Capture the owner before storage awaits, so switching tabs cannot redirect a save.
     const settingFilter = getSettingFilter(settingElem);
     const elemValue = getInputValue(settingElem);
+    const preserveText = settingElem.dataset.uciOptionType === 'string' || settingElem.dataset.dynamicValueType === 'text';
 
     const settingObj = { 'key': settingElem.dataset.key,
-        'value': settingElem.dataset.dynamicValueType === 'text' ? String(elemValue) : VAR_TO_CORRECT_TYPE(elemValue) };
+        'value': preserveText ? String(elemValue) : VAR_TO_CORRECT_TYPE(elemValue) };
 
     const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
@@ -258,13 +259,17 @@ export async function loopThroughAndUpdateSettingsValues(isDirectlyCausedByUser)
         if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
 
         if(typeof value === 'boolean' || value || value === 0
-            || value === '' && inputElem.dataset.dynamicValueType === 'text') {
+            || value === '' && (inputElem.dataset.uciOptionType === 'string' || inputElem.dataset.dynamicValueType === 'text')) {
             setInputValue(inputElem, value);
             runSettingChangeObserver(inputElem, 50, true);
         } else {
             activateInputDefaultValue(inputElem);
-            await saveSetting(inputElem, isDirectlyCausedByUser);
-            if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
+            // Engine defaults are display fallbacks, not user overrides. Saving
+            // them here used to turn simply opening the panel into setoptions.
+            if(!key.startsWith('DYNAMIC_')) {
+                await saveSetting(inputElem, isDirectlyCausedByUser);
+                if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
+            }
             runSettingChangeObserver(inputElem, 5, true);
         }
     }

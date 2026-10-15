@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Sunucu portu",
+        "[data-translation-server-port-hint]": "A.C.A.S sunucu uygulamasında gösterilen portla eşleşmelidir",
         "#acas-is-free-reminder-text": "Geri bildirim vererek yardımcı olun!",
         "#acas-logo-secondary": "Satranç Yardımcısı",
         "#no-instances-title": "Bağlı oyunlar bekleniyor...",
@@ -175,6 +177,8 @@
         "concealAssistanceAutoDelayMs": ["Otomatik Gizle (ms)", "Yardım özelliklerini bu süreden sonra otomatik olarak gizle"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Ayarlar tüm örnekleri etkiler",
+        "settingsNavbarInstanceSubtitle": "Ayarlar yalnızca \"{instanceID}\" örneğini etkiler",
         "moveFeedback": {
             "labels": ["Nötr", "İsabetsizlik", "Hata", "Büyük hata", "Felaket", "İyi hamle", "Mükemmel", "En iyi hamle", "Zayıf hamle"],
             "forced": "Zorunlu hamle", "provisional": "geçici", "eval": "Değerlendirme", "best": "En iyi", "loss": "Değerlendirme kaybı",
@@ -204,6 +208,15 @@
             "evaluationHint": "Negatif geride, sıfır eşit, pozitif önde demektir. Son tamamlanan ana değerlendirme kullanılır.", "fitHint": "Çizgi etrafında boşluk bırakarak iki ekseni sığdır", "graphHint": "Noktaları ve boş alanı sürükleyin. Yakınlaştırmak için sıkıştırın veya kaydırın. Oklar noktayı, Shift on adım hareket ettirir. Delete siler.", "exitFullscreen": "Tam ekrandan çık", "fullscreen": "Tam ekran grafik", "instance": "Örnek", "equal": "Eşit (0 cp)", "visibility": "Eğriyi göster ve uygula veya gizle ve devre dışı bırak", "enableLine": "{profile} profilindeki {setting} ayarını etkinleştir ve göster", "selectedLine": "Seçili: {setting}, {profile}", "chooseLine": "{setting}, {profile} seç", "currentValue": "{setting} güncel değeri", "otherVariable": "{variable} için çizgi yok. Mevcut eğriler şunu kullanır: ", "noLines": "Çizgi yok. Ayarı seçin, sonra ＋ Çizgi.", "existingCurve": "Her ayar ve profil için tek eğri çakışmaları önler. Değişken: {variable}. Değiştirmek için eğriyi düzenleyin veya kaldırın.", "addForProfile": "{profile} için {setting} ekle", "enableFirst": "Önce açıklamada çizgiyi etkinleştirin", "addPointHint": "Tam sayılı nokta ekle", "stepLocked": "Bu ayar için basamak sabittir.", "editing": "{profile} profilinde {setting} düzenleniyor.", "removeFromProfile": "{profile} profilinden {setting} kaldır", "point": "Nokta {number}", "selectPoint": "Koordinatları düzenlemek için nokta seçin.", "profileLines": "{setting} profil çizgileri", "saveError": "Grafik kaydedilemedi. Userscript bağlantısını kontrol edin.", "variableLink": "{variable} eğrilerini aç", "removeConfirm": "\"{profile}\" profilinden {setting} çizgisi kaldırılsın mı?\n\nTüm noktalar silinir ve kayıtlı varsayılan değer geri yüklenir.", "none": "Yok", "savedDefault": "Kayıtlı varsayılan", "unavailable": "{value} (kullanılamıyor)", "override": "Dinamik geçersiz kılma etkin: {value} ({variable}: {position}).", "waiting": "Eğri etkin · {variable} bekleniyor.", "defaultActive": "Eğri etkin · kayıtlı varsayılan kullanılıyor.", "disabled": "Dinamik eğri devre dışı.", "noCurve": "Etkin dinamik eğri yok.", "description": "Kayıtlı değer: {value}. Alan, eğri olmadığında kullanılan düzenlenebilir değeri korur. Eğriyi düzenlemek için dinamik ayarları açın.", "openSetting": "{setting} için dinamik ayarları aç"
         },
         "activityLog": {
+            "showMilliseconds": "Yalnızca saniye ve milisaniyeleri göster",
+            "hideMilliseconds": "Tam zaman damgalarını göster",
+            "copyLog": "Görünür günlük kayıtlarını kopyala",
+            "copiedLog": "Kopyalandı",
+            "copiedEntries": "{count} kayıt kopyalandı",
+            "copyFailed": "Kopyalama başarısız: {error}",
+            "enableLogging": "Etkinlik kaydı KAPALI — açmak için tıklayın",
+            "disableLogging": "Etkinlik kaydı açık — kapatmak için tıklayın",
+            "profile": "Profil", "engine": "Motor", "site": "Site", "externalEngine": "Harici motor",
             "search": "Ara", "searchPlaceholder": "Günlükte ara…", "discordMessagePlaceholder": "Discord mesajınızı buraya yazın…",
             "title": "Etkinlik günlüğü", "subtitle": "Motor mesajları, dinamik değişiklikler, uyarılar ve hatalar", "show": "Göster", "clear": "Günlüğü temizle", "filter": "Türe göre filtrele", "all": "Tüm etkinlikler", "close": "Günlüğü kapat", "instance": "Örnek", "empty": "Henüz kayıt yok.", "status": "{shown} gösteriliyor · toplam {total}",
             "types": { "engine-input": "Motor girdisi", "engine-output": "Motor çıktısı", "dynamic-change": "Dinamik değişiklikler", "setting-change": "Ayar değişiklikleri", "engine": "Motor yaşam döngüsü", "instance": "Örnek yaşam döngüsü", "game": "Oyun olayları", "site": "Site mesajları", "warning": "Uyarılar", "error": "Hatalar", "app": "Uygulama olayları" }
@@ -227,7 +240,7 @@
         "ownTurnMightNotWorkVariants": "'Sadece Kendi Turunu Hesapla' ayarı, varyantlar için çalışmayabilir!",
         "emptyBoardChesscomWarning": "Ah, tahtada hiçbir şey görünmüyor. Bu, sitenin tahtayı resim olarak göstermesi nedeniyle A.C.A.S'in bunu analiz edememesiyle ilgili olabilir.\n\nLütfen Chess.com ayarlarında 'Parça Animasyonları: Arcade' seçeneğini devre dışı bırakın! (None olarak ayarlayın)",
         "engineWord": "motor",
-        "enginesWord": "motorlar",
+        "enginesWord": "motor",
         "variantNotSupported": "Varyant desteklenmiyor",
         "showFenBtn": "FEN Göster",
         "hideFenBtn": "FEN Gizle",

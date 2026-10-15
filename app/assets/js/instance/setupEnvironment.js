@@ -1,11 +1,21 @@
 import { acasInstanceContainer, settingsContainerElem } from '../gui/elementDeclarations.js';
 import { incrementUserUsageStat } from '../gui/stats.js';
 
-export default async function setupEnvironment(startpos, dimensions) {
-    if(this.environmentSetupRun)
-        return;
+export default async function setupEnvironment(startpos, dimensions, selectedProfile = null) {
+    const profileVariables = selectedProfile ? this.pV[selectedProfile] : null;
+    const selectedVariant = FORMAT_VARIANT(profileVariables?.chessVariant);
+    const isCurrentSetup = () => !this.instanceClosed
+        && (!selectedProfile || this.pV[selectedProfile] === profileVariables);
+    const hasVariantChanged = selectedVariant && selectedVariant !== this.activeVariant;
+    const haveDimensionsChanged = this.boardDimensions?.width !== dimensions[0]
+        || this.boardDimensions?.height !== dimensions[1];
+    const shouldRefreshFairyBoard = selectedProfile && (hasVariantChanged || haveDimensionsChanged);
+
+    if(this.environmentSetupPending) return;
+    if(this.environmentSetupRun && !shouldRefreshFairyBoard) return;
 
     this.environmentSetupRun = true;
+    this.environmentSetupPending = true;
 
     try {
         let variant = 'chess';
@@ -26,6 +36,8 @@ export default async function setupEnvironment(startpos, dimensions) {
                 warnedAboutOnlyOwnTurn = true;
             }
         }
+
+        if(selectedVariant) variant = selectedVariant;
 
         let variantText = variant;
         let chessFont = FORMAT_CHESS_FONT(await this.getConfigValue(this.configKeys.chessFont));
@@ -52,11 +64,15 @@ export default async function setupEnvironment(startpos, dimensions) {
         const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
         const fen = currentFen || this.variantStartPosFen;
 
+        if(!isCurrentSetup()) return;
+
         let orientation = await this.getPlayerColor();
         try {
             const boardOrientation = await USERSCRIPT.instanceVars.boardOrientation?.get(this.instanceID);
             if(boardOrientation === 'w' || boardOrientation === 'b') orientation = boardOrientation;
         } catch(e) { /* Older userscripts do not expose boardOrientation. */ }
+
+        if(!isCurrentSetup()) return;
 
         const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
 
@@ -185,6 +201,9 @@ export default async function setupEnvironment(startpos, dimensions) {
 
         const chessgroundElem = this.instanceElem.querySelector('.chessground-x');
 
+        this.boardResizeObserver?.disconnect();
+        this.chessground?.destroy?.();
+
         chessboardComponentsElem.classList.add(chessFont);
         
         // Kept on the instance so close() can disconnect it. Without a reference the
@@ -239,7 +258,23 @@ export default async function setupEnvironment(startpos, dimensions) {
         this.Interface.updateBoardOrientation(orientation);
         
         if(oldInstanceElem) {
+            const instanceItem = document.querySelector(`.dropdown-item[data-instance-id="${this.instanceID}"]`);
+            const itemTitle = instanceItem?.querySelector('.dropdown-item-title');
+            const highlight = this.instanceElem.querySelector('.highlight-indicator');
+
+            this.Interface.removeMarkings(null, 'Board variant changed');
+            this.Interface.removeBookMarkings();
+
             acasInstanceContainer.replaceChild(this.instanceElem, oldInstanceElem);
+
+            if(itemTitle) itemTitle.textContent = `${variant} (${this.domain})`;
+
+            if(instanceItem) {
+                instanceItem.ontouchstart = () => highlight.classList.remove('hidden');
+                instanceItem.ontouchend = () => highlight.classList.add('hidden');
+                instanceItem.onmouseenter = () => highlight.classList.remove('hidden');
+                instanceItem.onmouseleave = () => highlight.classList.add('hidden');
+            }
 
             if(this.debugLogsEnabled) console.log(`Engine and GUI for variant "${variant}" updated!`);
         } else {
@@ -267,10 +302,15 @@ export default async function setupEnvironment(startpos, dimensions) {
 
         this.startInterfacePolling();
 
-        incrementUserUsageStat('createdInstances');
+        if(!oldInstanceElem) incrementUserUsageStat('createdInstances');
 
         APPLY_ASSISTANCE_CONCEALMENT(isConcealAssistanceActive);
     } catch(e) { 
         console.error(e);
+        this.environmentSetupRun = false;
+
+        if(selectedProfile) throw e;
+    } finally {
+        this.environmentSetupPending = false;
     }
 }

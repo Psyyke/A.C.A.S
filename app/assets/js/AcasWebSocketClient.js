@@ -1,12 +1,33 @@
 import { updateEnginesList } from './gui/externalEngine.js';
 
+const SERVER_PORT_STORAGE_KEY = 'acasExternalEngineServerPort';
+const DEFAULT_SERVER_PORT = 2800;
+
 class AcasWebSocketClient {
     constructor(onEvent = null) {
-        this.url = 'ws://localhost:2800';
+        const configuredPort = Number(localStorage.getItem(SERVER_PORT_STORAGE_KEY));
+        this.port = Number.isInteger(configuredPort) && configuredPort >= 1 && configuredPort <= 65535
+            ? configuredPort : DEFAULT_SERVER_PORT;
+        this.url = `ws://localhost:${this.port}`;
         this.socket = null;
         this.onEvent = onEvent;
         this.reconnectionAttempts = 0;
         this.reconnectTimer = null;
+    }
+
+    setPort(port, reconnect = false) {
+        if(!Number.isInteger(port) || port < 1 || port > 65535) return false;
+        if(this.port === port) {
+            if(reconnect) this.connect();
+            return true;
+        }
+
+        this.disconnect();
+        this.port = port;
+        this.url = `ws://localhost:${port}`;
+        this.reconnectionAttempts = 0;
+        if(reconnect) this.connect();
+        return true;
     }
 
     _emit(type, data = null) {
@@ -181,6 +202,22 @@ const ws = new AcasWebSocketClient((type, data) => {
     }
 });
 
+const serverPortInput = document.querySelector('#external-engine-server-port');
+if(serverPortInput) {
+    serverPortInput.value = String(ws.port);
+    serverPortInput.addEventListener('change', () => {
+        const port = Number(serverPortInput.value);
+        if(!serverPortInput.reportValidity() || !Number.isInteger(port) || port < 1 || port > 65535) {
+            serverPortInput.value = String(ws.port);
+            return;
+        }
+
+        const isAnyProfileUsingExternal = Object.values(IS_EXTERNAL_ENGINE_SETTING_ACTIVE).some(Boolean);
+        localStorage.setItem(SERVER_PORT_STORAGE_KEY, String(port));
+        ws.setPort(port, isAnyProfileUsingExternal);
+    });
+}
+
 export function connectAcasToServer() {
     if(ws.socket && ws.socket.readyState === WebSocket.OPEN) {
         //console.warn("Already connected to A.C.A.S server.");
@@ -194,25 +231,39 @@ export function disconnectAcasFromServer() {
     ws.disconnect();
 }
 
-export function sendUciToExternalEngine(command, engineId, profileName, instanceId, isCurrent = () => true) {
+export function sendUciToExternalEngine(command, engineId, profileName, instanceId, isCurrent = () => true,
+    { resumeEngineOptions = false, optionsInitialized = false } = {}) {
     if(typeof engineId !== 'string' || !engineId.trim()) return Promise.resolve(false);
 
     const key = JSON.stringify([engineId, profileName, instanceId]);
+
     // Storage lookups/reconnection must not reorder position, go and stop.
     const operation = (externalCommandQueues.get(key) ?? Promise.resolve()).then(async () => {
+        const shouldLoadLaunchParams = !externalLaunchParams.has(key) || command.trim() === 'uci';
+
         if(!isCurrent()) return false;
+
         // Launch parameters are only used when spawning, not for each position/go/stop.
-        if(!externalLaunchParams.has(key) || command.trim() === 'uci') {
+        if(shouldLoadLaunchParams) {
             const params = await GET_GM_CFG_VALUE(GET_EXTERNAL_PARAM_DB_KEY(engineId), instanceId, profileName);
+
             if(!isCurrent()) return false;
+
             externalLaunchParams.set(key, params);
         }
+
         const launchParams = externalLaunchParams.get(key);
+
         if(!isCurrent()) return false;
 
         return await ws.send({
             'type': 'uci',
-            'msg': { command, engineId, profileName, instanceId, launchParams }
+            // Fresh starts use the GUI profile; replacements restore only the
+            // options actually sent to this engine/profile/instance in this session.
+            'msg': {
+                command, engineId, profileName, instanceId, launchParams,
+                clientManagesOptions: true, resumeEngineOptions, optionsInitialized
+            }
         }, isCurrent);
     }).catch(error => {
         console.error('Could not send external engine input:', error);
@@ -231,15 +282,19 @@ export async function closeAllExternalEnginesWithId(identifier, type) {
     const fields = ['engineId', 'profileName', 'instanceId'];
     const pending = [...externalCommandQueues.entries()].filter(([key]) =>
         type === 'identifierKey' ? key === identifier : JSON.parse(key)[fields.indexOf(type)] === identifier);
-    await Promise.all(pending.map(([, operation]) => operation));
-    for(const key of externalLaunchParams.keys()) {
-        if(type === 'identifierKey' ? key === identifier : JSON.parse(key)[fields.indexOf(type)] === identifier)
-            externalLaunchParams.delete(key);
-    }
     const data = {
         'type': 'closeEnginesByIdentifier',
         'msg': { identifier, type }
     };
+
+    await Promise.all(pending.map(([, operation]) => operation));
+
+    for(const key of externalLaunchParams.keys()) {
+        const matchesIdentifier = type === 'identifierKey'
+            ? key === identifier : JSON.parse(key)[fields.indexOf(type)] === identifier;
+
+        if(matchesIdentifier) externalLaunchParams.delete(key);
+    }
 
     return ws.send(data);
 }

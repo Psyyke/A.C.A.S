@@ -7,6 +7,7 @@ import { isActivityLoggingEnabled, logActivity } from '../misc/activityLog.js';
 import { evaluationForPlayer } from '../misc/evaluation.js';
 import { annotateEvaluation } from './annotate.js';
 import { parseVariantMove } from '../misc/variantPosition.js';
+import { isBuiltInFairyEngine } from './fairyVariant.js';
 
 export default async function engineMessageProcessor(msg, profile) {
     msg = msg?.trim();
@@ -368,14 +369,25 @@ export default async function engineMessageProcessor(msg, profile) {
         if(this.pV[profile] !== profileObj || this.instanceClosed) return;
         setDynamicOptionsReady(profile, this.instanceID);
 
+        const waitsForFairyStartup = isBuiltInFairyEngine(profileObj);
+
+        if(waitsForFairyStartup) return;
+
         setTimeout(() => { // wait a bit for potential variantStartposfen
             if(this.instanceClosed || this.pV[profile] !== profileObj) return;
+
             const startPosFen = profileObj.variantStartposFen;
             const dimensions = startPosFen ? GET_BOARD_DIMENSIONS_FROM_FEN(startPosFen) : [8, 8];
             const startPos = startPosFen || this.defaultStartpos;
 
             const waitForChessgroundLoad = setInterval(() => {
-                if(this.instanceClosed || this.pV[profile] !== profileObj) { clearInterval(waitForChessgroundLoad); return; }
+                const isStale = this.instanceClosed || this.pV[profile] !== profileObj;
+
+                if(isStale) {
+                    clearInterval(waitForChessgroundLoad);
+                    return;
+                }
+
                 if(window?.ChessgroundX) {
                     clearInterval(waitForChessgroundLoad);
 

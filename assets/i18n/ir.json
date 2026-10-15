@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "درگاه سرور",
+        "[data-translation-server-port-hint]": "باید با درگاه نمایش‌داده‌شده در برنامه سرور A.C.A.S یکسان باشد",
         "#acas-is-free-reminder-text": "با گفتن نظرت به ما کمک کن!",
         "#acas-logo-secondary": "کمک به بازی شطرنج",
         "#no-instances-title": "در حال انتظار برای نمونه‌ها...",
@@ -177,6 +179,8 @@
         "concealAssistanceAutoDelayMs": ["پنهان کردن خودکار (میلی ثانیه)", "پنهان کردن خودکار ویژگی های کمک پس از این مدت زمان"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "تنظیمات بر همه نمونه‌ها اعمال می‌شود",
+        "settingsNavbarInstanceSubtitle": "تنظیمات فقط بر نمونهٔ \"{instanceID}\" اعمال می‌شود",
         "moveFeedback": {
             "labels": ["خنثی", "بی‌دقتی", "اشتباه", "اشتباه بزرگ", "فاجعه‌بار", "حرکت خوب", "عالی", "بهترین حرکت", "حرکت ضعیف"],
             "forced": "حرکت اجباری", "provisional": "موقت", "eval": "ارزیابی", "best": "بهترین", "loss": "افت ارزیابی",
@@ -206,6 +210,15 @@
             "evaluationHint": "منفی یعنی عقب، صفر برابر، مثبت جلو. آخرین ارزیابی اصلی کامل‌شده استفاده می‌شود.", "fitHint": "جا دادن هر دو محور با فضای اطراف خط", "graphHint": "نقاط و فضای خالی را بکشید. با پیمایش یا دو انگشت بزرگ‌نمایی کنید. کلیدهای جهت نقطه را جابه‌جا می‌کنند، Shift ده گام و Delete حذف می‌کند.", "exitFullscreen": "خروج از تمام‌صفحه", "fullscreen": "نمودار تمام‌صفحه", "instance": "نمونه", "equal": "برابر (0 cp)", "visibility": "نمایش و اعمال منحنی یا پنهان و غیرفعال کردن آن", "enableLine": "فعال و نمایش دادن {setting} از {profile}", "selectedLine": "انتخاب‌شده: {setting}، {profile}", "chooseLine": "انتخاب {setting}، {profile}", "currentValue": "مقدار فعلی {setting}", "otherVariable": "خطی برای {variable} نیست. منحنی‌های موجود استفاده می‌کنند: ", "noLines": "خطی نیست. تنظیم را انتخاب کنید، سپس ＋ خط.", "existingCurve": "یک منحنی برای هر تنظیم و نمایه از تداخل جلوگیری می‌کند. متغیر: {variable}. برای تغییر، منحنی را ویرایش یا حذف کنید.", "addForProfile": "افزودن {setting} برای {profile}", "enableFirst": "ابتدا خط را در راهنما فعال کنید", "addPointHint": "افزودن نقطه با مختصات صحیح", "stepLocked": "این تنظیم فقط از حالت پله‌ای استفاده می‌کند.", "editing": "ویرایش {setting} از {profile}.", "removeFromProfile": "حذف {setting} از {profile}", "point": "نقطه {number}", "selectPoint": "برای ویرایش مختصات یک نقطه انتخاب کنید.", "profileLines": "خطوط نمایه برای {setting}", "saveError": "ذخیره نمودار ممکن نیست. اتصال اسکریپت کاربر را بررسی کنید.", "variableLink": "باز کردن منحنی‌های {variable}", "removeConfirm": "خط {setting} از نمایه \"{profile}\" حذف شود؟\n\nهمه نقاط حذف و مقدار پیش‌فرض ذخیره‌شده بازیابی می‌شود.", "none": "هیچ", "savedDefault": "پیش‌فرض ذخیره‌شده", "unavailable": "{value} (در دسترس نیست)", "override": "جایگزینی پویا فعال: {value} ({variable}: {position}).", "waiting": "منحنی فعال · در انتظار {variable}.", "defaultActive": "منحنی فعال · استفاده از پیش‌فرض ذخیره‌شده.", "disabled": "منحنی پویا غیرفعال است.", "noCurve": "منحنی پویای فعالی نیست.", "description": "مقدار ذخیره‌شده: {value}. فیلد این مقدار قابل ویرایش را نگه می‌دارد و بدون منحنی استفاده می‌کند. برای ویرایش منحنی تنظیمات پویا را باز کنید.", "openSetting": "باز کردن تنظیمات پویای {setting}"
         },
         "activityLog": {
+            "showMilliseconds": "فقط ثانیه و میلی‌ثانیه نمایش داده شود",
+            "hideMilliseconds": "نمایش برچسب‌های زمانی کامل",
+            "copyLog": "کپی کردن موارد قابل مشاهده گزارش",
+            "copiedLog": "کپی شد",
+            "copiedEntries": "{count} مورد کپی شد",
+            "copyFailed": "کپی ناموفق بود: {error}",
+            "enableLogging": "ثبت فعالیت خاموش است — برای روشن کردن کلیک کنید",
+            "disableLogging": "ثبت فعالیت روشن است — برای خاموش کردن کلیک کنید",
+            "profile": "پروفایل", "engine": "موتور", "site": "سایت", "externalEngine": "موتور خارجی",
             "search": "جستجو", "searchPlaceholder": "جستجو در گزارش…", "discordMessagePlaceholder": "پیام Discord خود را اینجا بنویسید…",
             "title": "گزارش فعالیت", "subtitle": "پیام‌های موتور، تغییرات پویا، هشدارها و خطاها", "show": "نمایش", "clear": "پاک کردن گزارش", "filter": "فیلتر بر اساس نوع", "all": "همه فعالیت‌ها", "close": "بستن گزارش", "instance": "نمونه", "empty": "هنوز موردی ثبت نشده است.", "status": "{shown} نمایش داده شده · {total} کل",
             "types": { "engine-input": "ورودی موتور", "engine-output": "خروجی موتور", "dynamic-change": "تغییرات پویا", "setting-change": "تغییر تنظیمات", "engine": "چرخه عمر موتور", "instance": "چرخه عمر نمونه", "game": "رویدادهای بازی", "site": "پیام‌های سایت", "warning": "هشدارها", "error": "خطاها", "app": "رویدادهای برنامه" }
@@ -236,7 +249,7 @@
         "ownTurnMightNotWorkVariants": "تنظیم 'فقط نوبت خود' ممکن است برای واریانت‌ها کار نکند!",
         "emptyBoardChesscomWarning": "اوه، به نظر می‌رسد تخته خالی است. این احتمالاً به دلیل این است که سایت تخته را به عنوان یک تصویر نمایش می‌دهد که A.C.A.S نمی‌تواند آن را تحلیل کند.\n\nلطفاً 'انیمیشن‌های قطعات: آرکید' را در تنظیمات Chess.com غیرفعال کنید! (آن را روی 'هیچ‌چیز' تنظیم کنید)",
         "engineWord": "موتور",
-        "enginesWord": "موتورها",
+        "enginesWord": "موتور",
         "variantNotSupported": "واریانت پشتیبانی نمی‌شود",
         "showFenBtn": "نمایش FEN",
         "hideFenBtn": "پنهان کردن FEN",

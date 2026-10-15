@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Server portu",
+        "[data-translation-server-port-hint]": "A.C.A.S server tətbiqində göstərilən portla eyni olmalıdır",
         "#acas-is-free-reminder-text": "Fikrinizi bölüşərək bizə kömək edin!",
         "#acas-logo-secondary": "Şahmat köməkçisi",
         "#no-instances-title": "İnstansiyaları gözləyir...",
@@ -177,6 +179,8 @@
         "concealAssistanceAutoDelayMs": ["Avtomatik Gizlət (ms)", "Bu vaxtdan sonra avtomatik olaraq yardım xüsusiyyətlərini gizlət"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Parametrlər bütün instansiyalara təsir edir",
+        "settingsNavbarInstanceSubtitle": "Parametrlər yalnız \"{instanceID}\" instansiyasına təsir edir",
         "moveFeedback": {
             "labels": ["Neytral", "Qeyri-dəqiqlik", "Səhv", "Kobud səhv", "Fəlakətli", "Yaxşı gediş", "Əla", "Ən yaxşı gediş", "Zəif gediş"],
             "forced": "Məcburi gediş", "provisional": "ilkin", "eval": "Qiymət", "best": "Ən yaxşı", "loss": "Qiymət itkisi",
@@ -206,6 +210,15 @@
             "evaluationHint": "Mənfi geridə, sıfır bərabər, müsbət öndə deməkdir. Son tamamlanmış əsas qiymətləndirmə.", "fitHint": "Xətt ətrafında boşluq saxlayaraq hər iki oxu sığdır", "graphHint": "Nöqtələri və boş sahəni sürüşdürün. Miqyası dəyişmək üçün sıxın və ya diyirləyin. Oxlar nöqtəni, Shift on addım hərəkət etdirir. Delete silir.", "exitFullscreen": "Tam ekrandan çıx", "fullscreen": "Tam ekran qrafik", "instance": "Nüsxə", "equal": "Bərabər (0 cp)", "visibility": "Əyrini göstər və tətbiq et və ya gizlət və söndür", "enableLine": "{profile} profilindən {setting} parametrini aktivləşdir və göstər", "selectedLine": "Seçilib: {setting}, {profile}", "chooseLine": "{setting}, {profile} seç", "currentValue": "{setting} cari qiyməti", "otherVariable": "{variable} üçün xətt yoxdur. Mövcud əyrilər istifadə edir: ", "noLines": "Xətt yoxdur. Parametri seçin, sonra ＋ Xətt.", "existingCurve": "Hər parametr və profil üçün bir əyri münaqişələrin qarşısını alır. Dəyişən: {variable}. Dəyişmək üçün əyrini redaktə edin və ya silin.", "addForProfile": "{profile} üçün {setting} əlavə et", "enableFirst": "Əvvəlcə izahatda xətti aktivləşdirin", "addPointHint": "Tam ədədli nöqtə əlavə et", "stepLocked": "Bu parametr üçün pilləli əyri məcburidir.", "editing": "{profile} profilində {setting} redaktə olunur.", "removeFromProfile": "{profile} profilindən {setting} sil", "point": "Nöqtə {number}", "selectPoint": "Koordinatları redaktə etmək üçün nöqtə seçin.", "profileLines": "{setting} profil xətləri", "saveError": "Qrafik saxlanmadı. Userscript bağlantısını yoxlayın.", "variableLink": "{variable} əyrilərini aç", "removeConfirm": "\"{profile}\" profilindən {setting} xətti silinsin?\n\nBütün nöqtələr silinir və saxlanmış standart qiymət bərpa olunur.", "none": "Yoxdur", "savedDefault": "Saxlanmış standart", "unavailable": "{value} (mövcud deyil)", "override": "Dinamik əvəzetmə aktivdir: {value} ({variable}: {position}).", "waiting": "Əyri aktivdir · {variable} gözlənilir.", "defaultActive": "Əyri aktivdir · saxlanmış standart istifadə olunur.", "disabled": "Dinamik əyri söndürülüb.", "noCurve": "Aktiv dinamik əyri yoxdur.", "description": "Saxlanmış qiymət: {value}. Sahə əyri olmadan istifadə edilən redaktə edilə bilən qiyməti saxlayır. Əyrini redaktə etmək üçün dinamik parametrləri açın.", "openSetting": "{setting} üçün dinamik parametrləri aç"
         },
         "activityLog": {
+            "showMilliseconds": "Yalnız saniyə və millisaniyələri göstər",
+            "hideMilliseconds": "Tam vaxt damğalarını göstər",
+            "copyLog": "Görünən jurnal qeydlərini kopyala",
+            "copiedLog": "Kopyalandı",
+            "copiedEntries": "{count} qeyd kopyalandı",
+            "copyFailed": "Kopyalama alınmadı: {error}",
+            "enableLogging": "Fəaliyyət qeydi sönülüdür — aktivləşdirmək üçün klikləyin",
+            "disableLogging": "Fəaliyyət qeydi aktivdir — söndürmək üçün klikləyin",
+            "profile": "Profil", "engine": "Mühərrik", "site": "Sayt", "externalEngine": "Xarici mühərrik",
             "search": "Axtar", "searchPlaceholder": "Jurnalda axtar…", "discordMessagePlaceholder": "Discord mesajınızı bura yazın…",
             "title": "Fəaliyyət jurnalı", "subtitle": "Mühərrik mesajları, dinamik dəyişikliklər, xəbərdarlıqlar və xətalar", "show": "Göstər", "clear": "Jurnalı təmizlə", "filter": "Növə görə süzgəc", "all": "Bütün fəaliyyət", "close": "Jurnalı bağla", "instance": "Nüsxə", "empty": "Hələ qeyd yoxdur.", "status": "{shown} göstərilir · cəmi {total}",
             "types": { "engine-input": "Mühərrik girişi", "engine-output": "Mühərrik çıxışı", "dynamic-change": "Dinamik dəyişikliklər", "setting-change": "Parametr dəyişiklikləri", "engine": "Mühərrik həyat dövrü", "instance": "Nüsxə həyat dövrü", "game": "Oyun hadisələri", "site": "Sayt mesajları", "warning": "Xəbərdarlıqlar", "error": "Xətalar", "app": "Tətbiq hadisələri" }
@@ -237,7 +250,7 @@
         "ownTurnMightNotWorkVariants": "'Yalnız öz növbəmdə' parametri şahmat variantlarında işləməyə bilər!",
         "emptyBoardChesscomWarning": "Oh, lövhə boş görünür. Bu, ehtimal ki, saytın lövhəni A.C.A.S-ın analiz edə bilmədiyi şəkil kimi göstərməsindən irəli gəlir.\n\nXahiş edirik, Chess.com parametrlərində 'Şahmat fiqurlarının animasiyaları: Arcade' seçimini deaktiv edin! (Heç biri olaraq təyin edin)",
         "engineWord": "mühərrik",
-        "enginesWord": "mühərriklər",
+        "enginesWord": "mühərrik",
         "variantNotSupported": "Variant dəstəklənmir",
         "showFenBtn": "FEN-i göstərin",
         "hideFenBtn": "FEN-i gizlədin",

@@ -1,4 +1,5 @@
 import { logAppliedSetting, finishPendingSettingChanges } from '../misc/settingActivity.js';
+import { fairyVariantKey, fairyChess960Key, isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 
 // Every instance owns its effective-value cache and queue. Never consult the GUI filter.
 export function changedSettingKeys(previous, current, keys, forcedKeys = []) {
@@ -48,16 +49,31 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
                     this.pendingDynamicSettingChanges.delete(name);
                     continue;
                 }
+
                 const identityKeys = ['chessEngine', 'useExternalChessEngine', 'externalChessEngine', 'enableAdvancedElo'];
                 const loadedEngine = this.getEngineAcasObj?.(name);
-                const needsReload = Boolean(previous && identityKeys.some(key =>
-                    !Object.is(previous[key], current[key]))
-                    || !current.useExternalChessEngine && loadedEngine && loadedEngine.type !== current.chessEngine
-                    || this.pV[name]?.requestedEngine && this.pV[name].requestedEngine !== current.chessEngine
-                    || this.pV[name] && Boolean(this.pV[name].useExternalChessEngine) !== Boolean(current.useExternalChessEngine)
-                    || this.pV[name] && (this.pV[name].externalChessEngine ?? null) !== (current.externalChessEngine ?? null)
-                    || this.pV[name] && Boolean(this.pV[name].usingAdvancedMode) !== Boolean(current.enableAdvancedElo));
-                if(current.engineEnabled && (!this.pV[name] || needsReload)) {
+                const profileVariables = this.pV[name];
+                const managesFairyVariant = current.enableAdvancedElo && isBuiltInFairyEngine(profileVariables);
+                const variantKeys = ['chessVariant', 'useChess960', fairyVariantKey, fairyChess960Key];
+                const variantCurveToggled = Boolean(previous?.dynamicSettings?.chessVariant?.enabled)
+                    !== Boolean(current.dynamicSettings?.chessVariant?.enabled);
+                const fairyVariantChanged = managesFairyVariant && previous
+                    && (variantCurveToggled || variantKeys.some(key => !Object.is(previous[key], current[key])));
+                const identityChanged = previous && identityKeys.some(key => !Object.is(previous[key], current[key]));
+                const loadedEngineMismatch = !current.useExternalChessEngine && loadedEngine
+                    && loadedEngine.type !== current.chessEngine;
+                const requestedEngineMismatch = profileVariables?.requestedEngine
+                    && profileVariables.requestedEngine !== current.chessEngine;
+                const externalModeMismatch = profileVariables
+                    && Boolean(profileVariables.useExternalChessEngine) !== Boolean(current.useExternalChessEngine);
+                const externalEngineMismatch = profileVariables
+                    && (profileVariables.externalChessEngine ?? null) !== (current.externalChessEngine ?? null);
+                const advancedModeMismatch = profileVariables
+                    && Boolean(profileVariables.usingAdvancedMode) !== Boolean(current.enableAdvancedElo);
+                const needsReload = identityChanged || loadedEngineMismatch || requestedEngineMismatch
+                    || externalModeMismatch || externalEngineMismatch || advancedModeMismatch || fairyVariantChanged;
+
+                if(current.engineEnabled && (!profileVariables || needsReload)) {
                     this.pendingDynamicSettingChanges.set(name, { previous, current, keys: changed });
                     // The worker may request synchronization during startup; don't reload it twice.
                     this.effectiveSettings.set(name, current);
@@ -65,9 +81,16 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
                     finishPendingSettingChanges(this, name);
                     continue;
                 }
+
                 if(!this.pV[name]?.engineSettingsReady) continue;
+
                 for(const key of changed) {
+                    const isManagedVariant = managesFairyVariant
+                        && (key === 'chessVariant' || key === 'useChess960' || isFairyVariantSetting(key));
+
                     if(identityKeys.includes(key) || key === 'engineEnabled') continue;
+                    if(isManagedVariant) continue;
+
                     const result = await this.updateSettings({ type: 'settingSave', data: {
                         key, value: current[key], profile: { ...profile, config: current },
                         isDirectlyCausedByUser: false, isDynamicChange: true

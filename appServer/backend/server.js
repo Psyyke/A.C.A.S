@@ -2,12 +2,15 @@ import { toast } from './util.js';
 import { mainWindow } from './main.js';
 import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
+import Store from 'electron-store';
 import CommandQueue from './commandQueue.js';
 
 import { findAliveEngineObj, updateAliveEngineObjFen, killAllBy,
-    saveEngineOptions, sendToProcess, startEngine, savedEngines } from './engine.js';
+    sendToProcess, startEngine, savedEngines, markEngineOptionsInitialized } from './engine.js';
 
-const PORT = 2800;
+const DEFAULT_PORT = 2800;
+const PORT_STORAGE_KEY = 'serverPort';
+const store = new Store();
 const ALLOWED_ORIGIN = [
     'http://localhost',
     'https://psyyke.github.io'
@@ -16,6 +19,33 @@ const ALLOWED_ORIGIN = [
 const clients = new Set();
 let wssRef = null;
 let warnedAboutMultipleClients = false;
+
+export function getServerPort() {
+    const port = store.get(PORT_STORAGE_KEY, DEFAULT_PORT);
+    if(!Number.isInteger(port) || port < 1 || port > 65535)
+        throw new Error(`Invalid configured server port: ${port}`);
+    return port;
+}
+
+export async function setServerPort(port) {
+    if(!Number.isInteger(port) || port < 1 || port > 65535)
+        return 'Port must be a whole number between 1 and 65535.';
+
+    if(port === getServerPort()) return false;
+
+    // Do not save a busy port and restart into an unusable configuration.
+    const portError = await new Promise(resolve => {
+        const probe = http.createServer();
+        probe.once('error', error => resolve(error?.code === 'EADDRINUSE'
+            ? `Port ${port} is already in use. Choose a different port.`
+            : `Cannot use port ${port}: ${error?.message ?? error}`));
+        probe.listen(port, '127.0.0.1', () => probe.close(() => resolve(null)));
+    });
+    if(portError) return portError;
+
+    store.set(PORT_STORAGE_KEY, port);
+    return true;
+}
 
 function broadcastToClients(payloadObj) {
     const data = JSON.stringify(payloadObj);
@@ -49,7 +79,10 @@ function reportCommandFailure(command, error) {
 }
 
 async function handleClientUciCommand(cmdObj) {
-    const { engineId, profileName, instanceId, command, launchParams } = cmdObj;
+    const {
+        engineId, profileName, instanceId, command, launchParams,
+        clientManagesOptions, resumeEngineOptions, optionsInitialized
+    } = cmdObj;
 
     if(typeof engineId !== 'string')
         throw new Error('Invalid engine ID! Must be a string.');
@@ -76,18 +109,23 @@ async function handleClientUciCommand(cmdObj) {
         return;
     }
 
-    const identifierObj = { engineId, profileName, instanceId };
-          identifierObj.identifierKey = getIdentifierKey(identifierObj);
-          identifierObj.savedOptionsIdentifierKey = `${identifierObj.profileName}_${engineId}`;
-          identifierObj.launchParams = launchParams;
-
+    const identifierObj = {
+        engineId, profileName, instanceId, launchParams,
+        identifierKey: getIdentifierKey({ engineId, profileName, instanceId }),
+        savedOptionsIdentifierKey: `${profileName}_${engineId}`,
+        clientManagesOptions: clientManagesOptions === true,
+        resumeEngineOptions: resumeEngineOptions === true
+    };
     const engineProcess = findAliveEngineObj(identifierObj)?.engineProcess;
+    const canSendToEngine = engineProcess?.stdin?.writable && !engineProcess.acasTerminated;
+    const isInitializationCommand = command.trim() === 'd' || command.trim() === 'position startpos';
+    const completesInitialization = clientManagesOptions === true
+        && optionsInitialized === true && isInitializationCommand;
 
-    saveEngineOptions(command, identifierObj);
-
-    if(!engineProcess?.stdin?.writable) {
+    if(!canSendToEngine) {
         // A stop for an engine which isn't running must not launch a new process.
-        if(command.trim() === 'stop') return;
+        if(command.trim() === 'stop' || completesInitialization) return;
+
         const process = await startEngine(savedEngineObj.path, identifierObj); // includes logic to avoid spamming
 
         if(!process) {
@@ -100,7 +138,10 @@ async function handleClientUciCommand(cmdObj) {
         updateAliveEngineObjFen(command.slice(13), identifierObj);
     }
 
-    sendToProcess(command, identifierObj);
+    const sent = sendToProcess(command, identifierObj);
+
+    if(sent && completesInitialization)
+        markEngineOptionsInitialized(identifierObj);
 }
 
 // Expects e.g. { "type": "uci", "msg": { "engineId": 12345, "profileName": "default", "command": "position startpos" } }
@@ -160,6 +201,7 @@ export function startLocalWSS() {
     const server = http.createServer((req, res) => {
         req.socket.destroy();
     });
+    const port = getServerPort();
 
     const wss = new WebSocketServer({ noServer: true, maxPayload: 16384, perMessageDeflate: false });
     wss.httpServer = server;
@@ -242,14 +284,14 @@ export function startLocalWSS() {
     // and the window is left showing OFFLINE forever
     server.on('error', err => {
         const reason = err?.code === 'EADDRINUSE'
-            ? `Port ${PORT} is already in use, is another copy of ACAS running?`
+            ? `Port ${port} is already in use, is another copy of ACAS running?`
             : `Server error: ${err?.message}`;
 
         console.error('[server]', reason);
         toast('error', reason, 20000);
     });
 
-    server.listen(PORT, '127.0.0.1');
+    server.listen(port, '127.0.0.1');
 
     wssRef = wss;
 
@@ -277,7 +319,7 @@ export function sendEnginesList() {
 }
 
 // Called from engine.js
-export function sendUciLineToClient(line, engineId, profileName, instanceId) {
+export function sendUciLineToClient(line, engineId, profileName, instanceId, details = {}) {
     if(!profileName) {
         console.error('No profileName given to send UCI line function, cannot send!'); return; }
     if(!engineId) {
@@ -287,7 +329,7 @@ export function sendUciLineToClient(line, engineId, profileName, instanceId) {
 
     // Expects e.g. { "type": "uci", "msg": { "line": "info depth 12...", "engineId": 12345, "profileName": "default", "instanceId": "100" } }
     broadcastToClients({
-        type: 'uci', msg: { line, engineId, profileName, instanceId }
+        type: 'uci', msg: { line, engineId, profileName, instanceId, ...details }
     });
 }
 

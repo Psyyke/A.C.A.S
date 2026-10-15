@@ -1,6 +1,6 @@
 import { acasInstanceContainer, ttsNameDropdownElem, ttsSpeedRangeElem, chessVariantDropdown, enemyEloInputContainer,
   engineEloInput, lc0WeightDropdown, chess960Checkbox, advancedEloEnableInput, normalEloInput, basicAdvancedSettingsPanel,
-  chessEngineInput, externalChessEngineDropdown, engineNodesInput, advancedEloDepthInput, chessEngineDropdown } from './elementDeclarations.js';
+  chessEngineInput, engineNodesInput, advancedEloDepthInput, chessEngineDropdown } from './elementDeclarations.js';
 import { connectAcasToServer, disconnectAcasFromServer } from '../AcasWebSocketClient.js';
 import { ensureOneDynamicEngineSettingVisible } from './dynamicEngineOptions.js';
 import { setIsExternalEngineSettingActive } from './externalEngine.js';
@@ -77,7 +77,7 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             const oppMoveGuessInputContainer = document.querySelector('input[data-key="showOpponentMoveGuess"]')
                 ?.parentElement?.parentElement?.parentElement;
             const isMaiaEngine = value && value.includes('maia');
-            const enginesWithoutAdvancedElo = ['maia2', 'maia3', 'fairy-stockfish-nnue-wasm'];
+            const enginesWithoutAdvancedElo = ['maia2', 'maia3'];
             const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
 
             ensureOneDynamicEngineSettingVisible();
@@ -133,11 +133,9 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             if(IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID]) {
                 chessEngineDropdown.classList.add('blurred');
-                externalChessEngineDropdown.classList.remove('blurred');
                 advancedEloEnableInput.removeAttribute('disabled');
             } else {
                 chessEngineDropdown.classList.remove('blurred');
-                externalChessEngineDropdown.classList.add('blurred');
             }
 
             const isAnyProfileUsingExternal = Object.values(IS_EXTERNAL_ENGINE_SETTING_ACTIVE)

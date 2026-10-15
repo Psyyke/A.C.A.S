@@ -49,6 +49,8 @@ header {
     display: flex; align-items: center; gap: 10px;
     padding: 5px 10px;
 }
+.server-info:hover { border-color: #666; }
+.port-settings-hint { width: 90%; margin: 0 0 1em; color: #999; font-size: 12px; }
 .prompt-dialog {
     max-width: 400px;
     width: 90%;
@@ -68,6 +70,11 @@ form[method="dialog"] {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+#acas-message { white-space: pre-line; }
+form[method="dialog"] #acas-message,
+form[method="dialog"] #portSettingsLabel {
+    margin-bottom: 12px;
 }
 form menu {
     padding-left: 0;
@@ -148,6 +155,7 @@ body.panels-collapsed > #console-toolbar button {
 .engine-status { font-size: 11px; padding: 3px 6px; border-radius: 4px; background: rgb(255 255 255 / 10%); color: #aaa; }
 .engine-card.active .engine-status { background: rgb(255 255 255 / 15%); color: white; }
 .engine-card .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+.engine-card-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 .engine-card .bottom { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .engine-filename { font-size: 12px; color: #c2c2c2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .engine-path { font-size: 11px; color: #999; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -159,6 +167,8 @@ body.panels-collapsed > #console-toolbar button {
 .engine-empty-state > i { font-size: 24px; color: #ccc; }
 .engine-empty-state > span { font-size: 12px; }
 .remove-btn { flex-shrink: 0; padding: 4px 6px; font-size: 13px; }
+.edit-btn { flex-shrink: 0; padding: 4px 6px; font-size: 13px; }
+.edit-btn:hover { color: #fff; background-color: #3a4b59; border-color: #8db6d1; }
 .remove-btn:hover {
     color: #ff5252 !important;
     background-color: #501919 !important;
@@ -198,6 +208,7 @@ body.panels-collapsed > #console-toolbar button {
 }
 .console-header input { min-width: 80px; }
 .console-header button { padding: 5px 8px; font-size: 12px; }
+.console-header .timeBtn[aria-pressed="true"] { color: #7bb0ff; border-color: #7bb0ff; }
 .console-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 10px 0; flex-shrink: 0; }
 .console-title-details { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .console-engine-context { font-size: 11px; color: #a0a0a0; overflow-wrap: anywhere; }
@@ -277,6 +288,7 @@ input {
     display: flex;
     align-items: center;
 }
+.log.compact-time .timestamp { flex-basis: 6ch; }
 .prompt {
     display: flex;
     align-items: center;

@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Server port",
+        "[data-translation-server-port-hint]": "Must match the port shown in the A.C.A.S server app",
         "#acas-is-free-reminder-text": "Help by giving feedback!",
         "#acas-logo-secondary": "Chess Assistance",
         "#no-instances-title": "Waiting for instances...",
@@ -177,6 +179,8 @@
         "concealAssistanceAutoDelayMs": ["Auto Conceal (ms)", "Automatically conceal after this time"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Settings affect every instance",
+        "settingsNavbarInstanceSubtitle": "Settings only affect instance \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutral", "Inaccuracy", "Mistake", "Blunder", "Catastrophic", "Good Move", "Excellent", "Best Move", "Weak Move"],
             "forced": "Forced Move", "provisional": "provisional", "eval": "Eval", "best": "Best", "loss": "Eval loss",
@@ -264,12 +268,19 @@
             "openSetting": "Open dynamic settings for {setting}"
         },
         "activityLog": {
+            "showMilliseconds": "Show seconds and milliseconds only",
+            "hideMilliseconds": "Show full timestamps",
+            "copyLog": "Copy visible log entries",
+            "copiedLog": "Copied",
+            "copiedEntries": "Copied {count} entries",
+            "copyFailed": "Copy failed: {error}",
+            "profile": "Profile", "engine": "Engine", "site": "Site", "externalEngine": "External engine",
             "title": "Activity Log", "subtitle": "Engine messages, dynamic changes, warnings and errors",
             "show": "Show", "search": "Search", "searchPlaceholder": "Search log entries...",
             "discordMessagePlaceholder": "Write your Discord message here...",
             "clear": "Clear log", "filter": "Filter activity by type", "all": "All activity",
             "close": "Close activity log", "instance": "Instance", "empty": "No log entries yet.",
-            "enableLogging": "Enable activity logging", "disableLogging": "Disable activity logging",
+            "enableLogging": "Activity logging is OFF — click to enable", "disableLogging": "Activity logging is on — click to disable",
             "status": "{shown} shown · {total} total",
             "types": {
                 "engine-input": "Engine input", "engine-output": "Engine output", "dynamic-change": "Dynamic changes",

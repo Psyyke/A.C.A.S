@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Porta do servidor",
+        "[data-translation-server-port-hint]": "Deve corresponder à porta exibida no aplicativo servidor do A.C.A.S",
         "#acas-is-free-reminder-text": "Ajude dando feedback!",
         "#acas-logo-secondary": "Assistência de Xadrez",
         "#no-instances-title": "Aguardando por instâncias...",
@@ -175,6 +177,8 @@
         "concealAssistanceAutoDelayMs": ["Ocultação automática (ms)", "Ocultar automaticamente os recursos de assistência após este tempo"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "As configurações se aplicam a todas as instâncias",
+        "settingsNavbarInstanceSubtitle": "As configurações se aplicam apenas à instância \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutra", "Imprecisão", "Erro", "Erro grave", "Catastrófica", "Boa jogada", "Excelente", "Melhor jogada", "Jogada fraca"],
             "forced": "Jogada forçada", "provisional": "provisória", "eval": "Avaliação", "best": "Melhor", "loss": "Perda de avaliação",
@@ -212,6 +216,15 @@
             "none": "Nenhum", "savedDefault": "Padrão salvo", "unavailable": "{value} (indisponível)", "override": "Substituição dinâmica ativa: {value} ({variable}: {position}).", "waiting": "Curva ativada · aguardando {variable}.", "defaultActive": "Curva ativada · usando o padrão salvo.", "disabled": "Curva dinâmica desativada.", "noCurve": "Nenhuma curva dinâmica ativada.", "description": "Valor salvo: {value}. O campo mantém esse valor editável, usado quando nenhuma curva se aplica. Abra as configurações dinâmicas para editar a curva.", "openSetting": "Abrir configurações dinâmicas de {setting}"
         },
         "activityLog": {
+            "showMilliseconds": "Mostrar apenas segundos e milissegundos",
+            "hideMilliseconds": "Mostrar horários completos",
+            "copyLog": "Copiar entradas visíveis do registro",
+            "copiedLog": "Copiado",
+            "copiedEntries": "{count} entradas copiadas",
+            "copyFailed": "Falha ao copiar: {error}",
+            "enableLogging": "O registro de atividades está DESATIVADO — clique para ativar",
+            "disableLogging": "O registro de atividades está ativado — clique para desativar",
+            "profile": "Perfil", "engine": "Motor", "site": "Site", "externalEngine": "Motor externo",
             "search": "Pesquisar", "searchPlaceholder": "Pesquisar no registro…", "discordMessagePlaceholder": "Escreva sua mensagem do Discord aqui…",
             "title": "Registro de atividade", "subtitle": "Mensagens do motor, mudanças dinâmicas, avisos e erros", "show": "Mostrar", "clear": "Limpar registro", "filter": "Filtrar por tipo", "all": "Toda a atividade", "close": "Fechar registro", "instance": "Instância", "empty": "Ainda sem registros.", "status": "{shown} exibidos · {total} no total",
             "types": { "engine-input": "Entrada do motor", "engine-output": "Saída do motor", "dynamic-change": "Mudanças dinâmicas", "setting-change": "Mudanças de configuração", "engine": "Ciclo do motor", "instance": "Ciclo da instância", "game": "Eventos do jogo", "site": "Mensagens do site", "warning": "Avisos", "error": "Erros", "app": "Eventos do aplicativo" }
