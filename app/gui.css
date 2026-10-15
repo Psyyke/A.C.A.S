@@ -280,7 +280,7 @@ cg-container {
     border-bottom: 4px solid rgb(0 0 0 / 35%);
     z-index: -1;
     pointer-events: none;
-    background-color: rgb(0 0 0 / 70%);
+    background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 10%, rgb(0 0 0 / 70%));
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     background-image: var(--header-background-grain-image, var(--background-grain-image, none)), linear-gradient(to bottom right, rgb(0 0 0 / 4%), rgb(0 0 0 / 15%) 30%, rgb(0 0 0 / 30%));
