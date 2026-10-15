@@ -13,6 +13,7 @@ import { initializeActivityLog } from './gui/activityLog.js';
 import { initializeCustomBackground, setCustomBackgroundBlur, updateCustomBackgroundControls } from './gui/customBackground.js';
 import { waitForBackgroundImages } from './gui/backgroundReady.js';
 import { initializeBackgroundGrain } from './gui/backgroundGrain.js';
+import { initializeStarfield } from './gui/starfield.js';
 import { initializeAppearanceTranslations } from './gui/appearanceTranslations.js';
 import { initializePolyglotBookLoader } from './gui/openingBook.js';
 
@@ -32,6 +33,18 @@ function setupSettingsContainerHoverRecovery() {
     document.addEventListener('pointerdown', event => {
         if(!settingsContainer.contains(event.target)) setActive(false);
     });
+}
+
+function setupSettingsHeaderBackground() {
+    const settingsHeader = document.querySelector('#settings-header');
+    if(!settingsHeader) return;
+
+    const updateHeight = () => document.body.style.setProperty(
+        '--settings-header-height', `${settingsHeader.offsetHeight}px`
+    );
+
+    updateHeight();
+    new ResizeObserver(updateHeight).observe(settingsHeader);
 }
 
 function initializeWebhookTemplateEditor() {
@@ -285,7 +298,9 @@ export async function initGUI() {
     if(initialized) return;
 
     initializeBackgroundGrain();
+    initializeStarfield();
     setupSettingsContainerHoverRecovery();
+    setupSettingsHeaderBackground();
 
     const storedThemeColor = localStorage.getItem(THEME_COLOR_STORAGE_KEY);
     const defaultInstanceSize = 500;

@@ -6,10 +6,8 @@ import { prepareFeedbackPosition } from './renderFeedback.js';
 import { annotateOpponentMove } from './annotate.js';
 
 function computeArrowScale(index, total) {
-    if(total === 2) return 0.75;
-
     const maxScale = 1, minScale = 0.5;
-    return maxScale - minScale * (index / ((total - 1) || 1));
+    return maxScale - minScale * (index / Math.max(total - 1, 2));
 }
 
 function getArrowStyle(type, fill, opacity) {
@@ -250,7 +248,7 @@ export default class Interface {
     async markMoves(moveObjArr, profile) {
         this.removeMarkings(profile, 'Make room for new move markings');
 
-        const totalRanks = moveObjArr.length;
+        const totalRanks = moveObjArr.filter(move => !move.isFuture).length;
         const BoardDrawer = this.AcasInstance.BoardDrawer;
         const cfgKeys = this.AcasInstance.configKeys;
 

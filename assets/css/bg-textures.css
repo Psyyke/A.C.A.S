@@ -255,6 +255,55 @@
     background-size: var(--space-star-sizes), 100% 100%, 100% 100%;
 }
 
+/* Animate only a few extra points, never the whole scene or its grain layer. */
+.starfield-animation {
+    display: none;
+}
+
+#acas-instance-container.starfield-texture > .starfield-animation {
+    display: block;
+    position: absolute;
+    inset: 0;
+    /* Above the grain/vignette (0), still below the instance panels (10). */
+    z-index: 1;
+    overflow: hidden;
+    contain: paint;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.starfield-star {
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 5px 1px rgb(180 208 255 / 28%);
+    opacity: 0.6;
+    animation: starfield-twinkle var(--starfield-period) ease-in-out var(--starfield-delay) infinite;
+}
+
+.starfield-dipper {
+    position: absolute;
+    top: calc(var(--acas-header-height, 0px) + 32px);
+    left: clamp(18px, 5vw, 80px);
+    width: min(260px, 68%);
+    aspect-ratio: 13 / 7;
+}
+
+@keyframes starfield-twinkle {
+    0%, 100% { opacity: 0.18; }
+    18% { opacity: 0.45; }
+    33% { opacity: 0.22; }
+    47% { opacity: 1; }
+    58% { opacity: 0.38; }
+    76% { opacity: 0.7; }
+    89% { opacity: 0.24; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .starfield-star {
+        animation: none;
+    }
+}
+
 .nebula-texture {
     background-image:
         var(--space-stars),

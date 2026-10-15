@@ -116,6 +116,7 @@
 }
 body {
 	--acas-header-height: 89px;
+	--settings-header-height: 67px;
 	font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif;
 	margin: 0;
 	background-color: #5f8895;
@@ -248,7 +249,6 @@ cg-container {
 #acas-header {
 	box-sizing: border-box;
 	padding: 15px 20px 20px;
-	background-color: rgb(0 0 0 / 70%);
 	height: var(--acas-header-height);
 	flex-shrink: 0;
 	display: flex;
@@ -256,8 +256,18 @@ cg-container {
     z-index: 1000;
     position: sticky;
     top: 0;
-	/* Live backdrop blur here can leave tile seams when hover layers repaint. */
-	border-bottom: 4px solid rgb(0 0 0 / 35%);
+	border-bottom: 4px solid transparent;
+}
+#acas-header::before {
+    /* Fade the bottom edge, including its divider, without fading the header controls. */
+    content: "";
+    position: absolute;
+    inset: 0 0 -4px;
+    box-sizing: border-box;
+    border-bottom: 4px solid rgb(0 0 0 / 35%);
+    z-index: -1;
+    pointer-events: none;
+    background-color: rgb(0 0 0 / 70%);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     background-image: var(--header-background-grain-image, var(--background-grain-image, none)), linear-gradient(to bottom right, rgb(0 0 0 / 4%), rgb(0 0 0 / 15%) 30%, rgb(0 0 0 / 30%));
@@ -359,7 +369,9 @@ cg-container {
 	height: fit-content;
 	/* Paint the same texture/image behind the sticky header, even at scroll top. */
 	margin-top: calc(0px - var(--acas-header-height));
-	padding: calc(var(--acas-header-height) + 10px) 10px 10px;
+	/* Extend the scene behind the settings toolbar without moving its controls. */
+	margin-bottom: calc(0px - var(--settings-header-height));
+	padding: calc(var(--acas-header-height) + 10px) 10px calc(var(--settings-header-height) + 10px);
 	grid-gap: 10px;
 }
 .chessboard-components {
@@ -1008,7 +1020,10 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 #acas-settings-container {
 	display: flex;
 	height: fit-content;
+	/* One translucent, blurred surface for the toolbar and settings, with sharp grain above it. */
 	background-color: rgb(0 0 0 / 50%);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
 	color: white;
 	flex-direction: column;
 	align-items: flex-start;
@@ -1044,14 +1059,15 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     height: fit-content;
     width: 100%;
     display: flex;
+    /* The parent supplies the blur, grain and shading without a second tinted layer. */
+    background-color: transparent;
     transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease, background-color 0.2s ease;
     padding: 10px;
     opacity: 0.4;
     justify-content: space-between;
     flex-direction: row;
     box-sizing: border-box;
-    background: linear-gradient(to bottom, rgb(0 0 0 / 18%), rgb(0 0 0 / 12%));
-    border-bottom: 3px solid rgb(255 255 255 / 5%);
+    border-bottom: 3px solid rgb(255 255 255 / 3%);
     flex-wrap: wrap;
 	grid-gap: 10px;
 }
