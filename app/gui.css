@@ -899,7 +899,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 #no-instances-container {
     background-image:
         var(--background-grain-image, none),
-        linear-gradient(to bottom, rgb(0 0 0 / 5%), rgb(0 0 0 / 20%));
+        linear-gradient(to bottom, rgb(0 0 0 / 50%), rgb(0 0 0 / 20%));
     background-size: 160px 160px, 100% 100%;
     background-repeat: repeat, no-repeat;
 	color: rgb(255 255 255 / 75%);
