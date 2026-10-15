@@ -1086,6 +1086,9 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     flex-wrap: wrap;
 	grid-gap: 10px;
 }
+#acas-settings-container:not(.is-active) #settings-header {
+    background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 30%, transparent);
+}
 #settings-control-panel {
 	display: flex;
 	flex-direction: row;
