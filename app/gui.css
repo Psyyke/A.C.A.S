@@ -210,8 +210,9 @@ cg-board {
 	cursor: inherit;
 	border-radius: 0 0 5px;
 }
-cg-board::before {
+cg-board::after {
     /* Texture only the board surface, without replacing its checker pattern. */
+    /* Append it so SnapDOM's background-image mapping stays aligned with the pieces. */
     content: "";
     position: absolute;
     inset: 0;
