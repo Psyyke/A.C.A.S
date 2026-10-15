@@ -1059,8 +1059,8 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     height: fit-content;
     width: 100%;
     display: flex;
-    /* The parent supplies the blur, grain and shading without a second tinted layer. */
-    background-color: transparent;
+    /* Follow the theme at half opacity; the parent retains the blur and grain. */
+    background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 15%, transparent);
     transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease, background-color 0.2s ease;
     padding: 10px;
     opacity: 0.4;
