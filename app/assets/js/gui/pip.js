@@ -14,7 +14,6 @@ const pipBoardConfig = [0, pipHeaderHeight, pipBoardSize];
 let pipCanvas = null;
 let pipVideo = null;
 let pipLastPipEval = null;
-let pipLastPipFromTo = [null, null];
 let pipLastPipBoardBitmaps = [null, null];
 const PIP_CONTEXT_QUEUE_LIMIT = 30;
 
@@ -23,6 +22,7 @@ let pipProcessingBestMove = false;
 let pipRefreshTimeout = null;
 let lastProcessedDepth = null;
 let pipRefreshRevision = 0;
+let pipBoardCaptureRevision = 0;
 let pipBackgroundCanvas = null;
 let pipBackgroundTheme = null;
 
@@ -30,19 +30,26 @@ function getPipBackground() {
     const width = pipCanvas.width - pipEvalBarWidth;
     const height = pipCanvas.height;
     const theme = pipData.themeColorHex || '#5f8895';
-    if(pipBackgroundCanvas?.width === width && pipBackgroundCanvas.height === height
-        && pipBackgroundTheme === theme) return pipBackgroundCanvas;
+
+    if(
+        pipBackgroundCanvas?.width === width
+        && pipBackgroundCanvas.height === height
+        && pipBackgroundTheme === theme
+    ) return pipBackgroundCanvas;
 
     const background = document.createElement('canvas');
     background.width = width;
     background.height = height;
+
     const ctx = background.getContext('2d');
     if(!ctx) return null;
 
     ctx.fillStyle = theme;
     ctx.fillRect(0, 0, width, height);
+
     const tile = getBackgroundGrainTile();
     const grain = tile && ctx.createPattern(tile, 'repeat');
+
     if(grain) {
         ctx.fillStyle = grain;
         ctx.fillRect(0, 0, width, height);
@@ -52,22 +59,27 @@ function getPipBackground() {
     // no noise generation, image decoding or additional refresh loop is needed.
     pipBackgroundCanvas = background;
     pipBackgroundTheme = theme;
+
     return background;
 }
 
 function resizePipCanvas() {
     if(!pipCanvas) return;
+
     const isBoard = pipBoardInput.checked;
     const width = !isBoard && pipSanInput?.checked ? 280 : 400;
     const height = isBoard ? 400 : 200;
+
     if(pipCanvas.width === width && pipCanvas.height === height) return;
 
     pipCanvas.width = width;
     pipCanvas.height = height;
+
     if(pipVideo) {
         pipVideo.width = width / 2;
         pipVideo.height = height / 2;
     }
+
     // The existing canvas stream follows its new aspect ratio without reopening
     // PIP. Never replay drawing commands made for the previous dimensions.
     pipContextQueue = [];
@@ -93,33 +105,67 @@ window.REFRESH_PIP_DISPLAY = () => {
     refreshPipView(true);
 };
 
-async function renderPipBoards(from, to) {
-    const isNewSuggestion = pipLastPipFromTo[0] !== from || pipLastPipFromTo[1] !== to;
+async function renderPipBoards() {
+    // Always capture the current board when refreshing PiP in board mode.
+    // The best move can remain unchanged even when the actual chess position changes.
+    const captureRevision = ++pipBoardCaptureRevision;
 
-    if(isNewSuggestion) {
-        const cgElem = document.querySelector(`.chessground-x[data-is-latest-updated="true"]`);
+    const cgElem = document.querySelector(
+        '.chessground-x[data-is-latest-updated="true"]'
+    );
 
-        if(!cgElem) return;
+    if(!cgElem) return;
 
-        const instanceId = cgElem.parentElement.parentElement?.dataset?.instanceId;
-        const { boardCanvas, overlayCanvas } = await captureBoardLayers(instanceId);
-        const bitmap = await createImageBitmap(boardCanvas);
-        const emptyOverlayCanvas = document.createElement('canvas');
-        emptyOverlayCanvas.width = boardCanvas.width;
-        emptyOverlayCanvas.height = boardCanvas.height;
-        const bitmap2 = await createImageBitmap(overlayCanvas || emptyOverlayCanvas);
+    const instanceId = cgElem.parentElement?.parentElement?.dataset?.instanceId;
 
-        pipLastPipBoardBitmaps = [bitmap, bitmap2];
+    const { boardCanvas, overlayCanvas } = await captureBoardLayers(instanceId);
+
+    if(!boardCanvas) return;
+
+    const bitmap = await createImageBitmap(boardCanvas);
+
+    const emptyOverlayCanvas = document.createElement('canvas');
+    emptyOverlayCanvas.width = boardCanvas.width;
+    emptyOverlayCanvas.height = boardCanvas.height;
+
+    const bitmap2 = await createImageBitmap(
+        overlayCanvas || emptyOverlayCanvas
+    );
+
+    // Captures are asynchronous. Discard an older capture if a newer refresh
+    // started while this one was being rendered, so stale pixels cannot win a race.
+    if(captureRevision !== pipBoardCaptureRevision) {
+        bitmap.close?.();
+        bitmap2.close?.();
+        return;
+    }
+
+    const previousBitmaps = pipLastPipBoardBitmaps;
+    pipLastPipBoardBitmaps = [bitmap, bitmap2];
+
+    for(const previousBitmap of previousBitmaps) {
+        previousBitmap?.close?.();
     }
 }
 
 async function captureBoardLayers(instanceId) {
-    const boards = [...document.querySelectorAll('.chessground-x[data-is-latest-updated="true"]')];
+    const boards = [
+        ...document.querySelectorAll(
+            '.chessground-x[data-is-latest-updated="true"]'
+        )
+    ];
+
     const cgElem = instanceId
-        ? boards.find(elem => elem.parentElement?.parentElement?.dataset?.instanceId === String(instanceId)) || boards[0]
+        ? boards.find(
+            elem =>
+                elem.parentElement?.parentElement?.dataset?.instanceId
+                === String(instanceId)
+        ) || boards[0]
         : boards[0];
 
-    if(!cgElem) return { boardCanvas: null, overlayCanvas: null };
+    if(!cgElem) {
+        return { boardCanvas: null, overlayCanvas: null };
+    }
 
     const rect = cgElem.getBoundingClientRect();
 
@@ -133,13 +179,15 @@ async function captureBoardLayers(instanceId) {
         acasInstance.instance.chessground.redrawAll();
     }
 
-    let boardCanvas = await snapdom.toCanvas(cgElem, { fast: true });
+    const boardCanvas = await snapdom.toCanvas(cgElem, { fast: true });
 
     const boardDrawerSvg = document.querySelector(
         `#board-drawings svg${instanceId ? `[data-instance-id="${instanceId}"]` : ''}`
     );
 
-    if(!boardDrawerSvg) return { boardCanvas, overlayCanvas: null };
+    if(!boardDrawerSvg) {
+        return { boardCanvas, overlayCanvas: null };
+    }
 
     const svg = boardDrawerSvg.cloneNode(true);
     svg.style.position = 'unset';
@@ -159,7 +207,11 @@ async function captureBoardLayers(instanceId) {
     document.body.appendChild(container);
 
     try {
-        const overlayCanvas = await snapdom.toCanvas(container, { fast: true });
+        const overlayCanvas = await snapdom.toCanvas(
+            container,
+            { fast: true }
+        );
+
         return { boardCanvas, overlayCanvas };
     } finally {
         container.remove();
@@ -188,6 +240,7 @@ window.CAPTURE_BOARD_IMAGE = async instanceId => {
 
 function updatePipContext() {
     const ctx = pipCanvas.getContext('2d');
+
     const latestQueueArr = pipProcessingBestMove
         ? pipContextQueue.find(x => x?.[0]?.[1] === pipProcessingBestMove)
         : pipContextQueue?.[0];
@@ -200,7 +253,7 @@ function updatePipContext() {
 
         for(const [cmd, args] of latestQueueArr) {
             if(cmd in ctx) {
-                if(Array.isArray(args))ctx[cmd](...args);
+                if(Array.isArray(args)) ctx[cmd](...args);
                 else ctx[cmd] = args;
             }
         }
@@ -208,10 +261,18 @@ function updatePipContext() {
         // Bake a compact bottom-left shade into the video, including native PiP.
         // Every queued frame clears the canvas first, so this never accumulates.
         ctx.save();
-        const shade = ctx.createLinearGradient(0, pipCanvas.height, pipCanvas.width, 0);
+
+        const shade = ctx.createLinearGradient(
+            0,
+            pipCanvas.height,
+            pipCanvas.width,
+            0
+        );
+
         shade.addColorStop(0, 'rgba(0, 0, 0, 0.38)');
         shade.addColorStop(0.18, 'rgba(0, 0, 0, 0.12)');
         shade.addColorStop(0.45, 'rgba(0, 0, 0, 0)');
+
         ctx.fillStyle = shade;
         ctx.fillRect(0, 0, pipCanvas.width, pipCanvas.height);
         ctx.restore();
@@ -222,6 +283,7 @@ async function refreshPipView() {
     const revision = ++pipRefreshRevision;
     const moveObjects = pipData.moveObjects;
     const ctxQueue = [];
+
     const playerColor = pipData.playerColor,
           bestMove = pipData?.moveObjects?.[0],
           sMove = pipData?.moveObjects?.[1],
@@ -234,14 +296,32 @@ async function refreshPipView() {
           tTo = tMove?.player?.[1];
 
     const useSan = Boolean(pipSanInput?.checked);
-    const isCurrentNotation = () => pipData.moveObjects === moveObjects
-        && Boolean(pipSanInput?.checked) === useSan && !CONCEAL_ASSISTANCE_ACTIVE;
+
+    const isCurrentNotation = () =>
+        pipData.moveObjects === moveObjects
+        && Boolean(pipSanInput?.checked) === useSan
+        && !CONCEAL_ASSISTANCE_ACTIVE;
+
     const [bestMoveText, secondMoveText, thirdMoveText] = await Promise.all(
-        [bestMove, sMove, tMove].map(move => formatMoveNotationAsync(move, useSan, false, undefined, isCurrentNotation))
+        [bestMove, sMove, tMove].map(
+            move => formatMoveNotationAsync(
+                move,
+                useSan,
+                false,
+                undefined,
+                isCurrentNotation
+            )
+        )
     );
-    if(revision !== pipRefreshRevision || pipData.moveObjects !== moveObjects
-        || Boolean(pipSanInput?.checked) !== useSan) return;
+
+    if(
+        revision !== pipRefreshRevision
+        || pipData.moveObjects !== moveObjects
+        || Boolean(pipSanInput?.checked) !== useSan
+    ) return;
+
     const centipawnEval = pipData?.centipawnEval / 100;
+
     const mediaTitle = from && !CONCEAL_ASSISTANCE_ACTIVE
         ? bestMoveText
         : `Hold on, I'm thinking...`;
@@ -256,57 +336,86 @@ async function refreshPipView() {
     } else {
         pipLastPipEval = engineEvaluation;
     }
-    
-    if((pipData.goalDepth && pipData.goalDepth < 100) || (pipData.depth === null)) {
-        const depth = pipData.depth || pipData.goalDepth
+
+    if(
+        (pipData.goalDepth && pipData.goalDepth < 100)
+        || (pipData.depth === null)
+    ) {
+        const depth = pipData.depth || pipData.goalDepth;
 
         progress = depth / pipData.goalDepth;
     } else if(pipData?.goalNodes) {
         progress = pipData?.nodes / pipData?.goalNodes;
     } else {
-        progress = CALC_TIME_PROGRESS(pipData.startTime, pipData.movetime);
+        progress = CALC_TIME_PROGRESS(
+            pipData.startTime,
+            pipData.movetime
+        );
     }
 
     setMediaMetadata({
         title: mediaTitle,
         artist: `Depth ${pipData?.depth ?? 0} (${Math.round((progress ?? 0) * 100)}%) | Eval ${
-            Number.isFinite(centipawnEval) ? centipawnEval.toFixed(2) : "0.00"
+            Number.isFinite(centipawnEval)
+                ? centipawnEval.toFixed(2)
+                : "0.00"
         }`
     });
 
     if(!pipCanvas) return; // do not continue if pip is not enabled
+
     resizePipCanvas();
 
     if(bestMove) {
-        ctxQueue.push(['bestmove', from+to]);
-        pipProcessingBestMove = from+to;
+        ctxQueue.push(['bestmove', from + to]);
+        pipProcessingBestMove = from + to;
     }
 
     const isBoard = pipBoardInput.checked;
-    if(isBoard && bestMove) await renderPipBoards(from, to);
-    if(revision !== pipRefreshRevision || pipData.moveObjects !== moveObjects) return;
+
+    if(isBoard) await renderPipBoards();
+
+    if(
+        revision !== pipRefreshRevision
+        || pipData.moveObjects !== moveObjects
+    ) return;
 
     const headerWidth = pipCanvas.width - pipEvalBarWidth;
     const pipMaxTextWidth = headerWidth - 28;
     const alternativeWidth = (headerWidth - 48) / 2;
     const thirdMoveX = 32 + alternativeWidth;
-    const noInstancesText = FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
+
+    const noInstancesText =
+        FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
 
     // Clear canvas
-    ctxQueue.push(['clearRect', [0, 0, pipCanvas.width, pipCanvas.height]]);
+    ctxQueue.push([
+        'clearRect',
+        [0, 0, pipCanvas.width, pipCanvas.height]
+    ]);
 
     // Grain stays behind the header, notation and board, not over their pixels.
     const background = getPipBackground();
+
     if(background) {
         ctxQueue.push(['drawImage', [background, 0, 0]]);
     } else {
-        ctxQueue.push(['fillStyle', pipData.themeColorHex || '#5f8895']);
-        ctxQueue.push(['fillRect', [0, 0, headerWidth, pipCanvas.height]]);
+        ctxQueue.push([
+            'fillStyle',
+            pipData.themeColorHex || '#5f8895'
+        ]);
+        ctxQueue.push([
+            'fillRect',
+            [0, 0, headerWidth, pipCanvas.height]
+        ]);
     }
 
     // Header background
     ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.7)']);
-    ctxQueue.push(['fillRect', [0, 0, headerWidth, pipHeaderHeight - pipStatusBarHeight]]);
+    ctxQueue.push([
+        'fillRect',
+        [0, 0, headerWidth, pipHeaderHeight - pipStatusBarHeight]
+    ]);
 
     // Header title
     ctxQueue.push(['fillStyle', 'white']);
@@ -315,134 +424,260 @@ async function refreshPipView() {
 
     // Subtext font
     ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.7)']);
-    ctxQueue.push(['font',`500 ${pipFontSizes.medium}px IBM Plex Sans`]);
+    ctxQueue.push([
+        'font',
+        `500 ${pipFontSizes.medium}px IBM Plex Sans`
+    ]);
 
     if(pipData?.moveProgressText) {
         const headerOffset = 36;
-        ctxQueue.push(['fillText',
-            [pipData.moveProgressText, 12, pipHeaderHeight + headerOffset, pipMaxTextWidth]
+
+        ctxQueue.push([
+            'fillText',
+            [
+                pipData.moveProgressText,
+                12,
+                pipHeaderHeight + headerOffset,
+                pipMaxTextWidth
+            ]
         ]);
-    } else if(noInstancesText && !pipData?.moveObjects && to !== 'one)') {
-        ctxQueue.push(['font', `700 ${pipFontSizes.medium}px IBM Plex Sans`]);
-        ctxQueue.push(['fillText', [noInstancesText, 12, pipHeaderHeight + 40, pipMaxTextWidth]]);
-        ctxQueue.push(['fillText', ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', 12, pipHeaderHeight + 80, pipMaxTextWidth]]);
+    } else if(
+        noInstancesText
+        && !pipData?.moveObjects
+        && to !== 'one)'
+    ) {
+        ctxQueue.push([
+            'font',
+            `700 ${pipFontSizes.medium}px IBM Plex Sans`
+        ]);
+
+        ctxQueue.push([
+            'fillText',
+            [noInstancesText, 12, pipHeaderHeight + 40, pipMaxTextWidth]
+        ]);
+
+        ctxQueue.push([
+            'fillText',
+            ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', 12, pipHeaderHeight + 80, pipMaxTextWidth]
+        ]);
     }
 
     // Time + progress
     if(pipData.calculationTimeElapsed) {
         const timeMs = pipData.calculationTimeElapsed;
-        const timeFormatted =
-            timeMs > 9999 ? `${(timeMs / 1000).toFixed(1)}s` : `${timeMs}ms`;
+
+        const timeFormatted = timeMs > 9999
+            ? `${(timeMs / 1000).toFixed(1)}s`
+            : `${timeMs}ms`;
 
         const progressPercent = (progress * 100).toFixed(0);
 
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
-        ctxQueue.push(['font', `500 ${pipFontSizes.small}px Mona Sans`]);
-        ctxQueue.push(['fillText',
-            [`(${timeFormatted}, ${progressPercent}%)`, 120, 28, headerWidth - 132]
+        ctxQueue.push([
+            'font',
+            `500 ${pipFontSizes.small}px Mona Sans`
+        ]);
+
+        ctxQueue.push([
+            'fillText',
+            [
+                `(${timeFormatted}, ${progressPercent}%)`,
+                120,
+                28,
+                headerWidth - 132
+            ]
         ]);
     }
 
     ctxQueue.push(['fillStyle', 'white']);
-    ctxQueue.push(['font', `900 ${pipFontSizes.large}px Mona Sans`]);
+    ctxQueue.push([
+        'font',
+        `900 ${pipFontSizes.large}px Mona Sans`
+    ]);
 
     // Board rendering
     if(isBoard) {
-        let [bitmap, bitmap2] = pipLastPipBoardBitmaps;
+        const [bitmap, bitmap2] = pipLastPipBoardBitmaps;
 
         if(bitmap) {
-            ctxQueue.push(['drawImage', [bitmap, ...pipBoardConfig, pipBoardSize - 4]]);
-            ctxQueue.push(['drawImage', [bitmap2, ...pipBoardConfig, pipBoardSize]]);
+            ctxQueue.push([
+                'drawImage',
+                [bitmap, ...pipBoardConfig, pipBoardSize - 4]
+            ]);
+
+            ctxQueue.push([
+                'drawImage',
+                [bitmap2, ...pipBoardConfig, pipBoardSize]
+            ]);
         }
-    // Text based rendering
+    // Text-based rendering
     } else {
         if(to === 'one)') {
-            ctxQueue.push(['fillText', ['≽(•⩊ •マ≼', 16, pipHeaderHeight + 100, pipMaxTextWidth]]);
+            ctxQueue.push([
+                'fillText',
+                ['≽(•⩊ •マ≼', 16, pipHeaderHeight + 100, pipMaxTextWidth]
+            ]);
         } else if(bestMove && !CONCEAL_ASSISTANCE_ACTIVE) {
-            ctxQueue.push(['fillText',
+            ctxQueue.push([
+                'fillText',
                 [bestMoveText, 16, pipHeaderHeight + 100, pipMaxTextWidth]
             ]);
         }
 
         if(sFrom && sTo && !CONCEAL_ASSISTANCE_ACTIVE) {
-            ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
-            ctxQueue.push(['font', `500 ${pipFontSizes.medium}px Mona Sans`]);
-            ctxQueue.push(['fillText',
-                [`2. (${secondMoveText})`, 16, pipHeaderHeight + 135, alternativeWidth]
+            ctxQueue.push([
+                'fillStyle',
+                'rgba(255, 255, 255, 0.5)'
+            ]);
+
+            ctxQueue.push([
+                'font',
+                `500 ${pipFontSizes.medium}px Mona Sans`
+            ]);
+
+            ctxQueue.push([
+                'fillText',
+                [
+                    `2. (${secondMoveText})`,
+                    16,
+                    pipHeaderHeight + 135,
+                    alternativeWidth
+                ]
             ]);
         }
 
         if(tFrom && tTo && !CONCEAL_ASSISTANCE_ACTIVE) {
-            ctxQueue.push(['fillText',
-                [`3. (${thirdMoveText})`, thirdMoveX, pipHeaderHeight + 135, alternativeWidth]
+            ctxQueue.push([
+                'fillText',
+                [
+                    `3. (${thirdMoveText})`,
+                    thirdMoveX,
+                    pipHeaderHeight + 135,
+                    alternativeWidth
+                ]
             ]);
         }
     }
 
     // Progress bar
     ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.1)']);
-    ctxQueue.push(['fillRect',
-        [0, pipHeaderHeight, (pipCanvas.width - pipEvalBarWidth) * progress, pipCanvas.height - pipHeaderHeight]
+    ctxQueue.push([
+        'fillRect',
+        [
+            0,
+            pipHeaderHeight,
+            (pipCanvas.width - pipEvalBarWidth) * progress,
+            pipCanvas.height - pipHeaderHeight
+        ]
     ]);
 
     // Eval bar background + foreground
     if(playerColor === 'b') {
         ctxQueue.push(['fillStyle', 'rgba(50, 50, 50, 1)']);
-        ctxQueue.push(['fillRect', [pipCanvas.width - pipEvalBarWidth, 0, pipEvalBarWidth, pipCanvas.height]]);
+        ctxQueue.push([
+            'fillRect',
+            [
+                pipCanvas.width - pipEvalBarWidth,
+                0,
+                pipEvalBarWidth,
+                pipCanvas.height
+            ]
+        ]);
 
         ctxQueue.push(['fillStyle', 'rgba(200, 200, 200, 1)']);
-        ctxQueue.push(['fillRect',
-            [pipCanvas.width - pipEvalBarWidth, 0, pipEvalBarWidth, pipCanvas.height * engineEvaluation]
+        ctxQueue.push([
+            'fillRect',
+            [
+                pipCanvas.width - pipEvalBarWidth,
+                0,
+                pipEvalBarWidth,
+                pipCanvas.height * engineEvaluation
+            ]
         ]);
     } else {
         ctxQueue.push(['fillStyle', 'rgba(200, 200, 200, 1)']);
-        ctxQueue.push(['fillRect', [pipCanvas.width - pipEvalBarWidth, 0, pipEvalBarWidth, pipCanvas.height]]);
+        ctxQueue.push([
+            'fillRect',
+            [
+                pipCanvas.width - pipEvalBarWidth,
+                0,
+                pipEvalBarWidth,
+                pipCanvas.height
+            ]
+        ]);
 
         ctxQueue.push(['fillStyle', 'rgba(50, 50, 50, 1)']);
-        ctxQueue.push(['fillRect',
-            [pipCanvas.width - pipEvalBarWidth, 0, pipEvalBarWidth, pipCanvas.height * (1 - engineEvaluation)]
+        ctxQueue.push([
+            'fillRect',
+            [
+                pipCanvas.width - pipEvalBarWidth,
+                0,
+                pipEvalBarWidth,
+                pipCanvas.height * (1 - engineEvaluation)
+            ]
         ]);
     }
 
     if(!pipData?.mate && centipawnEval) {
-        let yPosition =
-            playerColor === 'w'
-                ? (centipawnEval < 0 ? 24 : pipCanvas.height - 12)
-                : (centipawnEval > 0 ? 24 : pipCanvas.height - 12);
+        const yPosition = playerColor === 'w'
+            ? (centipawnEval < 0 ? 24 : pipCanvas.height - 12)
+            : (centipawnEval > 0 ? 24 : pipCanvas.height - 12);
 
         const evalText = Math.abs(centipawnEval).toFixed(1);
 
         ctxQueue.push(['fillStyle', 'rgba(125, 125, 125, 1)']);
-        ctxQueue.push(['font', `800 ${pipFontSizes.esmall}px Mona Sans`]);
-        ctxQueue.push(['fillText',
-            [evalText,
-             headerWidth + [14, 11, 6, 2, 0, 0][evalText.length - 1],
-             yPosition]
+        ctxQueue.push([
+            'font',
+            `800 ${pipFontSizes.esmall}px Mona Sans`
+        ]);
+
+        ctxQueue.push([
+            'fillText',
+            [
+                evalText,
+                headerWidth + [14, 11, 6, 2, 0, 0][evalText.length - 1],
+                yPosition
+            ]
         ]);
     }
 
     // Status bar
-    ctxQueue.push(['fillStyle',
-        ['rgba(40, 40, 40, 0.9)', 'rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)'][pipData.isWinning ?? 0]
+    ctxQueue.push([
+        'fillStyle',
+        [
+            'rgba(40, 40, 40, 0.9)',
+            'rgba(0, 255, 0, 1)',
+            'rgba(255, 0, 0, 1)'
+        ][pipData.isWinning ?? 0]
     ]);
-    ctxQueue.push(['fillRect', [0, pipHeaderHeight - pipStatusBarHeight, headerWidth, pipStatusBarHeight]]);
+
+    ctxQueue.push([
+        'fillRect',
+        [
+            0,
+            pipHeaderHeight - pipStatusBarHeight,
+            headerWidth,
+            pipStatusBarHeight
+        ]
+    ]);
 
     pipContextQueue.unshift(ctxQueue);
 
     // The queue was only emptied once a bestmove arrived. During a long search
     // updatePipData fires on every info line, so it grew for the whole session.
-    if(pipContextQueue.length > PIP_CONTEXT_QUEUE_LIMIT)
+    if(pipContextQueue.length > PIP_CONTEXT_QUEUE_LIMIT) {
         pipContextQueue.length = PIP_CONTEXT_QUEUE_LIMIT;
-
-    if(from && to) pipLastPipFromTo = [from, to];
+    }
 
     updatePipContext();
 }
 
 export async function startPictureInPicture() {
     const video = document.createElement('video');
+
     pipVideo = video;
     pipCanvas = document.createElement('canvas');
+
     resizePipCanvas();
 
     const stream = pipCanvas.captureStream();
@@ -460,8 +695,11 @@ export async function startPictureInPicture() {
             refreshPipView();
 
             await video.play();
-            if(video?.requestPictureInPicture) await video.requestPictureInPicture();
-        } catch (err) {
+
+            if(video?.requestPictureInPicture) {
+                await video.requestPictureInPicture();
+            }
+        } catch(err) {
             if(err.name === 'NotAllowedError') {
                 const handleUserInteraction = async () => {
                     document.removeEventListener('click', handleUserInteraction);

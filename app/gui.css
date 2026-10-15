@@ -359,7 +359,7 @@ cg-container {
 	height: fit-content;
 	position: relative;
 	flex-direction: column;
-	border-radius: 14px;
+	border-radius: 10px;
 	/* Animate resizing only, not the frosted surface or its effects. */
 	transition: width 150ms ease;
 	z-index: 10;
@@ -454,7 +454,7 @@ cg-container {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	border-radius: 12px 12px 0 0;
+	border-radius: 8px 8px 0 0;
 }
 .instance-basic-info {
 	display: flex;
