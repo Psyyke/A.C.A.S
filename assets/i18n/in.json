@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["स्वचालित छुपाएं (मिली सेकंड)", "इस समय के बाद सहायता सुविधाओं को स्वचालित रूप से छुपाएँ"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "अपनी पृष्ठभूमि छवि", "blur": "छवि का धुंधलापन",
+            "imageHint": "PNG, JPEG, WebP, GIF या AVIF, अधिकतम 10 MB। केवल इस ब्राउज़र में सहेजी जाती है, निर्यात की गई सेटिंग्स में नहीं।",
+            "noImage": "कोई छवि नहीं चुनी गई", "chooseImage": "पृष्ठभूमि छवि चुनें", "removeImage": "छवि हटाएँ",
+            "noBook": "कोई ओपनिंग बुक लोड नहीं है", "chooseBook": "ओपनिंग बुक चुनें", "removeBook": "ओपनिंग बुक हटाएँ",
+            "loadingImage": "सहेजी गई छवि लोड हो रही है…", "imageUnavailable": "सहेजी गई छवि उपलब्ध नहीं है। फिर कोशिश करने के लिए छवि चुनें।",
+            "invalidImage": "इस छवि को पढ़ा नहीं जा सका।", "imageType": "PNG, JPEG, WebP, GIF या AVIF छवि चुनें।", "imageSize": "छवि का आकार 10 MB या कम होना चाहिए।",
+            "imageSaveFailed": "पृष्ठभूमि छवि सहेजी नहीं जा सकी। स्टोरेज उपलब्ध नहीं है या भर गया है।", "imageRemoveFailed": "सहेजी गई पृष्ठभूमि छवि हटाई नहीं जा सकी।",
+            "bookRemoveFailed": "ओपनिंग बुक हटाई नहीं जा सकी।", "blurValue": "{value} पिक्सेल",
+            "textures": {
+                "eclipse": "सूर्यग्रहण", "pulsar": "पल्सर", "supernova": "अधिनव तारा",
+                "black-hole": "ब्लैक होल",
+                "none": "कोई नहीं", "chess": "शतरंज", "paper": "कागज़", "tartan": "चौखाने", "boxes": "खाने", "dotted": "बिंदु", "striped": "धारियाँ", "circles": "वृत्त",
+                "isometric": "सममितीय", "abstract": "अमूर्त", "watercolor": "जलरंग", "pastel-watercolor": "पेस्टल जलरंग", "frosted-glass": "धुंधला काँच", "liquid-glass": "तरल काँच", "theme-glass": "थीम रंग का काँच",
+                "rainbow": "इंद्रधनुष", "linen": "लिनन", "woven": "बुनावट", "chevron": "ज़िगज़ैग", "diamonds": "समचतुर्भुज", "blueprint": "नीला नक्शा", "waves": "लहरें", "aurora": "ध्रुवीय ज्योति", "topographic": "समोच्च रेखाएँ", "starfield": "तारों भरा आकाश",
+                "nebula": "नीहारिका", "deep-space": "गहन अंतरिक्ष", "hologram": "होलोग्राम", "orbital": "कक्षीय", "synthwave": "सिंथवेव", "cyberpunk": "साइबरपंक", "custom-image": "अपनी छवि"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "सेटिंग्स सभी इंस्टेंस पर लागू होती हैं",
         "settingsNavbarInstanceSubtitle": "सेटिंग्स केवल इंस्टेंस \"{instanceID}\" पर लागू होती हैं",
         "moveFeedback": {

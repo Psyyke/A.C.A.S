@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Dölj automatiskt (ms)", "Dölj hjälpfunktionerna automatiskt efter denna tid"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Egen bakgrundsbild", "blur": "Bildoskärpa",
+            "imageHint": "PNG, JPEG, WebP, GIF eller AVIF, högst 10 MB. Sparas bara i den här webbläsaren, inte i exporterade inställningar.",
+            "noImage": "Ingen bild vald", "chooseImage": "Välj bakgrundsbild", "removeImage": "Ta bort bild",
+            "noBook": "Ingen bok inläst", "chooseBook": "Välj öppningsbok", "removeBook": "Ta bort öppningsbok",
+            "loadingImage": "Läser in sparad bild…", "imageUnavailable": "Den sparade bilden är inte tillgänglig. Välj en bild igen.",
+            "invalidImage": "Bilden kunde inte läsas.", "imageType": "Välj en PNG-, JPEG-, WebP-, GIF- eller AVIF-bild.", "imageSize": "Bilden får vara högst 10 MB.",
+            "imageSaveFailed": "Bakgrundsbilden kunde inte sparas. Lagringen kan vara otillgänglig eller full.", "imageRemoveFailed": "Den sparade bakgrundsbilden kunde inte tas bort.",
+            "bookRemoveFailed": "Öppningsboken kunde inte tas bort.", "blurValue": "{value} pixlar",
+            "textures": {
+                "eclipse": "Solförmörkelse", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Svart hål",
+                "none": "Ingen", "chess": "Schackrutor", "paper": "Papper", "tartan": "Skotskrutigt", "boxes": "Rutnät", "dotted": "Prickar", "striped": "Ränder", "circles": "Cirklar",
+                "isometric": "Isometrisk", "abstract": "Abstrakt", "watercolor": "Akvarell", "pastel-watercolor": "Pastellakvarell", "frosted-glass": "Frostat glas", "liquid-glass": "Flytande glas", "theme-glass": "Glas i temafärg",
+                "rainbow": "Regnbåge", "linen": "Linne", "woven": "Vävt", "chevron": "Sicksack", "diamonds": "Rombmönster", "blueprint": "Ritning", "waves": "Vågor", "aurora": "Norrsken", "topographic": "Höjdkurvor", "starfield": "Stjärnfält",
+                "nebula": "Nebulosa", "deep-space": "Djupa rymden", "hologram": "Hologram", "orbital": "Omloppsbanor", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Egen bild"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Inställningarna gäller alla instanser",
         "settingsNavbarInstanceSubtitle": "Inställningarna gäller endast instansen \"{instanceID}\"",
         "moveFeedback": {

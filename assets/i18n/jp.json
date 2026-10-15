@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["自動非表示（ミリ秒）", "この時間後に自動的に支援機能を非表示"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "カスタム背景画像", "blur": "画像のぼかし",
+            "imageHint": "PNG、JPEG、WebP、GIF、AVIF（最大10 MB）。このブラウザーにのみ保存され、設定のエクスポートには含まれません。",
+            "noImage": "画像未選択", "chooseImage": "背景画像を選択", "removeImage": "画像を削除",
+            "noBook": "定跡書未読み込み", "chooseBook": "定跡書を選択", "removeBook": "定跡書を削除",
+            "loadingImage": "保存済み画像を読み込み中…", "imageUnavailable": "保存済み画像を利用できません。画像を選び直してください。",
+            "invalidImage": "この画像を読み込めませんでした。", "imageType": "PNG、JPEG、WebP、GIF、AVIF画像を選択してください。", "imageSize": "画像は10 MB以下にしてください。",
+            "imageSaveFailed": "背景画像を保存できませんでした。保存領域が利用できないか、容量不足の可能性があります。", "imageRemoveFailed": "保存済み背景画像を削除できませんでした。",
+            "bookRemoveFailed": "定跡書を削除できませんでした。", "blurValue": "{value} ピクセル",
+            "textures": {
+                "eclipse": "日食", "pulsar": "パルサー", "supernova": "超新星",
+                "black-hole": "ブラックホール",
+                "none": "なし", "chess": "チェッカー", "paper": "紙", "tartan": "タータン", "boxes": "格子", "dotted": "ドット", "striped": "ストライプ", "circles": "円",
+                "isometric": "アイソメトリック", "abstract": "抽象", "watercolor": "水彩", "pastel-watercolor": "パステル水彩", "frosted-glass": "すりガラス", "liquid-glass": "リキッドガラス", "theme-glass": "テーマカラーガラス",
+                "rainbow": "虹", "linen": "リネン", "woven": "織物", "chevron": "シェブロン", "diamonds": "ひし形", "blueprint": "設計図", "waves": "波", "aurora": "オーロラ", "topographic": "等高線", "starfield": "星空",
+                "nebula": "星雲", "deep-space": "深宇宙", "hologram": "ホログラム", "orbital": "軌道", "synthwave": "シンセウェーブ", "cyberpunk": "サイバーパンク", "custom-image": "カスタム画像"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "設定はすべてのインスタンスに適用されます",
         "settingsNavbarInstanceSubtitle": "設定はインスタンス「{instanceID}」にのみ適用されます",
         "moveFeedback": {

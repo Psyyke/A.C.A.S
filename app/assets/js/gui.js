@@ -4,12 +4,17 @@ import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exp
 import { importSettings, exportSettings, resetSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
 import { monitorInstances, monitorInstanceTabs, toggleSelectedNavbarItem } from './gui/instances.js';
-import { initializeInputElems } from './gui/domInputs.js';
+import { initializeInputElems, setInputValue, getInputValue } from './gui/domInputs.js';
 import { incrementUserUsageStat, updateUserUsageStats } from './gui/stats.js';
 import { fillProfileTabs, createNewProfile } from './gui/profiles.js';
 import { pipData, startPictureInPicture } from './gui/pip.js';
 import { initializeDynamicSettings } from './gui/dynamicSettings.js';
 import { initializeActivityLog } from './gui/activityLog.js';
+import { initializeCustomBackground, setCustomBackgroundBlur, updateCustomBackgroundControls } from './gui/customBackground.js';
+import { waitForBackgroundImages } from './gui/backgroundReady.js';
+import { initializeBackgroundGrain } from './gui/backgroundGrain.js';
+import { initializeAppearanceTranslations } from './gui/appearanceTranslations.js';
+import { initializePolyglotBookLoader } from './gui/openingBook.js';
 
 export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
@@ -60,9 +65,7 @@ function initializeWebhookTemplateEditor() {
 
 export function setThemeColorHex(value) {
     document.body.style['background-color'] = value || null;
-    document.querySelectorAll('dialog').forEach(diag => {
-        diag.style['background-color'] = value || null;
-    });
+    document.body.style.setProperty('--background-texture-base', value || '#5f8895');
     acasInstanceContainer.style['background-color'] = value || null;
     pipData[THEME_COLOR_STORAGE_KEY] = value;
     localStorage.setItem(THEME_COLOR_STORAGE_KEY, value);
@@ -155,9 +158,11 @@ function initializeFloatyButtons() {
     const floatyDialogs = [...document.querySelectorAll('.floaty-wrapper > dialog')];
     if(activityLogDialog) floatyDialogs.push(activityLogDialog);
     floatyDialogs.forEach(floatyDialog => {
-        const btn = floatyDialog.id === 'log-floaty'
+        // Explicit dialog links keep working when launchers move out of the wrapper.
+        const btn = document.querySelector(`.open-floaty-btn[aria-controls~="${CSS.escape(floatyDialog.id)}"]`)
+            || (floatyDialog.id === 'log-floaty'
             ? document.querySelector('.activity-log-launcher .open-floaty-btn')
-            : floatyDialog.parentElement.querySelector('.open-floaty-btn');
+            : floatyDialog.parentElement.querySelector('.open-floaty-btn'));
         const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
         const activityLogOpenKey = 'acas.activity-log.open';
         const isDesktopActivityLog = dialog => dialog.id === 'log-floaty'
@@ -252,57 +257,34 @@ async function updateUserscriptInfoText() {
     }
 }
 
+async function initializeBackgroundAppearance() {
+    // Restore these before revealing the page, not in the later profile/settings loop.
+    const keys = ['themeColorHex', 'backgroundTextureClass', 'customBackgroundBlur'];
+    const inputs = keys.map(key => document.querySelector(`input[data-key="${key}"]`));
+    const values = await Promise.all(keys.map(key => GET_GM_CFG_BASE_VALUE(key, false, false)));
+
+    inputs.forEach((input, index) => {
+        if(input) setInputValue(input, values[index] ?? input.dataset.defaultValue);
+    });
+
+    if(inputs[0]) setThemeColorHex(getInputValue(inputs[0]));
+    if(inputs[1]) {
+        const texture = getInputValue(inputs[1]);
+        acasInstanceContainer.className = texture;
+        updateCustomBackgroundControls(texture);
+    }
+    if(inputs[2]) setCustomBackgroundBlur(getInputValue(inputs[2]));
+}
+
 function updateSabRequiringElems() {
     if(window?.SharedArrayBuffer)
         [...document.querySelectorAll('.requires-sab')].forEach(x => x.classList.remove('requires-sab'));
 }
 
-function initializePolyglotBookLoader() {
-    const fileInput = document.querySelector('#book-file');
-    const fileNameInput = document.querySelector('#book-file-name');
-
-    if(!fileInput || !fileNameInput) return;
-
-    fileNameInput.onclick = () => fileInput.click();
-    fileInput.onchange = async () => {
-        const file = fileInput.files?.[0];
-        if(!file) return;
-
-        const fileName = file.name;
-
-        fileNameInput.value = fileName;
-        fileNameInput.dispatchEvent(new Event('change', { bubbles: true }));
-
-        try {
-            await POLYGLOT_BOOK.saveToStorage(file);
-
-            const loadedBook = await POLYGLOT_BOOK.loadFromStorage(fileName);
-
-            if(!loadedBook) {
-                throw new Error('Failed to load the saved opening book back from storage.');
-            }
-
-            POLY_OPENING_BOOKS.set(
-                SETTING_FILTER_OBJ.profileID,
-                loadedBook
-            );
-            await Promise.all((window.AcasInstances ?? []).filter(item => SETTING_FILTER_OBJ.instanceID == null
-                || String(item.id) === String(SETTING_FILTER_OBJ.instanceID)).map(item => item.instance.loadOpeningBook()));
-
-            const openingBookAddedText = (TRANS_OBJ?.openingBookAdded ?? 'Added opening book: {fileName}')
-                .replace('{fileName}', fileName);
-
-            toast.create('success', '📚', openingBookAddedText, 2500);
-        } catch (error) {
-            console.error('Failed to save polyglot book:', error);
-            toast.error(TRANS_OBJ?.openingBookSaveFailed ?? 'Failed to save opening book to storage.', 5000);
-        }
-    };
-}
-
 export async function initGUI() {
     if(initialized) return;
 
+    initializeBackgroundGrain();
     setupSettingsContainerHoverRecovery();
 
     const storedThemeColor = localStorage.getItem(THEME_COLOR_STORAGE_KEY);
@@ -350,6 +332,9 @@ export async function initGUI() {
     initializeActivityLog();
     initializeDynamicSettings();
     initializeInputElems();
+    initializeAppearanceTranslations();
+    const customBackgroundReady = initializeCustomBackground();
+    await initializeBackgroundAppearance();
     initializeWebhookTemplateEditor();
     initializePolyglotBookLoader();
     initializeDropdowns();
@@ -375,6 +360,9 @@ export async function initGUI() {
         await GET_GM_CFG_VALUE('concealAssistanceTriggerCode'),
         TOGGLE_CONCEAL_ASSISTANCE
     );
+
+    if(acasInstanceContainer.classList.contains('custom-image-texture')) await customBackgroundReady;
+    await waitForBackgroundImages(acasInstanceContainer, document.querySelector('#setting-container'));
 
     initialized = true;
 }

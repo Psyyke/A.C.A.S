@@ -178,6 +178,24 @@
 
     },
     "translations": {
+        "appearance": {
+            "customImage": "Kohandatud taustapilt", "blur": "Pildi hägusus",
+            "imageHint": "PNG, JPEG, WebP, GIF või AVIF, kuni 10 MB. Salvestatakse ainult sellesse brauserisse, mitte eksporditud seadetesse.",
+            "noImage": "Pilti pole valitud", "chooseImage": "Vali taustapilt", "removeImage": "Eemalda pilt",
+            "noBook": "Raamatut pole laaditud", "chooseBook": "Vali avanguraamat", "removeBook": "Eemalda avanguraamat",
+            "loadingImage": "Salvestatud pildi laadimine…", "imageUnavailable": "Salvestatud pilt pole saadaval. Vali pilt uuesti.",
+            "invalidImage": "Seda pilti ei saanud lugeda.", "imageType": "Vali PNG-, JPEG-, WebP-, GIF- või AVIF-pilt.", "imageSize": "Pildi suurus võib olla kuni 10 MB.",
+            "imageSaveFailed": "Taustapilti ei saanud salvestada. Salvestusruum pole saadaval või on täis.", "imageRemoveFailed": "Salvestatud taustapilti ei saanud eemaldada.",
+            "bookRemoveFailed": "Avanguraamatut ei saanud eemaldada.", "blurValue": "{value} pikslit",
+            "textures": {
+                "eclipse": "Päikesevarjutus", "pulsar": "Pulsar", "supernova": "Supernoova",
+                "black-hole": "Must auk",
+                "none": "Puudub", "chess": "Maleruudud", "paper": "Paber", "tartan": "Šoti ruudustik", "boxes": "Ruudustik", "dotted": "Täpid", "striped": "Triibud", "circles": "Ringid",
+                "isometric": "Isomeetriline", "abstract": "Abstraktne", "watercolor": "Akvarell", "pastel-watercolor": "Pastellakvarell", "frosted-glass": "Mattklaas", "liquid-glass": "Vedel klaas", "theme-glass": "Teemavärvi klaas",
+                "rainbow": "Vikerkaar", "linen": "Lina", "woven": "Kootud", "chevron": "Siksak", "diamonds": "Rombid", "blueprint": "Tehniline joonis", "waves": "Lained", "aurora": "Virmalised", "topographic": "Samakõrgusjooned", "starfield": "Tähistaevas",
+                "nebula": "Udukogu", "deep-space": "Süvakosmos", "hologram": "Hologramm", "orbital": "Orbiidid", "synthwave": "Synthwave", "cyberpunk": "Küberpunk", "custom-image": "Oma pilt"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Seaded mõjutavad kõiki instantse",
         "settingsNavbarInstanceSubtitle": "Seaded mõjutavad ainult instantsi \"{instanceID}\"",
         "moveFeedback": {

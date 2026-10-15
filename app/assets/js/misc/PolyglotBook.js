@@ -151,6 +151,19 @@ class POLYGLOT_BOOK {
         return fileName;
     }
 
+    static async removeFromStorage(fileName) {
+        const db = await POLYGLOT_BOOK.openDatabase();
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(POLYGLOT_BOOK.STORE_NAME, 'readwrite');
+            transaction.objectStore(POLYGLOT_BOOK.STORE_NAME).delete(fileName);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+        });
+        if(localStorage.getItem('polyglotBookName') === fileName)
+            localStorage.removeItem('polyglotBookName');
+    }
+
     static async loadFromStorage(fileName) {
         const db = await POLYGLOT_BOOK.openDatabase();
 

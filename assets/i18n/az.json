@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Avtomatik Gizlət (ms)", "Bu vaxtdan sonra avtomatik olaraq yardım xüsusiyyətlərini gizlət"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Fərdi fon şəkli", "blur": "Şəklin bulanıqlığı",
+            "imageHint": "PNG, JPEG, WebP, GIF və ya AVIF, ən çox 10 MB. Yalnız bu brauzerdə saxlanılır, ixrac edilən parametrlərə daxil deyil.",
+            "noImage": "Şəkil seçilməyib", "chooseImage": "Fon şəkli seçin", "removeImage": "Şəkli silin",
+            "noBook": "Kitab yüklənməyib", "chooseBook": "Açılış kitabı seçin", "removeBook": "Açılış kitabını silin",
+            "loadingImage": "Saxlanılmış şəkil yüklənir…", "imageUnavailable": "Saxlanılmış şəkil əlçatan deyil. Yenidən şəkil seçin.",
+            "invalidImage": "Bu şəkli oxumaq mümkün olmadı.", "imageType": "PNG, JPEG, WebP, GIF və ya AVIF şəkli seçin.", "imageSize": "Şəkil 10 MB-dan böyük olmamalıdır.",
+            "imageSaveFailed": "Fon şəklini saxlamaq mümkün olmadı. Yaddaş əlçatan deyil və ya doludur.", "imageRemoveFailed": "Saxlanılmış fon şəklini silmək mümkün olmadı.",
+            "bookRemoveFailed": "Açılış kitabını silmək mümkün olmadı.", "blurValue": "{value} piksel",
+            "textures": {
+                "eclipse": "Tutulma", "pulsar": "Pulsar", "supernova": "İfratyeni ulduz",
+                "black-hole": "Qara dəlik",
+                "none": "Yoxdur", "chess": "Şahmat taxtası", "paper": "Kağız", "tartan": "Şotland daması", "boxes": "Xanalar", "dotted": "Nöqtələr", "striped": "Zolaqlar", "circles": "Dairələr",
+                "isometric": "İzometrik", "abstract": "Abstrakt", "watercolor": "Akvarel", "pastel-watercolor": "Pastel akvarel", "frosted-glass": "Tutqun şüşə", "liquid-glass": "Maye şüşə", "theme-glass": "Mövzu rəngli şüşə",
+                "rainbow": "Göy qurşağı", "linen": "Kətan", "woven": "Toxuma", "chevron": "Ziqzaq", "diamonds": "Romblar", "blueprint": "Texniki çertyoj", "waves": "Dalğalar", "aurora": "Qütb parıltısı", "topographic": "Hündürlük xətləri", "starfield": "Ulduz sahəsi",
+                "nebula": "Dumanlıq", "deep-space": "Dərin kosmos", "hologram": "Holoqram", "orbital": "Orbitlər", "synthwave": "Sintveyv", "cyberpunk": "Kiberpank", "custom-image": "Fərdi şəkil"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Parametrlər bütün instansiyalara təsir edir",
         "settingsNavbarInstanceSubtitle": "Parametrlər yalnız \"{instanceID}\" instansiyasına təsir edir",
         "moveFeedback": {

@@ -178,6 +178,24 @@
         "concealAssistanceAutoDelayMs": ["الإخفاء التلقائي (بالميلي ثانية)", "إخفاء ميزات المساعدة تلقائياً بعد هذا الوقت"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "صورة خلفية مخصصة", "blur": "تمويه الصورة",
+            "imageHint": "PNG أو JPEG أو WebP أو GIF أو AVIF، حتى 10 MB. تُحفظ في هذا المتصفح فقط ولا تُضمّن في الإعدادات المصدّرة.",
+            "noImage": "لم تُحدّد صورة", "chooseImage": "اختيار صورة خلفية", "removeImage": "إزالة الصورة",
+            "noBook": "لم يُحمّل كتاب", "chooseBook": "اختيار كتاب افتتاحيات", "removeBook": "إزالة كتاب الافتتاحيات",
+            "loadingImage": "جارٍ تحميل الصورة المحفوظة…", "imageUnavailable": "الصورة المحفوظة غير متاحة. اختر صورة للمحاولة مجددًا.",
+            "invalidImage": "تعذّرت قراءة هذه الصورة.", "imageType": "اختر صورة PNG أو JPEG أو WebP أو GIF أو AVIF.", "imageSize": "يجب ألا يتجاوز حجم الصورة 10 MB.",
+            "imageSaveFailed": "تعذّر حفظ صورة الخلفية. قد تكون مساحة التخزين غير متاحة أو ممتلئة.", "imageRemoveFailed": "تعذّرت إزالة صورة الخلفية المحفوظة.",
+            "bookRemoveFailed": "تعذّرت إزالة كتاب الافتتاحيات.", "blurValue": "{value} بكسل",
+            "textures": {
+                "eclipse": "كسوف", "pulsar": "نجم نابض", "supernova": "مستعر أعظم",
+                "black-hole": "ثقب أسود",
+                "none": "بلا", "chess": "رقعة شطرنج", "paper": "ورق", "tartan": "نقش اسكتلندي", "boxes": "مربعات", "dotted": "نقاط", "striped": "خطوط", "circles": "دوائر",
+                "isometric": "متساوي القياس", "abstract": "تجريدي", "watercolor": "ألوان مائية", "pastel-watercolor": "ألوان مائية باستيل", "frosted-glass": "زجاج مصنفر", "liquid-glass": "زجاج سائل", "theme-glass": "زجاج بلون السمة",
+                "rainbow": "قوس قزح", "linen": "كتان", "woven": "نسيج", "chevron": "متعرج", "diamonds": "معينات", "blueprint": "مخطط هندسي", "waves": "أمواج", "aurora": "شفق قطبي", "topographic": "خطوط تضاريس", "starfield": "سماء مرصعة بالنجوم",
+                "nebula": "سديم", "deep-space": "فضاء سحيق", "hologram": "هولوغرام", "orbital": "مداري", "synthwave": "سينث ويف", "cyberpunk": "سايبربانك", "custom-image": "صورة مخصصة"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "تؤثر الإعدادات على جميع المثيلات",
         "settingsNavbarInstanceSubtitle": "تؤثر الإعدادات فقط على المثيل \"{instanceID}\"",
         "moveFeedback": {

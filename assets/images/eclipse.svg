@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+    <defs>
+        <radialGradient id="corona">
+            <stop offset=".37" stop-color="#eaba7f" stop-opacity="0"/>
+            <stop offset=".44" stop-color="#dcaa72" stop-opacity=".2"/>
+            <stop offset=".5" stop-color="#a45c3a" stop-opacity=".13"/>
+            <stop offset=".7" stop-color="#70332c" stop-opacity=".05"/>
+            <stop offset="1" stop-color="#70332c" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="limb">
+            <stop offset=".94" stop-color="#060609"/>
+            <stop offset=".971" stop-color="#07070b"/>
+            <stop offset=".977" stop-color="#f9dcad"/>
+            <stop offset=".984" stop-color="#d69a59" stop-opacity=".78"/>
+            <stop offset="1" stop-color="#b86a3f" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="diamond">
+            <stop stop-color="#fff6dc"/>
+            <stop offset=".13" stop-color="#ffe3ac" stop-opacity=".9"/>
+            <stop offset=".4" stop-color="#e6b574" stop-opacity=".2"/>
+            <stop offset="1" stop-color="#d18b52" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="bloom" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="11"/></filter>
+        <filter id="fine" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="2"/></filter>
+        <g id="streamers" fill="none" stroke-linecap="round">
+            <path d="M579 432C490 405 453 343 317 325M562 467C441 455 389 416 166 419M564 516C430 553 390 559 257 630M590 581C519 637 511 689 414 750"/>
+            <path d="M654 317C600 267 595 195 539 141M717 278C699 220 707 186 687 110M818 264C819 215 848 180 840 128"/>
+            <path d="M1006 374C1087 328 1174 315 1292 247M1035 437C1165 418 1204 441 1433 397M1035 505C1168 535 1285 506 1490 562"/>
+            <path d="M991 621C1077 684 1114 755 1220 809M909 705C934 755 970 822 977 893M761 731C735 798 756 829 722 905M673 689C630 750 628 805 566 856"/>
+        </g>
+    </defs>
+    <ellipse cx="800" cy="500" rx="785" ry="490" fill="url(#corona)"/>
+    <!-- A broken, uneven corona: bright structure hugs the silhouette, not the UI. -->
+    <g stroke="#dba96c" stroke-width="9" opacity=".16" filter="url(#bloom)">
+        <use href="#streamers"/>
+        <circle cx="800" cy="500" r="245" fill="none" stroke-width="22"/>
+    </g>
+    <use href="#streamers" stroke="#b47953" stroke-width="1.5" opacity=".24"/>
+    <g fill="none" stroke="#eac28c" opacity=".2" stroke-width=".8">
+        <path d="M568 455Q439 423 320 372M568 485Q412 488 282 463M580 549Q461 587 355 676M611 612Q559 697 477 767"/>
+        <path d="M1027 412Q1152 381 1260 332M1044 469Q1201 460 1368 482M1024 551Q1155 597 1318 641M971 647Q1044 718 1101 812"/>
+        <path d="M686 295Q652 215 612 164M867 273Q879 196 914 143M848 733Q855 832 878 887"/>
+    </g>
+    <g fill="none" stroke="#c97646" stroke-linecap="round">
+        <path d="M566 477C497 469 508 421 550 439C562 445 560 454 565 463M957 306C1000 247 1049 283 994 330" stroke-width="3" opacity=".55"/>
+        <path d="M918 711C952 772 1004 733 964 688M616 659C578 707 548 664 580 634" stroke-width="2" opacity=".45"/>
+    </g>
+    <circle cx="800" cy="500" r="249" fill="url(#limb)"/>
+    <circle cx="800" cy="500" r="240" fill="#060609"/>
+    <path d="M572 426A240 240 0 0 1 730 270M1019 597A240 240 0 0 1 914 711" fill="none" stroke="#fff0ce" stroke-width="1.2" opacity=".65"/>
+    <circle cx="969" cy="327" r="52" fill="url(#diamond)"/>
+    <path d="M950 345L987 308M959 318L978 336" fill="none" stroke="#ffe9c4" stroke-width="1" opacity=".48" filter="url(#fine)"/>
+    <circle cx="969" cy="327" r="2.2" fill="#fff2d5"/>
+</svg>

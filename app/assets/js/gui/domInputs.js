@@ -1,6 +1,7 @@
 import { saveSetting, removeSetting } from './settings.js';
 import { runSettingChangeObserver } from './settingChangeObserver.js';
 import { doesDropdownItemExist } from './domDropdown.js';
+import { initializeRangeInput } from './rangeInputs.js';
 
 export function setInputValue(elem, val, min, max) {
     const isCheckbox = elem.type === 'checkbox';
@@ -62,11 +63,13 @@ export function activateInputDefaultValue(elem) {
 
 export function initializeSettingInputElem(elem, skipDefaultValueSet) {
     if(!elem) return;
+    if(elem.type === 'range') initializeRangeInput(elem);
 
     let [min, max] = [null, null];
 
     const defaultVal = VAR_TO_CORRECT_TYPE(elem.dataset.defaultValue);
-    const isRange = elem.dataset?.between || elem.dataset?.spin;
+    // Native sliders enforce their own min/max/step; these are legacy text bounds.
+    const isRange = elem.type !== 'range' && (elem.dataset?.between || elem.dataset?.spin);
 
     if(defaultVal && !skipDefaultValueSet) {
         activateInputDefaultValue(elem);
@@ -115,6 +118,7 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
 }
 
 export function initializeInputElems() {
+    document.querySelectorAll('input[type="range"]').forEach(initializeRangeInput);
     [...document.querySelectorAll('input[data-key], textarea[data-key]')]
         .forEach(elem => initializeSettingInputElem(elem));
 }

@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Automatikus elrejtés (ms)", "Rejtse el automatikusan a segítségfunkciókat ezen idő után"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Egyéni háttérkép", "blur": "Kép elmosása",
+            "imageHint": "PNG, JPEG, WebP, GIF vagy AVIF, legfeljebb 10 MB. Csak ebben a böngészőben tárolódik, az exportált beállításokban nem.",
+            "noImage": "Nincs kiválasztott kép", "chooseImage": "Háttérkép kiválasztása", "removeImage": "Kép eltávolítása",
+            "noBook": "Nincs betöltött könyv", "chooseBook": "Megnyitási könyv kiválasztása", "removeBook": "Megnyitási könyv eltávolítása",
+            "loadingImage": "Mentett kép betöltése…", "imageUnavailable": "A mentett kép nem érhető el. Válasszon újra képet.",
+            "invalidImage": "A kép nem olvasható.", "imageType": "Válasszon PNG, JPEG, WebP, GIF vagy AVIF képet.", "imageSize": "A kép mérete legfeljebb 10 MB lehet.",
+            "imageSaveFailed": "A háttérkép nem menthető. A tárhely nem elérhető vagy megtelt.", "imageRemoveFailed": "A mentett háttérkép nem távolítható el.",
+            "bookRemoveFailed": "A megnyitási könyv nem távolítható el.", "blurValue": "{value} képpont",
+            "textures": {
+                "eclipse": "Napfogyatkozás", "pulsar": "Pulzár", "supernova": "Szupernóva",
+                "black-hole": "Fekete lyuk",
+                "none": "Nincs", "chess": "Sakktábla", "paper": "Papír", "tartan": "Skót kockás", "boxes": "Rács", "dotted": "Pöttyök", "striped": "Csíkok", "circles": "Körök",
+                "isometric": "Izometrikus", "abstract": "Absztrakt", "watercolor": "Akvarell", "pastel-watercolor": "Pasztell akvarell", "frosted-glass": "Tejüveg", "liquid-glass": "Folyékony üveg", "theme-glass": "Témaszínű üveg",
+                "rainbow": "Szivárvány", "linen": "Len", "woven": "Szövött", "chevron": "Cikkcakk", "diamonds": "Rombuszok", "blueprint": "Műszaki rajz", "waves": "Hullámok", "aurora": "Sarki fény", "topographic": "Szintvonalak", "starfield": "Csillagmező",
+                "nebula": "Csillagköd", "deep-space": "Mélyűr", "hologram": "Hologram", "orbital": "Pályák", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Egyéni kép"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "A beállítások minden példányra érvényesek",
         "settingsNavbarInstanceSubtitle": "A beállítások csak a(z) \"{instanceID}\" példányra érvényesek",
         "moveFeedback": {

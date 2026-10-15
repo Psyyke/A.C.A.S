@@ -9,6 +9,7 @@ import { startPictureInPicture } from './pip.js';
 import { getInputValue } from './domInputs.js';
 import { initMediaSession } from './media.js';
 import { setThemeColorHex } from '../gui.js';
+import { updateCustomBackgroundControls, setCustomBackgroundBlur } from './customBackground.js';
 
 
 const processedElems = [];
@@ -56,8 +57,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             break;
         case 'backgroundTextureClass':
             acasInstanceContainer.className = value;
+            updateCustomBackgroundControls(value);
 
             console.log('[Setting Handler] Set background texture to', value || 'nothing');
+
+            break;
+        case 'customBackgroundBlur':
+            setCustomBackgroundBlur(value);
 
             break;
         case 'ttsVoiceEnabled':

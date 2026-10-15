@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["ซ่อนอัตโนมัติ (มิลลิวินาที)", "ซ่อนคุณสมบัติการช่วยเหลือโดยอัตโนมัติหลังจากเวลานี้"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "ภาพพื้นหลังที่กำหนดเอง", "blur": "ความเบลอของภาพ",
+            "imageHint": "PNG, JPEG, WebP, GIF หรือ AVIF ขนาดไม่เกิน 10 MB บันทึกเฉพาะในเบราว์เซอร์นี้ ไม่รวมในการตั้งค่าที่ส่งออก",
+            "noImage": "ยังไม่ได้เลือกภาพ", "chooseImage": "เลือกภาพพื้นหลัง", "removeImage": "นำภาพออก",
+            "noBook": "ยังไม่ได้โหลดหนังสือเปิดเกม", "chooseBook": "เลือกหนังสือเปิดเกม", "removeBook": "นำหนังสือเปิดเกมออก",
+            "loadingImage": "กำลังโหลดภาพที่บันทึกไว้…", "imageUnavailable": "ไม่สามารถใช้ภาพที่บันทึกไว้ได้ โปรดเลือกภาพเพื่อลองอีกครั้ง",
+            "invalidImage": "ไม่สามารถอ่านภาพนี้ได้", "imageType": "เลือกภาพ PNG, JPEG, WebP, GIF หรือ AVIF", "imageSize": "ภาพต้องมีขนาดไม่เกิน 10 MB",
+            "imageSaveFailed": "บันทึกภาพพื้นหลังไม่ได้ พื้นที่จัดเก็บอาจไม่พร้อมใช้งานหรือเต็ม", "imageRemoveFailed": "นำภาพพื้นหลังที่บันทึกไว้ออกไม่ได้",
+            "bookRemoveFailed": "นำหนังสือเปิดเกมออกไม่ได้", "blurValue": "{value} พิกเซล",
+            "textures": {
+                "eclipse": "สุริยุปราคา", "pulsar": "พัลซาร์", "supernova": "ซูเปอร์โนวา",
+                "black-hole": "หลุมดำ",
+                "none": "ไม่มี", "chess": "กระดานหมากรุก", "paper": "กระดาษ", "tartan": "ลายสกอต", "boxes": "ตาราง", "dotted": "จุด", "striped": "ลายทาง", "circles": "วงกลม",
+                "isometric": "ไอโซเมตริก", "abstract": "นามธรรม", "watercolor": "สีน้ำ", "pastel-watercolor": "สีน้ำพาสเทล", "frosted-glass": "กระจกฝ้า", "liquid-glass": "กระจกเหลว", "theme-glass": "กระจกสีธีม",
+                "rainbow": "สายรุ้ง", "linen": "ผ้าลินิน", "woven": "ลายทอ", "chevron": "ซิกแซก", "diamonds": "ข้าวหลามตัด", "blueprint": "พิมพ์เขียว", "waves": "คลื่น", "aurora": "แสงออโรรา", "topographic": "เส้นชั้นความสูง", "starfield": "ท้องฟ้าดาว",
+                "nebula": "เนบิวลา", "deep-space": "ห้วงอวกาศ", "hologram": "โฮโลแกรม", "orbital": "วงโคจร", "synthwave": "ซินธ์เวฟ", "cyberpunk": "ไซเบอร์พังก์", "custom-image": "ภาพที่กำหนดเอง"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "การตั้งค่ามีผลกับทุกอินสแตนซ์",
         "settingsNavbarInstanceSubtitle": "การตั้งค่ามีผลเฉพาะกับอินสแตนซ์ \"{instanceID}\"",
         "moveFeedback": {

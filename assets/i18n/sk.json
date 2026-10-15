@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Automatické skrytie (ms)", "Automaticky skry funkcie pomoci po tomto čase"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Vlastný obrázok pozadia", "blur": "Rozmazanie obrázka",
+            "imageHint": "PNG, JPEG, WebP, GIF alebo AVIF, do 10 MB. Uložené iba v tomto prehliadači, nie v exporte nastavení.",
+            "noImage": "Nie je vybraný obrázok", "chooseImage": "Vybrať obrázok pozadia", "removeImage": "Odstrániť obrázok",
+            "noBook": "Kniha nie je načítaná", "chooseBook": "Vybrať knihu otvorení", "removeBook": "Odstrániť knihu otvorení",
+            "loadingImage": "Načítava sa uložený obrázok…", "imageUnavailable": "Uložený obrázok nie je dostupný. Vyberte obrázok znova.",
+            "invalidImage": "Tento obrázok sa nedá prečítať.", "imageType": "Vyberte obrázok PNG, JPEG, WebP, GIF alebo AVIF.", "imageSize": "Obrázok nesmie byť väčší ako 10 MB.",
+            "imageSaveFailed": "Obrázok pozadia sa nepodarilo uložiť. Úložisko je nedostupné alebo plné.", "imageRemoveFailed": "Uložený obrázok pozadia sa nepodarilo odstrániť.",
+            "bookRemoveFailed": "Knihu otvorení sa nepodarilo odstrániť.", "blurValue": "{value} pixelov",
+            "textures": {
+                "eclipse": "Zatmenie", "pulsar": "Pulzar", "supernova": "Supernova",
+                "black-hole": "Čierna diera",
+                "none": "Žiadna", "chess": "Šachovnica", "paper": "Papier", "tartan": "Tartan", "boxes": "Mriežka", "dotted": "Bodky", "striped": "Pruhy", "circles": "Kruhy",
+                "isometric": "Izometria", "abstract": "Abstraktné", "watercolor": "Akvarel", "pastel-watercolor": "Pastelový akvarel", "frosted-glass": "Matné sklo", "liquid-glass": "Tekuté sklo", "theme-glass": "Sklo vo farbe motívu",
+                "rainbow": "Dúha", "linen": "Ľan", "woven": "Tkanina", "chevron": "Cikcak", "diamonds": "Kosoštvorce", "blueprint": "Technický výkres", "waves": "Vlny", "aurora": "Polárna žiara", "topographic": "Vrstevnice", "starfield": "Hviezdne pole",
+                "nebula": "Hmlovina", "deep-space": "Hlboký vesmír", "hologram": "Hologram", "orbital": "Orbity", "synthwave": "Synthwave", "cyberpunk": "Kyberpunk", "custom-image": "Vlastný obrázok"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Nastavenia platia pre všetky inštancie",
         "settingsNavbarInstanceSubtitle": "Nastavenia platia iba pre inštanciu \"{instanceID}\"",
         "moveFeedback": {

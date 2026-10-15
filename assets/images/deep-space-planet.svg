@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720" viewBox="0 0 720 720">
+    <defs>
+        <clipPath id="globe"><circle cx="360" cy="360" r="298"/></clipPath>
+        <radialGradient id="ocean" cx="24%" cy="22%" r="84%">
+            <stop stop-color="#739aa5"/>
+            <stop offset=".25" stop-color="#335e72"/>
+            <stop offset=".52" stop-color="#15354b"/>
+            <stop offset=".78" stop-color="#081728"/>
+            <stop offset="1" stop-color="#020610"/>
+        </radialGradient>
+        <radialGradient id="land" cx="26%" cy="20%" r="82%">
+            <stop stop-color="#a5a58a"/>
+            <stop offset=".3" stop-color="#687d72"/>
+            <stop offset=".58" stop-color="#314c4d"/>
+            <stop offset="1" stop-color="#0b1826"/>
+        </radialGradient>
+        <radialGradient id="daylight" gradientUnits="userSpaceOnUse" cx="187" cy="174" r="504">
+            <stop stop-color="#fff"/>
+            <stop offset=".36" stop-color="#fff"/>
+            <stop offset=".62" stop-color="#777"/>
+            <stop offset=".83" stop-color="#080808"/>
+            <stop offset="1" stop-color="#000"/>
+        </radialGradient>
+        <mask id="lit-hemisphere" maskUnits="userSpaceOnUse" x="36" y="36" width="648" height="648" style="mask-type: luminance">
+            <rect x="36" y="36" width="648" height="648" fill="url(#daylight)"/>
+        </mask>
+        <radialGradient id="night" cx="19%" cy="18%" r="88%">
+            <stop offset=".25" stop-color="#01040b" stop-opacity="0"/>
+            <stop offset=".46" stop-color="#01040b" stop-opacity=".08"/>
+            <stop offset=".62" stop-color="#01040b" stop-opacity=".58"/>
+            <stop offset=".76" stop-color="#01040b" stop-opacity=".96"/>
+            <stop offset="1" stop-color="#01040b"/>
+        </radialGradient>
+        <radialGradient id="limb">
+            <stop offset=".88" stop-color="#8cc9ef" stop-opacity="0"/>
+            <stop offset=".975" stop-color="#8cc9ef" stop-opacity=".05"/>
+            <stop offset="1" stop-color="#b2dfff" stop-opacity=".5"/>
+        </radialGradient>
+        <radialGradient id="atmosphere">
+            <stop offset=".88" stop-color="#609fcf" stop-opacity="0"/>
+            <stop offset=".927" stop-color="#91d3ff" stop-opacity=".22"/>
+            <stop offset=".945" stop-color="#599bd9" stop-opacity=".08"/>
+            <stop offset="1" stop-color="#376aaf" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Multiscale noise replaces polygon continents and drawn cloud stripes. -->
+        <filter id="coastlines" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency=".009 .014" numOctaves="5" seed="23"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  9 0 0 0 -4.35"/>
+        </filter>
+        <mask id="continents" maskUnits="userSpaceOnUse" x="60" y="60" width="600" height="600" style="mask-type: alpha">
+            <rect x="60" y="60" width="600" height="600" fill="#fff" filter="url(#coastlines)"/>
+        </mask>
+        <filter id="relief" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency=".065" numOctaves="3" seed="12" result="terrain"/>
+            <feDiffuseLighting in="terrain" surfaceScale="5" diffuseConstant=".85" lighting-color="#c5d0c5" result="relief-light">
+                <feDistantLight azimuth="235" elevation="42"/>
+            </feDiffuseLighting>
+            <feBlend in="SourceGraphic" in2="relief-light" mode="soft-light"/>
+            <feComposite in2="SourceAlpha" operator="in"/>
+        </filter>
+        <filter id="clouds" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency=".012 .027" numOctaves="5" seed="31"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 .86  0 0 0 0 .93  0 0 0 0 1  5.5 0 0 0 -2.8"/>
+        </filter>
+    </defs>
+    <!-- All detail is clipped to the sphere; the atmosphere alone extends outside. -->
+    <circle cx="360" cy="360" r="320" fill="url(#atmosphere)" mask="url(#lit-hemisphere)"/>
+    <circle cx="360" cy="360" r="298" fill="url(#ocean)"/>
+    <g clip-path="url(#globe)">
+        <g mask="url(#lit-hemisphere)">
+            <circle cx="360" cy="360" r="298" fill="url(#land)" filter="url(#relief)" mask="url(#continents)"/>
+            <g transform="rotate(-28 360 360)" opacity=".65">
+                <rect x="42" y="42" width="636" height="636" fill="#fff" filter="url(#clouds)"/>
+            </g>
+            <circle cx="360" cy="360" r="298" fill="url(#limb)"/>
+        </g>
+        <circle cx="360" cy="360" r="298" fill="url(#night)"/>
+    </g>
+</svg>

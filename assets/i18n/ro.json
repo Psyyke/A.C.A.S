@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["Ascundere automată (ms)", "Ascunde automat funcțiile de asistență după acest timp"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Imagine de fundal personalizată", "blur": "Estomparea imaginii",
+            "imageHint": "PNG, JPEG, WebP, GIF sau AVIF, până la 10 MB. Salvată doar în acest browser, nu în setările exportate.",
+            "noImage": "Nicio imagine selectată", "chooseImage": "Alege imaginea de fundal", "removeImage": "Elimină imaginea",
+            "noBook": "Nicio carte încărcată", "chooseBook": "Alege o carte de deschideri", "removeBook": "Elimină cartea de deschideri",
+            "loadingImage": "Se încarcă imaginea salvată…", "imageUnavailable": "Imaginea salvată nu este disponibilă. Alege din nou o imagine.",
+            "invalidImage": "Această imagine nu a putut fi citită.", "imageType": "Alege o imagine PNG, JPEG, WebP, GIF sau AVIF.", "imageSize": "Imaginea nu trebuie să depășească 10 MB.",
+            "imageSaveFailed": "Imaginea de fundal nu a putut fi salvată. Stocarea poate fi indisponibilă sau plină.", "imageRemoveFailed": "Imaginea de fundal salvată nu a putut fi eliminată.",
+            "bookRemoveFailed": "Cartea de deschideri nu a putut fi eliminată.", "blurValue": "{value} pixeli",
+            "textures": {
+                "eclipse": "Eclipsă", "pulsar": "Pulsar", "supernova": "Supernovă",
+                "black-hole": "Gaură neagră",
+                "none": "Niciuna", "chess": "Tablă de șah", "paper": "Hârtie", "tartan": "Tartan", "boxes": "Caroiaj", "dotted": "Puncte", "striped": "Dungi", "circles": "Cercuri",
+                "isometric": "Izometric", "abstract": "Abstract", "watercolor": "Acuarelă", "pastel-watercolor": "Acuarelă pastel", "frosted-glass": "Sticlă mată", "liquid-glass": "Sticlă lichidă", "theme-glass": "Sticlă în culoarea temei",
+                "rainbow": "Curcubeu", "linen": "In", "woven": "Țesătură", "chevron": "Zigzag", "diamonds": "Romburi", "blueprint": "Desen tehnic", "waves": "Valuri", "aurora": "Auroră", "topographic": "Curbe de nivel", "starfield": "Câmp stelar",
+                "nebula": "Nebuloasă", "deep-space": "Spațiu îndepărtat", "hologram": "Hologramă", "orbital": "Orbite", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Imagine personalizată"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Setările se aplică tuturor instanțelor",
         "settingsNavbarInstanceSubtitle": "Setările se aplică doar instanței \"{instanceID}\"",
         "moveFeedback": {

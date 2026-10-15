@@ -4,6 +4,7 @@ import { settingsNavbarGlobalElem } from './elementDeclarations.js';
 import { toggleSelectedNavbarItem } from './instances.js';
 import { guiBroadcastChannel } from '../gui.js';
 import { logActivity, formatLogValue } from '../misc/activityLog.js';
+import { clearCustomBackgroundImage } from './customBackground.js';
 
 let dynamicOptionThrottleSettingUpdate = null;
 let settingsUpdateVersion = 0;
@@ -106,6 +107,12 @@ export async function resetSettings() {
             console.error('Failed to clear Polyglot opening books from storage:', error);
         }
 
+        try {
+            await clearCustomBackgroundImage();
+        } catch(error) {
+            console.error('Failed to clear the custom background image from storage:', error);
+        }
+
         localStorage.removeItem('polyglotBookName');
 
         for(let i = localStorage.length - 1; i >= 0; i--) {
@@ -118,9 +125,8 @@ export async function resetSettings() {
     }
 }
 
-export async function saveSetting(settingElem, isDirectlyCausedByUser = false) {
+export async function saveSetting(settingElem, isDirectlyCausedByUser = false, settingFilter = getSettingFilter(settingElem)) {
     // Capture the owner before storage awaits, so switching tabs cannot redirect a save.
-    const settingFilter = getSettingFilter(settingElem);
     const elemValue = getInputValue(settingElem);
     const preserveText = settingElem.dataset.uciOptionType === 'string' || settingElem.dataset.dynamicValueType === 'text';
 

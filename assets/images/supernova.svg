@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+    <defs>
+        <radialGradient id="cloud">
+            <stop offset=".25" stop-color="#060912" stop-opacity="0"/>
+            <stop offset=".5" stop-color="#35697b" stop-opacity=".06"/>
+            <stop offset=".67" stop-color="#427c8c" stop-opacity=".15"/>
+            <stop offset=".81" stop-color="#813d59" stop-opacity=".08"/>
+            <stop offset="1" stop-color="#813d59" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="shell" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#7fc7d0" stop-opacity=".65"/>
+            <stop offset=".3" stop-color="#4b7f96" stop-opacity=".45"/>
+            <stop offset=".61" stop-color="#aa6875" stop-opacity=".5"/>
+            <stop offset="1" stop-color="#dba480" stop-opacity=".7"/>
+        </linearGradient>
+        <radialGradient id="ember">
+            <stop stop-color="#e8efff" stop-opacity=".65"/>
+            <stop offset=".05" stop-color="#87a8dd" stop-opacity=".5"/>
+            <stop offset=".3" stop-color="#4d6c9f" stop-opacity=".12"/>
+            <stop offset="1" stop-color="#4d6c9f" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="bloom" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="9"/></filter>
+        <filter id="tendrils" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency=".018 .03" numOctaves="2" seed="17" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <g id="remnant" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M284 448L301 408L296 382L331 365L347 323L385 307L403 273L461 253L480 225L535 226L581 207L624 218L680 188L728 208L772 197L818 213"/>
+            <path d="M891 211L941 227L967 217L1008 244L1051 245L1080 278L1122 289L1132 325L1181 352L1180 383L1216 410L1204 445L1232 477"/>
+            <path d="M1241 533L1216 570L1222 607L1187 623L1169 668L1131 679L1104 718L1068 719L1038 757L987 752L949 784L902 770L863 799L813 783"/>
+            <path d="M726 797L681 775L647 785L607 761L564 760L538 729L494 724L474 690L434 672L422 636L385 616L386 582L350 560L357 523L330 495"/>
+        </g>
+        <g id="filaments" fill="none" stroke-linejoin="round">
+            <path d="M304 408L343 414L331 365L377 376L385 307L425 333L461 253L488 294L535 226L553 274L624 218L630 259L680 188"/>
+            <path d="M1008 244L1002 284L1080 278L1062 322L1132 325L1097 363L1180 383L1143 417L1204 445L1165 475L1232 477"/>
+            <path d="M1216 570L1164 556L1187 623L1131 607L1131 679L1088 657L1068 719L1032 685L987 752L976 707L902 770L884 735L813 783"/>
+            <path d="M681 775L686 733L607 761L619 716L538 729L562 683L494 690L511 650L434 672L459 623L385 616L421 580L350 560"/>
+        </g>
+    </defs>
+    <ellipse cx="800" cy="500" rx="785" ry="485" fill="url(#cloud)"/>
+    <g transform="rotate(-13 800 500)" filter="url(#tendrils)">
+        <use href="#remnant" stroke="url(#shell)" stroke-width="25" opacity=".28" filter="url(#bloom)"/>
+        <use href="#remnant" stroke="url(#shell)" stroke-width="4" opacity=".8"/>
+        <use href="#filaments" stroke="url(#shell)" stroke-width="1.1" opacity=".65"/>
+        <g transform="translate(800 500) scale(1.16 .91) translate(-800 -500)" opacity=".32">
+            <use href="#remnant" stroke="url(#shell)" stroke-width="1.5"/>
+            <use href="#filaments" stroke="url(#shell)" stroke-width=".8"/>
+        </g>
+        <g fill="none" stroke="#93cbd0" stroke-width=".8" opacity=".26">
+            <path d="M364 403L401 442L389 388L431 407L425 333L474 355L488 294M1137 387L1093 405L1143 417L1097 452L1165 475"/>
+            <path d="M1156 585L1112 565L1131 607L1084 600L1088 657L1048 631L1032 685M539 711L582 684L562 647L608 653L619 716"/>
+            <path d="M671 242L680 282L728 247L762 273M906 755L918 702L967 724L976 677"/>
+        </g>
+        <g fill="#c9b4a6" opacity=".4">
+            <circle cx="347" cy="323" r="2"/><circle cx="538" cy="729" r="1.7"/><circle cx="1180" cy="383" r="1.8"/>
+            <circle cx="1051" cy="245" r="1.5"/><circle cx="863" cy="799" r="1.3"/>
+        </g>
+    </g>
+    <circle cx="800" cy="500" r="53" fill="url(#ember)"/>
+    <circle cx="800" cy="500" r="1.6" fill="#c4d7ec" opacity=".7"/>
+</svg>

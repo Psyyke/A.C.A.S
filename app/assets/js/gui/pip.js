@@ -1,6 +1,7 @@
 import { floatingPanelVideoElem, floatingFloaty, pipBoardInput, pipSanInput } from './elementDeclarations.js';
 import { setMediaMetadata } from './media.js';
 import { formatMoveNotationAsync } from '../misc/moveNotation.js';
+import { getBackgroundGrainTile } from './backgroundGrain.js';
 
 export const pipData = {};
 const pipFontSizes = { large: 64, mlarge: 35, medium: 26, small: 18, esmall: 18 };
@@ -22,6 +23,37 @@ let pipProcessingBestMove = false;
 let pipRefreshTimeout = null;
 let lastProcessedDepth = null;
 let pipRefreshRevision = 0;
+let pipBackgroundCanvas = null;
+let pipBackgroundTheme = null;
+
+function getPipBackground() {
+    const width = pipCanvas.width - pipEvalBarWidth;
+    const height = pipCanvas.height;
+    const theme = pipData.themeColorHex || '#5f8895';
+    if(pipBackgroundCanvas?.width === width && pipBackgroundCanvas.height === height
+        && pipBackgroundTheme === theme) return pipBackgroundCanvas;
+
+    const background = document.createElement('canvas');
+    background.width = width;
+    background.height = height;
+    const ctx = background.getContext('2d');
+    if(!ctx) return null;
+
+    ctx.fillStyle = theme;
+    ctx.fillRect(0, 0, width, height);
+    const tile = getBackgroundGrainTile();
+    const grain = tile && ctx.createPattern(tile, 'repeat');
+    if(grain) {
+        ctx.fillStyle = grain;
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    // Rebuild only on theme/size changes. Normal PiP updates copy one bitmap;
+    // no noise generation, image decoding or additional refresh loop is needed.
+    pipBackgroundCanvas = background;
+    pipBackgroundTheme = theme;
+    return background;
+}
 
 function resizePipCanvas() {
     if(!pipCanvas) return;
@@ -172,6 +204,17 @@ function updatePipContext() {
                 else ctx[cmd] = args;
             }
         }
+
+        // Bake a compact bottom-left shade into the video, including native PiP.
+        // Every queued frame clears the canvas first, so this never accumulates.
+        ctx.save();
+        const shade = ctx.createLinearGradient(0, pipCanvas.height, pipCanvas.width, 0);
+        shade.addColorStop(0, 'rgba(0, 0, 0, 0.38)');
+        shade.addColorStop(0.18, 'rgba(0, 0, 0, 0.12)');
+        shade.addColorStop(0.45, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = shade;
+        ctx.fillRect(0, 0, pipCanvas.width, pipCanvas.height);
+        ctx.restore();
     }
 }
 
@@ -252,9 +295,14 @@ async function refreshPipView() {
     // Clear canvas
     ctxQueue.push(['clearRect', [0, 0, pipCanvas.width, pipCanvas.height]]);
 
-    // Background
-    ctxQueue.push(['fillStyle', pipData.themeColorHex]);
-    ctxQueue.push(['fillRect', [0, 0, headerWidth, pipCanvas.height]]);
+    // Grain stays behind the header, notation and board, not over their pixels.
+    const background = getPipBackground();
+    if(background) {
+        ctxQueue.push(['drawImage', [background, 0, 0]]);
+    } else {
+        ctxQueue.push(['fillStyle', pipData.themeColorHex || '#5f8895']);
+        ctxQueue.push(['fillRect', [0, 0, headerWidth, pipCanvas.height]]);
+    }
 
     // Header background
     ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.7)']);

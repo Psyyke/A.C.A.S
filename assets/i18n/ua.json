@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Автоматичне приховування (ms)", "Автоматично приховувати функції допомоги після цього часу"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Власне фонове зображення", "blur": "Розмиття зображення",
+            "imageHint": "PNG, JPEG, WebP, GIF або AVIF, до 10 МБ. Зберігається лише в цьому браузері, не в експорті налаштувань.",
+            "noImage": "Зображення не вибрано", "chooseImage": "Вибрати фонове зображення", "removeImage": "Видалити зображення",
+            "noBook": "Книгу не завантажено", "chooseBook": "Вибрати дебютну книгу", "removeBook": "Видалити дебютну книгу",
+            "loadingImage": "Завантаження збереженого зображення…", "imageUnavailable": "Збережене зображення недоступне. Виберіть зображення ще раз.",
+            "invalidImage": "Не вдалося прочитати це зображення.", "imageType": "Виберіть зображення PNG, JPEG, WebP, GIF або AVIF.", "imageSize": "Розмір зображення не має перевищувати 10 МБ.",
+            "imageSaveFailed": "Не вдалося зберегти фон. Сховище недоступне або заповнене.", "imageRemoveFailed": "Не вдалося видалити збережене фонове зображення.",
+            "bookRemoveFailed": "Не вдалося видалити дебютну книгу.", "blurValue": "{value} пікселів",
+            "textures": {
+                "eclipse": "Затемнення", "pulsar": "Пульсар", "supernova": "Наднова",
+                "black-hole": "Чорна діра",
+                "none": "Немає", "chess": "Шахова клітинка", "paper": "Папір", "tartan": "Шотландка", "boxes": "Клітинки", "dotted": "Крапки", "striped": "Смуги", "circles": "Кола",
+                "isometric": "Ізометрія", "abstract": "Абстракція", "watercolor": "Акварель", "pastel-watercolor": "Пастельна акварель", "frosted-glass": "Матове скло", "liquid-glass": "Рідке скло", "theme-glass": "Скло в кольорі теми",
+                "rainbow": "Веселка", "linen": "Льон", "woven": "Плетіння", "chevron": "Зиґзаґ", "diamonds": "Ромби", "blueprint": "Креслення", "waves": "Хвилі", "aurora": "Полярне сяйво", "topographic": "Ізолінії", "starfield": "Зоряне поле",
+                "nebula": "Туманність", "deep-space": "Далекий космос", "hologram": "Голограма", "orbital": "Орбіти", "synthwave": "Синтвейв", "cyberpunk": "Кіберпанк", "custom-image": "Власне зображення"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Налаштування застосовуються до всіх екземплярів",
         "settingsNavbarInstanceSubtitle": "Налаштування застосовуються лише до екземпляра \"{instanceID}\"",
         "moveFeedback": {

@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Sembunyikan Otomatis (ms)", "Secara otomatis sembunyikan fitur bantuan setelah waktu ini"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Gambar latar belakang khusus", "blur": "Keburaman gambar",
+            "imageHint": "PNG, JPEG, WebP, GIF atau AVIF, hingga 10 MB. Hanya disimpan di browser ini, tidak disertakan dalam ekspor pengaturan.",
+            "noImage": "Belum ada gambar dipilih", "chooseImage": "Pilih gambar latar belakang", "removeImage": "Hapus gambar",
+            "noBook": "Belum ada buku dimuat", "chooseBook": "Pilih buku pembukaan", "removeBook": "Hapus buku pembukaan",
+            "loadingImage": "Memuat gambar tersimpan…", "imageUnavailable": "Gambar tersimpan tidak tersedia. Pilih gambar untuk mencoba lagi.",
+            "invalidImage": "Gambar ini tidak dapat dibaca.", "imageType": "Pilih gambar PNG, JPEG, WebP, GIF atau AVIF.", "imageSize": "Ukuran gambar harus 10 MB atau kurang.",
+            "imageSaveFailed": "Gagal menyimpan gambar latar belakang. Penyimpanan mungkin tidak tersedia atau penuh.", "imageRemoveFailed": "Gagal menghapus gambar latar belakang tersimpan.",
+            "bookRemoveFailed": "Gagal menghapus buku pembukaan.", "blurValue": "{value} piksel",
+            "textures": {
+                "eclipse": "Gerhana", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Lubang hitam",
+                "none": "Tidak ada", "chess": "Papan catur", "paper": "Kertas", "tartan": "Tartan", "boxes": "Kotak", "dotted": "Titik", "striped": "Garis", "circles": "Lingkaran",
+                "isometric": "Isometrik", "abstract": "Abstrak", "watercolor": "Cat air", "pastel-watercolor": "Cat air pastel", "frosted-glass": "Kaca buram", "liquid-glass": "Kaca cair", "theme-glass": "Kaca warna tema",
+                "rainbow": "Pelangi", "linen": "Linen", "woven": "Anyaman", "chevron": "Zigzag", "diamonds": "Belah ketupat", "blueprint": "Cetak biru", "waves": "Gelombang", "aurora": "Aurora", "topographic": "Garis kontur", "starfield": "Langit berbintang",
+                "nebula": "Nebula", "deep-space": "Antariksa jauh", "hologram": "Hologram", "orbital": "Orbit", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Gambar khusus"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Pengaturan berlaku untuk semua instans",
         "settingsNavbarInstanceSubtitle": "Pengaturan hanya berlaku untuk instans \"{instanceID}\"",
         "moveFeedback": {

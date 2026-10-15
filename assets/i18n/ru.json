@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["Автоматическое скрытие (мс)", "Автоматически скрывать функции помощи после этого времени"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Своё фоновое изображение", "blur": "Размытие изображения",
+            "imageHint": "PNG, JPEG, WebP, GIF или AVIF, до 10 МБ. Хранится только в этом браузере и не входит в экспорт настроек.",
+            "noImage": "Изображение не выбрано", "chooseImage": "Выбрать фоновое изображение", "removeImage": "Удалить изображение",
+            "noBook": "Книга не загружена", "chooseBook": "Выбрать дебютную книгу", "removeBook": "Удалить дебютную книгу",
+            "loadingImage": "Загрузка сохранённого изображения…", "imageUnavailable": "Сохранённое изображение недоступно. Выберите изображение заново.",
+            "invalidImage": "Не удалось прочитать изображение.", "imageType": "Выберите изображение PNG, JPEG, WebP, GIF или AVIF.", "imageSize": "Размер изображения не должен превышать 10 МБ.",
+            "imageSaveFailed": "Не удалось сохранить фон. Хранилище недоступно или заполнено.", "imageRemoveFailed": "Не удалось удалить сохранённое фоновое изображение.",
+            "bookRemoveFailed": "Не удалось удалить дебютную книгу.", "blurValue": "{value} пикселей",
+            "textures": {
+                "eclipse": "Затмение", "pulsar": "Пульсар", "supernova": "Сверхновая",
+                "black-hole": "Чёрная дыра",
+                "none": "Нет", "chess": "Шахматная клетка", "paper": "Бумага", "tartan": "Шотландка", "boxes": "Клетки", "dotted": "Точки", "striped": "Полосы", "circles": "Круги",
+                "isometric": "Изометрия", "abstract": "Абстракция", "watercolor": "Акварель", "pastel-watercolor": "Пастельная акварель", "frosted-glass": "Матовое стекло", "liquid-glass": "Жидкое стекло", "theme-glass": "Стекло в цвет темы",
+                "rainbow": "Радуга", "linen": "Лён", "woven": "Плетение", "chevron": "Зигзаг", "diamonds": "Ромбы", "blueprint": "Чертёж", "waves": "Волны", "aurora": "Полярное сияние", "topographic": "Изолинии", "starfield": "Звёздное поле",
+                "nebula": "Туманность", "deep-space": "Дальний космос", "hologram": "Голограмма", "orbital": "Орбиты", "synthwave": "Синтвейв", "cyberpunk": "Киберпанк", "custom-image": "Своё изображение"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Настройки применяются ко всем экземплярам",
         "settingsNavbarInstanceSubtitle": "Настройки применяются только к экземпляру \"{instanceID}\"",
         "moveFeedback": {

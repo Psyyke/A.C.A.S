@@ -46,10 +46,10 @@ export function initializeDropdown(dropdownElem) {
         // Not pretty code and could be simpler
         const filterStr = inputElem.value.toLowerCase().trim();
         const words = filterStr.split(/\s+/);
-        const filteredOptions = optionsArr.filter(option => 
+        const filteredOptions = optionsArr.filter((option, index) =>
             words.every(word => {
                 const lowerCaseWord = word.toLowerCase();
-                return option.includes(lowerCaseWord); 
+                return `${option} ${listItems[index].textContent.toLowerCase()}`.includes(lowerCaseWord);
             })
         );
             

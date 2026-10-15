@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["Otomatik Gizle (ms)", "Yardım özelliklerini bu süreden sonra otomatik olarak gizle"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Özel arka plan resmi", "blur": "Resim bulanıklığı",
+            "imageHint": "PNG, JPEG, WebP, GIF veya AVIF, en fazla 10 MB. Yalnızca bu tarayıcıda saklanır, dışa aktarılan ayarlara eklenmez.",
+            "noImage": "Resim seçilmedi", "chooseImage": "Arka plan resmi seç", "removeImage": "Resmi kaldır",
+            "noBook": "Kitap yüklenmedi", "chooseBook": "Açılış kitabı seç", "removeBook": "Açılış kitabını kaldır",
+            "loadingImage": "Kayıtlı resim yükleniyor…", "imageUnavailable": "Kayıtlı resim kullanılamıyor. Yeniden denemek için bir resim seçin.",
+            "invalidImage": "Bu resim okunamadı.", "imageType": "PNG, JPEG, WebP, GIF veya AVIF resmi seçin.", "imageSize": "Resim en fazla 10 MB olmalıdır.",
+            "imageSaveFailed": "Arka plan resmi kaydedilemedi. Depolama kullanılamıyor veya dolu olabilir.", "imageRemoveFailed": "Kayıtlı arka plan resmi kaldırılamadı.",
+            "bookRemoveFailed": "Açılış kitabı kaldırılamadı.", "blurValue": "{value} piksel",
+            "textures": {
+                "eclipse": "Güneş tutulması", "pulsar": "Pulsar", "supernova": "Süpernova",
+                "black-hole": "Kara delik",
+                "none": "Yok", "chess": "Satranç tahtası", "paper": "Kâğıt", "tartan": "Ekose", "boxes": "Kareler", "dotted": "Noktalar", "striped": "Çizgiler", "circles": "Daireler",
+                "isometric": "İzometrik", "abstract": "Soyut", "watercolor": "Suluboya", "pastel-watercolor": "Pastel suluboya", "frosted-glass": "Buzlu cam", "liquid-glass": "Sıvı cam", "theme-glass": "Tema renkli cam",
+                "rainbow": "Gökkuşağı", "linen": "Keten", "woven": "Dokuma", "chevron": "Zikzak", "diamonds": "Eşkenar dörtgenler", "blueprint": "Teknik çizim", "waves": "Dalgalar", "aurora": "Kutup ışıkları", "topographic": "Eş yükselti eğrileri", "starfield": "Yıldız alanı",
+                "nebula": "Bulutsu", "deep-space": "Derin uzay", "hologram": "Hologram", "orbital": "Yörünge", "synthwave": "Synthwave", "cyberpunk": "Siberpunk", "custom-image": "Özel resim"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Ayarlar tüm örnekleri etkiler",
         "settingsNavbarInstanceSubtitle": "Ayarlar yalnızca \"{instanceID}\" örneğini etkiler",
         "moveFeedback": {

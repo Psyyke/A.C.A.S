@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["自动隐藏（毫秒）", "此时间后自动隐藏辅助功能"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "自定义背景图片", "blur": "图片模糊度",
+            "imageHint": "支持 PNG、JPEG、WebP、GIF 或 AVIF，最大 10 MB。仅保存在此浏览器中，不包含在导出的设置中。",
+            "noImage": "未选择图片", "chooseImage": "选择背景图片", "removeImage": "移除图片",
+            "noBook": "未加载开局库", "chooseBook": "选择开局库", "removeBook": "移除开局库",
+            "loadingImage": "正在加载已保存的图片…", "imageUnavailable": "已保存的图片不可用，请重新选择图片。",
+            "invalidImage": "无法读取此图片。", "imageType": "请选择 PNG、JPEG、WebP、GIF 或 AVIF 图片。", "imageSize": "图片大小不能超过 10 MB。",
+            "imageSaveFailed": "无法保存背景图片，存储空间可能不可用或已满。", "imageRemoveFailed": "无法移除已保存的背景图片。",
+            "bookRemoveFailed": "无法移除开局库。", "blurValue": "{value} 像素",
+            "textures": {
+                "eclipse": "日食", "pulsar": "脉冲星", "supernova": "超新星",
+                "black-hole": "黑洞",
+                "none": "无", "chess": "棋盘", "paper": "纸张", "tartan": "格子呢", "boxes": "方格", "dotted": "圆点", "striped": "条纹", "circles": "圆环",
+                "isometric": "等距方块", "abstract": "抽象", "watercolor": "水彩", "pastel-watercolor": "柔彩水彩", "frosted-glass": "磨砂玻璃", "liquid-glass": "液态玻璃", "theme-glass": "主题色玻璃",
+                "rainbow": "彩虹", "linen": "亚麻", "woven": "编织", "chevron": "人字纹", "diamonds": "菱形", "blueprint": "蓝图", "waves": "波浪", "aurora": "极光", "topographic": "等高线", "starfield": "星空",
+                "nebula": "星云", "deep-space": "深空", "hologram": "全息", "orbital": "轨道", "synthwave": "合成波", "cyberpunk": "赛博朋克", "custom-image": "自定义图片"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "设置对所有实例生效",
         "settingsNavbarInstanceSubtitle": "设置仅对实例“{instanceID}”生效",
         "moveFeedback": {

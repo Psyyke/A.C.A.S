@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Automatisch verbergen (ms)", "Hulpfuncties na deze tijd automatisch verbergen"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Eigen achtergrondafbeelding", "blur": "Afbeeldingsvervaging",
+            "imageHint": "PNG, JPEG, WebP, GIF of AVIF, maximaal 10 MB. Alleen in deze browser opgeslagen, niet in geëxporteerde instellingen.",
+            "noImage": "Geen afbeelding gekozen", "chooseImage": "Achtergrondafbeelding kiezen", "removeImage": "Afbeelding verwijderen",
+            "noBook": "Geen boek geladen", "chooseBook": "Openingsboek kiezen", "removeBook": "Openingsboek verwijderen",
+            "loadingImage": "Opgeslagen afbeelding laden…", "imageUnavailable": "Opgeslagen afbeelding niet beschikbaar. Kies opnieuw een afbeelding.",
+            "invalidImage": "Deze afbeelding kon niet worden gelezen.", "imageType": "Kies een PNG-, JPEG-, WebP-, GIF- of AVIF-afbeelding.", "imageSize": "De afbeelding mag maximaal 10 MB zijn.",
+            "imageSaveFailed": "De achtergrond kon niet worden opgeslagen. De opslag is mogelijk niet beschikbaar of vol.", "imageRemoveFailed": "De opgeslagen achtergrondafbeelding kon niet worden verwijderd.",
+            "bookRemoveFailed": "Het openingsboek kon niet worden verwijderd.", "blurValue": "{value} pixels",
+            "textures": {
+                "eclipse": "Zonsverduistering", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Zwart gat",
+                "none": "Geen", "chess": "Schaakbord", "paper": "Papier", "tartan": "Schotse ruit", "boxes": "Raster", "dotted": "Stippen", "striped": "Strepen", "circles": "Cirkels",
+                "isometric": "Isometrisch", "abstract": "Abstract", "watercolor": "Aquarel", "pastel-watercolor": "Pastelaquarel", "frosted-glass": "Matglas", "liquid-glass": "Vloeibaar glas", "theme-glass": "Glas in themakleur",
+                "rainbow": "Regenboog", "linen": "Linnen", "woven": "Geweven", "chevron": "Zigzag", "diamonds": "Ruiten", "blueprint": "Blauwdruk", "waves": "Golven", "aurora": "Poollicht", "topographic": "Hoogtelijnen", "starfield": "Sterrenveld",
+                "nebula": "Nevel", "deep-space": "Diepe ruimte", "hologram": "Hologram", "orbital": "Banen", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Eigen afbeelding"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "De instellingen gelden voor alle instanties",
         "settingsNavbarInstanceSubtitle": "De instellingen gelden alleen voor instantie \"{instanceID}\"",
         "moveFeedback": {
