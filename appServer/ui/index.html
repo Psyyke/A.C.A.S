@@ -21,7 +21,7 @@
     <a id="acas-logo" class="external" href="https://psyyke.github.io/A.C.A.S/" target="_blank">
         <img id="acas-logo-img" src="./images/logo.png">
         <div id="acas-logo-text-container">
-            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.1</div></div>
+            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.2</div></div>
             <div id="acas-logo-secondary">Calculation Server</div>
         </div>
     </a>
@@ -51,10 +51,11 @@
         <button id="stopBtn" class="acas-fancy-button" title="Kill every running engine process"><i class="bi bi-x-lg"></i> KILL ALL ENGINES</button>
         <button id="clearBtn" class="acas-fancy-button"><i class="bi bi-x-lg"></i> CLEAR CACHE</button>
     </div>
-    <div class="server-info acas-fancy-button">
+    <button id="portSettingsBtn" class="server-info acas-fancy-button" type="button"
+        title="Configure the local server port" aria-label="Configure the local server port">
         <div id="statusDot"></div>
         <span id="portDisplay">OFFLINE</span>
-    </div>
+    </button>
 </header>
 
 <div class="engine-library-heading" id="engine-library-heading">
@@ -72,6 +73,17 @@
 <div id="consoles-container"></div>
 
 <div id="acas-toast-container"></div>
+<dialog id="portSettingsDialog" class="prompt-dialog" aria-labelledby="portSettingsLabel" aria-describedby="portSettingsHint">
+    <form method="dialog" id="portSettingsForm">
+        <label id="portSettingsLabel" for="serverPortInput">Local server port</label>
+        <input id="serverPortInput" type="number" min="1" max="65535" step="1" style="width: 90%; margin-bottom: 1em;" required aria-describedby="portSettingsHint" />
+        <p id="portSettingsHint" class="port-settings-hint">Saving a new port restarts the app and stops all running engines. Set the same server port in the A.C.A.S web GUI's external engine settings to reconnect.</p>
+        <menu style="display:flex; justify-content:flex-end; gap: 0.5em;">
+            <button id="portSettingsCancel" class="acas-fancy-button" style="padding: 8px 15px;" type="button">Cancel</button>
+            <button id="portSettingsSave" class="acas-fancy-button" style="padding: 8px 15px;" type="submit" value="save">Save &amp; Restart</button>
+        </menu>
+    </form>
+</dialog>
 <script src="./libs/acasToast.js"></script>
 <script src="./libs/acasPrompt.js"></script>
 

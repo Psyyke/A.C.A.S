@@ -1,4 +1,24 @@
-# Lichess state regression tests
+# Regression tests
+
+Worker protocol, lifecycle, and server helper tests run with Node.js 24 without
+additional dependencies:
+
+```sh
+node --test --test-isolation=none tests/*.test.mjs
+```
+
+The engine startup integration tests use Chromium and the production loader, with
+UI logging, engine workers, storage, and analysis mocked. They cover readiness,
+current-FEN refresh, Lc0 weight ordering, profile replacement, external engines,
+and worker errors. After installing Playwright and Chromium as described below:
+
+```sh
+node --test tests/load-engine.test.cjs
+```
+
+These checks do not execute the engine binaries or download neural weights.
+
+## Lichess state tests
 
 These tests execute the actual userscript adapter and state-management declarations against Chromium DOM fixtures. Storage, engine transport, and unrelated UI are stubbed. The GUI orientation-initialization block and message bridge are tested separately from engine loading.
 

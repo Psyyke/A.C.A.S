@@ -5,8 +5,8 @@ import path from 'path';
 import os from 'os';
 
 import { killAllEngines, killEngine, clearCache, addEngine, getSavedEngines, renderEngineGrid,
-	removeEngine, sendManualUciToEngine } from './engine.js';
-import { startLocalWSS, stopLocalWSS, sendEnginesList } from './server.js';
+	removeEngine, renameEngine, sendManualUciToEngine } from './engine.js';
+import { startLocalWSS, stopLocalWSS, sendEnginesList, getServerPort, setServerPort } from './server.js';
 
 export let mainWindow = null;
 
@@ -14,6 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const store = new Store();
+let portRestartPending = false;
 
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.commandLine.appendSwitch('disable-raf-throttling');
@@ -72,6 +73,27 @@ app.whenReady().then(() => {
 		async (event, identifierObj) => killEngine(identifierObj));
 
 	ipcMain.handle('getAppVersion', () => app.getVersion());
+	ipcMain.handle('getServerPort', () => getServerPort());
+	ipcMain.handle('setServerPort', async (_event, port) => {
+		if(portRestartPending) return 'The server port is already being updated.';
+		portRestartPending = true;
+		try {
+			const result = await setServerPort(port);
+			if(result === true) {
+				setTimeout(() => {
+					app.relaunch();
+					app.quit();
+				}, 250);
+			} else {
+				portRestartPending = false;
+			}
+			return result;
+		} catch(error) {
+			portRestartPending = false;
+			console.error('Failed to save server port:', error);
+			return 'Could not save the server port. The app has not been restarted.';
+		}
+	});
 
     ipcMain.handle('clearCache',
 		async (event) => clearCache());
@@ -90,6 +112,9 @@ app.whenReady().then(() => {
 
 	ipcMain.handle('removeEngine',
 		async (event, enginePath) => removeEngine(enginePath));
+
+	ipcMain.handle('renameEngine',
+		async (event, enginePath, title) => renameEngine(enginePath, title));
 	
 	ipcMain.handle('pickFile', async () => {
 		const result = await dialog.showOpenDialog(mainWindow, {

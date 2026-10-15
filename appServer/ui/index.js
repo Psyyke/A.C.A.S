@@ -2,6 +2,12 @@ const stopBtn = document.getElementById('stopBtn');
 const clearBtn = document.getElementById('clearBtn');
 const engineUiGrid = document.getElementById('engineGrid');
 const portDisplay = document.getElementById('portDisplay');
+const portSettingsBtn = document.getElementById('portSettingsBtn');
+const portSettingsDialog = document.getElementById('portSettingsDialog');
+const portSettingsForm = document.getElementById('portSettingsForm');
+const serverPortInput = document.getElementById('serverPortInput');
+const portSettingsCancel = document.getElementById('portSettingsCancel');
+const portSettingsSave = document.getElementById('portSettingsSave');
 const statusDot = document.getElementById('statusDot');
 const consolesContainer = document.getElementById('consoles-container');
 const addEngineBtn = document.getElementById('addEngineBtn');
@@ -12,6 +18,65 @@ const panelsToggle = document.getElementById('panelsToggle');
 let savedEngines = [];
 let runningEngines = [];
 let serverConnectionStatus = false;
+let portUpdatePending = false;
+
+const setPortSettingsBusy = busy => {
+    portUpdatePending = busy;
+    serverPortInput.disabled = busy;
+    portSettingsCancel.disabled = busy;
+    portSettingsSave.disabled = busy;
+    portSettingsBtn.disabled = busy;
+    portSettingsSave.textContent = busy ? 'Saving…' : 'Save & Restart';
+};
+
+portSettingsBtn.addEventListener('click', async () => {
+    if(portSettingsDialog.open || portUpdatePending) return;
+    try {
+        serverPortInput.value = String(await window.serverAPI.getPort());
+        portSettingsDialog.showModal();
+        serverPortInput.focus();
+        serverPortInput.select();
+    } catch(error) {
+        console.error('Failed to load server port:', error);
+        toast.error('Could not load the server port setting.', 5000);
+    }
+});
+portSettingsCancel.addEventListener('click', () => portSettingsDialog.close('cancel'));
+portSettingsDialog.addEventListener('cancel', event => {
+    if(portUpdatePending) event.preventDefault();
+});
+portSettingsForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if(portUpdatePending || !portSettingsForm.reportValidity()) return;
+
+    const port = Number(serverPortInput.value);
+    if(!Number.isInteger(port) || port < 1 || port > 65535) {
+        toast.error('Port must be a whole number between 1 and 65535.', 5000);
+        return;
+    }
+
+    let restarting = false;
+    setPortSettingsBusy(true);
+    try {
+        const result = await window.serverAPI.setPort(port);
+        if(typeof result === 'string') {
+            toast.error(result, 5000);
+            return;
+        }
+        portSettingsDialog.close('save');
+        if(result === false) toast.message('Port is unchanged.', 2000);
+        if(result === true) {
+            restarting = true;
+            portSettingsSave.textContent = 'Restarting…';
+            toast.message(`Restarting on port ${port}. Update the server port in the A.C.A.S web GUI to match.`, 5000);
+        }
+    } catch(error) {
+        console.error('Failed to update server port:', error);
+        toast.error('Could not update the server port.', 5000);
+    } finally {
+        if(!restarting) setPortSettingsBusy(false);
+    }
+});
 
 panelsToggle.addEventListener('click', () => {
     const isExpanded = panelsToggle.getAttribute('aria-expanded') === 'true';
@@ -129,7 +194,16 @@ async function renderEngineGrid(engines) {
     });
 
     savedEngines.forEach(engine => {
-        if([...engineUiGrid.querySelectorAll('.engine-card')].some(card => card.dataset.enginePath === engine.path)) return;
+        const existingCard = [...engineUiGrid.querySelectorAll('.engine-card')]
+            .find(card => card.dataset.enginePath === engine.path);
+        if(existingCard) {
+            const title = existingCard.querySelector('.engine-card-title');
+            title.textContent = engine.title || engine.name;
+            title.title = title.textContent;
+            existingCard.querySelector('.edit-btn').setAttribute('aria-label', `Rename ${title.textContent}`);
+            existingCard.querySelector('.remove-btn').setAttribute('aria-label', `Remove ${title.textContent} from the library`);
+            return;
+        }
 
         const card = document.createElement('div');
         card.className = 'card engine-card';
@@ -154,16 +228,70 @@ async function renderEngineGrid(engines) {
         title.textContent = engine.title || engine.name;
         title.title = title.textContent;
 
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-btn acas-fancy-button';
+        editBtn.type = 'button';
+        editBtn.title = 'Change display name';
+        editBtn.setAttribute('aria-label', `Rename ${engine.title || engine.name}`);
+        editBtn.onclick = async (e) => {
+            const currentEngine = savedEngines.find(saved => saved.path === engine.path);
+
+            e.stopPropagation();
+
+            if(!currentEngine) return;
+
+            editBtn.disabled = true;
+
+            try {
+                const newTitle = await AcasPrompt.prompt(
+                    'Change this engine\'s display name:', currentEngine.title || currentEngine.name,
+                    { showCancel: true }
+                );
+
+                if(newTitle === null) return;
+
+                const result = await window.engineAPI.renameEngine(engine.path, newTitle);
+
+                if(typeof result === 'string') toast.error(result, 5000);
+                else toast.success('Engine display name updated.', 2000);
+            } catch(error) {
+                console.error('Failed to rename engine:', error);
+                toast.error('Could not rename this engine.', 5000);
+            } finally {
+                if(editBtn.isConnected) editBtn.disabled = false;
+            }
+        };
+
+        const editIcon = document.createElement('i');
+
+        editIcon.className = 'bi bi-pencil';
+        editIcon.setAttribute('aria-hidden', 'true');
+        editBtn.appendChild(editIcon);
+
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-btn acas-fancy-button';
         removeBtn.type = 'button';
         removeBtn.title = 'Remove this binary from the library and kill its running processes';
         removeBtn.setAttribute('aria-label', `Remove ${engine.title || engine.name} from the library`);
         removeBtn.onclick = async (e) => {
+            const currentEngine = savedEngines.find(saved => saved.path === engine.path);
+
             e.stopPropagation();
+
+            if(!currentEngine) return;
+
             removeBtn.disabled = true;
+
             try {
+                const confirmed = await AcasPrompt.confirm(
+                    `Remove "${currentEngine.title || currentEngine.name}" from the engine library?\n\nThis will stop its running processes. The binary file will remain on disk.`,
+                    'Remove'
+                );
+
+                if(!confirmed) return;
+
                 const result = await window.engineAPI.removeEngine(engine.path);
+
                 if(typeof result === 'string') toast.error(result, 5000);
             } catch(error) {
                 console.error('Failed to remove engine:', error);
@@ -178,8 +306,11 @@ async function renderEngineGrid(engines) {
         icon.setAttribute('aria-hidden', 'true');
         removeBtn.appendChild(icon);
 
+        const actions = document.createElement('div');
+        actions.className = 'engine-card-actions';
+        actions.append(editBtn, removeBtn);
         top.appendChild(title);
-        top.appendChild(removeBtn);
+        top.appendChild(actions);
 
         const bottom = document.createElement('div');
         bottom.className = 'bottom';
@@ -219,7 +350,8 @@ async function renderEngineGrid(engines) {
 }
 
 window.serverAPI.onListening(({ address, family, port }) => {
-	portDisplay.textContent = `RUNNING ON PORT ${port}`;
+	portDisplay.textContent = String(port);
+	portSettingsBtn.title = `Local server port ${port} — click to change`;
 	statusDot.style.background = '#2ecc71';
 	statusDot.style.boxShadow = '0 0 8px #2ecc71';
 });

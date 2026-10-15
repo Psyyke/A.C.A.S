@@ -21,9 +21,9 @@ const externalEngineTag = engineId => typeof document === 'undefined' ? '' :
         ?.querySelector('.engine-type-tag.list-tag')?.textContent?.trim() || '';
 const isExternalEngineId = value => /^[a-f\d]{64}$/i.test(value || '');
 const engineLabelForEntry = entry => entry.engineId
-    ? entry.engine || externalEngineTag(entry.engineId) || 'External engine'
+    ? entry.engine || externalEngineTag(entry.engineId) || text('externalEngine', 'External engine')
     : isExternalEngineId(entry.engine)
-        ? externalEngineTag(entry.engine) || 'External engine'
+        ? externalEngineTag(entry.engine) || text('externalEngine', 'External engine')
         : entry.engine || '';
 const formatLogTime = (timestamp, type, precise) => {
     const date = new Date(timestamp);
@@ -145,8 +145,8 @@ export function createLogRow(entry, previousEntry) {
         context.textContent = [
             entry.instanceID && `${text('instance', 'Instance')}: ${entry.instanceID}`,
             entry.profile && `${text('profile', 'Profile')}: ${entry.profile}`,
-            engineLabelForEntry(entry) && `Engine: ${engineLabelForEntry(entry)}`,
-            entry.site && `Site: ${entry.site}`
+            engineLabelForEntry(entry) && `${text('engine', 'Engine')}: ${engineLabelForEntry(entry)}`,
+            entry.site && `${text('site', 'Site')}: ${entry.site}`
         ].filter(Boolean).join('\n');
         summary.title = context.textContent;
         meta.appendChild(context);
@@ -199,7 +199,7 @@ export function initializeActivityLog() {
         timeToggle.setAttribute('aria-pressed', String(preciseTimestamps));
         const label = text(
             preciseTimestamps ? 'hideMilliseconds' : 'showMilliseconds',
-            preciseTimestamps ? 'Hide milliseconds' : 'Show milliseconds'
+            preciseTimestamps ? 'Show full timestamps' : 'Show seconds and milliseconds only'
         );
         timeToggle.setAttribute('aria-label', label);
         timeToggle.title = label;
@@ -456,14 +456,14 @@ export function initializeActivityLog() {
         try {
             await navigator.clipboard.writeText(formatLogForClipboard(entries));
             copy.title = text('copiedLog', 'Copied');
-            status.textContent = `Copied ${entries.length} entries`;
+            status.textContent = text('copiedEntries', 'Copied {count} entries', { count: entries.length });
             setTimeout(() => {
                 copy.title = originalTitle;
                 render();
             }, 1500);
         } catch(error) {
             console.error('Activity log could not be copied to the clipboard.', error);
-            status.textContent = `Copy failed: ${error.message}`;
+            status.textContent = text('copyFailed', 'Copy failed: {error}', { error: error.message });
         }
     };
     const resetVisibleEntries = () => {

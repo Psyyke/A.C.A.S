@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Server-Port",
+        "[data-translation-server-port-hint]": "Muss mit dem in der A.C.A.S-Server-App angezeigten Port übereinstimmen",
         "#acas-is-free-reminder-text": "Hilf, indem du Feedback gibst!",
         "#acas-logo-secondary": "Schachhilfe",
         "#no-instances-title": "Warten auf Instanzen...",
@@ -177,6 +179,8 @@
         "concealAssistanceAutoDelayMs": ["Automatisches Verbergen (ms)", "Hilfsfunktionen nach dieser Zeit automatisch verbergen"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Die Einstellungen gelten für alle Instanzen",
+        "settingsNavbarInstanceSubtitle": "Die Einstellungen gelten nur für Instanz \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutral", "Ungenauigkeit", "Fehler", "Grober Fehler", "Katastrophal", "Guter Zug", "Ausgezeichnet", "Bester Zug", "Schwacher Zug"],
             "forced": "Erzwungener Zug", "provisional": "vorläufig", "eval": "Bewertung", "best": "Bester", "loss": "Bewertungsverlust",
@@ -221,6 +225,15 @@
             "description": "Gespeicherter Wert: {value}. Das Feld behält diesen bearbeitbaren Wert, der ohne Kurve verwendet wird. Dynamische Einstellungen zum Bearbeiten öffnen.", "openSetting": "Dynamische Einstellungen für {setting} öffnen"
         },
         "activityLog": {
+            "showMilliseconds": "Nur Sekunden und Millisekunden anzeigen",
+            "hideMilliseconds": "Vollständige Zeitstempel anzeigen",
+            "copyLog": "Sichtbare Protokolleinträge kopieren",
+            "copiedLog": "Kopiert",
+            "copiedEntries": "{count} Einträge kopiert",
+            "copyFailed": "Kopieren fehlgeschlagen: {error}",
+            "enableLogging": "Aktivitätsprotokollierung ist AUS — zum Aktivieren klicken",
+            "disableLogging": "Aktivitätsprotokollierung ist an — zum Deaktivieren klicken",
+            "profile": "Profil", "engine": "Engine", "site": "Website", "externalEngine": "Externe Engine",
             "search": "Suchen", "searchPlaceholder": "Protokolleinträge durchsuchen…", "discordMessagePlaceholder": "Gib hier deine Discord-Nachricht ein…",
             "title": "Aktivitätsprotokoll", "subtitle": "Engine-Nachrichten, dynamische Änderungen, Warnungen und Fehler", "show": "Anzeigen", "clear": "Protokoll leeren", "filter": "Nach Typ filtern", "all": "Alle Aktivitäten", "close": "Protokoll schließen", "instance": "Instanz", "empty": "Noch keine Einträge.", "status": "{shown} angezeigt · {total} insgesamt",
             "types": { "engine-input": "Engine-Eingabe", "engine-output": "Engine-Ausgabe", "dynamic-change": "Dynamische Änderungen", "setting-change": "Einstellungsänderungen", "engine": "Engine-Lebenszyklus", "instance": "Instanz-Lebenszyklus", "game": "Spielereignisse", "site": "Seitennachrichten", "warning": "Warnungen", "error": "Fehler", "app": "App-Ereignisse" }

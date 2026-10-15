@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('engineAPI', {
 	sendManualUciToEngine: (cmd, identifierObj) => ipcRenderer.invoke('sendManualUciToEngine', cmd, identifierObj),
 	addEngine: (fileInfo, title) => ipcRenderer.invoke('addEngine', fileInfo, title),
 	removeEngine: (enginePath) => ipcRenderer.invoke('removeEngine', enginePath),
+	renameEngine: (enginePath, title) => ipcRenderer.invoke('renameEngine', enginePath, title),
 	onRenderEngineGrid: (callback) => ipcRenderer.on('renderEngineGrid', (event, data) => callback(data)),
 	onAddConsoleView: (callback) => ipcRenderer.on('addConsoleView', (event, data) => callback(data)),
 	onRemoveConsoleView: (callback) => ipcRenderer.on('removeConsoleView', (event, data) => callback(data)),
@@ -19,7 +20,9 @@ contextBridge.exposeInMainWorld('serverAPI', {
 	onListening: (callback) => ipcRenderer.on('serverListening', (event, data) => callback(data)),
 	onClientChange: (callback) => ipcRenderer.on('serverClientChange', (event, data) => callback(data)),
 	onUnauthorized: (callback) => ipcRenderer.on('serverUnauthorized', (event, data) => callback(data)),
-	sendEnginesList: () => ipcRenderer.invoke('sendEnginesList')
+	sendEnginesList: () => ipcRenderer.invoke('sendEnginesList'),
+	getPort: () => ipcRenderer.invoke('getServerPort'),
+	setPort: port => ipcRenderer.invoke('setServerPort', port)
 });
 
 contextBridge.exposeInMainWorld('fileAPI', {

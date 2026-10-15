@@ -117,6 +117,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     
         input.dataset.key = dbKey;
         input.dataset.defaultValue = defaultValue;
+        input.dataset.uciOptionType = type;
         const numericDefault = String(defaultValue).trim() !== '' && Number.isFinite(Number(defaultValue));
         input.dataset.dynamicValueType = type === 'string' && !numericDefault ? 'text'
             : type === 'string' || type === 'spin' ? 'number' : type;

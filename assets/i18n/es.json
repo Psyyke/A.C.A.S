@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Puerto del servidor",
+        "[data-translation-server-port-hint]": "Debe coincidir con el puerto mostrado en la aplicación del servidor de A.C.A.S",
         "#acas-is-free-reminder-text": "¡Ayúdanos dando tu opinión!",
         "#acas-logo-secondary": "Asistencia de Ajedrez",
         "#no-instances-title": "Esperando instancias...",
@@ -178,6 +180,8 @@
 
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Los ajustes se aplican a todas las instancias",
+        "settingsNavbarInstanceSubtitle": "Los ajustes solo se aplican a la instancia \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutral", "Imprecisión", "Error", "Error grave", "Catastrófica", "Buena jugada", "Excelente", "Mejor jugada", "Jugada débil"],
             "forced": "Jugada forzada", "provisional": "provisional", "eval": "Evaluación", "best": "Mejor", "loss": "Pérdida de evaluación",
@@ -232,6 +236,15 @@
             "openSetting": "Abrir ajustes dinámicos de {setting}"
         },
         "activityLog": {
+            "showMilliseconds": "Mostrar solo segundos y milisegundos",
+            "hideMilliseconds": "Mostrar marcas de tiempo completas",
+            "copyLog": "Copiar las entradas visibles del registro",
+            "copiedLog": "Copiado",
+            "copiedEntries": "Se copiaron {count} entradas",
+            "copyFailed": "Error al copiar: {error}",
+            "enableLogging": "El registro de actividad está DESACTIVADO — haz clic para activarlo",
+            "disableLogging": "El registro de actividad está activado — haz clic para desactivarlo",
+            "profile": "Perfil", "engine": "Motor", "site": "Sitio", "externalEngine": "Motor externo",
             "search": "Buscar", "searchPlaceholder": "Buscar en el registro…", "discordMessagePlaceholder": "Escribe aquí tu mensaje de Discord…",
             "title": "Registro de actividad", "subtitle": "Mensajes del motor, cambios dinámicos, advertencias y errores",
             "show": "Mostrar", "clear": "Borrar registro", "filter": "Filtrar por tipo", "all": "Toda la actividad",

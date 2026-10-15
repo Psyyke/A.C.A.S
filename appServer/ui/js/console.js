@@ -4,11 +4,14 @@ const MAX_LOG_LINES = 2000;
 const CONSOLE_OBJS = new Map();
 const LOG_FONT_STORAGE_KEY = 'acas-server-log-font-size';
 const LOG_WRAP_STORAGE_KEY = 'acas-server-log-wrap-lines';
+const LOG_TIME_STORAGE_KEY = 'acas-server-log-compact-time';
 const DEFAULT_LOG_FONT_SIZE = 14;
 const MIN_LOG_FONT_SIZE = 10;
 const MAX_LOG_FONT_SIZE = 24;
+const logSecondsFormatter = new Intl.DateTimeFormat(undefined, { second: '2-digit' });
 let logFontSize = DEFAULT_LOG_FONT_SIZE;
 let wrapLogLines = true;
+let compactLogTimestamps = false;
 
 try {
     const storedSize = Number(localStorage.getItem(LOG_FONT_STORAGE_KEY));
@@ -20,6 +23,10 @@ try {
     const storedWrapMode = localStorage.getItem(LOG_WRAP_STORAGE_KEY);
     if(storedWrapMode === 'false') wrapLogLines = false;
 } catch { /* Line wrapping still works when storage is unavailable. */ }
+
+try {
+    compactLogTimestamps = localStorage.getItem(LOG_TIME_STORAGE_KEY) === 'true';
+} catch { /* Timestamp toggling still works when storage is unavailable. */ }
 
 document.documentElement.style.setProperty('--log-font-size', `${logFontSize}px`);
 
@@ -65,6 +72,49 @@ function updateLogWrapControl(logDiv, wrapBtn) {
     wrapBtn.querySelector('i').className = `bi ${wrapLogLines ? 'bi-arrow-return-left' : 'bi-arrow-right'}`;
 }
 
+function formatLogTimestamp(timestamp, compact = compactLogTimestamps) {
+    const date = new Date(timestamp);
+    if(compact) {
+        const seconds = logSecondsFormatter.formatToParts(date).find(part => part.type === 'second')?.value;
+        return `${seconds}.${String(date.getMilliseconds()).padStart(3, '0')}`;
+    }
+    return date.toLocaleTimeString([], {
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        fractionalSecondDigits: 3, hour12: false
+    });
+}
+
+function filterConsoleEntries(logDiv, filterInput) {
+    const filterText = filterInput.value.toLowerCase();
+    logDiv.querySelectorAll('.log-entry').forEach(entry => {
+        entry.style.display = entry.textContent.toLowerCase().includes(filterText) ? 'flex' : 'none';
+    });
+}
+
+function updateLogTimeControl(logDiv, timeBtn) {
+    logDiv.classList.toggle('compact-time', compactLogTimestamps);
+    timeBtn.setAttribute('aria-pressed', String(compactLogTimestamps));
+    const label = compactLogTimestamps ? 'Show full timestamps' : 'Show seconds and milliseconds only';
+    timeBtn.setAttribute('aria-label', label);
+    timeBtn.title = label;
+}
+
+function setLogTimeMode(compact) {
+    if(compactLogTimestamps === compact) return;
+    compactLogTimestamps = compact;
+    CONSOLE_OBJS.forEach(({ logDiv, filterInput, timeBtn }) => {
+        const atBottom = logDiv.scrollHeight - logDiv.clientHeight <= logDiv.scrollTop + 60;
+        const ratio = logDiv.scrollTop / Math.max(1, logDiv.scrollHeight - logDiv.clientHeight);
+        updateLogTimeControl(logDiv, timeBtn);
+        logDiv.querySelectorAll('.timestamp').forEach(time => {
+            time.textContent = formatLogTimestamp(Number(time.dataset.timestamp));
+        });
+        filterConsoleEntries(logDiv, filterInput);
+        logDiv.scrollTop = atBottom ? logDiv.scrollHeight : ratio * (logDiv.scrollHeight - logDiv.clientHeight);
+    });
+    try { localStorage.setItem(LOG_TIME_STORAGE_KEY, String(compactLogTimestamps)); } catch { /* Optional preference. */ }
+}
+
 function createKillEngineButton(identifierObj) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -100,17 +150,15 @@ async function log(text, type = 'info', identifierObj) {
 
     if(isPaused()) return;
 
-    const timestamp = new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        fractionalSecondDigits: 3,
-        hour12: false
-    });
+    const timestamp = Date.now();
 
     const div = document.createElement('div');
     div.classList.add('log-entry', `type-${type}`);
-    div.innerHTML = `<span class="timestamp">${timestamp}</span><span class="msg-body"></span>`;
+    div.innerHTML = '<span class="timestamp"></span><span class="msg-body"></span>';
+    const time = div.querySelector('.timestamp');
+    time.dataset.timestamp = String(timestamp);
+    time.textContent = formatLogTimestamp(timestamp);
+    time.title = formatLogTimestamp(timestamp, false);
     div.querySelector('.msg-body').textContent = text;
 
     const currentFilter = filterInput.value.toLowerCase();
@@ -151,6 +199,9 @@ function addConsoleView(identifierObj) {
             <input type="text" class="logFilter" placeholder="Filter (depth, pv, ...)" />
             <button class="acas-fancy-button clearBtn" title="Clear console">Clear</button>
             <button class="pauseBtn acas-fancy-button">Pause</button>
+            <button class="timeBtn acas-fancy-button" type="button" aria-pressed="false">
+                <i class="bi bi-clock" aria-hidden="true"></i>
+            </button>
             <button class="wrapBtn acas-fancy-button" type="button" aria-pressed="false">
                 <i class="bi bi-arrow-return-left" aria-hidden="true"></i>
             </button>
@@ -173,6 +224,9 @@ function addConsoleView(identifierObj) {
     const filterInput = consoleSection.querySelector('.logFilter');
     const pauseBtn = consoleSection.querySelector('.pauseBtn');
     const clearBtn = consoleSection.querySelector('.clearBtn');
+    const timeBtn = consoleSection.querySelector('.timeBtn');
+    timeBtn.onclick = () => setLogTimeMode(!compactLogTimestamps);
+    updateLogTimeControl(logDiv, timeBtn);
     const wrapBtn = consoleSection.querySelector('.wrapBtn');
     wrapBtn.onclick = () => setLogWrapMode(!wrapLogLines);
     updateLogWrapControl(logDiv, wrapBtn);
@@ -192,10 +246,7 @@ function addConsoleView(identifierObj) {
     clearBtn.onclick = () => { logDiv.innerHTML = ''; };
 
     filterInput.addEventListener('input', () => {
-        const filterText = filterInput.value.toLowerCase();
-        logDiv.querySelectorAll('.log-entry').forEach(entry => {
-            entry.style.display = entry.textContent.toLowerCase().includes(filterText) ? 'flex' : 'none';
-        });
+        filterConsoleEntries(logDiv, filterInput);
     });
 
     cmdInput.addEventListener('keydown', async function(e) {
@@ -241,6 +292,7 @@ function addConsoleView(identifierObj) {
         filterInput,
         pauseBtn,
         clearBtn,
+        timeBtn,
         wrapBtn,
         'isPaused': () => isPaused
     });

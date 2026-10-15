@@ -41,7 +41,17 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             profileVariables.pendingCalculationRequest = { fen: currentFen, config: { ...config, specificProfileName: profileName } };
             return;
         }
-        if(!profileVariables.engineSettingsReady) return;
+        if(!profileVariables.engineSettingsReady) {
+            if(profileVariables.useExternalChessEngine && profileVariables.externalRestartPending) {
+                profileVariables.externalRestartPending = false;
+                profileVariables.externalRecoveryCancelled = false;
+                profileVariables.externalCrashRecoveryAttempts = 0;
+                profileVariables.externalSearchRecoveryAttempts = 0;
+                profileVariables.pendingCalculationRequest = { fen: currentFen, config: { ...config, specificProfileName: profileName } };
+                await this.recoverExternalEngineSearch(profileName, null, null, true);
+            }
+            return;
+        }
 
         const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
         const isPlayerTurn = await this.isPlayerTurn(profileName);

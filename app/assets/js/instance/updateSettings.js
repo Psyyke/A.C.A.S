@@ -1,5 +1,6 @@
 import { updatePipData } from '../gui/pip.js';
 import { clearFeedback } from './renderFeedback.js';
+import { isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 
 export default async function updateSettings(updateObj) {
     const settingKey = updateObj?.data?.key,
@@ -54,6 +55,18 @@ export default async function updateSettings(updateObj) {
     const didUpdateAdvancedElo = findSetting(this.configKeys.enableAdvancedElo);
     const didUpdateAdvancedEloDepth = findSetting(this.configKeys.advancedEloDepth);
     const didUpdateSearchNodes = findSetting(this.configKeys.engineNodes);
+    const profileVariables = this.pV[profileName];
+    const managesFairyVariant = profileVariables?.usingAdvancedMode && isBuiltInFairyEngine(profileVariables);
+    const didUpdateFairyVariant = managesFairyVariant
+        && (didUpdateVariant || didUpdate960Mode || isFairyVariantSetting(settingKey));
+
+    if(didUpdateFairyVariant) {
+        const snapshot = this.applyingSettings?.get(profileName) ?? updateObj.data.profile?.config;
+
+        await this.createAndLoadSpecificEngine(profileName, snapshot);
+
+        return;
+    }
 
     const refreshFeedback = () => {
         const latestState = this.gameStateHistory?.[this.gameStateHistory.length - 1];

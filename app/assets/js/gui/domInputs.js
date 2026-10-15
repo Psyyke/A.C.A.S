@@ -5,6 +5,11 @@ import { doesDropdownItemExist } from './domDropdown.js';
 export function setInputValue(elem, val, min, max) {
     const isCheckbox = elem.type === 'checkbox';
 
+    // Migrate the display of legacy boolean values accidentally saved for UCI
+    // strings without changing genuine checkbox settings or persisting defaults.
+    if(elem.dataset.uciOptionType === 'string' && typeof val === 'boolean')
+        val = elem.dataset.defaultValue;
+
     if(isCheckbox) {
         elem.checked = VAR_TO_CORRECT_TYPE(val);
     } else {
@@ -30,7 +35,8 @@ export function setInputValue(elem, val, min, max) {
             }
         }
 
-        elem.value = elem.dataset.dynamicValueType === 'text' ? String(val ?? '') : VAR_TO_CORRECT_TYPE(val);
+        const preserveText = elem.dataset.uciOptionType === 'string' || elem.dataset.dynamicValueType === 'text';
+        elem.value = preserveText ? String(val ?? '') : VAR_TO_CORRECT_TYPE(val);
     }
 
     // Notify descriptions/highlights after both text and checkbox updates.

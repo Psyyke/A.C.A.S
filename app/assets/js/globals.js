@@ -565,7 +565,7 @@ function GET_BASIC_FEN_LOWERCASED(fenStr) {
 function GET_BOARD_DIMENSIONS_FROM_FEN(fenStr) {
     try {
         const formattedFen = GET_BASIC_FEN_LOWERCASED(fenStr);
-        const extendedFen = formattedFen.replace(/\d/g, (match) => ' '.repeat(Number(match)));
+        const extendedFen = formattedFen.replace(/\d+/g, (match) => ' '.repeat(Number(match)));
     
         const files = extendedFen.split('/');
         const rank = files[0];
@@ -1079,6 +1079,7 @@ function PARSE_UCI_OPTION(line) {
     }
 
     if(type === 'check' && def === '<empty>') def = false;
+    if(type === 'string' && def === '<empty>') def = '';
     if(type !== 'check' && (def === undefined || def === null)) def = '';
 
     return {

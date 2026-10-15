@@ -5,21 +5,25 @@ import { loopThroughAndUpdateSettingsValues } from './settings.js';
 
 const options = [settingsNavbarGlobalElem, settingsInstanceDropdownElem];
 
+function updateSettingsNavbarSubtitle() {
+    const subtitle = SETTING_FILTER_OBJ.type === 'instance'
+        ? (TRANS_OBJ?.settingsNavbarInstanceSubtitle ?? 'Settings only affect instance "{instanceID}"')
+            .replace('{instanceID}', () => SETTING_FILTER_OBJ.instanceID)
+        : (TRANS_OBJ?.settingsNavbarGlobalSubtitle ?? 'Settings affect every instance');
+
+    if(settingsNavbarSubtitleElem && settingsNavbarSubtitleElem.innerText !== subtitle) {
+        settingsNavbarSubtitleElem.innerText = subtitle;
+    }
+}
+
+document.addEventListener('acas-translations-updated', updateSettingsNavbarSubtitle);
+updateSettingsNavbarSubtitle();
+
 export function toggleSelectedNavbarItem(selectedElem, instanceID) {
     SETTING_FILTER_OBJ.type = selectedElem.dataset.type;
-    SETTING_FILTER_OBJ.instanceID = null;
+    SETTING_FILTER_OBJ.instanceID = SETTING_FILTER_OBJ.type === 'instance' ? instanceID : null;
 
-    switch(SETTING_FILTER_OBJ.type) {
-        case 'global':
-            settingsNavbarSubtitleElem.innerText = 'Settings affect every instance';
-
-            break;
-        case 'instance':
-            SETTING_FILTER_OBJ.instanceID = instanceID;
-            settingsNavbarSubtitleElem.innerText = `Settings only affect instance "${SETTING_FILTER_OBJ.instanceID}"`;
-            
-            break;
-    }
+    updateSettingsNavbarSubtitle();
     
     options.forEach(elem => {
         if(elem === selectedElem) 

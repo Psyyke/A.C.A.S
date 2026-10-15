@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "Palvelimen portti",
+        "[data-translation-server-port-hint]": "Portin on vastattava A.C.A.S-palvelinsovelluksessa näkyvää porttia",
         "#acas-is-free-reminder-text": "Autathan antamalla palautetta!",
         "#acas-logo-secondary": "Shakkiylijumala",
         "#no-instances-title": "Odotetaan instansseja...",
@@ -175,6 +177,8 @@
         "concealAssistanceAutoDelayMs": ["Automaattinen piilotus (ms)", "Piilota avustajatoiminnot automaattisesti tämän ajan jälkeen"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "Asetukset vaikuttavat kaikkiin instansseihin",
+        "settingsNavbarInstanceSubtitle": "Asetukset vaikuttavat vain instanssiin \"{instanceID}\"",
         "moveFeedback": {
             "labels": ["Neutraali", "Epätarkkuus", "Virhe", "Vakava virhe", "Katastrofaalinen", "Hyvä siirto", "Erinomainen", "Paras siirto", "Heikko siirto"],
             "forced": "Pakotettu siirto", "provisional": "alustava", "eval": "Arvio", "best": "Paras", "loss": "Arvion menetys",
@@ -230,6 +234,15 @@
             "openSetting": "Avaa asetuksen {setting} dynaamiset asetukset"
         },
         "activityLog": {
+            "showMilliseconds": "Näytä vain sekunnit ja millisekunnit",
+            "hideMilliseconds": "Näytä täydet aikaleimat",
+            "copyLog": "Kopioi näkyvät lokimerkinnät",
+            "copiedLog": "Kopioitu",
+            "copiedEntries": "Kopioitu {count} merkintää",
+            "copyFailed": "Kopiointi epäonnistui: {error}",
+            "enableLogging": "Toimintaloki on POIS käytöstä — ota käyttöön napsauttamalla",
+            "disableLogging": "Toimintaloki on käytössä — poista käytöstä napsauttamalla",
+            "profile": "Profiili", "engine": "Moottori", "site": "Sivusto", "externalEngine": "Ulkoinen moottori",
             "search": "Hae", "searchPlaceholder": "Hae lokista…", "discordMessagePlaceholder": "Kirjoita Discord-viestisi tähän…",
             "title": "Tapahtumaloki", "subtitle": "Moottoriviestit, dynaamiset muutokset, varoitukset ja virheet",
             "show": "Näytä", "clear": "Tyhjennä loki", "filter": "Suodata tapahtumatyypin mukaan", "all": "Kaikki tapahtumat",
@@ -267,7 +280,7 @@
         "ownTurnMightNotWorkVariants": "'Vain oma vuoro' -asetus ei välttämättä toimi varianteilla!",
         "emptyBoardChesscomWarning": "Hups, lauta näyttää tyhjältä. Sivusto saattaa näyttää laudan kuvana, jota A.C.A.S ei pysty lukemaan.\n\nPoista Chess.comin asetuksista käytöstä 'Piece Animations: Arcade' eli nappuloiden Arcade-animaatiot. Valitse 'None'.",
         "engineWord": "moottori",
-        "enginesWord": "moottorit",
+        "enginesWord": "moottoria",
         "variantNotSupported": "Varianttia ei tueta",
         "showFenBtn": "Näytä FEN",
         "hideFenBtn": "Piilota FEN",

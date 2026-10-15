@@ -1,5 +1,7 @@
 {
     "domTranslations": {
+        "[data-translation-server-port]": "服务器端口",
+        "[data-translation-server-port-hint]": "必须与 A.C.A.S 服务器应用中显示的端口一致",
         "#acas-is-free-reminder-text": "通过反馈帮助我们！",
         "#acas-logo-secondary": "棋类助手",
         "#no-instances-title": "等待实例... ",
@@ -175,6 +177,8 @@
         "concealAssistanceAutoDelayMs": ["自动隐藏（毫秒）", "此时间后自动隐藏辅助功能"]
     },
     "translations": {
+        "settingsNavbarGlobalSubtitle": "设置对所有实例生效",
+        "settingsNavbarInstanceSubtitle": "设置仅对实例“{instanceID}”生效",
         "moveFeedback": {
             "labels": ["中性", "不精确", "失误", "严重失误", "灾难性", "好棋", "优秀", "最佳走法", "弱棋"],
             "forced": "唯一合法走法", "provisional": "暂定", "eval": "评估", "best": "最佳", "loss": "评估损失",
@@ -204,6 +208,15 @@
             "evaluationHint": "负值表示劣势，零表示均势，正值表示优势。使用最近完成的主要评估。", "fitHint": "调整两个坐标轴并在曲线周围留出空间", "graphHint": "拖动点以移动，拖动空白处以平移，捏合或滚动以缩放。方向键移动点，Shift 移动十步，Delete 删除点。", "exitFullscreen": "退出全屏", "fullscreen": "全屏图表", "instance": "实例", "equal": "均势（0 cp）", "visibility": "显示并应用曲线，或隐藏并禁用", "enableLine": "启用并显示 {profile} 的 {setting}", "selectedLine": "已选：{setting}，{profile}", "chooseLine": "选择 {setting}，{profile}", "currentValue": "{setting} 的当前值", "otherVariable": "{variable} 没有曲线。现有曲线使用：", "noLines": "尚无曲线。选择设置，再点击 ＋ 曲线。", "existingCurve": "每个设置和配置文件只能有一条曲线。当前变量：{variable}。请编辑或删除现有曲线。", "addForProfile": "为 {profile} 添加 {setting}", "enableFirst": "先在图例中启用曲线", "addPointHint": "添加整数坐标点", "stepLocked": "此设置固定使用阶梯曲线。", "editing": "正在编辑 {profile} 的 {setting}。", "removeFromProfile": "移除 {profile} 的 {setting}", "point": "点 {number}", "selectPoint": "选择点以编辑坐标。", "profileLines": "{setting} 的配置文件曲线", "saveError": "无法保存图表。请检查用户脚本连接。", "variableLink": "打开 {variable} 的现有曲线", "removeConfirm": "移除配置文件“{profile}”的 {setting} 曲线？\n\n所有点将被删除，并恢复已保存的默认值。", "none": "无", "savedDefault": "已保存的默认值", "unavailable": "{value}（不可用）", "override": "动态覆盖生效：{value}（{variable}：{position}）。", "waiting": "曲线已启用 · 等待 {variable}。", "defaultActive": "曲线已启用 · 使用已保存的默认值。", "disabled": "动态曲线已禁用。", "noCurve": "未启用动态曲线。", "description": "已保存值：{value}。没有曲线生效时使用此可编辑值。打开动态设置以编辑曲线。", "openSetting": "打开 {setting} 的动态设置"
         },
         "activityLog": {
+            "showMilliseconds": "仅显示秒和毫秒",
+            "hideMilliseconds": "显示完整时间戳",
+            "copyLog": "复制可见的日志条目",
+            "copiedLog": "已复制",
+            "copiedEntries": "已复制 {count} 条记录",
+            "copyFailed": "复制失败：{error}",
+            "enableLogging": "活动日志记录已关闭 — 点击启用",
+            "disableLogging": "活动日志记录已开启 — 点击关闭",
+            "profile": "配置文件", "engine": "引擎", "site": "网站", "externalEngine": "外部引擎",
             "search": "搜索", "searchPlaceholder": "搜索日志条目…", "discordMessagePlaceholder": "在此输入要发送到 Discord 的消息…",
             "title": "活动日志", "subtitle": "引擎消息、动态更改、警告与错误", "show": "显示", "clear": "清空日志", "filter": "按类型筛选", "all": "全部活动", "close": "关闭日志", "instance": "实例", "empty": "暂无日志。", "status": "显示 {shown} 条 · 共 {total} 条",
             "types": { "engine-input": "引擎输入", "engine-output": "引擎输出", "dynamic-change": "动态更改", "setting-change": "设置更改", "engine": "引擎生命周期", "instance": "实例生命周期", "game": "对局事件", "site": "网站消息", "warning": "警告", "error": "错误", "app": "应用事件" }
