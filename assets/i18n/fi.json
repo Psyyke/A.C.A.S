@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["Automaattinen piilotus (ms)", "Piilota avustajatoiminnot automaattisesti tämän ajan jälkeen"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Oma taustakuva", "blur": "Kuvan sumennus",
+            "imageHint": "PNG, JPEG, WebP, GIF tai AVIF, enintään 10 Mt. Tallennetaan vain tähän selaimeen, ei vietyihin asetuksiin.",
+            "noImage": "Kuvaa ei ole valittu", "chooseImage": "Valitse taustakuva", "removeImage": "Poista kuva",
+            "noBook": "Kirjaa ei ole ladattu", "chooseBook": "Valitse avauskirja", "removeBook": "Poista avauskirja",
+            "loadingImage": "Ladataan tallennettua kuvaa…", "imageUnavailable": "Tallennettu kuva ei ole käytettävissä. Valitse kuva uudelleen.",
+            "invalidImage": "Tätä kuvaa ei voitu lukea.", "imageType": "Valitse PNG-, JPEG-, WebP-, GIF- tai AVIF-kuva.", "imageSize": "Kuvan koko saa olla enintään 10 Mt.",
+            "imageSaveFailed": "Taustakuvaa ei voitu tallentaa. Tallennustila ei ehkä ole käytettävissä tai se on täynnä.", "imageRemoveFailed": "Tallennettua taustakuvaa ei voitu poistaa.",
+            "bookRemoveFailed": "Avauskirjaa ei voitu poistaa.", "blurValue": "{value} pikseliä",
+            "textures": {
+                "eclipse": "Auringonpimennys", "pulsar": "Pulsari", "supernova": "Supernova",
+                "black-hole": "Musta aukko",
+                "none": "Ei mitään", "chess": "Shakkiruutu", "paper": "Paperi", "tartan": "Tartaani", "boxes": "Ruudukko", "dotted": "Pisteet", "striped": "Raidat", "circles": "Ympyrät",
+                "isometric": "Isometrinen", "abstract": "Abstrakti", "watercolor": "Vesiväri", "pastel-watercolor": "Pastellivesiväri", "frosted-glass": "Huurrelasi", "liquid-glass": "Nestemäinen lasi", "theme-glass": "Teemanvärinen lasi",
+                "rainbow": "Sateenkaari", "linen": "Pellava", "woven": "Kudos", "chevron": "Siksak", "diamonds": "Vinoneliöt", "blueprint": "Piirustus", "waves": "Aallot", "aurora": "Revontulet", "topographic": "Korkeuskäyrät", "starfield": "Tähtitaivas",
+                "nebula": "Tähtisumu", "deep-space": "Syvä avaruus", "hologram": "Hologrammi", "orbital": "Kiertoradat", "synthwave": "Synthwave", "cyberpunk": "Kyberpunk", "custom-image": "Oma kuva"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Asetukset vaikuttavat kaikkiin instansseihin",
         "settingsNavbarInstanceSubtitle": "Asetukset vaikuttavat vain instanssiin \"{instanceID}\"",
         "moveFeedback": {

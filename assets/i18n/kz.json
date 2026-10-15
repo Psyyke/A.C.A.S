@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Автоматты жасыру (мс)", "Осы уақыттан кейін көмек функцияларын автоматты түрде жасыру"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Жеке фон суреті", "blur": "Суретті бұлыңғырлау",
+            "imageHint": "PNG, JPEG, WebP, GIF немесе AVIF, 10 МБ-қа дейін. Тек осы браузерде сақталады, экспортталған баптауларға кірмейді.",
+            "noImage": "Сурет таңдалмаған", "chooseImage": "Фон суретін таңдау", "removeImage": "Суретті жою",
+            "noBook": "Кітап жүктелмеген", "chooseBook": "Дебют кітабын таңдау", "removeBook": "Дебют кітабын жою",
+            "loadingImage": "Сақталған сурет жүктелуде…", "imageUnavailable": "Сақталған сурет қолжетімсіз. Суретті қайта таңдаңыз.",
+            "invalidImage": "Бұл суретті оқу мүмкін болмады.", "imageType": "PNG, JPEG, WebP, GIF немесе AVIF суретін таңдаңыз.", "imageSize": "Сурет көлемі 10 МБ-тан аспауы керек.",
+            "imageSaveFailed": "Фон суретін сақтау мүмкін болмады. Жад қолжетімсіз немесе толы болуы мүмкін.", "imageRemoveFailed": "Сақталған фон суретін жою мүмкін болмады.",
+            "bookRemoveFailed": "Дебют кітабын жою мүмкін болмады.", "blurValue": "{value} пиксель",
+            "textures": {
+                "eclipse": "Күн тұтылуы", "pulsar": "Пульсар", "supernova": "Аса жаңа жұлдыз",
+                "black-hole": "Қара құрдым",
+                "none": "Жоқ", "chess": "Шахмат тақтасы", "paper": "Қағаз", "tartan": "Шотланд торы", "boxes": "Торлар", "dotted": "Нүктелер", "striped": "Жолақтар", "circles": "Шеңберлер",
+                "isometric": "Изометриялық", "abstract": "Абстрактілі", "watercolor": "Акварель", "pastel-watercolor": "Пастельді акварель", "frosted-glass": "Күңгірт шыны", "liquid-glass": "Сұйық шыны", "theme-glass": "Тақырып түсті шыны",
+                "rainbow": "Кемпірқосақ", "linen": "Зығыр", "woven": "Тоқыма", "chevron": "Ирек", "diamonds": "Ромбтар", "blueprint": "Сызба", "waves": "Толқындар", "aurora": "Поляр шұғыласы", "topographic": "Биіктік сызықтары", "starfield": "Жұлдызды аспан",
+                "nebula": "Тұмандық", "deep-space": "Терең ғарыш", "hologram": "Голограмма", "orbital": "Орбиталар", "synthwave": "Синтвейв", "cyberpunk": "Киберпанк", "custom-image": "Жеке сурет"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Параметрлер барлық даналарға қолданылады",
         "settingsNavbarInstanceSubtitle": "Параметрлер тек \"{instanceID}\" данасына қолданылады",
         "moveFeedback": {

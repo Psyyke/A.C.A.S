@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Awtomatikong Itago (ms)", "Awtomatikong itago ang mga feature ng tulong pagkatapos ng oras na ito"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Pasadyang larawan sa background", "blur": "Pagkalabo ng larawan",
+            "imageHint": "PNG, JPEG, WebP, GIF o AVIF, hanggang 10 MB. Sa browser na ito lang naka-save, hindi kasama sa na-export na mga setting.",
+            "noImage": "Walang napiling larawan", "chooseImage": "Pumili ng larawan sa background", "removeImage": "Alisin ang larawan",
+            "noBook": "Walang na-load na aklat", "chooseBook": "Pumili ng aklat ng mga pambungad", "removeBook": "Alisin ang aklat ng mga pambungad",
+            "loadingImage": "Nilo-load ang naka-save na larawan…", "imageUnavailable": "Hindi magamit ang naka-save na larawan. Pumili ng larawan upang subukang muli.",
+            "invalidImage": "Hindi mabasa ang larawang ito.", "imageType": "Pumili ng PNG, JPEG, WebP, GIF o AVIF na larawan.", "imageSize": "Dapat 10 MB o mas maliit ang larawan.",
+            "imageSaveFailed": "Hindi ma-save ang larawan sa background. Maaaring puno o hindi magamit ang storage.", "imageRemoveFailed": "Hindi maalis ang naka-save na larawan sa background.",
+            "bookRemoveFailed": "Hindi maalis ang aklat ng mga pambungad.", "blurValue": "{value} pixel",
+            "textures": {
+                "eclipse": "Eklipse", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Black Hole",
+                "none": "Wala", "chess": "Chessboard", "paper": "Papel", "tartan": "Tartan", "boxes": "Mga kahon", "dotted": "Mga tuldok", "striped": "Mga guhit", "circles": "Mga bilog",
+                "isometric": "Isometriko", "abstract": "Abstrakto", "watercolor": "Akvarela", "pastel-watercolor": "Pastel na akvarela", "frosted-glass": "Malabong salamin", "liquid-glass": "Likidong salamin", "theme-glass": "Salaming kulay ng tema",
+                "rainbow": "Bahaghari", "linen": "Linen", "woven": "Habi", "chevron": "Zigzag", "diamonds": "Mga rombo", "blueprint": "Teknikal na plano", "waves": "Mga alon", "aurora": "Aurora", "topographic": "Mga linyang topograpiko", "starfield": "Langit na mabituin",
+                "nebula": "Nebula", "deep-space": "Kalaliman ng kalawakan", "hologram": "Hologram", "orbital": "Mga orbita", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Pasadyang larawan"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Nalalapat ang mga setting sa lahat ng instance",
         "settingsNavbarInstanceSubtitle": "Nalalapat lang ang mga setting sa instance na \"{instanceID}\"",
         "moveFeedback": {

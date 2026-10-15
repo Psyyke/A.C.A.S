@@ -1,3 +1,46 @@
+/* Translucent CSS layers keep the selected theme color visible underneath. */
+:where(.none-texture, .paper-texture, .tartan-texture,
+    .boxes-texture, .dotted-texture, .striped-texture, .circles-texture,
+    .isometric-texture, .abstract-texture, .watercolor-texture, .rainbow-texture,
+    .linen-texture, .woven-texture, .chevron-texture, .diamonds-texture,
+    .blueprint-texture, .waves-texture, .aurora-texture,
+    .topographic-texture, .starfield-texture, .pastel-watercolor-texture,
+    .frosted-glass-texture, .liquid-glass-texture, .theme-glass-texture,
+    .nebula-texture, .deep-space-texture, .black-hole-texture, .hologram-texture, .orbital-texture,
+    .eclipse-texture, .pulsar-texture, .supernova-texture,
+    .synthwave-texture, .cyberpunk-texture, .custom-image-texture) {
+    background-color: var(--background-texture-base, #5f8895);
+    background-position: 0 0;
+    background-size: auto;
+    background-repeat: repeat;
+}
+
+/* A separate grain and corner-shading layer works with every texture, including blurred uploads.
+   Stack above the negative-index artwork/custom image, below the instance panels.
+   Bake alpha into the bitmap/gradient, avoiding live filters and group opacity. */
+#acas-instance-container {
+    position: relative;
+    isolation: isolate;
+}
+
+#acas-instance-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image:
+        var(--background-grain-image, none),
+        linear-gradient(to bottom right, rgb(0 0 0 / 2%), rgb(0 0 0 / 15%) 48%, rgb(0 0 0 / 38%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+}
+
+.none-texture {
+    background-image: none;
+}
+
 .chess-texture {
     background-color: #eee;
     background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.04) 75%, rgba(255, 255, 255, 0.04)),
@@ -12,61 +55,565 @@
         linear-gradient(45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.08) 75%, rgba(255, 255, 255, 0.08));
     }
 }
+
 .paper-texture {
-    background-image:  linear-gradient(rgba(255,255,255,0.05) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.05) 2px, transparent 2px), linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, rgba(230,230,247,0.05) 1px);
-    background-size: 70px 70px, 70px 70px, 14px 14px, 14px 14px;
-    background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
-}
-.boxes-texture {
-    background-image:  linear-gradient(rgba(255,255,255,0.1)2px, transparent 2px), linear-gradient(to right, rgba(255,255,255,0.1) 3px, rgba(230,230,247,0.1) 3px);
-    background-size: 70px 70px;
-}
-.dotted-texture {
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
-    background-size: 20px 20px;
-}
-.striped-texture {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 5px, transparent 5px);
-    background-size: 20px 20px;
-}
-.circles-texture {
-    background-image: repeating-radial-gradient( circle at 0 0, #ffffff00 0, #3d3d3d4d 50px ), repeating-linear-gradient( #00000078, #4c4c4c5c );
-}
-.isometric-texture {
-    background-image: linear-gradient(30deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)),
-                    linear-gradient(150deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)),
-                    linear-gradient(30deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)),
-                    linear-gradient(150deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)),
-                    linear-gradient(60deg, rgba(255, 255, 255, 0.05) 25%, transparent 25.5%, transparent 75%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05)),
-                    linear-gradient(60deg, rgba(255, 255, 255, 0.05) 25%, transparent 25.5%, transparent 75%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05));
-    background-size: 60px 105px;
-    background-position: 0 0, 0 0, 30px 54px, 30px 54px, 0 0, 30px 54px;
-}
-.abstract-texture {
-    background-image: linear-gradient(30deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)), linear-gradient(150deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)), linear-gradient(30deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)), linear-gradient(150deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%, rgba(255, 255, 255, 0.05)), linear-gradient(60deg, rgba(255, 255, 255, 0.05) 25%, transparent 25.5%, transparent 75%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05)), linear-gradient(60deg, rgba(255, 255, 255, 0.05) 25%, transparent 25.5%, transparent 75%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05));
-}
-.watercolor-texture {
-    background: 
-        linear-gradient(45deg, #3498db, transparent 50%),
-        linear-gradient(135deg, #e74c3c, transparent 50%),
-        linear-gradient(225deg, #2ecc71, transparent 50%),
-        linear-gradient(315deg, #f1c40f, transparent 50%);
-    background-size: 100% 100%;
-}
-.rainbow-texture {
-    background: linear-gradient(90deg, #FF0018, #FFA52C, #FFFF41, #008018, #0000F9, #86007D, #FF0018);
-    background-size: 1200% 100%;
-    animation: rainbow-texture-animation 20s linear infinite;
-}
-@keyframes rainbow-texture-animation {
-    0% {
-        background-position: 0% 50%;
-    }
-    100% {
-        background-position: 110% 60%;
-    }
+    background-image:
+        linear-gradient(rgb(0 0 0 / 20%), rgb(0 0 0 / 20%)),
+        repeating-linear-gradient(0deg, rgb(255 255 255 / 5%) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(90deg, rgb(0 0 0 / 3%) 0 1px, transparent 1px 6px),
+        linear-gradient(120deg, rgb(255 244 216 / 18%), rgb(255 255 255 / 4%));
 }
 
 .tartan-texture {
-    background-color: rgb(160, 48, 44); background-image: repeating-linear-gradient(transparent, transparent 50px, rgba(0, 0, 0, 0.4) 50px, rgba(0, 0, 0, 0.4) 53px, transparent 53px, transparent 63px, rgba(0, 0, 0, 0.4) 63px, rgba(0, 0, 0, 0.4) 66px, transparent 66px, transparent 116px, rgba(0, 0, 0, 0.5) 116px, rgba(0, 0, 0, 0.5) 166px, rgba(255, 255, 255, 0.2) 166px, rgba(255, 255, 255, 0.2) 169px, rgba(0, 0, 0, 0.5) 169px, rgba(0, 0, 0, 0.5) 179px, rgba(255, 255, 255, 0.2) 179px, rgba(255, 255, 255, 0.2) 182px, rgba(0, 0, 0, 0.5) 182px, rgba(0, 0, 0, 0.5) 232px, transparent 232px), repeating-linear-gradient(270deg, transparent, transparent 50px, rgba(0, 0, 0, 0.4) 50px, rgba(0, 0, 0, 0.4) 53px, transparent 53px, transparent 63px, rgba(0, 0, 0, 0.4) 63px, rgba(0, 0, 0, 0.4) 66px, transparent 66px, transparent 116px, rgba(0, 0, 0, 0.5) 116px, rgba(0, 0, 0, 0.5) 166px, rgba(255, 255, 255, 0.2) 166px, rgba(255, 255, 255, 0.2) 169px, rgba(0, 0, 0, 0.5) 169px, rgba(0, 0, 0, 0.5) 179px, rgba(255, 255, 255, 0.2) 179px, rgba(255, 255, 255, 0.2) 182px, rgba(0, 0, 0, 0.5) 182px, rgba(0, 0, 0, 0.5) 232px, transparent 232px), repeating-linear-gradient(125deg, transparent, transparent 2px, rgba(0, 0, 0, 0.2) 2px, rgba(0, 0, 0, 0.2) 3px, transparent 3px, transparent 5px, rgba(0, 0, 0, 0.2) 5px);
+    background-image:
+        repeating-linear-gradient(0deg,
+            transparent 0 22px, rgb(255 255 255 / 18%) 22px 24px,
+            transparent 24px 28px, rgb(0 0 0 / 12%) 28px 30px,
+            transparent 30px 48px, rgb(0 0 0 / 16%) 48px 72px, transparent 72px 96px),
+        repeating-linear-gradient(90deg,
+            transparent 0 22px, rgb(255 255 255 / 18%) 22px 24px,
+            transparent 24px 28px, rgb(0 0 0 / 12%) 28px 30px,
+            transparent 30px 48px, rgb(0 0 0 / 16%) 48px 72px, transparent 72px 96px),
+        repeating-linear-gradient(135deg, rgb(255 255 255 / 4%) 0 1px, transparent 1px 4px);
+}
+
+.boxes-texture {
+    background-image:
+        linear-gradient(rgb(255 255 255 / 15%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 15%) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: -1px -1px;
+}
+
+.dotted-texture {
+    background-image: radial-gradient(circle, rgb(255 255 255 / 32%) 1.2px, transparent 1.7px);
+    background-size: 22px 22px;
+}
+
+.striped-texture {
+    background-image: repeating-linear-gradient(135deg,
+        rgb(255 255 255 / 10%) 0 2px, transparent 2px 14px);
+}
+
+.circles-texture {
+    background-image: repeating-radial-gradient(circle at center,
+        transparent 0 13px, rgb(255 255 255 / 14%) 13px 14px,
+        transparent 14px 27px, rgb(0 0 0 / 8%) 27px 28px);
+    background-size: 112px 112px;
+}
+
+.isometric-texture {
+    background-image:
+        linear-gradient(30deg, rgb(255 255 255 / 12%) 12%, transparent 12.5% 87%, rgb(255 255 255 / 12%) 87.5%),
+        linear-gradient(150deg, rgb(255 255 255 / 12%) 12%, transparent 12.5% 87%, rgb(255 255 255 / 12%) 87.5%),
+        linear-gradient(30deg, rgb(255 255 255 / 12%) 12%, transparent 12.5% 87%, rgb(255 255 255 / 12%) 87.5%),
+        linear-gradient(150deg, rgb(255 255 255 / 12%) 12%, transparent 12.5% 87%, rgb(255 255 255 / 12%) 87.5%),
+        linear-gradient(60deg, rgb(0 0 0 / 10%) 25%, transparent 25.5% 75%, rgb(0 0 0 / 10%) 75.5%),
+        linear-gradient(60deg, rgb(0 0 0 / 10%) 25%, transparent 25.5% 75%, rgb(0 0 0 / 10%) 75.5%);
+    background-size: 80px 138.564px;
+    background-position: 0 0, 0 0, 40px 69.282px, 40px 69.282px, 0 0, 40px 69.282px;
+}
+
+.abstract-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 28%), rgb(0 0 0 / 28%)),
+        linear-gradient(145deg, transparent 44%, rgb(255 255 255 / 12%) 44% 62%, transparent 62%),
+        linear-gradient(35deg, rgb(0 0 0 / 13%) 28%, transparent 28% 72%, rgb(255 255 255 / 8%) 72%),
+        radial-gradient(ellipse at 75% 20%, rgb(196 232 255 / 24%), transparent 65%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.watercolor-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 42%), rgb(0 0 0 / 42%)),
+        radial-gradient(ellipse at 12% 25%, rgb(174 211 244 / 58%), transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgb(224 183 227 / 52%), transparent 52%),
+        radial-gradient(ellipse at 75% 85%, rgb(246 208 164 / 56%), transparent 56%),
+        radial-gradient(ellipse at 15% 90%, rgb(168 222 206 / 50%), transparent 52%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+/* The entire spectrum stays visible, without continuous background repaints. */
+.rainbow-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 28%), rgb(0 0 0 / 28%)),
+        linear-gradient(0deg, rgb(0 0 0 / 12%), transparent),
+        linear-gradient(125deg, rgb(235 55 85 / 90%), rgb(239 122 35 / 90%),
+            rgb(225 190 45 / 90%), rgb(40 201 115 / 90%),
+            rgb(48 137 239 / 90%), rgb(169 69 231 / 90%));
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.linen-texture {
+    background-image:
+        repeating-linear-gradient(0deg, rgb(255 255 255 / 9%) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(90deg, rgb(0 0 0 / 10%) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(0deg, rgb(0 0 0 / 3%) 0 2px, transparent 2px 8px);
+}
+
+.woven-texture {
+    background-image:
+        repeating-linear-gradient(0deg, transparent 0 10px, rgb(0 0 0 / 14%) 10px 12px,
+            transparent 12px 22px, rgb(255 255 255 / 12%) 22px 24px),
+        repeating-linear-gradient(90deg, transparent 0 10px, rgb(255 255 255 / 12%) 10px 12px,
+            transparent 12px 22px, rgb(0 0 0 / 14%) 22px 24px),
+        conic-gradient(from 90deg, rgb(255 255 255 / 8%) 25%, transparent 0 50%,
+            rgb(255 255 255 / 8%) 0 75%, transparent 0);
+    background-size: auto, auto, 24px 24px;
+}
+
+.chevron-texture {
+    background-image:
+        linear-gradient(135deg, rgb(255 255 255 / 11%) 25%, transparent 25%),
+        linear-gradient(225deg, rgb(255 255 255 / 11%) 25%, transparent 25%),
+        linear-gradient(315deg, rgb(255 255 255 / 11%) 25%, transparent 25%),
+        linear-gradient(45deg, rgb(255 255 255 / 11%) 25%, transparent 25%);
+    background-size: 48px 48px;
+    background-position: -24px 0, -24px 0, 0 0, 0 0;
+}
+
+.diamonds-texture {
+    background-image:
+        repeating-linear-gradient(45deg, transparent 0 27px, rgb(255 255 255 / 15%) 27px 28px, transparent 28px 56px),
+        repeating-linear-gradient(135deg, transparent 0 27px, rgb(255 255 255 / 15%) 27px 28px, transparent 28px 56px);
+}
+
+.blueprint-texture {
+    background-image:
+        linear-gradient(rgb(255 255 255 / 20%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 20%) 1px, transparent 1px),
+        linear-gradient(rgb(255 255 255 / 7%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 7%) 1px, transparent 1px),
+        linear-gradient(rgb(18 54 99 / 42%), rgb(18 54 99 / 42%));
+    background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px, 100% 100%;
+    background-position: -1px -1px;
+}
+
+.waves-texture {
+    background-image:
+        radial-gradient(ellipse at 50% 100%, transparent 68%, rgb(255 255 255 / 16%) 69% 71%, transparent 72%),
+        radial-gradient(ellipse at 50% 100%, transparent 68%, rgb(0 0 0 / 9%) 69% 71%, transparent 72%);
+    background-size: 64px 32px;
+    background-position: 0 0, 32px 16px;
+}
+
+.aurora-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 25%), rgb(0 0 0 / 25%)),
+        radial-gradient(ellipse at 15% 0%, rgb(163 127 225 / 52%), transparent 55%),
+        radial-gradient(ellipse at 80% 15%, rgb(108 220 192 / 48%), transparent 55%),
+        linear-gradient(125deg, transparent 20%, rgb(126 185 232 / 28%) 45%, transparent 70%),
+        linear-gradient(0deg, rgb(13 27 52 / 48%), rgb(13 27 52 / 12%));
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.topographic-texture {
+    background-image:
+        repeating-radial-gradient(ellipse 150% 180% at -45% -70%,
+            transparent 0 46px, rgb(255 255 255 / 17%) 47px 48px, transparent 49px 72px),
+        repeating-radial-gradient(ellipse 170% 160% at 150% 180%,
+            transparent 0 76px, rgb(0 0 0 / 10%) 77px 78px, transparent 79px 112px);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+/* Unequal tile sizes and offsets scatter fine dust, mid-distance stars and
+   occasional bright points without a uniform dotted-grid appearance. */
+:where(.starfield-texture, .nebula-texture, .deep-space-texture, .orbital-texture,
+    .black-hole-texture, .eclipse-texture, .pulsar-texture, .supernova-texture) {
+    --space-stars:
+        radial-gradient(circle at 13px 27px, rgb(230 238 255 / 38%) 0.45px, transparent 1px),
+        radial-gradient(circle at 59px 11px, rgb(255 255 255 / 28%) 0.5px, transparent 1.1px),
+        radial-gradient(circle at 37px 73px, rgb(182 210 255 / 48%) 0.6px, transparent 1.2px),
+        radial-gradient(circle at 101px 43px, rgb(255 230 209 / 40%) 0.55px, transparent 1.15px),
+        radial-gradient(circle at 71px 113px, rgb(255 255 255 / 65%) 0.7px, transparent 1.4px),
+        radial-gradient(circle at 149px 61px, rgb(201 223 255 / 58%) 0.8px, transparent 1.5px),
+        radial-gradient(circle at 43px 157px, rgb(255 215 237 / 48%) 0.65px, transparent 1.3px),
+        radial-gradient(circle at 191px 137px, rgb(255 255 255 / 74%) 0.85px, transparent 1.6px),
+        radial-gradient(circle at 127px 211px, rgb(188 216 255 / 62%) 0.9px, transparent 1.7px),
+        radial-gradient(circle at 223px 89px, rgb(255 237 214 / 76%) 1px, transparent 1.9px),
+        radial-gradient(circle at 79px 233px, rgb(255 255 255 / 90%) 1.1px,
+            rgb(168 204 255 / 22%) 1.8px, transparent 4px),
+        radial-gradient(circle at 277px 181px, rgb(223 236 255 / 88%) 1.3px,
+            rgb(166 192 255 / 18%) 2px, transparent 5px);
+    --space-star-sizes: 83px 109px, 127px 89px, 151px 167px, 181px 131px,
+        211px 197px, 239px 223px, 269px 251px, 307px 283px,
+        353px 317px, 397px 367px, 457px 419px, 541px 487px;
+    --space-star-positions: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0,
+        0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+}
+
+.starfield-texture {
+    background-image:
+        var(--space-stars),
+        radial-gradient(ellipse at 65% 25%, rgb(148 139 205 / 25%), transparent 65%),
+        linear-gradient(125deg, rgb(10 20 42 / 65%), rgb(10 20 42 / 48%));
+    background-size: var(--space-star-sizes), 100% 100%, 100% 100%;
+}
+
+.nebula-texture {
+    background-image:
+        var(--space-stars),
+        radial-gradient(ellipse at 48% 46%, rgb(7 9 24 / 70%), transparent 34%),
+        radial-gradient(ellipse at 32% 68%, rgb(9 11 30 / 60%), transparent 29%),
+        radial-gradient(ellipse at 36% 36%, rgb(245 180 222 / 24%), transparent 19%),
+        radial-gradient(ellipse at 26% 44%, rgb(175 75 205 / 64%), transparent 44%),
+        radial-gradient(ellipse at 62% 65%, rgb(58 150 206 / 50%), transparent 39%),
+        radial-gradient(ellipse at 78% 24%, rgb(89 75 174 / 54%), transparent 47%),
+        radial-gradient(ellipse at 12% 82%, rgb(109 50 131 / 48%), transparent 42%),
+        linear-gradient(118deg, transparent 24%, rgb(193 111 178 / 15%) 39%,
+            rgb(109 158 216 / 18%) 52%, transparent 70%),
+        linear-gradient(140deg, #090d1d, #171126 48%, #0c1a2b 78%, #100e20);
+    background-size: var(--space-star-sizes),
+        100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+        100% 100%, 100% 100%, 100% 100%, 100% 100%;
+}
+
+.deep-space-texture {
+    background-image:
+        /* Distinct worlds frame a dark central lane, rather than duplicate icons. */
+        url('../images/deep-space-planet.svg'),
+        url('../images/deep-space-moon.svg'),
+        var(--space-stars),
+        radial-gradient(ellipse at 47% 54%, rgb(1 3 10 / 94%) 10%, transparent 65%),
+        radial-gradient(ellipse at 91% 16%, rgb(58 106 151 / 36%), transparent 48%),
+        radial-gradient(ellipse at 8% 85%, rgb(84 61 119 / 26%), transparent 44%),
+        linear-gradient(128deg, transparent 22%, rgb(111 131 165 / 9%) 34%,
+            rgb(2 5 14 / 78%) 39%, transparent 45%, rgb(84 111 151 / 8%) 53%, transparent 64%),
+        linear-gradient(150deg, #02050c, #091220 56%, #060812);
+    background-size: min(60%, 820px) auto, min(15%, 180px) auto, var(--space-star-sizes),
+        100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    background-position: 110% calc(8% + var(--background-scene-offset, 0px)),
+        9% calc(84% + var(--background-scene-offset, 0px)),
+        var(--space-star-positions), 0 0, 0 0, 0 0, 0 0, 0 0;
+    background-repeat: no-repeat, no-repeat,
+        repeat, repeat, repeat, repeat, repeat, repeat,
+        repeat, repeat, repeat, repeat, repeat, repeat,
+        no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+}
+
+/* The immense silhouette stays black; only the background artwork drifts.
+   No transform or filter is applied to boards, text or their popovers. */
+.black-hole-texture {
+    position: relative;
+    isolation: isolate;
+    background-image:
+        radial-gradient(ellipse at 50% 50%, rgb(0 0 0 / 98%) 12%, rgb(0 0 0 / 75%) 42%, transparent 82%),
+        var(--space-stars),
+        linear-gradient(#050509, #08070c);
+    background-size: 100% 100%, var(--space-star-sizes), 100% 100%;
+}
+
+.black-hole-texture::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url('../images/black-hole.svg') 50% 48% / 112% auto no-repeat;
+    background-position: 50% calc(48% + var(--background-scene-offset, 0px));
+    animation: black-hole-drift 180s ease-in-out infinite alternate;
+}
+
+@keyframes black-hole-drift {
+    to {
+        background-size: 120% auto;
+        background-position: 51% calc(52% + var(--background-scene-offset, 0px));
+        opacity: 0.82;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .black-hole-texture::before {
+        animation: none;
+    }
+}
+
+.hologram-texture {
+    background-image:
+        repeating-linear-gradient(0deg, rgb(138 246 244 / 5%) 0 1px, transparent 1px 5px),
+        linear-gradient(rgb(110 235 236 / 13%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(110 235 236 / 13%) 1px, transparent 1px),
+        radial-gradient(ellipse at 25% 18%, rgb(35 153 172 / 32%), transparent 65%),
+        linear-gradient(135deg, #0a1926, #102b35);
+    background-size: auto, 64px 64px, 64px 64px, 100% 100%, 100% 100%;
+}
+
+/* Full-scene local artwork shares Black Hole's centered, edge-framing scale.
+   Static layers avoid repainting detailed SVG filters on every animation frame. */
+:is(.orbital-texture, .eclipse-texture, .pulsar-texture, .supernova-texture) {
+    background-image:
+        var(--celestial-art),
+        var(--space-stars),
+        radial-gradient(ellipse at 50% 50%, rgb(1 3 9 / 75%) 12%, transparent 76%),
+        linear-gradient(135deg, #04070e, #0a1020);
+    background-size: 112% auto, var(--space-star-sizes), 100% 100%, 100% 100%;
+    background-position: center calc(50% + var(--background-scene-offset, 0px)),
+        var(--space-star-positions), 0 0, 0 0;
+    background-repeat: no-repeat,
+        repeat, repeat, repeat, repeat, repeat, repeat,
+        repeat, repeat, repeat, repeat, repeat, repeat,
+        no-repeat, no-repeat;
+}
+
+.orbital-texture { --celestial-art: url('../images/orbital.svg'); }
+.eclipse-texture { --celestial-art: url('../images/eclipse.svg'); }
+.pulsar-texture { --celestial-art: url('../images/pulsar.svg'); }
+.supernova-texture { --celestial-art: url('../images/supernova.svg'); }
+
+/* Keep the circular composition large enough to frame a narrow viewport. */
+@media (max-width: 600px) {
+    #acas-instance-container.deep-space-texture {
+        background-size: 94% auto, 23% auto, var(--space-star-sizes),
+            100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+        background-position: 240% calc(6% + var(--background-scene-offset, 0px)),
+            3% calc(88% + var(--background-scene-offset, 0px)),
+            var(--space-star-positions), 0 0, 0 0, 0 0, 0 0, 0 0;
+    }
+
+    #acas-instance-container:is(.orbital-texture, .eclipse-texture, .pulsar-texture, .supernova-texture) {
+        background-size: auto 100%, var(--space-star-sizes), 100% 100%, 100% 100%;
+    }
+}
+
+.synthwave-texture {
+    background-image:
+        repeating-linear-gradient(0deg, rgb(12 6 29 / 16%) 0 1px, transparent 1px 5px),
+        radial-gradient(circle at 50% 32%, #ffc67e 0%, #f477b1 9%, rgb(244 119 177 / 0%) 9.4%),
+        linear-gradient(180deg, #160e2c 0%, rgb(22 14 44 / 90%) 45%, rgb(22 14 44 / 0%) 63%),
+        repeating-conic-gradient(from -45deg at 50% 52%, transparent 0deg 8.7deg,
+            rgb(222 100 255 / 36%) 8.8deg 9deg, transparent 9.1deg 18deg),
+        repeating-linear-gradient(0deg, transparent 0 31px, rgb(230 105 255 / 32%) 31px 32px),
+        linear-gradient(180deg, #24113c, #3d154b 58%, #15112f);
+    background-size: auto, 100% 100%, 100% 100%, 100% 100%, 100% 46%, 100% 100%;
+    background-position: 0 0, 0 0, 0 0, 0 0, center bottom, 0 0;
+    background-repeat: no-repeat;
+}
+
+.cyberpunk-texture {
+    background-image:
+        repeating-linear-gradient(0deg, rgb(0 0 0 / 14%) 0 1px, transparent 1px 4px),
+        linear-gradient(125deg, transparent 19%, rgb(68 239 246 / 36%) 19.1% 19.3%, transparent 19.5%),
+        linear-gradient(125deg, transparent 73%, rgb(255 88 189 / 36%) 73.1% 73.4%, transparent 73.6%),
+        linear-gradient(rgb(128 108 199 / 9%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(128 108 199 / 9%) 1px, transparent 1px),
+        radial-gradient(ellipse at 0% 80%, rgb(20 184 201 / 32%), transparent 55%),
+        radial-gradient(ellipse at 100% 15%, rgb(211 42 145 / 36%), transparent 60%),
+        linear-gradient(140deg, #101322, #20132d);
+    background-size: auto, 100% 100%, 100% 100%, 48px 48px, 48px 48px,
+        100% 100%, 100% 100%, 100% 100%;
+}
+
+/* Only the image layer is filtered; boards, text and overlays stay sharp. */
+.custom-image-texture {
+    background-image: var(--custom-background-image, linear-gradient(135deg, rgb(255 255 255 / 12%), transparent));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#acas-instance-container.custom-image-texture {
+    position: relative;
+    isolation: isolate;
+    background-image: none;
+}
+
+.custom-background-layer {
+    display: none;
+}
+
+/* Clip the oversized blur inside a background-only wrapper, not the boards or
+   their menus. clip-path on the filtered layer alone still allows scroll overflow. */
+#acas-instance-container.custom-image-texture > .custom-background-layer {
+    display: block;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    overflow: clip;
+    contain: paint;
+    border-radius: inherit;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.custom-background-layer::before {
+    --custom-background-bleed: calc(var(--custom-background-blur, 0px) * 3);
+    content: "";
+    position: absolute;
+    inset: calc(0px - var(--custom-background-bleed));
+    /* Extra cover height shifts the image center below the header while the
+       wrapper clips the overscan, leaving no blank strip or page overflow. */
+    bottom: calc(0px - var(--custom-background-bleed) - var(--acas-header-height, 0px));
+    background-image: var(--custom-background-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(var(--custom-background-blur, 0px));
+}
+
+.background-texture-preview > .custom-image-texture {
+    filter: blur(var(--custom-background-blur, 0px));
+}
+
+.background-texture-setting > .floaty-wrapper {
+    flex-shrink: 0;
+}
+
+#custom-background-floaty {
+    box-sizing: border-box;
+    width: min(520px, calc(100vw - 32px));
+    max-width: calc(100vw - 24px);
+}
+
+/* Keep the background visible at its real sharpness while adjusting blur. */
+#custom-background-floaty::backdrop {
+    background: rgb(0 0 0 / 15%);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+#custom-background-floaty .title {
+    min-width: 0;
+}
+
+#custom-background-floaty .custom-background-controls {
+    gap: 14px;
+    padding: 16px;
+}
+
+#custom-background-floaty .book-upload-row {
+    width: 100%;
+}
+
+#custom-background-status {
+    overflow-wrap: anywhere;
+}
+
+#custom-background-status:empty {
+    display: none;
+}
+
+.custom-background-controls > .file-input {
+    justify-content: flex-start;
+}
+
+/* Full-surface washes: soft transitions, no tiled seams or content filters. */
+.pastel-watercolor-texture,
+.frosted-glass-texture,
+.liquid-glass-texture,
+.theme-glass-texture {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.pastel-watercolor-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 48%), rgb(0 0 0 / 48%)),
+        radial-gradient(ellipse at 12% 18%, rgb(250 209 222 / 70%) 0%,
+            rgb(250 209 222 / 32%) 28%, rgb(250 209 222 / 0%) 64%),
+        radial-gradient(ellipse at 86% 12%, rgb(206 197 244 / 68%) 0%,
+            rgb(206 197 244 / 28%) 30%, rgb(206 197 244 / 0%) 68%),
+        radial-gradient(ellipse at 70% 92%, rgb(255 220 185 / 66%) 0%,
+            rgb(255 220 185 / 24%) 32%, rgb(255 220 185 / 0%) 70%),
+        radial-gradient(ellipse at 8% 85%, rgb(186 230 218 / 64%) 0%,
+            rgb(186 230 218 / 26%) 28%, rgb(186 230 218 / 0%) 66%),
+        linear-gradient(135deg, rgb(249 237 239 / 18%), rgb(224 231 250 / 12%));
+}
+
+.frosted-glass-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 48%), rgb(0 0 0 / 48%)),
+        linear-gradient(125deg, rgb(255 255 255 / 24%) 0%,
+            rgb(255 255 255 / 6%) 38%, rgb(255 255 255 / 16%) 100%),
+        radial-gradient(ellipse at 28% -15%, rgb(248 251 255 / 56%) 0%,
+            rgb(248 251 255 / 12%) 40%, rgb(248 251 255 / 0%) 72%),
+        radial-gradient(ellipse at 95% 28%, rgb(205 196 244 / 58%) 0%,
+            rgb(205 196 244 / 18%) 35%, rgb(205 196 244 / 0%) 70%),
+        radial-gradient(ellipse at 8% 95%, rgb(175 222 232 / 58%) 0%,
+            rgb(175 222 232 / 16%) 38%, rgb(175 222 232 / 0%) 74%),
+        radial-gradient(ellipse at 78% 110%, rgb(239 209 224 / 42%) 0%,
+            rgb(239 209 224 / 0%) 64%),
+        linear-gradient(160deg, rgb(218 230 243 / 16%), rgb(96 120 152 / 18%));
+}
+
+/* Curved light rims suggest liquid glass using only background gradients. */
+.liquid-glass-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 46%), rgb(0 0 0 / 46%)),
+        radial-gradient(ellipse 78% 130% at 96% 112%,
+            rgb(225 243 255 / 10%) 0%, rgb(225 243 255 / 3%) 45%,
+            rgb(255 255 255 / 8%) 48%, rgb(255 255 255 / 46%) 49.5%,
+            rgb(255 255 255 / 10%) 50.5%, rgb(154 180 230 / 10%) 52%,
+            rgb(154 180 230 / 0%) 56%),
+        radial-gradient(ellipse 92% 145% at -8% -28%,
+            rgb(255 255 255 / 14%) 0%, rgb(255 255 255 / 4%) 43%,
+            rgb(255 255 255 / 28%) 48%, rgb(255 255 255 / 7%) 49%,
+            rgb(255 255 255 / 0%) 53%),
+        linear-gradient(120deg, rgb(255 255 255 / 18%) 0%,
+            rgb(255 255 255 / 0%) 36%, rgb(255 255 255 / 12%) 64%,
+            rgb(255 255 255 / 0%) 85%),
+        radial-gradient(ellipse at 18% 20%, rgb(186 218 255 / 62%) 0%,
+            rgb(186 218 255 / 0%) 68%),
+        radial-gradient(ellipse at 88% 12%, rgb(224 193 241 / 56%) 0%,
+            rgb(224 193 241 / 0%) 65%),
+        radial-gradient(ellipse at 65% 105%, rgb(166 235 219 / 52%) 0%,
+            rgb(166 235 219 / 0%) 68%),
+        linear-gradient(150deg, rgb(108 136 181 / 16%), rgb(80 104 151 / 28%));
+}
+
+/* Neutral light layers pastelize the actual theme hue, without a fixed palette. */
+.theme-glass-texture {
+    background-image:
+        linear-gradient(rgb(0 0 0 / 46%), rgb(0 0 0 / 46%)),
+        radial-gradient(ellipse 78% 135% at 100% 115%,
+            rgb(255 255 255 / 5%) 0%, rgb(255 255 255 / 2%) 43%,
+            rgb(255 255 255 / 10%) 47%, rgb(255 255 255 / 38%) 49%,
+            rgb(255 255 255 / 12%) 50.5%, rgb(255 255 255 / 0%) 55%),
+        radial-gradient(ellipse 95% 150% at -12% -35%,
+            rgb(255 255 255 / 12%) 0%, rgb(255 255 255 / 3%) 43%,
+            rgb(255 255 255 / 24%) 48%, rgb(255 255 255 / 5%) 50%,
+            rgb(255 255 255 / 0%) 55%),
+        radial-gradient(ellipse at 18% 12%, rgb(255 255 255 / 42%) 0%,
+            rgb(255 255 255 / 16%) 32%, rgb(255 255 255 / 0%) 72%),
+        radial-gradient(ellipse at 82% 88%, rgb(255 255 255 / 28%) 0%,
+            rgb(255 255 255 / 8%) 36%, rgb(255 255 255 / 0%) 70%),
+        radial-gradient(ellipse at 92% 25%, rgb(0 0 0 / 8%) 0%,
+            rgb(0 0 0 / 0%) 65%),
+        linear-gradient(125deg, rgb(255 255 255 / 22%) 0%,
+            rgb(255 255 255 / 10%) 45%, rgb(255 255 255 / 24%) 100%);
+}
+
+/* Swatches use the same classes and theme color as the real background. */
+.background-texture-picker .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.background-texture-preview {
+    display: block;
+    flex: 0 0 48px;
+    height: 32px;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 25%);
+    border-radius: 5px;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.background-texture-preview > span {
+    display: block;
+    width: 144px;
+    height: 96px;
+    transform: scale(0.333333);
+    transform-origin: top left;
+}
+
+/* The real Chess surface gets an inline theme fill; its swatch needs it too. */
+.background-texture-preview > .chess-texture {
+    background-color: var(--background-texture-base, #5f8895);
 }

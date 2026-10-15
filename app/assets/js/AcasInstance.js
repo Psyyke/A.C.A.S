@@ -1101,7 +1101,7 @@ export default class AcasInstance {
         const book = this.openingBooks?.get(profile);
 
         if(!book) {
-            this.Interface.removeBookMarkings();
+            this.Interface.removeBookMarkings(profile);
             return;
         }
 
@@ -1127,7 +1127,12 @@ export default class AcasInstance {
             const savedFileName = await this.getConfigValue(this.configKeys.openingBookName, profileName);
 
             if(!savedFileName || typeof savedFileName !== 'string' || !savedFileName.trim()) {
+                const hadBook = this.openingBooks.get(profileName);
                 this.openingBooks.set(profileName, null);
+                this.Interface.removeBookMarkings(profileName);
+                if(hadBook) this.CommLink?.commands?.renderVisualsToSite?.([{
+                    profileID: profileName, category: 'book'
+                }]);
                 continue;
             }
 

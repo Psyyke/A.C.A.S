@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["Automatsko skrivanje (ms)", "Automatski sakri funkcije pomoći nakon ovog vremena"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Прилагођена слика позадине", "blur": "Замућење слике",
+            "imageHint": "PNG, JPEG, WebP, GIF или AVIF, до 10 MB. Чува се само у овом прегледачу, не у извезеним подешавањима.",
+            "noImage": "Слика није изабрана", "chooseImage": "Изабери слику позадине", "removeImage": "Уклони слику",
+            "noBook": "Књига није учитана", "chooseBook": "Изабери књигу отварања", "removeBook": "Уклони књигу отварања",
+            "loadingImage": "Учитавање сачуване слике…", "imageUnavailable": "Сачувана слика није доступна. Изаберите слику поново.",
+            "invalidImage": "Ова слика не може да се прочита.", "imageType": "Изаберите PNG, JPEG, WebP, GIF или AVIF слику.", "imageSize": "Слика не сме бити већа од 10 MB.",
+            "imageSaveFailed": "Слика позадине није сачувана. Складиште је недоступно или пуно.", "imageRemoveFailed": "Сачувана слика позадине није уклоњена.",
+            "bookRemoveFailed": "Књига отварања није уклоњена.", "blurValue": "{value} пиксела",
+            "textures": {
+                "eclipse": "Помрачење", "pulsar": "Пулсар", "supernova": "Супернова",
+                "black-hole": "Црна рупа",
+                "none": "Без", "chess": "Шаховска табла", "paper": "Папир", "tartan": "Тартан", "boxes": "Квадратићи", "dotted": "Тачке", "striped": "Пруге", "circles": "Кругови",
+                "isometric": "Изометријски", "abstract": "Апстрактно", "watercolor": "Акварел", "pastel-watercolor": "Пастелни акварел", "frosted-glass": "Матирано стакло", "liquid-glass": "Течно стакло", "theme-glass": "Стакло у боји теме",
+                "rainbow": "Дуга", "linen": "Лан", "woven": "Ткање", "chevron": "Цикцак", "diamonds": "Ромбови", "blueprint": "Технички цртеж", "waves": "Таласи", "aurora": "Поларна светлост", "topographic": "Изохипсе", "starfield": "Звездано поље",
+                "nebula": "Маглина", "deep-space": "Дубоки свемир", "hologram": "Холограм", "orbital": "Орбите", "synthwave": "Синтвејв", "cyberpunk": "Сајберпанк", "custom-image": "Прилагођена слика"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Podešavanja važe za sve instance",
         "settingsNavbarInstanceSubtitle": "Podešavanja važe samo za instancu \"{instanceID}\"",
         "moveFeedback": {

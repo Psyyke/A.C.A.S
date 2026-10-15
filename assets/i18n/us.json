@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Auto Conceal (ms)", "Automatically conceal after this time"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Custom Background Image", "blur": "Image Blur",
+            "imageHint": "PNG, JPEG, WebP, GIF or AVIF, up to 10 MB. Saved only in this browser, not in settings exports.",
+            "noImage": "No image selected", "chooseImage": "Choose a background image", "removeImage": "Remove image",
+            "noBook": "No book loaded", "chooseBook": "Choose an opening book", "removeBook": "Remove opening book",
+            "loadingImage": "Loading saved image…", "imageUnavailable": "Saved image unavailable. Choose an image to try again.",
+            "invalidImage": "This image could not be read.", "imageType": "Choose a PNG, JPEG, WebP, GIF or AVIF image.", "imageSize": "The image must be 10 MB or smaller.",
+            "imageSaveFailed": "Could not save the background image. Storage may be unavailable or full.", "imageRemoveFailed": "Could not remove the saved background image.",
+            "bookRemoveFailed": "Could not remove the opening book.", "blurValue": "{value} pixels",
+            "textures": {
+                "eclipse": "Eclipse", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Black Hole",
+                "none": "None", "chess": "Chess", "paper": "Paper", "tartan": "Tartan", "boxes": "Boxes", "dotted": "Dotted", "striped": "Striped", "circles": "Circles",
+                "isometric": "Isometric", "abstract": "Abstract", "watercolor": "Watercolor", "pastel-watercolor": "Pastel Watercolor", "frosted-glass": "Frosted Glass", "liquid-glass": "Liquid Glass", "theme-glass": "Theme Glass",
+                "rainbow": "Rainbow", "linen": "Linen", "woven": "Woven", "chevron": "Chevron", "diamonds": "Diamonds", "blueprint": "Blueprint", "waves": "Waves", "aurora": "Aurora", "topographic": "Topographic", "starfield": "Starfield",
+                "nebula": "Nebula", "deep-space": "Deep Space", "hologram": "Hologram", "orbital": "Orbital", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Custom Image"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Settings affect every instance",
         "settingsNavbarInstanceSubtitle": "Settings only affect instance \"{instanceID}\"",
         "moveFeedback": {

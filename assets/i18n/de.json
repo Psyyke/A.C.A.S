@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Automatisches Verbergen (ms)", "Hilfsfunktionen nach dieser Zeit automatisch verbergen"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Eigenes Hintergrundbild", "blur": "Bildunschärfe",
+            "imageHint": "PNG, JPEG, WebP, GIF oder AVIF, bis zu 10 MB. Nur in diesem Browser gespeichert, nicht in exportierten Einstellungen.",
+            "noImage": "Kein Bild ausgewählt", "chooseImage": "Hintergrundbild auswählen", "removeImage": "Bild entfernen",
+            "noBook": "Kein Buch geladen", "chooseBook": "Eröffnungsbuch auswählen", "removeBook": "Eröffnungsbuch entfernen",
+            "loadingImage": "Gespeichertes Bild wird geladen…", "imageUnavailable": "Gespeichertes Bild nicht verfügbar. Wähle ein Bild, um es erneut zu versuchen.",
+            "invalidImage": "Dieses Bild konnte nicht gelesen werden.", "imageType": "Wähle ein PNG-, JPEG-, WebP-, GIF- oder AVIF-Bild.", "imageSize": "Das Bild darf höchstens 10 MB groß sein.",
+            "imageSaveFailed": "Das Hintergrundbild konnte nicht gespeichert werden. Der Speicher ist möglicherweise nicht verfügbar oder voll.", "imageRemoveFailed": "Das gespeicherte Hintergrundbild konnte nicht entfernt werden.",
+            "bookRemoveFailed": "Das Eröffnungsbuch konnte nicht entfernt werden.", "blurValue": "{value} Pixel",
+            "textures": {
+                "eclipse": "Sonnenfinsternis", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Schwarzes Loch",
+                "none": "Keines", "chess": "Schachbrett", "paper": "Papier", "tartan": "Schottenmuster", "boxes": "Kästchen", "dotted": "Punkte", "striped": "Streifen", "circles": "Kreise",
+                "isometric": "Isometrisch", "abstract": "Abstrakt", "watercolor": "Aquarell", "pastel-watercolor": "Pastellaquarell", "frosted-glass": "Milchglas", "liquid-glass": "Flüssigglas", "theme-glass": "Glas in Designfarbe",
+                "rainbow": "Regenbogen", "linen": "Leinen", "woven": "Gewebe", "chevron": "Zickzack", "diamonds": "Rauten", "blueprint": "Blaupause", "waves": "Wellen", "aurora": "Polarlicht", "topographic": "Topografisch", "starfield": "Sternenfeld",
+                "nebula": "Nebel", "deep-space": "Tiefer Weltraum", "hologram": "Hologramm", "orbital": "Orbital", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Eigenes Bild"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Die Einstellungen gelten für alle Instanzen",
         "settingsNavbarInstanceSubtitle": "Die Einstellungen gelten nur für Instanz \"{instanceID}\"",
         "moveFeedback": {

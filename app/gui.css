@@ -115,6 +115,7 @@
 	}
 }
 body {
+	--acas-header-height: 89px;
 	font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif;
 	margin: 0;
 	background-color: #5f8895;
@@ -245,16 +246,23 @@ cg-container {
 	bottom: -20px;
 }
 #acas-header {
+	box-sizing: border-box;
 	padding: 15px 20px 20px;
 	background-color: rgb(0 0 0 / 70%);
-	height: 50px;
+	height: var(--acas-header-height);
+	flex-shrink: 0;
 	display: flex;
 	justify-content: space-between;
     z-index: 1000;
     position: sticky;
     top: 0;
-	backdrop-filter: blur(10px);
+	/* Live backdrop blur here can leave tile seams when hover layers repaint. */
 	border-bottom: 4px solid rgb(0 0 0 / 35%);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    background-image: var(--header-background-grain-image, var(--background-grain-image, none)), linear-gradient(to bottom right, rgb(0 0 0 / 4%), rgb(0 0 0 / 15%) 30%, rgb(0 0 0 / 30%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
 }
 #acas-logo {
 	font-size: 30px;
@@ -333,13 +341,25 @@ cg-container {
 	z-index: 10;
 	border: 2px solid rgb(255 255 255 / 25%);
 	border-bottom-width: 5px;
+    /* Keep the grain sharp on the panel, rather than inside its backdrop blur. */
+    background-image:
+        var(--background-grain-image, none),
+        linear-gradient(to bottom, rgb(0 0 0 / 5%), rgb(0 0 0 / 40%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
 }
 #acas-instance-container {
+	/* Center artwork in the visible area below the overlapping header. */
+	--background-scene-offset: calc(var(--acas-header-height) / 2);
 	display: flex;
 	justify-content: center;
 	flex-wrap: wrap;
 	height: fit-content;
-	padding: 10px;
+	/* Paint the same texture/image behind the sticky header, even at scroll top. */
+	margin-top: calc(0px - var(--acas-header-height));
+	padding: calc(var(--acas-header-height) + 10px) 10px 10px;
 	grid-gap: 10px;
 }
 .chessboard-components {
@@ -348,7 +368,7 @@ cg-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: rgb(0 0 0 / 56%);
+	background-color: rgb(0 0 0 / 35%);
 	padding: 10px 20px 20px 20px;
 }
 .instance-opening-container {
@@ -361,9 +381,7 @@ cg-container {
     font-weight: 400;
     color: rgb(255 255 255 / 70%);
     border-bottom: 4px;
-    background-color: rgb(0 0 0 / 40%);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    background-color: rgb(0 0 0 / 30%);
 }
 .instance-opening-container span {
     padding: 7px;
@@ -406,11 +424,11 @@ cg-container {
 	padding: 10px;
 	color: white;
 	height: fit-content;
-	background-color: rgb(0 0 0 / 73%);
+	background-color: rgb(0 0 0 / 70%);
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	border-radius: 5px 5px 0 0;
+	border-radius: 7px 7px 0 0;
 }
 .instance-basic-info {
 	display: flex;
@@ -455,9 +473,7 @@ cg-container {
     color: rgb(255 255 255 / 70%);
     border-bottom: 4px;
     border-radius: 0 0 5px 5px;
-    background-color: rgb(0 0 0 / 30%);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    background-color: rgb(0 0 0 / 16%);
 }
 .instance-feedback {
     font-size: 12px;
@@ -880,7 +896,11 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	display: none !important;
 }
 #no-instances-container {
-    background: linear-gradient(to bottom, rgb(0 0 0 / 5%), rgb(0 0 0 / 20%));
+    background-image:
+        var(--background-grain-image, none),
+        linear-gradient(to bottom, rgb(0 0 0 / 5%), rgb(0 0 0 / 20%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
 	color: rgb(255 255 255 / 75%);
 	padding: 30px 10px 10px 10px;
 	display: flex;
@@ -890,6 +910,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	width: 500px;
 	text-align: center;
 	z-index: 5;
+	-webkit-backdrop-filter: blur(20px);
 	backdrop-filter: blur(20px);
 	border: 2px solid rgb(255 255 255 / 33%);
 }
@@ -993,6 +1014,11 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	flex-grow: 1;
 	z-index: 10;
 	border-bottom: 3px solid rgb(255 255 255 / 5%);
+    background-image:
+        var(--background-grain-image, none),
+        linear-gradient(to bottom right, rgb(0 0 0 / 4%), rgb(0 0 0 / 30%) 48%, rgb(0 0 0 / 76%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
 }
 #settings-navbar {
 	width: fit-content;
@@ -1938,10 +1964,15 @@ input[disabled] {
     font-size: 1rem;
     line-height: 1.4;
     opacity: 1 !important;
+    box-shadow: 0 12px 40px rgb(0 0 0 / 20%);
+}
+#log-floaty .floaty-container {
+    background-color: transparent;
 }
 #log-floaty .floaty-header {
     gap: 0;
     align-items: center;
+    background-color: rgb(0 0 0 / 8%);
 }
 #log-floaty .floaty-close-btn {
     box-sizing: border-box;
@@ -1966,6 +1997,7 @@ input[disabled] {
     padding: 0;
     gap: 0;
     min-height: 0;
+    background-color: transparent;
 }
 #log-floaty .activity-log-toolbar {
     position: relative;
@@ -2571,8 +2603,7 @@ input[disabled] {
     max-width: 95vw;
     max-height: 96vh;
     border-bottom-width: 3px;
-    background-color: rgb(0 0 0 / 25%);
-    box-shadow: 0 18px 60px rgb(0 0 0 / 45%);
+    box-shadow: 0 18px 60px rgb(0 0 0 / 30%);
 }
 #dynamic-settings-floaty .floaty-container {
     padding: 0;
@@ -2586,7 +2617,7 @@ input[disabled] {
     overflow: auto;
     padding: 0;
     gap: 6px;
-    background-color: rgb(0 0 0 / 12%);
+    background-color: rgb(0 0 0 / 6%);
 }
 #dynamic-settings-floaty .dynamic-settings-toolbar {
     display: flex;
@@ -3583,20 +3614,10 @@ input[disabled] {
     font-size: 0.8em;
     background-color: rgb(255 255 255 / 6%);
 }
-.unstable-engine-tag {
-	background-color: rgb(255 0 0 / 22%);
-}
-.needs-fixing-engine-tag {
-	background-color: rgb(255 0 0 / 22%);
-}
-.realistic-engine-tag {
-	background-color: rgb(19 255 0 / 17%);
-}
-.variants-engine-tag {
-	background-color: rgba(0, 255, 234, 0.17);
-}
-.stable-engine-tag {
-	background-color: rgba(17, 255, 0, 0.25);
+.list-tag:is(.unstable-engine-tag, .needs-fixing-engine-tag,
+    .realistic-engine-tag, .variants-engine-tag, .stable-engine-tag) {
+    background-color: rgb(255 255 255 / 18%);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 16%);
 }
 .gas-container {
     width: 100%;
@@ -3636,6 +3657,11 @@ video {
     overflow: hidden;
     background: #000000a3;
     border-top: 1px solid rgb(0 0 0 / 12%);
+    background-image:
+        var(--background-grain-image, none),
+        linear-gradient(to bottom right, rgb(0 0 0 / 4%), rgb(0 0 0 / 30%) 48%, rgb(0 0 0 / 76%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
 }
 #footer::before {
     position: absolute;

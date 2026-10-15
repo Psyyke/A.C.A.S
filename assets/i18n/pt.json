@@ -177,6 +177,24 @@
         "concealAssistanceAutoDelayMs": ["Ocultação automática (ms)", "Ocultar automaticamente os recursos de assistência após este tempo"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Imagem de fundo personalizada", "blur": "Desfoque da imagem",
+            "imageHint": "PNG, JPEG, WebP, GIF ou AVIF, até 10 MB. Guardada apenas neste navegador, não nas definições exportadas.",
+            "noImage": "Nenhuma imagem selecionada", "chooseImage": "Escolher imagem de fundo", "removeImage": "Remover imagem",
+            "noBook": "Nenhum livro carregado", "chooseBook": "Escolher livro de aberturas", "removeBook": "Remover livro de aberturas",
+            "loadingImage": "A carregar a imagem guardada…", "imageUnavailable": "Imagem guardada indisponível. Escolha uma imagem para tentar novamente.",
+            "invalidImage": "Não foi possível ler esta imagem.", "imageType": "Escolha uma imagem PNG, JPEG, WebP, GIF ou AVIF.", "imageSize": "A imagem deve ter no máximo 10 MB.",
+            "imageSaveFailed": "Não foi possível guardar a imagem de fundo. O armazenamento pode estar indisponível ou cheio.", "imageRemoveFailed": "Não foi possível remover a imagem de fundo guardada.",
+            "bookRemoveFailed": "Não foi possível remover o livro de aberturas.", "blurValue": "{value} píxeis",
+            "textures": {
+                "eclipse": "Eclipse", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Buraco negro",
+                "none": "Nenhuma", "chess": "Xadrez", "paper": "Papel", "tartan": "Tartã", "boxes": "Quadrícula", "dotted": "Pontos", "striped": "Riscas", "circles": "Círculos",
+                "isometric": "Isométrico", "abstract": "Abstrato", "watercolor": "Aguarela", "pastel-watercolor": "Aguarela pastel", "frosted-glass": "Vidro fosco", "liquid-glass": "Vidro líquido", "theme-glass": "Vidro do tema",
+                "rainbow": "Arco-íris", "linen": "Linho", "woven": "Tecido", "chevron": "Ziguezague", "diamonds": "Losangos", "blueprint": "Planta técnica", "waves": "Ondas", "aurora": "Aurora", "topographic": "Topográfico", "starfield": "Campo estelar",
+                "nebula": "Nebulosa", "deep-space": "Espaço profundo", "hologram": "Holograma", "orbital": "Orbital", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Imagem personalizada"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "As configurações se aplicam a todas as instâncias",
         "settingsNavbarInstanceSubtitle": "As configurações se aplicam apenas à instância \"{instanceID}\"",
         "moveFeedback": {

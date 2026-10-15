@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+    <defs>
+        <radialGradient id="field">
+            <stop offset=".1" stop-color="#447abb" stop-opacity=".08"/>
+            <stop offset=".46" stop-color="#304a88" stop-opacity=".13"/>
+            <stop offset=".74" stop-color="#43336d" stop-opacity=".06"/>
+            <stop offset="1" stop-color="#11162b" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="jet" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="#77b8ec" stop-opacity="0"/>
+            <stop offset=".34" stop-color="#87caef" stop-opacity=".12"/>
+            <stop offset=".5" stop-color="#d8efff" stop-opacity=".7"/>
+            <stop offset=".66" stop-color="#87caef" stop-opacity=".12"/>
+            <stop offset="1" stop-color="#77b8ec" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="core">
+            <stop stop-color="#edfbff"/>
+            <stop offset=".12" stop-color="#b7e2ff" stop-opacity=".8"/>
+            <stop offset=".32" stop-color="#5898d1" stop-opacity=".22"/>
+            <stop offset="1" stop-color="#4881bd" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8"/></filter>
+        <g id="loops" fill="none">
+            <path d="M800 455C749 331 584 252 448 316C227 420 360 686 584 673C698 667 763 594 800 545"/>
+            <path d="M800 455C735 285 489 160 318 294C60 497 292 807 565 741C707 707 767 614 800 545"/>
+            <path d="M800 455C713 218 415 103 211 276C-54 501 227 917 566 806C711 759 785 608 800 545"/>
+            <path d="M800 455C780 369 648 322 565 372C418 461 502 630 652 609C721 599 774 565 800 545"/>
+        </g>
+    </defs>
+    <ellipse cx="800" cy="500" rx="780" ry="485" fill="url(#field)"/>
+    <!-- Paired magnetic lobes wrap around the middle; only a small core is bright. -->
+    <g transform="rotate(18 800 500)">
+        <g stroke="#5389bd" stroke-width="11" opacity=".12" filter="url(#glow)">
+            <use href="#loops"/><use href="#loops" transform="translate(1600 0) scale(-1 1)"/>
+        </g>
+        <g stroke="#75a9cc" stroke-width="1" opacity=".29">
+            <use href="#loops"/><use href="#loops" transform="translate(1600 0) scale(-1 1)"/>
+        </g>
+        <g fill="none" stroke="#a8d6ea" stroke-width="1.7" opacity=".38">
+            <path d="M433 327C332 385 334 473 365 531M359 710C420 749 501 756 565 741M581 370C538 394 523 423 518 444"/>
+            <path d="M1167 327C1268 385 1266 473 1235 531M1241 710C1180 749 1099 756 1035 741M1019 370C1062 394 1077 423 1082 444"/>
+        </g>
+        <path d="M779 500L791 62Q800 33 809 62L821 500L809 938Q800 967 791 938Z" fill="url(#jet)" filter="url(#glow)"/>
+        <path d="M797 70L800 475L803 70M797 930L800 525L803 930" fill="url(#jet)" opacity=".8"/>
+        <g fill="none" stroke="#80badb" opacity=".25">
+            <ellipse cx="800" cy="167" rx="23" ry="7"/>
+            <ellipse cx="800" cy="220" rx="17" ry="5"/>
+            <ellipse cx="800" cy="780" rx="17" ry="5"/>
+            <ellipse cx="800" cy="833" rx="23" ry="7"/>
+            <ellipse cx="800" cy="500" rx="175" ry="34" transform="rotate(-12 800 500)"/>
+            <ellipse cx="800" cy="500" rx="209" ry="43" transform="rotate(-12 800 500)" stroke-dasharray="65 15 7 22"/>
+        </g>
+        <circle cx="800" cy="500" r="74" fill="url(#core)"/>
+        <circle cx="800" cy="500" r="4" fill="#d9efff" opacity=".9"/>
+        <g fill="#b5d5eb" opacity=".65">
+            <circle cx="321" cy="360" r="1.5"/><circle cx="553" cy="743" r="1.3"/>
+            <circle cx="1259" cy="395" r="1.4"/><circle cx="1035" cy="609" r="1.1"/>
+        </g>
+    </g>
+</svg>

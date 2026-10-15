@@ -180,6 +180,24 @@
 
     },
     "translations": {
+        "appearance": {
+            "customImage": "Imagen de fondo personalizada", "blur": "Desenfoque de imagen",
+            "imageHint": "PNG, JPEG, WebP, GIF o AVIF, hasta 10 MB. Se guarda solo en este navegador, no en los ajustes exportados.",
+            "noImage": "Ninguna imagen seleccionada", "chooseImage": "Elegir imagen de fondo", "removeImage": "Quitar imagen",
+            "noBook": "Ningún libro cargado", "chooseBook": "Elegir libro de aperturas", "removeBook": "Quitar libro de aperturas",
+            "loadingImage": "Cargando imagen guardada…", "imageUnavailable": "La imagen guardada no está disponible. Elige una imagen para reintentar.",
+            "invalidImage": "No se pudo leer esta imagen.", "imageType": "Elige una imagen PNG, JPEG, WebP, GIF o AVIF.", "imageSize": "La imagen debe ocupar 10 MB o menos.",
+            "imageSaveFailed": "No se pudo guardar la imagen de fondo. El almacenamiento podría no estar disponible o estar lleno.", "imageRemoveFailed": "No se pudo quitar la imagen de fondo guardada.",
+            "bookRemoveFailed": "No se pudo quitar el libro de aperturas.", "blurValue": "{value} píxeles",
+            "textures": {
+                "eclipse": "Eclipse", "pulsar": "Púlsar", "supernova": "Supernova",
+                "black-hole": "Agujero negro",
+                "none": "Ninguna", "chess": "Ajedrez", "paper": "Papel", "tartan": "Tartán", "boxes": "Cuadrícula", "dotted": "Puntos", "striped": "Rayas", "circles": "Círculos",
+                "isometric": "Isométrico", "abstract": "Abstracto", "watercolor": "Acuarela", "pastel-watercolor": "Acuarela pastel", "frosted-glass": "Vidrio esmerilado", "liquid-glass": "Vidrio líquido", "theme-glass": "Vidrio del tema",
+                "rainbow": "Arcoíris", "linen": "Lino", "woven": "Tejido", "chevron": "Zigzag", "diamonds": "Rombos", "blueprint": "Plano técnico", "waves": "Ondas", "aurora": "Aurora", "topographic": "Topográfico", "starfield": "Campo estelar",
+                "nebula": "Nebulosa", "deep-space": "Espacio profundo", "hologram": "Holograma", "orbital": "Orbital", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Imagen personalizada"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Los ajustes se aplican a todas las instancias",
         "settingsNavbarInstanceSubtitle": "Los ajustes solo se aplican a la instancia \"{instanceID}\"",
         "moveFeedback": {

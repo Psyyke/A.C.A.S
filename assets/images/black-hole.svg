@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+    <defs>
+        <radialGradient id="haze">
+            <stop offset=".3" stop-color="#000" stop-opacity="0"/>
+            <stop offset=".53" stop-color="#6e3425" stop-opacity=".18"/>
+            <stop offset=".72" stop-color="#3d2035" stop-opacity=".12"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="horizon">
+            <stop offset=".82" stop-color="#000"/>
+            <stop offset=".895" stop-color="#000"/>
+            <stop offset=".909" stop-color="#442b22"/>
+            <stop offset=".922" stop-color="#c18158"/>
+            <stop offset=".933" stop-color="#e3b78b"/>
+            <stop offset=".945" stop-color="#71402e" stop-opacity=".7"/>
+            <stop offset="1" stop-color="#6e3425" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="disc">
+            <stop stop-color="#47202a" stop-opacity="0"/>
+            <stop offset=".2" stop-color="#884a32" stop-opacity=".35"/>
+            <stop offset=".4" stop-color="#e1ab75" stop-opacity=".65"/>
+            <stop offset=".53" stop-color="#deb28a" stop-opacity=".8"/>
+            <stop offset=".72" stop-color="#9e5839" stop-opacity=".38"/>
+            <stop offset="1" stop-color="#47202a" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glow" x="-40%" y="-80%" width="180%" height="260%">
+            <feGaussianBlur stdDeviation="14"/>
+        </filter>
+        <filter id="soft" x="-10%" y="-50%" width="120%" height="200%">
+            <feGaussianBlur stdDeviation="3"/>
+        </filter>
+    </defs>
+    <ellipse cx="800" cy="500" rx="760" ry="490" fill="url(#haze)"/>
+    <!-- Distant accretion material bends over the immense central void. -->
+    <g fill="none" stroke="url(#disc)" transform="rotate(-8 800 500)">
+        <ellipse cx="800" cy="500" rx="685" ry="109" stroke-width="36" filter="url(#glow)"/>
+        <ellipse cx="800" cy="500" rx="650" ry="83" stroke-width="9" opacity=".45"/>
+        <ellipse cx="800" cy="500" rx="603" ry="65" stroke-width="3" opacity=".55"/>
+    </g>
+    <circle cx="800" cy="487" r="291" fill="url(#horizon)"/>
+    <circle cx="800" cy="487" r="256" fill="#000"/>
+    <path d="M263 556 C432 596 551 562 619 554 C744 538 863 526 985 504 C1093 485 1225 452 1370 426"
+        fill="none" stroke="url(#disc)" stroke-width="18" filter="url(#glow)"/>
+    <path d="M263 556 C432 596 551 562 619 554 C744 538 863 526 985 504 C1093 485 1225 452 1370 426"
+        fill="none" stroke="url(#disc)" stroke-width="5" filter="url(#soft)" opacity=".85"/>
+    <path d="M541 428 A264 264 0 0 1 1044 383" fill="none" stroke="#b68a64" stroke-width="2" opacity=".28"/>
+</svg>

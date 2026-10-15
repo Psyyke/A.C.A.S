@@ -178,6 +178,24 @@
         "concealAssistanceAutoDelayMs": ["Автоматично скриване (ms)", "Автоматично скрий функциите за помощ след това време"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Собствено фоново изображение", "blur": "Размазване на изображението",
+            "imageHint": "PNG, JPEG, WebP, GIF или AVIF, до 10 MB. Запазва се само в този браузър, не в експортираните настройки.",
+            "noImage": "Няма избрано изображение", "chooseImage": "Избор на фоново изображение", "removeImage": "Премахване на изображението",
+            "noBook": "Няма заредена книга", "chooseBook": "Избор на дебютна книга", "removeBook": "Премахване на дебютната книга",
+            "loadingImage": "Зареждане на запазеното изображение…", "imageUnavailable": "Запазеното изображение е недостъпно. Изберете изображение отново.",
+            "invalidImage": "Изображението не може да бъде прочетено.", "imageType": "Изберете PNG, JPEG, WebP, GIF или AVIF изображение.", "imageSize": "Изображението трябва да е до 10 MB.",
+            "imageSaveFailed": "Фоновото изображение не можа да се запази. Хранилището е недостъпно или пълно.", "imageRemoveFailed": "Запазеното фоново изображение не можа да се премахне.",
+            "bookRemoveFailed": "Дебютната книга не можа да се премахне.", "blurValue": "{value} пиксела",
+            "textures": {
+                "eclipse": "Затъмнение", "pulsar": "Пулсар", "supernova": "Свръхнова",
+                "black-hole": "Черна дупка",
+                "none": "Без", "chess": "Шахматна дъска", "paper": "Хартия", "tartan": "Тартан", "boxes": "Квадратчета", "dotted": "Точки", "striped": "Ивици", "circles": "Кръгове",
+                "isometric": "Изометричен", "abstract": "Абстрактен", "watercolor": "Акварел", "pastel-watercolor": "Пастелен акварел", "frosted-glass": "Матирано стъкло", "liquid-glass": "Течно стъкло", "theme-glass": "Стъкло в цвета на темата",
+                "rainbow": "Дъга", "linen": "Лен", "woven": "Плетка", "chevron": "Зигзаг", "diamonds": "Ромбове", "blueprint": "Чертеж", "waves": "Вълни", "aurora": "Полярно сияние", "topographic": "Хоризонтали", "starfield": "Звездно поле",
+                "nebula": "Мъглявина", "deep-space": "Дълбок космос", "hologram": "Холограма", "orbital": "Орбити", "synthwave": "Синтуейв", "cyberpunk": "Киберпънк", "custom-image": "Собствено изображение"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Настройките засягат всички инстанции",
         "settingsNavbarInstanceSubtitle": "Настройките засягат само инстанция \"{instanceID}\"",
         "moveFeedback": {

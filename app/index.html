@@ -41,7 +41,7 @@
 					const { overlay } = getElements();
 					if(overlay) {
 						const progressRatio = progress / 100;
-						const opacity = Math.max(52, 100 - progressRatio * progressRatio * 48);
+						const opacity = startupReady ? Math.max(52, 100 - progressRatio * progressRatio * 48) : 100;
 						overlay.style.setProperty('--loading-veil-opacity', `${opacity}%`);
 					}
 				}
@@ -119,7 +119,6 @@
 
 					dismiss(remaining <= 0, Math.max(0, remaining));
 				}
-				timeoutId = setTimeout(expire, timeoutMs - 250);
 				timeoutId = setTimeout(expire, timeoutMs - 250);
 				document.addEventListener('visibilitychange', () => {
 					if(document.visibilityState === 'visible') updateVeil();
@@ -297,6 +296,7 @@
 
 		<!-- ACAS INSTANCE CONTAINER-->
 		<div id="acas-instance-container">
+            <div class="custom-background-layer" aria-hidden="true"></div>
 			<div id="no-instances-container">
 				<div id="no-instances-title">Waiting for instances...</div>
 				<div id="no-instances-subtitle">Heya, how you doin'? Hopefully splendid. Aaanyhow... let's crack on with the games already! Open up a chess game site and let's make some moves together! I'm here for you buddy.</div>
@@ -565,7 +565,7 @@
 																Stockfish 18 Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(108MB)</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-18-lite-single">
-																💪 Stockfish 18 Lite Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(7MB)</span> <span class="stable-engine-tag list-tag">Stable</span>
+																Stockfish 18 Lite Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(7MB)</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-17-single">
 																Stockfish 17 Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(66MB)</span>
@@ -577,10 +577,10 @@
 																Stockfish 16 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="multithread-tag list-tag">Multithread</span> <span class="engine-size-tag list-tag">(79MB)</span>
 																</div>
 																<div class="dropdown-item requires-sab" data-value="fairy-stockfish-nnue-wasm">
-																💖 Fairy Stockfish 14 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(2MB)</span> <span class="variants-engine-tag list-tag">Variants</span> <span class="stable-engine-tag list-tag">Stable</span>
+																Fairy Stockfish 14 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(2MB)</span> <span class="variants-engine-tag list-tag">Variants</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item" data-value="maia3">
-																👑 Maia 3 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(44MB)</span> <span class="list-tag" data-translation-default-tag>Default</span> <span class="realistic-engine-tag list-tag">Realistic</span>
+															    Maia 3 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(44MB)</span> <span class="list-tag" data-translation-default-tag>Default</span> <span class="realistic-engine-tag list-tag">Realistic</span>
 																</div>
 																<div class="dropdown-item" data-value="maia2">
 																Maia 2 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(91MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="stable-engine-tag list-tag">Stable</span>
@@ -733,13 +733,14 @@
                             <div id="polyglot-book-input" class="file-input custom-input"><div><div class="input-title">Opening Book</div>
 								<div class="input-subtitle">Load a Polyglot opening book (.bin)</div></div>
 								<div class="book-upload-row">
-									<input type="textfield" data-key="openingBookName" data-default-value="" id="book-file-name" class="book-file-name" placeholder="No book loaded" readonly>
+									<input type="textfield" data-key="openingBookName" data-dynamic-value-type="text" data-default-value="" id="book-file-name" class="book-file-name" placeholder="No book loaded" aria-label="Choose an opening book" readonly>
+									<button id="book-file-remove" class="book-file-remove" type="button" title="Remove opening book" aria-label="Remove opening book" disabled>×</button>
 									<input type="file" id="book-file" accept=".bin,.bin.gz" hidden>
 								</div>
 							</div>
 						</div>
 						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👁️‍🗨️</div>
+							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👀</div>
 							<div class="floaty-input only-default-profile-setting custom-input">
 								<div><div class="input-title" data-translation-rendering-title>Rendering Settings</div><div class="input-subtitle" data-translation-rendering-subtitle>Display various metrics on the board</div></div>
 								<div class="floaty-wrapper">
@@ -923,7 +924,7 @@
 							</div>
 						</div>
 						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👁️‍🗨️</div>
+							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👀</div>
 							<div class="floaty-input custom-input">
 								<div><div class="input-title" data-translation-webhook-title>Messages</div><div class="input-subtitle" data-translation-webhook-subtitle>Configure Discord webhook messages</div></div>
                                 <div class="floaty-wrapper">
@@ -986,7 +987,7 @@
 							</div>
 						</div>
 						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="audible-panel-title">Audible</span> 🔊</div>
+							<div class="setting-panel-title"><span class="audible-panel-title">Audible</span> 🎧</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Move TTS</div>
 								<div class="input-subtitle">Hear best moves</div></div>
 								<div id="tts-name-dropdown" class="dropdown-input custom-input disabled-input"><div class="dropdown-input-container">
@@ -1129,22 +1130,79 @@
                             <div class="dropdown-item" data-value="letters">Letters</div>
                         </div>
                     </div></div>
-                    <div class="dropdown-input custom-input"><div class="input-title">Bg Texture</div><div class="dropdown-input-container">
+                    <div class="background-texture-setting">
+                        <div id="custom-background-controls" class="floaty-wrapper hidden">
+                            <dialog id="custom-background-floaty" aria-labelledby="custom-background-dialog-title">
+                                <div class="floaty-container">
+                                    <section class="floaty-header">
+                                        <div class="title">
+                                            <h1 id="custom-background-dialog-title" data-appearance-text="customImage">Custom Background Image</h1>
+                                            <p data-appearance-text="imageHint">PNG, JPEG, WebP, GIF or AVIF, up to 10 MB. Saved only in this browser, not in settings exports.</p>
+                                        </div>
+                                        <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" aria-label="Close" title="Close">💾</button></div>
+                                    </section>
+                                    <section class="floaty-body custom-background-controls">
+                                        <div class="file-input">
+                                            <div class="book-upload-row">
+                                                <input id="custom-background-name" class="book-file-name" type="text" placeholder="No image selected" aria-label="Choose a background image" readonly>
+                                                <button id="custom-background-remove" class="book-file-remove" type="button" title="Remove image" aria-label="Remove image" disabled>×</button>
+                                                <input id="custom-background-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" hidden>
+                                            </div>
+                                        </div>
+                                        <div id="custom-background-status" class="input-subtitle" role="status" aria-live="polite"></div>
+                                        <div class="range-input custom-input custom-background-blur">
+                                            <label class="input-title" for="custom-background-blur" data-appearance-text="blur">Image Blur</label>
+                                            <div class="range-control custom-background-range">
+                                                <input id="custom-background-blur" type="range" min="0" max="40" step="1" value="0" data-range-unit="px" data-no-profile="true" data-key="customBackgroundBlur" data-default-value="0">
+                                                <output id="custom-background-blur-value" for="custom-background-blur">0 px</output>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </dialog>
+                        </div>
+                    <div class="dropdown-input custom-input background-texture-picker"><div class="input-title">Bg Texture</div><button class="open-floaty-btn acas-fancy-button hidden" type="button" aria-label="Custom Background Image" title="Custom Background Image" aria-haspopup="dialog" aria-controls="custom-background-floaty">⚙️</button><div class="dropdown-input-container">
                         <input type="text" additional-type="dropdown" data-no-profile="true" data-key="backgroundTextureClass" data-default-value="chess-texture" placeholder="Chess"><div class="dropdown-icon"></div>
                         <div class="dropdown-list-container">
-                            <div class="dropdown-item" data-value="chess-texture">Chess</div>
-                            <div class="dropdown-item" data-value="paper-texture">Paper</div>
-                            <div class="dropdown-item" data-value="tartan-texture">Tartan</div>
-                            <div class="dropdown-item" data-value="boxes-texture">Boxes</div>
-                            <div class="dropdown-item" data-value="dotted-texture">Dotted</div>
-                            <div class="dropdown-item" data-value="striped-texture">Striped</div>
-                            <div class="dropdown-item" data-value="circles-texture">Circles</div>
-                            <div class="dropdown-item" data-value="isometric-texture">Isometric</div>
-                            <div class="dropdown-item" data-value="abstract-texture">Abstract</div>
-                            <div class="dropdown-item" data-value="watercolor-texture">Watercolor</div>
-                            <div class="dropdown-item" data-value="rainbow-texture">Rainbow</div>
+                            <div class="dropdown-item" data-value="none-texture"><span class="background-texture-preview" aria-hidden="true"><span class="none-texture"></span></span>None</div>
+                            <div class="dropdown-item" data-value="chess-texture"><span class="background-texture-preview" aria-hidden="true"><span class="chess-texture"></span></span>Chess</div>
+                            <div class="dropdown-item" data-value="paper-texture"><span class="background-texture-preview" aria-hidden="true"><span class="paper-texture"></span></span>Paper</div>
+                            <div class="dropdown-item" data-value="tartan-texture"><span class="background-texture-preview" aria-hidden="true"><span class="tartan-texture"></span></span>Tartan</div>
+                            <div class="dropdown-item" data-value="boxes-texture"><span class="background-texture-preview" aria-hidden="true"><span class="boxes-texture"></span></span>Boxes</div>
+                            <div class="dropdown-item" data-value="dotted-texture"><span class="background-texture-preview" aria-hidden="true"><span class="dotted-texture"></span></span>Dotted</div>
+                            <div class="dropdown-item" data-value="striped-texture"><span class="background-texture-preview" aria-hidden="true"><span class="striped-texture"></span></span>Striped</div>
+                            <div class="dropdown-item" data-value="circles-texture"><span class="background-texture-preview" aria-hidden="true"><span class="circles-texture"></span></span>Circles</div>
+                            <div class="dropdown-item" data-value="isometric-texture"><span class="background-texture-preview" aria-hidden="true"><span class="isometric-texture"></span></span>Isometric</div>
+                            <div class="dropdown-item" data-value="abstract-texture"><span class="background-texture-preview" aria-hidden="true"><span class="abstract-texture"></span></span>Abstract</div>
+                            <div class="dropdown-item" data-value="watercolor-texture"><span class="background-texture-preview" aria-hidden="true"><span class="watercolor-texture"></span></span>Watercolor</div>
+                            <div class="dropdown-item" data-value="pastel-watercolor-texture"><span class="background-texture-preview" aria-hidden="true"><span class="pastel-watercolor-texture"></span></span>Pastel Watercolor</div>
+                            <div class="dropdown-item" data-value="frosted-glass-texture"><span class="background-texture-preview" aria-hidden="true"><span class="frosted-glass-texture"></span></span>Frosted Glass</div>
+                            <div class="dropdown-item" data-value="liquid-glass-texture"><span class="background-texture-preview" aria-hidden="true"><span class="liquid-glass-texture"></span></span>Liquid Glass</div>
+                            <div class="dropdown-item" data-value="theme-glass-texture"><span class="background-texture-preview" aria-hidden="true"><span class="theme-glass-texture"></span></span>Theme Glass</div>
+                            <div class="dropdown-item" data-value="rainbow-texture"><span class="background-texture-preview" aria-hidden="true"><span class="rainbow-texture"></span></span>Rainbow</div>
+                            <div class="dropdown-item" data-value="linen-texture"><span class="background-texture-preview" aria-hidden="true"><span class="linen-texture"></span></span>Linen</div>
+                            <div class="dropdown-item" data-value="woven-texture"><span class="background-texture-preview" aria-hidden="true"><span class="woven-texture"></span></span>Woven</div>
+                            <div class="dropdown-item" data-value="chevron-texture"><span class="background-texture-preview" aria-hidden="true"><span class="chevron-texture"></span></span>Chevron</div>
+                            <div class="dropdown-item" data-value="diamonds-texture"><span class="background-texture-preview" aria-hidden="true"><span class="diamonds-texture"></span></span>Diamonds</div>
+                            <div class="dropdown-item" data-value="blueprint-texture"><span class="background-texture-preview" aria-hidden="true"><span class="blueprint-texture"></span></span>Blueprint</div>
+                            <div class="dropdown-item" data-value="waves-texture"><span class="background-texture-preview" aria-hidden="true"><span class="waves-texture"></span></span>Waves</div>
+                            <div class="dropdown-item" data-value="aurora-texture"><span class="background-texture-preview" aria-hidden="true"><span class="aurora-texture"></span></span>Aurora</div>
+                            <div class="dropdown-item" data-value="topographic-texture"><span class="background-texture-preview" aria-hidden="true"><span class="topographic-texture"></span></span>Topographic</div>
+                            <div class="dropdown-item" data-value="starfield-texture"><span class="background-texture-preview" aria-hidden="true"><span class="starfield-texture"></span></span>Starfield</div>
+                            <div class="dropdown-item" data-value="nebula-texture"><span class="background-texture-preview" aria-hidden="true"><span class="nebula-texture"></span></span>Nebula</div>
+                            <div class="dropdown-item" data-value="deep-space-texture"><span class="background-texture-preview" aria-hidden="true"><span class="deep-space-texture"></span></span>Deep Space</div>
+                            <div class="dropdown-item" data-value="black-hole-texture"><span class="background-texture-preview" aria-hidden="true"><span class="black-hole-texture"></span></span>Black Hole</div>
+                            <div class="dropdown-item" data-value="eclipse-texture"><span class="background-texture-preview" aria-hidden="true"><span class="eclipse-texture"></span></span>Eclipse</div>
+                            <div class="dropdown-item" data-value="pulsar-texture"><span class="background-texture-preview" aria-hidden="true"><span class="pulsar-texture"></span></span>Pulsar</div>
+                            <div class="dropdown-item" data-value="supernova-texture"><span class="background-texture-preview" aria-hidden="true"><span class="supernova-texture"></span></span>Supernova</div>
+                            <div class="dropdown-item" data-value="hologram-texture"><span class="background-texture-preview" aria-hidden="true"><span class="hologram-texture"></span></span>Hologram</div>
+                            <div class="dropdown-item" data-value="orbital-texture"><span class="background-texture-preview" aria-hidden="true"><span class="orbital-texture"></span></span>Orbital</div>
+                            <div class="dropdown-item" data-value="synthwave-texture"><span class="background-texture-preview" aria-hidden="true"><span class="synthwave-texture"></span></span>Synthwave</div>
+                            <div class="dropdown-item" data-value="cyberpunk-texture"><span class="background-texture-preview" aria-hidden="true"><span class="cyberpunk-texture"></span></span>Cyberpunk</div>
+                            <div class="dropdown-item" data-value="custom-image-texture"><span class="background-texture-preview" aria-hidden="true"><span class="custom-image-texture"></span></span>Custom Image</div>
                         </div>
                     </div></div>
+                    </div>
                         <div class="color-input custom-input"><div class="input-title">Theme Color</div>
                         <input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
                     </div>

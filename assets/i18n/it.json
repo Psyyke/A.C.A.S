@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Occultamento automatico (ms)", "Nascondi automaticamente le funzioni di assistenza dopo questo tempo"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Immagine di sfondo personalizzata", "blur": "Sfocatura immagine",
+            "imageHint": "PNG, JPEG, WebP, GIF o AVIF, fino a 10 MB. Salvata solo in questo browser, non nelle impostazioni esportate.",
+            "noImage": "Nessuna immagine selezionata", "chooseImage": "Scegli un’immagine di sfondo", "removeImage": "Rimuovi immagine",
+            "noBook": "Nessun libro caricato", "chooseBook": "Scegli un libro di aperture", "removeBook": "Rimuovi libro di aperture",
+            "loadingImage": "Caricamento dell’immagine salvata…", "imageUnavailable": "Immagine salvata non disponibile. Scegli un’immagine per riprovare.",
+            "invalidImage": "Impossibile leggere questa immagine.", "imageType": "Scegli un’immagine PNG, JPEG, WebP, GIF o AVIF.", "imageSize": "L’immagine non deve superare 10 MB.",
+            "imageSaveFailed": "Impossibile salvare l’immagine di sfondo. La memoria potrebbe essere piena o non disponibile.", "imageRemoveFailed": "Impossibile rimuovere l’immagine di sfondo salvata.",
+            "bookRemoveFailed": "Impossibile rimuovere il libro di aperture.", "blurValue": "{value} pixel",
+            "textures": {
+                "eclipse": "Eclissi", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Buco nero",
+                "none": "Nessuna", "chess": "Scacchiera", "paper": "Carta", "tartan": "Tartan", "boxes": "Griglia", "dotted": "Puntini", "striped": "Righe", "circles": "Cerchi",
+                "isometric": "Isometrico", "abstract": "Astratto", "watercolor": "Acquerello", "pastel-watercolor": "Acquerello pastello", "frosted-glass": "Vetro smerigliato", "liquid-glass": "Vetro liquido", "theme-glass": "Vetro del tema",
+                "rainbow": "Arcobaleno", "linen": "Lino", "woven": "Tessuto", "chevron": "Zigzag", "diamonds": "Rombi", "blueprint": "Disegno tecnico", "waves": "Onde", "aurora": "Aurora", "topographic": "Topografico", "starfield": "Campo stellare",
+                "nebula": "Nebulosa", "deep-space": "Spazio profondo", "hologram": "Ologramma", "orbital": "Orbitale", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Immagine personalizzata"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Le impostazioni si applicano a tutte le istanze",
         "settingsNavbarInstanceSubtitle": "Le impostazioni si applicano solo all’istanza \"{instanceID}\"",
         "moveFeedback": {

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+    <defs>
+        <radialGradient id="planet" cx="27%" cy="22%" r="83%">
+            <stop stop-color="#7797ab"/><stop offset=".32" stop-color="#3b566e"/>
+            <stop offset=".65" stop-color="#17253b"/><stop offset="1" stop-color="#050b17"/>
+        </radialGradient>
+        <radialGradient id="atmosphere">
+            <stop offset=".83" stop-color="#7daed4" stop-opacity="0"/>
+            <stop offset=".9" stop-color="#7daed4" stop-opacity=".2"/>
+            <stop offset="1" stop-color="#7daed4" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="rings">
+            <stop stop-color="#628598" stop-opacity="0"/>
+            <stop offset=".17" stop-color="#9bb8c8" stop-opacity=".38"/>
+            <stop offset=".4" stop-color="#b6c7cd" stop-opacity=".58"/>
+            <stop offset=".58" stop-color="#9b9b9d" stop-opacity=".32"/>
+            <stop offset=".82" stop-color="#6c849b" stop-opacity=".2"/>
+            <stop offset="1" stop-color="#6c849b" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="rim" x2="1" y2="1">
+            <stop stop-color="#c7e8ee" stop-opacity=".7"/><stop offset=".5" stop-color="#789eae" stop-opacity=".12"/>
+            <stop offset="1" stop-color="#789eae" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="moon" cx="25%" cy="20%">
+            <stop stop-color="#8c9ca6"/><stop offset=".6" stop-color="#344458"/><stop offset="1" stop-color="#080e1c"/>
+        </radialGradient>
+        <clipPath id="globe"><circle cx="800" cy="500" r="176"/></clipPath>
+        <filter id="glow" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs>
+    <!-- Fine navigational arcs orbit a real silhouette rather than a repeating grid. -->
+    <g fill="none" stroke="#759bb5" stroke-width=".8" opacity=".2">
+        <ellipse cx="800" cy="500" rx="724" ry="364" transform="rotate(-22 800 500)"/>
+        <ellipse cx="800" cy="500" rx="621" ry="390" transform="rotate(26 800 500)" stroke-dasharray="160 18 5 20"/>
+        <ellipse cx="800" cy="500" rx="337" ry="438" transform="rotate(-37 800 500)" opacity=".55"/>
+        <path d="M146 687l14 8M175 716l13 8M204 743l12 8M1292 218l13 10M1322 246l13 10M1351 275l13 10"/>
+        <path d="M268 219h22m-11-11v22M1311 738h22m-11-11v22"/>
+    </g>
+    <g transform="rotate(-22 800 500)">
+        <g fill="none" stroke="url(#rings)">
+            <ellipse cx="800" cy="500" rx="518" ry="150" stroke-width="32" opacity=".18" filter="url(#glow)"/>
+            <ellipse cx="800" cy="500" rx="550" ry="160" stroke-width="1.4"/>
+            <ellipse cx="800" cy="500" rx="529" ry="154" stroke-width="7" opacity=".7"/>
+            <ellipse cx="800" cy="500" rx="513" ry="148" stroke-width="2"/>
+            <ellipse cx="800" cy="500" rx="491" ry="140" stroke-width="11" opacity=".55"/>
+            <ellipse cx="800" cy="500" rx="474" ry="134" stroke-width="1"/>
+            <ellipse cx="800" cy="500" rx="440" ry="120" stroke-width="4" opacity=".5"/>
+            <ellipse cx="800" cy="500" rx="428" ry="116" stroke-width="1"/>
+        </g>
+        <circle cx="800" cy="500" r="198" fill="url(#atmosphere)"/>
+        <circle cx="800" cy="500" r="176" fill="url(#planet)"/>
+        <g clip-path="url(#globe)" fill="none" stroke-linecap="round">
+            <path d="M632 434Q722 385 788 414T953 439M625 469Q732 431 809 455T980 471M647 534Q749 509 815 529T978 541" stroke="#99afbb" stroke-width="4" opacity=".09"/>
+            <path d="M656 401Q734 357 804 388M644 513Q734 481 790 498M706 604Q773 589 845 606" stroke="#becbd2" stroke-width="1.5" opacity=".12"/>
+            <ellipse cx="730" cy="465" rx="28" ry="8" stroke="#839fae" stroke-width="2" opacity=".16"/>
+            <path d="M620 508Q791 548 978 507" stroke="#020611" stroke-width="23" opacity=".55"/>
+        </g>
+        <circle cx="800" cy="500" r="176" fill="none" stroke="url(#rim)" stroke-width="1.5"/>
+        <!-- The near half crosses in front of the planet, completing the depth cue. -->
+        <g fill="none" stroke="url(#rings)">
+            <path d="M250 500A550 160 0 0 0 1350 500" stroke-width="1.4"/>
+            <path d="M271 500A529 154 0 0 0 1329 500" stroke-width="7" opacity=".8"/>
+            <path d="M287 500A513 148 0 0 0 1313 500" stroke-width="2"/>
+            <path d="M309 500A491 140 0 0 0 1291 500" stroke-width="11" opacity=".65"/>
+            <path d="M326 500A474 134 0 0 0 1274 500" stroke-width="1"/>
+            <path d="M360 500A440 120 0 0 0 1240 500" stroke-width="4" opacity=".6"/>
+        </g>
+    </g>
+    <circle cx="347" cy="712" r="23" fill="url(#moon)"/>
+    <circle cx="1186" cy="221" r="11" fill="url(#moon)"/>
+    <circle cx="1247" cy="681" r="4" fill="#91a3b5" opacity=".6"/>
+</svg>

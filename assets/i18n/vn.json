@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Tự động ẩn (ms)", "Tự động ẩn các tính năng trợ giúp sau khoảng thời gian này"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Ảnh nền tùy chỉnh", "blur": "Độ mờ ảnh",
+            "imageHint": "PNG, JPEG, WebP, GIF hoặc AVIF, tối đa 10 MB. Chỉ lưu trong trình duyệt này, không có trong tệp cài đặt xuất ra.",
+            "noImage": "Chưa chọn ảnh", "chooseImage": "Chọn ảnh nền", "removeImage": "Xóa ảnh",
+            "noBook": "Chưa tải sổ khai cuộc", "chooseBook": "Chọn sổ khai cuộc", "removeBook": "Xóa sổ khai cuộc",
+            "loadingImage": "Đang tải ảnh đã lưu…", "imageUnavailable": "Ảnh đã lưu không khả dụng. Hãy chọn lại ảnh để thử lại.",
+            "invalidImage": "Không thể đọc ảnh này.", "imageType": "Chọn ảnh PNG, JPEG, WebP, GIF hoặc AVIF.", "imageSize": "Ảnh phải có dung lượng không quá 10 MB.",
+            "imageSaveFailed": "Không thể lưu ảnh nền. Bộ nhớ có thể không khả dụng hoặc đã đầy.", "imageRemoveFailed": "Không thể xóa ảnh nền đã lưu.",
+            "bookRemoveFailed": "Không thể xóa sổ khai cuộc.", "blurValue": "{value} điểm ảnh",
+            "textures": {
+                "eclipse": "Nhật thực", "pulsar": "Sao xung", "supernova": "Siêu tân tinh",
+                "black-hole": "Hố đen",
+                "none": "Không", "chess": "Bàn cờ", "paper": "Giấy", "tartan": "Kẻ ca-rô", "boxes": "Ô vuông", "dotted": "Chấm", "striped": "Sọc", "circles": "Vòng tròn",
+                "isometric": "Đẳng cự", "abstract": "Trừu tượng", "watercolor": "Màu nước", "pastel-watercolor": "Màu nước pastel", "frosted-glass": "Kính mờ", "liquid-glass": "Kính lỏng", "theme-glass": "Kính theo màu chủ đề",
+                "rainbow": "Cầu vồng", "linen": "Vải lanh", "woven": "Dệt", "chevron": "Chữ V", "diamonds": "Hình thoi", "blueprint": "Bản vẽ kỹ thuật", "waves": "Sóng", "aurora": "Cực quang", "topographic": "Đường đồng mức", "starfield": "Bầu trời sao",
+                "nebula": "Tinh vân", "deep-space": "Không gian sâu", "hologram": "Ảnh toàn ký", "orbital": "Quỹ đạo", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Ảnh tùy chỉnh"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Cài đặt áp dụng cho tất cả các phiên",
         "settingsNavbarInstanceSubtitle": "Cài đặt chỉ áp dụng cho phiên \"{instanceID}\"",
         "moveFeedback": {

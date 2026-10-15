@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Automatyczne ukrywanie (ms)", "Automatycznie ukryj funkcje wsparcia po tym czasie"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Własny obraz tła", "blur": "Rozmycie obrazu",
+            "imageHint": "PNG, JPEG, WebP, GIF lub AVIF, do 10 MB. Zapisany tylko w tej przeglądarce, nie w eksporcie ustawień.",
+            "noImage": "Nie wybrano obrazu", "chooseImage": "Wybierz obraz tła", "removeImage": "Usuń obraz",
+            "noBook": "Nie wczytano książki", "chooseBook": "Wybierz książkę debiutową", "removeBook": "Usuń książkę debiutową",
+            "loadingImage": "Wczytywanie zapisanego obrazu…", "imageUnavailable": "Zapisany obraz jest niedostępny. Wybierz obraz ponownie.",
+            "invalidImage": "Nie można odczytać tego obrazu.", "imageType": "Wybierz obraz PNG, JPEG, WebP, GIF lub AVIF.", "imageSize": "Obraz nie może przekraczać 10 MB.",
+            "imageSaveFailed": "Nie udało się zapisać tła. Pamięć jest niedostępna lub pełna.", "imageRemoveFailed": "Nie udało się usunąć zapisanego obrazu tła.",
+            "bookRemoveFailed": "Nie udało się usunąć książki debiutowej.", "blurValue": "{value} pikseli",
+            "textures": {
+                "eclipse": "Zaćmienie", "pulsar": "Pulsar", "supernova": "Supernowa",
+                "black-hole": "Czarna dziura",
+                "none": "Brak", "chess": "Szachownica", "paper": "Papier", "tartan": "Tartan", "boxes": "Kratka", "dotted": "Kropki", "striped": "Paski", "circles": "Okręgi",
+                "isometric": "Izometria", "abstract": "Abstrakcja", "watercolor": "Akwarela", "pastel-watercolor": "Pastelowa akwarela", "frosted-glass": "Matowe szkło", "liquid-glass": "Płynne szkło", "theme-glass": "Szkło w kolorze motywu",
+                "rainbow": "Tęcza", "linen": "Len", "woven": "Splot", "chevron": "Zygzak", "diamonds": "Romby", "blueprint": "Rysunek techniczny", "waves": "Fale", "aurora": "Zorza", "topographic": "Poziomice", "starfield": "Gwiaździste niebo",
+                "nebula": "Mgławica", "deep-space": "Głęboki kosmos", "hologram": "Hologram", "orbital": "Orbity", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Własny obraz"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Ustawienia dotyczą wszystkich instancji",
         "settingsNavbarInstanceSubtitle": "Ustawienia dotyczą tylko instancji \"{instanceID}\"",
         "moveFeedback": {

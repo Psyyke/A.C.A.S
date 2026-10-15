@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["پنهان کردن خودکار (میلی ثانیه)", "پنهان کردن خودکار ویژگی های کمک پس از این مدت زمان"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "تصویر پس‌زمینهٔ سفارشی", "blur": "تاری تصویر",
+            "imageHint": "PNG، JPEG، WebP، GIF یا AVIF، حداکثر 10 MB. فقط در این مرورگر ذخیره می‌شود و در تنظیمات خروجی نیست.",
+            "noImage": "تصویری انتخاب نشده", "chooseImage": "انتخاب تصویر پس‌زمینه", "removeImage": "حذف تصویر",
+            "noBook": "کتابی بارگذاری نشده", "chooseBook": "انتخاب کتاب گشایش", "removeBook": "حذف کتاب گشایش",
+            "loadingImage": "در حال بارگذاری تصویر ذخیره‌شده…", "imageUnavailable": "تصویر ذخیره‌شده در دسترس نیست. برای تلاش دوباره تصویری انتخاب کنید.",
+            "invalidImage": "خواندن این تصویر ممکن نیست.", "imageType": "یک تصویر PNG، JPEG، WebP، GIF یا AVIF انتخاب کنید.", "imageSize": "حجم تصویر باید حداکثر 10 MB باشد.",
+            "imageSaveFailed": "ذخیرهٔ تصویر پس‌زمینه ممکن نیست. فضای ذخیره‌سازی شاید پر یا غیرقابل دسترس باشد.", "imageRemoveFailed": "حذف تصویر پس‌زمینهٔ ذخیره‌شده ممکن نیست.",
+            "bookRemoveFailed": "حذف کتاب گشایش ممکن نیست.", "blurValue": "{value} پیکسل",
+            "textures": {
+                "eclipse": "خورشیدگرفتگی", "pulsar": "تپ‌اختر", "supernova": "ابرنواختر",
+                "black-hole": "سیاه‌چاله",
+                "none": "هیچ‌کدام", "chess": "شطرنجی", "paper": "کاغذ", "tartan": "چهارخانه", "boxes": "مربع‌ها", "dotted": "نقطه‌چین", "striped": "راه‌راه", "circles": "دایره‌ها",
+                "isometric": "ایزومتریک", "abstract": "انتزاعی", "watercolor": "آبرنگ", "pastel-watercolor": "آبرنگ پاستلی", "frosted-glass": "شیشهٔ مات", "liquid-glass": "شیشهٔ مایع", "theme-glass": "شیشه به رنگ پوسته",
+                "rainbow": "رنگین‌کمان", "linen": "کتان", "woven": "بافته", "chevron": "زیگزاگ", "diamonds": "لوزی‌ها", "blueprint": "نقشهٔ فنی", "waves": "موج‌ها", "aurora": "شفق قطبی", "topographic": "خطوط تراز", "starfield": "آسمان پرستاره",
+                "nebula": "سحابی", "deep-space": "ژرفای فضا", "hologram": "هولوگرام", "orbital": "مداری", "synthwave": "سینث‌ویو", "cyberpunk": "سایبرپانک", "custom-image": "تصویر سفارشی"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "تنظیمات بر همه نمونه‌ها اعمال می‌شود",
         "settingsNavbarInstanceSubtitle": "تنظیمات فقط بر نمونهٔ \"{instanceID}\" اعمال می‌شود",
         "moveFeedback": {

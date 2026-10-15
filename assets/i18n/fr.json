@@ -178,6 +178,24 @@
         "concealAssistanceAutoDelayMs": ["Dissimulation automatique (ms)", "Dissimuler automatiquement les fonctionnalités après ce délai"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Image de fond personnalisée", "blur": "Flou de l’image",
+            "imageHint": "PNG, JPEG, WebP, GIF ou AVIF, jusqu’à 10 Mo. Enregistrée uniquement dans ce navigateur, pas dans les paramètres exportés.",
+            "noImage": "Aucune image sélectionnée", "chooseImage": "Choisir une image de fond", "removeImage": "Retirer l’image",
+            "noBook": "Aucun livre chargé", "chooseBook": "Choisir un livre d’ouvertures", "removeBook": "Retirer le livre d’ouvertures",
+            "loadingImage": "Chargement de l’image enregistrée…", "imageUnavailable": "Image enregistrée indisponible. Choisissez une image pour réessayer.",
+            "invalidImage": "Impossible de lire cette image.", "imageType": "Choisissez une image PNG, JPEG, WebP, GIF ou AVIF.", "imageSize": "L’image ne doit pas dépasser 10 Mo.",
+            "imageSaveFailed": "Impossible d’enregistrer l’image de fond. Le stockage est peut-être indisponible ou plein.", "imageRemoveFailed": "Impossible de retirer l’image de fond enregistrée.",
+            "bookRemoveFailed": "Impossible de retirer le livre d’ouvertures.", "blurValue": "{value} pixels",
+            "textures": {
+                "eclipse": "Éclipse", "pulsar": "Pulsar", "supernova": "Supernova",
+                "black-hole": "Trou noir",
+                "none": "Aucune", "chess": "Échiquier", "paper": "Papier", "tartan": "Tartan", "boxes": "Quadrillage", "dotted": "Pointillés", "striped": "Rayures", "circles": "Cercles",
+                "isometric": "Isométrique", "abstract": "Abstrait", "watercolor": "Aquarelle", "pastel-watercolor": "Aquarelle pastel", "frosted-glass": "Verre dépoli", "liquid-glass": "Verre liquide", "theme-glass": "Verre du thème",
+                "rainbow": "Arc-en-ciel", "linen": "Lin", "woven": "Tissage", "chevron": "Chevrons", "diamonds": "Losanges", "blueprint": "Plan technique", "waves": "Vagues", "aurora": "Aurore", "topographic": "Topographique", "starfield": "Ciel étoilé",
+                "nebula": "Nébuleuse", "deep-space": "Espace profond", "hologram": "Hologramme", "orbital": "Orbital", "synthwave": "Synthwave", "cyberpunk": "Cyberpunk", "custom-image": "Image personnalisée"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Les paramètres s’appliquent à toutes les instances",
         "settingsNavbarInstanceSubtitle": "Les paramètres s’appliquent uniquement à l’instance \"{instanceID}\"",
         "moveFeedback": {

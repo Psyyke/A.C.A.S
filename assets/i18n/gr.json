@@ -179,6 +179,24 @@
         "concealAssistanceAutoDelayMs": ["Αυτόματη απόκρυψη (ms)", "Αυτόματη απόκρυψη λειτουργιών βοήθειας μετά από αυτό το χρόνο"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "Προσαρμοσμένη εικόνα φόντου", "blur": "Θόλωση εικόνας",
+            "imageHint": "PNG, JPEG, WebP, GIF ή AVIF, έως 10 MB. Αποθηκεύεται μόνο σε αυτό το πρόγραμμα περιήγησης, όχι στις εξαγόμενες ρυθμίσεις.",
+            "noImage": "Δεν επιλέχθηκε εικόνα", "chooseImage": "Επιλογή εικόνας φόντου", "removeImage": "Αφαίρεση εικόνας",
+            "noBook": "Δεν φορτώθηκε βιβλίο", "chooseBook": "Επιλογή βιβλίου ανοιγμάτων", "removeBook": "Αφαίρεση βιβλίου ανοιγμάτων",
+            "loadingImage": "Φόρτωση αποθηκευμένης εικόνας…", "imageUnavailable": "Η αποθηκευμένη εικόνα δεν είναι διαθέσιμη. Επιλέξτε ξανά μια εικόνα.",
+            "invalidImage": "Δεν ήταν δυνατή η ανάγνωση της εικόνας.", "imageType": "Επιλέξτε εικόνα PNG, JPEG, WebP, GIF ή AVIF.", "imageSize": "Η εικόνα δεν πρέπει να ξεπερνά τα 10 MB.",
+            "imageSaveFailed": "Δεν ήταν δυνατή η αποθήκευση του φόντου. Ο χώρος αποθήκευσης ίσως είναι πλήρης ή μη διαθέσιμος.", "imageRemoveFailed": "Δεν ήταν δυνατή η αφαίρεση της αποθηκευμένης εικόνας φόντου.",
+            "bookRemoveFailed": "Δεν ήταν δυνατή η αφαίρεση του βιβλίου ανοιγμάτων.", "blurValue": "{value} εικονοστοιχεία",
+            "textures": {
+                "eclipse": "Έκλειψη", "pulsar": "Πάλσαρ", "supernova": "Υπερκαινοφανής",
+                "black-hole": "Μαύρη τρύπα",
+                "none": "Κανένα", "chess": "Σκακιέρα", "paper": "Χαρτί", "tartan": "Καρό", "boxes": "Πλέγμα", "dotted": "Κουκκίδες", "striped": "Ρίγες", "circles": "Κύκλοι",
+                "isometric": "Ισομετρικό", "abstract": "Αφηρημένο", "watercolor": "Ακουαρέλα", "pastel-watercolor": "Παστέλ ακουαρέλα", "frosted-glass": "Θαμπό γυαλί", "liquid-glass": "Υγρό γυαλί", "theme-glass": "Γυαλί στο χρώμα θέματος",
+                "rainbow": "Ουράνιο τόξο", "linen": "Λινό", "woven": "Ύφανση", "chevron": "Ζιγκ ζαγκ", "diamonds": "Ρόμβοι", "blueprint": "Τεχνικό σχέδιο", "waves": "Κύματα", "aurora": "Σέλας", "topographic": "Ισοϋψείς", "starfield": "Έναστρος ουρανός",
+                "nebula": "Νεφέλωμα", "deep-space": "Βαθύ διάστημα", "hologram": "Ολόγραμμα", "orbital": "Τροχιές", "synthwave": "Synthwave", "cyberpunk": "Κυβερνοπάνκ", "custom-image": "Προσαρμοσμένη εικόνα"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "Οι ρυθμίσεις ισχύουν για όλες τις παρουσίες",
         "settingsNavbarInstanceSubtitle": "Οι ρυθμίσεις ισχύουν μόνο για την παρουσία \"{instanceID}\"",
         "moveFeedback": {

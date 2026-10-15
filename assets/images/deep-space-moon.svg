@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+    <defs>
+        <clipPath id="moon"><circle cx="160" cy="160" r="132"/></clipPath>
+        <radialGradient id="rock" cx="23%" cy="20%" r="82%">
+            <stop stop-color="#b2a392"/>
+            <stop offset=".32" stop-color="#746e6b"/>
+            <stop offset=".6" stop-color="#383b45"/>
+            <stop offset="1" stop-color="#080c16"/>
+        </radialGradient>
+        <radialGradient id="basin" cx="62%" cy="65%" r="65%">
+            <stop stop-color="#131923" stop-opacity=".6"/>
+            <stop offset=".7" stop-color="#1d2430" stop-opacity=".35"/>
+            <stop offset=".9" stop-color="#c3b6a2" stop-opacity=".18"/>
+            <stop offset="1" stop-color="#948b81" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="night" cx="15%" cy="14%" r="88%">
+            <stop offset=".2" stop-color="#02050d" stop-opacity="0"/>
+            <stop offset=".44" stop-color="#02050d" stop-opacity=".12"/>
+            <stop offset=".65" stop-color="#02050d" stop-opacity=".8"/>
+            <stop offset=".82" stop-color="#02050d" stop-opacity=".98"/>
+            <stop offset="1" stop-color="#02050d"/>
+        </radialGradient>
+        <filter id="regolith" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="4" seed="17" result="rock-noise"/>
+            <feDiffuseLighting in="rock-noise" surfaceScale="7" diffuseConstant=".8" lighting-color="#c9c0b5" result="rock-light">
+                <feDistantLight azimuth="235" elevation="32"/>
+            </feDiffuseLighting>
+            <feBlend in="SourceGraphic" in2="rock-light" mode="soft-light"/>
+            <feComposite in2="SourceAlpha" operator="in"/>
+        </filter>
+    </defs>
+    <g clip-path="url(#moon)">
+        <circle cx="160" cy="160" r="132" fill="url(#rock)" filter="url(#regolith)"/>
+        <g fill="url(#basin)">
+            <ellipse cx="88" cy="113" rx="27" ry="35" transform="rotate(32 88 113)"/>
+            <ellipse cx="139" cy="76" rx="19" ry="14" transform="rotate(-18 139 76)"/>
+            <ellipse cx="155" cy="170" rx="34" ry="30"/>
+            <ellipse cx="88" cy="189" rx="12" ry="18" transform="rotate(-24 88 189)"/>
+            <circle cx="183" cy="118" r="12"/>
+            <circle cx="118" cy="147" r="7"/>
+            <ellipse cx="146" cy="233" rx="19" ry="13"/>
+        </g>
+        <circle cx="160" cy="160" r="132" fill="url(#night)"/>
+    </g>
+</svg>

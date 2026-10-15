@@ -178,6 +178,24 @@
         "concealAssistanceAutoDelayMs": ["자동 숨김 (ms)", "이 시간 이후 자동으로 지원 기능을 숨김"]
     },
     "translations": {
+        "appearance": {
+            "customImage": "사용자 지정 배경 이미지", "blur": "이미지 흐림",
+            "imageHint": "PNG, JPEG, WebP, GIF 또는 AVIF, 최대 10 MB. 이 브라우저에만 저장되며 내보낸 설정에는 포함되지 않습니다.",
+            "noImage": "선택된 이미지 없음", "chooseImage": "배경 이미지 선택", "removeImage": "이미지 제거",
+            "noBook": "불러온 오프닝 북 없음", "chooseBook": "오프닝 북 선택", "removeBook": "오프닝 북 제거",
+            "loadingImage": "저장된 이미지 불러오는 중…", "imageUnavailable": "저장된 이미지를 사용할 수 없습니다. 이미지를 다시 선택하세요.",
+            "invalidImage": "이 이미지를 읽을 수 없습니다.", "imageType": "PNG, JPEG, WebP, GIF 또는 AVIF 이미지를 선택하세요.", "imageSize": "이미지는 10 MB 이하여야 합니다.",
+            "imageSaveFailed": "배경 이미지를 저장할 수 없습니다. 저장 공간을 사용할 수 없거나 가득 찼을 수 있습니다.", "imageRemoveFailed": "저장된 배경 이미지를 제거할 수 없습니다.",
+            "bookRemoveFailed": "오프닝 북을 제거할 수 없습니다.", "blurValue": "{value} 픽셀",
+            "textures": {
+                "eclipse": "일식", "pulsar": "펄서", "supernova": "초신성",
+                "black-hole": "블랙홀",
+                "none": "없음", "chess": "체커보드", "paper": "종이", "tartan": "타탄", "boxes": "격자", "dotted": "물방울", "striped": "줄무늬", "circles": "원",
+                "isometric": "아이소메트릭", "abstract": "추상", "watercolor": "수채화", "pastel-watercolor": "파스텔 수채화", "frosted-glass": "반투명 유리", "liquid-glass": "액체 유리", "theme-glass": "테마 색상 유리",
+                "rainbow": "무지개", "linen": "리넨", "woven": "직물", "chevron": "지그재그", "diamonds": "마름모", "blueprint": "청사진", "waves": "물결", "aurora": "오로라", "topographic": "등고선", "starfield": "별빛",
+                "nebula": "성운", "deep-space": "심우주", "hologram": "홀로그램", "orbital": "궤도", "synthwave": "신스웨이브", "cyberpunk": "사이버펑크", "custom-image": "사용자 지정 이미지"
+            }
+        },
         "settingsNavbarGlobalSubtitle": "설정은 모든 인스턴스에 적용됩니다",
         "settingsNavbarInstanceSubtitle": "설정은 인스턴스 \"{instanceID}\"에만 적용됩니다",
         "moveFeedback": {
