@@ -68,10 +68,11 @@ There might be more, please let us know if anything is missing, thank you!
 |---|---|
 | ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="image" src="https://github.com/user-attachments/assets/6a6e453a-46ac-41ff-b71e-ea7e9831af88" />
 
-<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5d7c0cc1-358a-4a93-b43c-b103490e9c61" />
 <img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/dada18bf-cf76-4465-bf60-68e4552dacfe" />
 <img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5fc8a0ee-6bfc-411d-a709-33b129b7baa9" />
 
+<img width="2381" height="1797" alt="image" src="https://github.com/user-attachments/assets/4172ec0f-0479-44b1-9b0c-76d594a6a60e" />
+<img width="1888" height="1686" alt="image" src="https://github.com/user-attachments/assets/c3f83522-50c7-4a18-a08b-cc361a584df0" />
 
 ## How does it work?
 
