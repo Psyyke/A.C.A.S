@@ -373,6 +373,7 @@ cg-container {
     background-repeat: repeat, no-repeat;
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
+    background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 50%, rgb(0 0 0 / 10%));
 }
 #acas-instance-container {
 	/* Center artwork in the visible area below the overlapping header. */
@@ -941,6 +942,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	backdrop-filter: blur(20px);
 	border: 2px solid rgb(255 255 255 / 33%);
     border-bottom-width: 6px;
+    background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 50%, rgb(0 0 0 / 10%));
 }
 #no-instances-title {
     font-size: 28px;
