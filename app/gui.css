@@ -583,8 +583,8 @@ cg-container {
 }
 #install-notification {
 	height: fit-content;
-	background: #df0000;
-	background: linear-gradient(45deg,#7b0000 25%, #3e0000 25%, #3e0000 50%, #7b0000 50%, #7b0000 75%, #3e0000 75%, #3e0000);
+    background: #250f0f;
+    background: linear-gradient(45deg, #7b0000 25%, #3e0000 25%, #5b0000 50%, #7b0000 50%, #7b0000 75%, #3e0000 75%, #5b0000);
     background-size: 20px 20px;
 	color: white;
 	padding: 10px;
@@ -602,18 +602,6 @@ cg-container {
     border-bottom: 5px solid black;
 }
 #install-notification::before {
-	content: "";
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 999vh;
-	height: 999vh;
-    background: linear-gradient(45deg, rgb(255 0 0 / 7%) 25%, rgb(129 0 0 / 7%) 25%, rgb(129 0 0 / 7%) 50%, rgb(255 0 0 / 7%) 50%, rgb(255 0 0 / 7%) 75%, rgb(129 0 0 / 7%) 75%, rgb(129 0 0 / 7%));
-    background-size: 20px 20px;
-	z-index: -1;
-	pointer-events: none;
-}
-#install-notification::before {
     content: "";
     position: fixed;
     top: 0;
@@ -622,23 +610,28 @@ cg-container {
     height: 999vh;
     background: linear-gradient(
         45deg,
-        rgb(255 0 0 / 17%) 25%,
-        rgb(129 0 0 / 17%) 25%,
-        rgb(129 0 0 / 17%) 50%,
-        rgb(255 0 0 / 17%) 50%,
-        rgb(255 0 0 / 17%) 75%,
-        rgb(129 0 0 / 17%) 75%,
-        rgb(129 0 0 / 17%)
+        rgb(255 0 0 / 30%) 25%,
+        rgb(129 0 0 / 30%) 25%,
+        rgb(129 0 0 / 30%) 50%,
+        rgb(255 0 0 / 30%) 50%,
+        rgb(255 0 0 / 30%) 75%,
+        rgb(129 0 0 / 30%) 75%,
+        rgb(129 0 0 / 30%)
     );
     background-size: 20px 20px;
     z-index: -1;
     pointer-events: none;
+    filter: grayscale(80%);
 }
 body:has(#install-notification:not(.hidden)) {
     background-color: rgb(24, 24, 24) !important;
 }
 body:has(#install-notification:not(.hidden)) #acas-instance-container {
     background-color: rgb(48, 48, 48) !important;
+    filter: grayscale(1);
+}
+body:has(#install-notification:not(.hidden)) #acas-settings-container {
+    filter: grayscale(1);
 }
 .install-description {
 	color: rgb(159 159 159);
@@ -657,13 +650,14 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	grid-gap: 5px;
 }
 #install-buttons .dropdown-input-container {
-    background-color: #00000069;
-    border-color: rgb(0 0 0);
+    border: 2px solid white;
+    border-bottom: 5px solid white;
+    border-radius: 5px;
 }
 #install-buttons .dropdown-input-container .selected-language-img {
-	width: 30px;
-	height: 30px;
-	background-color: rgb(0 0 0 / 0%);
+	width: 40px;
+    height: 32px;
+	background-color: rgb(255 255 255 / 20%);
 	color: rgb(255 255 255 / 75%);
 	font-size: var(--settings-input-font-size);
 	border: none;
@@ -671,7 +665,8 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
 	text-transform: capitalize;
 	font-weight: 500;
 	font-family: unset;
-	border-radius: 16px;
+	border-radius: 3px;
+    backdrop-filter: blur(5px);
 }
 .install-description-small {
 	color: rgb(255 255 255 / 50%);
@@ -681,7 +676,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     font-size: 35px;
     font-weight: 900;
     font-stretch: ultra-expanded;
-    text-shadow: 0px 4px 0px #000;
+    text-shadow: 0px 3px 0px #000;
     margin: 10px 0 10px;
 	text-transform: uppercase;
 	font-family: "Mona Sans", "IBM Plex Sans";
@@ -691,22 +686,22 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     font-size: 20px;
     font-weight: 600;
     font-stretch: ultra-expanded;
-    text-shadow: 0px 4px 0px #000;
+    text-shadow: 0px 2px 0px #000;
     margin: 5px 0 5px;
 }
 .install-notification-btn {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 12px 20px;
     color: white;
     text-decoration: none;
     border-radius: 5px;
     font-size: 18px;
-    border: 2px solid black;
-    border-bottom: 5px solid black;
+    border: 2px solid white;
+    border-bottom: 5px solid white;
     transition: all ease 0.1s;
     font-weight: 800;
     font-stretch: ultra-expanded;
-    text-shadow: 0px 2px 0px #000;
+    text-shadow: 0px 1.7px 0px #000;
     margin: 10px 0 10px;
 	font-family: "Mona Sans", "IBM Plex Sans";
 	display: flex;
@@ -714,7 +709,7 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     word-break: break-word;
 }
 .install-notification-btn:active {
-	border: 2px solid black;
+	border: 2px solid white;
 	transform: translateY(3px);
 }
 .install-footer {
@@ -861,14 +856,17 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     background-image: linear-gradient(rgb(79 205 76),rgb(80, 138, 79));
 }
 #install-mobile-container {
-	background-color: #0000005e;
+    background-color: #aeaeae3d;
     padding: 10px;
-	display: none;
+    display: none;
+    backdrop-filter: blur(3px);
+    border-radius: 10px;
+    border: 2px solid white;
+    border-bottom: 5px solid white;
 }
 #install-buttons-mobile {
 	display: flex;
 	grid-gap: 5px;
-    background-color: #0000005e;
     padding: 10px;
 }
 @media (pointer:none), (pointer:coarse) {
@@ -1875,24 +1873,12 @@ body:has(#install-notification:not(.hidden)) #acas-instance-container {
     border-right-width: 3px;
 }
 .install-open-home-btn {
-    display: inline-block;
-    padding: 10px;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 15px;
-    border: 2px solid black;
-    border-bottom: 5px solid black;
-    transition: allease 0.1s;
-    font-weight: 600;
-    font-stretch: ultra-expanded;
-    text-shadow: 0px 2px 0px #000;
-    margin: 10px 0 10px;
-    cursor: pointer;
 	background-color: #ad3333;
+    background-image: linear-gradient(#cf3f3f, #952b2b);
+    font-size: 14px;
 }
 .install-open-home-btn:hover {
-	background-color: #c03b3b;
+	background-color: #9f3131;
 }
 #install-buttons .small-buttons {
 	display: flex;

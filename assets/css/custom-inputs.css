@@ -837,6 +837,8 @@ textarea:hover,
     -webkit-backdrop-filter: blur(15px);
     background: rgba(0, 0, 0, 0.6);
     border-radius: 0 5px 5px 5px;
+    background-color: rgb(255 255 255 / 20%);
+    color: rgb(255 255 255 / 75%);
 }
 .language-dropdown-input .dropdown-item {
     padding: 10px;
@@ -849,12 +851,12 @@ textarea:hover,
 }
 .language-dropdown-input .dropdown-item img {
     border-radius: 5px;
-    width: 2rem;
+    width: 2.5rem;
     box-shadow: 0 2px 0 rgb(0 0 0 / 50%);
 }
 @media (max-width: 768px) and (pointer: coarse) and (hover: none) {
     .language-dropdown-input .dropdown-item img {
-        width: 2.3rem;
+        width: 2.5rem;
     }
 }
 .language-dropdown-input .dropdown-none-item {
