@@ -81,7 +81,6 @@
 	}
 	#install-buttons {
 		flex-direction: column-reverse !important;
-		align-items: flex-start !important;
 	}
 	.acas-offer {
 		overflow-y: auto !important;
@@ -109,7 +108,11 @@
 	}
 	.install-notification-btn {
 		font-size: 16px !important;
+        height: 60px !important;
 	}
+    .install-open-home-btn {
+        height: 30px !important;
+    }
 	.install-subtitle {
 		font-size: 15px !important;
 	}
@@ -655,8 +658,8 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     border-radius: 5px;
 }
 #install-buttons .dropdown-input-container .selected-language-img {
-	width: 40px;
-    height: 32px;
+	width: 48px;
+    height: 40px;
 	background-color: rgb(255 255 255 / 20%);
 	color: rgb(255 255 255 / 75%);
 	font-size: var(--settings-input-font-size);
@@ -688,6 +691,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     font-stretch: ultra-expanded;
     text-shadow: 0px 2px 0px #000;
     margin: 5px 0 5px;
+    display: none;
 }
 .install-notification-btn {
     display: inline-block;
@@ -707,6 +711,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	display: flex;
     align-items: center;
     word-break: break-word;
+    height: 30px;
 }
 .install-notification-btn:active {
 	border: 2px solid white;
@@ -856,13 +861,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     background-image: linear-gradient(rgb(79 205 76),rgb(80, 138, 79));
 }
 #install-mobile-container {
-    background-color: #aeaeae3d;
-    padding: 10px;
     display: none;
-    backdrop-filter: blur(3px);
-    border-radius: 10px;
-    border: 2px solid white;
-    border-bottom: 5px solid white;
 }
 #install-buttons-mobile {
 	display: flex;
@@ -871,7 +870,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 }
 @media (pointer:none), (pointer:coarse) {
 	#install-mobile-container {
-		display: block;
+        display: block;
 	}
 }
 .install-lemur-btn {
@@ -1875,7 +1874,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 .install-open-home-btn {
 	background-color: #ad3333;
     background-image: linear-gradient(#cf3f3f, #952b2b);
-    font-size: 14px;
+    font-size: 15px;
 }
 .install-open-home-btn:hover {
 	background-color: #9f3131;
