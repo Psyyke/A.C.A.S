@@ -1035,16 +1035,24 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #acas-settings-container {
 	display: flex;
 	height: fit-content;
-	/* One translucent, blurred surface for the toolbar and settings, with sharp grain above it. */
-	background-color: rgb(0 0 0 / 50%);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
+	position: relative;
 	color: white;
 	flex-direction: column;
 	align-items: flex-start;
 	flex-grow: 1;
 	z-index: 10;
-	border-bottom: 3px solid rgb(255 255 255 / 5%);
+}
+#acas-settings-container::before {
+    /* Blur a background sibling, not an ancestor that cuts off dropdown backdrops. */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: inherit;
+    background-color: rgb(0 0 0 / 50%);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     background-image:
         var(--background-grain-image, none),
         linear-gradient(to bottom right, rgb(0 0 0 / 4%), rgb(0 0 0 / 30%) 48%, rgb(0 0 0 / 76%));
@@ -1575,6 +1583,11 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #acas-settings-container.is-active #setting-container,
 #acas-settings-container.is-active #settings-panels {
 	opacity: 1;
+}
+#acas-settings-container:has(.dropdown-input:not(.dropdown-input-special) .dropdown-input-container:is(:hover, :focus-within)) :is(#settings-header, #setting-container, #settings-panels) {
+    /* Group opacity, even during a fade, isolates the dropdown's backdrop. */
+    opacity: 1;
+    transition-property: transform, filter;
 }
 .wide-text-input {
 	width: 200px !important;
@@ -3675,11 +3688,13 @@ video {
     min-height: 0;
     flex-direction: column;
     align-items: stretch;
-    padding: 12px 16px 12px;
+    /* Underlap the glass edge to cover fractional-pixel gaps at browser zoom.
+       Compensate with padding so the footer content and page height stay put. */
+    margin-top: -2px;
+    padding: 14px 16px 12px;
     box-sizing: border-box;
     overflow: hidden;
     background: #000000a3;
-    border-top: 1px solid rgb(0 0 0 / 12%);
     background-image:
         var(--background-grain-image, none),
         linear-gradient(to bottom right, rgb(0 0 0 / 4%), rgb(0 0 0 / 30%) 48%, rgb(0 0 0 / 76%));
@@ -3687,13 +3702,15 @@ video {
     background-repeat: repeat, no-repeat;
 }
 #footer::before {
-    position: absolute;
-    top: -1px;
-    left: 16px;
-    width: 54px;
-    height: 2px;
-    background: rgb(0 0 0 / 16%);
+    /* Keep the intentional divider at the original boundary, below the glass. */
     content: "";
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    border-top: 1px solid rgb(255 255 255 / 8%);
+    pointer-events: none;
 }
 .footer-content {
     display: flex;
