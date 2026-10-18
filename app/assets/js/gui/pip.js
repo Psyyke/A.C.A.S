@@ -502,7 +502,7 @@ async function refreshPipView() {
         if(bitmap) {
             ctxQueue.push([
                 'drawImage',
-                [bitmap, ...pipBoardConfig, pipBoardSize - 4]
+                [bitmap, ...pipBoardConfig, pipBoardSize]
             ]);
 
             ctxQueue.push([
