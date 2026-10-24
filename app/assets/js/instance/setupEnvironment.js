@@ -99,7 +99,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
             <div class="highlight-indicator hidden"></div>
             <div class="connection-warning hidden">
                 <div class="connection-warning-title">${TRANS_OBJ?.losingConnection ?? 'Losing connection'}</div>
-                <div class="connection-warning-subtitle">${TRANS_OBJ?.revisitReconnect ?? 'Revisit the page to reconnect'} 👁️</div>
+                <div class="connection-warning-subtitle">${TRANS_OBJ?.revisitReconnect ?? 'Revisit the page to reconnect'} 👀</div>
             </div>
             <div class="instance-header">
                 <style class="instance-styling">

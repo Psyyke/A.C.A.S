@@ -33,6 +33,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 600px;
+    align-items: center;
 }
 .big-title {
     font-size: 35px;
@@ -47,6 +48,7 @@ body {
     font-weight: 700;
     font-stretch: ultra-expanded;
     margin: 20px 0 0 0;
+    border-bottom: 1px solid;
 }
 .small-paragraph {
     font-size: 15px;
@@ -69,4 +71,16 @@ body {
 }
 .extra-slim {
     font-weight: 200;
+}
+b {
+    border-bottom: 1px solid grey;
+}
+.warning {
+    border: 2px solid red;
+    padding: 5px 20px;
+    border-radius: 5px;
+}
+.warning a {
+    color: red;
+    font-weight: 500;
 }

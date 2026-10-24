@@ -126,11 +126,51 @@
 
 .watercolor-texture {
     background-image:
-        linear-gradient(rgb(0 0 0 / 42%), rgb(0 0 0 / 42%)),
-        radial-gradient(ellipse at 12% 25%, rgb(174 211 244 / 58%), transparent 55%),
-        radial-gradient(ellipse at 85% 15%, rgb(224 183 227 / 52%), transparent 52%),
-        radial-gradient(ellipse at 75% 85%, rgb(246 208 164 / 56%), transparent 56%),
-        radial-gradient(ellipse at 15% 90%, rgb(168 222 206 / 50%), transparent 52%);
+        linear-gradient(
+            rgb(20 8 45 / 12%),
+            rgb(20 8 45 / 12%)
+        ),
+        radial-gradient(
+            ellipse at 12% 18%,
+            rgb(255 45 149 / 85%),
+            transparent 48%
+        ),
+        radial-gradient(
+            ellipse at 82% 12%,
+            rgb(153 65 255 / 85%),
+            transparent 48%
+        ),
+        radial-gradient(
+            ellipse at 90% 65%,
+            rgb(0 220 255 / 78%),
+            transparent 45%
+        ),
+        radial-gradient(
+            ellipse at 65% 100%,
+            rgb(255 112 67 / 85%),
+            transparent 48%
+        ),
+        radial-gradient(
+            ellipse at 25% 85%,
+            rgb(255 214 51 / 82%),
+            transparent 45%
+        ),
+        radial-gradient(
+            ellipse at 45% 40%,
+            rgb(255 80 190 / 55%),
+            transparent 55%
+        ),
+        radial-gradient(
+            ellipse at 5% 55%,
+            rgb(0 255 170 / 65%),
+            transparent 42%
+        ),
+        radial-gradient(
+            ellipse at 100% 100%,
+            rgb(111 76 255 / 75%),
+            transparent 45%
+        );
+
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -202,13 +242,110 @@
 
 .aurora-texture {
     background-image:
-        linear-gradient(rgb(0 0 0 / 25%), rgb(0 0 0 / 25%)),
-        radial-gradient(ellipse at 15% 0%, rgb(163 127 225 / 52%), transparent 55%),
-        radial-gradient(ellipse at 80% 15%, rgb(108 220 192 / 48%), transparent 55%),
-        linear-gradient(125deg, transparent 20%, rgb(126 185 232 / 28%) 45%, transparent 70%),
-        linear-gradient(0deg, rgb(13 27 52 / 48%), rgb(13 27 52 / 12%));
+        /* Midnight atmospheric depth */
+        linear-gradient(
+            180deg,
+            rgb(9 12 38 / 18%) 0%,
+            rgb(10 18 48 / 8%) 45%,
+            rgb(4 12 32 / 42%) 100%
+        ),
+
+        /* Violet aurora bloom */
+        radial-gradient(
+            ellipse 75% 85% at 12% 0%,
+            rgb(166 91 255 / 72%) 0%,
+            rgb(135 91 255 / 38%) 32%,
+            transparent 72%
+        ),
+
+        /* Emerald green northern lights */
+        radial-gradient(
+            ellipse 65% 100% at 72% -8%,
+            rgb(39 255 174 / 64%) 0%,
+            rgb(27 230 194 / 35%) 36%,
+            transparent 72%
+        ),
+
+        /* Electric cyan glow */
+        radial-gradient(
+            ellipse 55% 85% at 95% 42%,
+            rgb(35 203 255 / 58%) 0%,
+            rgb(42 145 255 / 28%) 42%,
+            transparent 75%
+        ),
+
+        /* Flowing magenta aurora ribbon */
+        linear-gradient(
+            115deg,
+            transparent 8%,
+            rgb(255 66 197 / 0%) 22%,
+            rgb(255 66 197 / 32%) 35%,
+            rgb(176 91 255 / 48%) 43%,
+            rgb(104 145 255 / 26%) 52%,
+            transparent 68%
+        ),
+
+        /* Teal and blue light curtain */
+        linear-gradient(
+            72deg,
+            transparent 15%,
+            rgb(0 255 213 / 0%) 28%,
+            rgb(0 255 213 / 24%) 42%,
+            rgb(43 168 255 / 36%) 52%,
+            rgb(105 106 255 / 18%) 63%,
+            transparent 78%
+        ),
+
+        /* Soft luminous central haze */
+        radial-gradient(
+            ellipse 90% 65% at 48% 38%,
+            rgb(90 118 255 / 22%) 0%,
+            rgb(74 91 207 / 12%) 45%,
+            transparent 75%
+        ),
+
+        /* Subtle warm horizon glow */
+        radial-gradient(
+            ellipse 80% 38% at 50% 105%,
+            rgb(92 65 185 / 32%) 0%,
+            rgb(40 46 115 / 20%) 45%,
+            transparent 78%
+        ),
+
+        /* Deep space base */
+        linear-gradient(
+            145deg,
+            rgb(12 16 49 / 100%) 0%,
+            rgb(10 31 61 / 100%) 48%,
+            rgb(7 14 39 / 100%) 100%
+        );
+
     background-size: 100% 100%;
     background-repeat: no-repeat;
+    animation: aurora-breathe 12s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-breathe {
+    0% {
+        background-position: 0% 0%;
+        filter: hue-rotate(0deg) brightness(1);
+    }
+
+    50% {
+        background-position: 2% 3%;
+        filter: hue-rotate(12deg) brightness(1.08);
+    }
+
+    100% {
+        background-position: -2% 1%;
+        filter: hue-rotate(-8deg) brightness(1.03);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aurora-texture {
+        animation: none;
+    }
 }
 
 .topographic-texture {
@@ -561,16 +698,84 @@
 
 .pastel-watercolor-texture {
     background-image:
-        linear-gradient(rgb(0 0 0 / 48%), rgb(0 0 0 / 48%)),
-        radial-gradient(ellipse at 12% 18%, rgb(250 209 222 / 70%) 0%,
-            rgb(250 209 222 / 32%) 28%, rgb(250 209 222 / 0%) 64%),
-        radial-gradient(ellipse at 86% 12%, rgb(206 197 244 / 68%) 0%,
-            rgb(206 197 244 / 28%) 30%, rgb(206 197 244 / 0%) 68%),
-        radial-gradient(ellipse at 70% 92%, rgb(255 220 185 / 66%) 0%,
-            rgb(255 220 185 / 24%) 32%, rgb(255 220 185 / 0%) 70%),
-        radial-gradient(ellipse at 8% 85%, rgb(186 230 218 / 64%) 0%,
-            rgb(186 230 218 / 26%) 28%, rgb(186 230 218 / 0%) 66%),
-        linear-gradient(135deg, rgb(249 237 239 / 18%), rgb(224 231 250 / 12%));
+        /* Soft shadow for depth, without muddying the colors */
+        linear-gradient(
+            135deg,
+            rgb(48 35 70 / 12%) 0%,
+            rgb(48 35 70 / 4%) 45%,
+            rgb(35 45 75 / 14%) 100%
+        ),
+
+        /* Rosy pink pigment bloom */
+        radial-gradient(
+            ellipse 75% 68% at 12% 16%,
+            rgb(255 153 194 / 78%) 0%,
+            rgb(255 183 207 / 52%) 30%,
+            rgb(255 205 219 / 24%) 55%,
+            transparent 78%
+        ),
+
+        /* Dreamy lavender wash */
+        radial-gradient(
+            ellipse 72% 78% at 88% 12%,
+            rgb(174 151 255 / 76%) 0%,
+            rgb(202 181 255 / 46%) 34%,
+            rgb(222 204 255 / 20%) 58%,
+            transparent 78%
+        ),
+
+        /* Peach and apricot watercolor */
+        radial-gradient(
+            ellipse 82% 72% at 76% 94%,
+            rgb(255 174 119 / 72%) 0%,
+            rgb(255 204 157 / 44%) 34%,
+            rgb(255 225 191 / 20%) 58%,
+            transparent 80%
+        ),
+
+        /* Fresh mint pigment */
+        radial-gradient(
+            ellipse 76% 76% at 7% 88%,
+            rgb(104 231 196 / 68%) 0%,
+            rgb(155 240 214 / 42%) 34%,
+            rgb(192 246 226 / 18%) 58%,
+            transparent 78%
+        ),
+
+        /* Powder blue bleeding through the center */
+        radial-gradient(
+            ellipse 65% 62% at 48% 42%,
+            rgb(148 208 255 / 42%) 0%,
+            rgb(186 225 255 / 24%) 38%,
+            transparent 74%
+        ),
+
+        /* Butter-yellow glow */
+        radial-gradient(
+            ellipse 55% 48% at 48% 100%,
+            rgb(255 231 143 / 48%) 0%,
+            rgb(255 239 184 / 22%) 45%,
+            transparent 76%
+        ),
+
+        /* Subtle lilac and rose pigment overlap */
+        radial-gradient(
+            ellipse 58% 52% at 100% 58%,
+            rgb(255 163 221 / 36%) 0%,
+            rgb(222 183 255 / 24%) 42%,
+            transparent 76%
+        ),
+
+        /* Warm paper-like base */
+        linear-gradient(
+            135deg,
+            rgb(255 244 246 / 35%) 0%,
+            rgb(248 240 255 / 28%) 50%,
+            rgb(239 250 255 / 32%) 100%
+        );
+
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 .frosted-glass-texture {
@@ -592,26 +797,97 @@
 /* Curved light rims suggest liquid glass using only background gradients. */
 .liquid-glass-texture {
     background-image:
-        linear-gradient(rgb(0 0 0 / 46%), rgb(0 0 0 / 46%)),
-        radial-gradient(ellipse 78% 130% at 96% 112%,
-            rgb(225 243 255 / 10%) 0%, rgb(225 243 255 / 3%) 45%,
-            rgb(255 255 255 / 8%) 48%, rgb(255 255 255 / 46%) 49.5%,
-            rgb(255 255 255 / 10%) 50.5%, rgb(154 180 230 / 10%) 52%,
-            rgb(154 180 230 / 0%) 56%),
-        radial-gradient(ellipse 92% 145% at -8% -28%,
-            rgb(255 255 255 / 14%) 0%, rgb(255 255 255 / 4%) 43%,
-            rgb(255 255 255 / 28%) 48%, rgb(255 255 255 / 7%) 49%,
-            rgb(255 255 255 / 0%) 53%),
-        linear-gradient(120deg, rgb(255 255 255 / 18%) 0%,
-            rgb(255 255 255 / 0%) 36%, rgb(255 255 255 / 12%) 64%,
-            rgb(255 255 255 / 0%) 85%),
-        radial-gradient(ellipse at 18% 20%, rgb(186 218 255 / 62%) 0%,
-            rgb(186 218 255 / 0%) 68%),
-        radial-gradient(ellipse at 88% 12%, rgb(224 193 241 / 56%) 0%,
-            rgb(224 193 241 / 0%) 65%),
-        radial-gradient(ellipse at 65% 105%, rgb(166 235 219 / 52%) 0%,
-            rgb(166 235 219 / 0%) 68%),
-        linear-gradient(150deg, rgb(108 136 181 / 16%), rgb(80 104 151 / 28%));
+        /* Subtle depth overlay */
+        linear-gradient(
+            135deg,
+            rgb(12 8 35 / 24%) 0%,
+            rgb(22 12 55 / 10%) 45%,
+            rgb(8 22 48 / 26%) 100%
+        ),
+
+        /* Main iridescent glass rim — bottom right */
+        radial-gradient(
+            ellipse 85% 125% at 100% 112%,
+            transparent 43%,
+            rgb(255 255 255 / 8%) 46%,
+            rgb(255 255 255 / 72%) 48%,
+            rgb(178 235 255 / 48%) 49%,
+            rgb(255 155 232 / 32%) 50%,
+            rgb(255 255 255 / 14%) 51%,
+            transparent 55%
+        ),
+
+        /* Upper-left curved glass reflection */
+        radial-gradient(
+            ellipse 105% 145% at -12% -32%,
+            transparent 42%,
+            rgb(255 255 255 / 8%) 46%,
+            rgb(255 255 255 / 48%) 48%,
+            rgb(195 177 255 / 28%) 49%,
+            rgb(255 255 255 / 12%) 50%,
+            transparent 54%
+        ),
+
+        /* Prismatic light refraction */
+        linear-gradient(
+            118deg,
+            rgb(255 255 255 / 28%) 0%,
+            rgb(255 120 218 / 10%) 16%,
+            transparent 32%,
+            rgb(110 220 255 / 12%) 48%,
+            rgb(255 255 255 / 20%) 54%,
+            transparent 62%,
+            rgb(180 130 255 / 12%) 78%,
+            rgb(255 255 255 / 16%) 88%,
+            transparent 100%
+        ),
+
+        /* Electric blue glow */
+        radial-gradient(
+            ellipse at 12% 18%,
+            rgb(64 155 255 / 68%) 0%,
+            rgb(85 120 255 / 32%) 30%,
+            transparent 66%
+        ),
+
+        /* Vibrant violet and pink iridescence */
+        radial-gradient(
+            ellipse at 91% 10%,
+            rgb(226 105 255 / 62%) 0%,
+            rgb(255 105 190 / 28%) 34%,
+            transparent 65%
+        ),
+
+        /* Liquid turquoise glow */
+        radial-gradient(
+            ellipse at 72% 105%,
+            rgb(55 255 218 / 52%) 0%,
+            rgb(55 185 255 / 24%) 38%,
+            transparent 68%
+        ),
+
+        /* Warm pearlescent light */
+        radial-gradient(
+            ellipse at 42% 48%,
+            rgb(255 191 225 / 18%) 0%,
+            rgb(177 155 255 / 12%) 32%,
+            transparent 62%
+        ),
+
+        /* Deep, colorful glass base */
+        linear-gradient(
+            145deg,
+            rgb(44 35 92 / 68%) 0%,
+            rgb(35 55 105 / 58%) 38%,
+            rgb(24 39 78 / 72%) 72%,
+            rgb(34 25 76 / 68%) 100%
+        );
+
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+
+    /* Optional glass polish */
+    background-blend-mode: normal;
 }
 
 /* Neutral light layers pastelize the actual theme hue, without a fixed palette. */
@@ -645,20 +921,20 @@
 
 .background-texture-preview {
     display: block;
-    flex: 0 0 48px;
-    height: 32px;
+    flex: 0 0 70px;
+    height: 50px;
     overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 25%);
-    border-radius: 5px;
+    border-radius: 5px 0 0 0;
     box-sizing: border-box;
     pointer-events: none;
+    border-right: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .background-texture-preview > span {
     display: block;
     width: 144px;
     height: 96px;
-    transform: scale(0.333333);
+    transform: scale(0.5);
     transform-origin: top left;
 }
 

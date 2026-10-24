@@ -107,7 +107,7 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
                 e?.target?.dataset?.key === 'isUserscriptGhost'
             ) {
                 const msg = TRANS_OBJ?.refreshSiteNotification ?? 'Refresh the external site to see changes!';
-                toast.create('message', '👁‍🗨', msg, 3000);
+                toast.create('message', '👀', msg, 3000);
             }
 
             runSettingChangeObserver(e.target, 50);

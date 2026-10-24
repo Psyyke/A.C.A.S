@@ -758,14 +758,14 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     padding: 20px;
     border: 2px solid rgb(81 150 109);
     border-bottom-width: 5px;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 #tos-title {
 	font-size: 40px;
 	font-weight: 700;
 	font-stretch: ultra-expanded;
 	margin-bottom: 10px;
-    text-shadow: 0px 5px 0px #000;
+    text-shadow: 0px 3px 0px #000;
 }
 .tos-subtitle {
 	font-size: 20px;
@@ -828,7 +828,25 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	font-size: 20px;
 }
 .tos-checkbox-label {
-    text-shadow: 0px 2px 0px #000;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 12px;
+    white-space: nowrap !important;
+    padding-left: 5px;
+}
+.tos-checkbox-label input[type="checkbox"] {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    transform: scale(1.7);
+    transform-origin: center;
+    accent-color: #22c55e7d !important;
+}
+.tos-checkbox-label span {
+    flex: 1 1 auto !important;
+    min-width: 0;
+    white-space: nowrap !important;
 }
 #tos-continue-button {
 	display: inline-block;
@@ -966,6 +984,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #no-instances-subtitle.has-whisper-font {
     font-family: "Whisper", sans-serif;
     font-size: 30px;
+    -webkit-text-stroke: 0.1px currentColor;
 }
 #no-instances-sites {
 	margin: 10px;
@@ -1297,7 +1316,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	align-items: center;
 }
 #no-instances-sites .sites-title {
-	font-size: 25px;
+	font-size: 21px;
 	color: white;
 	font-weight: 600;
 	text-align: left;
@@ -1322,7 +1341,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	height: fit-content;
 	padding: 10px;
 	border-radius: 10px;
-	font-size: 18px;
+	font-size: 16px;
 	text-decoration: none;
 	color: rgb(255 255 255);
 	background-color: rgb(255 255 255 / 10%);
@@ -1411,9 +1430,13 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	text-align: center;
 }
 .github-button {
-	color: #C9D1D9;
-	background-color: #21262D;
-	border: 2px solid #3b434f;
+    border-radius: var(--settings-input-border-radius);
+    background-color: var(--settings-input-main-bg-color);
+    color: rgb(255 255 255 / 75%);
+    font-size: var(--settings-input-font-size);
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
 }
 .github-button:hover {
 	background-color: #3f4955;
@@ -3406,7 +3429,7 @@ input[disabled] {
         border-bottom-width: 1px;
     }
     #dynamic-settings-floaty .floaty-header h1 {
-        font-size: 26px;
+        font-size: 22px;
         text-transform: none;
         margin-bottom: 0 !important;
     }
@@ -3415,8 +3438,8 @@ input[disabled] {
     }
     #dynamic-settings-floaty .floaty-close-btn {
         box-sizing: border-box;
-        width: 44px;
-        height: 44px;
+        width: 35px;
+        height: 35px;
         font-size: 18px;
     }
     #dynamic-settings-floaty .dynamic-settings-body {
@@ -3430,6 +3453,11 @@ input[disabled] {
     }
     #dynamic-settings-floaty .dynamic-settings-body > * {
         flex-shrink: 0;
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 2px;
+        border-bottom-width: 3px;
     }
     #dynamic-settings-floaty .dynamic-graph-panel {
         position: relative;
