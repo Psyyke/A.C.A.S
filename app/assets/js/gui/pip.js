@@ -67,7 +67,7 @@ function resizePipCanvas() {
     if(!pipCanvas) return;
 
     const isBoard = pipBoardInput.checked;
-    const width = !isBoard && pipSanInput?.checked ? 280 : 400;
+    const width = 400;
     const height = isBoard ? 400 : 200;
 
     if(pipCanvas.width === width && pipCanvas.height === height) return;
