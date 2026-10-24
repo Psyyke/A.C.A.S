@@ -3857,6 +3857,14 @@ video {
         letter-spacing: 0.015em;
     }
 }
+
+#no-instances-container,
+#acas-header::before,
+#acas-settings-container::before,
+dialog > .floaty-container::before {
+    background-size: clamp(80px, 6vw, 100px)  clamp(80px, 6vw, 100px), 100% 100% !important;
+}
+
 @media (max-width: 768px) {
     #no-instances-container,
     #acas-header::before,
