@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Φιλτράρισμα εμφανιζόμενων κομματιών",
+        "[data-translation-hint-own-pieces]": "Δικά σας κομμάτια",
+        "[data-translation-hint-enemy-pieces]": "Κομμάτια αντιπάλου",
+        "[data-translation-hint-full]": "Πλήρης κίνηση", "[data-translation-hint-piece]": "Μόνο κομμάτι", "[data-translation-hint-destination]": "Μόνο προορισμός",
+        "[data-translation-hint-filter]": "Φιλτράρισμα προτάσεων ανά κινούμενο κομμάτι",
         "[data-translation-server-port]": "Θύρα διακομιστή",
         "[data-translation-server-port-hint]": "Πρέπει να ταιριάζει με τη θύρα που εμφανίζεται στην εφαρμογή διακομιστή A.C.A.S",
         "#acas-is-free-reminder-text": "Βοηθήστε μας δίνοντας ανατροφοδότηση!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Ορισμένες ρυθμίσεις αναλύονται δυναμικά από την έξοδο UCI του κινητήρα. Ανοίξτε μια σκακιέρα για να ξεκινήσετε τον κινητήρα σας και να φορτώσετε τις δυναμικές ρυθμίσεις."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Χρήση κουκκίδων στο κέντρο", "Εμφάνιση χρωμάτων ως μικρές κουκκίδες στο κέντρο αντί για χρωματισμό ολόκληρου του τετραγώνου"],
+        "hintDetail": ["Λεπτομέρεια κίνησης", "Επιλέξτε τι αποκαλύπτεται"],
+        "suggestEnemyPawn": ["Πιόνι"], "suggestEnemyKnight": ["Ίππος"], "suggestEnemyBishop": ["Αξιωματικός"], "suggestEnemyRook": ["Πύργος"], "suggestEnemyQueen": ["Βασίλισσα"], "suggestEnemyKing": ["Βασιλιάς"], "suggestEnemyOtherPieces": ["Άλλα κομμάτια"],
+        "suggestPawn": ["Πιόνι"], "suggestKnight": ["Ίππος"], "suggestBishop": ["Αξιωματικός"], "suggestRook": ["Πύργος"], "suggestQueen": ["Βασίλισσα"], "suggestKing": ["Βασιλιάς"], "suggestOtherPieces": ["Άλλα κομμάτια"],
         "pipSan": ["Σημειογραφία SAN", "Χρήση SAN στον αιωρούμενο πίνακα και στην ομιλία"],
         "ttsAnnounceEnemyMoves": ["Αναγγελία κινήσεων αντιπάλου", "Ακούστε την τελευταία κίνηση του αντιπάλου"],
         "ttsAnnounceEvaluation": ["Αναγγελία αλλαγών πλεονεκτήματος", "Ακούστε πότε κερδίζετε ή χάνετε πλεονέκτημα"],
@@ -207,6 +216,7 @@
             "analyzing": "Ανάλυση {move}…", "unavailable": "Η αξιολόγηση δεν είναι διαθέσιμη."
         },
         "moveSpeech": {
+            "hintPiece": "Μετακινήστε το κομμάτι στο {square}", "hintDestination": "Κινηθείτε στο {square}", "hintsFiltered": "Προτάσεις φιλτραρισμένες",
             "opponent": "Αντίπαλος: {move}",
             "advantage": ["Χάνετε καθαρά", "Χάνετε", "Έχετε μικρό μειονέκτημα", "Η θέση είναι ίση", "Έχετε μικρό πλεονέκτημα", "Κερδίζετε", "Κερδίζετε καθαρά"],
             "lang": "el-GR", "pieces": { "K": "Βασιλιάς", "Q": "Βασίλισσα", "R": "Πύργος", "B": "Αξιωματικός", "N": "Ίππος" },

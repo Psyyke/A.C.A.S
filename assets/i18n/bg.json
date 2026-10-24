@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Филтриране на показваните фигури",
+        "[data-translation-hint-own-pieces]": "Собствени фигури",
+        "[data-translation-hint-enemy-pieces]": "Противникови фигури",
+        "[data-translation-hint-full]": "Пълен ход", "[data-translation-hint-piece]": "Само фигура", "[data-translation-hint-destination]": "Само крайно поле",
+        "[data-translation-hint-filter]": "Филтриране на предложенията по движещата се фигура",
         "[data-translation-server-port]": "Порт на сървъра",
         "[data-translation-server-port-hint]": "Трябва да съвпада с порта, показан в сървърното приложение A.C.A.S",
         "#acas-is-free-reminder-text": "Помогнете ни, като дадете обратна връзка!",
@@ -101,6 +106,10 @@
         "#des-no-result-text": "Някои настройки се анализират динамично от изхода на UCI на двигателя. Моля, отворете шахматна дъска, за да стартирате двигателя си и да заредите динамичните настройки."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Използвай точки в центъра", "Показвай цветовете на полетата като малки точки в центъра вместо оцветяване на цялото поле"],
+        "hintDetail": ["Детайли на хода", "Изберете какво да се показва"],
+        "suggestEnemyPawn": ["Пешка"], "suggestEnemyKnight": ["Кон"], "suggestEnemyBishop": ["Офицер"], "suggestEnemyRook": ["Топ"], "suggestEnemyQueen": ["Дама"], "suggestEnemyKing": ["Цар"], "suggestEnemyOtherPieces": ["Други фигури"],
+        "suggestPawn": ["Пешка"], "suggestKnight": ["Кон"], "suggestBishop": ["Офицер"], "suggestRook": ["Топ"], "suggestQueen": ["Дама"], "suggestKing": ["Цар"], "suggestOtherPieces": ["Други фигури"],
         "pipSan": ["Нотация SAN", "Използвай SAN в плаващия панел и речта"],
         "ttsAnnounceEnemyMoves": ["Обявявай ходовете на противника", "Чуй последния ход на противника"],
         "ttsAnnounceEvaluation": ["Обявявай промени в предимството", "Чуй кога печелиш или губиш предимство"],
@@ -206,6 +215,7 @@
             "analyzing": "Анализ на {move}…", "unavailable": "Оценката не е налична."
         },
         "moveSpeech": {
+            "hintPiece": "Преместете фигурата на {square}", "hintDestination": "Играйте на {square}", "hintsFiltered": "Предложенията са филтрирани",
             "opponent": "Противник: {move}",
             "advantage": ["Губиш убедително", "Губиш", "Имаш малко изоставане", "Позицията е равна", "Имаш малка преднина", "Печелиш", "Печелиш убедително"],
             "lang": "bg-BG", "pieces": { "K": "Цар", "Q": "Дама", "R": "Топ", "B": "Офицер", "N": "Кон" },

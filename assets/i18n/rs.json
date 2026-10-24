@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtriraj prikazane figure",
+        "[data-translation-hint-own-pieces]": "Sopstvene figure",
+        "[data-translation-hint-enemy-pieces]": "Protivničke figure",
+        "[data-translation-hint-full]": "Ceo potez", "[data-translation-hint-piece]": "Samo figura", "[data-translation-hint-destination]": "Samo odredišno polje",
+        "[data-translation-hint-filter]": "Filtriraj predloge prema figuri koja se pomera",
         "[data-translation-server-port]": "Port servera",
         "[data-translation-server-port-hint]": "Mora da odgovara portu prikazanom u aplikaciji A.C.A.S servera",
         "#acas-is-free-reminder-text": "Pomozite nam dajući povratne informacije!",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Koristi tačke u sredini", "Prikaži boje polja kao male tačke u sredini umesto bojenja celog polja"],
+        "hintDetail": ["Detalji poteza", "Izaberi šta se otkriva"],
+        "suggestEnemyPawn": ["Pešak"], "suggestEnemyKnight": ["Skakač"], "suggestEnemyBishop": ["Lovac"], "suggestEnemyRook": ["Top"], "suggestEnemyQueen": ["Dama"], "suggestEnemyKing": ["Kralj"], "suggestEnemyOtherPieces": ["Druge figure"],
+        "suggestPawn": ["Pešak"], "suggestKnight": ["Skakač"], "suggestBishop": ["Lovac"], "suggestRook": ["Top"], "suggestQueen": ["Dama"], "suggestKing": ["Kralj"], "suggestOtherPieces": ["Druge figure"],
         "pipSan": ["SAN notacija poteza", "Koristi SAN u plutajućem panelu i govoru"],
         "ttsAnnounceEnemyMoves": ["Najavi poteze protivnika", "Čuj poslednji potez protivnika"],
         "ttsAnnounceEvaluation": ["Najavi promene prednosti", "Čuj kada dobijaš ili gubiš prednost"],
@@ -205,6 +214,7 @@
             "analyzing": "Analiza {move}…", "unavailable": "Procena nije dostupna."
         },
         "moveSpeech": {
+            "hintPiece": "Pomeri figuru na {square}", "hintDestination": "Odigraj na {square}", "hintsFiltered": "Predlozi filtrirani",
             "opponent": "Protivnik: {move}",
             "advantage": ["Ubedljivo gubiš", "Gubiš", "Imaš mali zaostatak", "Pozicija je jednaka", "Imaš malu prednost", "Dobijaš", "Ubedljivo dobijaš"],
             "lang": "sr-RS", "pieces": { "K": "Краљ", "Q": "Дама", "R": "Топ", "B": "Ловац", "N": "Скакач" },

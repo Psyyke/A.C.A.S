@@ -24,8 +24,8 @@ input:focus,
     overflow-wrap: anywhere;
 }
 .dynamic-setting-copy {
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
 }
 .dynamic-setting-title-row {
     --dynamic-setting-shortcut-size: 32px;
@@ -163,8 +163,12 @@ input:focus,
     color: rgb(255 255 255 / 30%);
 }
 .disabled-input {
-    pointer-events: none !important;
+    pointer-events: auto !important;
     opacity: 0.25 !important;
+    cursor: not-allowed;
+}
+.disabled-input * {
+    pointer-events: none !important;
 }
 /* Textarea */
 .textfield-input input {
@@ -999,6 +1003,12 @@ dialog .custom-input {
     background-color: rgb(0 0 0 / 10%);
     padding: 12px;
     border-radius: 5px;
+}
+.hint-piece-groups .custom-input {
+    background-color: rgb(0 0 0 / 10%);
+    padding: 5px;
+    border-radius: 3px;
+    border-bottom: 3px solid rgb(255 255 255 / 10%);
 }
 .floaty-body:nth-child(2) > .custom-input {
     background-color: rgb(0 0 0 / 14%);

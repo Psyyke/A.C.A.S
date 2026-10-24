@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "表示する駒を絞り込む",
+        "[data-translation-hint-own-pieces]": "自分の駒",
+        "[data-translation-hint-enemy-pieces]": "相手の駒",
+        "[data-translation-hint-full]": "手をすべて表示", "[data-translation-hint-piece]": "駒のみ", "[data-translation-hint-destination]": "移動先のみ",
+        "[data-translation-hint-filter]": "動かす駒の種類で候補を絞り込みます",
         "[data-translation-server-port]": "サーバーポート",
         "[data-translation-server-port-hint]": "A.C.A.S サーバーアプリに表示されているポートと一致させてください",
         "#acas-is-free-reminder-text": "感想やご意見を聞かせてください！",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。"
     },
     "configTranslations": {
+        "renderSquareAsDots": ["中央のドットを使う", "マス全体を塗る代わりに中央に小さな色付きドットを表示"],
+        "hintDetail": ["手の詳細", "表示する情報を選択します"],
+        "suggestEnemyPawn": ["ポーン"], "suggestEnemyKnight": ["ナイト"], "suggestEnemyBishop": ["ビショップ"], "suggestEnemyRook": ["ルーク"], "suggestEnemyQueen": ["クイーン"], "suggestEnemyKing": ["キング"], "suggestEnemyOtherPieces": ["その他の駒"],
+        "suggestPawn": ["ポーン"], "suggestKnight": ["ナイト"], "suggestBishop": ["ビショップ"], "suggestRook": ["ルーク"], "suggestQueen": ["クイーン"], "suggestKing": ["キング"], "suggestOtherPieces": ["その他の駒"],
         "pipSan": ["SAN棋譜表記", "フローティングパネルと音声でSANを使用"],
         "ttsAnnounceEnemyMoves": ["相手の手を読み上げる", "相手が指した直前の手を聞く"],
         "ttsAnnounceEvaluation": ["形勢の変化を読み上げる", "優勢や劣勢への変化を聞く"],
@@ -205,6 +214,7 @@
             "analyzing": "{move}を解析中…", "unavailable": "評価を取得できません。"
         },
         "moveSpeech": {
+            "hintPiece": "{square}の駒を動かしてください", "hintDestination": "{square}に動かしてください", "hintsFiltered": "候補手はフィルターで非表示",
             "opponent": "相手：{move}",
             "advantage": ["大きく劣勢です", "劣勢です", "やや劣勢です", "互角です", "やや優勢です", "優勢です", "大きく優勢です"],
             "lang": "ja-JP", "pieces": { "K": "キング", "Q": "クイーン", "R": "ルーク", "B": "ビショップ", "N": "ナイト" },

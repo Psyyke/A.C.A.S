@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtrează piesele afișate",
+        "[data-translation-hint-own-pieces]": "Piese proprii",
+        "[data-translation-hint-enemy-pieces]": "Piesele adversarului",
+        "[data-translation-hint-full]": "Mutare completă", "[data-translation-hint-piece]": "Doar piesa", "[data-translation-hint-destination]": "Doar destinația",
+        "[data-translation-hint-filter]": "Filtrează sugestiile după piesa mutată",
         "[data-translation-server-port]": "Portul serverului",
         "[data-translation-server-port-hint]": "Trebuie să corespundă portului afișat în aplicația server A.C.A.S",
         "#acas-is-free-reminder-text": "Ajută-ne oferind feedback!",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Folosește puncte centrate", "Arată culorile ca puncte mici în centru în loc să colorezi întregul câmp"],
+        "hintDetail": ["Detaliile mutării", "Alege ce se dezvăluie"],
+        "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Cal"], "suggestEnemyBishop": ["Nebun"], "suggestEnemyRook": ["Turn"], "suggestEnemyQueen": ["Damă"], "suggestEnemyKing": ["Rege"], "suggestEnemyOtherPieces": ["Alte piese"],
+        "suggestPawn": ["Pion"], "suggestKnight": ["Cal"], "suggestBishop": ["Nebun"], "suggestRook": ["Turn"], "suggestQueen": ["Damă"], "suggestKing": ["Rege"], "suggestOtherPieces": ["Alte piese"],
         "pipSan": ["Notație SAN", "Folosește SAN în panoul flotant și în voce"],
         "ttsAnnounceEnemyMoves": ["Anunță mutările adversarului", "Ascultă ultima mutare a adversarului"],
         "ttsAnnounceEvaluation": ["Anunță schimbările avantajului", "Ascultă când câștigi sau pierzi avantajul"],
@@ -205,6 +214,7 @@
             "analyzing": "Se analizează {move}…", "unavailable": "Evaluare indisponibilă."
         },
         "moveSpeech": {
+            "hintPiece": "Mută piesa de pe {square}", "hintDestination": "Mută la {square}", "hintsFiltered": "Sugestii filtrate",
             "opponent": "Adversarul: {move}",
             "advantage": ["Pierzi clar", "Ești în pierdere", "Ai un mic dezavantaj", "Poziția este egală", "Ai un mic avantaj", "Ești în câștig", "Câștigi clar"],
             "lang": "ro-RO", "pieces": { "K": "Rege", "Q": "Damă", "R": "Turn", "B": "Nebun", "N": "Cal" },

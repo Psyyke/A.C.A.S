@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtrera visade pjäser",
+        "[data-translation-hint-own-pieces]": "Egna pjäser",
+        "[data-translation-hint-enemy-pieces]": "Motståndarens pjäser",
+        "[data-translation-hint-full]": "Hela draget", "[data-translation-hint-piece]": "Endast pjäs", "[data-translation-hint-destination]": "Endast målruta",
+        "[data-translation-hint-filter]": "Filtrera förslag efter pjäsen som flyttas",
         "[data-translation-server-port]": "Serverport",
         "[data-translation-server-port-hint]": "Måste matcha porten som visas i A.C.A.S-serverappen",
         "#acas-is-free-reminder-text": "Hjälp genom att ge feedback!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Använd centrerade prickar", "Visa rutornas färger som små prickar i mitten i stället för att färga hela rutan"],
+        "hintDetail": ["Dragets detaljnivå", "Välj vad som avslöjas"],
+        "suggestEnemyPawn": ["Bonde"], "suggestEnemyKnight": ["Springare"], "suggestEnemyBishop": ["Löpare"], "suggestEnemyRook": ["Torn"], "suggestEnemyQueen": ["Dam"], "suggestEnemyKing": ["Kung"], "suggestEnemyOtherPieces": ["Andra pjäser"],
+        "suggestPawn": ["Bonde"], "suggestKnight": ["Springare"], "suggestBishop": ["Löpare"], "suggestRook": ["Torn"], "suggestQueen": ["Dam"], "suggestKing": ["Kung"], "suggestOtherPieces": ["Andra pjäser"],
         "pipSan": ["SAN-dragnotation", "Använd SAN i den flytande panelen och talet"],
         "ttsAnnounceEnemyMoves": ["Läs upp motståndarens drag", "Hör motståndarens senaste drag"],
         "ttsAnnounceEvaluation": ["Läs upp förändringar i fördel", "Hör när du får eller förlorar fördelen"],
@@ -207,6 +216,7 @@
             "analyzing": "Analyserar {move}…", "unavailable": "Utvärdering saknas."
         },
         "moveSpeech": {
+            "hintPiece": "Flytta pjäsen på {square}", "hintDestination": "Flytta till {square}", "hintsFiltered": "Förslag filtrerade",
             "opponent": "Motståndaren: {move}",
             "advantage": ["Du står klart på förlust", "Du håller på att förlora", "Du ligger lite efter", "Ställningen är jämn", "Du ligger lite före", "Du håller på att vinna", "Du står klart på vinst"],
             "lang": "sv-SE", "pieces": { "K": "Kung", "Q": "Dam", "R": "Torn", "B": "Löpare", "N": "Springare" },

@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtrovať zobrazené figúry",
+        "[data-translation-hint-own-pieces]": "Vlastné figúry",
+        "[data-translation-hint-enemy-pieces]": "Súperove figúry",
+        "[data-translation-hint-full]": "Celý ťah", "[data-translation-hint-piece]": "Iba figúra", "[data-translation-hint-destination]": "Iba cieľové pole",
+        "[data-translation-hint-filter]": "Filtrovať návrhy podľa ťahajúcej figúry",
         "[data-translation-server-port]": "Port servera",
         "[data-translation-server-port-hint]": "Musí sa zhodovať s portom zobrazeným v serverovej aplikácii A.C.A.S",
         "#acas-is-free-reminder-text": "Pomôžte nám poskytnutím spätnej väzby!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Niektoré nastavenia sú dynamicky analyzované z výstupu UCI motora. Otvorte šachovnicu, aby ste spustili svoj motor a načítali dynamické nastavenia."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Použiť bodky v strede", "Zobraziť farby polí ako malé bodky v strede namiesto zvýraznenia celého poľa"],
+        "hintDetail": ["Podrobnosť ťahu", "Vyberte, čo odhaliť"],
+        "suggestEnemyPawn": ["Pešiak"], "suggestEnemyKnight": ["Jazdec"], "suggestEnemyBishop": ["Strelec"], "suggestEnemyRook": ["Veža"], "suggestEnemyQueen": ["Dáma"], "suggestEnemyKing": ["Kráľ"], "suggestEnemyOtherPieces": ["Ostatné figúry"],
+        "suggestPawn": ["Pešiak"], "suggestKnight": ["Jazdec"], "suggestBishop": ["Strelec"], "suggestRook": ["Veža"], "suggestQueen": ["Dáma"], "suggestKing": ["Kráľ"], "suggestOtherPieces": ["Ostatné figúry"],
         "pipSan": ["Notácia SAN", "Používať SAN v plávajúcom paneli a reči"],
         "ttsAnnounceEnemyMoves": ["Oznamovať ťahy súpera", "Vypočujte si posledný ťah súpera"],
         "ttsAnnounceEvaluation": ["Oznamovať zmeny výhody", "Vypočujte si, kedy získavate alebo strácate výhodu"],
@@ -207,6 +216,7 @@
             "analyzing": "Analyzujem {move}…", "unavailable": "Hodnotenie nie je dostupné."
         },
         "moveSpeech": {
+            "hintPiece": "Ťahajte figúrou na {square}", "hintDestination": "Ťahajte na {square}", "hintsFiltered": "Návrhy odfiltrované",
             "opponent": "Súper: {move}",
             "advantage": ["Výrazne prehrávate", "Prehrávate", "Máte miernu nevýhodu", "Pozícia je vyrovnaná", "Máte miernu výhodu", "Vyhrávate", "Výrazne vyhrávate"],
             "lang": "sk-SK", "pieces": { "K": "Kráľ", "Q": "Dáma", "R": "Veža", "B": "Strelec", "N": "Jazdec" },

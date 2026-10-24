@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "筛选显示棋子",
+        "[data-translation-hint-own-pieces]": "己方棋子",
+        "[data-translation-hint-enemy-pieces]": "对方棋子",
+        "[data-translation-hint-full]": "完整走法", "[data-translation-hint-piece]": "仅提示棋子", "[data-translation-hint-destination]": "仅提示目标格",
+        "[data-translation-hint-filter]": "按移动棋子筛选建议",
         "[data-translation-server-port]": "服务器端口",
         "[data-translation-server-port-hint]": "必须与 A.C.A.S 服务器应用中显示的端口一致",
         "#acas-is-free-reminder-text": "通过反馈帮助我们！",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
     },
     "configTranslations": {
+        "renderSquareAsDots": ["使用居中圆点", "在格子中央显示小彩点，而不是为整个格子着色"],
+        "hintDetail": ["走法详情", "选择显示哪些信息"],
+        "suggestEnemyPawn": ["兵"], "suggestEnemyKnight": ["马"], "suggestEnemyBishop": ["象"], "suggestEnemyRook": ["车"], "suggestEnemyQueen": ["后"], "suggestEnemyKing": ["王"], "suggestEnemyOtherPieces": ["其他棋子"],
+        "suggestPawn": ["兵"], "suggestKnight": ["马"], "suggestBishop": ["象"], "suggestRook": ["车"], "suggestQueen": ["后"], "suggestKing": ["王"], "suggestOtherPieces": ["其他棋子"],
         "pipSan": ["SAN走法记谱", "在浮动面板和语音中使用SAN"],
         "ttsAnnounceEnemyMoves": ["播报对手走法", "听取对手刚走的一步"],
         "ttsAnnounceEvaluation": ["播报优势变化", "在获得或失去优势时播报"],
@@ -205,6 +214,7 @@
             "analyzing": "正在分析{move}…", "unavailable": "评估不可用。"
         },
         "moveSpeech": {
+            "hintPiece": "移动{square}上的棋子", "hintDestination": "移动到{square}", "hintsFiltered": "建议已过滤",
             "opponent": "对手：{move}",
             "advantage": ["你处于严重劣势", "你处于劣势", "你稍处劣势", "局面均势", "你稍有优势", "你处于优势", "你处于明显优势"],
             "lang": "zh-CN", "pieces": { "K": "王", "Q": "后", "R": "车", "B": "象", "N": "马" },

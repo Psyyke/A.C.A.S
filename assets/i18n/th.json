@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "กรองตัวหมากที่แสดง",
+        "[data-translation-hint-own-pieces]": "หมากของตนเอง",
+        "[data-translation-hint-enemy-pieces]": "หมากของคู่ต่อสู้",
+        "[data-translation-hint-full]": "ตาเดินแบบเต็ม", "[data-translation-hint-piece]": "เฉพาะตัวหมาก", "[data-translation-hint-destination]": "เฉพาะช่องปลายทาง",
+        "[data-translation-hint-filter]": "กรองคำแนะนำตามตัวหมากที่เดิน",
         "[data-translation-server-port]": "พอร์ตเซิร์ฟเวอร์",
         "[data-translation-server-port-hint]": "ต้องตรงกับพอร์ตที่แสดงในแอปเซิร์ฟเวอร์ A.C.A.S",
         "#acas-is-free-reminder-text": "ช่วยเราพัฒนาได้ด้วยการส่งความคิดเห็น!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "การตั้งค่าบางอย่างจะถูกวิเคราะห์แบบไดนามิกจากเอาต์พุต UCI ของเครื่องยนต์ โปรดเปิดกระดานหมากรุกเพื่อเริ่มเครื่องยนต์ของคุณและโหลดการตั้งค่าแบบไดนามิก"
     },
     "configTranslations": {
+        "renderSquareAsDots": ["ใช้จุดตรงกลาง", "แสดงสีช่องเป็นจุดเล็กตรงกลางแทนการระบายสีทั้งช่อง"],
+        "hintDetail": ["รายละเอียดตาเดิน", "เลือกข้อมูลที่จะเปิดเผย"],
+        "suggestEnemyPawn": ["เบี้ย"], "suggestEnemyKnight": ["ม้า"], "suggestEnemyBishop": ["บิชอป"], "suggestEnemyRook": ["เรือ"], "suggestEnemyQueen": ["ควีน"], "suggestEnemyKing": ["คิง"], "suggestEnemyOtherPieces": ["หมากชนิดอื่น"],
+        "suggestPawn": ["เบี้ย"], "suggestKnight": ["ม้า"], "suggestBishop": ["บิชอป"], "suggestRook": ["เรือ"], "suggestQueen": ["ควีน"], "suggestKing": ["คิง"], "suggestOtherPieces": ["หมากชนิดอื่น"],
         "pipSan": ["สัญกรณ์ SAN", "ใช้ SAN ในแผงลอยและเสียงพูด"],
         "ttsAnnounceEnemyMoves": ["บอกการเดินของคู่ต่อสู้", "ฟังการเดินล่าสุดของคู่ต่อสู้"],
         "ttsAnnounceEvaluation": ["บอกการเปลี่ยนความได้เปรียบ", "ฟังเมื่อได้หรือเสียความได้เปรียบ"],
@@ -207,6 +216,7 @@
             "analyzing": "กำลังวิเคราะห์ {move}…", "unavailable": "ไม่สามารถประเมินได้"
         },
         "moveSpeech": {
+            "hintPiece": "เดินหมากที่อยู่บน {square}", "hintDestination": "เดินไปที่ {square}", "hintsFiltered": "คำแนะนำถูกกรอง",
             "opponent": "คู่ต่อสู้: {move}",
             "advantage": ["คุณเสียเปรียบมาก", "คุณกำลังแพ้", "คุณเสียเปรียบเล็กน้อย", "ตำแหน่งเท่าเทียมกัน", "คุณได้เปรียบเล็กน้อย", "คุณกำลังชนะ", "คุณได้เปรียบมาก"],
             "lang": "th-TH", "pieces": { "K": "คิง", "Q": "ควีน", "R": "เรือ", "B": "บิชอป", "N": "ม้า" },

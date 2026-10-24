@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtrer les pièces affichées",
+        "[data-translation-hint-own-pieces]": "Vos pièces",
+        "[data-translation-hint-enemy-pieces]": "Pièces adverses",
+        "[data-translation-hint-full]": "Coup complet", "[data-translation-hint-piece]": "Pièce uniquement", "[data-translation-hint-destination]": "Destination uniquement",
+        "[data-translation-hint-filter]": "Filtrer les suggestions par pièce déplacée",
         "[data-translation-server-port]": "Port du serveur",
         "[data-translation-server-port-hint]": "Doit correspondre au port affiché dans l’application serveur A.C.A.S",
         "#acas-is-free-reminder-text": "Aidez-nous en donnant votre avis !",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Utiliser des points centrés", "Afficher les couleurs sous forme de petits points au centre plutôt que de colorer toute la case"],
+        "hintDetail": ["Détail du coup", "Choisissez quoi révéler"],
+        "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Cavalier"], "suggestEnemyBishop": ["Fou"], "suggestEnemyRook": ["Tour"], "suggestEnemyQueen": ["Dame"], "suggestEnemyKing": ["Roi"], "suggestEnemyOtherPieces": ["Autres pièces"],
+        "suggestPawn": ["Pion"], "suggestKnight": ["Cavalier"], "suggestBishop": ["Fou"], "suggestRook": ["Tour"], "suggestQueen": ["Dame"], "suggestKing": ["Roi"], "suggestOtherPieces": ["Autres pièces"],
         "pipSan": ["Notation SAN", "Utiliser SAN dans le panneau flottant et la voix"],
         "ttsAnnounceEnemyMoves": ["Annoncer les coups adverses", "Écouter le dernier coup de l’adversaire"],
         "ttsAnnounceEvaluation": ["Annoncer les changements d’avantage", "Écouter quand vous gagnez ou perdez l’avantage"],
@@ -206,6 +215,7 @@
             "analyzing": "Analyse de {move}…", "unavailable": "Évaluation indisponible."
         },
         "moveSpeech": {
+            "hintPiece": "Déplacez la pièce en {square}", "hintDestination": "Jouez vers {square}", "hintsFiltered": "Suggestions filtrées",
             "opponent": "Adversaire : {move}",
             "advantage": ["Vous perdez nettement", "Vous êtes en train de perdre", "Vous avez un léger désavantage", "La position est égale", "Vous avez un léger avantage", "Vous êtes en train de gagner", "Vous gagnez nettement"],
             "lang": "fr-FR", "pieces": { "K": "Roi", "Q": "Dame", "R": "Tour", "B": "Fou", "N": "Cavalier" },

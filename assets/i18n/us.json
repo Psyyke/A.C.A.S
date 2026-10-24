@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filter shown pieces",
+        "[data-translation-hint-own-pieces]": "Own pieces",
+        "[data-translation-hint-enemy-pieces]": "Opponent pieces",
+        "[data-translation-hint-full]": "Full move", "[data-translation-hint-piece]": "Piece only", "[data-translation-hint-destination]": "Destination only",
+        "[data-translation-hint-filter]": "Filter suggestions by moving piece",
         "[data-translation-server-port]": "Server port",
         "[data-translation-server-port-hint]": "Must match the port shown in the A.C.A.S server app",
         "#acas-is-free-reminder-text": "Help by giving feedback!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Some settings are parsed dynamically from the engine's UCI output. Please open a chess board to start your engine and load the dynamic settings."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Use centered dots", "Show square colors as small centered dots instead of full highlights"],
+        "hintDetail": ["Move detail", "Choose what to reveal"],
+        "suggestEnemyPawn": ["Pawn"], "suggestEnemyKnight": ["Knight"], "suggestEnemyBishop": ["Bishop"], "suggestEnemyRook": ["Rook"], "suggestEnemyQueen": ["Queen"], "suggestEnemyKing": ["King"], "suggestEnemyOtherPieces": ["Other pieces"],
+        "suggestPawn": ["Pawn"], "suggestKnight": ["Knight"], "suggestBishop": ["Bishop"], "suggestRook": ["Rook"], "suggestQueen": ["Queen"], "suggestKing": ["King"], "suggestOtherPieces": ["Other pieces"],
         "ttsAnnounceEnemyMoves": ["Announce Opponent Moves", "Hear the move your opponent just played"],
         "ttsAnnounceEvaluation": ["Announce Advantage Changes", "Hear when you gain or lose the advantage"],
         "engineEnabled": ["Enabled", "Turn this engine on or off"],
@@ -207,6 +216,7 @@
             "analyzing": "Analyzing {move}…", "unavailable": "Evaluation unavailable."
         },
         "moveSpeech": {
+            "hintPiece": "Move the piece on {square}", "hintDestination": "Move to {square}", "hintsFiltered": "Suggestions filtered",
             "opponent": "Opponent: {move}",
             "advantage": ["You are losing badly", "You are losing", "You are slightly behind", "The position is equal", "You are slightly ahead", "You are winning", "You are winning decisively"],
             "lang": "en-US", "pieces": { "K": "King", "Q": "Queen", "R": "Rook", "B": "Bishop", "N": "Knight" },

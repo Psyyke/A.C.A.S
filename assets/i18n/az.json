@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Göstərilən fiqurları süzgəcdən keçir",
+        "[data-translation-hint-own-pieces]": "Öz fiqurlarınız",
+        "[data-translation-hint-enemy-pieces]": "Rəqibin fiqurları",
+        "[data-translation-hint-full]": "Tam gediş", "[data-translation-hint-piece]": "Yalnız fiqur", "[data-translation-hint-destination]": "Yalnız hədəf xana",
+        "[data-translation-hint-filter]": "Təklifləri hərəkət edən fiqura görə süzgəcdən keçirin",
         "[data-translation-server-port]": "Server portu",
         "[data-translation-server-port-hint]": "A.C.A.S server tətbiqində göstərilən portla eyni olmalıdır",
         "#acas-is-free-reminder-text": "Fikrinizi bölüşərək bizə kömək edin!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Mərkəzi nöqtələrdən istifadə et", "Xanaları tam rəngləmək əvəzinə rəngləri mərkəzdə kiçik nöqtələrlə göstər"],
+        "hintDetail": ["Gediş təfərrüatı", "Nəyin göstəriləcəyini seçin"],
+        "suggestEnemyPawn": ["Piyada"], "suggestEnemyKnight": ["At"], "suggestEnemyBishop": ["Fil"], "suggestEnemyRook": ["Top"], "suggestEnemyQueen": ["Vəzir"], "suggestEnemyKing": ["Şah"], "suggestEnemyOtherPieces": ["Digər fiqurlar"],
+        "suggestPawn": ["Piyada"], "suggestKnight": ["At"], "suggestBishop": ["Fil"], "suggestRook": ["Top"], "suggestQueen": ["Vəzir"], "suggestKing": ["Şah"], "suggestOtherPieces": ["Digər fiqurlar"],
         "pipSan": ["SAN gediş yazılışı", "Üzən paneldə və nitqdə SAN istifadə et"],
         "ttsAnnounceEnemyMoves": ["Rəqibin gedişlərini səsləndir", "Rəqibin son gedişini dinlə"],
         "ttsAnnounceEvaluation": ["Üstünlük dəyişikliklərini səsləndir", "Üstünlük qazandıqda və ya itirdikdə dinlə"],
@@ -207,6 +216,7 @@
             "analyzing": "{move} təhlil edilir…", "unavailable": "Qiymətləndirmə mövcud deyil."
         },
         "moveSpeech": {
+            "hintPiece": "{square} xanasındakı fiqurla oynayın", "hintDestination": "{square} xanasına oynayın", "hintsFiltered": "Təkliflər süzgəcdən keçirilib",
             "opponent": "Rəqib: {move}",
             "advantage": ["Açıq fərqlə uduzursunuz", "Uduzursunuz", "Bir az geridəsiniz", "Mövqe bərabərdir", "Bir az öndəsiniz", "Udursunuz", "Açıq fərqlə udursunuz"],
             "lang": "az-AZ", "pieces": { "K": "Şah", "Q": "Vəzir", "R": "Top", "B": "Fil", "N": "At" },

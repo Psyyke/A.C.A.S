@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "दिखाए गए मोहरे छाँटें",
+        "[data-translation-hint-own-pieces]": "अपने मोहरे",
+        "[data-translation-hint-enemy-pieces]": "प्रतिद्वंद्वी के मोहरे",
+        "[data-translation-hint-full]": "पूरी चाल", "[data-translation-hint-piece]": "केवल मोहरा", "[data-translation-hint-destination]": "केवल गंतव्य",
+        "[data-translation-hint-filter]": "चलने वाले मोहरे के अनुसार सुझाव छाँटें",
         "[data-translation-server-port]": "सर्वर पोर्ट",
         "[data-translation-server-port-hint]": "A.C.A.S सर्वर ऐप में दिखाए गए पोर्ट से मेल खाना चाहिए",
         "#acas-is-free-reminder-text": "अपनी राय बताकर हमारी मदद करें!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "कुछ सेटिंग्स को इंजन के UCI आउटपुट से गतिशील रूप से विश्लेषित किया जाता है। अपनी इंजन शुरू करने और गतिशील सेटिंग्स लोड करने के लिए एक शतरंज बोर्ड खोलें।"
     },
     "configTranslations": {
+        "renderSquareAsDots": ["बीच में बिंदु इस्तेमाल करें", "पूरा खाना रंगने के बजाय बीच में छोटे रंगीन बिंदु दिखाएँ"],
+        "hintDetail": ["चाल का विवरण", "तय करें क्या दिखाना है"],
+        "suggestEnemyPawn": ["प्यादा"], "suggestEnemyKnight": ["घोड़ा"], "suggestEnemyBishop": ["ऊँट"], "suggestEnemyRook": ["हाथी"], "suggestEnemyQueen": ["वज़ीर"], "suggestEnemyKing": ["राजा"], "suggestEnemyOtherPieces": ["अन्य मोहरे"],
+        "suggestPawn": ["प्यादा"], "suggestKnight": ["घोड़ा"], "suggestBishop": ["ऊँट"], "suggestRook": ["हाथी"], "suggestQueen": ["वज़ीर"], "suggestKing": ["राजा"], "suggestOtherPieces": ["अन्य मोहरे"],
         "pipSan": ["SAN चाल संकेतन", "फ़्लोटिंग पैनल और आवाज़ में SAN का उपयोग करें"],
         "ttsAnnounceEnemyMoves": ["विरोधी की चालें सुनाएँ", "विरोधी की पिछली चाल सुनें"],
         "ttsAnnounceEvaluation": ["बढ़त के बदलाव सुनाएँ", "बढ़त मिलने या खोने पर सुनें"],
@@ -207,6 +216,7 @@
             "analyzing": "{move} का विश्लेषण…", "unavailable": "मूल्यांकन उपलब्ध नहीं है।"
         },
         "moveSpeech": {
+            "hintPiece": "{square} का मोहरा चलें", "hintDestination": "{square} पर चलें", "hintsFiltered": "सुझाव फ़िल्टर किए गए",
             "opponent": "विरोधी: {move}",
             "advantage": ["आप बहुत पीछे हैं", "आप हार रहे हैं", "आप थोड़ा पीछे हैं", "स्थिति बराबर है", "आप थोड़ा आगे हैं", "आप जीत रहे हैं", "आप बहुत आगे हैं"],
             "lang": "hi-IN", "pieces": { "K": "राजा", "Q": "वज़ीर", "R": "हाथी", "B": "ऊँट", "N": "घोड़ा" },

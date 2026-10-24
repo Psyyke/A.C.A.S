@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtruj wyświetlane bierki",
+        "[data-translation-hint-own-pieces]": "Własne bierki",
+        "[data-translation-hint-enemy-pieces]": "Bierki przeciwnika",
+        "[data-translation-hint-full]": "Pełny ruch", "[data-translation-hint-piece]": "Tylko bierka", "[data-translation-hint-destination]": "Tylko pole docelowe",
+        "[data-translation-hint-filter]": "Filtruj sugestie według poruszanej bierki",
         "[data-translation-server-port]": "Port serwera",
         "[data-translation-server-port-hint]": "Musi odpowiadać portowi wyświetlanemu w aplikacji serwera A.C.A.S",
         "#acas-is-free-reminder-text": "Pomóż, dając feedback!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Używaj kropek na środku", "Pokazuj kolory pól jako małe kropki na środku zamiast kolorować całe pole"],
+        "hintDetail": ["Szczegóły ruchu", "Wybierz, co ujawnić"],
+        "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Skoczek"], "suggestEnemyBishop": ["Goniec"], "suggestEnemyRook": ["Wieża"], "suggestEnemyQueen": ["Hetman"], "suggestEnemyKing": ["Król"], "suggestEnemyOtherPieces": ["Inne bierki"],
+        "suggestPawn": ["Pion"], "suggestKnight": ["Skoczek"], "suggestBishop": ["Goniec"], "suggestRook": ["Wieża"], "suggestQueen": ["Hetman"], "suggestKing": ["Król"], "suggestOtherPieces": ["Inne bierki"],
         "pipSan": ["Notacja SAN", "Używaj SAN w panelu pływającym i mowie"],
         "ttsAnnounceEnemyMoves": ["Ogłaszaj ruchy przeciwnika", "Usłysz ostatni ruch przeciwnika"],
         "ttsAnnounceEvaluation": ["Ogłaszaj zmiany przewagi", "Usłysz, kiedy zyskujesz lub tracisz przewagę"],
@@ -207,6 +216,7 @@
             "analyzing": "Analizowanie {move}…", "unavailable": "Ocena niedostępna."
         },
         "moveSpeech": {
+            "hintPiece": "Wykonaj ruch bierką na {square}", "hintDestination": "Wykonaj ruch na {square}", "hintsFiltered": "Sugestie odfiltrowane",
             "opponent": "Przeciwnik: {move}",
             "advantage": ["Wyraźnie przegrywasz", "Przegrywasz", "Masz niewielką stratę", "Pozycja jest równa", "Masz niewielką przewagę", "Wygrywasz", "Wyraźnie wygrywasz"],
             "lang": "pl-PL", "pieces": { "K": "Król", "Q": "Hetman", "R": "Wieża", "B": "Goniec", "N": "Skoczek" },

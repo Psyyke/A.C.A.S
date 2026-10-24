@@ -42,6 +42,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
         return;
 
     switch(inputElem.dataset.key) {
+        case 'chessFont': {
+            const container = document.querySelector('.learning-hints');
+            const font = FORMAT_CHESS_FONT(value);
+            ['staunty', 'merida', 'cburnett', 'letters'].forEach(name =>
+                container?.classList.toggle(name, name === font));
+            break;
+        }
         case 'themeColorHex':
             setThemeColorHex(value);
             console.log('[Setting Handler] Set theme color to', value || 'nothing');

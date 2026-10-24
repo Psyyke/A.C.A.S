@@ -779,6 +779,10 @@
 
 												<div class="setting-panel">
 													<div class="setting-panel-title" data-translation-squares-text>Squares</div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Use centered dots</div>
+                                                        <div class="input-subtitle">Show square colors as small centered dots instead of full highlights</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-render-setting="true" data-key="renderSquareAsDots" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Vision</div>
 														<div class="input-subtitle">Highlight squares your pieces see with green</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="renderSquarePlayer" data-default-value="false"><div class="checkbox-fill">✔</div></div>
@@ -923,9 +927,9 @@
 								<div class="input-subtitle">Calculates moves for pieces you interact with</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="movesOnDemand" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Only Suggest Pieces</div>
-								<div class="input-subtitle">Suggest pieces to move, but give no moves</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlySuggestPieces" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                            <div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
+								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 							</div>
                             <div class="input-combination-box">
                                 <div class="checkbox-input custom-input"><div><div class="input-title">Always My Turn</div>
@@ -940,6 +944,89 @@
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👀</div>
+                            <div class="dropdown-input custom-input"><div><div class="input-title">Move detail</div>
+                                <div class="input-subtitle">Choose what to reveal</div></div><div class="dropdown-input-container">
+                                <input type="text" additional-type="dropdown" data-key="hintDetail" data-default-value="full">
+                                <div class="dropdown-icon"></div><div class="dropdown-list-container">
+                                    <div class="dropdown-item" data-value="full" data-translation-hint-full>Full move</div>
+                                    <div class="dropdown-item" data-value="piece" data-translation-hint-piece>Piece only</div>
+                                    <div class="dropdown-item" data-value="destination" data-translation-hint-destination>Destination only</div>
+                                </div></div>
+                            </div>
+                            <div class="floaty-input custom-input">
+                                <div><div class="input-title" data-translation-learning-hints>Filter shown pieces</div>
+                                    <div class="input-subtitle" data-translation-hint-filter>Filter suggestions by moving piece</div></div>
+                                <div class="floaty-wrapper">
+                                    <button class="open-floaty-btn acas-fancy-button" type="button" aria-haspopup="dialog" aria-controls="learning-hints-floaty" aria-labelledby="learning-hints-title">⚙️</button>
+                                    <dialog id="learning-hints-floaty" class="learning-hints staunty" aria-labelledby="learning-hints-title">
+                                        <div class="floaty-container">
+                                            <section class="floaty-header">
+                                                <div class="title">
+                                                    <h1 id="learning-hints-title" data-translation-learning-hints>Filter shown pieces</h1>
+                                                    <p data-translation-hint-filter>Filter suggestions by moving piece</p>
+                                                </div>
+                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div>
+                                            </section>
+                                            <section class="floaty-body">
+                                                <div class="hint-piece-groups">
+                                                <section class="hint-piece-group setting-panel" data-hint-side="own" aria-labelledby="hint-own-pieces-title">
+                                                <h2 id="hint-own-pieces-title" class="setting-panel-title" data-translation-hint-own-pieces>Own pieces</h2>
+                                                <div class="hint-piece-filters cg-wrap">
+                                                    <div class="checkbox-input custom-input"><div><piece class="p-piece white" aria-hidden="true"></piece><div class="input-title">Pawn</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestPawn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="n-piece white" aria-hidden="true"></piece><div class="input-title">Knight</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestKnight" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="b-piece white" aria-hidden="true"></piece><div class="input-title">Bishop</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestBishop" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="r-piece white" aria-hidden="true"></piece><div class="input-title">Rook</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestRook" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="q-piece white" aria-hidden="true"></piece><div class="input-title">Queen</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestQueen" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="k-piece white" aria-hidden="true"></piece><div class="input-title">King</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestKing" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Other pieces</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestOtherPieces" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                </div>
+                                                </section>
+                                                <section class="hint-piece-group setting-panel" data-hint-side="enemy" aria-labelledby="hint-enemy-pieces-title">
+                                                <h2 id="hint-enemy-pieces-title" class="setting-panel-title" data-translation-hint-enemy-pieces>Opponent pieces</h2>
+                                                <div class="hint-piece-filters cg-wrap">
+                                                    <div class="checkbox-input custom-input"><div><piece class="p-piece black" aria-hidden="true"></piece><div class="input-title">Pawn</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyPawn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="n-piece black" aria-hidden="true"></piece><div class="input-title">Knight</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyKnight" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="b-piece black" aria-hidden="true"></piece><div class="input-title">Bishop</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyBishop" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="r-piece black" aria-hidden="true"></piece><div class="input-title">Rook</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyRook" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="q-piece black" aria-hidden="true"></piece><div class="input-title">Queen</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyQueen" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="k-piece black" aria-hidden="true"></piece><div class="input-title">King</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyKing" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Other pieces</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyOtherPieces" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                </div>
+                                                </section>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </dialog>
+                                </div>
+                            </div>
 							<div class="floaty-input custom-input">
 								<div><div class="input-title" data-translation-webhook-title>Messages</div><div class="input-subtitle" data-translation-webhook-subtitle>Configure Discord webhook messages</div></div>
                                 <div class="floaty-wrapper">
@@ -981,10 +1068,6 @@
 							<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
 								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
 								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
-								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 							</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
 								<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">

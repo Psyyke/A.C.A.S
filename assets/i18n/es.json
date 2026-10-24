@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtrar piezas mostradas",
+        "[data-translation-hint-own-pieces]": "Piezas propias",
+        "[data-translation-hint-enemy-pieces]": "Piezas del oponente",
+        "[data-translation-hint-full]": "Jugada completa", "[data-translation-hint-piece]": "Solo pieza", "[data-translation-hint-destination]": "Solo destino",
+        "[data-translation-hint-filter]": "Filtra sugerencias por la pieza que se mueve",
         "[data-translation-server-port]": "Puerto del servidor",
         "[data-translation-server-port-hint]": "Debe coincidir con el puerto mostrado en la aplicación del servidor de A.C.A.S",
         "#acas-is-free-reminder-text": "¡Ayúdanos dando tu opinión!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Usar puntos centrados", "Muestra los colores como pequeños puntos en el centro en vez de colorear toda la casilla"],
+        "hintDetail": ["Detalle de jugada", "Elige qué revelar"],
+        "suggestEnemyPawn": ["Peón"], "suggestEnemyKnight": ["Caballo"], "suggestEnemyBishop": ["Alfil"], "suggestEnemyRook": ["Torre"], "suggestEnemyQueen": ["Dama"], "suggestEnemyKing": ["Rey"], "suggestEnemyOtherPieces": ["Otras piezas"],
+        "suggestPawn": ["Peón"], "suggestKnight": ["Caballo"], "suggestBishop": ["Alfil"], "suggestRook": ["Torre"], "suggestQueen": ["Dama"], "suggestKing": ["Rey"], "suggestOtherPieces": ["Otras piezas"],
         "pipSan": ["Notación SAN", "Usar SAN en el panel flotante y en la voz"],
         "ttsAnnounceEnemyMoves": ["Anunciar jugadas del rival", "Escucha la última jugada del rival"],
         "ttsAnnounceEvaluation": ["Anunciar cambios de ventaja", "Escucha cuándo ganas o pierdes ventaja"],
@@ -208,6 +217,7 @@
             "analyzing": "Analizando {move}…", "unavailable": "Evaluación no disponible."
         },
         "moveSpeech": {
+            "hintPiece": "Mueve la pieza de {square}", "hintDestination": "Mueve a {square}", "hintsFiltered": "Sugerencias filtradas",
             "opponent": "Rival: {move}",
             "advantage": ["Estás perdiendo claramente", "Estás perdiendo", "Tienes una ligera desventaja", "La posición está igualada", "Tienes una ligera ventaja", "Estás ganando", "Estás ganando claramente"],
             "lang": "es-ES", "pieces": { "K": "Rey", "Q": "Dama", "R": "Torre", "B": "Alfil", "N": "Caballo" },

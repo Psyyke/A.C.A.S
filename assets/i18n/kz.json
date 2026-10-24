@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Көрсетілетін фигураларды сүзу",
+        "[data-translation-hint-own-pieces]": "Өз фигураларыңыз",
+        "[data-translation-hint-enemy-pieces]": "Қарсыластың фигуралары",
+        "[data-translation-hint-full]": "Толық жүріс", "[data-translation-hint-piece]": "Тек фигура", "[data-translation-hint-destination]": "Тек баратын шаршы",
+        "[data-translation-hint-filter]": "Ұсыныстарды жүретін фигура бойынша сүзу",
         "[data-translation-server-port]": "Сервер порты",
         "[data-translation-server-port-hint]": "A.C.A.S сервер қолданбасында көрсетілген портпен сәйкес келуі керек",
         "#acas-is-free-reminder-text": "Пікіріңізді білдіріп, бізге көмектесіңіз!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Кейбір параметрлер қозғалтқыштың UCI шығысынан динамикалық түрде талданады. Қозғалтқышты іске қосу және динамикалық параметрлерді жүктеу үшін шахмат тақтасын ашыңыз."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Ортадағы нүктелерді қолдану", "Шаршыны толық бояудың орнына түстерді ортасында кішкентай нүктелермен көрсету"],
+        "hintDetail": ["Жүріс егжей-тегжейі", "Не көрсетілетінін таңдаңыз"],
+        "suggestEnemyPawn": ["Пешка"], "suggestEnemyKnight": ["Ат"], "suggestEnemyBishop": ["Піл"], "suggestEnemyRook": ["Тура"], "suggestEnemyQueen": ["Уәзір"], "suggestEnemyKing": ["Патша"], "suggestEnemyOtherPieces": ["Басқа фигуралар"],
+        "suggestPawn": ["Пешка"], "suggestKnight": ["Ат"], "suggestBishop": ["Піл"], "suggestRook": ["Тура"], "suggestQueen": ["Уәзір"], "suggestKing": ["Патша"], "suggestOtherPieces": ["Басқа фигуралар"],
         "pipSan": ["SAN жүріс белгілеуі", "Қалқымалы панельде және дауыста SAN қолдану"],
         "ttsAnnounceEnemyMoves": ["Қарсылас жүрістерін айту", "Қарсыластың соңғы жүрісін тыңдау"],
         "ttsAnnounceEvaluation": ["Басымдық өзгерістерін айту", "Басымдыққа ие болғанда немесе оны жоғалтқанда тыңдау"],
@@ -207,6 +216,7 @@
             "analyzing": "{move} талдануда…", "unavailable": "Баға қолжетімсіз."
         },
         "moveSpeech": {
+            "hintPiece": "{square} шаршысындағы фигурамен жүріңіз", "hintDestination": "{square} шаршысына жүріңіз", "hintsFiltered": "Ұсыныстар сүзілді",
             "opponent": "Қарсылас: {move}",
             "advantage": ["Айқын жеңіліп жатырсыз", "Жеңіліп жатырсыз", "Аздап артта қалдыңыз", "Позиция тең", "Аздап алдасыз", "Жеңіп жатырсыз", "Айқын жеңіп жатырсыз"],
             "lang": "kk-KZ", "pieces": { "K": "Патша", "Q": "Уәзір", "R": "Тура", "B": "Піл", "N": "Ат" },

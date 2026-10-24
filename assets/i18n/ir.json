@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "فیلتر مهره‌های نمایش‌داده‌شده",
+        "[data-translation-hint-own-pieces]": "مهره‌های خودی",
+        "[data-translation-hint-enemy-pieces]": "مهره‌های حریف",
+        "[data-translation-hint-full]": "حرکت کامل", "[data-translation-hint-piece]": "فقط مهره", "[data-translation-hint-destination]": "فقط خانهٔ مقصد",
+        "[data-translation-hint-filter]": "پیشنهادها را بر اساس مهرهٔ متحرک فیلتر کنید",
         "[data-translation-server-port]": "درگاه سرور",
         "[data-translation-server-port-hint]": "باید با درگاه نمایش‌داده‌شده در برنامه سرور A.C.A.S یکسان باشد",
         "#acas-is-free-reminder-text": "با گفتن نظرت به ما کمک کن!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "برخی تنظیمات به صورت پویا از خروجی UCI موتور تحلیل می‌شوند. یک صفحه شطرنج باز کنید تا موتور خود را راه‌اندازی کرده و تنظیمات پویا را بارگذاری کنید."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["استفاده از نقطه‌های مرکزی", "رنگ خانه‌ها را به‌صورت نقطه‌های کوچک در مرکز نشان دهید، نه با رنگ‌آمیزی کل خانه"],
+        "hintDetail": ["جزئیات حرکت", "انتخاب کنید چه چیزی آشکار شود"],
+        "suggestEnemyPawn": ["سرباز"], "suggestEnemyKnight": ["اسب"], "suggestEnemyBishop": ["فیل"], "suggestEnemyRook": ["رخ"], "suggestEnemyQueen": ["وزیر"], "suggestEnemyKing": ["شاه"], "suggestEnemyOtherPieces": ["مهره‌های دیگر"],
+        "suggestPawn": ["سرباز"], "suggestKnight": ["اسب"], "suggestBishop": ["فیل"], "suggestRook": ["رخ"], "suggestQueen": ["وزیر"], "suggestKing": ["شاه"], "suggestOtherPieces": ["مهره‌های دیگر"],
         "pipSan": ["نشانه‌گذاری حرکت SAN", "استفاده از SAN در پنل شناور و گفتار"],
         "ttsAnnounceEnemyMoves": ["اعلام حرکت‌های حریف", "آخرین حرکت حریف را بشنوید"],
         "ttsAnnounceEvaluation": ["اعلام تغییرات برتری", "هنگام به دست آوردن یا از دست دادن برتری بشنوید"],
@@ -207,6 +216,7 @@
             "analyzing": "تحلیل {move}…", "unavailable": "ارزیابی در دسترس نیست."
         },
         "moveSpeech": {
+            "hintPiece": "مهرهٔ روی {square} را حرکت دهید", "hintDestination": "به {square} حرکت کنید", "hintsFiltered": "پیشنهادها فیلتر شدند",
             "opponent": "حریف: {move}",
             "advantage": ["به‌شدت در حال باخت هستید", "در حال باخت هستید", "کمی عقب هستید", "وضعیت برابر است", "کمی جلو هستید", "در حال برد هستید", "با برتری زیاد در حال برد هستید"],
             "lang": "fa-IR", "pieces": { "K": "شاه", "Q": "وزیر", "R": "رخ", "B": "فیل", "N": "اسب" },

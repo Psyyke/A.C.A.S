@@ -801,6 +801,8 @@ function settingLabel(key) {
     const definition = getSettingDefinition(key);
     const translated = FULL_TRANS_OBJ?.configTranslations?.[key]?.[0];
     const title = translated || definition?.input.closest('.custom-input')?.querySelector('.input-title')?.textContent?.trim() || '';
+    const pieceGroup = definition?.input.closest('.hint-piece-group');
+    if(pieceGroup && title) return `${pieceGroup.querySelector('h2').textContent.trim()} · ${title}`;
     const duplicateTitle = title && [...document.querySelectorAll('input[data-key]')].some(input =>
         input.dataset.key !== key && (FULL_TRANS_OBJ?.configTranslations?.[input.dataset.key]?.[0]
             ?? input.closest('.custom-input')?.querySelector('.input-title')?.textContent?.trim()) === title);
@@ -816,7 +818,9 @@ function fillAddSettingOptions() {
         const engineName = dynamicExternalSetting
             ? GET_HUMAN_READABLE_EXTERNAL_ENGINE_NAME(dynamicExternalSetting[1]) : '';
         const settingName = dynamicExternalSetting
-            ? settingDisplayName(dynamicExternalSetting[2]) : settingDisplayName(key);
+            ? settingDisplayName(dynamicExternalSetting[2])
+            : key === 'hintDetail' || getSettingDefinition(key)?.input.closest('.hint-piece-group')
+                ? settingLabel(key) : settingDisplayName(key);
         const label = `${dynamicExternalSetting ? 'Dynamic ' : ''}${engineName ? `${engineName} ` : ''}${settingName}`;
         const option = new Option(label, key);
         option.title = key;

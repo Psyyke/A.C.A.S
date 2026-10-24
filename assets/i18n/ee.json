@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtreeri kuvatavaid malendeid",
+        "[data-translation-hint-own-pieces]": "Enda malendid",
+        "[data-translation-hint-enemy-pieces]": "Vastase malendid",
+        "[data-translation-hint-full]": "Kogu käik", "[data-translation-hint-piece]": "Ainult malend", "[data-translation-hint-destination]": "Ainult sihtruut",
+        "[data-translation-hint-filter]": "Filtreeri soovitusi liikuva malendi järgi",
         "[data-translation-server-port]": "Serveri port",
         "[data-translation-server-port-hint]": "Peab vastama A.C.A.S-i serverirakenduses näidatud pordile",
         "#acas-is-free-reminder-text": "Aita meid, andes tagasisidet!",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Kasuta keskpunkte", "Näita ruutude värve väikeste punktidena keskel, mitte kogu ruudu esiletõstuna"],
+        "hintDetail": ["Käigu detailsus", "Vali, mida näidata"],
+        "suggestEnemyPawn": ["Ettur"], "suggestEnemyKnight": ["Ratsu"], "suggestEnemyBishop": ["Oda"], "suggestEnemyRook": ["Vanker"], "suggestEnemyQueen": ["Lipp"], "suggestEnemyKing": ["Kuningas"], "suggestEnemyOtherPieces": ["Muud malendid"],
+        "suggestPawn": ["Ettur"], "suggestKnight": ["Ratsu"], "suggestBishop": ["Oda"], "suggestRook": ["Vanker"], "suggestQueen": ["Lipp"], "suggestKing": ["Kuningas"], "suggestOtherPieces": ["Muud malendid"],
         "pipSan": ["SAN-käigunotatsioon", "Kasuta SAN-i hõljuvas paneelis ja kõnes"],
         "ttsAnnounceEnemyMoves": ["Teata vastase käikudest", "Kuula vastase viimast käiku"],
         "ttsAnnounceEvaluation": ["Teata eelise muutustest", "Kuula, kui saad või kaotad eelise"],
@@ -206,6 +215,7 @@
             "analyzing": "Analüüsin {move}…", "unavailable": "Hinnang pole saadaval."
         },
         "moveSpeech": {
+            "hintPiece": "Käi ruudul {square} oleva malendiga", "hintDestination": "Käi ruudule {square}", "hintsFiltered": "Soovitused filtreeritud",
             "opponent": "Vastane: {move}",
             "advantage": ["Oled tugevalt kaotusseisus", "Oled kaotusseisus", "Oled veidi halvemas seisus", "Seis on võrdne", "Oled veidi paremas seisus", "Oled võiduseisus", "Oled tugevalt võiduseisus"],
             "lang": "et-EE", "pieces": { "K": "Kuningas", "Q": "Lipp", "R": "Vanker", "B": "Oda", "N": "Ratsu" },

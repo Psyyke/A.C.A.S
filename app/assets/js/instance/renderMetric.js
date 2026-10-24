@@ -20,11 +20,20 @@ export default async function renderMetric(fen, profile) {
     const renderSquareEnemy         = await this.getConfigValue(this.configKeys.renderSquareEnemy, profile);
     const renderSquareContested     = await this.getConfigValue(this.configKeys.renderSquareContested, profile);
     const renderSquareSafe          = await this.getConfigValue(this.configKeys.renderSquareSafe, profile);
+    const renderSquareAsDots        = await this.getConfigValue(this.configKeys.renderSquareAsDots, profile);
     const renderPiecePlayerCapture  = await this.getConfigValue(this.configKeys.renderPiecePlayerCapture, profile);
     const renderPieceEnemyCapture   = await this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
     const renderOnExternalSite      = await this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
     const enableEveryPieceEvals     = await this.getConfigValue(this.configKeys.enableEveryPieceEvals, profile);
     if(this.pV[profile] !== profileVariables || this.instanceClosed || this.currentFen !== fen) return;
+    const publishMetrics = (markings = []) => {
+        if(!renderOnExternalSite && !profileVariables.metricsDisplayedExternally) return;
+        const entries = renderOnExternalSite ? FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(markings) : [];
+        // Empty arrays are ignored by the userscript. Identify the profile/category
+        // even when the last vulnerable piece has become safely defended.
+        this.CommLink.commands.renderVisualsToSite(entries.length ? entries : [{ profileID: profile, category: 'metric' }]);
+        profileVariables.metricsDisplayedExternally = Boolean(renderOnExternalSite && entries.length);
+    };
     if(!enableEveryPieceEvals && this.pV[profile]) {
         profileVariables.pieceEvalRequest = (profileVariables.pieceEvalRequest || 0) + 1;
         this.BoardPiecesEval?.cancelStaleRequests();
@@ -45,6 +54,7 @@ export default async function renderMetric(fen, profile) {
         renderPieceEnemyCapture ||
         enableEveryPieceEvals
     )) {
+        publishMetrics();
         return;
     }
 
@@ -59,6 +69,7 @@ export default async function renderMetric(fen, profile) {
         || renderSquareSafe || renderPiecePlayerCapture || renderPieceEnemyCapture);
     const BoardAnal = hasAttackMetrics ? new BoardAnalyzer(fen, {
         orientation: playerColor,
+        analyzeCaptures: Boolean(renderPiecePlayerCapture || renderPieceEnemyCapture),
         debug: this.debugLogsEnabled
     }) : null;
 
@@ -66,7 +77,15 @@ export default async function renderMetric(fen, profile) {
 
     if(!BoardDrawer) return;
 
-    function fillSquare(pos, style) {
+    function fillSquare(pos, style, dotStyle = '') {
+        if(renderSquareAsDots) {
+            // Use the existing text protocol so external boards need no userscript update.
+            addText(BoardAnal.indexToFen(pos), 1.3, '●',
+                `${style} opacity: 0.9; font-family: Arial, sans-serif; stroke: rgb(0 0 0 / 65%); stroke-width: 0.06em; paint-order: stroke; ${dotStyle}`,
+                [0, 0]);
+            return;
+        }
+
         const shapeType = 'rectangle';
         const shapeSquare = BoardAnal.indexToFen(pos);
         const shapeConfig = { style };
@@ -138,7 +157,7 @@ export default async function renderMetric(fen, profile) {
     }
 
     function renderPlayerOnly(pos) {
-        fillSquare(pos, `opacity: 0.30; fill: green;`);
+        fillSquare(pos, `opacity: 0.30; fill: ${renderSquareAsDots ? 'lawngreen' : 'green'};`);
     }
 
     function renderEnemyOnly(pos) {
@@ -148,12 +167,16 @@ export default async function renderMetric(fen, profile) {
     function renderContested(obj) {
         const pos = obj.square;
         const { playerCount, enemyCount } = obj.counts;
+        const countDifference = playerCount - enemyCount;
+        if(renderSquareAsDots) {
+            fillSquare(pos, 'fill: orange;', countDifference < 0 ? 'stroke: red; stroke-width: 0.12em;' : '');
+            return;
+        }
 
         const rating = Math.floor((playerCount + enemyCount) / 2);
         const opacity = Math.min(0.1 + rating / 12, 0.85);
 
         const squareFen = BoardAnal.indexToFen(pos);
-        const countDifference = playerCount - enemyCount;
 
         if(countDifference !== 0) {
             addText(
@@ -234,14 +257,7 @@ export default async function renderMetric(fen, profile) {
     );
     if(this.pV[profile] !== profileVariables || this.instanceClosed || this.currentFen !== fen) return;
 
-    if(renderOnExternalSite) {
-        const allMetrics = [
-            ...addedMetrics,
-            ...addedPieceEvals
-        ];
-
-        this.CommLink.commands.renderVisualsToSite(FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(allMetrics));
-    }
+    publishMetrics([...addedMetrics, ...addedPieceEvals]);
 }
 
 

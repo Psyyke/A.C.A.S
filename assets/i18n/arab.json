@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "تصفية القطع المعروضة",
+        "[data-translation-hint-own-pieces]": "قطعك",
+        "[data-translation-hint-enemy-pieces]": "قطع الخصم",
+        "[data-translation-hint-full]": "النقلة كاملة", "[data-translation-hint-piece]": "القطعة فقط", "[data-translation-hint-destination]": "الوجهة فقط",
+        "[data-translation-hint-filter]": "تصفية الاقتراحات حسب القطعة المتحركة",
         "[data-translation-server-port]": "منفذ الخادم",
         "[data-translation-server-port-hint]": "يجب أن يطابق المنفذ الظاهر في تطبيق خادم A.C.A.S",
         "#acas-is-free-reminder-text": "ساعد من خلال تقديم ملاحظات!",
@@ -101,6 +106,10 @@
         "#des-no-result-text": "يتم تحليل بعض الإعدادات ديناميكيًا من إخراج UCI للمحرك. يرجى فتح لوحة شطرنج لتشغيل محركك وتحميل الإعدادات الديناميكية."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["استخدام نقاط في الوسط", "عرض ألوان المربعات كنقاط صغيرة في الوسط بدلاً من تلوين المربع بالكامل"],
+        "hintDetail": ["تفاصيل النقلة", "اختر ما يظهر"],
+        "suggestEnemyPawn": ["بيدق"], "suggestEnemyKnight": ["حصان"], "suggestEnemyBishop": ["فيل"], "suggestEnemyRook": ["رخ"], "suggestEnemyQueen": ["وزير"], "suggestEnemyKing": ["ملك"], "suggestEnemyOtherPieces": ["قطع أخرى"],
+        "suggestPawn": ["بيدق"], "suggestKnight": ["حصان"], "suggestBishop": ["فيل"], "suggestRook": ["رخ"], "suggestQueen": ["وزير"], "suggestKing": ["ملك"], "suggestOtherPieces": ["قطع أخرى"],
         "pipSan": ["تدوين النقلات SAN", "استخدم SAN في اللوحة العائمة والصوت"],
         "ttsAnnounceEnemyMoves": ["إعلان نقلات الخصم", "استمع إلى آخر نقلة لعبها الخصم"],
         "ttsAnnounceEvaluation": ["إعلان تغيرات الأفضلية", "استمع عند اكتساب الأفضلية أو فقدانها"],
@@ -206,6 +215,7 @@
             "analyzing": "تحليل {move}…", "unavailable": "التقييم غير متاح."
         },
         "moveSpeech": {
+            "hintPiece": "حرّك القطعة الموجودة على {square}", "hintDestination": "حرّك إلى {square}", "hintsFiltered": "الاقتراحات مخفية بالتصفية",
             "opponent": "الخصم: {move}",
             "advantage": ["أنت تخسر بفارق كبير", "أنت تخسر", "لديك تأخر بسيط", "الوضع متعادل", "لديك أفضلية بسيطة", "أنت تفوز", "أنت تفوز بفارق كبير"],
             "lang": "ar-SA", "pieces": { "K": "الملك", "Q": "الوزير", "R": "الرخ", "B": "الفيل", "N": "الحصان" },

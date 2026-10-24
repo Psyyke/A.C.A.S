@@ -1,20 +1,24 @@
 /* [A.C.A.S Board Analyzer]
  * - License: GPLv3
- * - Version: 0.1
- * - Notes: No en passant detection on v0.1.
+ * - Version: 0.2
+ * - Capture indicators use legal, material-only exchanges, not attacker counts.
  * */
+
+import CaptureExchange, { getPieceValue } from './misc/captureExchange.js';
 
 export default class BoardAnalyzer {
     constructor(fen, config) {
         this.fen = fen;
         this.debug = config?.debug ? true : false;
+        // Keep the original FEN: the display board may be rotated by parseFEN().
+        this.captureExchange = config?.analyzeCaptures === false ? null : new CaptureExchange(fen);
 
         this.isPlayerBlack = (config?.orientation || (fen && fen.split(' ')[1]) || 'w').toLowerCase() === 'b';
         this.board = this.parseFEN();
         this.boardHeight = this.board.length;  // Number of rows in the board
         this.boardWidth = this.board[0]?.length ?? 0;  // Number of columns in the board
 
-        this.fenToValue = c => ({ P:1, N:3, B:3, R:5, Q:9, K:100 })[c.toUpperCase()] || 0;
+        this.fenToValue = getPieceValue;
 
         this.pieces = this.getPiecesWithPaths();
 
@@ -92,7 +96,7 @@ export default class BoardAnalyzer {
 
     // Extract all pieces from the board, categorized by player and with paths
     // Paths are the squares the piece protects or can move to.
-    // (e.g. a rook behind another protects the same squares beyond it in the same direction.)
+    // Sliding paths stop at the first occupied square; exchanges reveal x-rays later.
     getPiecesWithPaths() {
         const pieces = { player: [], enemy: [] };
 
@@ -153,9 +157,6 @@ export default class BoardAnalyzer {
         const pieceType = pieceFen.toUpperCase();
         const [piecePosY, piecePosX] = piecePos;
 
-        const isLinearMovingPiece = pieceType === 'R' || pieceType === 'Q';
-        const isDiagonalMovingPiece = pieceType === 'B' || pieceType === 'Q';
-
         const longerBoardSide = Math.max(this.boardWidth, this.boardHeight);
         const shorterBoardSide = Math.min(this.boardWidth, this.boardHeight);
 
@@ -173,19 +174,7 @@ export default class BoardAnalyzer {
                     if(square !== undefined) {
                         moves.push([y, x]);
 
-                        const isMoveDiagonal = direction[0] !== 0 && direction[1] !== 0;
-
-                        const isTargetSameLinearPiece = isPieceWhite ? (square === 'R' || square === 'Q') : (square === 'r' || square === 'q');
-                        const isTargetSameDiagonalPiece = isPieceWhite ? (square === 'B' || square === 'Q') : (square === 'b' || square === 'q');
-
-                        const isMultiLinearAttack = !isMoveDiagonal && isLinearMovingPiece && isTargetSameLinearPiece;
-                        const isMultiDiagonalAttack = isMoveDiagonal && isDiagonalMovingPiece && isTargetSameDiagonalPiece;
-
-                        if(square !== null)
-                            // This case covers multiple rooks, -queens, -bishops, or any variation of them, for example,
-                            // (Rook is behind another rook linearly, allow it to see through the other rook.)
-                            if(!(isMultiLinearAttack || isMultiDiagonalAttack))
-                                break;
+                        if(square !== null) break;
 
                     } else break;
                 }
@@ -268,7 +257,7 @@ export default class BoardAnalyzer {
         const enemyPaths = this.createPathLookup(enemy);
 
         // Analyze protection, attacks, and capture danger for a set of pieces
-        function analyzePieces(pieces, opponentPieces, piecePaths, opponentPaths)  {
+        const analyzePieces = (pieces, opponentPieces, piecePaths, opponentPaths) => {
             for(let pObj of pieces) {
                 const pos = pObj.position;
 
@@ -277,9 +266,10 @@ export default class BoardAnalyzer {
                 // Detect attacks on the current piece by opponent
                 pObj.attackedBy = opponentPieces.filter(x => opponentPaths[x.id]?.has(pos.join('')));
 
-                const isAttackerLowerRanking = pObj.attackedBy.find(x => x.ranking < pObj.ranking) ? true : false;
-                // Detect bad trades or just straight up losses via undefended
-                pObj.captureDanger = isAttackerLowerRanking || (pObj.attackedBy.length > pObj.defendedBy.length);
+                // A defended piece may still lose material, and an outnumbered one
+                // may be safe. Only a strictly profitable legal exchange is danger.
+                pObj.captureLoss = this.captureExchange?.captureLoss(this.indexToFen(pos)) ?? null;
+                pObj.captureDanger = pObj.captureLoss > 0;
             }
         };
 

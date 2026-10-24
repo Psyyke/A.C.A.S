@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Saring buah yang ditampilkan",
+        "[data-translation-hint-own-pieces]": "Buah sendiri",
+        "[data-translation-hint-enemy-pieces]": "Buah lawan",
+        "[data-translation-hint-full]": "Langkah lengkap", "[data-translation-hint-piece]": "Hanya bidak", "[data-translation-hint-destination]": "Hanya tujuan",
+        "[data-translation-hint-filter]": "Saring saran berdasarkan jenis buah yang bergerak",
         "[data-translation-server-port]": "Port server",
         "[data-translation-server-port-hint]": "Harus sama dengan port yang ditampilkan di aplikasi server A.C.A.S",
         "#acas-is-free-reminder-text": "Bantu dengan memberikan umpan balik!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Gunakan titik di tengah", "Tampilkan warna petak sebagai titik kecil di tengah, bukan mewarnai seluruh petak"],
+        "hintDetail": ["Detail langkah", "Pilih informasi yang ditampilkan"],
+        "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Kuda"], "suggestEnemyBishop": ["Gajah"], "suggestEnemyRook": ["Benteng"], "suggestEnemyQueen": ["Menteri"], "suggestEnemyKing": ["Raja"], "suggestEnemyOtherPieces": ["Buah lainnya"],
+        "suggestPawn": ["Pion"], "suggestKnight": ["Kuda"], "suggestBishop": ["Gajah"], "suggestRook": ["Benteng"], "suggestQueen": ["Menteri"], "suggestKing": ["Raja"], "suggestOtherPieces": ["Buah lainnya"],
         "pipSan": ["Notasi langkah SAN", "Gunakan SAN di panel mengambang dan suara"],
         "ttsAnnounceEnemyMoves": ["Umumkan langkah lawan", "Dengarkan langkah terakhir lawan"],
         "ttsAnnounceEvaluation": ["Umumkan perubahan keunggulan", "Dengarkan saat mendapat atau kehilangan keunggulan"],
@@ -207,6 +216,7 @@
             "analyzing": "Menganalisis {move}…", "unavailable": "Evaluasi tidak tersedia."
         },
         "moveSpeech": {
+            "hintPiece": "Gerakkan buah di {square}", "hintDestination": "Bergerak ke {square}", "hintsFiltered": "Saran disaring",
             "opponent": "Lawan: {move}",
             "advantage": ["Anda tertinggal jauh", "Anda sedang kalah", "Anda sedikit tertinggal", "Posisi seimbang", "Anda sedikit unggul", "Anda sedang menang", "Anda unggul jauh"],
             "lang": "id-ID", "pieces": { "K": "Raja", "Q": "Menteri", "R": "Benteng", "B": "Gajah", "N": "Kuda" },

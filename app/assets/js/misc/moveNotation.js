@@ -11,6 +11,8 @@ const englishSpeech = {
     move: '{piece} to {square}',
     capture: '{piece} takes {square}',
     origin: '{piece} from {square}',
+    hintPiece: 'Move the piece on {square}',
+    hintDestination: 'Move to {square}',
     promotion: 'promotes to {piece}',
     castleKingside: 'Castle kingside',
     castleQueenside: 'Castle queenside',
@@ -33,6 +35,7 @@ function speechText(template, values) {
 
 function notationKey(move) {
     const [from, to] = move?.player || [];
+    if(move?.hintDetail && move.hintDetail !== 'full') return '';
     // A cached UCI move must never reveal a deliberately hidden destination.
     if(!move?.fen || !/^(?:[a-z]\d+|[a-zA-Z]@)$/.test(from) || !/^[a-z]\d+$/.test(to)) return '';
     const context = variantConfig(move);
@@ -183,6 +186,19 @@ function speakSan(san, speech) {
 export function formatMoveNotation(move, useSan = false, forSpeech = false, speech = englishSpeech) {
     const [from, to] = move?.player || [];
     if(!from || !to) return '';
+    const isPartialHint = move.hintDetail === 'piece' || move.hintDetail === 'destination';
+    if(isPartialHint) {
+        const isPieceOnly = move.hintDetail === 'piece';
+        const translations = typeof TRANS_OBJ === 'undefined' ? null : TRANS_OBJ;
+        const square = isPieceOnly ? from : to;
+        const isDropHint = isPieceOnly && /^[a-zA-Z]@$/.test(square);
+        if(isDropHint) {
+            const pieces = forSpeech ? speech.pieces : translations?.moveSpeech?.pieces ?? englishSpeech.pieces;
+            return pieces[square[0].toUpperCase()] || square[0].toUpperCase();
+        }
+        // Partial suggestions reveal only the square, without an instruction prefix.
+        return forSpeech ? speakSquare(square, speech) : square.toUpperCase();
+    }
     const san = useSan ? getMoveSan(move) : '';
     if(san) return forSpeech ? speakSan(san, speech) : san;
     // Preserve the full engine notation for compound moves or '+' promotions;

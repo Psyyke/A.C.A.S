@@ -16,6 +16,8 @@ import { initializeBackgroundGrain } from './gui/backgroundGrain.js';
 import { initializeStarfield } from './gui/starfield.js';
 import { initializeAppearanceTranslations } from './gui/appearanceTranslations.js';
 import { initializePolyglotBookLoader } from './gui/openingBook.js';
+import { migrateHintSettings } from './misc/learningHints.js';
+import { initializeHintPieceFilters } from './gui/hintPieceFilters.js';
 
 export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
@@ -297,6 +299,9 @@ function updateSabRequiringElems() {
 export async function initGUI() {
     if(initialized) return;
 
+    const config = await USERSCRIPT.getValue(USERSCRIPT_SHARED_VARS.gmConfigKey);
+    if(migrateHintSettings(config)) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
+
     initializeBackgroundGrain();
     initializeStarfield();
     setupSettingsContainerHoverRecovery();
@@ -344,6 +349,7 @@ export async function initGUI() {
     };
 
     initializeFloatyButtons();
+    initializeHintPieceFilters();
     initializeActivityLog();
     initializeDynamicSettings();
     initializeInputElems();

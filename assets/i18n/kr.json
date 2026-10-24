@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "표시할 기물 필터",
+        "[data-translation-hint-own-pieces]": "내 기물",
+        "[data-translation-hint-enemy-pieces]": "상대 기물",
+        "[data-translation-hint-full]": "전체 수", "[data-translation-hint-piece]": "기물만", "[data-translation-hint-destination]": "도착 칸만",
+        "[data-translation-hint-filter]": "움직이는 기물 종류로 추천을 필터링합니다",
         "[data-translation-server-port]": "서버 포트",
         "[data-translation-server-port-hint]": "A.C.A.S 서버 앱에 표시된 포트와 같아야 합니다",
         "#acas-is-free-reminder-text": "의견을 보내 주시면 큰 도움이 돼요!",
@@ -101,6 +106,10 @@
         "#des-no-result-text": "일부 설정은 엔진의 UCI 출력에서 동적으로 분석됩니다. 엔진을 시작하고 동적 설정을 로드하려면 체스 보드를 열어주세요."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["중앙 점 사용", "칸 전체를 칠하는 대신 중앙에 작은 색상 점 표시"],
+        "hintDetail": ["수 상세 정보", "공개할 정보를 선택하세요"],
+        "suggestEnemyPawn": ["폰"], "suggestEnemyKnight": ["나이트"], "suggestEnemyBishop": ["비숍"], "suggestEnemyRook": ["룩"], "suggestEnemyQueen": ["퀸"], "suggestEnemyKing": ["킹"], "suggestEnemyOtherPieces": ["기타 기물"],
+        "suggestPawn": ["폰"], "suggestKnight": ["나이트"], "suggestBishop": ["비숍"], "suggestRook": ["룩"], "suggestQueen": ["퀸"], "suggestKing": ["킹"], "suggestOtherPieces": ["기타 기물"],
         "pipSan": ["SAN 기보 표기", "떠 있는 패널과 음성에 SAN 사용"],
         "ttsAnnounceEnemyMoves": ["상대의 수 읽기", "상대가 방금 둔 수를 듣습니다"],
         "ttsAnnounceEvaluation": ["우세 변화 읽기", "우세를 얻거나 잃을 때 듣습니다"],
@@ -206,6 +215,7 @@
             "analyzing": "{move} 분석 중…", "unavailable": "평가를 사용할 수 없습니다."
         },
         "moveSpeech": {
+            "hintPiece": "{square}의 기물을 움직이세요", "hintDestination": "{square}로 움직이세요", "hintsFiltered": "추천 수 필터링됨",
             "opponent": "상대: {move}",
             "advantage": ["크게 불리합니다", "불리합니다", "조금 불리합니다", "동등한 상황입니다", "조금 유리합니다", "유리합니다", "크게 유리합니다"],
             "lang": "ko-KR", "pieces": { "K": "킹", "Q": "퀸", "R": "룩", "B": "비숍", "N": "나이트" },

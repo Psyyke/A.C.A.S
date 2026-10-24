@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Salain ang ipinapakitang piyesa",
+        "[data-translation-hint-own-pieces]": "Sariling mga piyesa",
+        "[data-translation-hint-enemy-pieces]": "Mga piyesa ng kalaban",
+        "[data-translation-hint-full]": "Buong galaw", "[data-translation-hint-piece]": "Piyesa lamang", "[data-translation-hint-destination]": "Patutunguhan lamang",
+        "[data-translation-hint-filter]": "Salain ang mga mungkahi ayon sa gumagalaw na piyesa",
         "[data-translation-server-port]": "Port ng server",
         "[data-translation-server-port-hint]": "Dapat tumugma sa port na ipinapakita sa A.C.A.S server app",
         "#acas-is-free-reminder-text": "Tulungan mo kami sa pamamagitan ng pagbibigay ng feedback!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Gumamit ng mga tuldok sa gitna", "Ipakita ang mga kulay bilang maliliit na tuldok sa gitna sa halip na kulayan ang buong parisukat"],
+        "hintDetail": ["Detalye ng galaw", "Piliin kung ano ang ipapakita"],
+        "suggestEnemyPawn": ["Pawn"], "suggestEnemyKnight": ["Kabayo"], "suggestEnemyBishop": ["Obispo"], "suggestEnemyRook": ["Tore"], "suggestEnemyQueen": ["Reyna"], "suggestEnemyKing": ["Hari"], "suggestEnemyOtherPieces": ["Iba pang piyesa"],
+        "suggestPawn": ["Pawn"], "suggestKnight": ["Kabayo"], "suggestBishop": ["Obispo"], "suggestRook": ["Tore"], "suggestQueen": ["Reyna"], "suggestKing": ["Hari"], "suggestOtherPieces": ["Iba pang piyesa"],
         "pipSan": ["Notasyong SAN", "Gamitin ang SAN sa lumulutang na panel at boses"],
         "ttsAnnounceEnemyMoves": ["Ipahayag ang tira ng kalaban", "Pakinggan ang huling tira ng kalaban"],
         "ttsAnnounceEvaluation": ["Ipahayag ang pagbabago ng lamang", "Pakinggan kapag lumalamang o nahuhuli ka"],
@@ -207,6 +216,7 @@
             "analyzing": "Sinusuri ang {move}…", "unavailable": "Walang pagsusuri."
         },
         "moveSpeech": {
+            "hintPiece": "Igalaw ang piyesa sa {square}", "hintDestination": "Lumipat sa {square}", "hintsFiltered": "Mga mungkahi sinala",
             "opponent": "Kalaban: {move}",
             "advantage": ["Malaki ang lamang ng kalaban", "Natatalo ka", "Bahagya kang nahuhuli", "Pantay ang posisyon", "Bahagya kang lamang", "Nananalo ka", "Malaki ang lamang mo"],
             "lang": "fil-PH", "pieces": { "K": "Hari", "Q": "Reyna", "R": "Tore", "B": "Obispo", "N": "Kabayo" },

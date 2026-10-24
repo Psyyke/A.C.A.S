@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Фильтр показываемых фигур",
+        "[data-translation-hint-own-pieces]": "Свои фигуры",
+        "[data-translation-hint-enemy-pieces]": "Фигуры противника",
+        "[data-translation-hint-full]": "Полный ход", "[data-translation-hint-piece]": "Только фигура", "[data-translation-hint-destination]": "Только поле назначения",
+        "[data-translation-hint-filter]": "Фильтровать подсказки по ходящей фигуре",
         "[data-translation-server-port]": "Порт сервера",
         "[data-translation-server-port-hint]": "Должен совпадать с портом, указанным в серверном приложении A.C.A.S",
         "#acas-is-free-reminder-text": "Помогите, оставив отзыв!",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "Некоторые настройки анализируются динамически из вывода UCI движка. Пожалуйста, откройте шахматную доску, чтобы запустить ваш движок и загрузить динамические настройки."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Использовать точки в центре", "Показывать цвета полей маленькими точками в центре вместо заливки всего поля"],
+        "hintDetail": ["Подробность хода", "Выберите, что раскрывать"],
+        "suggestEnemyPawn": ["Пешка"], "suggestEnemyKnight": ["Конь"], "suggestEnemyBishop": ["Слон"], "suggestEnemyRook": ["Ладья"], "suggestEnemyQueen": ["Ферзь"], "suggestEnemyKing": ["Король"], "suggestEnemyOtherPieces": ["Другие фигуры"],
+        "suggestPawn": ["Пешка"], "suggestKnight": ["Конь"], "suggestBishop": ["Слон"], "suggestRook": ["Ладья"], "suggestQueen": ["Ферзь"], "suggestKing": ["Король"], "suggestOtherPieces": ["Другие фигуры"],
         "pipSan": ["Нотация SAN", "Использовать SAN в плавающей панели и озвучке"],
         "ttsAnnounceEnemyMoves": ["Озвучивать ходы соперника", "Слушать последний ход соперника"],
         "ttsAnnounceEvaluation": ["Озвучивать изменения преимущества", "Слушать, когда вы получаете или теряете преимущество"],
@@ -205,6 +214,7 @@
             "analyzing": "Анализ {move}…", "unavailable": "Оценка недоступна."
         },
         "moveSpeech": {
+            "hintPiece": "Сделайте ход фигурой на {square}", "hintDestination": "Сделайте ход на {square}", "hintsFiltered": "Предложения отфильтрованы",
             "opponent": "Соперник: {move}",
             "advantage": ["Вы сильно проигрываете", "Вы проигрываете", "Вы немного уступаете", "Позиция равная", "У вас небольшое преимущество", "Вы выигрываете", "Вы уверенно выигрываете"],
             "lang": "ru-RU", "pieces": { "K": "Король", "Q": "Ферзь", "R": "Ладья", "B": "Слон", "N": "Конь" },

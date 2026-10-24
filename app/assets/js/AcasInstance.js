@@ -12,10 +12,11 @@ import applyDynamicOption from './instance/applyDynamicOption.js';
 import { setDynamicSettingsContext, removeDynamicSettingsContext } from './gui/dynamicSettings.js';
 import { sendUciToExternalEngine, closeAllExternalEnginesWithId } from './AcasWebSocketClient.js';
 import { removeInstance } from './instanceManager.js';
-import { updatePipData } from './gui/pip.js';
+import { updatePipData, updatePipHints } from './gui/pip.js';
 import { pipSanInput } from './gui/elementDeclarations.js';
 import { formatMoveNotationAsync, getMoveSpeechConfig } from './misc/moveNotation.js';
 import { isActivityLoggingEnabled, logActivity } from './misc/activityLog.js';
+import { hintSettingKeys, getHintSettings, filterHintMoves, presentHintMove } from './misc/learningHints.js';
 
 const logEngineMessages = false,
       debugLogsEnabled = false;
@@ -32,11 +33,11 @@ const configKeys = Object.freeze([
     'bookMoveOpacity', 'reverseSide', 'engineEnabled', 'autoMove', 'autoMoveLegit',
     'autoMoveRandom', 'autoMoveAfterUser', 'legitModeType', 'enableEveryPieceEvals',
     'moveDisplayDelay', 'renderSquarePlayer', 'renderSquareEnemy',
-    'renderSquareContested', 'renderSquareSafe', 'renderPiecePlayerCapture',
+    'renderSquareContested', 'renderSquareSafe', 'renderSquareAsDots', 'renderPiecePlayerCapture',
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
     'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth',
     'enableAdvancedElo', 'advancedEloDepth', 'moveAsFilledSquares',
-    'movesOnDemand', 'onlySuggestPieces', 'externalChessEngine'
+    'movesOnDemand', ...hintSettingKeys, 'externalChessEngine'
 ].reduce((o, k) => (o[k] = k, o), {}));
 
 export default class AcasInstance {
@@ -275,6 +276,11 @@ export default class AcasInstance {
                     const data = msg.data;
                     if(data?.instanceID != null && String(data.instanceID) !== String(this.instanceID)) break;
                     if(!data?.profile || !data?.key) break;
+                    const isPresentationSetting = hintSettingKeys.includes(data.key) || data.key === this.configKeys.renderSquareAsDots;
+                    if(isPresentationSetting) {
+                        await this.syncDynamicSettings(data.profile, [data.key]);
+                        break;
+                    }
                     this.engineStopCalculating(data.profile, 'Dynamic graph changed');
                     await this.syncDynamicSettings(data.profile, [data.key]);
                     if(this.currentFen && this.pV[data.profile]?.engineSettingsReady) {
@@ -798,6 +804,7 @@ export default class AcasInstance {
     async speak(moveObj, profile, settingKey = 'ttsVoiceEnabled', options = {}) {
         const variables = this.pV[profile];
         const speechFen = this.currentFen;
+        const hintRevision = variables?.hintRevision;
         if(!variables || this.instanceClosed || CONCEAL_ASSISTANCE_ACTIVE) return;
         const isTTSEnabled = await this.getConfigValue(this.configKeys[settingKey], profile);
 
@@ -815,6 +822,7 @@ export default class AcasInstance {
             const speech = getMoveSpeechConfig(translateAudio);
             const useSan = Boolean(options.useSan ?? pipSanInput?.checked);
             const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed && !CONCEAL_ASSISTANCE_ACTIVE
+                && variables.hintRevision === hintRevision
                 && (!options.isCurrent || options.isCurrent())
                 // Opponent annotations use the preceding FEN; turn overrides
                 // also differ from the displayed board. Track the live board,
@@ -1098,6 +1106,9 @@ export default class AcasInstance {
     }
 
     async getAndDisplayBookMoves(fen = this.currentFen, profile) {
+        const liveFen = this.currentFen;
+        const variables = this.pV[profile];
+        if(!fen || !variables || this.instanceClosed) return;
         const book = this.openingBooks?.get(profile);
 
         if(!book) {
@@ -1107,13 +1118,15 @@ export default class AcasInstance {
 
         const alwaysMyTurn = await this.getConfigValue(this.configKeys.alwaysMyTurn, profile);
         const playerColor = await this.getPlayerColor();
-        const moveSuggestionAmount = this.pV[profile].multiPV;
+        const moveSuggestionAmount = variables.multiPV;
+        const isCurrent = this.pV[profile] === variables && !this.instanceClosed && this.currentFen === liveFen;
+        if(!isCurrent) return;
 
         if(alwaysMyTurn && fen.split(' ')[1] !== playerColor) fen = REVERSE_FEN_TURN(fen);
 
         const bookMoves = book.getMoves(fen)
             .slice(0, moveSuggestionAmount)
-            .map(move => ({ ...move, profile }));
+            .map(move => ({ ...move, profile, fen }));
 
         await this.Interface.displayBookMoves(bookMoves, profile);
     }
@@ -1151,21 +1164,45 @@ export default class AcasInstance {
         }
     }
 
-    async displayMoves(moveObjects, profile, bypassConcealmentCheck) {
+    async refreshHints(profile) {
+        const variables = this.pV[profile];
+        if(!variables || this.instanceClosed) return;
+        variables.hintRevision = (variables.hintRevision || 0) + 1;
+        variables.currentSpeeches.forEach(speech => speech.cancel());
+        variables.currentSpeeches = [];
+        const cached = variables.hintCandidates;
+        const hasCurrentMoves = cached?.fen === this.currentFen;
+        if(hasCurrentMoves) await this.displayMoves(cached.moves, profile, false, true);
+        if(this.pV[profile] === variables && !this.instanceClosed)
+            await this.getAndDisplayBookMoves(this.currentFen, profile);
+    }
+
+    async displayMoves(moveObjects, profile, bypassConcealmentCheck, silent = false) {
+        const variables = this.pV[profile];
+        if(!variables || this.instanceClosed) return;
+        const fen = this.currentFen;
+        const revision = (variables.hintDisplayRevision || 0) + 1;
+        variables.hintDisplayRevision = revision;
+        const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed
+            && this.currentFen === fen && variables.hintDisplayRevision === revision;
+        variables.hintCandidates = { fen, moves: moveObjects.filter(move => !move.isFuture) };
         if(CONCEAL_ASSISTANCE_ACTIVE && !bypassConcealmentCheck) {
-            this.pV[profile].pendingMoveDisplay = [moveObjects, profile, true];
+            this.pV[profile].pendingMoveDisplay = [moveObjects, profile, true, silent];
             return;
         }
 
         this.pV[profile].pendingMoveDisplay = null;
 
         const normalMoveOpacity = await this.getConfigValue(this.configKeys.arrowOpacity, profile);
-        const onlySuggestPieces = await this.getConfigValue(this.configKeys.onlySuggestPieces, profile);
-        const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
+        const hints = await getHintSettings(this, profile);
+        if(!isCurrent()) return;
 
-        const normalMoves = moveObjects.filter(move => !move.isFuture);
+        const suggestionAmount = Math.max(0, variables.multiPV ?? 0);
+        const candidates = variables.hintCandidates.moves.slice(0, suggestionAmount);
+        const normalMoves = filterHintMoves(candidates, hints, fen, true);
+        moveObjects = normalMoves;
 
-        const validFutureMoves = this.pV[profile].futureMoves
+        const validFutureMoves = (hints.detail === 'full' ? this.pV[profile].futureMoves : [])
             // Filter out future moves that don't start from same square as parent move ends
             .filter(futureMove => {
                 const parent = futureMove.parentMove;
@@ -1174,6 +1211,7 @@ export default class AcasInstance {
                 if(!parent || !futureStart) return false;
 
                 return normalMoves.some(normalMove =>
+                    !normalMove.playerHidden && normalMove.hintDetail === 'full' &&
                     normalMove.player?.[0] === parent.from &&
                     normalMove.player?.[1] === parent.to &&
                     normalMove.player?.[1] === futureStart
@@ -1198,25 +1236,25 @@ export default class AcasInstance {
             moveObjects = [...moveObjects, ...validFutureMoves];
         }
 
-        if(moveObjects?.length === 0) return;
-    
-        await this.Interface.markMoves(moveObjects, profile);
+        await this.Interface.markMoves(moveObjects, profile, hints, isCurrent, silent);
+        if(!isCurrent()) return;
+        if(!silent) variables.pastMoveObjects = [];
 
-        if(onlySuggestPieces && !movesOnDemand) {
-            moveObjects.forEach(moveObj => {
-                moveObj.player = [moveObj.player[0], '??'];
-            });
-        }
+        const presentedMoves = moveObjects.filter(move => !move.isFuture && !move.playerHidden)
+            .map(move => presentHintMove(move.opponentHidden ? { ...move, opponent: [null, null], opponentPromotion: null } : move,
+                move.hintDetail ?? hints.detail));
 
-        updatePipData({
-            moveObjects: moveObjects.filter(m => !m.isFuture)
+        updatePipHints(this, profile, {
+            moveObjects: presentedMoves,
+            hintsFiltered: presentedMoves.length === 0 && candidates.length > 0
         });
 
-        moveObjects
+        if(silent) return;
+        presentedMoves
             .forEach(moveObj => {
                 if(moveObj?.isFuture) return;
 
-                this.speak(moveObj, profile);
+                this.speak(moveObj, profile, 'ttsVoiceEnabled', { isCurrent });
             });
     }
 
@@ -1361,6 +1399,7 @@ export default class AcasInstance {
         }
         this.MoveEval?.cancelStaleRequests();
         this.BoardPiecesEval?.cancelStaleRequests();
+        updatePipHints(this);
     }
 
     async killEngines() {
@@ -1372,6 +1411,7 @@ export default class AcasInstance {
     close() {
         if(!this.instanceClosed) logActivity('instance', 'Instance closed.', { instanceID: this.instanceID });
         this.instanceClosed = true;
+        updatePipHints(this);
         removeDynamicSettingsContext(this.instanceID);
 
         if(this.externalEngineStatusChannel) {

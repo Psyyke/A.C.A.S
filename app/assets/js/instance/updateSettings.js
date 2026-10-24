@@ -91,6 +91,10 @@ export default async function updateSettings(updateObj) {
         this.BoardPiecesEval?.cancelStaleRequests();
         if(this.currentFen) this.renderMetric(this.currentFen, profileName).catch(console.error);
     }
+    if(settingKey === this.configKeys.renderSquareAsDots && this.pV[profileName]) {
+        if(this.currentFen) await this.renderMetric(this.currentFen, profileName).catch(console.error);
+        return;
+    }
     if(settingKey === this.configKeys.ttsAnnounceEvaluation && this.pV[profileName]) {
         delete this.pV[profileName].spokenAdvantage;
         delete this.pV[profileName].spokenEvaluationFen;

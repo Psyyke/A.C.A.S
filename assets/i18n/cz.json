@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Filtrovat zobrazené figury",
+        "[data-translation-hint-own-pieces]": "Vlastní figury",
+        "[data-translation-hint-enemy-pieces]": "Soupeřovy figury",
+        "[data-translation-hint-full]": "Celý tah", "[data-translation-hint-piece]": "Pouze figura", "[data-translation-hint-destination]": "Pouze cílové pole",
+        "[data-translation-hint-filter]": "Filtrovat návrhy podle táhnoucí figury",
         "[data-translation-server-port]": "Port serveru",
         "[data-translation-server-port-hint]": "Musí odpovídat portu zobrazenému v serverové aplikaci A.C.A.S",
         "#acas-is-free-reminder-text": "Pomozte nám zpětnou vazbou!",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "Některá nastavení jsou dynamicky analyzována z výstupu UCI motoru. Otevřete šachovnici, abyste spustili svůj motor a načetli dynamická nastavení."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Použít tečky uprostřed", "Zobrazit barvy polí jako malé tečky uprostřed místo zvýraznění celého pole"],
+        "hintDetail": ["Podrobnost tahu", "Vyberte, co odhalit"],
+        "suggestEnemyPawn": ["Pěšec"], "suggestEnemyKnight": ["Jezdec"], "suggestEnemyBishop": ["Střelec"], "suggestEnemyRook": ["Věž"], "suggestEnemyQueen": ["Dáma"], "suggestEnemyKing": ["Král"], "suggestEnemyOtherPieces": ["Ostatní figury"],
+        "suggestPawn": ["Pěšec"], "suggestKnight": ["Jezdec"], "suggestBishop": ["Střelec"], "suggestRook": ["Věž"], "suggestQueen": ["Dáma"], "suggestKing": ["Král"], "suggestOtherPieces": ["Ostatní figury"],
         "pipSan": ["Notace SAN", "Používat SAN v plovoucím panelu a řeči"],
         "ttsAnnounceEnemyMoves": ["Oznamovat tahy soupeře", "Poslechněte si poslední tah soupeře"],
         "ttsAnnounceEvaluation": ["Oznamovat změny výhody", "Poslechněte si, kdy získáváte nebo ztrácíte výhodu"],
@@ -205,6 +214,7 @@
             "analyzing": "Analyzuji {move}…", "unavailable": "Hodnocení není dostupné."
         },
         "moveSpeech": {
+            "hintPiece": "Táhněte figurou na {square}", "hintDestination": "Táhněte na {square}", "hintsFiltered": "Návrhy odfiltrovány",
             "opponent": "Soupeř: {move}",
             "advantage": ["Výrazně prohráváte", "Prohráváte", "Máte mírnou nevýhodu", "Pozice je vyrovnaná", "Máte mírnou výhodu", "Vyhráváte", "Výrazně vyhráváte"],
             "lang": "cs-CZ", "pieces": { "K": "Král", "Q": "Dáma", "R": "Věž", "B": "Střelec", "N": "Jezdec" },

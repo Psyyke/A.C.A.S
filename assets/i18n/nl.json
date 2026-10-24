@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Getoonde stukken filteren",
+        "[data-translation-hint-own-pieces]": "Eigen stukken",
+        "[data-translation-hint-enemy-pieces]": "Stukken van de tegenstander",
+        "[data-translation-hint-full]": "Volledige zet", "[data-translation-hint-piece]": "Alleen stuk", "[data-translation-hint-destination]": "Alleen doelveld",
+        "[data-translation-hint-filter]": "Filter suggesties op het bewegende stuk",
         "[data-translation-server-port]": "Serverpoort",
         "[data-translation-server-port-hint]": "Moet overeenkomen met de poort in de A.C.A.S-serverapp",
         "#acas-is-free-reminder-text": "Help door feedback te geven!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Gecentreerde stipjes gebruiken", "Toon veldkleuren als kleine stipjes in het midden in plaats van het hele veld te kleuren"],
+        "hintDetail": ["Zetdetails", "Kies wat wordt onthuld"],
+        "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Paard"], "suggestEnemyBishop": ["Loper"], "suggestEnemyRook": ["Toren"], "suggestEnemyQueen": ["Dame"], "suggestEnemyKing": ["Koning"], "suggestEnemyOtherPieces": ["Andere stukken"],
+        "suggestPawn": ["Pion"], "suggestKnight": ["Paard"], "suggestBishop": ["Loper"], "suggestRook": ["Toren"], "suggestQueen": ["Dame"], "suggestKing": ["Koning"], "suggestOtherPieces": ["Andere stukken"],
         "pipSan": ["SAN-zetnotatie", "Gebruik SAN in het zwevende paneel en de spraak"],
         "ttsAnnounceEnemyMoves": ["Tegenstanderzetten aankondigen", "Hoor de laatste zet van je tegenstander"],
         "ttsAnnounceEvaluation": ["Veranderingen in voordeel aankondigen", "Hoor wanneer je voordeel wint of verliest"],
@@ -207,6 +216,7 @@
             "analyzing": "Analyse van {move}…", "unavailable": "Evaluatie niet beschikbaar."
         },
         "moveSpeech": {
+            "hintPiece": "Verplaats het stuk op {square}", "hintDestination": "Zet naar {square}", "hintsFiltered": "Suggesties gefilterd",
             "opponent": "Tegenstander: {move}",
             "advantage": ["Je staat duidelijk verloren", "Je staat verloren", "Je staat iets slechter", "De stelling is gelijk", "Je staat iets beter", "Je staat gewonnen", "Je staat duidelijk gewonnen"],
             "lang": "nl-NL", "pieces": { "K": "Koning", "Q": "Dame", "R": "Toren", "B": "Loper", "N": "Paard" },

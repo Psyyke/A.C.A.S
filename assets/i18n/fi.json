@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Suodata näytettävät nappulat",
+        "[data-translation-hint-own-pieces]": "Omat nappulat",
+        "[data-translation-hint-enemy-pieces]": "Vastustajan nappulat",
+        "[data-translation-hint-full]": "Koko siirto", "[data-translation-hint-piece]": "Vain nappula", "[data-translation-hint-destination]": "Vain kohderuutu",
+        "[data-translation-hint-filter]": "Suodata ehdotukset siirtyvän nappulan mukaan",
         "[data-translation-server-port]": "Palvelimen portti",
         "[data-translation-server-port-hint]": "Portin on vastattava A.C.A.S-palvelinsovelluksessa näkyvää porttia",
         "#acas-is-free-reminder-text": "Autathan antamalla palautetta!",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Käytä keskipisteitä", "Näytä ruutujen värit pieninä pisteinä keskellä koko ruudun korostamisen sijaan"],
+        "hintDetail": ["Siirron tarkkuus", "Valitse mitä paljastetaan"],
+        "suggestEnemyPawn": ["Sotilas"], "suggestEnemyKnight": ["Ratsu"], "suggestEnemyBishop": ["Lähetti"], "suggestEnemyRook": ["Torni"], "suggestEnemyQueen": ["Kuningatar"], "suggestEnemyKing": ["Kuningas"], "suggestEnemyOtherPieces": ["Muut nappulat"],
+        "suggestPawn": ["Sotilas"], "suggestKnight": ["Ratsu"], "suggestBishop": ["Lähetti"], "suggestRook": ["Torni"], "suggestQueen": ["Kuningatar"], "suggestKing": ["Kuningas"], "suggestOtherPieces": ["Muut nappulat"],
         "pipSan": ["SAN-siirtomerkintä", "Käytä SAN-merkintää kelluvassa paneelissa ja puheessa"],
         "ttsAnnounceEnemyMoves": ["Vastustajan siirtojen selostus", "Kuule vastustajan viimeisin siirto"],
         "ttsAnnounceEvaluation": ["Aseman muutosten selostus", "Kuule, kun pääset voitolle tai joudut tappiolle"],
@@ -205,6 +214,7 @@
             "analyzing": "Analysoidaan {move}…", "unavailable": "Arvio ei ole saatavilla."
         },
         "moveSpeech": {
+            "hintPiece": "Siirrä ruudussa {square} olevaa nappulaa", "hintDestination": "Siirrä ruutuun {square}", "hintsFiltered": "Ehdotukset suodatettu",
             "opponent": "Vastustaja: {move}",
             "advantage": ["Olet vahvasti tappiolla", "Olet häviämässä", "Olet hieman tappiolla", "Asema on tasan", "Olet hieman voitolla", "Olet voittamassa", "Olet vahvasti voitolla"],
             "lang": "fi-FI", "pieces": { "K": "Kuningas", "Q": "Daami", "R": "Torni", "B": "Lähetti", "N": "Ratsu" },

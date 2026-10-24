@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Gösterilen taşları filtrele",
+        "[data-translation-hint-own-pieces]": "Kendi taşların",
+        "[data-translation-hint-enemy-pieces]": "Rakibin taşları",
+        "[data-translation-hint-full]": "Tam hamle", "[data-translation-hint-piece]": "Yalnızca taş", "[data-translation-hint-destination]": "Yalnızca hedef kare",
+        "[data-translation-hint-filter]": "Önerileri oynayan taş türüne göre filtrele",
         "[data-translation-server-port]": "Sunucu portu",
         "[data-translation-server-port-hint]": "A.C.A.S sunucu uygulamasında gösterilen portla eşleşmelidir",
         "#acas-is-free-reminder-text": "Geri bildirim vererek yardımcı olun!",
@@ -100,6 +105,10 @@
         "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Ortalanmış noktaları kullan", "Karenin tamamını boyamak yerine renkleri ortada küçük noktalar olarak göster"],
+        "hintDetail": ["Hamle ayrıntısı", "Neyin gösterileceğini seç"],
+        "suggestEnemyPawn": ["Piyon"], "suggestEnemyKnight": ["At"], "suggestEnemyBishop": ["Fil"], "suggestEnemyRook": ["Kale"], "suggestEnemyQueen": ["Vezir"], "suggestEnemyKing": ["Şah"], "suggestEnemyOtherPieces": ["Diğer taşlar"],
+        "suggestPawn": ["Piyon"], "suggestKnight": ["At"], "suggestBishop": ["Fil"], "suggestRook": ["Kale"], "suggestQueen": ["Vezir"], "suggestKing": ["Şah"], "suggestOtherPieces": ["Diğer taşlar"],
         "pipSan": ["SAN hamle gösterimi", "Yüzen panelde ve konuşmada SAN kullan"],
         "ttsAnnounceEnemyMoves": ["Rakip hamlelerini seslendir", "Rakibin son hamlesini dinle"],
         "ttsAnnounceEvaluation": ["Üstünlük değişimlerini seslendir", "Üstünlük kazandığında veya kaybettiğinde dinle"],
@@ -205,6 +214,7 @@
             "analyzing": "{move} analiz ediliyor…", "unavailable": "Değerlendirme kullanılamıyor."
         },
         "moveSpeech": {
+            "hintPiece": "{square} karesindeki taşı oyna", "hintDestination": "{square} karesine oyna", "hintsFiltered": "Öneriler filtrelendi",
             "opponent": "Rakip: {move}",
             "advantage": ["Açıkça kaybediyorsun", "Kaybediyorsun", "Biraz geridesin", "Konum eşit", "Biraz öndesin", "Kazanıyorsun", "Açıkça kazanıyorsun"],
             "lang": "tr-TR", "pieces": { "K": "Şah", "Q": "Vezir", "R": "Kale", "B": "Fil", "N": "At" },

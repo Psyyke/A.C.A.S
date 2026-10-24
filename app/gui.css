@@ -24,6 +24,68 @@
     font-stretch: 75% 125%;
 }
 
+.learning-hints .hint-piece-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+}
+.learning-hints .hint-piece-group {
+    min-width: 0;
+}
+.learning-hints .hint-piece-group h2 {
+    margin: 0 0 10px;
+}
+.learning-hints .hint-piece-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px 12px;
+    width: 100%;
+    height: auto;
+}
+.hint-piece-filters .custom-input > div:first-child {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+.learning-hints .dynamic-setting-shortcut {
+    box-sizing: border-box;
+    width: var(--dynamic-setting-shortcut-size);
+    min-width: var(--dynamic-setting-shortcut-size);
+    max-width: var(--dynamic-setting-shortcut-size);
+    height: var(--dynamic-setting-shortcut-size);
+    min-height: var(--dynamic-setting-shortcut-size);
+    max-height: var(--dynamic-setting-shortcut-size);
+    padding: 0;
+}
+.learning-hints .dynamic-setting-shortcut svg {
+    /* Chessground's .cg-wrap svg rule otherwise stretches this UI icon. */
+    position: static;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 1;
+}
+.hint-piece-filters .checkbox-container {
+    flex: 0 0 40px;
+}
+.hint-piece-filters .custom-input piece {
+    position: static;
+    display: inline-block;
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+@media (max-width: 550px) {
+    .learning-hints .hint-piece-groups {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
 @media (max-width: 800px) {
 	#settings-panels {
 		flex-direction: column !important;
@@ -3864,7 +3926,7 @@ video {
 #acas-settings-container::before,
 dialog > .floaty-container::before,
 #footer {
-    background-size: clamp(80px, 6vw, 100px)  clamp(80px, 6vw, 100px), 100% 100% !important;
+    background-size: clamp(100px, 8vw, 130px)  clamp(100px, 8vw, 130px), 100% 100% !important;
 }
 
 @media (max-width: 768px) {

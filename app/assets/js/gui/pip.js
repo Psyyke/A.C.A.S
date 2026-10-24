@@ -4,6 +4,8 @@ import { formatMoveNotationAsync } from '../misc/moveNotation.js';
 import { getBackgroundGrainTile } from './backgroundGrain.js';
 
 export const pipData = {};
+let pipHintInstance = null;
+let pipHintRevision = 0;
 const pipFontSizes = { large: 64, mlarge: 35, medium: 26, small: 18, esmall: 18 };
 const pipHeaderHeight = 44;
 const pipEvalBarWidth = 41;
@@ -89,7 +91,7 @@ function resizePipCanvas() {
 export function updatePipData(data) {
     if(data) Object.assign(pipData, data);
 
-    if(data?.moveObjects || data?.depth !== lastProcessedDepth) {
+    if(data && (Object.hasOwn(data, 'moveObjects') || Object.hasOwn(data, 'hintsFiltered') || data.depth !== lastProcessedDepth)) {
         clearTimeout(pipRefreshTimeout);
 
         lastProcessedDepth = data.depth;
@@ -98,6 +100,40 @@ export function updatePipData(data) {
             refreshPipView(true);
         }, 25);
     }
+}
+
+export function resetPipHints(instance) {
+    Object.values(instance.pV).forEach(variables => { delete variables.pipHints; });
+    pipHintInstance = instance;
+    updatePipData({ moveObjects: null, hintsFiltered: false });
+}
+
+export function updatePipHints(instance, profile, result) {
+    if(result && !instance.instanceClosed && instance.pV[profile]) {
+        instance.pV[profile].pipHints = { ...result, fen: instance.currentFen, revision: ++pipHintRevision };
+        pipHintInstance = instance;
+    }
+    // Profile removal on another board must not replace the currently displayed hints.
+    if(pipHintInstance !== instance) return;
+    if(instance.instanceClosed) {
+        pipHintInstance = null;
+        updatePipData({ moveObjects: null, hintsFiltered: false });
+        return;
+    }
+
+    const profiles = Object.values(instance.pV);
+    const currentHints = variables => variables.pipHints?.fen === instance.currentFen ? variables.pipHints : null;
+    const results = profiles.map(currentHints).filter(Boolean);
+    // Preserve the latest visible profile rather than letting an empty profile win.
+    const visible = results.filter(hints => hints.moveObjects.length)
+        .sort((a, b) => b.revision - a.revision)[0];
+    const awaitingHints = profiles.some(variables => variables.engineSettingsReady
+        && (variables.multiPV ?? 2) > 0 && !currentHints(variables)
+        && (!variables.chessVariants?.length || variables.chessVariants.includes(variables.chessVariant)));
+    updatePipData({
+        moveObjects: visible?.moveObjects ?? (results.length ? [] : null),
+        hintsFiltered: !visible && !awaitingHints && results.some(hints => hints.hintsFiltered)
+    });
 }
 
 window.REFRESH_PIP_DISPLAY = () => {
@@ -322,9 +358,11 @@ async function refreshPipView() {
 
     const centipawnEval = pipData?.centipawnEval / 100;
 
+    const filteredText = TRANS_OBJ?.moveSpeech?.hintsFiltered ?? 'Suggestions filtered';
+    const hintsFiltered = !moveObjects?.length && pipData.hintsFiltered && !CONCEAL_ASSISTANCE_ACTIVE;
     const mediaTitle = from && !CONCEAL_ASSISTANCE_ACTIVE
         ? bestMoveText
-        : `Hold on, I'm thinking...`;
+        : hintsFiltered ? filteredText : `Hold on, I'm thinking...`;
 
     let engineEvaluation = pipData?.eval;
     let progress = 0;
@@ -429,13 +467,13 @@ async function refreshPipView() {
         `500 ${pipFontSizes.medium}px IBM Plex Sans`
     ]);
 
-    if(pipData?.moveProgressText) {
+    if(pipData?.moveProgressText || hintsFiltered) {
         const headerOffset = 36;
 
         ctxQueue.push([
             'fillText',
             [
-                pipData.moveProgressText,
+                hintsFiltered ? filteredText : pipData.moveProgressText,
                 12,
                 pipHeaderHeight + headerOffset,
                 pipMaxTextWidth

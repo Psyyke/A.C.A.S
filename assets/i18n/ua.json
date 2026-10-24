@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Фільтр показуваних фігур",
+        "[data-translation-hint-own-pieces]": "Власні фігури",
+        "[data-translation-hint-enemy-pieces]": "Фігури суперника",
+        "[data-translation-hint-full]": "Повний хід", "[data-translation-hint-piece]": "Лише фігура", "[data-translation-hint-destination]": "Лише кінцеве поле",
+        "[data-translation-hint-filter]": "Фільтрувати підказки за фігурою, що ходить",
         "[data-translation-server-port]": "Порт сервера",
         "[data-translation-server-port-hint]": "Має збігатися з портом, указаним у серверному застосунку A.C.A.S",
         "#acas-is-free-reminder-text": "Допоможіть, надаючи відгуки!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Деякі налаштування аналізуються динамічно з виходу UCI двигуна. Будь ласка, відкрийте шахівницю, щоб запустити ваш двигун і завантажити динамічні налаштування."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Використовувати крапки в центрі", "Показувати кольори полів маленькими крапками в центрі замість заливки всього поля"],
+        "hintDetail": ["Докладність ходу", "Оберіть, що показувати"],
+        "suggestEnemyPawn": ["Пішак"], "suggestEnemyKnight": ["Кінь"], "suggestEnemyBishop": ["Слон"], "suggestEnemyRook": ["Тура"], "suggestEnemyQueen": ["Ферзь"], "suggestEnemyKing": ["Король"], "suggestEnemyOtherPieces": ["Інші фігури"],
+        "suggestPawn": ["Пішак"], "suggestKnight": ["Кінь"], "suggestBishop": ["Слон"], "suggestRook": ["Тура"], "suggestQueen": ["Ферзь"], "suggestKing": ["Король"], "suggestOtherPieces": ["Інші фігури"],
         "pipSan": ["Нотація SAN", "Використовувати SAN у плаваючій панелі та озвученні"],
         "ttsAnnounceEnemyMoves": ["Озвучувати ходи суперника", "Слухати останній хід суперника"],
         "ttsAnnounceEvaluation": ["Озвучувати зміни переваги", "Слухати, коли ви здобуваєте або втрачаєте перевагу"],
@@ -207,6 +216,7 @@
             "analyzing": "Аналіз {move}…", "unavailable": "Оцінка недоступна."
         },
         "moveSpeech": {
+            "hintPiece": "Зробіть хід фігурою на {square}", "hintDestination": "Зробіть хід на {square}", "hintsFiltered": "Пропозиції відфільтровано",
             "opponent": "Суперник: {move}",
             "advantage": ["Ви сильно програєте", "Ви програєте", "Ви трохи поступаєтеся", "Позиція рівна", "Ви маєте невелику перевагу", "Ви виграєте", "Ви впевнено виграєте"],
             "lang": "uk-UA", "pieces": { "K": "Король", "Q": "Ферзь", "R": "Тура", "B": "Слон", "N": "Кінь" },

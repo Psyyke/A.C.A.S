@@ -1,5 +1,10 @@
 {
     "domTranslations": {
+        "[data-translation-learning-hints]": "Angezeigte Figuren filtern",
+        "[data-translation-hint-own-pieces]": "Eigene Figuren",
+        "[data-translation-hint-enemy-pieces]": "Gegnerische Figuren",
+        "[data-translation-hint-full]": "Vollständiger Zug", "[data-translation-hint-piece]": "Nur Figur", "[data-translation-hint-destination]": "Nur Zielfeld",
+        "[data-translation-hint-filter]": "Vorschläge nach der ziehenden Figur filtern",
         "[data-translation-server-port]": "Server-Port",
         "[data-translation-server-port-hint]": "Muss mit dem in der A.C.A.S-Server-App angezeigten Port übereinstimmen",
         "#acas-is-free-reminder-text": "Hilf, indem du Feedback gibst!",
@@ -102,6 +107,10 @@
         "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
     },
     "configTranslations": {
+        "renderSquareAsDots": ["Zentrierte Punkte verwenden", "Feldfarben als kleine Punkte in der Mitte statt als flächige Markierungen anzeigen"],
+        "hintDetail": ["Zugdetails", "Wähle, was angezeigt wird"],
+        "suggestEnemyPawn": ["Bauer"], "suggestEnemyKnight": ["Springer"], "suggestEnemyBishop": ["Läufer"], "suggestEnemyRook": ["Turm"], "suggestEnemyQueen": ["Dame"], "suggestEnemyKing": ["König"], "suggestEnemyOtherPieces": ["Andere Figuren"],
+        "suggestPawn": ["Bauer"], "suggestKnight": ["Springer"], "suggestBishop": ["Läufer"], "suggestRook": ["Turm"], "suggestQueen": ["Dame"], "suggestKing": ["König"], "suggestOtherPieces": ["Andere Figuren"],
         "pipSan": ["SAN-Zugnotation", "SAN im schwebenden Fenster und in der Sprachausgabe verwenden"],
         "ttsAnnounceEnemyMoves": ["Gegnerzüge ansagen", "Den zuletzt gespielten Gegnerzug hören"],
         "ttsAnnounceEvaluation": ["Vorteilsänderungen ansagen", "Hören, wenn sich dein Vorteil ändert"],
@@ -207,6 +216,7 @@
             "analyzing": "Analysiere {move}…", "unavailable": "Bewertung nicht verfügbar."
         },
         "moveSpeech": {
+            "hintPiece": "Ziehe die Figur auf {square}", "hintDestination": "Ziehe nach {square}", "hintsFiltered": "Vorschläge gefiltert",
             "opponent": "Gegner: {move}",
             "advantage": ["Du stehst klar auf Verlust", "Du stehst auf Verlust", "Du stehst leicht schlechter", "Die Stellung ist ausgeglichen", "Du stehst leicht besser", "Du stehst auf Gewinn", "Du stehst klar auf Gewinn"],
             "lang": "de-DE", "pieces": { "K": "König", "Q": "Dame", "R": "Turm", "B": "Läufer", "N": "Springer" },

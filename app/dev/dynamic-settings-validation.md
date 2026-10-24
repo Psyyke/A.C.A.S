@@ -43,7 +43,7 @@
 | `arrowOpacity`, `bookMoveOpacity` | Read resolved value by move/book rendering |
 | `displayMovesOnExternalSite`, `showOpponentMoveGuess`, `showOpponentMoveGuessConstantly`, `onlyShowTopMoves`, `moveAsFilledSquares`, `onlySuggestPieces` | Read resolved values by GUI/userscript rendering |
 | `alwaysMyTurn`, `reverseSide`, `onlyCalculateOwnTurn`, `movesOnDemand` | Read resolved values by profile calculation/site interaction |
-| `renderSquarePlayer`, `renderSquareEnemy`, `renderSquareContested`, `renderSquareSafe`, `renderPiecePlayerCapture`, `renderPieceEnemyCapture`, `renderOnExternalSite`, `enableEveryPieceEvals` | Read resolved values by metric rendering |
+| `renderSquarePlayer`, `renderSquareEnemy`, `renderSquareContested`, `renderSquareSafe`, `renderSquareAsDots`, `renderPiecePlayerCapture`, `renderPieceEnemyCapture`, `renderOnExternalSite`, `enableEveryPieceEvals` | Read resolved values by metric rendering; centered-dot changes redraw without restarting move analysis |
 | `enableMoveRatings`, `enableEnemyFeedback`, `feedbackEngineDepth`, `feedbackOnExternalSite` | Instance-scoped resolved profile and per-move feedback reads |
 | `ttsVoiceEnabled`, `ttsVoiceName`, `ttsVoiceSpeed` | Read resolved values for speech |
 | `autoMove`, `autoMoveLegit`, `autoMoveRandom`, `autoMoveAfterUser`, `legitModeType` | Site-side shared-core getters resolve for that userscript instance |
@@ -57,6 +57,31 @@ settings on position changes and during the userscript heartbeat. Enabled dynami
 site-rendering curves provision the site drawer even when their saved defaults are off.
 
 ## Regression coverage and validation limits
+
+### Piece filters and move detail
+
+- `hintDetail` is a categorical Step setting (`full`, `piece`, `destination`).
+  Legacy `onlySuggestPieces` defaults and boolean curves migrate on app startup.
+- `suggestPawn`, `suggestKnight`, `suggestBishop`, `suggestRook`, `suggestQueen`,
+  `suggestKing` and `suggestOtherPieces`, plus their seven `suggestEnemy…`
+  counterparts, use ordinary boolean curves. Missing keys in older profiles mean
+  enabled. Own moves and opponent replies are filtered independently by player
+  identity. With no enabled matching moves or replies, no hints are shown.
+- Opponent pieces retain full move shapes while own moves can be hidden or partial.
+  Hover-only threats use the opponent's starting square when the own starting
+  square is hidden. Piece icons follow player identity rather than board orientation.
+- These settings only filter/present existing app-side engine/book candidates;
+  they do not change UCI commands, search restrictions, MultiPV or userscript code.
+- Saves, graph edits, curve removal and effective-value transitions redraw cached
+  current-position candidates. Presentation-only redraws do not restart analysis,
+  replay speech or execute automatic moves. Partial notation never requests SAN.
+- PIP stores presented hints per profile and current FEN. An empty/filtered profile
+  cannot replace another profile's visible hints. The compact filtered status waits
+  for other ready, supported profiles with suggestions enabled to publish their result.
+  Position changes reset all profile snapshots; removing a profile selects another
+  current visible result without mixing instances or replaying unfiltered moves.
+- Manual inspection covered the app-side paths and all 33 language additions.
+  Browser rendering and live engine integration have not been executed here.
 
 The existing browser test page `dynamic-graph-tests.html` now includes shared-core
 tests, dropdown definition/index alignment tests, concurrent-instance synchronization

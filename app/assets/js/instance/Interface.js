@@ -1,9 +1,18 @@
-import { updatePipData } from '../gui/pip.js';
+import { updatePipData, resetPipHints } from '../gui/pip.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { logActivity } from '../misc/activityLog.js';
 import { evaluationForPlayer } from '../misc/evaluation.js';
 import { prepareFeedbackPosition } from './renderFeedback.js';
 import { annotateOpponentMove } from './annotate.js';
+import { getHintSettings, filterHintMoves } from '../misc/learningHints.js';
+
+function getHintSquareShape(square, color, opacity, isDestination = false) {
+    const isBoardSquare = /^[a-z]\d+$/.test(square);
+    if(!isBoardSquare) return null;
+    const destinationStyle = isDestination ? 'filter:brightness(1.5); stroke-dasharray:4 4; ' : '';
+    return { shapeType: 'rectangle', shapeSquare: square,
+        shapeConfig: { style: `${destinationStyle}opacity:${opacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2; fill:${color};` } };
+}
 
 function computeArrowScale(index, total) {
     const maxScale = 1, minScale = 0.5;
@@ -45,8 +54,11 @@ export default class Interface {
         this.AcasInstance = instance;
     }
 
-    getBookMoveVisualSettings(move, index, movesForProfile, color, opacity) {
+    getBookMoveVisualSettings(move, index, movesForProfile, color, opacity, detail = 'full') {
         if(!move?.from || !move?.to) return null;
+
+        const isPartialHint = detail !== 'full';
+        if(isPartialHint) return getHintSquareShape(detail === 'piece' ? move.from : move.to, color, opacity, detail === 'destination');
 
         const scale = computeArrowScale(index, movesForProfile.length);
 
@@ -63,8 +75,8 @@ export default class Interface {
         };
     }
 
-    buildBookMoveShape(move, index, movesForProfile, profileName, color, opacity) {
-        const visual = this.getBookMoveVisualSettings(move, index, movesForProfile, color, opacity);
+    buildBookMoveShape(move, index, movesForProfile, profileName, color, opacity, detail) {
+        const visual = this.getBookMoveVisualSettings(move, index, movesForProfile, color, opacity, detail);
 
         if(!visual) return null;
 
@@ -104,77 +116,59 @@ export default class Interface {
     getMoveShapes(mObj, idx, ctx) {
         const {
             totalRanks, arrowOpacity, primaryArrowColorHex, secondaryArrowColorHex,
-            opponentArrowColorHex, onlySuggestPieces, movesOnDemand, moveAsFilledSquares,
-            showOpponentMoveGuess, showOpponentMoveGuessConstantly, markedSquares
+            opponentArrowColorHex, hintDetail = 'full', moveAsFilledSquares,
+            showOpponentMoveGuess, showOpponentMoveGuessConstantly, markedSquares, hintSquares
         } = ctx;
 
         const [from, to] = mObj.player, [oppFrom, oppTo] = mObj.opponent;
-        const oppMovesExist = oppFrom && oppTo;
         const fillType = idx === 0 ? 1 : 0;
         const fillColor = fillType ? primaryArrowColorHex : secondaryArrowColorHex;
+        const detail = mObj.hintDetail ?? hintDetail;
+        const shapes = [];
+        const visual = this.getMoveVisualSettings(mObj, idx, totalRanks, { arrowOpacity, primaryArrowColorHex, secondaryArrowColorHex });
 
-        if(onlySuggestPieces && !movesOnDemand) {
-            const shapes = [{
-                shapeType: 'rectangle',
-                shapeSquare: from,
-                shapeConfig: { style: `opacity: ${arrowOpacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2; fill:${fillColor};` }
-            }];
-
-            if(oppFrom) {
-                const hoverIfNeeded = !showOpponentMoveGuessConstantly ? ' display:none;' : '';
-
-                shapes.push({
-                    shapeType: 'rectangle',
-                    shapeSquare: oppFrom,
-                    shapeConfig: { style: `opacity:${arrowOpacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2;${hoverIfNeeded} fill:${opponentArrowColorHex};` },
-                    isOpponent: true,
-                    forceHoverOnly: !showOpponentMoveGuessConstantly
-                });
-            }
-
-            return shapes;
-        }
-
-        if(moveAsFilledSquares) {
+        if(!mObj.playerHidden && detail !== 'full') {
+            const square = detail === 'destination' ? to : from;
+            const alreadyMarked = hintSquares?.has(square);
+            const playerShape = alreadyMarked ? null : getHintSquareShape(square, fillColor, arrowOpacity, detail === 'destination');
+            if(playerShape) shapes.push(playerShape);
+            hintSquares?.add(square);
+        } else if(!mObj.playerHidden && moveAsFilledSquares) {
             const styleBase = `opacity:${arrowOpacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2; fill:${fillColor};`;
             const fromStyle = styleBase + (markedSquares[fillType].includes(from) ? 'opacity:0;' : '');
             const toStyle = `filter:brightness(1.5); stroke-dasharray:4 4; ${styleBase}` + (markedSquares[fillType].includes(to) ? 'opacity:0;' : '');
 
             markedSquares[fillType].push(from, to);
 
-            const shapes = [
+            shapes.push(
                 { shapeType: 'rectangle', shapeSquare: from, shapeConfig: { style: fromStyle } },
                 { shapeType: 'rectangle', shapeSquare: to, shapeConfig: { style: toStyle } }
-            ];
-
-            if(oppMovesExist && showOpponentMoveGuess) {
-                const hoverIfNeeded = !showOpponentMoveGuessConstantly ? ' display:none;' : '';
-                shapes.push(
-                    { shapeType: 'rectangle', shapeSquare: oppFrom, isOpponent: true, shapeConfig: { style: fromStyle + ` fill:${opponentArrowColorHex};${hoverIfNeeded}` }, forceHoverOnly: !showOpponentMoveGuessConstantly },
-                    { shapeType: 'rectangle', shapeSquare: oppTo, isOpponent: true, shapeConfig: { style: toStyle + ` fill:${opponentArrowColorHex};${hoverIfNeeded}` }, forceHoverOnly: !showOpponentMoveGuessConstantly }
-                );
-            }
-
-            return shapes;
+            );
+        } else if(!mObj.playerHidden && visual) {
+            shapes.push({ ...visual, bringToFront: idx === 0 });
         }
 
-        // Arrow mode (the default)
-        const visual = this.getMoveVisualSettings(mObj, idx, totalRanks, { arrowOpacity, primaryArrowColorHex, secondaryArrowColorHex });
-
-        if(!visual) return [];
-
-        const shapes = [{ ...visual, bringToFront: idx === 0 }];
-
-        if(oppMovesExist && showOpponentMoveGuess) {
+        if(oppFrom && oppTo && !mObj.opponentHidden && showOpponentMoveGuess) {
+            const opponentDetail = mObj.opponentHintDetail ?? 'full';
+            // Hidden/destination-only own moves must not be disclosed by hover.
+            const hoverSquare = mObj.playerHidden || detail === 'destination' ? oppFrom : from;
             const opponentStyle = getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity);
-            const defaultStyle = showOpponentMoveGuessConstantly ? opponentStyle : `${opponentStyle}; display:none;`;
-
-            shapes.push({
-                shapeType: 'arrow',
-                shapeSquare: [oppFrom, oppTo],
-                shapeConfig: { ...visual.shapeConfig, style: defaultStyle },
-                isOpponent: true,
-                forceHoverOnly: !showOpponentMoveGuessConstantly
+            const opponentShapes = [];
+            if(opponentDetail !== 'full') {
+                const shape = getHintSquareShape(opponentDetail === 'piece' ? oppFrom : oppTo, opponentArrowColorHex, arrowOpacity, opponentDetail === 'destination');
+                if(shape) opponentShapes.push(shape);
+            } else if(moveAsFilledSquares) {
+                [oppFrom, oppTo].forEach(square => {
+                    const shape = getHintSquareShape(square, opponentArrowColorHex, arrowOpacity);
+                    if(shape) opponentShapes.push(shape);
+                });
+            } else if(visual) {
+                opponentShapes.push({ shapeType: 'arrow', shapeSquare: [oppFrom, oppTo],
+                    shapeConfig: { ...visual.shapeConfig, style: opponentStyle } });
+            }
+            opponentShapes.forEach(shape => {
+                if(!showOpponentMoveGuessConstantly) shape.shapeConfig.style += ' display:none;';
+                shapes.push({ ...shape, from: hoverSquare, isOpponent: true, forceHoverOnly: !showOpponentMoveGuessConstantly });
             });
         }
 
@@ -195,10 +189,18 @@ export default class Interface {
         if(!profileNames.length) return;
 
         for(const profileName of profileNames) {
-            this.removeBookMarkings(profileName);
-
-            const movesForProfile = (bookMoves || []).filter(move => move?.profile === profileName);
-            const { BoardDrawer, configKeys } = this.AcasInstance;
+            const variables = this.AcasInstance.pV[profileName];
+            if(!variables) continue;
+            const fen = this.AcasInstance.currentFen;
+            const revision = (variables.bookHintRevision || 0) + 1;
+            variables.bookHintRevision = revision;
+            const hints = await getHintSettings(this.AcasInstance, profileName);
+            const candidates = (bookMoves || []).filter(move => move?.profile === profileName);
+            const movesForProfile = filterHintMoves(candidates, hints, fen).filter((move, index, moves) => {
+                const squareKey = move.hintDetail === 'piece' ? 'from' : 'to';
+                return move.hintDetail === 'full' || moves.findIndex(other => other[squareKey] === move[squareKey]) === index;
+            });
+            const { configKeys } = this.AcasInstance;
 
             const color = await this.AcasInstance.getConfigValue(
                 configKeys.bookMoveColorHex,
@@ -217,15 +219,22 @@ export default class Interface {
                 profileName
             );
 
+            const isCurrent = this.AcasInstance.pV[profileName] === variables && !this.AcasInstance.instanceClosed
+                && this.AcasInstance.currentFen === fen && variables.bookHintRevision === revision;
+            if(!isCurrent) continue;
+            this.removeBookMarkings(profileName);
+
             const bookMoveShapes = movesForProfile
-                .map((move, index) => this.buildBookMoveShape(move, index, movesForProfile, profileName, color, opacity))
+                .map((move, index) => this.buildBookMoveShape(move, index, movesForProfile, profileName, color, opacity, move.hintDetail))
                 .filter(Boolean);
 
             this.AcasInstance.pV[profileName].bookMoveMarkings = bookMoveShapes.map(x => x.elem).filter(Boolean);
 
-            if(displayMovesExternally) {
-                this.AcasInstance.CommLink.commands.renderVisualsToSite(FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(bookMoveShapes));
+            if(displayMovesExternally || variables.bookHintsExternal) {
+                const entries = displayMovesExternally ? FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(bookMoveShapes) : [];
+                this.AcasInstance.CommLink.commands.renderVisualsToSite(entries.length ? entries : [{ profileID: profileName, category: 'book' }]);
             }
+            variables.bookHintsExternal = Boolean(displayMovesExternally);
         }
     }
 
@@ -245,9 +254,7 @@ export default class Interface {
         });
     }
 
-    async markMoves(moveObjArr, profile) {
-        this.removeMarkings(profile, 'Make room for new move markings');
-
+    async markMoves(moveObjArr, profile, hints, isCurrent = () => true, silent = false) {
         const totalRanks = moveObjArr.filter(move => !move.isFuture).length;
         const BoardDrawer = this.AcasInstance.BoardDrawer;
         const cfgKeys = this.AcasInstance.configKeys;
@@ -260,8 +267,6 @@ export default class Interface {
             secondaryArrowColorHex,
             opponentArrowColorHex,
             moveAsFilledSquares,
-            onlySuggestPieces,
-            movesOnDemand,
             displayMovesExternally
         ] = await Promise.all([
             this.AcasInstance.getConfigValue(cfgKeys.arrowOpacity, profile).then(v => v/100),
@@ -271,17 +276,19 @@ export default class Interface {
             this.AcasInstance.getConfigValue(cfgKeys.secondaryArrowColorHex, profile),
             this.AcasInstance.getConfigValue(cfgKeys.opponentArrowColorHex, profile),
             this.AcasInstance.getConfigValue(cfgKeys.moveAsFilledSquares, profile),
-            this.AcasInstance.getConfigValue(cfgKeys.onlySuggestPieces, profile),
-            this.AcasInstance.getConfigValue(cfgKeys.movesOnDemand, profile),
             this.AcasInstance.getConfigValue(cfgKeys.displayMovesOnExternalSite, profile)
         ]);
+
+        hints ??= await getHintSettings(this.AcasInstance, profile);
+        if(!isCurrent()) return;
+        this.removeMarkings(profile, 'Make room for new move markings');
 
         const markedSquares = [[], []]; // [primary, secondary]
 
         const shapeCtx = {
             totalRanks, arrowOpacity, primaryArrowColorHex, secondaryArrowColorHex,
-            opponentArrowColorHex, onlySuggestPieces, movesOnDemand, moveAsFilledSquares,
-            showOpponentMoveGuess, showOpponentMoveGuessConstantly, markedSquares
+            opponentArrowColorHex, hintDetail: hints.detail, moveAsFilledSquares,
+            showOpponentMoveGuess, showOpponentMoveGuessConstantly, markedSquares, hintSquares: new Set()
         };
 
         const squareListeners = [];
@@ -306,11 +313,15 @@ export default class Interface {
         };
 
         const siteMoveShapes = [];
+        let visibleMoveIndex = 0;
 
         moveObjArr.forEach((mObj, idx) => {
-            if((onlySuggestPieces || moveAsFilledSquares) && mObj.isFuture) return;
+            const shouldHideFuture = (hints.detail !== 'full' || moveAsFilledSquares) && mObj.isFuture;
+            if(shouldHideFuture) return;
 
-            const shapes = this.getMoveShapes(mObj, idx, shapeCtx);
+            // Threat-only candidates must not demote the first visible own move.
+            const shapeIndex = mObj.playerHidden ? idx : visibleMoveIndex++;
+            const shapes = this.getMoveShapes(mObj, shapeIndex, shapeCtx);
             if(!shapes.length) return;
 
             const [from] = mObj.player;
@@ -322,9 +333,9 @@ export default class Interface {
                     const shape = shapes[i];
                     if(shape.isOpponent) {
                         if(shape.forceHoverOnly && !showOpponentMoveGuessConstantly) {
-                            handleOpponentDisplay(from, elem);
+                            handleOpponentDisplay(shape.from ?? from, elem);
                         } else {
-                            revealOpponent(from, elem);
+                            revealOpponent(shape.from ?? from, elem);
                         }
                     }
 
@@ -342,16 +353,21 @@ export default class Interface {
             this.AcasInstance.pV[profile].activeGuiMoveMarkings.push({ otherElems: elems });
 
             if(displayMovesExternally) {
-                siteMoveShapes.push(...this.buildMoveSiteEntries(mObj, shapes, profile));
+                const entries = this.buildMoveSiteEntries(mObj, shapes, profile);
+                // A presentation-only redraw must not trigger the site's Auto Move again.
+                if(silent) entries.forEach(entry => { entry.data.isFuture = true; });
+                siteMoveShapes.push(...entries);
             }
         });
 
-        if(displayMovesExternally) {
-            this.AcasInstance.CommLink.commands.renderVisualsToSite(FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(siteMoveShapes));
+        const variables = this.AcasInstance.pV[profile];
+        if(displayMovesExternally || variables.hintsExternal) {
+            const entries = FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(siteMoveShapes);
+            this.AcasInstance.CommLink.commands.renderVisualsToSite(entries.length ? entries : [{ profileID: profile, category: 'move', isFuture: true }]);
         }
+        variables.hintsExternal = Boolean(displayMovesExternally);
 
         this.AcasInstance.pV[profile].activeSquareListeners = squareListeners;
-        this.AcasInstance.pV[profile].pastMoveObjects = [];
     }
 
     removeMarkingFromProfile(p) {
@@ -420,7 +436,7 @@ export default class Interface {
         this.AcasInstance.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
         this.removeMarkings(null, 'New board FEN');
         this.removeBookMarkings();
-        updatePipData({ 'moveObjects': null });
+        resetPipHints(this.AcasInstance);
 
         const previousFen = this.AcasInstance.currentFen;
         if(fen) {
@@ -455,6 +471,8 @@ export default class Interface {
 
         // For each profile config
         Object.keys(this.AcasInstance.pV).forEach(profileName => {
+            this.AcasInstance.pV[profileName].hintCandidates = null;
+            this.AcasInstance.pV[profileName].pendingMoveDisplay = null;
             this.AcasInstance.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
             this.AcasInstance.pV[profileName].currentSpeeches = [];
 

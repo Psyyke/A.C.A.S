@@ -1,5 +1,6 @@
 import { logAppliedSetting, finishPendingSettingChanges } from '../misc/settingActivity.js';
 import { fairyVariantKey, fairyChess960Key, isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
+import { hintSettingKeys } from '../misc/learningHints.js';
 
 // Every instance owns its effective-value cache and queue. Never consult the GUI filter.
 export function changedSettingKeys(previous, current, keys, forcedKeys = []) {
@@ -111,6 +112,13 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
                 }
                 this.effectiveSettings.set(name, current);
                 this.pV[name].dynamicSettingsApplied = true;
+                const hintRenderKeys = [...hintSettingKeys, 'movesOnDemand', 'moveAsFilledSquares',
+                    'arrowOpacity', 'primaryArrowColorHex', 'secondaryArrowColorHex', 'opponentArrowColorHex',
+                    'showOpponentMoveGuess', 'showOpponentMoveGuessConstantly', 'displayMovesOnExternalSite',
+                    'bookMoveOpacity', 'bookMoveColorHex', 'moveSuggestionAmount'];
+                const didChangeHints = changed.some(key => hintRenderKeys.includes(key));
+                if(didChangeHints && this.currentFen && this.refreshHints)
+                    await this.refreshHints(name);
             } catch(error) {
                 this.effectiveSettings.delete(name);
                 this.pendingDynamicSettingChanges.delete(name);
