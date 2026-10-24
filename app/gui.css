@@ -1657,6 +1657,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     justify-content: center;
 	border-right: 1px solid rgb(255 255 255 / 5%);
 	font-size: 20px;
+    background-color: rgb(255 255 255 / 1%);
 }
 #add-new-profile-button:hover {
 	background-color: rgb(255 255 255 / 10%);
@@ -3861,7 +3862,8 @@ video {
 #no-instances-container,
 #acas-header::before,
 #acas-settings-container::before,
-dialog > .floaty-container::before {
+dialog > .floaty-container::before,
+#footer {
     background-size: clamp(80px, 6vw, 100px)  clamp(80px, 6vw, 100px), 100% 100% !important;
 }
 
@@ -3869,7 +3871,8 @@ dialog > .floaty-container::before {
     #no-instances-container,
     #acas-header::before,
     #acas-settings-container::before,
-    dialog > .floaty-container::before {
+    dialog > .floaty-container::before,
+    #footer {
         background-size: 80px 80px, 100% 100% !important;
     }
 }
