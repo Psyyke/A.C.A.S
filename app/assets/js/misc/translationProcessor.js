@@ -16,7 +16,9 @@
 	}, 1000);
 
 	function getFlagPath(languageCode) {
-		return `../assets/images/flags/${languageCode}.svg`;
+		// An optional third metadata field lets multiple languages share a country flag.
+		const flagCode = availableLanguages.find(x => x[0] === languageCode)?.[2] ?? languageCode;
+		return `../assets/images/flags/${flagCode}.svg`;
 	}
 
 	function updateWhisperFontEligibility() {
@@ -153,10 +155,12 @@
 			const [titleText, subtitleText] = configTranslations[key];
 
 			if(titleElement && titleText) {
+				titleElement.dir = FULL_TRANS_OBJ?.textDirection ?? 'auto';
 				titleElement.innerText = titleText;
 			}
 
 			if(subtitleElement && subtitleText) {
+				subtitleElement.dir = FULL_TRANS_OBJ?.textDirection ?? 'auto';
 				subtitleElement.innerText = subtitleText;
 			}
 		});
@@ -181,6 +185,7 @@
 					.forEach(x => {
 						console.warn('Translated:', x.innerText, '-->',  translation);
 
+						x.dir = FULL_TRANS_OBJ?.textDirection ?? 'auto';
 						x.innerText = translation;
 					});
 			}
