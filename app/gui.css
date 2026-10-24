@@ -37,6 +37,10 @@
 	.setting-panel {
 		max-width: none !important;
 	}
+    #main-setting-panel {
+        max-width: unset !important;
+        width: unset !important;
+    }
 	#instance-size-change-container {
 		display: none !important;
 	}
