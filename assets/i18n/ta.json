@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "காயை வெட்டும் நகர்வுகள் மட்டும்",
+        "[data-translation-hint-movement]": "காயை வெட்டாத நகர்வுகள் மட்டும்",
+        "[data-translation-hint-captures-destination]": "காயை வெட்டும் நகர்வுகள் மட்டும், செல்லும் கட்டம் மட்டும்",
+        "[data-translation-hint-movement-destination]": "காயை வெட்டாத நகர்வுகள் மட்டும், செல்லும் கட்டம் மட்டும்",
+        "[data-translation-hint-captures-piece]": "காயை வெட்டும் நகர்வுகள் மட்டும், காய் மட்டும்",
+        "[data-translation-hint-movement-piece]": "காயை வெட்டாத நகர்வுகள் மட்டும், காய் மட்டும்",
         "[data-translation-learning-hints]": "காட்டப்படும் காய்களை வடிகட்டவும்", "[data-translation-hint-own-pieces]": "உங்கள் காய்கள்", "[data-translation-hint-enemy-pieces]": "எதிராளியின் காய்கள்", "[data-translation-hint-full]": "முழு நகர்வு", "[data-translation-hint-piece]": "காய் மட்டும்", "[data-translation-hint-destination]": "செல்லும் கட்டம் மட்டும்", "[data-translation-hint-filter]": "நகரும் காயின் அடிப்படையில் பரிந்துரைகளை வடிகட்டவும்",
         "[data-translation-server-port]": "சேவையகப் போர்ட்", "[data-translation-server-port-hint]": "A.C.A.S சேவையகச் செயலியில் காட்டப்படும் போர்ட்டுடன் பொருந்த வேண்டும்", "#acas-is-free-reminder-text": "கருத்துகளைப் பகிர்ந்து உதவுங்கள்!", "#acas-logo-secondary": "சதுரங்க உதவியாளர்", "#no-instances-title": "அமர்வுகளுக்காகக் காத்திருக்கிறது...", "#no-instances-subtitle": "வணக்கம்! சதுரங்கம் விளையாடத் தயாரா? ஒரு சதுரங்கத் தளத்தைத் திறக்கவும்; ஒன்றாகத் தொடங்கலாம். நான் உதவத் தயாராக இருக்கிறேன்!", "#see-supported-sites-btn": "ஆதரிக்கப்படும் அனைத்துத் தளங்களையும் காண்க",
         ".battletested-sites .sites-title": "நன்கு சோதிக்கப்பட்டவை", ".battletested-sites .sites-subtitle": "(சிக்கலின்றி இயங்க வேண்டும்)", ".stable-sites .sites-title": "நிலையானவை", ".stable-sites .sites-subtitle": "(நன்றாக இயங்கும்; சிறிய பிழைகள் இருக்கலாம்)", ".unstable-sites .sites-title": "உறுதியற்றவை", ".unstable-sites .sites-subtitle": "(நன்றாக இயங்கலாம், பிழைகள் இருக்கலாம் அல்லது இயங்காமலும் போகலாம்)",

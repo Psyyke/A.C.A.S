@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Solo catture",
+        "[data-translation-hint-movement]": "Solo mosse senza cattura",
+        "[data-translation-hint-captures-destination]": "Solo catture, solo destinazione",
+        "[data-translation-hint-movement-destination]": "Solo mosse senza cattura, solo destinazione",
+        "[data-translation-hint-captures-piece]": "Solo catture, solo pezzo",
+        "[data-translation-hint-movement-piece]": "Solo mosse senza cattura, solo pezzo",
         "[data-translation-learning-hints]": "Filtra i pezzi mostrati",
         "[data-translation-hint-own-pieces]": "Pezzi propri",
         "[data-translation-hint-enemy-pieces]": "Pezzi avversari",

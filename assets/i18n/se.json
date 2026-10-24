@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Endast slagdrag",
+        "[data-translation-hint-movement]": "Endast drag utan slag",
+        "[data-translation-hint-captures-destination]": "Endast slagdrag, endast målruta",
+        "[data-translation-hint-movement-destination]": "Endast drag utan slag, endast målruta",
+        "[data-translation-hint-captures-piece]": "Endast slagdrag, endast pjäs",
+        "[data-translation-hint-movement-piece]": "Endast drag utan slag, endast pjäs",
         "[data-translation-learning-hints]": "Filtrera visade pjäser",
         "[data-translation-hint-own-pieces]": "Egna pjäser",
         "[data-translation-hint-enemy-pieces]": "Motståndarens pjäser",

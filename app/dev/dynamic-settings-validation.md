@@ -61,6 +61,16 @@ site-rendering curves provision the site drawer even when their saved defaults a
 ### Piece filters and move detail
 
 - `hintDetail` is a categorical Step setting (`full`, `piece`, `destination`).
+  It also supports `captures` and `movement` (non-captures), each with optional
+  `-destination` or `-piece` suffixes. These filter existing candidates before
+  normalizing their presentation to `full`, `destination` or `piece`, so board
+  shapes, book hints, PIP and speech share the same filtered/partial hints.
+  Capture detection includes en passant, excludes drops and friendly castling
+  targets, and accounts for the preceding candidate when filtering own replies.
+  Enemy pieces retain the existing full-hint behavior; Moves On Demand retains
+  its existing full, unfiltered move-detail override. Filtered modes do not show
+  unfiltered future continuations. New dropdown choices are also available to
+  dynamic curves without changing existing persisted value indices.
   Legacy `onlySuggestPieces` defaults and boolean curves migrate on app startup.
 - `suggestPawn`, `suggestKnight`, `suggestBishop`, `suggestRook`, `suggestQueen`,
   `suggestKing` and `suggestOtherPieces`, plus their seven `suggestEnemy…`

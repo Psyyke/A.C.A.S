@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Tylko bicia",
+        "[data-translation-hint-movement]": "Tylko ruchy bez bicia",
+        "[data-translation-hint-captures-destination]": "Tylko bicia, tylko pole docelowe",
+        "[data-translation-hint-movement-destination]": "Tylko ruchy bez bicia, tylko pole docelowe",
+        "[data-translation-hint-captures-piece]": "Tylko bicia, tylko bierka",
+        "[data-translation-hint-movement-piece]": "Tylko ruchy bez bicia, tylko bierka",
         "[data-translation-learning-hints]": "Filtruj wyświetlane bierki",
         "[data-translation-hint-own-pieces]": "Własne bierki",
         "[data-translation-hint-enemy-pieces]": "Bierki przeciwnika",

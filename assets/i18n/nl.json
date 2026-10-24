@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Alleen slagzetten",
+        "[data-translation-hint-movement]": "Alleen zetten zonder slaan",
+        "[data-translation-hint-captures-destination]": "Alleen slagzetten, alleen doelveld",
+        "[data-translation-hint-movement-destination]": "Alleen zetten zonder slaan, alleen doelveld",
+        "[data-translation-hint-captures-piece]": "Alleen slagzetten, alleen stuk",
+        "[data-translation-hint-movement-piece]": "Alleen zetten zonder slaan, alleen stuk",
         "[data-translation-learning-hints]": "Getoonde stukken filteren",
         "[data-translation-hint-own-pieces]": "Eigen stukken",
         "[data-translation-hint-enemy-pieces]": "Stukken van de tegenstander",

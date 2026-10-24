@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Μόνο συλλήψεις",
+        "[data-translation-hint-movement]": "Μόνο κινήσεις χωρίς σύλληψη",
+        "[data-translation-hint-captures-destination]": "Μόνο συλλήψεις, μόνο προορισμός",
+        "[data-translation-hint-movement-destination]": "Μόνο κινήσεις χωρίς σύλληψη, μόνο προορισμός",
+        "[data-translation-hint-captures-piece]": "Μόνο συλλήψεις, μόνο κομμάτι",
+        "[data-translation-hint-movement-piece]": "Μόνο κινήσεις χωρίς σύλληψη, μόνο κομμάτι",
         "[data-translation-learning-hints]": "Φιλτράρισμα εμφανιζόμενων κομματιών",
         "[data-translation-hint-own-pieces]": "Δικά σας κομμάτια",
         "[data-translation-hint-enemy-pieces]": "Κομμάτια αντιπάλου",

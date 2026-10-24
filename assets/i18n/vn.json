@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Chỉ nước bắt quân",
+        "[data-translation-hint-movement]": "Chỉ nước không bắt quân",
+        "[data-translation-hint-captures-destination]": "Chỉ nước bắt quân, chỉ ô đích",
+        "[data-translation-hint-movement-destination]": "Chỉ nước không bắt quân, chỉ ô đích",
+        "[data-translation-hint-captures-piece]": "Chỉ nước bắt quân, chỉ quân cờ",
+        "[data-translation-hint-movement-piece]": "Chỉ nước không bắt quân, chỉ quân cờ",
         "[data-translation-learning-hints]": "Lọc quân cờ hiển thị",
         "[data-translation-hint-own-pieces]": "Quân của mình",
         "[data-translation-hint-enemy-pieces]": "Quân của đối thủ",

@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Iba brania",
+        "[data-translation-hint-movement]": "Iba ťahy bez brania",
+        "[data-translation-hint-captures-destination]": "Iba brania, iba cieľové pole",
+        "[data-translation-hint-movement-destination]": "Iba ťahy bez brania, iba cieľové pole",
+        "[data-translation-hint-captures-piece]": "Iba brania, iba figúra",
+        "[data-translation-hint-movement-piece]": "Iba ťahy bez brania, iba figúra",
         "[data-translation-learning-hints]": "Filtrovať zobrazené figúry",
         "[data-translation-hint-own-pieces]": "Vlastné figúry",
         "[data-translation-hint-enemy-pieces]": "Súperove figúry",

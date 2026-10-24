@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Faqat urish yurishlari",
+        "[data-translation-hint-movement]": "Faqat urishsiz yurishlar",
+        "[data-translation-hint-captures-destination]": "Faqat urish yurishlari, faqat boriladigan katak",
+        "[data-translation-hint-movement-destination]": "Faqat urishsiz yurishlar, faqat boriladigan katak",
+        "[data-translation-hint-captures-piece]": "Faqat urish yurishlari, faqat dona",
+        "[data-translation-hint-movement-piece]": "Faqat urishsiz yurishlar, faqat dona",
         "[data-translation-learning-hints]": "Ko‘rsatiladigan donalarni saralash",
         "[data-translation-hint-own-pieces]": "O‘z donalaringiz",
         "[data-translation-hint-enemy-pieces]": "Raqib donalari",

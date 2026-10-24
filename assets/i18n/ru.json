@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Только взятия",
+        "[data-translation-hint-movement]": "Только ходы без взятия",
+        "[data-translation-hint-captures-destination]": "Только взятия, только поле назначения",
+        "[data-translation-hint-movement-destination]": "Только ходы без взятия, только поле назначения",
+        "[data-translation-hint-captures-piece]": "Только взятия, только фигура",
+        "[data-translation-hint-movement-piece]": "Только ходы без взятия, только фигура",
         "[data-translation-learning-hints]": "Фильтр показываемых фигур",
         "[data-translation-hint-own-pieces]": "Свои фигуры",
         "[data-translation-hint-enemy-pieces]": "Фигуры противника",

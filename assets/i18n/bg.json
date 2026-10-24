@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Само вземания",
+        "[data-translation-hint-movement]": "Само ходове без вземане",
+        "[data-translation-hint-captures-destination]": "Само вземания, само крайно поле",
+        "[data-translation-hint-movement-destination]": "Само ходове без вземане, само крайно поле",
+        "[data-translation-hint-captures-piece]": "Само вземания, само фигура",
+        "[data-translation-hint-movement-piece]": "Само ходове без вземане, само фигура",
         "[data-translation-learning-hints]": "Филтриране на показваните фигури",
         "[data-translation-hint-own-pieces]": "Собствени фигури",
         "[data-translation-hint-enemy-pieces]": "Противникови фигури",

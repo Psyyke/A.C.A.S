@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Yalnız vurma gedişləri",
+        "[data-translation-hint-movement]": "Yalnız vurmasız gedişlər",
+        "[data-translation-hint-captures-destination]": "Yalnız vurma gedişləri, yalnız hədəf xana",
+        "[data-translation-hint-movement-destination]": "Yalnız vurmasız gedişlər, yalnız hədəf xana",
+        "[data-translation-hint-captures-piece]": "Yalnız vurma gedişləri, yalnız fiqur",
+        "[data-translation-hint-movement-piece]": "Yalnız vurmasız gedişlər, yalnız fiqur",
         "[data-translation-learning-hints]": "Göstərilən fiqurları süzgəcdən keçir",
         "[data-translation-hint-own-pieces]": "Öz fiqurlarınız",
         "[data-translation-hint-enemy-pieces]": "Rəqibin fiqurları",

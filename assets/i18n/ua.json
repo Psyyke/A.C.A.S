@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Лише взяття",
+        "[data-translation-hint-movement]": "Лише ходи без взяття",
+        "[data-translation-hint-captures-destination]": "Лише взяття, лише кінцеве поле",
+        "[data-translation-hint-movement-destination]": "Лише ходи без взяття, лише кінцеве поле",
+        "[data-translation-hint-captures-piece]": "Лише взяття, лише фігура",
+        "[data-translation-hint-movement-piece]": "Лише ходи без взяття, лише фігура",
         "[data-translation-learning-hints]": "Фільтр показуваних фігур",
         "[data-translation-hint-own-pieces]": "Власні фігури",
         "[data-translation-hint-enemy-pieces]": "Фігури суперника",

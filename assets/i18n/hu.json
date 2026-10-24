@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Csak ütések",
+        "[data-translation-hint-movement]": "Csak ütés nélküli lépések",
+        "[data-translation-hint-captures-destination]": "Csak ütések, csak a célmező",
+        "[data-translation-hint-movement-destination]": "Csak ütés nélküli lépések, csak a célmező",
+        "[data-translation-hint-captures-piece]": "Csak ütések, csak a bábu",
+        "[data-translation-hint-movement-piece]": "Csak ütés nélküli lépések, csak a bábu",
         "[data-translation-learning-hints]": "Megjelenített bábuk szűrése",
         "[data-translation-hint-own-pieces]": "Saját bábuk",
         "[data-translation-hint-enemy-pieces]": "Ellenfél bábui",

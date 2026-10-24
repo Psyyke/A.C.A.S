@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Hanya langkah menangkap",
+        "[data-translation-hint-movement]": "Hanya langkah tanpa menangkap",
+        "[data-translation-hint-captures-destination]": "Hanya langkah menangkap, hanya tujuan",
+        "[data-translation-hint-movement-destination]": "Hanya langkah tanpa menangkap, hanya tujuan",
+        "[data-translation-hint-captures-piece]": "Hanya langkah menangkap, hanya bidak",
+        "[data-translation-hint-movement-piece]": "Hanya langkah tanpa menangkap, hanya bidak",
         "[data-translation-learning-hints]": "Saring buah yang ditampilkan",
         "[data-translation-hint-own-pieces]": "Buah sendiri",
         "[data-translation-hint-enemy-pieces]": "Buah lawan",

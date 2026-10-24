@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "เฉพาะตาที่กินหมาก",
+        "[data-translation-hint-movement]": "เฉพาะตาที่ไม่กินหมาก",
+        "[data-translation-hint-captures-destination]": "เฉพาะตาที่กินหมาก, เฉพาะช่องปลายทาง",
+        "[data-translation-hint-movement-destination]": "เฉพาะตาที่ไม่กินหมาก, เฉพาะช่องปลายทาง",
+        "[data-translation-hint-captures-piece]": "เฉพาะตาที่กินหมาก, เฉพาะตัวหมาก",
+        "[data-translation-hint-movement-piece]": "เฉพาะตาที่ไม่กินหมาก, เฉพาะตัวหมาก",
         "[data-translation-learning-hints]": "กรองตัวหมากที่แสดง",
         "[data-translation-hint-own-pieces]": "หมากของตนเอง",
         "[data-translation-hint-enemy-pieces]": "หมากของคู่ต่อสู้",

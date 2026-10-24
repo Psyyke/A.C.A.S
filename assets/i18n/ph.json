@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Mga galaw na kumakain lamang",
+        "[data-translation-hint-movement]": "Mga galaw na hindi kumakain lamang",
+        "[data-translation-hint-captures-destination]": "Mga galaw na kumakain lamang, patutunguhan lamang",
+        "[data-translation-hint-movement-destination]": "Mga galaw na hindi kumakain lamang, patutunguhan lamang",
+        "[data-translation-hint-captures-piece]": "Mga galaw na kumakain lamang, piyesa lamang",
+        "[data-translation-hint-movement-piece]": "Mga galaw na hindi kumakain lamang, piyesa lamang",
         "[data-translation-learning-hints]": "Salain ang ipinapakitang piyesa",
         "[data-translation-hint-own-pieces]": "Sariling mga piyesa",
         "[data-translation-hint-enemy-pieces]": "Mga piyesa ng kalaban",

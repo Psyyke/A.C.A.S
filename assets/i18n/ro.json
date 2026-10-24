@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Doar capturi",
+        "[data-translation-hint-movement]": "Doar mutări fără captură",
+        "[data-translation-hint-captures-destination]": "Doar capturi, doar destinația",
+        "[data-translation-hint-movement-destination]": "Doar mutări fără captură, doar destinația",
+        "[data-translation-hint-captures-piece]": "Doar capturi, doar piesa",
+        "[data-translation-hint-movement-piece]": "Doar mutări fără captură, doar piesa",
         "[data-translation-learning-hints]": "Filtrează piesele afișate",
         "[data-translation-hint-own-pieces]": "Piese proprii",
         "[data-translation-hint-enemy-pieces]": "Piesele adversarului",

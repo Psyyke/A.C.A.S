@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Pouze braní",
+        "[data-translation-hint-movement]": "Pouze tahy bez braní",
+        "[data-translation-hint-captures-destination]": "Pouze braní, pouze cílové pole",
+        "[data-translation-hint-movement-destination]": "Pouze tahy bez braní, pouze cílové pole",
+        "[data-translation-hint-captures-piece]": "Pouze braní, pouze figura",
+        "[data-translation-hint-movement-piece]": "Pouze tahy bez braní, pouze figura",
         "[data-translation-learning-hints]": "Filtrovat zobrazené figury",
         "[data-translation-hint-own-pieces]": "Vlastní figury",
         "[data-translation-hint-enemy-pieces]": "Soupeřovy figury",

@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Samo uzimanja",
+        "[data-translation-hint-movement]": "Samo potezi bez uzimanja",
+        "[data-translation-hint-captures-destination]": "Samo uzimanja, samo odredišno polje",
+        "[data-translation-hint-movement-destination]": "Samo potezi bez uzimanja, samo odredišno polje",
+        "[data-translation-hint-captures-piece]": "Samo uzimanja, samo figura",
+        "[data-translation-hint-movement-piece]": "Samo potezi bez uzimanja, samo figura",
         "[data-translation-learning-hints]": "Filtriraj prikazane figure", "[data-translation-hint-own-pieces]": "Vlastite figure", "[data-translation-hint-enemy-pieces]": "Protivničke figure", "[data-translation-hint-full]": "Cijeli potez", "[data-translation-hint-piece]": "Samo figura", "[data-translation-hint-destination]": "Samo odredišno polje", "[data-translation-hint-filter]": "Filtriraj prijedloge prema figuri koja se pomiče",
         "[data-translation-server-port]": "Port poslužitelja", "[data-translation-server-port-hint]": "Mora odgovarati portu prikazanom u aplikaciji poslužitelja A.C.A.S", "#acas-is-free-reminder-text": "Pomozite povratnim informacijama!", "#acas-logo-secondary": "Šahovski pomoćnik", "#no-instances-title": "Čekanje na instance...", "#no-instances-subtitle": "Bok! Spremni za partiju? Otvorite šahovsku stranicu i krenimo zajedno. Tu sam da pomognem!", "#see-supported-sites-btn": "Prikaži sve podržane stranice",
         ".battletested-sites .sites-title": "Temeljito isprobane", ".battletested-sites .sites-subtitle": "(Trebale bi raditi besprijekorno)", ".stable-sites .sites-title": "Stabilne", ".stable-sites .sites-subtitle": "(Rade dobro, ali moguće su manje poteškoće)", ".unstable-sites .sites-title": "Nepouzdane", ".unstable-sites .sites-subtitle": "(Mogu raditi dobro, imati pogreške ili uopće ne raditi)",

@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Solo capturas",
+        "[data-translation-hint-movement]": "Solo jugadas sin captura",
+        "[data-translation-hint-captures-destination]": "Solo capturas, solo destino",
+        "[data-translation-hint-movement-destination]": "Solo jugadas sin captura, solo destino",
+        "[data-translation-hint-captures-piece]": "Solo capturas, solo pieza",
+        "[data-translation-hint-movement-piece]": "Solo jugadas sin captura, solo pieza",
         "[data-translation-learning-hints]": "Filtrar piezas mostradas",
         "[data-translation-hint-own-pieces]": "Piezas propias",
         "[data-translation-hint-enemy-pieces]": "Piezas del oponente",

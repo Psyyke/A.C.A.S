@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "მხოლოდ აყვანები",
+        "[data-translation-hint-movement]": "მხოლოდ სვლები აყვანის გარეშე",
+        "[data-translation-hint-captures-destination]": "მხოლოდ აყვანები, მხოლოდ სამიზნე უჯრა",
+        "[data-translation-hint-movement-destination]": "მხოლოდ სვლები აყვანის გარეშე, მხოლოდ სამიზნე უჯრა",
+        "[data-translation-hint-captures-piece]": "მხოლოდ აყვანები, მხოლოდ ფიგურა",
+        "[data-translation-hint-movement-piece]": "მხოლოდ სვლები აყვანის გარეშე, მხოლოდ ფიგურა",
         "[data-translation-learning-hints]": "ნაჩვენები ფიგურების გაფილტვრა", "[data-translation-hint-own-pieces]": "თქვენი ფიგურები", "[data-translation-hint-enemy-pieces]": "მეტოქის ფიგურები", "[data-translation-hint-full]": "სრული სვლა", "[data-translation-hint-piece]": "მხოლოდ ფიგურა", "[data-translation-hint-destination]": "მხოლოდ სამიზნე უჯრა", "[data-translation-hint-filter]": "რჩევების გაფილტვრა მოძრავი ფიგურის მიხედვით",
         "[data-translation-server-port]": "სერვერის პორტი", "[data-translation-server-port-hint]": "უნდა ემთხვეოდეს A.C.A.S-ის სერვერის აპში ნაჩვენებ პორტს", "#acas-is-free-reminder-text": "დაგვეხმარეთ თქვენი აზრის გაზიარებით!", "#acas-logo-secondary": "ჭადრაკის დამხმარე", "#no-instances-title": "სესიების მოლოდინი...", "#no-instances-subtitle": "გამარჯობა! მზად ხართ სათამაშოდ? გახსენით ჭადრაკის საიტი და ერთად დავიწყოთ. მე დაგეხმარებით!", "#see-supported-sites-btn": "ყველა მხარდაჭერილი საიტის ნახვა",
         ".battletested-sites .sites-title": "საფუძვლიანად გამოცდილი", ".battletested-sites .sites-subtitle": "(შეუფერხებლად უნდა იმუშაოს)", ".stable-sites .sites-title": "სტაბილური", ".stable-sites .sites-subtitle": "(კარგად მუშაობს, თუმცა მცირე ხარვეზები შეიძლება ჰქონდეს)", ".unstable-sites .sites-title": "გაურკვეველი", ".unstable-sites .sites-subtitle": "(შეიძლება კარგად იმუშაოს, ხარვეზები ჰქონდეს ან საერთოდ არ იმუშაოს)",

@@ -1,6 +1,12 @@
 {
     "textDirection": "rtl",
     "domTranslations": {
+        "[data-translation-hint-captures]": "הכאות בלבד",
+        "[data-translation-hint-movement]": "מסעים ללא הכאה בלבד",
+        "[data-translation-hint-captures-destination]": "הכאות בלבד, משבצת היעד בלבד",
+        "[data-translation-hint-movement-destination]": "מסעים ללא הכאה בלבד, משבצת היעד בלבד",
+        "[data-translation-hint-captures-piece]": "הכאות בלבד, הכלי בלבד",
+        "[data-translation-hint-movement-piece]": "מסעים ללא הכאה בלבד, הכלי בלבד",
         "[data-translation-learning-hints]": "סינון הכלים המוצגים", "[data-translation-hint-own-pieces]": "הכלים שלך", "[data-translation-hint-enemy-pieces]": "כלי היריב", "[data-translation-hint-full]": "המסע המלא", "[data-translation-hint-piece]": "הכלי בלבד", "[data-translation-hint-destination]": "משבצת היעד בלבד", "[data-translation-hint-filter]": "סינון ההצעות לפי הכלי שינוע", "[data-translation-server-port]": "יציאת השרת", "[data-translation-server-port-hint]": "חייבת להתאים ליציאה המוצגת ביישום השרת של A.C.A.S",
         "#acas-is-free-reminder-text": "אפשר לעזור באמצעות משוב!", "#acas-logo-secondary": "עזרה בשחמט", "#no-instances-title": "בהמתנה למופעים...", "#no-instances-subtitle": "שלום! מוכנים למשחק? פתחו אתר שחמט ונתחיל יחד. אני כאן כדי לעזור!", "#see-supported-sites-btn": "הצגת כל האתרים הנתמכים", ".battletested-sites .sites-title": "נבדקו היטב", ".battletested-sites .sites-subtitle": "(אמורים לפעול ללא תקלות)", ".stable-sites .sites-title": "יציבים", ".stable-sites .sites-subtitle": "(פועלים היטב, אך ייתכנו תקלות קלות)", ".unstable-sites .sites-title": "לא ודאיים", ".unstable-sites .sites-subtitle": "(עשויים לפעול היטב, עם תקלות או לא לפעול כלל)",
         "#settings-navbar-instance .text-content": "מופע", "#settings-navbar-global": "כללי", "#chess-engine-profile-dropdown .input-title": "פרופילים של מנוע השחמט", "#chess-engine-profile-dropdown .input-subtitle": "אפשר להפעיל כמה פרופילים בו־זמנית!", "#add-new-profile-button .text-content": "הוספת חדש", ".tab-item[data-value=\"default\"] p": "פרופיל ברירת המחדל", ".engine-panel-title": "מנוע", ".visual-panel-title": "תצוגה", ".audible-panel-title": "שמע", ".misc-panel-title": "שונות", ".hidden-panel-title": "הסתרה",

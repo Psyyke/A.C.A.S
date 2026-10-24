@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "仅吃子走法",
+        "[data-translation-hint-movement]": "仅非吃子走法",
+        "[data-translation-hint-captures-destination]": "仅吃子走法, 仅提示目标格",
+        "[data-translation-hint-movement-destination]": "仅非吃子走法, 仅提示目标格",
+        "[data-translation-hint-captures-piece]": "仅吃子走法, 仅提示棋子",
+        "[data-translation-hint-movement-piece]": "仅非吃子走法, 仅提示棋子",
         "[data-translation-learning-hints]": "筛选显示棋子",
         "[data-translation-hint-own-pieces]": "己方棋子",
         "[data-translation-hint-enemy-pieces]": "对方棋子",

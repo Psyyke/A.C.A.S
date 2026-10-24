@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Тек алу жүрістері",
+        "[data-translation-hint-movement]": "Тек алусыз жүрістер",
+        "[data-translation-hint-captures-destination]": "Тек алу жүрістері, тек баратын шаршы",
+        "[data-translation-hint-movement-destination]": "Тек алусыз жүрістер, тек баратын шаршы",
+        "[data-translation-hint-captures-piece]": "Тек алу жүрістері, тек фигура",
+        "[data-translation-hint-movement-piece]": "Тек алусыз жүрістер, тек фигура",
         "[data-translation-learning-hints]": "Көрсетілетін фигураларды сүзу",
         "[data-translation-hint-own-pieces]": "Өз фигураларыңыз",
         "[data-translation-hint-enemy-pieces]": "Қарсыластың фигуралары",

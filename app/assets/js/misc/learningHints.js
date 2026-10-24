@@ -1,4 +1,13 @@
-import { parseVariantFen } from './variantPosition.js';
+import { parseVariantFen, variantConfig } from './variantPosition.js';
+
+const hintDetails = Object.freeze({
+    full: { detail: 'full' }, piece: { detail: 'piece' }, destination: { detail: 'destination' },
+    captures: { detail: 'full', captures: true }, movement: { detail: 'full', captures: false },
+    'captures-destination': { detail: 'destination', captures: true },
+    'movement-destination': { detail: 'destination', captures: false },
+    'captures-piece': { detail: 'piece', captures: true },
+    'movement-piece': { detail: 'piece', captures: false }
+});
 
 export const hintPieceKeys = Object.freeze({
     p: 'suggestPawn', n: 'suggestKnight', b: 'suggestBishop',
@@ -21,7 +30,7 @@ export async function getHintSettings(instance, profile) {
     ]);
     const settings = Object.fromEntries(keys.map((key, index) => [key, values[index]]));
     const savedDetail = settings.hintDetail ?? (settings.onlySuggestPieces ? 'piece' : 'full');
-    const validDetail = ['full', 'piece', 'destination'].includes(savedDetail) ? savedDetail : 'full';
+    const validDetail = Object.hasOwn(hintDetails, savedDetail) ? savedDetail : 'full';
 
     return { ...settings, playerColor, detail: settings.movesOnDemand ? 'full' : validDetail };
 }
@@ -29,9 +38,62 @@ export async function getHintSettings(instance, profile) {
 // Classify the moving piece at the analyzed root, not the destination/promotion.
 export function filterHintMoves(moves, settings, fallbackFen, includeOpponent = false) {
     const positions = new Map();
-    const describePiece = (from, fen, isReply = false) => {
+    const selectedDetail = Object.hasOwn(hintDetails, settings.detail) ? hintDetails[settings.detail] : hintDetails.full;
+    const positionAt = fen => {
         if(!positions.has(fen)) positions.set(fen, parseVariantFen(fen));
-        const { rows, fields } = positions.get(fen);
+        return positions.get(fen);
+    };
+    const pieceAt = (position, square) => position.rows[position.rows.length - Number(square?.slice(1))]?.[square?.charCodeAt(0) - 97];
+    const pieceType = piece => String(piece || '').replace(/[+~]/g, '');
+    const sameColor = (piece, other) => piece && other
+        && (piece === piece.toUpperCase()) === (other === other.toUpperCase());
+    const isCapture = (from, to, fen, parentMove = null) => {
+        if(/^[a-zA-Z]@$/.test(from)) return false;
+        const position = positionAt(fen);
+        let enPassant = position.fields[3];
+        const changedSquares = new Map();
+        const at = square => changedSquares.has(square) ? changedSquares.get(square) : pieceAt(position, square);
+
+        // Own replies are evaluated after the enemy's candidate, not on the root board.
+        if(parentMove) {
+            const [parentFrom, parentTo] = parentMove.player ?? [];
+            const droppedPiece = /^[a-zA-Z]@$/.test(parentFrom) ? parentFrom[0] : null;
+            const piece = droppedPiece ? (position.fields[1] === 'b' ? droppedPiece.toLowerCase() : droppedPiece.toUpperCase()) : at(parentFrom);
+            const type = pieceType(piece).toLowerCase();
+            const target = at(parentTo);
+            const isCastle = variantConfig(parentMove).variant === 'chess' && type === 'k'
+                && parentFrom?.slice(1) === parentTo?.slice(1)
+                && (sameColor(piece, target) && pieceType(target).toLowerCase() === 'r'
+                    || Math.abs(parentFrom.charCodeAt(0) - parentTo.charCodeAt(0)) > 1);
+            changedSquares.set(parentFrom, null);
+            if(isCastle) {
+                const rank = parentFrom.slice(1);
+                const kingside = parentTo.charCodeAt(0) > parentFrom.charCodeAt(0);
+                const rookFrom = sameColor(piece, target) ? parentTo : `${kingside ? 'h' : 'a'}${rank}`;
+                const rook = at(rookFrom);
+                changedSquares.set(rookFrom, null);
+                changedSquares.set(`${kingside ? 'g' : 'c'}${rank}`, piece);
+                changedSquares.set(`${kingside ? 'f' : 'd'}${rank}`, rook);
+            } else {
+                if(type === 'p' && !target && parentFrom[0] !== parentTo[0] && enPassant === parentTo)
+                    changedSquares.set(`${parentTo[0]}${parentFrom.slice(1)}`, null);
+                const promotion = parentMove.playerPromotion;
+                const promotedPiece = promotion && /^[a-zA-Z]$/.test(promotion)
+                    ? (piece === piece?.toUpperCase() ? promotion.toUpperCase() : promotion.toLowerCase()) : piece;
+                changedSquares.set(parentTo, promotedPiece);
+            }
+            enPassant = type === 'p' && parentFrom[0] === parentTo[0]
+                && Math.abs(Number(parentFrom.slice(1)) - Number(parentTo.slice(1))) === 2
+                ? `${parentFrom[0]}${(Number(parentFrom.slice(1)) + Number(parentTo.slice(1))) / 2}` : '-';
+        }
+
+        const piece = at(from), target = at(to);
+        // Friendly rook destinations in Chess960 castling are not captures.
+        return Boolean(piece && target && target !== '*' && !sameColor(piece, target))
+            || pieceType(piece).toLowerCase() === 'p' && !target && from?.[0] !== to?.[0] && enPassant === to;
+    };
+    const describePiece = (from, fen, isReply = false) => {
+        const { rows, fields } = positionAt(fen);
         const isDrop = /^[a-zA-Z]@$/.test(from);
         const piece = isDrop ? from[0] : rows[rows.length - Number(from?.slice(1))]?.[from?.charCodeAt(0) - 97];
         const type = String(piece || '').replace(/[+~]/g, '');
@@ -43,20 +105,25 @@ export function filterHintMoves(moves, settings, fallbackFen, includeOpponent = 
         // Missing defaults in older profiles mean enabled, never disabled.
         return { enabled: settings[keys[type.toLowerCase()] ?? keys.other] !== false, isEnemy };
     };
+    const describeMove = (from, to, fen, isReply = false, parentMove = null) => {
+        const piece = describePiece(from, fen, isReply);
+        const matches = piece.isEnemy || selectedDetail.captures === undefined
+            || isCapture(from, to, fen, parentMove) === selectedDetail.captures;
+        return { enabled: piece.enabled && matches, detail: piece.isEnemy ? 'full' : selectedDetail.detail };
+    };
 
     return moves.flatMap(move => {
         const fen = move.fen || fallbackFen;
-        const player = describePiece(move.player?.[0] ?? move.from, fen);
-        if(!includeOpponent) return player.enabled ? [{ ...move, hintDetail: player.isEnemy ? 'full' : settings.detail ?? 'full' }] : [];
+        const player = describeMove(move.player?.[0] ?? move.from, move.player?.[1] ?? move.to, fen);
+        if(!includeOpponent) return player.enabled ? [{ ...move, hintDetail: player.detail }] : [];
 
         const [oppFrom, oppTo] = move.opponent ?? [];
-        const opponent = oppFrom && oppTo ? describePiece(oppFrom, fen, true) : null;
+        const opponent = oppFrom && oppTo ? describeMove(oppFrom, oppTo, fen, true, move) : null;
         const opponentEnabled = Boolean(opponent?.enabled && settings.showOpponentMoveGuess);
         if(!player.enabled && !opponentEnabled) return [];
 
         return [{ ...move, playerHidden: !player.enabled, opponentHidden: !opponentEnabled,
-            hintDetail: player.isEnemy ? 'full' : settings.detail ?? 'full',
-            opponentHintDetail: opponent?.isEnemy ? 'full' : settings.detail ?? 'full' }];
+            hintDetail: player.detail, opponentHintDetail: opponent?.detail ?? 'full' }];
     });
 }
 

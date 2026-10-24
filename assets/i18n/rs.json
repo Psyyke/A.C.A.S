@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Samo uzimanja",
+        "[data-translation-hint-movement]": "Samo potezi bez uzimanja",
+        "[data-translation-hint-captures-destination]": "Samo uzimanja, samo odredišno polje",
+        "[data-translation-hint-movement-destination]": "Samo potezi bez uzimanja, samo odredišno polje",
+        "[data-translation-hint-captures-piece]": "Samo uzimanja, samo figura",
+        "[data-translation-hint-movement-piece]": "Samo potezi bez uzimanja, samo figura",
         "[data-translation-learning-hints]": "Filtriraj prikazane figure",
         "[data-translation-hint-own-pieces]": "Sopstvene figure",
         "[data-translation-hint-enemy-pieces]": "Protivničke figure",

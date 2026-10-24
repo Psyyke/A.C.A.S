@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "駒を取る手のみ",
+        "[data-translation-hint-movement]": "駒を取らない手のみ",
+        "[data-translation-hint-captures-destination]": "駒を取る手のみ, 移動先のみ",
+        "[data-translation-hint-movement-destination]": "駒を取らない手のみ, 移動先のみ",
+        "[data-translation-hint-captures-piece]": "駒を取る手のみ, 駒のみ",
+        "[data-translation-hint-movement-piece]": "駒を取らない手のみ, 駒のみ",
         "[data-translation-learning-hints]": "表示する駒を絞り込む",
         "[data-translation-hint-own-pieces]": "自分の駒",
         "[data-translation-hint-enemy-pieces]": "相手の駒",

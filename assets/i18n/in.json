@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "केवल मोहरा मारने वाली चालें",
+        "[data-translation-hint-movement]": "केवल बिना मोहरा मारे चालें",
+        "[data-translation-hint-captures-destination]": "केवल मोहरा मारने वाली चालें, केवल गंतव्य",
+        "[data-translation-hint-movement-destination]": "केवल बिना मोहरा मारे चालें, केवल गंतव्य",
+        "[data-translation-hint-captures-piece]": "केवल मोहरा मारने वाली चालें, केवल मोहरा",
+        "[data-translation-hint-movement-piece]": "केवल बिना मोहरा मारे चालें, केवल मोहरा",
         "[data-translation-learning-hints]": "दिखाए गए मोहरे छाँटें",
         "[data-translation-hint-own-pieces]": "अपने मोहरे",
         "[data-translation-hint-enemy-pieces]": "प्रतिद्वंद्वी के मोहरे",

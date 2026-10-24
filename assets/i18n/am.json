@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Միայն վերցումներ",
+        "[data-translation-hint-movement]": "Միայն առանց վերցնելու քայլեր",
+        "[data-translation-hint-captures-destination]": "Միայն վերցումներ, միայն նպատակային դաշտը",
+        "[data-translation-hint-movement-destination]": "Միայն առանց վերցնելու քայլեր, միայն նպատակային դաշտը",
+        "[data-translation-hint-captures-piece]": "Միայն վերցումներ, միայն խաղաքարը",
+        "[data-translation-hint-movement-piece]": "Միայն առանց վերցնելու քայլեր, միայն խաղաքարը",
         "[data-translation-learning-hints]": "Զտել ցուցադրվող խաղաքարերը", "[data-translation-hint-own-pieces]": "Ձեր խաղաքարերը", "[data-translation-hint-enemy-pieces]": "Մրցակցի խաղաքարերը",
         "[data-translation-hint-full]": "Ամբողջ քայլը", "[data-translation-hint-piece]": "Միայն խաղաքարը", "[data-translation-hint-destination]": "Միայն նպատակային դաշտը", "[data-translation-hint-filter]": "Զտել առաջարկները՝ ըստ քայլ կատարող խաղաքարի",
         "[data-translation-server-port]": "Սերվերի պորտը", "[data-translation-server-port-hint]": "Պետք է համապատասխանի A.C.A.S սերվերի հավելվածում նշված պորտին",

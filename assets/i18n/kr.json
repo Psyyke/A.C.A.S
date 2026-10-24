@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "잡는 수만",
+        "[data-translation-hint-movement]": "잡지 않는 수만",
+        "[data-translation-hint-captures-destination]": "잡는 수만, 도착 칸만",
+        "[data-translation-hint-movement-destination]": "잡지 않는 수만, 도착 칸만",
+        "[data-translation-hint-captures-piece]": "잡는 수만, 기물만",
+        "[data-translation-hint-movement-piece]": "잡지 않는 수만, 기물만",
         "[data-translation-learning-hints]": "표시할 기물 필터",
         "[data-translation-hint-own-pieces]": "내 기물",
         "[data-translation-hint-enemy-pieces]": "상대 기물",

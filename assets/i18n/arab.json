@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "الأخذ فقط",
+        "[data-translation-hint-movement]": "النقلات دون أخذ فقط",
+        "[data-translation-hint-captures-destination]": "الأخذ فقط, الوجهة فقط",
+        "[data-translation-hint-movement-destination]": "النقلات دون أخذ فقط, الوجهة فقط",
+        "[data-translation-hint-captures-piece]": "الأخذ فقط, القطعة فقط",
+        "[data-translation-hint-movement-piece]": "النقلات دون أخذ فقط, القطعة فقط",
         "[data-translation-learning-hints]": "تصفية القطع المعروضة",
         "[data-translation-hint-own-pieces]": "قطعك",
         "[data-translation-hint-enemy-pieces]": "قطع الخصم",

@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Ainult löömised",
+        "[data-translation-hint-movement]": "Ainult löömiseta käigud",
+        "[data-translation-hint-captures-destination]": "Ainult löömised, ainult sihtruut",
+        "[data-translation-hint-movement-destination]": "Ainult löömiseta käigud, ainult sihtruut",
+        "[data-translation-hint-captures-piece]": "Ainult löömised, ainult malend",
+        "[data-translation-hint-movement-piece]": "Ainult löömiseta käigud, ainult malend",
         "[data-translation-learning-hints]": "Filtreeri kuvatavaid malendeid",
         "[data-translation-hint-own-pieces]": "Enda malendid",
         "[data-translation-hint-enemy-pieces]": "Vastase malendid",

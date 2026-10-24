@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "শুধু ঘুঁটি খাওয়ার চাল",
+        "[data-translation-hint-movement]": "শুধু ঘুঁটি না খাওয়ার চাল",
+        "[data-translation-hint-captures-destination]": "শুধু ঘুঁটি খাওয়ার চাল, শুধু গন্তব্যের ঘর",
+        "[data-translation-hint-movement-destination]": "শুধু ঘুঁটি না খাওয়ার চাল, শুধু গন্তব্যের ঘর",
+        "[data-translation-hint-captures-piece]": "শুধু ঘুঁটি খাওয়ার চাল, শুধু ঘুঁটি",
+        "[data-translation-hint-movement-piece]": "শুধু ঘুঁটি না খাওয়ার চাল, শুধু ঘুঁটি",
         "[data-translation-learning-hints]": "দেখানো ঘুঁটি বাছাই করুন",
         "[data-translation-hint-own-pieces]": "নিজের ঘুঁটি", "[data-translation-hint-enemy-pieces]": "প্রতিপক্ষের ঘুঁটি",
         "[data-translation-hint-full]": "সম্পূর্ণ চাল", "[data-translation-hint-piece]": "শুধু ঘুঁটি", "[data-translation-hint-destination]": "শুধু গন্তব্যের ঘর",

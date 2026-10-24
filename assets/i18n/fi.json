@@ -1,5 +1,11 @@
 {
     "domTranslations": {
+        "[data-translation-hint-captures]": "Vain lyönnit",
+        "[data-translation-hint-movement]": "Vain siirrot ilman lyöntiä",
+        "[data-translation-hint-captures-destination]": "Vain lyönnit, vain kohderuutu",
+        "[data-translation-hint-movement-destination]": "Vain siirrot ilman lyöntiä, vain kohderuutu",
+        "[data-translation-hint-captures-piece]": "Vain lyönnit, vain nappula",
+        "[data-translation-hint-movement-piece]": "Vain siirrot ilman lyöntiä, vain nappula",
         "[data-translation-learning-hints]": "Suodata näytettävät nappulat",
         "[data-translation-hint-own-pieces]": "Omat nappulat",
         "[data-translation-hint-enemy-pieces]": "Vastustajan nappulat",
