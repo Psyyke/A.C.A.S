@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Zobrazenie spätnej väzby",
         "[data-translation-hint-captures]": "Iba brania",
         "[data-translation-hint-movement]": "Iba ťahy bez brania",
         "[data-translation-hint-captures-destination]": "Iba brania, iba cieľové pole",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Niektoré nastavenia sú dynamicky analyzované z výstupu UCI motora. Otvorte šachovnicu, aby ste spustili svoj motor a načítali dynamické nastavenia."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animovať najlepšie pokračovanie", "Animovať najlepšie pokračovanie v plávajúcom paneli"],
+        "learningPvAnimationStopOnEnemyMove": ["Zastaviť po ťahu súpera", "Zastaviť animáciu, keď súper zahrá"],
+        "learningMode": ["Režim učenia", "Zhodnoťte svoj posledný ťah pomocou enginu tohto profilu"],
+        "feedbackInPip": ["Spätná väzba v plávajúcom paneli", "Zobrazovať stručnú spätnú väzbu v plávajúcom paneli"],
+        "feedbackEmojis": ["Emodži hodnotenia", "Zobrazovať emodži hodnotenia vedľa vašich ťahov"],
         "renderSquareAsDots": ["Použiť bodky v strede", "Zobraziť farby polí ako malé bodky v strede namiesto zvýraznenia celého poľa"],
         "hintDetail": ["Podrobnosť ťahu", "Vyberte, čo odhaliť"],
         "suggestEnemyPawn": ["Pešiak"], "suggestEnemyKnight": ["Jazdec"], "suggestEnemyBishop": ["Strelec"], "suggestEnemyRook": ["Veža"], "suggestEnemyQueen": ["Dáma"], "suggestEnemyKing": ["Kráľ"], "suggestEnemyOtherPieces": ["Ostatné figúry"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Nastavenia platia pre všetky inštancie",
         "settingsNavbarInstanceSubtitle": "Nastavenia platia iba pre inštanciu \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "bol podľa knihy", "bookSpeech": "Podľa knihy",
+            "summaryLabels": ["bol neutrálny", "bol nepresnosťou", "bol chybou", "bol hrubou chybou", "bol katastrofálny", "bol dobrý", "bol výborný", "bol najlepší", "bol slabý"],
+            "speechLabels": ["Neutrálny", "Nepresnosť", "Chyba", "Hrubá chyba", "Katastrofálny", "Dobrý", "Výborný", "Najlepší", "Slabý"], "forcedSpeech": "Vynútený",
+            "forcedSummary": "bol vynútený", "learningWaiting": "Zahrajte ťah a zobrazí sa hodnotenie",
+            "learningUnavailable": "{move}: čakanie na hodnotenia", "recorded": "Zaznamenané hodnotenia môžu mať rôzne hĺbky vyhľadávania.",
+            "yours": "Váš", "opponent": "Súper", "played": "Zahraný",
             "labels": ["Neutrálny", "Nepresnosť", "Chyba", "Hrubá chyba", "Katastrofálny", "Dobrý ťah", "Výborný", "Najlepší ťah", "Slabý ťah"],
             "forced": "Vynútený ťah", "provisional": "predbežné", "eval": "Hodnotenie", "best": "Najlepší", "loss": "Strata hodnotenia",
             "depth": "Hĺbka", "engine": "Motor", "bestLine": "Najlepší variant", "playedLine": "Zahraný variant", "critical": "Kritický ťah.",

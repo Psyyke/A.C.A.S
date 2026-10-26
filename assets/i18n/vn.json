@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Hiển thị phản hồi",
         "[data-translation-hint-captures]": "Chỉ nước bắt quân",
         "[data-translation-hint-movement]": "Chỉ nước không bắt quân",
         "[data-translation-hint-captures-destination]": "Chỉ nước bắt quân, chỉ ô đích",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của engine. Vui lòng mở một bàn cờ để khởi động engine và tải các cài đặt động."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Hoạt ảnh chuỗi nước đi tốt nhất", "Hiển thị hoạt ảnh chuỗi nước đi tốt nhất trong bảng nổi"],
+        "learningPvAnimationStopOnEnemyMove": ["Dừng sau nước đi của đối thủ", "Dừng hoạt ảnh khi đối thủ đi"],
+        "learningMode": ["Chế độ học tập", "Xem lại nước đi vừa chơi bằng engine của hồ sơ này"],
+        "feedbackInPip": ["Phản hồi trong bảng nổi", "Hiển thị phản hồi ngắn gọn trong bảng nổi"],
+        "feedbackEmojis": ["Emoji đánh giá", "Hiển thị emoji đánh giá bên cạnh nước đi của bạn"],
         "renderSquareAsDots": ["Dùng chấm ở giữa", "Hiện màu ô bằng các chấm nhỏ ở giữa thay vì tô cả ô"],
         "hintDetail": ["Chi tiết nước đi", "Chọn thông tin cần hiện"],
         "suggestEnemyPawn": ["Tốt"], "suggestEnemyKnight": ["Mã"], "suggestEnemyBishop": ["Tượng"], "suggestEnemyRook": ["Xe"], "suggestEnemyQueen": ["Hậu"], "suggestEnemyKing": ["Vua"], "suggestEnemyOtherPieces": ["Quân khác"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Cài đặt áp dụng cho tất cả các phiên",
         "settingsNavbarInstanceSubtitle": "Cài đặt chỉ áp dụng cho phiên \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "là nước đi trong sách", "bookSpeech": "Trong sách",
+            "summaryLabels": ["là nước đi trung lập", "là nước đi thiếu chính xác", "là sai lầm", "là sai lầm nghiêm trọng", "là nước đi thảm họa", "là nước đi tốt", "là nước đi xuất sắc", "là nước đi tốt nhất", "là nước đi yếu"],
+            "speechLabels": ["Trung lập", "Thiếu chính xác", "Sai lầm", "Sai lầm nghiêm trọng", "Thảm họa", "Tốt", "Xuất sắc", "Tốt nhất", "Yếu"], "forcedSpeech": "Bắt buộc",
+            "forcedSummary": "là nước đi bắt buộc", "learningWaiting": "Đi một nước để xem phản hồi",
+            "learningUnavailable": "{move}: đang chờ đánh giá", "recorded": "Các đánh giá đã lưu có thể có độ sâu tìm kiếm khác nhau.",
+            "yours": "Của bạn", "opponent": "Đối thủ", "played": "Đã chơi",
             "labels": ["Trung lập", "Thiếu chính xác", "Sai lầm", "Sai lầm nghiêm trọng", "Thảm họa", "Nước đi tốt", "Xuất sắc", "Nước đi tốt nhất", "Nước đi yếu"],
             "forced": "Nước đi bắt buộc", "provisional": "tạm thời", "eval": "Đánh giá", "best": "Tốt nhất", "loss": "Mất điểm đánh giá",
             "depth": "Độ sâu", "engine": "Engine", "bestLine": "Chuỗi nước đi tốt nhất", "playedLine": "Chuỗi nước đi đã chơi", "critical": "Nước đi quan trọng.",

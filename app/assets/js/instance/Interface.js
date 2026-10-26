@@ -1,8 +1,8 @@
-import { updatePipData, resetPipHints } from '../gui/pip.js';
+import { updatePipData, resetPipHints, updatePipFeedback, updatePipOpening, updatePipEvaluation } from '../gui/pip.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { logActivity } from '../misc/activityLog.js';
 import { evaluationForPlayer } from '../misc/evaluation.js';
-import { prepareFeedbackPosition } from './renderFeedback.js';
+import { prepareFeedbackPosition, renderLearningFeedback } from './renderFeedback.js';
 import { annotateOpponentMove } from './annotate.js';
 import { getHintSettings, filterHintMoves } from '../misc/learningHints.js';
 
@@ -192,6 +192,10 @@ export default class Interface {
             const variables = this.AcasInstance.pV[profileName];
             if(!variables) continue;
             const fen = this.AcasInstance.currentFen;
+            const displayFen = this.AcasInstance.displayFen;
+            const learning = this.AcasInstance.isLearningProfile(profileName);
+            if(learning && (!this.AcasInstance.learningReviewFen
+                || bookMoves.some(move => move.fen !== this.AcasInstance.displayFen))) continue;
             const revision = (variables.bookHintRevision || 0) + 1;
             variables.bookHintRevision = revision;
             const hints = await getHintSettings(this.AcasInstance, profileName);
@@ -220,12 +224,18 @@ export default class Interface {
             );
 
             const isCurrent = this.AcasInstance.pV[profileName] === variables && !this.AcasInstance.instanceClosed
-                && this.AcasInstance.currentFen === fen && variables.bookHintRevision === revision;
+                && this.AcasInstance.currentFen === fen && this.AcasInstance.displayFen === displayFen
+                && this.AcasInstance.isLearningProfile(profileName) === learning && variables.bookHintRevision === revision;
             if(!isCurrent) continue;
             this.removeBookMarkings(profileName);
 
             const bookMoveShapes = movesForProfile
-                .map((move, index) => this.buildBookMoveShape(move, index, movesForProfile, profileName, color, opacity, move.hintDetail))
+                .map((move, index) => {
+                    if(!this.AcasInstance.learningMode || learning)
+                        return this.buildBookMoveShape(move, index, movesForProfile, profileName, color, opacity, move.hintDetail);
+                    const visual = this.getBookMoveVisualSettings(move, index, movesForProfile, color, opacity, move.hintDetail);
+                    return visual ? CREATE_BOARD_DRAWER_MOVE_OBJ(null, { ...move, ...visual }, profileName, 'book') : null;
+                })
                 .filter(Boolean);
 
             this.AcasInstance.pV[profileName].bookMoveMarkings = bookMoveShapes.map(x => x.elem).filter(Boolean);
@@ -326,7 +336,8 @@ export default class Interface {
 
             const [from] = mObj.player;
             const elems = shapes
-                .map(shape => BoardDrawer.createShape(shape.shapeType, shape.shapeSquare, shape.shapeConfig))
+                .map(shape => !this.AcasInstance.learningMode || this.AcasInstance.isLearningProfile(profile)
+                    ? BoardDrawer.createShape(shape.shapeType, shape.shapeSquare, shape.shapeConfig) : null)
                 .map((elem, i) => {
                     if(!elem) return elem;
 
@@ -403,6 +414,98 @@ export default class Interface {
         }
     }
 
+    async updateLearningBoard(specificProfile) {
+        const instance = this.AcasInstance;
+        const fen = instance.currentFen;
+        const revision = this.learningViewRevision = (this.learningViewRevision || 0) + 1;
+        const isCurrent = () => !instance.instanceClosed && instance.currentFen === fen && this.learningViewRevision === revision;
+        const profiles = Object.entries(instance.pV);
+        const previousModes = new Map(profiles.map(([profile, variables]) => [profile, variables.learningMode]));
+        const [settings, ownColor] = await Promise.all([
+            Promise.all(profiles.map(async ([profile, variables]) => ({ profile, variables,
+                learningMode: Boolean(await instance.getConfigValue(instance.configKeys.learningMode, profile)),
+                learningPvAnimation: Boolean(await instance.getConfigValue(instance.configKeys.learningPvAnimation, profile)),
+                learningPvAnimationStopOnEnemyMove: await instance.getConfigValue(instance.configKeys.learningPvAnimationStopOnEnemyMove, profile) !== false,
+                feedbackInPip: Boolean(await instance.getConfigValue(instance.configKeys.feedbackInPip, profile)),
+                playerColor: await instance.getPlayerColor(profile)
+            }))), instance.getPlayerColor()
+        ]);
+        if(!isCurrent()) return;
+        for(const setting of settings) {
+            if(instance.pV[setting.profile] !== setting.variables) continue;
+            setting.variables.learningMode = setting.learningMode;
+            setting.variables.learningPvAnimation = setting.learningPvAnimation;
+            setting.variables.learningPvAnimationStopOnEnemyMove = setting.learningPvAnimationStopOnEnemyMove;
+            setting.variables.feedbackInPip = setting.feedbackInPip;
+        }
+        const enabled = Object.values(instance.pV).some(variables => variables.learningMode);
+        const wasEnabled = instance.learningMode;
+        const previousReview = instance.learningReviewPostFen;
+        const learningProfiles = settings.filter(setting => setting.learningMode);
+        const reviewProfile = learningProfiles.find(setting => setting.profile === specificProfile)
+            || learningProfiles.find(setting => setting.profile === instance.learningReviewProfile)
+            || learningProfiles[0];
+        const playerColor = reviewProfile?.playerColor || ownColor;
+
+        instance.learningReviewProfile = reviewProfile?.profile;
+        instance.learningMode = enabled;
+        instance.instanceElem?.classList.toggle('learning-mode', enabled);
+        instance.instanceElem?.querySelectorAll('.instance-feedback').forEach(row => {
+            row.classList.toggle('hidden', enabled && !instance.isLearningProfile(row.dataset.profileId));
+        });
+        const history = instance.gameStateHistory;
+        const index = enabled ? history.findLastIndex((state, i) => i > 0
+            && history[i - 1].fen?.full?.split(' ')[1] === playerColor
+            && state.fen?.full?.split(' ')[1] !== playerColor
+            && history[i - 1].fen.full.split(' ')[0] !== state.fen.full.split(' ')[0]) : -1;
+        const reviewFen = index > 0 ? history[index - 1].fen.full : null;
+        instance.learningReviewFen = reviewFen;
+        instance.learningReviewPostFen = index > 0 ? history[index].fen.full : null;
+        instance.displayFen = reviewFen || fen;
+        instance.chessground?.set({ fen: instance.displayFen });
+        instance.chessground?.redrawAll();
+        // Keep the last valid evaluation while the next review is being scored.
+        // Resetting to equal here makes every played move flash through 0.00.
+        if(enabled || wasEnabled !== enabled) {
+            for(const [profile, variables] of Object.entries(instance.pV)) {
+                if(!isCurrent()) return;
+                if(specificProfile && profile !== specificProfile && wasEnabled === enabled
+                    && previousReview === instance.learningReviewPostFen) continue;
+                const learning = instance.isLearningProfile(profile);
+                this.removeMarkings(profile, 'Learning view changed');
+                this.removeBookMarkings(profile);
+                variables.hintDisplayRevision = (variables.hintDisplayRevision || 0) + 1;
+                if(previousModes.get(profile) !== learning || learning && previousReview !== instance.learningReviewPostFen) {
+                    variables.currentSpeeches.forEach(speech => speech.cancel());
+                    variables.currentSpeeches = [];
+                }
+                if(learning) for(const category of ['move', 'book', 'feedback']) {
+                    instance.CommLink.commands.renderVisualsToSite([{
+                        profileID: profile, category, isFuture: true, feedbackFen: fen,
+                        feedbackRevision: instance.feedbackVisualRevision = Math.max(Date.now() * 1000, (instance.feedbackVisualRevision || 0) + 1)
+                    }]);
+                }
+                if(learning && reviewFen) {
+                    const analysis = history[index - 1].analysis?.[profile];
+                    if(analysis?.engine === variables.analysisKey)
+                        await instance.displayMoves(analysis.moves || [], profile, false, true, true);
+                    if(!isCurrent()) return;
+                    await instance.getAndDisplayBookMoves(reviewFen, profile);
+                } else if(!learning) {
+                    const cached = variables.hintCandidates;
+                    if(cached?.fen === fen) await instance.displayMoves(cached.moves, profile, false, true);
+                    if(!isCurrent()) return;
+                    await instance.getAndDisplayBookMoves(fen, profile);
+                }
+                if(enabled || wasEnabled) instance.renderMetric(instance.displayFen, profile).catch(console.error);
+            }
+        }
+        if(!isCurrent()) return;
+        if(enabled) await renderLearningFeedback.call(instance,
+            previousReview === instance.learningReviewPostFen ? specificProfile : undefined);
+        updatePipFeedback(instance);
+    }
+
     async updateBoardFen(calculateMovesConfig) {
         const request = (this.boardUpdateRequest || 0) + 1;
         this.boardUpdateRequest = request;
@@ -419,9 +522,10 @@ export default class Interface {
         // The userscript keeps gameStateHistory as [newest, ..., initial], newest index 0.
         // The GUI has it reversed, so [initial, ..., newest], oldest index 0.
         // We update the entire history so that reloading GUI doesn't clear history.
+        const recorded = new Map(this.AcasInstance.gameStateHistory.map(state => [state.fen?.full, state.analysis]));
         this.AcasInstance.gameStateHistory = userscriptGameStateHistory
             .slice()
-            .reverse();
+            .reverse().map(state => ({ ...state, analysis: recorded.get(state.fen?.full) }));
 
         const instanceElem = this?.AcasInstance?.instanceElem;
         const instanceFenElem = instanceElem?.querySelector('.instance-fen');
@@ -449,10 +553,8 @@ export default class Interface {
             if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen || this.AcasInstance.instanceClosed) return;
             instanceFenElem.innerText = fen;
 
-            if(this.AcasInstance.chessground) {
-                this.AcasInstance.chessground.set({ fen });
-                this.AcasInstance.chessground.redrawAll();
-            }
+            await this.updateLearningBoard();
+            if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen) return;
         }
 
         if(this.AcasInstance.activeVariant === 'chess') {
@@ -469,17 +571,23 @@ export default class Interface {
             instanceOpeningElem.innerText = '';
         }
 
+        updatePipOpening(this.AcasInstance);
+
         // For each profile config
         Object.keys(this.AcasInstance.pV).forEach(profileName => {
             this.AcasInstance.pV[profileName].hintCandidates = null;
             this.AcasInstance.pV[profileName].pendingMoveDisplay = null;
-            this.AcasInstance.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
-            this.AcasInstance.pV[profileName].currentSpeeches = [];
+            if(!this.AcasInstance.isLearningProfile(profileName)) {
+                this.AcasInstance.pV[profileName].currentSpeeches.forEach(synthesis => synthesis.cancel());
+                this.AcasInstance.pV[profileName].currentSpeeches = [];
+            }
 
             this.AcasInstance.pV[profileName].futureMoves = [];
 
-            this.AcasInstance.getAndDisplayBookMoves(fen, profileName);
-            this.AcasInstance.renderMetric(fen, profileName);
+            if(!this.AcasInstance.isLearningProfile(profileName)) {
+                this.AcasInstance.getAndDisplayBookMoves(fen, profileName);
+                this.AcasInstance.renderMetric(this.AcasInstance.displayFen, profileName);
+            }
         });
 
         if(basicFen) this.lastAcceptedBasicFen = basicFen;
@@ -525,6 +633,7 @@ export default class Interface {
         this.AcasInstance.chessground.set({ 'orientation': orientationWord });
 
         this.AcasInstance.BoardDrawer.setOrientation(orientation);
+        updatePipEvaluation(this.AcasInstance);
     }
 
     updateMoveProgress(text, status) {
@@ -550,15 +659,56 @@ export default class Interface {
         infoTextElem.classList.remove('hidden');
     }
 
-    async updateEval(centipawnEval, mate, profile, analyzedColor) {
-        if(!this.AcasInstance.instanceElem) return;
-        const evalFill = this.AcasInstance.instanceElem.querySelector('.eval-fill');
-        const playerColor = await this.AcasInstance.getPlayerColor();
-        const evaluation = evaluationForPlayer(centipawnEval, mate,
-            analyzedColor ?? this.AcasInstance.currentFen?.split(' ')[1], playerColor);
+    resetEval() {
+        this.evalUpdateRevision = (this.evalUpdateRevision || 0) + 1;
+        this.evaluationData = null;
+        this.liveEvaluationProfile = null;
+        const evalFill = this.AcasInstance.instanceElem?.querySelector('.eval-fill');
+        if(evalFill) evalFill.style.height = '50%';
+        updatePipEvaluation(this.AcasInstance);
+    }
+
+    async updateEval(centipawnEval, mate, profile, analyzedColor, review = false, context = {}) {
+        const instance = this.AcasInstance;
+        const variables = instance.pV[profile];
+        const instanceElem = instance.instanceElem;
+        const fen = context.fen ?? (review ? instance.learningReviewFen : instance.currentFen);
+        const postFen = context.postFen ?? instance.learningReviewPostFen;
+        const isCurrent = () => !instance.instanceClosed && instance.instanceElem === instanceElem
+            && instance.pV[profile] === variables
+            && (review ? instance.learningMode && instance.isLearningProfile(profile)
+                && instance.learningReviewProfile === profile && instance.learningReviewFen === fen
+                && instance.learningReviewPostFen === postFen
+                : !instance.learningMode && !instance.isLearningProfile(profile) && instance.currentFen === fen)
+            && (!context.isCurrent || context.isCurrent());
+        if(!instanceElem || !variables || !fen || !isCurrent()) return;
+        if(!review && analyzedColor !== fen.split(' ')[1]) return;
+        // A single live profile owns the bar; concurrent engines must not fight
+        // over it. Learning Mode explicitly selects its review profile instead.
+        if(!review && this.liveEvaluationProfile && instance.pV[this.liveEvaluationProfile]
+            && this.liveEvaluationProfile !== profile) return;
+
+        const revision = this.evalUpdateRevision = (this.evalUpdateRevision || 0) + 1;
+        const playerColor = await instance.getPlayerColor();
+        if(revision !== this.evalUpdateRevision || !isCurrent()) return;
+        // Leave the bar alone on the enemy's turn, even when hints are requested.
+        if(!review && fen.split(' ')[1] !== playerColor) return;
+        const evaluation = evaluationForPlayer(centipawnEval, mate, analyzedColor, playerColor);
+        const evalFill = instanceElem.querySelector('.eval-fill');
         if(!evalFill || !evaluation) return;
-        updatePipData({ eval: evaluation.whiteAdvantage, playerColor, centipawnEval: evaluation.whiteEvaluation });
+        const previous = this.evaluationData;
+        const depth = Number(context.depth) || 0;
+        if(previous?.fen === fen && previous.review === review && previous.variables === variables
+            && (!review || previous.postFen === postFen) && previous.depth > depth) return;
+
+        if(!review) this.liveEvaluationProfile = profile;
+        this.evaluationData = {
+            eval: evaluation.whiteAdvantage, playerColor, centipawnEval: evaluation.whiteEvaluation,
+            mate: mate ? Number(centipawnEval) * (analyzedColor === 'w' ? 1 : -1) : null,
+            fen, postFen, profile, variables, review, depth
+        };
         evalFill.style.height = `${evaluation.whiteAdvantage * 100}%`;
+        updatePipEvaluation(instance);
     }
 
     displayConnectionIssueWarning() {
@@ -574,6 +724,7 @@ export default class Interface {
         const instanceOpeningElem = instanceElem?.querySelector('.instance-opening-container span');
 
         if(instanceOpeningElem) instanceOpeningElem.innerText = '';
+        updatePipOpening(this.AcasInstance);
     }
 
     removeConnectionIssueWarning() {

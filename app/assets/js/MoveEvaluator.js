@@ -3,8 +3,8 @@ import { variantConfig } from './misc/variantPosition.js';
 
 // Compare best and played moves at the same root/depth, from the mover's side.
 export default class MoveEvaluator extends FairyAnalysis {
-    constructor() {
-        super();
+    constructor(loadEngine = true) {
+        super(loadEngine);
         this.searchDepth = 12;
         this.resultLabels = ['Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic', 'Good Move', 'Excellent', 'Best Move', 'Weak Move'];
         this.resultEmojis = ['🙂', '🤨', '😟', '😨', '💀', '😊', '😁', '🤩', '😕'];

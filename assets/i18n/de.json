@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Feedback-Anzeige",
         "[data-translation-hint-captures]": "Nur Schlagzüge",
         "[data-translation-hint-movement]": "Nur Züge ohne Schlagen",
         "[data-translation-hint-captures-destination]": "Nur Schlagzüge, nur Zielfeld",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Beste Variante animieren", "Die beste Variante im schwebenden Fenster animieren"],
+        "learningPvAnimationStopOnEnemyMove": ["Nach Gegnerzug stoppen", "Die Animation stoppen, wenn der Gegner zieht"],
+        "learningMode": ["Lernmodus", "Überprüfe deinen letzten Zug mit der Engine dieses Profils"],
+        "feedbackInPip": ["Feedback im schwebenden Fenster", "Kompaktes Feedback im schwebenden Fenster anzeigen"],
+        "feedbackEmojis": ["Feedback-Emojis", "Bewertungs-Emojis neben deinen Zügen anzeigen"],
         "renderSquareAsDots": ["Zentrierte Punkte verwenden", "Feldfarben als kleine Punkte in der Mitte statt als flächige Markierungen anzeigen"],
         "hintDetail": ["Zugdetails", "Wähle, was angezeigt wird"],
         "suggestEnemyPawn": ["Bauer"], "suggestEnemyKnight": ["Springer"], "suggestEnemyBishop": ["Läufer"], "suggestEnemyRook": ["Turm"], "suggestEnemyQueen": ["Dame"], "suggestEnemyKing": ["König"], "suggestEnemyOtherPieces": ["Andere Figuren"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Die Einstellungen gelten für alle Instanzen",
         "settingsNavbarInstanceSubtitle": "Die Einstellungen gelten nur für Instanz \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "war ein Buchzug", "bookSpeech": "Buchzug",
+            "summaryLabels": ["war neutral", "war eine Ungenauigkeit", "war ein Fehler", "war ein grober Fehler", "war katastrophal", "war gut", "war ausgezeichnet", "war der beste Zug", "war schwach"],
+            "speechLabels": ["Neutral", "Ungenauigkeit", "Fehler", "Grober Fehler", "Katastrophal", "Gut", "Ausgezeichnet", "Am besten", "Schwach"], "forcedSpeech": "Erzwungen",
+            "forcedSummary": "war erzwungen", "learningWaiting": "Spiele einen Zug, um Feedback zu erhalten",
+            "learningUnavailable": "{move}: Bewertungen werden abgewartet", "recorded": "Gespeicherte Bewertungen können unterschiedliche Suchtiefen haben.",
+            "yours": "Deiner", "opponent": "Gegner", "played": "Gespielt",
             "labels": ["Neutral", "Ungenauigkeit", "Fehler", "Grober Fehler", "Katastrophal", "Guter Zug", "Ausgezeichnet", "Bester Zug", "Schwacher Zug"],
             "forced": "Erzwungener Zug", "provisional": "vorläufig", "eval": "Bewertung", "best": "Bester", "loss": "Bewertungsverlust",
             "depth": "Tiefe", "engine": "Engine", "bestLine": "Beste Variante", "playedLine": "Gespielte Variante", "critical": "Kritischer Zug.",

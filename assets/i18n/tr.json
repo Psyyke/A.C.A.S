@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Geri bildirim görünümü",
         "[data-translation-hint-captures]": "Yalnızca taş alan hamleler",
         "[data-translation-hint-movement]": "Yalnızca taş almayan hamleler",
         "[data-translation-hint-captures-destination]": "Yalnızca taş alan hamleler, yalnızca hedef kare",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
     },
     "configTranslations": {
+        "learningPvAnimation": ["En İyi Devam Yolunu Canlandır", "Yüzen panelde en iyi devam yolunu canlandır"],
+        "learningPvAnimationStopOnEnemyMove": ["Rakip Hamlesinden Sonra Durdur", "Rakip hamle yaptığında animasyonu durdur"],
+        "learningMode": ["Öğrenme modu", "Bu profilin motoruyla son hamlenizi inceleyin"],
+        "feedbackInPip": ["Yüzen panelde geri bildirim", "Yüzen panelde kısa geri bildirim göster"],
+        "feedbackEmojis": ["Geri bildirim emojileri", "Hamlelerinizin yanında değerlendirme emojileri göster"],
         "renderSquareAsDots": ["Ortalanmış noktaları kullan", "Karenin tamamını boyamak yerine renkleri ortada küçük noktalar olarak göster"],
         "hintDetail": ["Hamle ayrıntısı", "Neyin gösterileceğini seç"],
         "suggestEnemyPawn": ["Piyon"], "suggestEnemyKnight": ["At"], "suggestEnemyBishop": ["Fil"], "suggestEnemyRook": ["Kale"], "suggestEnemyQueen": ["Vezir"], "suggestEnemyKing": ["Şah"], "suggestEnemyOtherPieces": ["Diğer taşlar"],
@@ -213,6 +219,12 @@
         "settingsNavbarGlobalSubtitle": "Ayarlar tüm örnekleri etkiler",
         "settingsNavbarInstanceSubtitle": "Ayarlar yalnızca \"{instanceID}\" örneğini etkiler",
         "moveFeedback": {
+            "bookSummary": "kitap hamlesiydi", "bookSpeech": "Kitap",
+            "summaryLabels": ["nötrdü", "isabetsizdi", "hataydı", "büyük hataydı", "felaketti", "iyiydi", "mükemmeldi", "en iyisiydi", "zayıftı"],
+            "speechLabels": ["Nötr", "İsabetsizlik", "Hata", "Büyük hata", "Felaket", "İyi", "Mükemmel", "En iyi", "Zayıf"], "forcedSpeech": "Zorunlu",
+            "forcedSummary": "zorunluydu", "learningWaiting": "Geri bildirimi görmek için bir hamle yapın",
+            "learningUnavailable": "{move}: değerlendirmeler bekleniyor", "recorded": "Kaydedilen değerlendirmelerin arama derinlikleri farklı olabilir.",
+            "yours": "Sizin", "opponent": "Rakip", "played": "Oynanan",
             "labels": ["Nötr", "İsabetsizlik", "Hata", "Büyük hata", "Felaket", "İyi hamle", "Mükemmel", "En iyi hamle", "Zayıf hamle"],
             "forced": "Zorunlu hamle", "provisional": "geçici", "eval": "Değerlendirme", "best": "En iyi", "loss": "Değerlendirme kaybı",
             "depth": "Derinlik", "engine": "Motor", "bestLine": "En iyi devam", "playedLine": "Oynanan devam", "critical": "Kritik hamle.",

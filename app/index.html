@@ -220,7 +220,7 @@
 				<div id="acas-loading-progress-fill"></div>
 			</div>
 		</div>
-		<audio id="silence-audio" class="hidden" src="assets/audio/sound_of_silence.wav" autoplay loop controls></audio>
+		<audio id="silence-audio" class="hidden" src="assets/audio/sound_of_silence.wav" loop controls></audio>
 
 		<!-- TOS CONTAINER-->
 		<div id="tos-container" class="hidden">
@@ -825,7 +825,7 @@
 									</dialog>
 								</div>
 							</div>
-							<div class="floaty-input only-default-profile-setting custom-input">
+							<div class="floaty-input custom-input">
 								<div><div class="input-title" data-translation-feedback-title>Feedback Settings</div><div class="input-subtitle" data-translation-feedback-subtitle>Get feedback on your moves</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
@@ -841,16 +841,29 @@
 												</div>
 											</section>
 											<section class="floaty-body">
-												<p data-translation-remember-perfection>Remember: Engine critiques are just comparisons to perfection.</p>
+                                                <p data-translation-remember-perfection>Remember: Engine critiques are just comparisons to perfection.</p>
 
-												<div class="checkbox-input custom-input"><div><div class="input-title">Feedback On External Site</div>
-													<div class="input-subtitle">Show feedback on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
-													<input type="checkbox" data-key="feedbackOnExternalSite" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-												</div>
+                                                <div class="setting-panel feedback-display-settings">
+                                                    <div class="setting-panel-title" data-translation-feedback-display>Feedback display</div>
+                                                    <div class="input-combination-box">
+                                                        <div class="checkbox-input custom-input"><div><div class="input-title">Learning Mode</div>
+                                                            <div class="input-subtitle">Review your last move using this profile's engine</div></div><div class="checkbox-container">
+                                                            <input type="checkbox" data-key="learningMode" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                        </div>
+                                                        <div id="anim-best-line-box" class="checkbox-input sub-input custom-input"><div><div class="input-title">Animate Best Line</div>
+                                                            <div class="input-subtitle">Animate the best line in the floating panel</div></div><div class="checkbox-container">
+                                                            <input type="checkbox" data-key="learningPvAnimation" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                        </div>
+                                                        <div id="stop-animation-box" class="checkbox-input sub-input custom-input" inert aria-disabled="true"><div><div class="input-title">Stop After Enemy Move</div>
+                                                            <div class="input-subtitle">Stop the animation when the opponent moves</div></div><div class="checkbox-container">
+                                                            <input type="checkbox" data-key="learningPvAnimationStopOnEnemyMove" data-default-value="true" disabled><div class="checkbox-fill">✔</div></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-												<div class="setting-panel">
-													<div class="setting-panel-title" data-translation-moves-text>Move feedback</div>
-													<div class="checkbox-input custom-input"><div><div class="input-title">Move Ratings</div>
+												<div class="setting-panel move-feedback-settings">
+                                                    <div class="setting-panel-title" data-translation-moves-text>Move feedback</div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Move Ratings</div>
 														<div class="input-subtitle">Compare your moves with the engine’s best</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="enableMoveRatings" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
@@ -858,6 +871,18 @@
 														<div class="input-subtitle">Rate opponent moves</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="enableEnemyFeedback" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Feedback On External Site</div>
+                                                        <div class="input-subtitle">Show move ratings on the external board</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="feedbackOnExternalSite" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Feedback Emojis</div>
+                                                        <div class="input-subtitle">Show rating emojis beside your moves</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="feedbackEmojis" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Feedback In Floating Panel</div>
+                                                        <div class="input-subtitle">Show compact feedback in the floating panel</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="feedbackInPip" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Search Depth</div>
 														<div class="input-subtitle">Fairy Stockfish 14 target depth</div></div>
 														<input type="textfield" data-key="feedbackEngineDepth" data-default-value="15" data-between="1-99">
@@ -1188,6 +1213,14 @@
                                         </div>
                                         <div class="setting-panel">
                                             <div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
+                                            <div class="range-input custom-input">
+                                                <div><label class="input-title" for="pip-quality">PiP Quality</label>
+                                                    <div class="input-subtitle" id="pip-quality-description">Lower resolution might be faster. Default: 50%.</div></div>
+                                                <div class="range-control">
+                                                    <input id="pip-quality" type="range" min="1" max="100" step="1" value="50" data-range-unit="%" data-key="pipQuality" data-no-profile="true" data-default-value="50" aria-describedby="pip-quality-description">
+                                                    <output for="pip-quality">50 %</output>
+                                                </div>
+                                            </div>
                                             <div class="checkbox-input custom-input"><div><div class="input-title">Display Board</div>
                                                 <div class="input-subtitle">Instead of just text, display the entire board</div></div><div class="checkbox-container">
                                                 <input type="checkbox" data-key="pipBoard" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>

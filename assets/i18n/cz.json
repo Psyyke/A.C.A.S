@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Zobrazení zpětné vazby",
         "[data-translation-hint-captures]": "Pouze braní",
         "[data-translation-hint-movement]": "Pouze tahy bez braní",
         "[data-translation-hint-captures-destination]": "Pouze braní, pouze cílové pole",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "Některá nastavení jsou dynamicky analyzována z výstupu UCI motoru. Otevřete šachovnici, abyste spustili svůj motor a načetli dynamická nastavení."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animovat nejlepší pokračování", "Animovat nejlepší pokračování v plovoucím panelu"],
+        "learningPvAnimationStopOnEnemyMove": ["Zastavit po tahu soupeře", "Zastavit animaci, když soupeř zahraje"],
+        "learningMode": ["Režim učení", "Zhodnoťte svůj poslední tah pomocí enginu tohoto profilu"],
+        "feedbackInPip": ["Zpětná vazba v plovoucím panelu", "Zobrazovat stručnou zpětnou vazbu v plovoucím panelu"],
+        "feedbackEmojis": ["Emodži hodnocení", "Zobrazovat emodži hodnocení vedle vašich tahů"],
         "renderSquareAsDots": ["Použít tečky uprostřed", "Zobrazit barvy polí jako malé tečky uprostřed místo zvýraznění celého pole"],
         "hintDetail": ["Podrobnost tahu", "Vyberte, co odhalit"],
         "suggestEnemyPawn": ["Pěšec"], "suggestEnemyKnight": ["Jezdec"], "suggestEnemyBishop": ["Střelec"], "suggestEnemyRook": ["Věž"], "suggestEnemyQueen": ["Dáma"], "suggestEnemyKing": ["Král"], "suggestEnemyOtherPieces": ["Ostatní figury"],
@@ -213,6 +219,12 @@
         "settingsNavbarGlobalSubtitle": "Nastavení platí pro všechny instance",
         "settingsNavbarInstanceSubtitle": "Nastavení platí pouze pro instanci \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "byl podle knihy", "bookSpeech": "Podle knihy",
+            "summaryLabels": ["byl neutrální", "byl nepřesností", "byl chybou", "byl hrubou chybou", "byl katastrofální", "byl dobrý", "byl výborný", "byl nejlepší", "byl slabý"],
+            "speechLabels": ["Neutrální", "Nepřesnost", "Chyba", "Hrubá chyba", "Katastrofální", "Dobrý", "Výborný", "Nejlepší", "Slabý"], "forcedSpeech": "Vynucený",
+            "forcedSummary": "byl vynucený", "learningWaiting": "Zahrajte tah a zobrazí se hodnocení",
+            "learningUnavailable": "{move}: čekání na hodnocení", "recorded": "Zaznamenaná hodnocení mohou mít různé hloubky hledání.",
+            "yours": "Váš", "opponent": "Soupeř", "played": "Zahraný",
             "labels": ["Neutrální", "Nepřesnost", "Chyba", "Hrubá chyba", "Katastrofální", "Dobrý tah", "Výborný", "Nejlepší tah", "Slabý tah"],
             "forced": "Vynucený tah", "provisional": "předběžné", "eval": "Hodnocení", "best": "Nejlepší", "loss": "Ztráta hodnocení",
             "depth": "Hloubka", "engine": "Motor", "bestLine": "Nejlepší varianta", "playedLine": "Zahraná varianta", "critical": "Kritický tah.",

@@ -32,7 +32,7 @@ export async function getHintSettings(instance, profile) {
     const savedDetail = settings.hintDetail ?? (settings.onlySuggestPieces ? 'piece' : 'full');
     const validDetail = Object.hasOwn(hintDetails, savedDetail) ? savedDetail : 'full';
 
-    return { ...settings, playerColor, detail: settings.movesOnDemand ? 'full' : validDetail };
+    return { ...settings, playerColor, detail: settings.movesOnDemand && !instance.isLearningProfile(profile) ? 'full' : validDetail };
 }
 
 // Classify the moving piece at the analyzed root, not the destination/promotion.

@@ -132,6 +132,7 @@ export default async function engineStartNewGame(variant, profile, isDynamicChan
     // Reloading one suggestion engine must not cancel another profile's rating.
     // Only an actual instance-wide new game resets the shared feedback engine.
     if(!profile) {
+        this.Interface.resetEval();
         this.annotationFen = null;
         this.audioAnnouncementKeys?.clear();
         prepareFeedbackPosition.call(this, null);

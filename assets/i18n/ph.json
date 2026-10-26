@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Pagpapakita ng puna",
         "[data-translation-hint-captures]": "Mga galaw na kumakain lamang",
         "[data-translation-hint-movement]": "Mga galaw na hindi kumakain lamang",
         "[data-translation-hint-captures-destination]": "Mga galaw na kumakain lamang, patutunguhan lamang",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting."
     },
     "configTranslations": {
+        "learningPvAnimation": ["I-animate ang Pinakamahusay na Linya", "I-animate ang pinakamahusay na linya sa lumulutang na panel"],
+        "learningPvAnimationStopOnEnemyMove": ["Ihinto Pagkatapos Tumira ng Kalaban", "Ihinto ang animation kapag tumira ang kalaban"],
+        "learningMode": ["Mode ng pag-aaral", "Suriin ang huli mong galaw gamit ang engine ng profile na ito"],
+        "feedbackInPip": ["Puna sa lumulutang na panel", "Magpakita ng maikling puna sa lumulutang na panel"],
+        "feedbackEmojis": ["Mga emoji ng puna", "Magpakita ng mga emoji ng marka sa tabi ng iyong mga galaw"],
         "renderSquareAsDots": ["Gumamit ng mga tuldok sa gitna", "Ipakita ang mga kulay bilang maliliit na tuldok sa gitna sa halip na kulayan ang buong parisukat"],
         "hintDetail": ["Detalye ng galaw", "Piliin kung ano ang ipapakita"],
         "suggestEnemyPawn": ["Pawn"], "suggestEnemyKnight": ["Kabayo"], "suggestEnemyBishop": ["Obispo"], "suggestEnemyRook": ["Tore"], "suggestEnemyQueen": ["Reyna"], "suggestEnemyKing": ["Hari"], "suggestEnemyOtherPieces": ["Iba pang piyesa"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Nalalapat ang mga setting sa lahat ng instance",
         "settingsNavbarInstanceSubtitle": "Nalalapat lang ang mga setting sa instance na \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "ay mula sa aklat", "bookSpeech": "Mula sa aklat",
+            "summaryLabels": ["ay neutral", "ay hindi tumpak", "ay isang pagkakamali", "ay isang malaking pagkakamali", "ay mapaminsala", "ay maganda", "ay napakahusay", "ang pinakamahusay", "ay mahina"],
+            "speechLabels": ["Neutral", "Hindi tumpak", "Pagkakamali", "Malaking pagkakamali", "Mapaminsala", "Maganda", "Napakahusay", "Pinakamahusay", "Mahina"], "forcedSpeech": "Sapilitan",
+            "forcedSummary": "ay sapilitan", "learningWaiting": "Gumawa ng galaw para makita ang puna",
+            "learningUnavailable": "{move}: naghihintay ng mga pagsusuri", "recorded": "Maaaring magkaiba ang lalim ng paghahanap ng mga naitalang pagsusuri.",
+            "yours": "Sa iyo", "opponent": "Kalaban", "played": "Nilaro",
             "labels": ["Neutral", "Hindi eksakto", "Pagkakamali", "Malaking pagkakamali", "Napakasama", "Magandang tira", "Napakahusay", "Pinakamahusay na tira", "Mahinang tira"],
             "forced": "Sapilitang tira", "provisional": "pansamantala", "eval": "Pagsusuri", "best": "Pinakamahusay", "loss": "Nawalang halaga",
             "depth": "Lalim", "engine": "Engine", "bestLine": "Pinakamahusay na kasunod", "playedLine": "Nilarong kasunod", "critical": "Mahalagang tira.",

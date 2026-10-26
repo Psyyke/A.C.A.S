@@ -8,6 +8,7 @@ import { evaluationForPlayer } from '../misc/evaluation.js';
 import { annotateEvaluation } from './annotate.js';
 import { parseVariantMove } from '../misc/variantPosition.js';
 import { isBuiltInFairyEngine } from './fairyVariant.js';
+import { recordEngineAnalysis } from './renderFeedback.js';
 
 export default async function engineMessageProcessor(msg, profile) {
     msg = msg?.trim();
@@ -30,6 +31,10 @@ export default async function engineMessageProcessor(msg, profile) {
     const data = PARSE_UCI_RESPONSE(msg);
     const isBestmove = Object.hasOwn(data, 'bestmove');
     const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
+    if(oldestUnfinishedCalcRequestObj) {
+        oldestUnfinishedCalcRequestObj.rawLine = msg;
+        if(!data.pv && !isBestmove) recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile);
+    }
     if(!isBestmove && msg.startsWith('info ') && oldestUnfinishedCalcRequestObj) oldestUnfinishedCalcRequestObj.lastData = data;
     const isMessageForCurrentFen = Boolean(oldestUnfinishedCalcRequestObj?.fen)
         && oldestUnfinishedCalcRequestObj.fen === this.currentFen;
@@ -43,6 +48,21 @@ export default async function engineMessageProcessor(msg, profile) {
     const calculationTimeElapsed = oldestUnfinishedCalcRequestObj?.startedAt
         ? Date.now() - oldestUnfinishedCalcRequestObj.startedAt
         : 0;
+    if(isMessageForCurrentFen && (msg.startsWith('info ') || isBestmove))
+        updatePipData({ calculationTimeElapsed, calculationFinished: isBestmove,
+            ...(data.nodes != null ? { nodes: data.nodes } : {}) });
+    let parsedMove;
+    if(data.pv || isBestmove) {
+        const line = data.pv?.trim().split(/\s+/) || [data.bestmove];
+        const playerMove = parseVariantMove(line[0]);
+        if(playerMove) {
+            parsedMove = CREATE_MOVE_OBJ({ playerMove, opponentMove: parseVariantMove(line[1]),
+                cp: data.cp, profile, ranking: Number(data.multipv) || 1 });
+            Object.assign(parsedMove, movePosition, { playerUci: playerMove.uci });
+            recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile, parsedMove);
+            if(data.pv && isMessageForCurrentFen) profileObj.pastMoveObjects.push(parsedMove);
+        } else recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile);
+    }
     const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant') && !msg.includes('UCI_');
     const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
     const isMsgOption = msg.startsWith('option name ');
@@ -104,14 +124,14 @@ export default async function engineMessageProcessor(msg, profile) {
 
     if(!data?.currmovenumber && this.logEngineMessages) console.warn(`${profile} ->`, msg, `\n(Message is for FEN -> ${oldestUnfinishedCalcRequestObj?.fen})`);
 
-    if(msg.includes('info')) {
+    if(msg.includes('info') && isMessageForCurrentFen) {
         if(data?.multipv == null || data.multipv === 1) {
             if(data?.depth) {
                 const depthText = TRANS_OBJ?.calculationDepth ?? 'Depth';
                 const winningText = TRANS_OBJ?.winning ?? 'Winning';
                 const losingText = TRANS_OBJ?.losing ?? 'Losing';
 
-                if(data?.mate) {
+                if(data?.mate && !this.learningMode) {
                     const isWinning = data.mate > 0;
                     const mateText = `${isWinning ? winningText : losingText} ${Math.abs(data.mate)}`;
 
@@ -120,7 +140,7 @@ export default async function engineMessageProcessor(msg, profile) {
                     this.Interface.updateMoveProgress(`${depthText} ${data.depth}`, 0);
                 }
 
-                updatePipData({ 'depth': data?.depth, 'mate': data?.mate });
+                updatePipData({ depth: data.depth });
             }
 
             if((data?.cp != null || data?.mate != null) && isMessageForCurrentFen) {
@@ -140,39 +160,32 @@ export default async function engineMessageProcessor(msg, profile) {
                     || oldestUnfinishedCalcRequestObj.primaryScore !== primaryScore) return;
                 if(evaluation && oldestUnfinishedCalcRequestObj) {
                     oldestUnfinishedCalcRequestObj.primaryEvaluation = evaluation.playerEvaluation;
-                    await this.Interface.updateEval(score, mate, profile, analyzedColor);
+                    // Hypothetical turns, restricted searches and score bounds
+                    // are useful for hints, but must not move the position's bar.
+                    if(oldestUnfinishedCalcRequestObj.annotationEligible && !/\b(?:lowerbound|upperbound)\b/.test(msg)) {
+                        await this.Interface.updateEval(score, mate, profile, analyzedColor, false, {
+                            fen, depth: Number(data.depth) || 0,
+                            isCurrent: () => oldestUnfinishedCalcRequestObj.primaryScore === primaryScore
+                                && !oldestUnfinishedCalcRequestObj.stopRequested
+                        });
+                    }
                 }
             }
         }
     }
 
-    if(data?.wdl) {
+    if(data?.wdl && isMessageForCurrentFen && !this.learningMode) {
         const [winChance, drawChance, lossChance] = data?.wdl ?? [];
 
         updatePipData({ winChance, drawChance, lossChance });
     }
 
     if(data?.pv && isMessageForCurrentFen) {
-        const ranking = VAR_TO_CORRECT_TYPE(data?.multipv) || 1;
-
         let moves = data.pv.trim().split(/\s+/).map(parseVariantMove);
         if(!moves[0]) return;
 
         if(moves?.length === 1) // if no opponent move guesses yet
             moves = [...moves, null];
-
-        const cp = data?.cp;
-        const [playerMove, opponentMove] = moves;
-        const moveObj = CREATE_MOVE_OBJ({
-            playerMove,
-            opponentMove,
-            cp,
-            profile,
-            ranking
-        });
-        Object.assign(moveObj, movePosition, { playerUci: playerMove.uci });
-
-        this.pV[profile].pastMoveObjects.push(moveObj);
 
         const isMovetimeLimited = await this.getConfigValue(this.configKeys.maxMovetime, profile) ? true : false;
         const onlyShowTopMoves = await this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
@@ -316,15 +329,7 @@ export default async function engineMessageProcessor(msg, profile) {
 
             if(topMoveObjects?.length === 0) {
                 topMoveObjects = [];
-                topMoveObjects.push({
-                    ...CREATE_MOVE_OBJ({
-                        playerMove: parseVariantMove(bestmove),
-                        profile,
-                        ranking: 1
-                    }),
-                    ...movePosition,
-                    playerUci: bestmove
-                });
+                if(parsedMove) topMoveObjects.push(parsedMove);
             } else {
                 topMoveObjects = GET_UNIQUE_MOVES(topMoveObjects)?.[0];
             }
@@ -332,9 +337,11 @@ export default async function engineMessageProcessor(msg, profile) {
             const engineName = await this.getEngineName(profile);
             if(this.pV[profile] !== profileObj || this.currentFen !== fen || this.instanceClosed) return;
             if(engineName === 'lc0' || profileObj.engineNodes > 0) {
-                updatePipData({ 'nodes': profileObj.engineNodes, 'goalDepth': null });
+                updatePipData({ nodes: this.learningMode ? oldestUnfinishedCalcRequestObj.lastData?.nodes ?? 0 : profileObj.engineNodes,
+                    goalDepth: null });
             } else {
-                updatePipData({ 'depth': profileObj.searchDepth, 'goalNodes': null });
+                updatePipData({ depth: this.learningMode ? oldestUnfinishedCalcRequestObj.lastData?.depth ?? 0 : profileObj.searchDepth,
+                    goalNodes: null });
             }
 
             if(isDelayActive && markingLimit !== 0) {

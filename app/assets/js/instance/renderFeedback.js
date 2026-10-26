@@ -1,5 +1,182 @@
 import MoveEvaluator from '../MoveEvaluator.js';
-import { feedbackText as text, feedbackDisplay } from '../misc/feedbackText.js';
+import { feedbackText as text, feedbackDisplay, feedbackQualityText } from '../misc/feedbackText.js';
+import { updatePipFeedback } from '../gui/pip.js';
+import { getHintSettings, filterHintMoves, presentHintMove } from '../misc/learningHints.js';
+import { formatMoveNotationAsync, formatPvNotation, getMoveSan, replayPv } from '../misc/moveNotation.js';
+import { parseVariantMove } from '../misc/variantPosition.js';
+
+const recordedEvaluator = new MoveEvaluator(false);
+
+function isBookMove(profile, fen, uci) {
+    const book = this.openingBooks?.get(profile);
+    const move = parseVariantMove(uci);
+    if(!book || !fen || !move) return false;
+    // Polyglot encodes castling as king-to-rook, rather than king-to-destination.
+    const castlingMoves = { e1h1: 'g1', e1a1: 'c1', e8h8: 'g8', e8a8: 'c8' };
+    return book.getMoves(fen).some(candidate => {
+        const castleTo = candidate.piece?.toLowerCase() === 'k'
+            ? castlingMoves[`${candidate.from}${candidate.to}`] : null;
+        return candidate.from === move.from && (candidate.to === move.to || castleTo === move.to)
+            && String(candidate.promotion || '').toLowerCase() === move.promotion.toLowerCase();
+    });
+}
+
+function queueLearningFeedbackSpeech(profile, postFen) {
+    const variables = this.pV[profile];
+    const analysisKey = variables.analysisKey;
+    const key = `review-quality|${profile}|${analysisKey}|${postFen}`;
+    const quality = feedbackQualityText(variables.lastFeedbackResult);
+    const pending = variables.pendingFeedbackSpeech;
+    // Keep the timer running through depth/PV updates that preserve the grade.
+    if(pending?.key === key && pending.quality === quality) return;
+    clearTimeout(pending?.timeout);
+    const announcement = { key, quality };
+    variables.pendingFeedbackSpeech = announcement;
+    const isCurrent = () => !this.instanceClosed && this.pV[profile] === variables
+        && this.isLearningProfile(profile) && variables.analysisKey === analysisKey
+        && this.learningReviewPostFen === postFen && variables.lastFeedbackFen === postFen
+        && variables.pendingFeedbackSpeech === announcement
+        && Boolean(variables.lastFeedbackResult) && feedbackQualityText(variables.lastFeedbackResult) === quality;
+    announcement.timeout = setTimeout(() => {
+        announcement.timeout = null;
+        if(!isCurrent()) {
+            if(variables.pendingFeedbackSpeech === announcement) delete variables.pendingFeedbackSpeech;
+            return;
+        }
+        // Read the displayed result now, not the shallow result that started the timer.
+        this.speak({ feedbackResult: variables.lastFeedbackResult }, profile, 'ttsVoiceEnabled', {
+            review: true, isCurrent, announcementKey: key
+        }).catch(console.error).finally(() => {
+            if(variables.pendingFeedbackSpeech === announcement) delete variables.pendingFeedbackSpeech;
+        });
+    }, 400);
+}
+
+export function recordEngineAnalysis(data, calculation, profile, moveObject) {
+    if(!calculation?.annotationEligible || (!data.pv && !data.bestmove && data.cp == null && data.mate == null)
+        || /\b(?:lowerbound|upperbound)\b/.test(calculation.rawLine || '')) return;
+    const variables = this.pV[profile];
+    const state = this.gameStateHistory.findLast(item => item.fen?.full === calculation.fen);
+    if(!state || !variables) return;
+    state.analysis ??= {};
+    if(state.analysis[profile]?.engine !== variables.analysisKey) delete state.analysis[profile];
+    const analysis = state.analysis[profile] ??= { engine: variables.analysisKey, moves: [] };
+    const uci = data.pv?.trim().split(/\s+/)[0] || data.bestmove;
+    const ranking = Number(data.multipv) || 1;
+    const mate = data.mate != null && Number.isFinite(Number(data.mate)) ? Number(data.mate) : null;
+    const cp = data.cp != null && Number.isFinite(Number(data.cp)) ? Number(data.cp) : null;
+    analysis.name = variables.useExternalChessEngine ? `External (${variables.externalChessEngine})` : variables.requestedEngine;
+    if(!moveObject) {
+        if(ranking === 1 && (cp !== null || mate !== null)) {
+            analysis.score = { cp, mate, depth: Number(data.depth) || 0,
+                playerUci: analysis.moves[0]?.playerUci, pv: [] };
+            if(this.isLearningProfile(profile)) renderLearningFeedback.call(this, profile).catch(console.error);
+        }
+        return;
+    }
+    if(data.pv && (cp !== null || mate !== null)) {
+        const candidate = { ...moveObject, cp,
+            fen: calculation.fen, chessVariant: calculation.chessVariant, useChess960: calculation.useChess960,
+            playerUci: uci, mate, depth: Number(data.depth) || 0, pv: data.pv.split(/\s+/) };
+        analysis.moves = [...analysis.moves.filter(item => item.ranking !== ranking), candidate].sort((a, b) => a.ranking - b.ranking);
+        if(ranking === 1) analysis.score = candidate;
+    } else if(!analysis.moves.length) {
+        analysis.moves = [{ ...moveObject, cp: null, mate: null,
+            ...analysis.score, fen: calculation.fen, playerUci: uci,
+            chessVariant: calculation.chessVariant, useChess960: calculation.useChess960 }];
+        if(analysis.score) analysis.score = analysis.moves[0];
+    }
+    if(this.isLearningProfile(profile) && [this.learningReviewFen, this.learningReviewPostFen].includes(calculation.fen)) {
+        if(calculation.fen === this.learningReviewFen)
+            this.displayMoves(analysis.moves, profile, false, true, true).catch(console.error);
+        renderLearningFeedback.call(this, profile).catch(console.error);
+    }
+}
+
+export async function renderLearningFeedback(specificProfile) {
+    if(!this.learningMode) return;
+    const fen = this.learningReviewFen, postFen = this.learningReviewPostFen;
+    const before = this.gameStateHistory.findLast(state => state.fen?.full === fen);
+    const after = this.gameStateHistory.findLast(state => state.fen?.full === postFen);
+    for(const profile of specificProfile ? [specificProfile] : Object.keys(this.pV)) {
+        const variables = this.pV[profile];
+        if(!variables || !this.isLearningProfile(profile)) continue;
+        const request = variables.feedbackRequest = (variables.feedbackRequest || 0) + 1;
+        const isCurrent = () => this.isLearningProfile(profile) && !this.instanceClosed && this.pV[profile] === variables
+            && this.learningReviewPostFen === postFen && variables.feedbackRequest === request;
+        const [hints, arrowOpacity, playerColor] = await Promise.all([
+            getHintSettings(this, profile),
+            this.getConfigValue(this.configKeys.arrowOpacity, profile),
+            this.getPlayerColor(profile)
+        ]);
+        if(!isCurrent()) continue;
+        clearFeedback.call(this, profile);
+        if(!before || !after || fen.split(' ')[1] !== playerColor) {
+            setFeedbackMessage.call(this, profile, text('learningWaiting', 'Play a move to see feedback'));
+            continue;
+        }
+        const changes = after.boardChanges;
+        const move = changes?.from && changes?.to ? `${changes.from}${changes.to}${changes.isPromotion ? String(changes.promotionPiece || '').toLowerCase() : ''}` : null;
+        const analysis = before.analysis?.[profile], response = after.analysis?.[profile];
+        const bestMove = analysis?.engine === variables.analysisKey ? analysis.moves[0] : null;
+        const own = { ...CREATE_MOVE_OBJ({ playerMove: parseVariantMove(move), profile }), fen,
+            playerUci: move, chessVariant: variables.chessVariant, useChess960: variables.useChess960 };
+        const playedName = getMoveSan(own) || move;
+        const best = analysis?.score;
+        const next = response?.engine === variables.analysisKey ? response.score : null;
+        // Value-only networks (Maia) score the position, not each policy move.
+        const valueOnly = String(analysis?.name).toLowerCase().includes('maia');
+        const candidate = !valueOnly ? analysis?.moves.find(item => item.playerUci === move
+            && (item.mate != null || item.cp != null)) : null;
+        if(!bestMove || !best || (!next && !candidate) || !move) {
+            const message = text('learningUnavailable', '{move}: waiting for evaluations', { move: playedName || '' });
+            // Omit the translated separator too when there is no move to prefix.
+            setFeedbackMessage.call(this, profile, playedName ? message : message.replace(/^[\s:：՝]+/, ''));
+            continue;
+        }
+        const toScore = (item, negate = false, uci = item.playerUci) => ({
+            cp: item.cp == null ? null : item.cp * (negate ? -1 : 1),
+            mate: item.mate == null ? null : item.mate * (negate ? -1 : 1),
+            move: uci, depth: item.depth || 0, pv: item.pv || [uci]
+        });
+        // A candidate PV starts with the played move. A post-move PV starts
+        // with the reply, so prepend the move before replaying from the old FEN.
+        const replyPv = next ? (next.pv?.length ? next.pv : response?.moves?.[0]?.pv || []) : [];
+        const playedScore = candidate ? toScore(candidate) : { ...toScore(next, true, move), pv: [move, ...replyPv] };
+        if(playedScore.pv.length < 2 && replyPv.length) playedScore.pv = [move, ...replyPv];
+        const result = recordedEvaluator.compare(toScore(best, false, bestMove.playerUci), playedScore, false);
+        const showLines = (variables.multiPV ?? 0) > 0 && arrowOpacity > 1;
+        const visible = showLines ? filterHintMoves([bestMove], hints, fen) : [];
+        const bestLine = visible[0] ? await formatMoveNotationAsync(presentHintMove(visible[0], visible[0].hintDetail), true, false, undefined, isCurrent) : '';
+        if(!isCurrent()) continue;
+        // A review's explanatory PV is independent of the opponent-arrow toggle.
+        // Keep applying piece/detail filters at each position along the line.
+        const allowContinuation = candidate => filterHintMoves([candidate], hints, candidate.fen)
+            .some(item => item.hintDetail === 'full');
+        const bestPositions = visible[0]?.hintDetail === 'full'
+            ? replayPv(bestMove.pv, bestMove, allowContinuation) : [];
+        const bestContinuation = bestPositions.map(position => position.san).join(' ➜ ');
+        const playedContinuation = showLines && allowContinuation(own)
+            ? formatPvNotation(playedScore.pv, own, allowContinuation) : '';
+        Object.assign(result, { move, isBook: isBookMove.call(this, profile, fen, move),
+            isPlayerMove: fen.split(' ')[1] === playerColor,
+            selected: { san: playedName }, bestLine, bestPv: bestContinuation || bestLine,
+            bestContinuation, bestPositions, playedContinuation, playedPv: playedContinuation || playedName,
+            engineName: analysis.name, recorded: true,
+            requestedDepth: Math.max(best.depth || 0, next?.depth || 0) });
+        variables.lastFeedbackResult = result;
+        variables.lastFeedbackFen = postFen;
+        const { summary, description } = feedbackDisplay(result);
+        setFeedbackMessage.call(this, profile, summary, description);
+        queueLearningFeedbackSpeech.call(this, profile, postFen);
+        const score = result.played;
+        if(score.cp !== null || score.mate !== null) {
+            this.Interface.updateEval(score.mate ?? score.cp, score.mate !== null, profile, fen.split(' ')[1], true, {
+                fen, postFen, depth: result.depth, isCurrent
+            }).catch(console.error);
+        }
+    }
+}
 
 function setFeedbackMessage(profileID, message, description = '') {
     const container = this.instanceElem?.querySelector('.instance-feedback-container');
@@ -7,6 +184,7 @@ function setFeedbackMessage(profileID, message, description = '') {
     let row = Array.from(container.children).find(elem => elem.dataset.profileId === profileID);
     if(!message) {
         row?.remove();
+        updatePipFeedback(this);
         return;
     }
     if(!row) {
@@ -16,10 +194,10 @@ function setFeedbackMessage(profileID, message, description = '') {
         row.setAttribute('role', 'status');
         container.appendChild(row);
     }
-    const readableName = String(GET_HUMAN_READABLE_PROFILE_NAME(profileID));
-    const profileName = readableName.charAt(0).toLocaleUpperCase() + readableName.slice(1);
     row.textContent = `${message}`;
     row.title = description || message;
+    row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));
+    updatePipFeedback(this);
 }
 
 function nextFeedbackRevision() {
@@ -80,6 +258,7 @@ export function prepareFeedbackPosition(currentFen) {
 }
 
 export default async function renderFeedback(gameStateObj, specificProfileName) {
+    if(this.learningMode) await renderLearningFeedback.call(this, specificProfileName);
     const currentFen = gameStateObj?.fen?.full;
     const reportedChanges = gameStateObj?.boardChanges;
     if(!currentFen || this.instanceClosed || this.currentFen !== currentFen) return;
@@ -104,7 +283,8 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
 
     const profiles = (await GET_PROFILES(this.instanceID)).filter(Boolean);
     if(!isCurrentPosition()) return;
-    const targets = profiles.filter(profile => !specificProfileName || profile.name === specificProfileName);
+    const targets = profiles.filter(profile => !this.isLearningProfile(profile.name)
+        && (!specificProfileName || profile.name === specificProfileName));
 
     await Promise.all(targets.map(async profileObj => {
         const profileID = profileObj.name;
@@ -113,7 +293,7 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
         const request = (variables.feedbackRequest || 0) + 1;
         variables.feedbackRequest = request;
         this.MoveEval?.cancelStaleRequests();
-        const isCurrentRequest = () => isCurrentPosition() && this.pV[profileID] === variables
+        const isCurrentRequest = () => isCurrentPosition() && !this.isLearningProfile(profileID) && this.pV[profileID] === variables
             && variables.feedbackRequest === request;
 
         try {
@@ -188,23 +368,32 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
 
             clearFeedback.call(this, profileID, !feedbackOnExternalSite);
             if(!Number.isInteger(result.category)) return;
-            const emoji = result.emoji || '😐';
-            const { summary, description } = feedbackDisplay(result);
-            setFeedbackMessage.call(this, profileID, summary, description);
+            const showEmoji = await this.getConfigValue(this.configKeys.feedbackEmojis, profileID) !== false;
+            if(!isCurrentRequest()) return;
+            const isBook = isBookMove.call(this, profileID, previousFen, result.move);
+            const emoji = isBook ? '📖' : result.emoji || '😐';
+            const notationConfig = {
+                fen: previousFen, chessVariant: variant, useChess960: useChess960 || variables.useChess960
+            };
+            const feedbackResult = { ...result, isBook, isPlayerMove: movedColor === latestPlayerColor,
+                bestContinuation: formatPvNotation(result.best?.pv, notationConfig),
+                playedContinuation: formatPvNotation(result.played?.pv, notationConfig) };
+            const { summary, description } = feedbackDisplay(feedbackResult);
             variables.lastFeedbackFen = currentFen;
-            variables.lastFeedbackResult = result;
-            if(!this.BoardDrawer) return;
+            variables.lastFeedbackResult = feedbackResult;
+            setFeedbackMessage.call(this, profileID, summary, description);
+            if(!this.BoardDrawer || !showEmoji || this.learningMode && !feedbackOnExternalSite) return;
             const shapeType = 'text';
             const shapeSquare = changes.to;
             const shapeConfig = { size: 1.7, text: emoji, style: 'opacity: 1;', position: [0.65, 0.65] };
-            const elem = this.BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
-            if(!elem) return;
-            elem.setAttribute('aria-label', description);
+            const elem = !this.learningMode ? this.BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig) : null;
+            if(!elem && !this.learningMode) return;
+            elem?.setAttribute('aria-label', description);
             // Keep accessible metadata on the emoji; the explanation is also
             // visible below the board because overlays ignore pointer events.
             const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
             title.textContent = description;
-            elem.appendChild(title);
+            elem?.appendChild(title);
             const marking = CREATE_BOARD_DRAWER_MOVE_OBJ(elem, { shapeType, shapeSquare, shapeConfig }, profileID, 'feedback');
             marking.data.feedbackFen = currentFen;
             marking.data.feedbackRevision = nextFeedbackRevision.call(this);

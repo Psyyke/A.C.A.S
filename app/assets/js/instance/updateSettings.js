@@ -1,4 +1,4 @@
-import { updatePipData } from '../gui/pip.js';
+import { updatePipData, updatePipFeedback } from '../gui/pip.js';
 import { clearFeedback } from './renderFeedback.js';
 import { isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 
@@ -8,6 +8,35 @@ export default async function updateSettings(updateObj) {
     const profileName = updateObj.data.profile?.name || settingValue;
     const isDirectlyCausedByUser = updateObj.data.isDirectlyCausedByUser;
     const isDynamicUciSetting = settingKey.startsWith('DYNAMIC_');
+
+    if(settingKey === this.configKeys.learningPvAnimation || settingKey === this.configKeys.learningPvAnimationStopOnEnemyMove) {
+        if(this.pV[profileName]) this.pV[profileName][settingKey] = Boolean(settingValue);
+        updatePipFeedback(this);
+        return;
+    }
+
+    if(settingKey === this.configKeys.learningMode || settingKey === this.configKeys.feedbackInPip) {
+        if(settingKey === this.configKeys.feedbackInPip) {
+            if(this.pV[profileName]) this.pV[profileName].feedbackInPip = Boolean(settingValue);
+            updatePipFeedback(this);
+            return;
+        }
+        const variables = this.pV[profileName];
+        if(variables) {
+            variables.feedbackRequest = (variables.feedbackRequest || 0) + 1;
+            delete variables.spokenAdvantage;
+            delete variables.spokenEvaluationFen;
+            clearFeedback.call(this, profileName);
+        }
+        await this.Interface.updateLearningBoard(profileName);
+        this.MoveEval?.cancelStaleRequests();
+        if(this.currentFen && variables) {
+            this.engineStopCalculating(profileName, 'Learning mode changed');
+            this.calculateBestMoves(this.currentFen, { specificProfileName: profileName, skipValidityChecks: true }).catch(console.error);
+            if(!this.isLearningProfile(profileName)) this.renderFeedback(this.gameStateHistory.at(-1), profileName).catch(console.error);
+        }
+        return;
+    }
 
     const profiles = (await GET_PROFILES(this.instanceID)).filter(Boolean);
     const profilesWithDisabledEngine = profiles.filter(p => p.config.engineEnabled === false);
@@ -77,22 +106,24 @@ export default async function updateSettings(updateObj) {
     };
     const feedbackKeys = [this.configKeys.enableMoveRatings, this.configKeys.enableEnemyFeedback,
         this.configKeys.feedbackEngineDepth, this.configKeys.feedbackOnExternalSite, this.configKeys.reverseSide,
-        this.configKeys.chessVariant, this.configKeys.useChess960];
+        this.configKeys.chessVariant, this.configKeys.useChess960, this.configKeys.feedbackEmojis];
     if(feedbackKeys.includes(settingKey) && this.pV[profileName]) {
         // Invalidate callbacks immediately, even when the board hasn't moved.
         this.pV[profileName].feedbackRequest = (this.pV[profileName].feedbackRequest || 0) + 1;
         this.MoveEval?.cancelStaleRequests();
         clearFeedback.call(this, profileName);
-        if(!didUpdateVariant && !didUpdate960Mode) refreshFeedback();
+        if(settingKey === this.configKeys.reverseSide && this.learningMode)
+            await this.Interface.updateLearningBoard(profileName);
+        else if(!didUpdateVariant && !didUpdate960Mode) refreshFeedback();
     }
 
     if(settingKey === this.configKeys.enableEveryPieceEvals && this.pV[profileName]) {
         this.pV[profileName].pieceEvalRequest = (this.pV[profileName].pieceEvalRequest || 0) + 1;
         this.BoardPiecesEval?.cancelStaleRequests();
-        if(this.currentFen) this.renderMetric(this.currentFen, profileName).catch(console.error);
+        if(this.currentFen) this.renderMetric(this.learningMode ? this.displayFen : this.currentFen, profileName).catch(console.error);
     }
     if(settingKey === this.configKeys.renderSquareAsDots && this.pV[profileName]) {
-        if(this.currentFen) await this.renderMetric(this.currentFen, profileName).catch(console.error);
+        if(this.currentFen) await this.renderMetric(this.learningMode ? this.displayFen : this.currentFen, profileName).catch(console.error);
         return;
     }
     if(settingKey === this.configKeys.ttsAnnounceEvaluation && this.pV[profileName]) {

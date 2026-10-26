@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Fikr-mulohazalarni ko‘rsatish",
         "[data-translation-hint-captures]": "Faqat urish yurishlari",
         "[data-translation-hint-movement]": "Faqat urishsiz yurishlar",
         "[data-translation-hint-captures-destination]": "Faqat urish yurishlari, faqat boriladigan katak",
@@ -81,6 +82,11 @@
         "#des-no-result-text": "Ba’zi sozlamalar dvijokning UCI chiqishidan dinamik ravishda olinadi. Dvijokni ishga tushirish va dinamik sozlamalarni yuklash uchun shaxmat taxtasini oching."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Eng yaxshi davomni jonlantirish", "Suzuvchi panelda eng yaxshi davomni animatsiya bilan ko‘rsating"],
+        "learningPvAnimationStopOnEnemyMove": ["Raqib yurgach to‘xtatish", "Raqib yurganda animatsiyani to‘xtating"],
+        "learningMode": ["O‘rganish rejimi", "Ushbu profil dvijogi bilan oxirgi yurishingizni tahlil qiling"],
+        "feedbackInPip": ["Suzuvchi paneldagi fikr-mulohaza", "Suzuvchi panelda qisqa fikr-mulohazani ko‘rsating"],
+        "feedbackEmojis": ["Baholash emojilari", "Yurishlaringiz yonida baholash emojilarini ko‘rsating"],
         "renderSquareAsDots": ["Markaziy nuqtalardan foydalanish", "Katakni to‘liq bo‘yash o‘rniga rangini markazdagi kichik nuqta bilan ko‘rsatish"],
         "hintDetail": ["Yurish tafsiloti", "Nimani ko‘rsatishni tanlang"],
         "suggestEnemyPawn": ["Piyoda"], "suggestEnemyKnight": ["Ot"], "suggestEnemyBishop": ["Fil"], "suggestEnemyRook": ["Rux"], "suggestEnemyQueen": ["Farzin"], "suggestEnemyKing": ["Shoh"], "suggestEnemyOtherPieces": ["Boshqa donalar"],
@@ -147,6 +153,12 @@
         "settingsNavbarGlobalSubtitle": "Sozlamalar barcha seanslarga ta’sir qiladi",
         "settingsNavbarInstanceSubtitle": "Sozlamalar faqat \"{instanceID}\" seansiga ta’sir qiladi",
         "moveFeedback": {
+            "bookSummary": "kitobdagi yurish edi", "bookSpeech": "Kitobdagi yurish",
+            "summaryLabels": ["betaraf edi", "noaniqlik edi", "xato edi", "qo‘pol xato edi", "halokatli edi", "yaxshi edi", "ajoyib edi", "eng yaxshisi edi", "zaif edi"],
+            "speechLabels": ["Betaraf", "Noaniqlik", "Xato", "Qo‘pol xato", "Halokatli", "Yaxshi", "Ajoyib", "Eng yaxshi", "Zaif"], "forcedSpeech": "Majburiy",
+            "forcedSummary": "majburiy edi", "learningWaiting": "Fikr-mulohazani ko‘rish uchun yurish qiling",
+            "learningUnavailable": "{move}: baholashlar kutilmoqda", "recorded": "Saqlangan baholashlarning qidiruv chuqurligi har xil bo‘lishi mumkin.",
+            "yours": "Sizning", "opponent": "Raqib", "played": "O‘ynalgan",
             "labels": ["Betaraf", "Noaniqlik", "Xato", "Qo‘pol xato", "Halokatli xato", "Yaxshi yurish", "Ajoyib", "Eng yaxshi yurish", "Zaif yurish"],
             "forced": "Majburiy yurish", "provisional": "dastlabki", "eval": "Baho", "best": "Eng yaxshi", "loss": "Baho yo‘qotilishi",
             "depth": "Chuqurlik", "engine": "Dvijok", "bestLine": "Eng yaxshi davom", "playedLine": "O‘ynalgan davom", "critical": "Muhim yurish.",

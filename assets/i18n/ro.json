@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Afișarea feedbackului",
         "[data-translation-hint-captures]": "Doar capturi",
         "[data-translation-hint-movement]": "Doar mutări fără captură",
         "[data-translation-hint-captures-destination]": "Doar capturi, doar destinația",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animează cea mai bună variantă", "Animează cea mai bună variantă în panoul plutitor"],
+        "learningPvAnimationStopOnEnemyMove": ["Oprește după mutarea adversarului", "Oprește animația când mută adversarul"],
+        "learningMode": ["Mod de învățare", "Analizează ultima ta mutare cu motorul acestui profil"],
+        "feedbackInPip": ["Feedback în panoul plutitor", "Afișează feedback compact în panoul plutitor"],
+        "feedbackEmojis": ["Emoji de evaluare", "Afișează emoji de evaluare lângă mutările tale"],
         "renderSquareAsDots": ["Folosește puncte centrate", "Arată culorile ca puncte mici în centru în loc să colorezi întregul câmp"],
         "hintDetail": ["Detaliile mutării", "Alege ce se dezvăluie"],
         "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Cal"], "suggestEnemyBishop": ["Nebun"], "suggestEnemyRook": ["Turn"], "suggestEnemyQueen": ["Damă"], "suggestEnemyKing": ["Rege"], "suggestEnemyOtherPieces": ["Alte piese"],
@@ -213,6 +219,12 @@
         "settingsNavbarGlobalSubtitle": "Setările se aplică tuturor instanțelor",
         "settingsNavbarInstanceSubtitle": "Setările se aplică doar instanței \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "a fost din carte", "bookSpeech": "Din carte",
+            "summaryLabels": ["a fost neutră", "a fost o inexactitate", "a fost o greșeală", "a fost o gafă", "a fost catastrofală", "a fost bună", "a fost excelentă", "a fost cea mai bună", "a fost slabă"],
+            "speechLabels": ["Neutră", "Inexactitate", "Greșeală", "Gafă", "Catastrofală", "Bună", "Excelentă", "Cea mai bună", "Slabă"], "forcedSpeech": "Forțată",
+            "forcedSummary": "a fost forțată", "learningWaiting": "Fă o mutare pentru a vedea evaluarea",
+            "learningUnavailable": "{move}: se așteaptă evaluările", "recorded": "Evaluările înregistrate pot avea adâncimi de căutare diferite.",
+            "yours": "A ta", "opponent": "Adversar", "played": "Jucată",
             "labels": ["Neutră", "Inexactitate", "Greșeală", "Greșeală gravă", "Catastrofală", "Mutare bună", "Excelentă", "Cea mai bună mutare", "Mutare slabă"],
             "forced": "Mutare forțată", "provisional": "provizorie", "eval": "Evaluare", "best": "Cea mai bună", "loss": "Pierdere de evaluare",
             "depth": "Adâncime", "engine": "Motor", "bestLine": "Cea mai bună linie", "playedLine": "Linia jucată", "critical": "Mutare critică.",

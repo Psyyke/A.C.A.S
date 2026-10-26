@@ -136,6 +136,8 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
                 this.pendingDynamicSettingChanges.delete(name);
             }
         }
+        if(Boolean(this.learningMode) !== Object.values(this.pV).some(variables => variables.learningMode))
+            await this.Interface.updateLearningBoard();
     };
     const operation = this.dynamicSettingsQueue.then(synchronize);
     this.dynamicSettingsQueue = operation.catch(error => {

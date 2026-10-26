@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Tagasiside kuvamine",
         "[data-translation-hint-captures]": "Ainult löömised",
         "[data-translation-hint-movement]": "Ainult löömiseta käigud",
         "[data-translation-hint-captures-destination]": "Ainult löömised, ainult sihtruut",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animeeri parimat jätku", "Animeeri parimat jätku ujuvpaneelil"],
+        "learningPvAnimationStopOnEnemyMove": ["Peata pärast vastase käiku", "Peata animatsioon, kui vastane teeb käigu"],
+        "learningMode": ["Õppimisrežiim", "Vaata oma viimane käik üle selle profiili mootoriga"],
+        "feedbackInPip": ["Tagasiside ujuvpaneelil", "Näita ujuvpaneelil lühikest tagasisidet"],
+        "feedbackEmojis": ["Tagasiside emotikonid", "Näita käikude kõrval hinnangu emotikone"],
         "renderSquareAsDots": ["Kasuta keskpunkte", "Näita ruutude värve väikeste punktidena keskel, mitte kogu ruudu esiletõstuna"],
         "hintDetail": ["Käigu detailsus", "Vali, mida näidata"],
         "suggestEnemyPawn": ["Ettur"], "suggestEnemyKnight": ["Ratsu"], "suggestEnemyBishop": ["Oda"], "suggestEnemyRook": ["Vanker"], "suggestEnemyQueen": ["Lipp"], "suggestEnemyKing": ["Kuningas"], "suggestEnemyOtherPieces": ["Muud malendid"],
@@ -214,6 +220,12 @@
         "settingsNavbarGlobalSubtitle": "Seaded mõjutavad kõiki instantse",
         "settingsNavbarInstanceSubtitle": "Seaded mõjutavad ainult instantsi \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "oli raamatukäik", "bookSpeech": "Raamatukäik",
+            "summaryLabels": ["oli neutraalne", "oli ebatäpsus", "oli viga", "oli ränk viga", "oli katastroofiline", "oli hea", "oli suurepärane", "oli parim", "oli nõrk"],
+            "speechLabels": ["Neutraalne", "Ebatäpsus", "Viga", "Ränk viga", "Katastroofiline", "Hea", "Suurepärane", "Parim", "Nõrk"], "forcedSpeech": "Sunnitud",
+            "forcedSummary": "oli sunnitud", "learningWaiting": "Tagasiside nägemiseks tee käik",
+            "learningUnavailable": "{move}: hinnangute ootel", "recorded": "Salvestatud hinnangutel võivad olla erinevad otsingusügavused.",
+            "yours": "Sinu", "opponent": "Vastane", "played": "Mängitud",
             "labels": ["Neutraalne", "Ebatäpsus", "Viga", "Raske viga", "Katastroofiline", "Hea käik", "Suurepärane", "Parim käik", "Nõrk käik"],
             "forced": "Sunnitud käik", "provisional": "esialgne", "eval": "Hinnang", "best": "Parim", "loss": "Hinnangu langus",
             "depth": "Sügavus", "engine": "Mootor", "bestLine": "Parim jätk", "playedLine": "Mängitud jätk", "critical": "Kriitiline käik.",

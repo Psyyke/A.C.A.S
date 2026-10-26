@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "نمایش بازخورد",
         "[data-translation-hint-captures]": "فقط حرکت‌های همراه با گرفتن مهره",
         "[data-translation-hint-movement]": "فقط حرکت‌های بدون گرفتن مهره",
         "[data-translation-hint-captures-destination]": "فقط حرکت‌های همراه با گرفتن مهره, فقط خانهٔ مقصد",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "برخی تنظیمات به صورت پویا از خروجی UCI موتور تحلیل می‌شوند. یک صفحه شطرنج باز کنید تا موتور خود را راه‌اندازی کرده و تنظیمات پویا را بارگذاری کنید."
     },
     "configTranslations": {
+        "learningPvAnimation": ["پویانمایی بهترین ادامه", "بهترین ادامه را به‌صورت پویانمایی در پنل شناور نمایش دهید"],
+        "learningPvAnimationStopOnEnemyMove": ["توقف پس از حرکت حریف", "با حرکت حریف پویانمایی را متوقف کنید"],
+        "learningMode": ["حالت یادگیری", "آخرین حرکت خود را با موتور این نمایه مرور کنید"],
+        "feedbackInPip": ["بازخورد در پنل شناور", "بازخورد کوتاه را در پنل شناور نمایش دهید"],
+        "feedbackEmojis": ["شکلک‌های بازخورد", "شکلک‌های امتیازدهی را کنار حرکت‌های خود نمایش دهید"],
         "renderSquareAsDots": ["استفاده از نقطه‌های مرکزی", "رنگ خانه‌ها را به‌صورت نقطه‌های کوچک در مرکز نشان دهید، نه با رنگ‌آمیزی کل خانه"],
         "hintDetail": ["جزئیات حرکت", "انتخاب کنید چه چیزی آشکار شود"],
         "suggestEnemyPawn": ["سرباز"], "suggestEnemyKnight": ["اسب"], "suggestEnemyBishop": ["فیل"], "suggestEnemyRook": ["رخ"], "suggestEnemyQueen": ["وزیر"], "suggestEnemyKing": ["شاه"], "suggestEnemyOtherPieces": ["مهره‌های دیگر"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "تنظیمات بر همه نمونه‌ها اعمال می‌شود",
         "settingsNavbarInstanceSubtitle": "تنظیمات فقط بر نمونهٔ \"{instanceID}\" اعمال می‌شود",
         "moveFeedback": {
+            "bookSummary": "از کتاب بود", "bookSpeech": "کتابی",
+            "summaryLabels": ["خنثی بود", "بی‌دقتی بود", "اشتباه بود", "اشتباه بزرگی بود", "فاجعه‌بار بود", "خوب بود", "عالی بود", "بهترین بود", "ضعیف بود"],
+            "speechLabels": ["خنثی", "بی‌دقتی", "اشتباه", "اشتباه بزرگ", "فاجعه‌بار", "خوب", "عالی", "بهترین", "ضعیف"], "forcedSpeech": "اجباری",
+            "forcedSummary": "اجباری بود", "learningWaiting": "برای دیدن بازخورد یک حرکت انجام دهید",
+            "learningUnavailable": "{move}: در انتظار ارزیابی‌ها", "recorded": "ارزیابی‌های ثبت‌شده ممکن است عمق جست‌وجوی متفاوتی داشته باشند.",
+            "yours": "شما", "opponent": "حریف", "played": "بازی‌شده",
             "labels": ["خنثی", "بی‌دقتی", "اشتباه", "اشتباه بزرگ", "فاجعه‌بار", "حرکت خوب", "عالی", "بهترین حرکت", "حرکت ضعیف"],
             "forced": "حرکت اجباری", "provisional": "موقت", "eval": "ارزیابی", "best": "بهترین", "loss": "افت ارزیابی",
             "depth": "عمق", "engine": "موتور", "bestLine": "بهترین ادامه", "playedLine": "ادامهٔ بازی‌شده", "critical": "حرکت حیاتی.",

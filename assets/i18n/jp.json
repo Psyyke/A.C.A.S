@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "フィードバックの表示",
         "[data-translation-hint-captures]": "駒を取る手のみ",
         "[data-translation-hint-movement]": "駒を取らない手のみ",
         "[data-translation-hint-captures-destination]": "駒を取る手のみ, 移動先のみ",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。"
     },
     "configTranslations": {
+        "learningPvAnimation": ["最善手順のアニメーション", "フローティングパネルで最善手順をアニメーション表示します"],
+        "learningPvAnimationStopOnEnemyMove": ["相手の着手後に停止", "相手が指したらアニメーションを停止します"],
+        "learningMode": ["学習モード", "このプロファイルのエンジンで直前の指し手を振り返ります"],
+        "feedbackInPip": ["フローティングパネルのフィードバック", "フローティングパネルに簡潔なフィードバックを表示します"],
+        "feedbackEmojis": ["評価の絵文字", "指し手の横に評価の絵文字を表示します"],
         "renderSquareAsDots": ["中央のドットを使う", "マス全体を塗る代わりに中央に小さな色付きドットを表示"],
         "hintDetail": ["手の詳細", "表示する情報を選択します"],
         "suggestEnemyPawn": ["ポーン"], "suggestEnemyKnight": ["ナイト"], "suggestEnemyBishop": ["ビショップ"], "suggestEnemyRook": ["ルーク"], "suggestEnemyQueen": ["クイーン"], "suggestEnemyKing": ["キング"], "suggestEnemyOtherPieces": ["その他の駒"],
@@ -213,6 +219,12 @@
         "settingsNavbarGlobalSubtitle": "設定はすべてのインスタンスに適用されます",
         "settingsNavbarInstanceSubtitle": "設定はインスタンス「{instanceID}」にのみ適用されます",
         "moveFeedback": {
+            "bookSummary": "は定跡手でした", "bookSpeech": "定跡",
+            "summaryLabels": ["は中立的な手でした", "は不正確な手でした", "はミスでした", "は大悪手でした", "は致命的な手でした", "は好手でした", "は優れた手でした", "は最善手でした", "は弱い手でした"],
+            "speechLabels": ["中立", "不正確", "ミス", "大ミス", "致命的", "良い", "優秀", "最善", "弱い"], "forcedSpeech": "強制",
+            "forcedSummary": "は強制手でした", "learningWaiting": "駒を動かすとフィードバックが表示されます",
+            "learningUnavailable": "{move}：評価を待っています", "recorded": "記録された評価は探索深度が異なる場合があります。",
+            "yours": "自分", "opponent": "相手", "played": "実際の指し手",
             "labels": ["中立", "不正確", "ミス", "大悪手", "致命的", "好手", "優秀", "最善手", "弱い手"],
             "forced": "唯一の合法手", "provisional": "暫定", "eval": "評価", "best": "最善", "loss": "評価値の低下",
             "depth": "深さ", "engine": "エンジン", "bestLine": "最善の変化", "playedLine": "実戦の変化", "critical": "重要な手。",

@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Feedbackweergave",
         "[data-translation-hint-captures]": "Alleen slagzetten",
         "[data-translation-hint-movement]": "Alleen zetten zonder slaan",
         "[data-translation-hint-captures-destination]": "Alleen slagzetten, alleen doelveld",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Beste variant animeren", "Animeer de beste variant in het zwevende paneel"],
+        "learningPvAnimationStopOnEnemyMove": ["Stoppen na zet tegenstander", "Stop de animatie wanneer de tegenstander zet"],
+        "learningMode": ["Leermodus", "Bekijk je laatste zet met de engine van dit profiel"],
+        "feedbackInPip": ["Feedback in zwevend paneel", "Toon beknopte feedback in het zwevende paneel"],
+        "feedbackEmojis": ["Feedbackemoji's", "Toon beoordelingsemoji's naast je zetten"],
         "renderSquareAsDots": ["Gecentreerde stipjes gebruiken", "Toon veldkleuren als kleine stipjes in het midden in plaats van het hele veld te kleuren"],
         "hintDetail": ["Zetdetails", "Kies wat wordt onthuld"],
         "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Paard"], "suggestEnemyBishop": ["Loper"], "suggestEnemyRook": ["Toren"], "suggestEnemyQueen": ["Dame"], "suggestEnemyKing": ["Koning"], "suggestEnemyOtherPieces": ["Andere stukken"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "De instellingen gelden voor alle instanties",
         "settingsNavbarInstanceSubtitle": "De instellingen gelden alleen voor instantie \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "was een boekzet", "bookSpeech": "Boekzet",
+            "summaryLabels": ["was neutraal", "was een onnauwkeurigheid", "was een fout", "was een blunder", "was rampzalig", "was goed", "was uitstekend", "was de beste", "was zwak"],
+            "speechLabels": ["Neutraal", "Onnauwkeurigheid", "Fout", "Blunder", "Rampzalig", "Goed", "Uitstekend", "Beste", "Zwak"], "forcedSpeech": "Gedwongen",
+            "forcedSummary": "was gedwongen", "learningWaiting": "Doe een zet om feedback te zien",
+            "learningUnavailable": "{move}: wachten op evaluaties", "recorded": "Opgeslagen evaluaties kunnen verschillende zoekdieptes hebben.",
+            "yours": "Jouw zet", "opponent": "Tegenstander", "played": "Gespeeld",
             "labels": ["Neutraal", "Onnauwkeurigheid", "Fout", "Blunder", "Catastrofaal", "Goede zet", "Uitstekend", "Beste zet", "Zwakke zet"],
             "forced": "Gedwongen zet", "provisional": "voorlopig", "eval": "Evaluatie", "best": "Beste", "loss": "Evaluatieverlies",
             "depth": "Diepte", "engine": "Engine", "bestLine": "Beste variant", "playedLine": "Gespeelde variant", "critical": "Kritieke zet.",

@@ -9,6 +9,22 @@ import { clearCustomBackgroundImage } from './customBackground.js';
 let dynamicOptionThrottleSettingUpdate = null;
 let settingsUpdateVersion = 0;
 
+export function migrateFeedbackSettings(config) {
+    let changed = false;
+    for(const scope of [config?.global, ...Object.values(config?.instance || {})]) {
+        if(!scope) continue;
+        for(const key of ['learningMode', 'feedbackInPip']) {
+            if(!Object.hasOwn(scope, key)) continue;
+            scope.profiles ??= {};
+            scope.profiles.default ??= {};
+            scope.profiles.default[key] ??= scope[key];
+            delete scope[key];
+            changed = true;
+        }
+    }
+    return changed;
+}
+
 function getSettingFilter(settingElem) {
     return {
         ...SETTING_FILTER_OBJ,

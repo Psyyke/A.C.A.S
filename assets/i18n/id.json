@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Tampilan umpan balik",
         "[data-translation-hint-captures]": "Hanya langkah menangkap",
         "[data-translation-hint-movement]": "Hanya langkah tanpa menangkap",
         "[data-translation-hint-captures-destination]": "Hanya langkah menangkap, hanya tujuan",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animasikan Kelanjutan Terbaik", "Animasikan kelanjutan terbaik di panel mengambang"],
+        "learningPvAnimationStopOnEnemyMove": ["Berhenti Setelah Langkah Lawan", "Hentikan animasi saat lawan melangkah"],
+        "learningMode": ["Mode belajar", "Tinjau langkah terakhirmu dengan mesin profil ini"],
+        "feedbackInPip": ["Umpan balik di panel mengambang", "Tampilkan umpan balik ringkas di panel mengambang"],
+        "feedbackEmojis": ["Emoji penilaian", "Tampilkan emoji penilaian di samping langkahmu"],
         "renderSquareAsDots": ["Gunakan titik di tengah", "Tampilkan warna petak sebagai titik kecil di tengah, bukan mewarnai seluruh petak"],
         "hintDetail": ["Detail langkah", "Pilih informasi yang ditampilkan"],
         "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Kuda"], "suggestEnemyBishop": ["Gajah"], "suggestEnemyRook": ["Benteng"], "suggestEnemyQueen": ["Menteri"], "suggestEnemyKing": ["Raja"], "suggestEnemyOtherPieces": ["Buah lainnya"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Pengaturan berlaku untuk semua instans",
         "settingsNavbarInstanceSubtitle": "Pengaturan hanya berlaku untuk instans \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "sesuai buku", "bookSpeech": "Buku",
+            "summaryLabels": ["bersifat netral", "merupakan ketidakakuratan", "merupakan kesalahan", "merupakan kesalahan besar", "bersifat fatal", "merupakan langkah bagus", "merupakan langkah luar biasa", "merupakan langkah terbaik", "merupakan langkah lemah"],
+            "speechLabels": ["Netral", "Ketidakakuratan", "Kesalahan", "Kesalahan besar", "Fatal", "Bagus", "Luar biasa", "Terbaik", "Lemah"], "forcedSpeech": "Terpaksa",
+            "forcedSummary": "merupakan langkah terpaksa", "learningWaiting": "Mainkan satu langkah untuk melihat penilaiannya",
+            "learningUnavailable": "{move}: menunggu evaluasi", "recorded": "Evaluasi yang tersimpan mungkin memiliki kedalaman pencarian berbeda.",
+            "yours": "Milikmu", "opponent": "Lawan", "played": "Dimainkan",
             "labels": ["Netral", "Ketidakakuratan", "Kesalahan", "Kesalahan besar", "Fatal", "Langkah bagus", "Sangat baik", "Langkah terbaik", "Langkah lemah"],
             "forced": "Langkah terpaksa", "provisional": "sementara", "eval": "Evaluasi", "best": "Terbaik", "loss": "Penurunan evaluasi",
             "depth": "Kedalaman", "engine": "Mesin", "bestLine": "Lanjutan terbaik", "playedLine": "Lanjutan yang dimainkan", "critical": "Langkah kritis.",

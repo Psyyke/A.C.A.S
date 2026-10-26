@@ -74,6 +74,45 @@ export function getMoveSan(move) {
     return san;
 }
 
+// Notation and PiP animation share the same legal, filtered PV prefix.
+export function formatPvNotation(pv, config = {}, allowMove) {
+    const moves = (Array.isArray(pv) ? pv : String(pv || '').trim().split(/\s+/)).slice(0, 3);
+    const context = variantConfig(config);
+    // Never use standard-chess rules for variants. Keep their engine notation,
+    // or leave just the existing root hint when filtering requires later FENs.
+    if(context.variant !== 'chess' || context.useChess960)
+        return allowMove ? '' : moves.filter(uci => parseVariantMove(uci)).join(' ➜ ');
+
+    return replayPv(moves, config, allowMove).map(position => position.san).join(' ➜ ');
+}
+
+// Replay without starting an engine or changing the live board.
+export function replayPv(pv, config = {}, allowMove) {
+    const context = variantConfig(config);
+    if(context.variant !== 'chess' || context.useChess960) return [];
+
+    const moves = (Array.isArray(pv) ? pv : String(pv || '').trim().split(/\s+/)).slice(0, 3);
+    const line = [];
+    try {
+        const board = new Chess();
+        if(!board.load(config.fen)) return [];
+        for(const uci of moves) {
+            const move = parseVariantMove(uci);
+            if(!move || move.drop || uci.includes(',')) break;
+            const notationMove = { ...config, fen: board.fen(), player: [move.from, move.to],
+                playerUci: uci, playerPromotion: move.promotion };
+            if(allowMove && !allowMove(notationMove)) break;
+            const played = board.move({ from: move.from, to: move.to, promotion: move.promotion.toLowerCase() });
+            if(!played) break;
+            cacheMoveSan(notationMove, played.san);
+            line.push({ san: played.san, fen: board.fen(), lastMove: [move.from, move.to] });
+        }
+    } catch(error) {
+        // Keep the valid prefix if an engine sends an incomplete or invalid PV.
+    }
+    return line;
+}
+
 // Assemble algebraic notation from engine-verified moves and board state.
 // Never infer variant legality or check using standard-chess move generation.
 export function createVariantSan(fen, uci, legalMoves, result) {

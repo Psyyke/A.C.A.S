@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "피드백 표시",
         "[data-translation-hint-captures]": "잡는 수만",
         "[data-translation-hint-movement]": "잡지 않는 수만",
         "[data-translation-hint-captures-destination]": "잡는 수만, 도착 칸만",
@@ -112,6 +113,11 @@
         "#des-no-result-text": "일부 설정은 엔진의 UCI 출력에서 동적으로 분석됩니다. 엔진을 시작하고 동적 설정을 로드하려면 체스 보드를 열어주세요."
     },
     "configTranslations": {
+        "learningPvAnimation": ["최선 수순 애니메이션", "플로팅 패널에서 최선 수순을 애니메이션으로 표시합니다"],
+        "learningPvAnimationStopOnEnemyMove": ["상대가 두면 중지", "상대가 수를 두면 애니메이션을 중지합니다"],
+        "learningMode": ["학습 모드", "이 프로필의 엔진으로 방금 둔 수를 검토합니다"],
+        "feedbackInPip": ["플로팅 패널 피드백", "플로팅 패널에 간단한 피드백을 표시합니다"],
+        "feedbackEmojis": ["피드백 이모지", "수 옆에 평가 이모지를 표시합니다"],
         "renderSquareAsDots": ["중앙 점 사용", "칸 전체를 칠하는 대신 중앙에 작은 색상 점 표시"],
         "hintDetail": ["수 상세 정보", "공개할 정보를 선택하세요"],
         "suggestEnemyPawn": ["폰"], "suggestEnemyKnight": ["나이트"], "suggestEnemyBishop": ["비숍"], "suggestEnemyRook": ["룩"], "suggestEnemyQueen": ["퀸"], "suggestEnemyKing": ["킹"], "suggestEnemyOtherPieces": ["기타 기물"],
@@ -214,6 +220,12 @@
         "settingsNavbarGlobalSubtitle": "설정은 모든 인스턴스에 적용됩니다",
         "settingsNavbarInstanceSubtitle": "설정은 인스턴스 \"{instanceID}\"에만 적용됩니다",
         "moveFeedback": {
+            "bookSummary": "정석 수였음", "bookSpeech": "정석",
+            "summaryLabels": ["중립적인 수였습니다", "부정확한 수였습니다", "실수였습니다", "큰 실수였습니다", "치명적인 수였습니다", "좋은 수였습니다", "훌륭한 수였습니다", "최선의 수였습니다", "약한 수였습니다"],
+            "speechLabels": ["중립", "부정확", "실수", "큰 실수", "치명적", "좋음", "훌륭함", "최선", "약함"], "forcedSpeech": "강제",
+            "forcedSummary": "강제된 수였습니다", "learningWaiting": "수를 두면 피드백이 표시됩니다",
+            "learningUnavailable": "{move}: 평가를 기다리는 중", "recorded": "기록된 평가는 탐색 깊이가 다를 수 있습니다.",
+            "yours": "내 수", "opponent": "상대", "played": "실제로 둔 수",
             "labels": ["중립", "부정확", "실수", "큰 실수", "치명적", "좋은 수", "훌륭함", "최선의 수", "약한 수"],
             "forced": "유일한 합법 수", "provisional": "잠정", "eval": "평가", "best": "최선", "loss": "평가 손실",
             "depth": "깊이", "engine": "엔진", "bestLine": "최선의 진행", "playedLine": "둔 수의 진행", "critical": "중요한 수입니다.",

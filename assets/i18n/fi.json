@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Palautteen näyttäminen",
         "[data-translation-hint-captures]": "Vain lyönnit",
         "[data-translation-hint-movement]": "Vain siirrot ilman lyöntiä",
         "[data-translation-hint-captures-destination]": "Vain lyönnit, vain kohderuutu",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animoi paras jatko", "Animoi paras jatko kelluvassa paneelissa"],
+        "learningPvAnimationStopOnEnemyMove": ["Pysäytä vastustajan siirron jälkeen", "Pysäytä animaatio, kun vastustaja siirtää"],
+        "learningMode": ["Oppimistila", "Tarkastele viimeisintä siirtoasi tämän profiilin moottorilla"],
+        "feedbackInPip": ["Palaute kelluvassa paneelissa", "Näytä tiivis palaute kelluvassa paneelissa"],
+        "feedbackEmojis": ["Palautteen emojit", "Näytä arviointiemojit siirtojesi vieressä"],
         "renderSquareAsDots": ["Käytä keskipisteitä", "Näytä ruutujen värit pieninä pisteinä keskellä koko ruudun korostamisen sijaan"],
         "hintDetail": ["Siirron tarkkuus", "Valitse mitä paljastetaan"],
         "suggestEnemyPawn": ["Sotilas"], "suggestEnemyKnight": ["Ratsu"], "suggestEnemyBishop": ["Lähetti"], "suggestEnemyRook": ["Torni"], "suggestEnemyQueen": ["Kuningatar"], "suggestEnemyKing": ["Kuningas"], "suggestEnemyOtherPieces": ["Muut nappulat"],
@@ -213,6 +219,12 @@
         "settingsNavbarGlobalSubtitle": "Asetukset vaikuttavat kaikkiin instansseihin",
         "settingsNavbarInstanceSubtitle": "Asetukset vaikuttavat vain instanssiin \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "oli kirjasiirto", "bookSpeech": "Kirjasiirto",
+            "summaryLabels": ["oli neutraali", "oli epätarkkuus", "oli virhe", "oli vakava virhe", "oli katastrofaalinen", "oli hyvä", "oli erinomainen", "oli paras", "oli heikko"],
+            "speechLabels": ["Neutraali", "Epätarkkuus", "Virhe", "Vakava virhe", "Katastrofaalinen", "Hyvä", "Erinomainen", "Paras", "Heikko"], "forcedSpeech": "Pakotettu",
+            "forcedSummary": "oli pakotettu", "learningWaiting": "Tee siirto nähdäksesi palautteen",
+            "learningUnavailable": "{move}: odotetaan arvioita", "recorded": "Tallennettujen arvioiden hakusyvyydet voivat vaihdella.",
+            "yours": "Omasi", "opponent": "Vastustaja", "played": "Pelattu",
             "labels": ["Neutraali", "Epätarkkuus", "Virhe", "Vakava virhe", "Katastrofaalinen", "Hyvä siirto", "Erinomainen", "Paras siirto", "Heikko siirto"],
             "forced": "Pakotettu siirto", "provisional": "alustava", "eval": "Arvio", "best": "Paras", "loss": "Arvion menetys",
             "depth": "Syvyys", "engine": "Moottori", "bestLine": "Paras jatko", "playedLine": "Pelattu jatko", "critical": "Kriittinen siirto.",

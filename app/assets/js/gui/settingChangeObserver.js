@@ -31,17 +31,52 @@ function setAdvancedEloCheckboxChecked(isChecked) {
 export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpdateLoop) { setTimeout(async () => {
     const value = getInputValue(inputElem);
     const valueExists = typeof value === 'boolean' || value;
-    const alreadyProcessed = processedElems.find(arr => {
-        const elem = arr[0],
-              val = arr[1];
-            
-        return elem === inputElem && val === value;
-    });
+    const alreadyProcessed = processedElems.findLast(([elem]) => elem === inputElem)?.[1] === value;
 
     if(alreadyProcessed && inputElem.dataset.key === 'pip')
         return;
 
     switch(inputElem.dataset.key) {
+        case 'learningPvAnimation':
+        case 'learningPvAnimationStopOnEnemyMove': {
+            const animationEnabled = document.querySelector('#feedback-floaty input[data-key="learningPvAnimation"]')?.checked;
+            const setting = document.querySelector('#stop-animation-box');
+            const input = setting?.querySelector('input');
+            if(!setting || !input) break;
+
+            setting.inert = !animationEnabled;
+            setting.setAttribute('aria-disabled', String(!animationEnabled));
+            input.disabled = !animationEnabled;
+            break;
+        }
+        case 'learningMode':
+        case 'enableMoveRatings':
+        case 'enableEnemyFeedback': {
+            const learningMode = document.querySelector('#feedback-floaty input[data-key="learningMode"]')?.checked;
+            const feedbackDisabled = learningMode || !['enableMoveRatings', 'enableEnemyFeedback']
+                .some(key => document.querySelector(`#feedback-floaty input[data-key="${key}"]`)?.checked);
+
+            // The nested Learning Mode combination stays interactive. Only
+            // direct display settings and the move-feedback panel are overridden.
+            document.querySelectorAll('#feedback-floaty .feedback-display-settings > .custom-input, #feedback-floaty .move-feedback-settings')
+                .forEach(setting => {
+                    setting.inert = Boolean(learningMode);
+                    setting.setAttribute('aria-disabled', String(Boolean(learningMode)));
+                    setting.querySelectorAll('input').forEach(input => { input.disabled = Boolean(learningMode); });
+                });
+
+            ['feedbackInPip', 'feedbackEmojis', 'feedbackOnExternalSite', 'feedbackEngineDepth'].forEach(key => {
+                const input = document.querySelector(`#feedback-floaty input[data-key="${key}"]`);
+                if(!input) return;
+
+                const setting = input.closest('.custom-input');
+                setting.inert = feedbackDisabled;
+                setting.setAttribute('aria-disabled', String(feedbackDisabled));
+                input.disabled = feedbackDisabled;
+            });
+
+            break;
+        }
         case 'chessFont': {
             const container = document.querySelector('.learning-hints');
             const font = FORMAT_CHESS_FONT(value);
@@ -162,8 +197,18 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             break;
         case 'pip':
-            if(value && !document.pictureInPictureElement) startPictureInPicture();
-            else if(!value) initMediaSession();
+            if(value) {
+                if(!document.pictureInPictureElement) startPictureInPicture();
+            } else {
+                if(document.pictureInPictureElement) {
+                    try {
+                        await document.exitPictureInPicture();
+                    } catch(error) {
+                        console.error('[PiP] Could not close the floating panel:', error);
+                    }
+                }
+                initMediaSession();
+            }
 
             break;
         case 'pipBoard':
@@ -172,6 +217,7 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             startPictureInPicture();
 
             break;
+        case 'pipQuality':
         case 'pipSan':
             if(processedElems.findLast(([elem]) => elem === inputElem)?.[1] !== value)
                 window.REFRESH_PIP_DISPLAY?.();

@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Visszajelzés megjelenítése",
         "[data-translation-hint-captures]": "Csak ütések",
         "[data-translation-hint-movement]": "Csak ütés nélküli lépések",
         "[data-translation-hint-captures-destination]": "Csak ütések, csak a célmező",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Egyes beállítások dinamikusan kerülnek elemzésre a motor UCI kimenetéből. Nyisson meg egy sakk táblát a motor elindításához és a dinamikus beállítások betöltéséhez."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Legjobb folytatás animálása", "A legjobb folytatás animálása a lebegő panelen"],
+        "learningPvAnimationStopOnEnemyMove": ["Leállítás az ellenfél lépése után", "Az animáció leállítása, amikor az ellenfél lép"],
+        "learningMode": ["Tanulási mód", "Tekintse át az utolsó lépését a profil motorjával"],
+        "feedbackInPip": ["Visszajelzés a lebegő panelen", "Rövid visszajelzés megjelenítése a lebegő panelen"],
+        "feedbackEmojis": ["Értékelési emojik", "Értékelési emojik megjelenítése a lépések mellett"],
         "renderSquareAsDots": ["Középre helyezett pontok használata", "A mezők színe kis pontként jelenjen meg középen a teljes mező színezése helyett"],
         "hintDetail": ["Lépés részletessége", "Válaszd ki, mi jelenjen meg"],
         "suggestEnemyPawn": ["Gyalog"], "suggestEnemyKnight": ["Huszár"], "suggestEnemyBishop": ["Futó"], "suggestEnemyRook": ["Bástya"], "suggestEnemyQueen": ["Vezér"], "suggestEnemyKing": ["Király"], "suggestEnemyOtherPieces": ["Más bábuk"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "A beállítások minden példányra érvényesek",
         "settingsNavbarInstanceSubtitle": "A beállítások csak a(z) \"{instanceID}\" példányra érvényesek",
         "moveFeedback": {
+            "bookSummary": "könyv szerinti volt", "bookSpeech": "Könyv szerinti",
+            "summaryLabels": ["semleges volt", "pontatlanság volt", "hiba volt", "súlyos hiba volt", "katasztrofális volt", "jó volt", "kiváló volt", "a legjobb volt", "gyenge volt"],
+            "speechLabels": ["Semleges", "Pontatlanság", "Hiba", "Súlyos hiba", "Katasztrofális", "Jó", "Kiváló", "Legjobb", "Gyenge"], "forcedSpeech": "Kényszer",
+            "forcedSummary": "kényszerlépés volt", "learningWaiting": "Lépjen egyet az értékelés megtekintéséhez",
+            "learningUnavailable": "{move}: várakozás az értékelésekre", "recorded": "A rögzített értékelések keresési mélysége eltérhet.",
+            "yours": "Saját", "opponent": "Ellenfél", "played": "Megjátszott",
             "labels": ["Semleges", "Pontatlanság", "Hiba", "Súlyos hiba", "Katasztrofális", "Jó lépés", "Kiváló", "Legjobb lépés", "Gyenge lépés"],
             "forced": "Kényszerlépés", "provisional": "előzetes", "eval": "Értékelés", "best": "Legjobb", "loss": "Értékelésveszteség",
             "depth": "Mélység", "engine": "Motor", "bestLine": "Legjobb folytatás", "playedLine": "Játszott folytatás", "critical": "Kritikus lépés.",

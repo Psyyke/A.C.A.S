@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Wyświetlanie ocen",
         "[data-translation-hint-captures]": "Tylko bicia",
         "[data-translation-hint-movement]": "Tylko ruchy bez bicia",
         "[data-translation-hint-captures-destination]": "Tylko bicia, tylko pole docelowe",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animuj najlepszy wariant", "Animuj najlepszy wariant w pływającym panelu"],
+        "learningPvAnimationStopOnEnemyMove": ["Zatrzymaj po ruchu przeciwnika", "Zatrzymaj animację, gdy przeciwnik wykona ruch"],
+        "learningMode": ["Tryb nauki", "Przeanalizuj swój ostatni ruch silnikiem tego profilu"],
+        "feedbackInPip": ["Oceny w pływającym panelu", "Pokazuj krótkie oceny w pływającym panelu"],
+        "feedbackEmojis": ["Emoji ocen", "Pokazuj emoji ocen obok swoich ruchów"],
         "renderSquareAsDots": ["Używaj kropek na środku", "Pokazuj kolory pól jako małe kropki na środku zamiast kolorować całe pole"],
         "hintDetail": ["Szczegóły ruchu", "Wybierz, co ujawnić"],
         "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Skoczek"], "suggestEnemyBishop": ["Goniec"], "suggestEnemyRook": ["Wieża"], "suggestEnemyQueen": ["Hetman"], "suggestEnemyKing": ["Król"], "suggestEnemyOtherPieces": ["Inne bierki"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Ustawienia dotyczą wszystkich instancji",
         "settingsNavbarInstanceSubtitle": "Ustawienia dotyczą tylko instancji \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "był książkowy", "bookSpeech": "Książkowy",
+            "summaryLabels": ["był neutralny", "był niedokładnością", "był błędem", "był poważnym błędem", "był katastrofalny", "był dobry", "był świetny", "był najlepszy", "był słaby"],
+            "speechLabels": ["Neutralny", "Niedokładność", "Błąd", "Poważny błąd", "Katastrofalny", "Dobry", "Świetny", "Najlepszy", "Słaby"], "forcedSpeech": "Wymuszony",
+            "forcedSummary": "był wymuszony", "learningWaiting": "Wykonaj ruch, aby zobaczyć ocenę",
+            "learningUnavailable": "{move}: oczekiwanie na oceny", "recorded": "Zapisane oceny mogą mieć różne głębokości wyszukiwania.",
+            "yours": "Twój", "opponent": "Przeciwnik", "played": "Zagrany",
             "labels": ["Neutralny", "Niedokładność", "Błąd", "Poważny błąd", "Katastrofalny", "Dobry ruch", "Doskonały", "Najlepszy ruch", "Słaby ruch"],
             "forced": "Wymuszony ruch", "provisional": "wstępna", "eval": "Ocena", "best": "Najlepszy", "loss": "Utrata oceny",
             "depth": "Głębokość", "engine": "Silnik", "bestLine": "Najlepszy wariant", "playedLine": "Zagrany wariant", "critical": "Krytyczny ruch.",

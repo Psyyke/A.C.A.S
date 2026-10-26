@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Prikaz povratnih informacija",
         "[data-translation-hint-captures]": "Samo uzimanja",
         "[data-translation-hint-movement]": "Samo potezi bez uzimanja",
         "[data-translation-hint-captures-destination]": "Samo uzimanja, samo odredišno polje",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animiraj najbolji nastavak", "Animiraj najbolji nastavak u plutajućem panelu"],
+        "learningPvAnimationStopOnEnemyMove": ["Zaustavi posle protivnikovog poteza", "Zaustavi animaciju kada protivnik odigra potez"],
+        "learningMode": ["Režim učenja", "Pregledajte svoj poslednji potez pomoću motora ovog profila"],
+        "feedbackInPip": ["Povratne informacije u plutajućem panelu", "Prikaži sažete povratne informacije u plutajućem panelu"],
+        "feedbackEmojis": ["Emodžiji ocena", "Prikaži emodžije ocena pored svojih poteza"],
         "renderSquareAsDots": ["Koristi tačke u sredini", "Prikaži boje polja kao male tačke u sredini umesto bojenja celog polja"],
         "hintDetail": ["Detalji poteza", "Izaberi šta se otkriva"],
         "suggestEnemyPawn": ["Pešak"], "suggestEnemyKnight": ["Skakač"], "suggestEnemyBishop": ["Lovac"], "suggestEnemyRook": ["Top"], "suggestEnemyQueen": ["Dama"], "suggestEnemyKing": ["Kralj"], "suggestEnemyOtherPieces": ["Druge figure"],
@@ -213,6 +219,12 @@
         "settingsNavbarGlobalSubtitle": "Podešavanja važe za sve instance",
         "settingsNavbarInstanceSubtitle": "Podešavanja važe samo za instancu \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "био је из књиге", "bookSpeech": "Из књиге",
+            "summaryLabels": ["bio je neutralan", "bio je nepreciznost", "bio je greška", "bio je gruba greška", "bio je katastrofalan", "bio je dobar", "bio je odličan", "bio je najbolji", "bio je slab"],
+            "speechLabels": ["Neutralan", "Nepreciznost", "Greška", "Gruba greška", "Katastrofalan", "Dobar", "Odličan", "Najbolji", "Slab"], "forcedSpeech": "Iznuđen",
+            "forcedSummary": "bio je iznuđen", "learningWaiting": "Odigrajte potez da biste videli ocenu",
+            "learningUnavailable": "{move}: čekanje na procene", "recorded": "Zabeležene procene mogu imati različite dubine pretrage.",
+            "yours": "Vaš", "opponent": "Protivnik", "played": "Odigrano",
             "labels": ["Neutralan", "Nepreciznost", "Greška", "Gruba greška", "Katastrofalan", "Dobar potez", "Odličan", "Najbolji potez", "Slab potez"],
             "forced": "Prinudan potez", "provisional": "privremeno", "eval": "Procena", "best": "Najbolji", "loss": "Gubitak procene",
             "depth": "Dubina", "engine": "Motor", "bestLine": "Najbolji nastavak", "playedLine": "Odigrani nastavak", "critical": "Kritičan potez.",

@@ -474,7 +474,7 @@ function SPEAK_TEXT(text, config = {}) {
     };
 
     // Preserve translated words, including accents and non-Latin scripts.
-    const cleanedText = String(text).replace(/[^\p{L}\p{M}\p{N}\s\u200C\u200D,.'’-]/gu, '');
+    const cleanedText = String(text).replace(/[^\p{L}\p{M}\p{N}\s\u200C\u200D,.'’!?-]/gu, '');
 
     if('speechSynthesis' in window) {
         const synthesis = window.speechSynthesis;

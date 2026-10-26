@@ -17,7 +17,8 @@ export default async function calculateBestMoves(currentFen, config = {}) {
 
     const shouldCalculate = p => p.config.engineEnabled
         && (specificProfileName ? p.name === specificProfileName : true)
-        && ((!p.config.movesOnDemand && !specificMovesObj) || (specificMovesObj && p.config.movesOnDemand));
+        && !(p.config.learningMode && specificMovesObj)
+        && (p.config.learningMode || (!p.config.movesOnDemand && !specificMovesObj) || (specificMovesObj && p.config.movesOnDemand));
 
     if(specificMovesObj) skipValidityChecks = true;
 
@@ -26,6 +27,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         let profileFen = currentFen;
         const profileName = profile.name;
         const profileVariables = this.pV[profileName];
+        const learning = Boolean(profile.config.learningMode);
         const isCurrentCalculation = () => !this.instanceClosed && this.pV[profileName] === profileVariables
             && (!this.currentFen || this.currentFen === currentFen);
         const queueLatestCalculation = () => {
@@ -58,7 +60,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         if(!isCurrentCalculation()) return;
 
         // Do not calculate on enemy turn if the user has enabled "only calculate own turn"
-        if(onlyCalculateOwnTurn && !isPlayerTurn && !specificMovesObj && !skipValidityChecks) return;
+        if(!learning && onlyCalculateOwnTurn && !isPlayerTurn && !specificMovesObj && !skipValidityChecks) return;
         // Do not calculate if pawn is on promotion square, it's "not a legal position" and engines can get stuck on it
         if(this.isPawnOnPromotionSquare(currentFen)) return;
         // Engine is still calculating, do not start any new calculation since,
@@ -83,7 +85,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
 
         // Don't continue if player is attacking king and the variant is 'chess' (not custom)
         // Otherwise some engines crash! Some variants have such situations legally though.
-        if(!isCustomVariant && IS_PLAYER_ATTACKING_KING(currentFen, isAttackingPlayerColor))
+        if(!isCustomVariant && IS_PLAYER_ATTACKING_KING(currentFen, learning ? currentFen.split(' ')[1] : isAttackingPlayerColor))
             return;
 
         const engineName = await this.getEngineName(profileName);
@@ -102,13 +104,13 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         profileVariables.pendingCalculations = profileVariables.pendingCalculations.filter(x => !x.finished);
         profileVariables.pendingCalculations.push(calculation);
 
-        this.Interface.removeMarkings(profileName, 'Calculating best moves');
+        if(!learning) this.Interface.removeMarkings(profileName, 'Calculating best moves');
 
         let reversedFen = null;
         let specificMoves = '';
 
-        if(alwaysMyTurn && profileFen.split(' ')[1] !== playerColor) profileFen = REVERSE_FEN_TURN(profileFen);
-        if(alwaysMyTurn && reverseSide && !specificMovesObj) reversedFen = REVERSE_FEN_TURN(profileFen);
+        if(!learning && alwaysMyTurn && profileFen.split(' ')[1] !== playerColor) profileFen = REVERSE_FEN_TURN(profileFen);
+        if(!learning && alwaysMyTurn && reverseSide && !specificMovesObj) reversedFen = REVERSE_FEN_TURN(profileFen);
 
         if(specificMovesObj?.isOpponent) reversedFen = REVERSE_FEN_TURN(profileFen);
 
@@ -146,10 +148,10 @@ export default async function calculateBestMoves(currentFen, config = {}) {
 
                 if(nodes > 0) {
                     searchCommandStr = `go nodes ${nodes}${specificMoves}`;
-                    updatePipData({ 'goalNodes': nodes });
+                    updatePipData({ goalNodes: nodes, goalDepth: null });
                 } else {
                     searchCommandStr = `go depth ${depth}${specificMoves}`;
-                    updatePipData({ 'goalDepth': depth });
+                    updatePipData({ goalDepth: depth, goalNodes: null });
                 }
 
                 break;
@@ -196,7 +198,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         incrementUserUsageStat('engineCalculations');
         if(!isCurrentCalculation() || calculation.finished || calculation.stopRequested) return;
 
-        updatePipData({ 'startTime': Date.now(), movetime });
+        updatePipData({ startTime: Date.now(), movetime, depth: 0, nodes: 0, calculationTimeElapsed: 0, calculationFinished: false });
 
         const statusText = `Calculating best moves with UCI command: ${searchCommandStr}\n`
             + `Max movetime: ${movetime || 'None'}`;

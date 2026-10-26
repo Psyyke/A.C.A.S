@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Rəyin göstərilməsi",
         "[data-translation-hint-captures]": "Yalnız vurma gedişləri",
         "[data-translation-hint-movement]": "Yalnız vurmasız gedişlər",
         "[data-translation-hint-captures-destination]": "Yalnız vurma gedişləri, yalnız hədəf xana",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Ən yaxşı davamın animasiyası", "Üzən paneldə ən yaxşı davamı animasiya ilə göstərin"],
+        "learningPvAnimationStopOnEnemyMove": ["Rəqibin gedişindən sonra dayandır", "Rəqib gediş etdikdə animasiyanı dayandırın"],
+        "learningMode": ["Öyrənmə rejimi", "Bu profilin mühərriki ilə son gedişinizi nəzərdən keçirin"],
+        "feedbackInPip": ["Üzən paneldə rəy", "Üzən paneldə qısa rəy göstərin"],
+        "feedbackEmojis": ["Rəy emojiləri", "Gedişlərinizin yanında qiymətləndirmə emojiləri göstərin"],
         "renderSquareAsDots": ["Mərkəzi nöqtələrdən istifadə et", "Xanaları tam rəngləmək əvəzinə rəngləri mərkəzdə kiçik nöqtələrlə göstər"],
         "hintDetail": ["Gediş təfərrüatı", "Nəyin göstəriləcəyini seçin"],
         "suggestEnemyPawn": ["Piyada"], "suggestEnemyKnight": ["At"], "suggestEnemyBishop": ["Fil"], "suggestEnemyRook": ["Top"], "suggestEnemyQueen": ["Vəzir"], "suggestEnemyKing": ["Şah"], "suggestEnemyOtherPieces": ["Digər fiqurlar"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Parametrlər bütün instansiyalara təsir edir",
         "settingsNavbarInstanceSubtitle": "Parametrlər yalnız \"{instanceID}\" instansiyasına təsir edir",
         "moveFeedback": {
+            "bookSummary": "kitab gedişi idi", "bookSpeech": "Kitab gedişi",
+            "summaryLabels": ["neytral idi", "qeyri-dəqiq idi", "səhv idi", "kobud səhv idi", "fəlakətli idi", "yaxşı idi", "əla idi", "ən yaxşı idi", "zəif idi"],
+            "speechLabels": ["Neytral", "Qeyri-dəqiqlik", "Səhv", "Kobud səhv", "Fəlakətli", "Yaxşı", "Əla", "Ən yaxşı", "Zəif"], "forcedSpeech": "Məcburi",
+            "forcedSummary": "məcburi idi", "learningWaiting": "Rəyi görmək üçün gediş edin",
+            "learningUnavailable": "{move}: qiymətləndirmələr gözlənilir", "recorded": "Qeydə alınmış qiymətləndirmələrin axtarış dərinlikləri fərqli ola bilər.",
+            "yours": "Sizin", "opponent": "Rəqib", "played": "Oynanılan",
             "labels": ["Neytral", "Qeyri-dəqiqlik", "Səhv", "Kobud səhv", "Fəlakətli", "Yaxşı gediş", "Əla", "Ən yaxşı gediş", "Zəif gediş"],
             "forced": "Məcburi gediş", "provisional": "ilkin", "eval": "Qiymət", "best": "Ən yaxşı", "loss": "Qiymət itkisi",
             "depth": "Dərinlik", "engine": "Mühərrik", "bestLine": "Ən yaxşı davam", "playedLine": "Oynanmış davam", "critical": "Kritik gediş.",

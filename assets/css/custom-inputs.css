@@ -1137,4 +1137,7 @@ dialog .input-subtitle {
         width: 70vw !important;
         left: 0;
     }
+    #chess-engine-dropdown .dropdown-list-container {
+        height: 70vh !important;
+    }
 }

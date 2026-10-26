@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "反馈显示",
         "[data-translation-hint-captures]": "仅吃子走法",
         "[data-translation-hint-movement]": "仅非吃子走法",
         "[data-translation-hint-captures-destination]": "仅吃子走法, 仅提示目标格",
@@ -111,6 +112,11 @@
         "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
     },
     "configTranslations": {
+        "learningPvAnimation": ["最佳变化动画", "在浮动面板中播放最佳变化动画"],
+        "learningPvAnimationStopOnEnemyMove": ["对手走棋后停止", "对手走棋时停止动画"],
+        "learningMode": ["学习模式", "使用此配置的引擎复盘你的上一手棋"],
+        "feedbackInPip": ["浮动面板反馈", "在浮动面板中显示简要反馈"],
+        "feedbackEmojis": ["反馈表情", "在你的走法旁显示评级表情"],
         "renderSquareAsDots": ["使用居中圆点", "在格子中央显示小彩点，而不是为整个格子着色"],
         "hintDetail": ["走法详情", "选择显示哪些信息"],
         "suggestEnemyPawn": ["兵"], "suggestEnemyKnight": ["马"], "suggestEnemyBishop": ["象"], "suggestEnemyRook": ["车"], "suggestEnemyQueen": ["后"], "suggestEnemyKing": ["王"], "suggestEnemyOtherPieces": ["其他棋子"],
@@ -213,6 +219,12 @@
         "settingsNavbarGlobalSubtitle": "设置对所有实例生效",
         "settingsNavbarInstanceSubtitle": "设置仅对实例“{instanceID}”生效",
         "moveFeedback": {
+            "bookSummary": "是棋谱走法", "bookSpeech": "棋谱",
+            "summaryLabels": ["表现中性", "不够精确", "是失误", "是严重失误", "是灾难性走法", "是好棋", "非常优秀", "是最佳走法", "是弱棋"],
+            "speechLabels": ["中性", "不精确", "失误", "严重失误", "灾难性", "好", "优秀", "最佳", "弱"], "forcedSpeech": "被迫",
+            "forcedSummary": "是被迫走法", "learningWaiting": "走一步棋以查看反馈",
+            "learningUnavailable": "{move}：正在等待评估", "recorded": "已记录的评估可能具有不同的搜索深度。",
+            "yours": "你的走法", "opponent": "对手", "played": "实战走法",
             "labels": ["中性", "不精确", "失误", "严重失误", "灾难性", "好棋", "优秀", "最佳走法", "弱棋"],
             "forced": "唯一合法走法", "provisional": "暂定", "eval": "评估", "best": "最佳", "loss": "评估损失",
             "depth": "深度", "engine": "引擎", "bestLine": "最佳续着", "playedLine": "实战续着", "critical": "关键走法。",

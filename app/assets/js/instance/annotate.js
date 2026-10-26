@@ -16,6 +16,7 @@ export async function annotateOpponentMove(state, previousFen) {
     for(const profile of profiles) {
         const variables = this.pV[profile.name];
         const isCurrent = () => !this.instanceClosed && this.currentFen === fen
+            && !this.isLearningProfile(profile.name)
             && this.annotationFen === fen && this.pV[profile.name] === variables;
         if(!variables || !isCurrent()) continue;
         const enabled = await this.getConfigValue(this.configKeys.ttsAnnounceEnemyMoves, profile.name);
@@ -32,14 +33,16 @@ export async function annotateOpponentMove(state, previousFen) {
     }
 }
 
-export async function annotateEvaluation(evaluation, fen, profile) {
+export async function annotateEvaluation(evaluation, fen, profile, review = false) {
     const variables = this.pV[profile];
-    if(!variables || !Number.isFinite(evaluation) || this.currentFen !== fen) return;
+    const isCurrent = () => (review ? this.learningReviewPostFen : this.currentFen) === fen
+        && (!this.isLearningProfile(profile) || review) && this.pV[profile] === variables && !this.instanceClosed;
+    if(!variables || !Number.isFinite(evaluation) || !isCurrent()) return;
     // History includes the initial position: six states mean five played moves.
     // Use the recorded history, not a variant-specific starting FEN or move clock.
     const hasEnoughHistory = () => (this.gameStateHistory?.length || 0) >= 6;
     const enabled = await this.getConfigValue(this.configKeys.ttsAnnounceEvaluation, profile);
-    if(this.pV[profile] !== variables || this.currentFen !== fen || this.instanceClosed) return;
+    if(!isCurrent()) return;
     if(!enabled || CONCEAL_ASSISTANCE_ACTIVE || !hasEnoughHistory()) {
         delete variables.spokenAdvantage;
         delete variables.spokenEvaluationFen;
@@ -55,7 +58,7 @@ export async function annotateEvaluation(evaluation, fen, profile) {
     if(previous !== undefined && band < previous && evaluation > boundaries[band] - 35) return;
     variables.spokenAdvantage = band;
     await this.speak({ advantageBand: band }, profile, 'ttsAnnounceEvaluation', {
-        isCurrent: () => this.currentFen === fen && this.pV[profile] === variables && hasEnoughHistory(),
-        announcementKey: `advantage|${fen}`
+        isCurrent: () => isCurrent() && hasEnoughHistory(), review,
+        announcementKey: `${review ? 'review-' : ''}advantage|${fen}`
     });
 }

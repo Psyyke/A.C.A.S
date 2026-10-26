@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "চালের মূল্যায়ন প্রদর্শন",
         "[data-translation-hint-captures]": "শুধু ঘুঁটি খাওয়ার চাল",
         "[data-translation-hint-movement]": "শুধু ঘুঁটি না খাওয়ার চাল",
         "[data-translation-hint-captures-destination]": "শুধু ঘুঁটি খাওয়ার চাল, শুধু গন্তব্যের ঘর",
@@ -64,6 +65,11 @@
         "#des-no-result-text": "কিছু সেটিংস ইঞ্জিনের UCI আউটপুট থেকে গতিশীলভাবে নেওয়া হয়। ইঞ্জিন চালু করে গতিশীল সেটিংস লোড করতে একটি দাবার বোর্ড খুলুন।"
     },
     "configTranslations": {
+        "learningPvAnimation": ["সেরা চালের ধারার অ্যানিমেশন", "ভাসমান প্যানেলে সেরা চালের ধারার অ্যানিমেশন দেখান"],
+        "learningPvAnimationStopOnEnemyMove": ["প্রতিপক্ষের চালের পর থামান", "প্রতিপক্ষ চাল দিলে অ্যানিমেশন থামান"],
+        "learningMode": ["শেখার মোড", "এই প্রোফাইলের ইঞ্জিন দিয়ে আপনার শেষ চালটি পর্যালোচনা করুন"],
+        "feedbackInPip": ["ভাসমান প্যানেলে মূল্যায়ন", "ভাসমান প্যানেলে সংক্ষিপ্ত মূল্যায়ন দেখান"],
+        "feedbackEmojis": ["মূল্যায়নের ইমোজি", "আপনার চালের পাশে মান নির্দেশক ইমোজি দেখান"],
         "renderSquareAsDots": ["মাঝখানে বিন্দু দেখান", "পুরো ঘর রাঙানোর বদলে মাঝখানে ছোট রঙিন বিন্দু দেখান"], "hintDetail": ["চালের বিস্তারিত", "কতটুকু দেখানো হবে বেছে নিন"],
         "suggestEnemyPawn": ["বোড়ে"], "suggestEnemyKnight": ["ঘোড়া"], "suggestEnemyBishop": ["হাতি"], "suggestEnemyRook": ["নৌকা"], "suggestEnemyQueen": ["মন্ত্রী"], "suggestEnemyKing": ["রাজা"], "suggestEnemyOtherPieces": ["অন্যান্য ঘুঁটি"],
         "suggestPawn": ["বোড়ে"], "suggestKnight": ["ঘোড়া"], "suggestBishop": ["হাতি"], "suggestRook": ["নৌকা"], "suggestQueen": ["মন্ত্রী"], "suggestKing": ["রাজা"], "suggestOtherPieces": ["অন্যান্য ঘুঁটি"],
@@ -100,6 +106,12 @@
         },
         "settingsNavbarGlobalSubtitle": "সেটিংস সব সেশনে প্রযোজ্য", "settingsNavbarInstanceSubtitle": "সেটিংস শুধু \"{instanceID}\" সেশনে প্রযোজ্য",
         "moveFeedback": {
+            "bookSummary": "বইয়ের চাল ছিল", "bookSpeech": "বইয়ের চাল",
+            "summaryLabels": ["নিরপেক্ষ ছিল", "সামান্য ভুল ছিল", "ভুল ছিল", "মারাত্মক ভুল ছিল", "বিপর্যয়কর ছিল", "ভালো ছিল", "চমৎকার ছিল", "সেরা ছিল", "দুর্বল ছিল"],
+            "speechLabels": ["নিরপেক্ষ", "সামান্য ভুল", "ভুল", "মারাত্মক ভুল", "বিপর্যয়কর", "ভালো", "চমৎকার", "সেরা", "দুর্বল"], "forcedSpeech": "বাধ্যতামূলক",
+            "forcedSummary": "বাধ্যতামূলক ছিল", "learningWaiting": "মূল্যায়ন দেখতে একটি চাল খেলুন",
+            "learningUnavailable": "{move}: মূল্যায়নের জন্য অপেক্ষা করা হচ্ছে", "recorded": "নথিভুক্ত মূল্যায়নের অনুসন্ধানের গভীরতা ভিন্ন হতে পারে।",
+            "yours": "আপনার", "opponent": "প্রতিপক্ষ", "played": "খেলা চাল",
             "labels": ["নিরপেক্ষ", "সামান্য ভুল", "ভুল", "মারাত্মক ভুল", "বিপর্যয়কর", "ভালো চাল", "চমৎকার", "সেরা চাল", "দুর্বল চাল"], "forced": "বাধ্যতামূলক চাল", "provisional": "প্রাথমিক", "eval": "মূল্যায়ন", "best": "সেরা", "loss": "মূল্যায়নের ক্ষতি",
             "depth": "গভীরতা", "engine": "ইঞ্জিন", "bestLine": "সেরা চালের ধারা", "playedLine": "খেলা চালের ধারা", "critical": "গুরুত্বপূর্ণ চাল।", "waiting": "নথিভুক্ত চালের জন্য অপেক্ষা করা হচ্ছে।", "mismatch": "চালের ইতিহাসে অমিল বা দাবার ধরনটি সমর্থিত নয়।", "analyzing": "{move} বিশ্লেষণ করা হচ্ছে…", "unavailable": "মূল্যায়ন পাওয়া যাচ্ছে না।"
         },

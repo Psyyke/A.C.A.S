@@ -15,6 +15,7 @@ import { removeInstance } from './instanceManager.js';
 import { updatePipData, updatePipHints } from './gui/pip.js';
 import { pipSanInput } from './gui/elementDeclarations.js';
 import { formatMoveNotationAsync, getMoveSpeechConfig } from './misc/moveNotation.js';
+import { feedbackQualityText } from './misc/feedbackText.js';
 import { isActivityLoggingEnabled, logActivity } from './misc/activityLog.js';
 import { hintSettingKeys, getHintSettings, filterHintMoves, presentHintMove } from './misc/learningHints.js';
 
@@ -35,7 +36,8 @@ const configKeys = Object.freeze([
     'moveDisplayDelay', 'renderSquarePlayer', 'renderSquareEnemy',
     'renderSquareContested', 'renderSquareSafe', 'renderSquareAsDots', 'renderPiecePlayerCapture',
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
-    'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth',
+    'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth', 'learningMode', 'learningPvAnimation',
+    'learningPvAnimationStopOnEnemyMove', 'feedbackInPip', 'feedbackEmojis',
     'enableAdvancedElo', 'advancedEloDepth', 'moveAsFilledSquares',
     'movesOnDemand', ...hintSettingKeys, 'externalChessEngine'
 ].reduce((o, k) => (o[k] = k, o), {}));
@@ -72,6 +74,8 @@ export default class AcasInstance {
             if(snapshot && Object.hasOwn(snapshot, key)) return snapshot[key];
             return await this.config[key]?.get(profile);
         }
+
+        this.isLearningProfile = profile => Boolean(this.pV?.[profile]?.learningMode);
     
         this.setConfigValue = (key, val, profile) => { // not used currently
             return this.config[key]?.set(val, profile);
@@ -173,6 +177,10 @@ export default class AcasInstance {
                 instance.useExternalChessEngine = await t.getConfigValue(t.configKeys.useExternalChessEngine, profileName);
                 instance.requestedEngine = await t.getConfigValue(t.configKeys.chessEngine, profileName);
                 instance.externalChessEngine = await t.getConfigValue(t.configKeys.externalChessEngine, profileName);
+                instance.learningMode = Boolean(await t.getConfigValue(t.configKeys.learningMode, profileName));
+                instance.learningPvAnimation = Boolean(await t.getConfigValue(t.configKeys.learningPvAnimation, profileName));
+                instance.learningPvAnimationStopOnEnemyMove = await t.getConfigValue(t.configKeys.learningPvAnimationStopOnEnemyMove, profileName) !== false;
+                instance.feedbackInPip = Boolean(await t.getConfigValue(t.configKeys.feedbackInPip, profileName));
         
                 return instance;
             }
@@ -194,6 +202,14 @@ export default class AcasInstance {
         this.CommLink.registerSendCommand('ping');
         this.CommLink.registerSendCommand('getFen');
         this.CommLink.registerSendCommand('renderVisualsToSite');
+        // Historical hints must never reach the live site (or trigger Auto Move).
+        const renderVisualsToSite = this.CommLink.commands.renderVisualsToSite.bind(this.CommLink.commands);
+        this.CommLink.commands.renderVisualsToSite = entries => renderVisualsToSite(entries?.map(entry =>
+            this.isLearningProfile(entry.profileID) && ['move', 'book', 'feedback'].includes(entry.category) ? {
+                profileID: entry.profileID, category: entry.category, isFuture: true,
+                feedbackFen: this.currentFen, feedbackRevision: entry.feedbackRevision
+            } : entry
+        ));
         this.CommLink.registerSendCommand('updateDynamicContext');
         this.CommLink.registerSendCommand('updateRestartListener');
         this.CommLink.registerSendCommand('updateConcealAssistanceListener');
@@ -327,6 +343,8 @@ export default class AcasInstance {
         this.killEngine(profileName);
 
         this.pV[profileName] = await this.profileVariables.create(this, profileName, resolvedConfig);
+        this.analysisRevision = (this.analysisRevision || 0) + 1;
+        this.pV[profileName].analysisKey = this.analysisRevision;
         this.pV[profileName].startupConfig = resolvedConfig;
         if(this.instanceClosed) { delete this.pV[profileName]; return; }
         this.effectiveSettings ??= new Map();
@@ -803,9 +821,14 @@ export default class AcasInstance {
 
     async speak(moveObj, profile, settingKey = 'ttsVoiceEnabled', options = {}) {
         const variables = this.pV[profile];
-        const speechFen = this.currentFen;
+        const isFeedback = Boolean(moveObj?.feedbackResult);
+        // Reviews announce only the move's grade, never position commentary,
+        // suggested moves or advantage changes.
+        if(options.review && !isFeedback) return;
+        const speechFen = options.review ? this.learningReviewPostFen : this.currentFen;
         const hintRevision = variables?.hintRevision;
-        if(!variables || this.instanceClosed || CONCEAL_ASSISTANCE_ACTIVE) return;
+        const allowed = () => !this.isLearningProfile(profile) || options.review && isFeedback;
+        if(!variables || this.instanceClosed || CONCEAL_ASSISTANCE_ACTIVE || !allowed()) return;
         const isTTSEnabled = await this.getConfigValue(this.configKeys[settingKey], profile);
 
         if(isTTSEnabled) {
@@ -821,18 +844,22 @@ export default class AcasInstance {
                 || options.isCurrent && !options.isCurrent()) return;
             const speech = getMoveSpeechConfig(translateAudio);
             const useSan = Boolean(options.useSan ?? pipSanInput?.checked);
-            const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed && !CONCEAL_ASSISTANCE_ACTIVE
-                && variables.hintRevision === hintRevision
+            const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed && !CONCEAL_ASSISTANCE_ACTIVE && allowed()
+                && (isFeedback || variables.hintRevision === hintRevision)
                 && (!options.isCurrent || options.isCurrent())
                 // Opponent annotations use the preceding FEN; turn overrides
                 // also differ from the displayed board. Track the live board,
                 // not the notation root, while conversion is asynchronous.
-                && this.currentFen === speechFen
-                && Boolean(options.useSan ?? pipSanInput?.checked) === useSan;
-            let spokenText = moveObj.advantageBand !== undefined ? speech.advantage[moveObj.advantageBand]
+                && (options.review ? this.learningReviewPostFen : this.currentFen) === speechFen
+                && (isFeedback || Boolean(options.useSan ?? pipSanInput?.checked) === useSan);
+            let spokenText = isFeedback ? feedbackQualityText(moveObj.feedbackResult, Boolean(translateAudio))
+                : moveObj.advantageBand !== undefined ? speech.advantage[moveObj.advantageBand]
                 : await formatMoveNotationAsync(moveObj, useSan, true, speech, isCurrent);
             if(!isCurrent() || !await this.getConfigValue(this.configKeys[settingKey], profile) || !isCurrent()) return;
-            if(options.opponent) spokenText = speech.opponent.replace('{move}', spokenText);
+            // Do not queue speech in the old language if Translate Audio changed while preparing it.
+            const latestTranslateAudio = await this.getConfigValue(this.configKeys.ttsTranslateAudio, profile);
+            if(!isCurrent() || Boolean(latestTranslateAudio) !== Boolean(translateAudio)) return;
+            if(options.opponent && !isFeedback) spokenText = speech.opponent.replace('{move}', spokenText);
             if(!spokenText) return;
 
             const speechConfig = {
@@ -847,15 +874,24 @@ export default class AcasInstance {
                 speechConfig.voiceName = ttsVoiceName;
             }
 
-            if(options.announcementKey) {
+            // Streaming reviews can revise a grade on the same move. Suppress
+            // unchanged grades, not later corrections (including A -> B -> A).
+            const feedbackAnnouncement = isFeedback && options.announcementKey
+                ? `${options.announcementKey}|${feedbackQualityText(moveObj.feedbackResult)}` : null;
+            const announcementKey = feedbackAnnouncement || options.announcementKey;
+            if(announcementKey) {
                 this.audioAnnouncementKeys ??= new Set();
-                if(this.audioAnnouncementKeys.has(options.announcementKey)) return;
-                this.audioAnnouncementKeys.add(options.announcementKey);
+                if(this.audioAnnouncementKeys.has(announcementKey)) return;
+                if(feedbackAnnouncement) this.audioAnnouncementKeys.delete(variables.spokenFeedbackAnnouncement);
+                this.audioAnnouncementKeys.add(announcementKey);
                 if(this.audioAnnouncementKeys.size > 64) this.audioAnnouncementKeys.delete(this.audioAnnouncementKeys.values().next().value);
             }
             const synthesis = SPEAK_TEXT(spokenText, speechConfig);
-            if(!synthesis && options.announcementKey) this.audioAnnouncementKeys.delete(options.announcementKey);
-            if(synthesis) variables.currentSpeeches.push(synthesis);
+            if(!synthesis && announcementKey) this.audioAnnouncementKeys.delete(announcementKey);
+            if(synthesis) {
+                if(feedbackAnnouncement) variables.spokenFeedbackAnnouncement = feedbackAnnouncement;
+                variables.currentSpeeches.push(synthesis);
+            }
         }
     }
 
@@ -1109,6 +1145,7 @@ export default class AcasInstance {
         const liveFen = this.currentFen;
         const variables = this.pV[profile];
         if(!fen || !variables || this.instanceClosed) return;
+        if(this.isLearningProfile(profile) && (!this.learningReviewFen || fen !== this.displayFen)) return;
         const book = this.openingBooks?.get(profile);
 
         if(!book) {
@@ -1122,7 +1159,7 @@ export default class AcasInstance {
         const isCurrent = this.pV[profile] === variables && !this.instanceClosed && this.currentFen === liveFen;
         if(!isCurrent) return;
 
-        if(alwaysMyTurn && fen.split(' ')[1] !== playerColor) fen = REVERSE_FEN_TURN(fen);
+        if(!this.isLearningProfile(profile) && alwaysMyTurn && fen.split(' ')[1] !== playerColor) fen = REVERSE_FEN_TURN(fen);
 
         const bookMoves = book.getMoves(fen)
             .slice(0, moveSuggestionAmount)
@@ -1170,6 +1207,10 @@ export default class AcasInstance {
         variables.hintRevision = (variables.hintRevision || 0) + 1;
         variables.currentSpeeches.forEach(speech => speech.cancel());
         variables.currentSpeeches = [];
+        if(this.isLearningProfile(profile)) {
+            await this.Interface.updateLearningBoard(profile);
+            return;
+        }
         const cached = variables.hintCandidates;
         const hasCurrentMoves = cached?.fen === this.currentFen;
         if(hasCurrentMoves) await this.displayMoves(cached.moves, profile, false, true);
@@ -1177,17 +1218,22 @@ export default class AcasInstance {
             await this.getAndDisplayBookMoves(this.currentFen, profile);
     }
 
-    async displayMoves(moveObjects, profile, bypassConcealmentCheck, silent = false) {
+    async displayMoves(moveObjects, profile, bypassConcealmentCheck, silent = false, review = false) {
         const variables = this.pV[profile];
         if(!variables || this.instanceClosed) return;
-        const fen = this.currentFen;
+        if(this.isLearningProfile(profile) && !review) {
+            variables.pastMoveObjects = [];
+            return;
+        }
+        const fen = review ? this.displayFen : this.currentFen;
         const revision = (variables.hintDisplayRevision || 0) + 1;
         variables.hintDisplayRevision = revision;
-        const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed
-            && this.currentFen === fen && variables.hintDisplayRevision === revision;
-        variables.hintCandidates = { fen, moves: moveObjects.filter(move => !move.isFuture) };
+        const learning = this.isLearningProfile(profile);
+        const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed && this.isLearningProfile(profile) === learning
+            && (review ? this.displayFen : this.currentFen) === fen && variables.hintDisplayRevision === revision;
+        if(!review) variables.hintCandidates = { fen, moves: moveObjects.filter(move => !move.isFuture) };
         if(CONCEAL_ASSISTANCE_ACTIVE && !bypassConcealmentCheck) {
-            this.pV[profile].pendingMoveDisplay = [moveObjects, profile, true, silent];
+            this.pV[profile].pendingMoveDisplay = [moveObjects, profile, true, silent, review];
             return;
         }
 
@@ -1198,11 +1244,11 @@ export default class AcasInstance {
         if(!isCurrent()) return;
 
         const suggestionAmount = Math.max(0, variables.multiPV ?? 0);
-        const candidates = variables.hintCandidates.moves.slice(0, suggestionAmount);
+        const candidates = moveObjects.filter(move => !move.isFuture).slice(0, suggestionAmount);
         const normalMoves = filterHintMoves(candidates, hints, fen, true);
         moveObjects = normalMoves;
 
-        const validFutureMoves = (hints.detail === 'full' ? this.pV[profile].futureMoves : [])
+        const validFutureMoves = (!review && hints.detail === 'full' ? this.pV[profile].futureMoves : [])
             // Filter out future moves that don't start from same square as parent move ends
             .filter(futureMove => {
                 const parent = futureMove.parentMove;
@@ -1244,12 +1290,12 @@ export default class AcasInstance {
             .map(move => presentHintMove(move.opponentHidden ? { ...move, opponent: [null, null], opponentPromotion: null } : move,
                 move.hintDetail ?? hints.detail));
 
-        updatePipHints(this, profile, {
+        if(!this.learningMode || review) updatePipHints(this, profile, {
             moveObjects: presentedMoves,
             hintsFiltered: presentedMoves.length === 0 && candidates.length > 0
         });
 
-        if(silent) return;
+        if(review || silent) return;
         presentedMoves
             .forEach(moveObj => {
                 if(moveObj?.isFuture) return;

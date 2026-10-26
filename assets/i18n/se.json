@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Visning av återkoppling",
         "[data-translation-hint-captures]": "Endast slagdrag",
         "[data-translation-hint-movement]": "Endast drag utan slag",
         "[data-translation-hint-captures-destination]": "Endast slagdrag, endast målruta",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animera bästa varianten", "Animera den bästa varianten i den flytande panelen"],
+        "learningPvAnimationStopOnEnemyMove": ["Stoppa efter motståndarens drag", "Stoppa animeringen när motståndaren gör ett drag"],
+        "learningMode": ["Inlärningsläge", "Granska ditt senaste drag med motorn i den här profilen"],
+        "feedbackInPip": ["Återkoppling i flytande panel", "Visa kortfattad återkoppling i den flytande panelen"],
+        "feedbackEmojis": ["Bedömningsemojier", "Visa bedömningsemojier bredvid dina drag"],
         "renderSquareAsDots": ["Använd centrerade prickar", "Visa rutornas färger som små prickar i mitten i stället för att färga hela rutan"],
         "hintDetail": ["Dragets detaljnivå", "Välj vad som avslöjas"],
         "suggestEnemyPawn": ["Bonde"], "suggestEnemyKnight": ["Springare"], "suggestEnemyBishop": ["Löpare"], "suggestEnemyRook": ["Torn"], "suggestEnemyQueen": ["Dam"], "suggestEnemyKing": ["Kung"], "suggestEnemyOtherPieces": ["Andra pjäser"],
@@ -215,6 +221,12 @@
         "settingsNavbarGlobalSubtitle": "Inställningarna gäller alla instanser",
         "settingsNavbarInstanceSubtitle": "Inställningarna gäller endast instansen \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "var ett bokdrag", "bookSpeech": "Bokdrag",
+            "summaryLabels": ["var neutralt", "var en inexakthet", "var ett misstag", "var en blunder", "var katastrofalt", "var bra", "var utmärkt", "var bäst", "var svagt"],
+            "speechLabels": ["Neutralt", "Inexakthet", "Misstag", "Blunder", "Katastrofalt", "Bra", "Utmärkt", "Bäst", "Svagt"], "forcedSpeech": "Framtvingat",
+            "forcedSummary": "var framtvingat", "learningWaiting": "Gör ett drag för att se återkopplingen",
+            "learningUnavailable": "{move}: väntar på bedömningar", "recorded": "Sparade bedömningar kan ha olika sökdjup.",
+            "yours": "Ditt", "opponent": "Motståndare", "played": "Spelat",
             "labels": ["Neutralt", "Oexakthet", "Misstag", "Grovt misstag", "Katastrofalt", "Bra drag", "Utmärkt", "Bästa drag", "Svagt drag"],
             "forced": "Tvunget drag", "provisional": "preliminärt", "eval": "Utvärdering", "best": "Bäst", "loss": "Utvärderingsförlust",
             "depth": "Djup", "engine": "Motor", "bestLine": "Bästa variant", "playedLine": "Spelad variant", "critical": "Kritiskt drag.",

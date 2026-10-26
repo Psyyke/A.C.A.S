@@ -1,18 +1,31 @@
 import BoardAnalyzer from '../BoardAnalyzer.js';
 import PieceEvaluator from '../PieceEvaluator.js';
 
-export default async function renderMetric(fen, profile) {
+export default async function renderMetric(fen, profile, externalOnly = false) {
     if(!this.pV[profile]) return;
+    if(!externalOnly && this.learningMode) fen = this.displayFen;
+    const liveFen = this.currentFen;
+    const isCurrentPosition = () => this.currentFen === liveFen
+        && (externalOnly ? this.currentFen : this.learningMode ? this.displayFen : this.currentFen) === fen;
+    if(!isCurrentPosition()) return;
+    // Reuse the renderer without drawing live metrics over the review board.
+    if(!externalOnly && this.learningMode && (fen !== liveFen || !this.learningReviewFen))
+        renderMetric.call(this, liveFen, profile, true).catch(console.error);
     const profileVariables = this.pV[profile];
     // Remove all previous metrics
     const previousMetrics = this.pV[profile].activeMetrics;
 
-    if(previousMetrics.length) {
+    if(!externalOnly && previousMetrics.length) {
         previousMetrics.forEach(x => {
             if(x.elem) x.elem.remove();
         });
 
         this.pV[profile].activeMetrics = [];
+    }
+    if(!externalOnly && this.learningMode && !this.learningReviewFen) {
+        profileVariables.activePieceEvalDisplays?.forEach(marking => marking.elem?.remove());
+        profileVariables.activePieceEvalDisplays = [];
+        return;
     }
 
     // Get config variables
@@ -25,8 +38,9 @@ export default async function renderMetric(fen, profile) {
     const renderPieceEnemyCapture   = await this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
     const renderOnExternalSite      = await this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
     const enableEveryPieceEvals     = await this.getConfigValue(this.configKeys.enableEveryPieceEvals, profile);
-    if(this.pV[profile] !== profileVariables || this.instanceClosed || this.currentFen !== fen) return;
+    if(this.pV[profile] !== profileVariables || this.instanceClosed || !isCurrentPosition()) return;
     const publishMetrics = (markings = []) => {
+        if(!externalOnly && this.learningMode && fen !== this.currentFen) return;
         if(!renderOnExternalSite && !profileVariables.metricsDisplayedExternally) return;
         const entries = renderOnExternalSite ? FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(markings) : [];
         // Empty arrays are ignored by the userscript. Identify the profile/category
@@ -37,8 +51,10 @@ export default async function renderMetric(fen, profile) {
     if(!enableEveryPieceEvals && this.pV[profile]) {
         profileVariables.pieceEvalRequest = (profileVariables.pieceEvalRequest || 0) + 1;
         this.BoardPiecesEval?.cancelStaleRequests();
-        this.pV[profile].activePieceEvalDisplays?.forEach(marking => marking.elem?.remove());
-        this.pV[profile].activePieceEvalDisplays = [];
+        if(!externalOnly) {
+            this.pV[profile].activePieceEvalDisplays?.forEach(marking => marking.elem?.remove());
+            this.pV[profile].activePieceEvalDisplays = [];
+        }
     }
 
     const onlyRenderSquarePlayer = renderSquarePlayer && !(renderSquareEnemy || renderSquareContested);
@@ -57,9 +73,13 @@ export default async function renderMetric(fen, profile) {
         publishMetrics();
         return;
     }
+    if(externalOnly && !renderOnExternalSite) {
+        publishMetrics();
+        return;
+    }
 
     const playerColor = await this.getPlayerColor(profile);
-    if(this.pV[profile] !== profileVariables || this.instanceClosed || this.currentFen !== fen) return;
+    if(this.pV[profile] !== profileVariables || this.instanceClosed || !isCurrentPosition()) return;
     const addedMetrics = [];
 
     // Orthodox attack-map rules must not interfere with Fairy contribution analysis.
@@ -90,7 +110,7 @@ export default async function renderMetric(fen, profile) {
         const shapeSquare = BoardAnal.indexToFen(pos);
         const shapeConfig = { style };
 
-        const rect = BoardDrawer.createShape(
+        const rect = externalOnly ? null : BoardDrawer.createShape(
             shapeType,
             shapeSquare,
             shapeConfig
@@ -113,7 +133,7 @@ export default async function renderMetric(fen, profile) {
             position
         };
 
-        const textElem = BoardDrawer.createShape(
+        const textElem = externalOnly ? null : BoardDrawer.createShape(
             shapeType,
             shapeSquare,
             shapeConfig
@@ -248,38 +268,41 @@ export default async function renderMetric(fen, profile) {
             .forEach(pos => renderSafe(pos));
     }
 
-    this.pV[profile].activeMetrics.push(...addedMetrics);
+    if(!externalOnly) this.pV[profile].activeMetrics.push(...addedMetrics);
 
     const addedPieceEvals = await renderPieceEvals.call(
         this,
         fen,
-        profile
+        profile,
+        externalOnly
     );
-    if(this.pV[profile] !== profileVariables || this.instanceClosed || this.currentFen !== fen) return;
+    if(this.pV[profile] !== profileVariables || this.instanceClosed || !isCurrentPosition()) return;
 
     publishMetrics([...addedMetrics, ...addedPieceEvals]);
 }
 
 
-async function renderPieceEvals(fen, profile) {
+async function renderPieceEvals(fen, profile, externalOnly) {
     if(!fen) return [];
     if(!this.pV[profile]) return [];
     const profileVariables = this.pV[profile];
+    const liveFen = this.currentFen;
+    const isCurrentPosition = () => this.currentFen === liveFen
+        && (externalOnly ? this.currentFen : this.learningMode ? this.displayFen : this.currentFen) === fen;
 
     const enabled = await this.getConfigValue(
         this.configKeys.enableEveryPieceEvals,
         profile
     );
 
-    if(!enabled || this.pV[profile] !== profileVariables || this.instanceClosed || this.currentFen !== fen) return [];
+    if(!enabled || this.pV[profile] !== profileVariables || this.instanceClosed || !isCurrentPosition()) return [];
 
-    profileVariables.pieceEvalRequest = (profileVariables.pieceEvalRequest || 0) + 1;
-
-    const requestId = profileVariables.pieceEvalRequest;
+    const requestKey = externalOnly ? 'externalPieceEvalRequest' : 'pieceEvalRequest';
+    const requestId = profileVariables[requestKey] = (profileVariables[requestKey] || 0) + 1;
 
     const isStale = () =>
-        requestId !== profileVariables.pieceEvalRequest || this.pV[profile] !== profileVariables
-        || this.instanceClosed || this.currentFen !== fen;
+        requestId !== profileVariables[requestKey] || this.pV[profile] !== profileVariables
+        || this.instanceClosed || !isCurrentPosition();
 
     if(isStale()) return [];
 
@@ -315,7 +338,7 @@ async function renderPieceEvals(fen, profile) {
                 return;
             }
 
-            clearDisplay();
+            if(!externalOnly) clearDisplay();
 
             const BoardDrawer = this.BoardDrawer;
 
@@ -340,7 +363,7 @@ async function renderPieceEvals(fen, profile) {
                     position: [0.67, 0.8]
                 };
 
-                const elem = BoardDrawer.createShape(
+                const elem = externalOnly ? null : BoardDrawer.createShape(
                     shapeType,
                     shapeSquare,
                     shapeConfig
@@ -353,7 +376,7 @@ async function renderPieceEvals(fen, profile) {
                 }, profile, 'metric'));
             }
 
-            this.pV[profile].activePieceEvalDisplays.push(
+            if(!externalOnly) this.pV[profile].activePieceEvalDisplays.push(
                 ...addedDisplays
             );
 

@@ -79,5 +79,6 @@ export const basicAdvancedSettingsPanel = document.querySelector('#basic-advance
 
 export const pipBoardInput = document.querySelector('input[data-key="pipBoard"]');
 export const pipSanInput = document.querySelector('input[data-key="pipSan"]');
+export const pipQualityInput = document.querySelector('input[data-key="pipQuality"]');
 
 export const profileListContainerElem = document.querySelector('#chess-engine-profile-tabs .tabs-list-container');

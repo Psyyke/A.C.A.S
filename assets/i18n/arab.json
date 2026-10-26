@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "عرض الملاحظات",
         "[data-translation-hint-captures]": "الأخذ فقط",
         "[data-translation-hint-movement]": "النقلات دون أخذ فقط",
         "[data-translation-hint-captures-destination]": "الأخذ فقط, الوجهة فقط",
@@ -112,6 +113,11 @@
         "#des-no-result-text": "يتم تحليل بعض الإعدادات ديناميكيًا من إخراج UCI للمحرك. يرجى فتح لوحة شطرنج لتشغيل محركك وتحميل الإعدادات الديناميكية."
     },
     "configTranslations": {
+        "learningPvAnimation": ["تحريك أفضل تسلسل", "اعرض أفضل تسلسل بحركة في اللوحة العائمة"],
+        "learningPvAnimationStopOnEnemyMove": ["إيقاف بعد نقلة الخصم", "أوقف الحركة عندما يلعب الخصم نقلته"],
+        "learningMode": ["وضع التعلّم", "راجع نقلتك الأخيرة باستخدام محرك هذا الملف الشخصي"],
+        "feedbackInPip": ["الملاحظات في اللوحة العائمة", "اعرض ملاحظات مختصرة في اللوحة العائمة"],
+        "feedbackEmojis": ["رموز تقييم النقلات", "اعرض رموز التقييم التعبيرية بجانب نقلاتك"],
         "renderSquareAsDots": ["استخدام نقاط في الوسط", "عرض ألوان المربعات كنقاط صغيرة في الوسط بدلاً من تلوين المربع بالكامل"],
         "hintDetail": ["تفاصيل النقلة", "اختر ما يظهر"],
         "suggestEnemyPawn": ["بيدق"], "suggestEnemyKnight": ["حصان"], "suggestEnemyBishop": ["فيل"], "suggestEnemyRook": ["رخ"], "suggestEnemyQueen": ["وزير"], "suggestEnemyKing": ["ملك"], "suggestEnemyOtherPieces": ["قطع أخرى"],
@@ -214,6 +220,12 @@
         "settingsNavbarGlobalSubtitle": "تؤثر الإعدادات على جميع المثيلات",
         "settingsNavbarInstanceSubtitle": "تؤثر الإعدادات فقط على المثيل \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "كانت من الكتاب", "bookSpeech": "من الكتاب",
+            "summaryLabels": ["كانت محايدة", "كانت غير دقيقة", "كانت خطأ", "كانت خطأ فادحًا", "كانت كارثية", "كانت جيدة", "كانت ممتازة", "كانت الأفضل", "كانت ضعيفة"],
+            "speechLabels": ["محايدة", "عدم دقة", "خطأ", "خطأ فادح", "كارثية", "جيدة", "ممتازة", "الأفضل", "ضعيفة"], "forcedSpeech": "إجبارية",
+            "forcedSummary": "كانت إجبارية", "learningWaiting": "العب نقلة لترى التقييم",
+            "learningUnavailable": "{move}: في انتظار التقييمات", "recorded": "قد تختلف أعماق البحث في التقييمات المسجلة.",
+            "yours": "نقلتك", "opponent": "الخصم", "played": "النقلة الملعوبة",
             "labels": ["محايدة", "عدم دقة", "خطأ", "خطأ فادح", "كارثية", "نقلة جيدة", "ممتازة", "أفضل نقلة", "نقلة ضعيفة"],
             "forced": "نقلة إجبارية", "provisional": "مبدئي", "eval": "التقييم", "best": "الأفضل", "loss": "خسارة التقييم",
             "depth": "العمق", "engine": "المحرك", "bestLine": "أفضل استمرار", "playedLine": "الاستمرار الملعوب", "critical": "نقلة حاسمة.",

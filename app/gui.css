@@ -81,6 +81,19 @@
     background-repeat: no-repeat;
     pointer-events: none;
 }
+#anim-best-line-box,
+#stop-animation-box {
+    background-color: rgb(0 0 0 / 5%);
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 5px 5px 0;
+}
+#stop-animation-box {
+    margin-left: 20px;
+}
+p[data-translation-remember-perfection],
+p[data-translation-experimental-warning] {
+    font-size: 15px;
+}
 @media (max-width: 550px) {
     .learning-hints .hint-piece-groups {
         grid-template-columns: minmax(0, 1fr);
@@ -573,11 +586,21 @@ cg-container {
     background-color: rgb(0 0 0 / 16%);
 }
 .instance-feedback {
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.5;
+    white-space: pre-line;
     color: rgb(255 255 255 / 85%);
     overflow-wrap: anywhere;
     text-align: center;
+}
+#feedback-floaty:has(input[data-key="learningMode"]:checked) .feedback-display-settings > .custom-input,
+#feedback-floaty:has(input[data-key="learningMode"]:checked) .move-feedback-settings,
+#feedback-floaty:not(:has(input[data-key="learningMode"]:checked)) .move-feedback-settings > .custom-input[aria-disabled="true"],
+#stop-animation-box[aria-disabled="true"] {
+    filter: blur(2px);
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
 }
 .instance-buttons {
     display: flex;

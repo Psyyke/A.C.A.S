@@ -5,7 +5,7 @@ import { formatMoveNotation, getMoveSan, cacheMoveSan, createVariantSan } from '
 // One serial UCI queue per worker. Feedback and piece contributions share this
 // implementation, including cancellation/draining and variant-aware legality.
 export default class FairyAnalysis {
-    constructor() {
+    constructor(loadEngine = true) {
         this.engineName = 'Fairy Stockfish 14';
         this.queue = [];
         this.inFlight = new Map();
@@ -15,7 +15,7 @@ export default class FairyAnalysis {
         this.activeSearch = null;
         this.terminated = false;
         this.rebootAttempts = 0;
-        this.loadStockfish();
+        if(loadEngine) this.loadStockfish();
     }
 
     uci(message) {

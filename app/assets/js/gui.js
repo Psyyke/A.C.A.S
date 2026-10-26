@@ -1,7 +1,7 @@
 import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exportSettingsBtn, resetSettingsBtn,
     noInstancesSitesElem, seeSupportedSitesBtn, ttsNameDropdownElem, userscriptInfoElem, updateYourUserscriptElem,
     decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, beggingFloaty, profileListContainerElem } from './gui/elementDeclarations.js';
-import { importSettings, exportSettings, resetSettings } from './gui/settings.js';
+import { importSettings, exportSettings, resetSettings, migrateFeedbackSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
 import { monitorInstances, monitorInstanceTabs, toggleSelectedNavbarItem } from './gui/instances.js';
 import { initializeInputElems, setInputValue, getInputValue } from './gui/domInputs.js';
@@ -300,7 +300,9 @@ export async function initGUI() {
     if(initialized) return;
 
     const config = await USERSCRIPT.getValue(USERSCRIPT_SHARED_VARS.gmConfigKey);
-    if(migrateHintSettings(config)) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
+    const hintsMigrated = migrateHintSettings(config);
+    const feedbackMigrated = migrateFeedbackSettings(config);
+    if(hintsMigrated || feedbackMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
 
     initializeBackgroundGrain();
     initializeStarfield();

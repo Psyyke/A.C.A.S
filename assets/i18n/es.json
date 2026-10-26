@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Visualización de comentarios",
         "[data-translation-hint-captures]": "Solo capturas",
         "[data-translation-hint-movement]": "Solo jugadas sin captura",
         "[data-translation-hint-captures-destination]": "Solo capturas, solo destino",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animar la mejor variante", "Anima la mejor variante en el panel flotante"],
+        "learningPvAnimationStopOnEnemyMove": ["Detener tras la jugada rival", "Detén la animación cuando el rival mueva"],
+        "learningMode": ["Modo de aprendizaje", "Revisa tu última jugada con el motor de este perfil"],
+        "feedbackInPip": ["Comentarios en el panel flotante", "Muestra comentarios breves en el panel flotante"],
+        "feedbackEmojis": ["Emojis de valoración", "Muestra emojis de valoración junto a tus jugadas"],
         "renderSquareAsDots": ["Usar puntos centrados", "Muestra los colores como pequeños puntos en el centro en vez de colorear toda la casilla"],
         "hintDetail": ["Detalle de jugada", "Elige qué revelar"],
         "suggestEnemyPawn": ["Peón"], "suggestEnemyKnight": ["Caballo"], "suggestEnemyBishop": ["Alfil"], "suggestEnemyRook": ["Torre"], "suggestEnemyQueen": ["Dama"], "suggestEnemyKing": ["Rey"], "suggestEnemyOtherPieces": ["Otras piezas"],
@@ -216,6 +222,12 @@
         "settingsNavbarGlobalSubtitle": "Los ajustes se aplican a todas las instancias",
         "settingsNavbarInstanceSubtitle": "Los ajustes solo se aplican a la instancia \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "fue de libro", "bookSpeech": "De libro",
+            "summaryLabels": ["fue neutral", "fue una imprecisión", "fue un error", "fue un error grave", "fue catastrófica", "fue buena", "fue excelente", "fue la mejor", "fue débil"],
+            "speechLabels": ["Neutral", "Imprecisión", "Error", "Error grave", "Catastrófica", "Buena", "Excelente", "La mejor", "Débil"], "forcedSpeech": "Forzada",
+            "forcedSummary": "fue forzada", "learningWaiting": "Haz una jugada para ver su valoración",
+            "learningUnavailable": "{move}: esperando evaluaciones", "recorded": "Las evaluaciones guardadas pueden tener distintas profundidades de búsqueda.",
+            "yours": "Tuya", "opponent": "Rival", "played": "Jugada",
             "labels": ["Neutral", "Imprecisión", "Error", "Error grave", "Catastrófica", "Buena jugada", "Excelente", "Mejor jugada", "Jugada débil"],
             "forced": "Jugada forzada", "provisional": "provisional", "eval": "Evaluación", "best": "Mejor", "loss": "Pérdida de evaluación",
             "depth": "Profundidad", "engine": "Motor", "bestLine": "Mejor línea", "playedLine": "Línea jugada", "critical": "Jugada crítica.",

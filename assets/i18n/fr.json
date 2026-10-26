@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "*[data-translation-feedback-display]": "Affichage des commentaires",
         "[data-translation-hint-captures]": "Captures uniquement",
         "[data-translation-hint-movement]": "Coups sans capture uniquement",
         "[data-translation-hint-captures-destination]": "Captures uniquement, destination uniquement",
@@ -113,6 +114,11 @@
         "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
     },
     "configTranslations": {
+        "learningPvAnimation": ["Animer la meilleure variante", "Animer la meilleure variante dans le panneau flottant"],
+        "learningPvAnimationStopOnEnemyMove": ["Arrêter après le coup adverse", "Arrêter l’animation quand l’adversaire joue"],
+        "learningMode": ["Mode apprentissage", "Analysez votre dernier coup avec le moteur de ce profil"],
+        "feedbackInPip": ["Commentaires dans le panneau flottant", "Afficher des commentaires concis dans le panneau flottant"],
+        "feedbackEmojis": ["Émojis d’évaluation", "Afficher des émojis d’évaluation à côté de vos coups"],
         "renderSquareAsDots": ["Utiliser des points centrés", "Afficher les couleurs sous forme de petits points au centre plutôt que de colorer toute la case"],
         "hintDetail": ["Détail du coup", "Choisissez quoi révéler"],
         "suggestEnemyPawn": ["Pion"], "suggestEnemyKnight": ["Cavalier"], "suggestEnemyBishop": ["Fou"], "suggestEnemyRook": ["Tour"], "suggestEnemyQueen": ["Dame"], "suggestEnemyKing": ["Roi"], "suggestEnemyOtherPieces": ["Autres pièces"],
@@ -214,6 +220,12 @@
         "settingsNavbarGlobalSubtitle": "Les paramètres s’appliquent à toutes les instances",
         "settingsNavbarInstanceSubtitle": "Les paramètres s’appliquent uniquement à l’instance \"{instanceID}\"",
         "moveFeedback": {
+            "bookSummary": "était théorique", "bookSpeech": "Théorique",
+            "summaryLabels": ["était neutre", "était une imprécision", "était une erreur", "était une gaffe", "était catastrophique", "était bon", "était excellent", "était le meilleur", "était faible"],
+            "speechLabels": ["Neutre", "Imprécision", "Erreur", "Gaffe", "Catastrophique", "Bon", "Excellent", "Le meilleur", "Faible"], "forcedSpeech": "Forcé",
+            "forcedSummary": "était forcé", "learningWaiting": "Jouez un coup pour voir son évaluation",
+            "learningUnavailable": "{move} : en attente des évaluations", "recorded": "Les évaluations enregistrées peuvent avoir des profondeurs de recherche différentes.",
+            "yours": "Le vôtre", "opponent": "Adversaire", "played": "Joué",
             "labels": ["Neutre", "Imprécision", "Erreur", "Gaffe", "Catastrophique", "Bon coup", "Excellent", "Meilleur coup", "Coup faible"],
             "forced": "Coup forcé", "provisional": "provisoire", "eval": "Évaluation", "best": "Meilleur", "loss": "Perte d’évaluation",
             "depth": "Profondeur", "engine": "Moteur", "bestLine": "Meilleure variante", "playedLine": "Variante jouée", "critical": "Coup critique.",
