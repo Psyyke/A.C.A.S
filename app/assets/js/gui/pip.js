@@ -81,8 +81,7 @@ function getPipBackground() {
 }
 
 function getPipOpeningHeight() {
-    // Reserve the row before an opening is known to avoid resizing Learning Mode PiP.
-    return pipData.learningMode && !CONCEAL_ASSISTANCE_ACTIVE ? pipOpeningHeight : 0;
+    return pipData.learningMode ? pipOpeningHeight : 0;
 }
 
 function getPipContentHeight() {
@@ -843,20 +842,32 @@ async function refreshPipView() {
             `400 ${pipFontSizes.small}px "IBM Plex Sans", "Mona Sans", sans-serif`, 'center']]);
     }
 
-    if((pipData.learningMode || pipData.feedbackInPip) && !CONCEAL_ASSISTANCE_ACTIVE) {
+    if((pipData.learningMode || pipData.feedbackInPip)) {
         const top = contentHeight + openingHeight;
-        // Match the instance feedback: played move first, then the best line.
-        const lines = String(pipData.feedbackText || '').split('\n').filter(Boolean).slice(0, 2);
+        const lines = String(pipData.feedbackText || '')
+            .split('\n')
+            .filter(Boolean)
+            .slice(0, 2);
+
         ctxQueue.push(['fillStyle', '#303030']);
         ctxQueue.push(['fillRect', [0, top, headerWidth, pipFeedbackHeight]]);
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.10)']);
         ctxQueue.push(['fillRect', [0, top, headerWidth, 1]]);
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
+
         const lineHeight = 26;
         const textTop = top + (pipFeedbackHeight - lines.length * lineHeight) / 2;
-        lines.forEach((line, index) => ctxQueue.push(['text', [line, pipTextPadding,
-            textTop + index * lineHeight, pipMaxTextWidth, lineHeight,
-            `400 ${pipFontSizes.feedback}px "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif`]]));
+
+        if(!CONCEAL_ASSISTANCE_ACTIVE) {
+            lines.forEach((line, index) => ctxQueue.push(['text', [
+                line,
+                pipTextPadding,
+                textTop + index * lineHeight,
+                pipMaxTextWidth,
+                lineHeight,
+                `400 ${pipFontSizes.feedback}px "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif`
+            ]]));
+        }
     }
 
     // Keep the Learning Mode board free of the calculation progress sweep.
