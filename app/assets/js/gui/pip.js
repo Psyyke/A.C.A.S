@@ -1054,7 +1054,7 @@ async function refreshPipView() {
         const improved = (engineEvaluation - previousEvaluation)
             * (pipEvaluationState.evaluation.playerColor === 'b' ? -1 : 1) > 0;
 
-        ctxQueue.push(['fillStyle', improved ? 'rgba(45, 210, 110, 0.55)' : 'rgba(225, 90, 90, 0.28)']);
+        ctxQueue.push(['fillStyle', improved ? 'rgba(155, 220, 175, 1)' : 'rgba(240, 145, 145, 1)']);
         ctxQueue.push(['fillRect', [
             headerWidth,
             Math.min(previousBoundary, currentBoundary) * pipLayoutHeight,
