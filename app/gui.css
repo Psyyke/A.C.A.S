@@ -589,12 +589,24 @@ cg-container {
 }
 .instance-feedback {
     flex-shrink: 0;
+    width: 100%;
     font-size: 14px;
     line-height: 1.5;
     white-space: pre-line;
     color: rgb(255 255 255 / 85%);
     overflow-wrap: anywhere;
     text-align: center;
+}
+.instance-feedback-line.has-score {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 88px;
+    column-gap: 16px;
+    text-align: left;
+}
+.instance-feedback-score {
+    white-space: nowrap;
+    overflow-wrap: normal;
+    text-align: right;
 }
 #feedback-floaty:has(input[data-key="learningMode"]:checked) .feedback-display-settings > .custom-input,
 #feedback-floaty:has(input[data-key="learningMode"]:checked) .move-feedback-settings,

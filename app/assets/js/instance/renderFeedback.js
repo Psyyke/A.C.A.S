@@ -206,7 +206,25 @@ function setFeedbackMessage(profileID, message, description = '') {
         row.setAttribute('role', 'status');
         container.appendChild(row);
     }
-    row.textContent = `${message}`;
+    // Preserve the original line breaks and score placement for PiP.
+    row.dataset.feedbackText = `${message}`;
+    row.replaceChildren();
+    String(message).split('\n').filter(Boolean).forEach(line => {
+        const score = line.match(/\s*\(([+-]?\d+(?:\.\d+)?|-?M\d+)\)/);
+        const lineElem = document.createElement('div');
+        lineElem.className = 'instance-feedback-line';
+        const textElem = document.createElement('span');
+        textElem.textContent = score ? line.replace(score[0], '').trim() : line;
+        lineElem.appendChild(textElem);
+        if(score) {
+            lineElem.classList.add('has-score');
+            const scoreElem = document.createElement('span');
+            scoreElem.className = 'instance-feedback-score';
+            scoreElem.textContent = `(${score[1]})`;
+            lineElem.appendChild(scoreElem);
+        }
+        row.appendChild(lineElem);
+    });
     row.title = description || message;
     row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));
     updatePipFeedback(this);

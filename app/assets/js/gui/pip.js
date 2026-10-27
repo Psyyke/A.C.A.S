@@ -222,7 +222,7 @@ export function updatePipFeedback(instance) {
         const variables = instance.pV[row.dataset.profileId];
         return variables && (variables.learningMode || !instance.learningMode && variables.feedbackInPip);
     });
-    const feedbackText = visibleRows.map(row => row.textContent).join('\n');
+    const feedbackText = visibleRows.map(row => row.dataset.feedbackText ?? row.textContent).join('\n');
     const profile = instance.learningMode ? instance.learningReviewProfile
         : visibleRows[0]?.dataset.profileId || Object.keys(instance.pV).find(profile => instance.pV[profile].feedbackInPip);
     const variables = instance.pV[profile];
