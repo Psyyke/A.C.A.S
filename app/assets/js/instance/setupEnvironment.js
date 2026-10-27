@@ -6,13 +6,20 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
     const selectedVariant = FORMAT_VARIANT(profileVariables?.chessVariant);
     const isCurrentSetup = () => !this.instanceClosed
         && (!selectedProfile || this.pV[selectedProfile] === profileVariables);
+    const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
+    const fen = currentFen || startpos;
+
+    if(!isCurrentSetup()) return;
+
+    // Size the board being displayed, not an unrelated engine's chess start position.
+    dimensions = GET_BOARD_DIMENSIONS_FROM_FEN(fen);
     const hasVariantChanged = selectedVariant && selectedVariant !== this.activeVariant;
     const haveDimensionsChanged = this.boardDimensions?.width !== dimensions[0]
         || this.boardDimensions?.height !== dimensions[1];
-    const shouldRefreshFairyBoard = selectedProfile && (hasVariantChanged || haveDimensionsChanged);
+    const shouldRefreshBoard = hasVariantChanged || haveDimensionsChanged;
 
     if(this.environmentSetupPending) return;
-    if(this.environmentSetupRun && !shouldRefreshFairyBoard) return;
+    if(this.environmentSetupRun && !shouldRefreshBoard) return;
 
     this.environmentSetupRun = true;
     this.environmentSetupPending = true;
@@ -61,9 +68,6 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
 
         this.variantStartPosFen = startpos;
 
-        const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
-        const fen = currentFen || this.variantStartPosFen;
-
         if(!isCurrentSetup()) return;
 
         let orientation = await this.getPlayerColor();
@@ -85,6 +89,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
 
         const boardPieceDimensions = GET_PIECE_STYLE_DIMENSIONS(boardDimensions);
         const backgroundSize = GET_BACKGROUND_STYLE_DIMENSION(boardDimensions);
+        const backgroundHeight = backgroundSize * boardDimensions.width / boardDimensions.height;
 
         const oldInstanceElem = this.instanceElem ? this.instanceElem : null;
 
@@ -112,7 +117,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
                     height: ${boardPieceDimensions.height}%;
                 }
                 ${instanceIdQuery} cg-board {
-                    background-size: ${backgroundSize}%;
+                    background-size: ${backgroundSize}% ${backgroundHeight}%;
                 }
                 </style>
                 <div class="instance-basic-info">
@@ -168,7 +173,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
             }
         }
 
-        showPgnBtn.onclick = function() {
+        showPgnBtn.onclick = () => {
             instancePgnElem.classList.toggle('hidden');
 
             const didHide = [...instancePgnElem.classList].includes('hidden');
@@ -177,6 +182,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
                 showPgnBtn.innerText = TRANS_OBJ?.showFenBtn.replace('FEN', 'PGN') ?? 'Show PGN';
             } else {
                 showPgnBtn.innerText = TRANS_OBJ?.hideFenBtn.replace('FEN', 'PGN') ?? 'Hide PGN';
+                this.Interface.updatePgn().catch(error => console.warn('[PGN] Could not update game record:', error));
             }
         }
 

@@ -82,13 +82,12 @@ export default async function renderMetric(fen, profile, externalOnly = false) {
     if(this.pV[profile] !== profileVariables || this.instanceClosed || !isCurrentPosition()) return;
     const addedMetrics = [];
 
-    // Orthodox attack-map rules must not interfere with Fairy contribution analysis.
-    const standardMetrics = (!profileVariables.chessVariant || profileVariables.chessVariant === 'chess')
-        && !profileVariables.useChess960;
-    const hasAttackMetrics = standardMetrics && (renderSquarePlayer || renderSquareEnemy || renderSquareContested
-        || renderSquareSafe || renderPiecePlayerCapture || renderPieceEnemyCapture);
+    const hasAttackMetrics = renderSquarePlayer || renderSquareEnemy || renderSquareContested
+        || renderSquareSafe || renderPiecePlayerCapture || renderPieceEnemyCapture;
     const BoardAnal = hasAttackMetrics ? new BoardAnalyzer(fen, {
         orientation: playerColor,
+        chessVariant: profileVariables.chessVariant || this.activeVariant,
+        useChess960: profileVariables.useChess960,
         analyzeCaptures: Boolean(renderPiecePlayerCapture || renderPieceEnemyCapture),
         debug: this.debugLogsEnabled
     }) : null;

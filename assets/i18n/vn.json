@@ -180,7 +180,7 @@
         "renderSquarePlayer": ["Tầm kiểm soát của bạn", "Tô xanh lá các ô mà quân của bạn kiểm soát"],
         "renderSquareEnemy": ["Tầm kiểm soát của đối thủ", "Tô đỏ các ô mà quân đối thủ kiểm soát"],
         "renderSquareContested": ["Ô tranh chấp", "Tô cam các ô đang bị tranh chấp"],
-        "renderSquareSafe": ["Ô an toàn", "Tô lam các ô an toàn"],
+        "renderSquareSafe": ["Ô vô chủ", "Tô màu lục lam các ô mà quân của cả hai bên đều không kiểm soát"],
         "renderPiecePlayerCapture": ["Quân đang bị đe dọa", "Hiển thị 💧 lên các quân của bạn đang có nguy cơ bị bắt"],
         "renderPieceEnemyCapture": ["Quân đối thủ có thể bắt", "Hiển thị 🩸 lên các quân đối thủ mà bạn nên tấn công"],
         "enableEveryPieceEvals": ["Hiển thị đóng góp của từng quân cờ", "Xem từng quân cờ đang đóng góp bao nhiêu cho vị trí"],
@@ -190,6 +190,7 @@
         "feedbackOnExternalSite": ["Phản hồi trên trang bên ngoài", "Hiển thị phản hồi trực tiếp trên bàn cờ của trang (ví dụ: bàn cờ chess.com)"],
         "pip": ["Bảng Nổi", "Quan trọng! Giúp A.C.A.S không bị treo!"],
         "pipBoard": ["Hiển thị bàn cờ", "Hiển thị toàn bộ bàn cờ thay vì chỉ hiển thị chữ"],
+        "pipQuality": ["Chất lượng bảng nổi", "Độ phân giải thấp hơn có thể nhanh hơn. Mặc định: 50%."],
         "movesOnDemand": ["Gợi ý theo yêu cầu", "Chỉ tính nước đi cho các quân mà bạn tương tác"],
         "onlySuggestPieces": ["Chỉ gợi ý quân cờ", "Chỉ gợi ý quân nên đi, không hiển thị nước cụ thể"],
         "isUserscriptGhost": ["Chế độ ẩn (Ghost)", "Tắt mọi hiển thị bên ngoài có thể bị phát hiện (ví dụ: mũi tên nước đi) để tránh bị phát hiện"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Tự động ẩn (ms)", "Tự động ẩn các tính năng trợ giúp sau khoảng thời gian này"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "sau đó bắn tên đến {square}",
+            "names": { "pawn": "Tốt", "lance": "Hương xa", "silver": "Ngân tướng", "gold": "Kim tướng", "cannon": "Pháo", "horse": "Mã", "elephant": "Tượng", "advisor": "Sĩ", "general": "Tướng", "chariot": "Xe", "soldier": "Tốt", "dragonHorse": "Long mã", "dragonKing": "Long vương", "archbishop": "Tổng giám mục", "chancellor": "Tể tướng", "amazon": "Amazon", "hawk": "Diều hâu", "ferz": "Phéc", "wazir": "Vazir", "centaur": "Nhân mã", "commoner": "Thường dân", "banner": "Cờ", "drunkElephant": "Túy tượng", "crownPrince": "Thái tử", "dragon": "Rồng", "met": "Mét", "khon": "Khôn", "aiwok": "Ai uốc" },
+            "drop": "Thả {piece} vào {square}", "promoted": "{piece} đã phong cấp", "promotionOnly": "phong cấp", "unknownPiece": "Quân {symbol}"
+        },
         "appearance": {
             "customImage": "Ảnh nền tùy chỉnh", "blur": "Độ mờ ảnh",
             "imageHint": "PNG, JPEG, WebP, GIF hoặc AVIF, tối đa 10 MB. Chỉ lưu trong trình duyệt này, không có trong tệp cài đặt xuất ra.",

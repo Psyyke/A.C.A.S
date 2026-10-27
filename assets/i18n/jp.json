@@ -173,7 +173,7 @@
         "renderSquarePlayer": ["自分の駒が利くマス", "自分の駒が利いているマスを緑色で強調します"],
         "renderSquareEnemy": ["相手の駒が利くマス", "相手の駒が利いているマスを赤色で強調します"],
         "renderSquareContested": ["双方の駒が利くマス", "双方の駒が利いているマスをオレンジ色で強調します"],
-        "renderSquareSafe": ["安全なマス", "駒が安全に移動できるマスをシアン色で強調します"],
+        "renderSquareSafe": ["利きのないマス", "どちらの側の駒も利いていないマスをシアン色で強調します"],
         "renderPiecePlayerCapture": ["自分の駒の捕獲の脅威", "捕獲の危険にある駒に💧を表示"],
         "renderPieceEnemyCapture": ["敵の駒の捕獲の脅威", "攻撃すべき駒に🩸を表示"],
         "enableEveryPieceEvals": ["各駒の貢献を表示", "それぞれの駒が局面にどれだけ貢献しているかを確認"],
@@ -188,6 +188,7 @@
         "webhookIncludeRawUci": ["生のエンジンUCI", "生のエンジン UCI 行を送信"],
         "pip": ["フローティングパネル", "重要！A.C.A.Sのフリーズを防ぎます！"],
         "pipBoard": ["盤を表示", "テキストだけでなく盤全体を表示する"],
+        "pipQuality": ["フローティングパネルの画質", "解像度を下げると動作が速くなる場合があります。初期値：50%。"],
         "movesOnDemand": ["駒を選んで候補手を表示", "選んだ駒の候補手を計算します"],
         "onlySuggestPieces": ["駒のみ提案", "どの駒を動かすかだけを示し、具体的な指し手は表示しません"],
         "isUserscriptGhost": ["ゴーストスクリプト", "検出を避けるために、移動矢印などの検出可能な外部機能をすべて無効にします"],
@@ -198,6 +199,12 @@
         "concealAssistanceAutoDelayMs": ["自動非表示（ミリ秒）", "この時間後に自動的に支援機能を非表示"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "続いて{square}に矢を放つ",
+            "names": { "pawn": "ポーン", "lance": "きょうしゃ", "silver": "ぎんしょう", "gold": "きんしょう", "cannon": "パオ", "horse": "マー", "elephant": "シャン", "advisor": "シー", "general": "しょう", "chariot": "チュー", "soldier": "ピン", "dragonHorse": "りゅうま", "dragonKing": "りゅうおう", "archbishop": "アーチビショップ", "chancellor": "チャンセラー", "amazon": "アマゾン", "hawk": "ホーク", "ferz": "フェルズ", "wazir": "ワジール", "centaur": "ケンタウロス", "commoner": "コモナー", "banner": "バナー", "drunkElephant": "すいぞう", "crownPrince": "たいし", "dragon": "ドラゴン", "met": "メット", "khon": "コーン", "aiwok": "アイウォック" },
+            "shogi": { "K": "おうしょう", "R": "ひしゃ", "B": "かくぎょう", "N": "けいま", "P": "ふひょう", "+P": "ときん", "+L": "なりきょう", "+N": "なりけい", "+S": "なりぎん" },
+            "drop": "{piece}を{square}に打つ", "promoted": "成った{piece}", "promotionOnly": "成る", "unknownPiece": "駒{symbol}"
+        },
         "appearance": {
             "customImage": "カスタム背景画像", "blur": "画像のぼかし",
             "imageHint": "PNG、JPEG、WebP、GIF、AVIF（最大10 MB）。このブラウザーにのみ保存され、設定のエクスポートには含まれません。",

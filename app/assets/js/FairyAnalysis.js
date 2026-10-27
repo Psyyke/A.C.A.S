@@ -1,12 +1,14 @@
 import { incrementUserUsageStat } from './gui/stats.js';
 import { variantConfig, parseVariantMove, positionKey, parseVariantFen } from './misc/variantPosition.js';
 import { formatMoveNotation, getMoveSan, cacheMoveSan, createVariantSan } from './misc/moveNotation.js';
+import { getEngineWorkerConfig } from './instance/engineWorker.js';
 
 // One serial UCI queue per worker. Feedback and piece contributions share this
 // implementation, including cancellation/draining and variant-aware legality.
 export default class FairyAnalysis {
     constructor(loadEngine = true) {
-        this.engineName = 'Fairy Stockfish 14';
+        this.engineName = 'Fairy Stockfish';
+        this.workerConfig = getEngineWorkerConfig('fairy-stockfish-nnue-wasm');
         this.queue = [];
         this.inFlight = new Map();
         this.cache = new Map();
@@ -19,7 +21,7 @@ export default class FairyAnalysis {
     }
 
     uci(message) {
-        this.engine?.postMessage({ method: 'uci', args: [message] });
+        this.engine?.postMessage({ method: this.workerConfig.commandMethod, args: [message] });
     }
 
     loadStockfish() {
@@ -33,12 +35,14 @@ export default class FairyAnalysis {
         });
         this.readyPromise.catch(() => {});
         if(typeof SharedArrayBuffer === 'undefined') {
-            this.rejectReady(new Error('Fairy Stockfish 14 requires SharedArrayBuffer'));
+            this.rejectReady(new Error('Fairy Stockfish requires SharedArrayBuffer'));
             return;
         }
         this.readyTimeout = setTimeout(() => this.rebootEngine(new Error('Fairy engine initialization timed out')), 30000);
         try {
-            const worker = new Worker(new URL('../engines/lila-stockfish/f14-worker.js', import.meta.url), { type: 'module' });
+            // Use the same full-variant build and transport as the main engine.
+            const worker = new Worker(new URL(`../engines/${this.workerConfig.path}.js`, import.meta.url),
+                this.workerConfig.module ? { type: 'module' } : undefined);
             this.engine = worker;
             let loaded = false;
             worker.onmessage = event => {
@@ -347,7 +351,7 @@ export default class FairyAnalysis {
         if(!result.fen || job.cancelled) return described;
         if(result.checked) result.mate = !(await this.legalMoves({ ...job, fen: result.fen })).length;
         if(job.cancelled) return described;
-        const san = createVariantSan(root.fen, uci, moves, result);
+        const san = createVariantSan(root.fen, uci, moves, result, job);
         cacheMoveSan(described.notationMove, san);
         if(san) described.san = san;
         return described;
@@ -373,6 +377,86 @@ export default class FairyAnalysis {
         const context = variantConfig(config);
         return this.enqueue(`move|${context.variant}|${context.useChess960}|${fen}|${postFen}|${hint.join('')}`,
             { ...config, fen }, job => this.resolveTransition(job, postFen, hint));
+    }
+
+    replayPv(pv, config = {}, allowMove) {
+        const moves = (Array.isArray(pv) ? pv : String(pv || '').trim().split(/\s+/)).slice(0, 3);
+        const context = variantConfig(config);
+        // Filter callbacks depend on current settings, so never cache their result.
+        const key = JSON.stringify(['pv', context, config.fen, moves]);
+        return this.enqueue(key, config, async job => {
+            const line = [];
+            let fen = job.fen;
+            for(const uci of moves) {
+                if(job.cancelled || !job.consumers.some(consumer => consumer())) return null;
+                const move = parseVariantMove(uci);
+                if(!move) break;
+                const position = Object.assign(Object.create(job), { fen });
+                const legal = await this.legalMoves(position);
+                if(job.cancelled || !legal.includes(uci)) break;
+                const described = await this.describeMoveWithSan(position, uci, legal);
+                const san = getMoveSan(described.notationMove);
+                if(job.cancelled || !san) break;
+                const next = await this.moveFen(position, uci);
+                if(job.cancelled || !next) break;
+                line.push({ san, fen: next, lastMove: [move.from, described.to], notationMove: described.notationMove });
+                fen = next;
+            }
+            return line;
+        }).then(line => {
+            const visible = [];
+            for(const position of line || []) {
+                if(allowMove && !allowMove(position.notationMove)) break;
+                visible.push(position);
+            }
+            return visible;
+        });
+    }
+
+    createPgn(history, config = {}, transitions = new Map()) {
+        const states = history.filter(state => state.fen?.full);
+        if(!states.length) return Promise.resolve(null);
+        const context = variantConfig(config);
+        const key = JSON.stringify(['pgn', context, states.map(state => state.fen.full)]);
+        return this.enqueue(key, { ...config, fen: states[0].fen.full }, async job => {
+            const isCurrent = () => !job.cancelled && job.consumers.some(consumer => consumer());
+            const root = await this.moveState(job);
+            if(!root.fen || !isCurrent()) return null;
+            const parts = [];
+            let number = Math.max(1, Number(root.fen.trim().split(/\s+/).at(-1)) || 1);
+            let previousTurn = null;
+
+            for(let index = 1; index < states.length; index++) {
+                if(!isCurrent()) return null;
+                const fen = states[index - 1].fen.full;
+                const postFen = states[index].fen.full;
+                // Metadata-only updates are not moves.
+                if(positionKey(fen) === positionKey(postFen)) continue;
+                const transitionKey = JSON.stringify([context, fen, postFen]);
+                let san = transitions.get(transitionKey);
+                if(!san) {
+                    const change = states[index].boardChanges;
+                    // Inherit live cancellation instead of copying a stale flag.
+                    const transitionJob = Object.assign(Object.create(job), { fen });
+                    const transition = await this.resolveTransition(transitionJob, postFen,
+                        [change?.from, change?.to, change?.promotionPiece]);
+                    if(!isCurrent()) return null;
+                    san = getMoveSan(transition?.selected?.notationMove);
+                    // Never silently skip an unrecognized ply or label raw UCI as SAN.
+                    if(!san) return { error: `PGN unavailable: recorded move ${index} could not be reconstructed in variant notation.` };
+                    transitions.set(transitionKey, san);
+                    if(transitions.size > 1024) transitions.delete(transitions.keys().next().value);
+                }
+                const turn = fen.trim().split(/\s+/)[1];
+                parts.push(turn === 'w' ? `${number}. ${san}`
+                    : `${previousTurn === 'w' ? '' : `${number}... `}${san}`);
+                if(turn === 'b') number++;
+                previousTurn = turn;
+            }
+
+            // The panel displays movetext only; FEN already has its own panel.
+            return { pgn: [...parts, '*'].join(' ') };
+        });
     }
 
     startNewGame() {

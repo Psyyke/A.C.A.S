@@ -173,7 +173,7 @@
         "renderSquarePlayer": ["Kontrola vlastních figur", "Zvýrazní pole, která kontrolují vaše figurky zeleně"],
         "renderSquareEnemy": ["Kontrola figur protivníka", "Zvýrazní pole, která kontrolují figurky protivníka červeně"],
         "renderSquareContested": ["Sporná pole", "Zvýrazní pole, která kontrolují oba hráči oranžově"],
-        "renderSquareSafe": ["Bezpečná pole", "Zvýrazní pole, na která se figurka může bezpečně přesunout azurově"],
+        "renderSquareSafe": ["Nekontrolovaná pole", "Azurově zvýrazní pole, která nekontrolují figury ani jedné strany"],
         "renderPiecePlayerCapture": ["Ohrožené vlastní figury", "Zobrazí 💧 na figurách, kterým hrozí sebrání"],
         "renderPieceEnemyCapture": ["Hrozba zajetí figur protivníka", "Zobrazí 🩸 na figurkách, které byste měli napadnout"],
         "enableEveryPieceEvals": ["Zobrazit přínos každé figurky", "Podívejte se, jak každá figurka přispívá k pozici"],
@@ -188,6 +188,7 @@
         "webhookIncludeRawUci": ["Hrubé UCI motoru", "Odesílat surové řádky UCI motoru"],
         "pip": ["Plovoucí panel", "Důležité! Zabrání zamrznutí A.C.A.S!"],
         "pipBoard": ["Zobrazit šachovnici", "Místo pouhého textu zobrazit celou šachovnici"],
+        "pipQuality": ["Kvalita plovoucího panelu", "Nižší rozlišení může být rychlejší. Výchozí: 50 %."],
         "movesOnDemand": ["Tahy na vyžádání", "Vypočítá tahy pro figury, které vybereš"],
         "onlySuggestPieces": ["Navrhovat pouze figury", "Ukáže, kterou figurou táhnout, ale nenavrhne konkrétní tah"],
         "isUserscriptGhost": ["Skrytý skript", "Vypne všechny zjistitelné externí funkce, například šipky tahů"],
@@ -198,6 +199,11 @@
         "concealAssistanceAutoDelayMs": ["Automatické skrytí (ms)", "Automaticky skrýt funkce pomoci po této době"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "potom vystřelit šíp na {square}",
+            "names": { "pawn": "Pěšec", "lance": "Kopí", "silver": "Stříbrný generál", "gold": "Zlatý generál", "cannon": "Dělo", "horse": "Kůň", "elephant": "Slon", "advisor": "Rádce", "general": "Generál", "chariot": "Válečný vůz", "soldier": "Voják", "dragonHorse": "Dračí kůň", "dragonKing": "Dračí král", "archbishop": "Arcibiskup", "chancellor": "Kancléř", "amazon": "Amazonka", "hawk": "Jestřáb", "ferz": "Ferz", "wazir": "Vezír", "centaur": "Kentaur", "commoner": "Obyčejný král", "banner": "Prapor", "drunkElephant": "Opilý slon", "crownPrince": "Korunní princ", "dragon": "Drak", "met": "Met", "khon": "Khon", "aiwok": "Aj wok" },
+            "drop": "Nasadit: {piece}, pole {square}", "promoted": "Proměněná figura: {piece}", "promotionOnly": "proměna", "unknownPiece": "Figura {symbol}"
+        },
         "appearance": {
             "customImage": "Vlastní obrázek pozadí", "blur": "Rozmazání obrázku",
             "imageHint": "PNG, JPEG, WebP, GIF nebo AVIF, do 10 MB. Uloženo pouze v tomto prohlížeči, nikoli v exportu nastavení.",

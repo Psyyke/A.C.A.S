@@ -180,7 +180,7 @@
         "renderSquarePlayer": ["Kontrola vlastných figúr", "Zvýrazniť štvorce, ktoré kontrolujú vaše figúry zelenou"],
         "renderSquareEnemy": ["Kontrola figúr súpera", "Zvýrazniť štvorce, ktoré kontrolujú figúry súpera červenou"],
         "renderSquareContested": ["Súperené štvorce", "Zvýrazniť súperené štvorce oranžovou"],
-        "renderSquareSafe": ["Bezpečné štvorce", "Zvýrazniť bezpečné štvorce cyanovou"],
+        "renderSquareSafe": ["Nekontrolované polia", "Azúrovou zvýrazniť polia, ktoré nekontrolujú figúry ani jednej strany"],
         "renderPiecePlayerCapture": ["Hrozba zachytenia vlastných figúr", "Zobraziť 💧 na figúrach, ktoré sú v nebezpečenstve zachytenia"],
         "renderPieceEnemyCapture": ["Hrozba zachytenia figúr súpera", "Zobraziť 🩸 na figúrach, na ktoré by ste mali zaútočiť"],
         "enableEveryPieceEvals": ["Zobraziť prínos každej figúry", "Pozri, ako veľmi každá figúra prispieva k pozícii"],
@@ -190,6 +190,7 @@
         "feedbackOnExternalSite": ["Spätná Väzba Na Externom Webe", "Zobraziť spätnú väzbu na šachovnici webovej stránky (napr. šachovnici chess.com)"],
         "pip": ["Plávajúci panel", "Dôležité! Pomáha predchádzať zamŕzaniu A.C.A.S!"],
         "pipBoard": ["Zobraziť šachovnicu", "Namiesto iba textu zobraziť celú šachovnicu"],
+        "pipQuality": ["Kvalita plávajúceho panela", "Nižšie rozlíšenie môže byť rýchlejšie. Predvolené: 50 %."],
         "movesOnDemand": ["Ťahy na požiadanie", "Vypočíta ťahy pre figúry, ktoré vyberieš"],
         "onlySuggestPieces": ["Navrhovať iba figúry", "Ukáže, ktorou figúrou ťahať, bez návrhu konkrétneho ťahu"],
         "isUserscriptGhost": ["Tajný skript", "Vypne všetky detegovateľné externé funkcie (napr. šípky ťahov) aby sa zabránilo detekcii"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Automatické skrytie (ms)", "Automaticky skry funkcie pomoci po tomto čase"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "potom vystreliť šíp na {square}",
+            "names": { "pawn": "Pešiak", "lance": "Kopija", "silver": "Strieborný generál", "gold": "Zlatý generál", "cannon": "Delo", "horse": "Kôň", "elephant": "Slon", "advisor": "Radca", "general": "Generál", "chariot": "Bojový voz", "soldier": "Vojak", "dragonHorse": "Dračí kôň", "dragonKing": "Dračí kráľ", "archbishop": "Arcibiskup", "chancellor": "Kancelár", "amazon": "Amazonka", "hawk": "Jastrab", "ferz": "Ferz", "wazir": "Vezír", "centaur": "Kentaur", "commoner": "Obyčajný kráľ", "banner": "Zástava", "drunkElephant": "Opitý slon", "crownPrince": "Korunný princ", "dragon": "Drak", "met": "Met", "khon": "Khon", "aiwok": "Aj wok" },
+            "drop": "Nasadiť: {piece}, pole {square}", "promoted": "Premenená figúra: {piece}", "promotionOnly": "premena", "unknownPiece": "Figúra {symbol}"
+        },
         "appearance": {
             "customImage": "Vlastný obrázok pozadia", "blur": "Rozmazanie obrázka",
             "imageHint": "PNG, JPEG, WebP, GIF alebo AVIF, do 10 MB. Uložené iba v tomto prehliadači, nie v exporte nastavení.",

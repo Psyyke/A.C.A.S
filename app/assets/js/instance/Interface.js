@@ -5,6 +5,8 @@ import { evaluationForPlayer } from '../misc/evaluation.js';
 import { prepareFeedbackPosition, renderLearningFeedback } from './renderFeedback.js';
 import { annotateOpponentMove } from './annotate.js';
 import { getHintSettings, filterHintMoves } from '../misc/learningHints.js';
+import { getVariantPgn } from '../misc/moveNotation.js';
+import { variantConfig, getAmazonsShot } from '../misc/variantPosition.js';
 
 function getHintSquareShape(square, color, opacity, isDestination = false) {
     const isBoardSquare = /^[a-z]\d+$/.test(square);
@@ -12,6 +14,28 @@ function getHintSquareShape(square, color, opacity, isDestination = false) {
     const destinationStyle = isDestination ? 'filter:brightness(1.5); stroke-dasharray:4 4; ' : '';
     return { shapeType: 'rectangle', shapeSquare: square,
         shapeConfig: { style: `${destinationStyle}opacity:${opacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2; fill:${color};` } };
+}
+
+function getDropShape(from, to, color, opacity) {
+    if(!/^[a-zA-Z]@$/.test(from) || !/^[a-z]\d+$/.test(to)) return null;
+    return { shapeType: 'text', shapeSquare: to,
+        shapeConfig: { text: `${from[0].toUpperCase()}@`, size: 1.3, position: [0, 0],
+            style: `fill:${color}; opacity:${opacity}; font-family:Arial,sans-serif; font-weight:900; stroke:black; stroke-width:0.06em; paint-order:stroke;` } };
+}
+
+function getShotShapes(shot, color, opacity, scale, filledSquares = false) {
+    if(!shot) return [];
+    const style = `fill:${color}; opacity:${opacity}; stroke:black; stroke-width:0.5%;`;
+    const path = filledSquares ? getHintSquareShape(shot.to, color, opacity, true) : {
+        shapeType: 'arrow', shapeSquare: [shot.from, shot.to],
+        shapeConfig: { style: `${style} stroke-dasharray:3 3;`, lineWidth: 12 * scale,
+            arrowheadWidth: 40 * scale, arrowheadHeight: 35 * scale, startOffset: 20 }
+    };
+    return [path, {
+        shapeType: 'text', shapeSquare: shot.to,
+        shapeConfig: { text: '×', size: 1.1, position: [0, 0],
+            style: `${style} font-family:Arial,sans-serif; font-weight:900; paint-order:stroke;` }
+    }].filter(Boolean).map(shape => ({ ...shape, isFuture: true }));
 }
 
 function computeArrowScale(index, total) {
@@ -59,6 +83,7 @@ export default class Interface {
 
         const isPartialHint = detail !== 'full';
         if(isPartialHint) return getHintSquareShape(detail === 'piece' ? move.from : move.to, color, opacity, detail === 'destination');
+        if(/^[a-zA-Z]@$/.test(move.from)) return getDropShape(move.from, move.to, color, opacity);
 
         const scale = computeArrowScale(index, movesForProfile.length);
 
@@ -99,6 +124,9 @@ export default class Interface {
         const isFuture = !!move.isFuture;
         const fillColor = index === 0 ? primaryArrowColorHex : secondaryArrowColorHex;
         const scale = isFuture ? 1 : computeArrowScale(index, totalRanks);
+        if(/^[a-zA-Z]@$/.test(move.player[0]))
+            return getDropShape(move.player[0], move.player[1], fillColor, arrowOpacity);
+        if(!move.player.every(square => /^[a-z]\d+$/.test(square))) return null;
 
         return {
             shapeType: 'arrow',
@@ -133,6 +161,8 @@ export default class Interface {
             const playerShape = alreadyMarked ? null : getHintSquareShape(square, fillColor, arrowOpacity, detail === 'destination');
             if(playerShape) shapes.push(playerShape);
             hintSquares?.add(square);
+        } else if(!mObj.playerHidden && /^[a-zA-Z]@$/.test(from)) {
+            if(visual) shapes.push({ ...visual, bringToFront: idx === 0 });
         } else if(!mObj.playerHidden && moveAsFilledSquares) {
             const styleBase = `opacity:${arrowOpacity}; stroke-width:0.5%; stroke:black; rx:2; ry:2; fill:${fillColor};`;
             const fromStyle = styleBase + (markedSquares[fillType].includes(from) ? 'opacity:0;' : '');
@@ -148,23 +178,41 @@ export default class Interface {
             shapes.push({ ...visual, bringToFront: idx === 0 });
         }
 
+        if(!mObj.playerHidden && detail === 'full') {
+            const shot = getAmazonsShot({ ...mObj, hintDetail: detail });
+            shapes.push(...getShotShapes(shot, fillColor, arrowOpacity,
+                mObj.isFuture ? 1 : computeArrowScale(idx, totalRanks), moveAsFilledSquares));
+        }
+
         if(oppFrom && oppTo && !mObj.opponentHidden && showOpponentMoveGuess) {
             const opponentDetail = mObj.opponentHintDetail ?? 'full';
             // Hidden/destination-only own moves must not be disclosed by hover.
-            const hoverSquare = mObj.playerHidden || detail === 'destination' ? oppFrom : from;
+            const ownHover = mObj.playerHidden || detail === 'destination' ? oppFrom : from;
+            const hoverSquare = /^[a-z]\d+$/.test(ownHover) ? ownHover
+                : mObj.playerHidden || detail === 'piece'
+                    ? (/^[a-z]\d+$/.test(oppFrom) ? oppFrom : oppTo) : to;
             const opponentStyle = getArrowStyle('opponent', opponentArrowColorHex, arrowOpacity);
             const opponentShapes = [];
             if(opponentDetail !== 'full') {
                 const shape = getHintSquareShape(opponentDetail === 'piece' ? oppFrom : oppTo, opponentArrowColorHex, arrowOpacity, opponentDetail === 'destination');
+                if(shape) opponentShapes.push(shape);
+            } else if(/^[a-zA-Z]@$/.test(oppFrom)) {
+                const shape = getDropShape(oppFrom, oppTo, opponentArrowColorHex, arrowOpacity);
                 if(shape) opponentShapes.push(shape);
             } else if(moveAsFilledSquares) {
                 [oppFrom, oppTo].forEach(square => {
                     const shape = getHintSquareShape(square, opponentArrowColorHex, arrowOpacity);
                     if(shape) opponentShapes.push(shape);
                 });
-            } else if(visual) {
+            } else if(visual && /^[a-z]\d+$/.test(oppFrom) && /^[a-z]\d+$/.test(oppTo)) {
+                const arrow = this.getMoveVisualSettings({ ...mObj, player: [oppFrom, oppTo] }, idx, totalRanks,
+                    { arrowOpacity, primaryArrowColorHex, secondaryArrowColorHex });
                 opponentShapes.push({ shapeType: 'arrow', shapeSquare: [oppFrom, oppTo],
-                    shapeConfig: { ...visual.shapeConfig, style: opponentStyle } });
+                    shapeConfig: { ...arrow.shapeConfig, style: opponentStyle } });
+            }
+            if(opponentDetail === 'full') {
+                opponentShapes.push(...getShotShapes(getAmazonsShot(mObj, true), opponentArrowColorHex,
+                    arrowOpacity, computeArrowScale(idx, totalRanks), moveAsFilledSquares));
             }
             opponentShapes.forEach(shape => {
                 if(!showOpponentMoveGuessConstantly) shape.shapeConfig.style += ' display:none;';
@@ -506,6 +554,55 @@ export default class Interface {
         updatePipFeedback(instance);
     }
 
+    getPgnConfig() {
+        const instance = this.AcasInstance;
+        const context = variantConfig({ chessVariant: instance.activeVariant });
+        const profile = Object.values(instance.pV).find(variables =>
+            variantConfig(variables).variant === context.variant);
+        return { ...context, useChess960: context.useChess960 || Boolean(profile?.useChess960) };
+    }
+
+    async updatePgn() {
+        const instance = this.AcasInstance;
+        const element = instance.instanceElem?.querySelector('.instance-pgn');
+        const opening = instance.instanceElem?.querySelector('.instance-opening-container span');
+        if(!element || !opening || instance.instanceClosed) return;
+        const request = this.pgnRequest = (this.pgnRequest || 0) + 1;
+        const history = instance.gameStateHistory;
+        const context = this.getPgnConfig();
+
+        if(context.variant === 'chess' && !context.useChess960) {
+            const pgn = GET_PGN_FROM_STATE_HISTORY(history);
+            const book = pgn ? FIND_OPENING_BY_PGN(pgn) : null;
+            element.innerText = pgn || '1. (...)';
+            opening.innerText = book ? `${book.name} (${book.eco})` : '';
+            updatePipOpening(instance);
+            return;
+        }
+
+        opening.innerText = '';
+        updatePipOpening(instance);
+        if(element.classList.contains('hidden')) {
+            element.innerText = 'Open PGN to generate variant move notation.';
+            return;
+        }
+
+        const isCurrent = () => !instance.instanceClosed && this.pgnRequest === request
+            && instance.gameStateHistory === history && !element.classList.contains('hidden')
+            && instance.instanceElem?.querySelector('.instance-pgn') === element
+            && JSON.stringify(this.getPgnConfig()) === JSON.stringify(context);
+        element.innerText = 'Generating variant PGN...';
+        try {
+            this.pgnTransitions ??= new Map();
+            const result = await getVariantPgn(history, { ...context, isCurrent }, this.pgnTransitions);
+            if(isCurrent()) element.innerText = result?.pgn || result?.error
+                || 'PGN unavailable: the variant engine could not reconstruct this game.';
+        } catch(error) {
+            if(isCurrent()) element.innerText = 'PGN unavailable: variant notation could not be generated.';
+            console.warn('[PGN] Could not generate variant PGN:', error);
+        }
+    }
+
     async updateBoardFen(calculateMovesConfig) {
         const request = (this.boardUpdateRequest || 0) + 1;
         this.boardUpdateRequest = request;
@@ -518,6 +615,14 @@ export default class Interface {
         if(!fen) return;
         if(basicFen && basicFen === this.lastAcceptedBasicFen && fen === this.AcasInstance.currentFen
             && !calculateMovesConfig?.skipValidityChecks) return;
+
+        const previousFen = this.AcasInstance.currentFen;
+        const dimensions = GET_BOARD_DIMENSIONS_FROM_FEN(fen);
+        if(this.AcasInstance.boardDimensions.width !== dimensions[0]
+            || this.AcasInstance.boardDimensions.height !== dimensions[1]) {
+            await this.AcasInstance.setupEnvironment(this.AcasInstance.variantStartPosFen || fen, dimensions);
+            if(this.boardUpdateRequest !== request || this.AcasInstance.instanceClosed) return;
+        }
 
         // The userscript keeps gameStateHistory as [newest, ..., initial], newest index 0.
         // The GUI has it reversed, so [initial, ..., newest], oldest index 0.
@@ -542,7 +647,6 @@ export default class Interface {
         this.removeBookMarkings();
         resetPipHints(this.AcasInstance);
 
-        const previousFen = this.AcasInstance.currentFen;
         if(fen) {
             this.AcasInstance.currentFen = fen;
             // Clear/cancel feedback before asynchronous settings application,
@@ -557,21 +661,8 @@ export default class Interface {
             if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen) return;
         }
 
-        if(this.AcasInstance.activeVariant === 'chess') {
-            const PGN = GET_PGN_FROM_STATE_HISTORY(this.AcasInstance.gameStateHistory);
-
-            if(PGN) {
-                const opening = FIND_OPENING_BY_PGN(PGN);
-
-                instancePgnElem.innerText = PGN?.length > 0 ? PGN : '1. (...)';
-                if(opening) instanceOpeningElem.innerText = `${opening?.name} (${opening?.eco})` || '';
-            }
-        } else {
-            instancePgnElem.innerText = 'Not the default chess variant, cannot create PGN.';
-            instanceOpeningElem.innerText = '';
-        }
-
-        updatePipOpening(this.AcasInstance);
+        // Variant reconstruction must not delay the next live engine calculation.
+        this.updatePgn().catch(error => console.warn('[PGN] Could not update game record:', error));
 
         // For each profile config
         Object.keys(this.AcasInstance.pV).forEach(profileName => {

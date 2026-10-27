@@ -42,7 +42,20 @@ export function parseVariantMove(uci) {
     const drop = String(uci).match(/^([a-zA-Z])@([a-z]\d+)$/);
     if(drop) return { from: `${drop[1]}@`, to: drop[2], promotion: '', uci, drop: drop[1] };
     const match = String(uci).match(/^([a-z]\d+)([a-z]\d+)([a-zA-Z+]?)(,.*)?$/);
-    return match ? { from: match[1], to: match[2], promotion: match[3] || '', uci } : null;
+    if(!match) return null;
+    const shot = match[4]?.match(/^,([a-z]\d+)([a-z]\d+)$/);
+    return { from: match[1], to: match[2], promotion: match[3] || '', uci,
+        ...(shot && shot[1] === match[2] && !match[3]
+            ? { shot: { from: shot[1], to: shot[2] } } : {}) };
+}
+
+export function getAmazonsShot(move, opponent = false) {
+    if(variantConfig(move).variant !== 'amazons') return null;
+    const detail = opponent ? move.opponentHintDetail : move.hintDetail;
+    if((detail && detail !== 'full') || (opponent ? move.opponentHidden : move.playerHidden)) return null;
+    const parsed = parseVariantMove(opponent ? move.opponentUci : move.playerUci);
+    const [from, to] = (opponent ? move.opponent : move.player) || [];
+    return parsed?.shot && parsed.from === from && parsed.to === to ? parsed.shot : null;
 }
 
 export function positionKey(fen) {

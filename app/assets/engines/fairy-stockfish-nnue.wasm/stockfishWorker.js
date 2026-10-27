@@ -1,6 +1,7 @@
 importScripts('/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfish.js');
 
 let engine = null;
+let listening = false;
 
 (async () => {
     engine = await Stockfish();
@@ -17,7 +18,10 @@ onmessage = e => {
     if(engine && method === 'acas_check_loaded') {
         postMessage(true);
 
-        engine.addMessageListener(postMessage);
+        if(!listening) {
+            engine.addMessageListener(postMessage);
+            listening = true;
+        }
 
         return;
     }

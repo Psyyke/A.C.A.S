@@ -180,7 +180,7 @@
         "renderSquarePlayer": ["Rutor dina pjäser kontrollerar", "Markera rutorna dina pjäser kontrollerar med grönt"],
         "renderSquareEnemy": ["Rutor motståndaren kontrollerar", "Markera rutorna motståndarens pjäser kontrollerar med rött"],
         "renderSquareContested": ["Omtvistade rutor", "Markera rutor som båda spelarna kontrollerar med orange"],
-        "renderSquareSafe": ["Säkra rutor", "Markera säkra rutor med cyan"],
+        "renderSquareSafe": ["Obevakade rutor", "Markera rutor som ingendera sidans pjäser kontrollerar med cyan"],
         "renderPiecePlayerCapture": ["Hotade egna pjäser", "Visa 💧 på pjäser som riskerar att bli slagna"],
         "renderPieceEnemyCapture": ["Motståndarens pjäsfångsthot", "Visa 🩸 på pjäser som du bör attackera"],
         "enableEveryPieceEvals": ["Visa varje pjäss bidrag", "Se hur mycket varje pjäs bidrar till positionen"],
@@ -190,6 +190,7 @@
         "feedbackOnExternalSite": ["Feedback På Extern Webbplats", "Visa feedback på schackwebbplatsens bräda (t.ex. chess.com:s bräda)"],
         "pip": ["Flytande Panel", "Viktigt! Förhindrar att A.C.A.S fryser!"],
         "pipBoard": ["Visa brädet", "Visa hela brädet istället för bara text"],
+        "pipQuality": ["Kvalitet på flytande panel", "Lägre upplösning kan vara snabbare. Standard: 50 %."],
         "movesOnDemand": ["Drag på Begäran", "Beräknar drag för pjäser du interagerar med"],
         "onlySuggestPieces": ["Föreslå bara pjäser", "Visa vilken pjäs du bör flytta, utan att föreslå ett specifikt drag"],
         "isUserscriptGhost": ["Spökskript", "Inaktivera all upptäckbar extern funktionalitet (t.ex. dragpilar) för att undvika upptäckt"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Dölj automatiskt (ms)", "Dölj hjälpfunktionerna automatiskt efter denna tid"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "skjut sedan en pil till {square}",
+            "names": { "pawn": "Bonde", "lance": "Lans", "silver": "Silvergeneral", "gold": "Guldgeneral", "cannon": "Kanon", "horse": "Häst", "elephant": "Elefant", "advisor": "Rådgivare", "general": "General", "chariot": "Stridsvagn", "soldier": "Soldat", "dragonHorse": "Drakhäst", "dragonKing": "Drakkung", "archbishop": "Ärkebiskop", "chancellor": "Kansler", "amazon": "Amason", "hawk": "Hök", "ferz": "Fers", "wazir": "Visir", "centaur": "Kentaur", "commoner": "Borgare", "banner": "Fana", "drunkElephant": "Berusad elefant", "crownPrince": "Kronprins", "dragon": "Drake", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Sätt {piece} på {square}", "promoted": "Promoverad {piece}", "promotionOnly": "promoveras", "unknownPiece": "Pjäs {symbol}"
+        },
         "appearance": {
             "customImage": "Egen bakgrundsbild", "blur": "Bildoskärpa",
             "imageHint": "PNG, JPEG, WebP, GIF eller AVIF, högst 10 MB. Sparas bara i den här webbläsaren, inte i exporterade inställningar.",

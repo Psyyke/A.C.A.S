@@ -175,7 +175,7 @@
         "renderSquarePlayer": ["Saját bábúk ellenőrzése", "Jelöli zölddel a négyzeteket, amelyeket a bábúid ellenőriznek"],
         "renderSquareEnemy": ["Ellenfél bábúk ellenőrzése", "Jelöli pirossal a négyzeteket, amelyeket az ellenfél bábúi ellenőriznek"],
         "renderSquareContested": ["Vitatott négyzetek", "Jelöli narancssárgával a négyzeteket, amelyeket mindkét játékos ellenőriz"],
-        "renderSquareSafe": ["Biztonságos négyzetek", "Jelöli ciankékkel a biztonságos négyzeteket, ahová egy bábú biztonságosan léphet"],
+        "renderSquareSafe": ["Ellenőrizetlen mezők", "Ciánkékkel jelöli azokat a mezőket, amelyeket egyik fél bábui sem ellenőriznek"],
         "renderPiecePlayerCapture": ["Saját bábú elfogási veszélye", "Jelöli 💧-vel a bábúkat, amelyek elfogás veszélyében vannak"],
         "renderPieceEnemyCapture": ["Ellenfél bábú elfogási veszélye", "Jelöli 🩸-vel a bábúkat, amelyeket támadnod kell"],
         "enableEveryPieceEvals": ["Minden bábu hozzájárulásának megjelenítése", "Lásd, mennyit járul hozzá minden bábu a pozícióhoz"],
@@ -190,6 +190,7 @@
         "webhookIncludeRawUci": ["Nyers motor UCI", "Nyers motor UCI sorok küldése"],
         "pip": ["Lebegő panel", "Fontos! Segít megelőzni az A.C.A.S lefagyását!"],
         "pipBoard": ["Tábla megjelenítése", "Ahelyett, hogy csak szöveg jelenne meg, jelenítse meg az egész táblát"],
+        "pipQuality": ["Lebegő panel minősége", "Az alacsonyabb felbontás gyorsabb lehet. Alapértelmezett: 50%."],
         "movesOnDemand": ["Lépések kérésre", "A kiválasztott bábukhoz számít lépéseket"],
         "onlySuggestPieces": ["Csak bábukat javasol", "Megmutatja, melyik bábuval lépj, konkrét lépés nélkül"],
         "isUserscriptGhost": ["Szellem script", "Letiltja az összes észlelhető külső funkciót (pl. lépés nyilak), hogy elkerülje a felismerést"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Automatikus elrejtés (ms)", "Rejtse el automatikusan a segítségfunkciókat ezen idő után"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "majd lőj egy nyilat a {square} mezőre",
+            "names": { "pawn": "Gyalog", "lance": "Lándzsa", "silver": "Ezüst tábornok", "gold": "Arany tábornok", "cannon": "Ágyú", "horse": "Ló", "elephant": "Elefánt", "advisor": "Tanácsadó", "general": "Tábornok", "chariot": "Harci szekér", "soldier": "Katona", "dragonHorse": "Sárkányló", "dragonKing": "Sárkánykirály", "archbishop": "Érsek", "chancellor": "Kancellár", "amazon": "Amazon", "hawk": "Sólyom", "ferz": "Ferz", "wazir": "Vezír", "centaur": "Kentaur", "commoner": "Közember", "banner": "Zászló", "drunkElephant": "Részeg elefánt", "crownPrince": "Trónörökös", "dragon": "Sárkány", "met": "Met", "khon": "Khon", "aiwok": "Ajvok" },
+            "drop": "Letétel: {piece}, mező: {square}", "promoted": "Előléptetett {piece}", "promotionOnly": "előléptetés", "unknownPiece": "Bábu {symbol}"
+        },
         "appearance": {
             "customImage": "Egyéni háttérkép", "blur": "Kép elmosása",
             "imageHint": "PNG, JPEG, WebP, GIF vagy AVIF, legfeljebb 10 MB. Csak ebben a böngészőben tárolódik, az exportált beállításokban nem.",

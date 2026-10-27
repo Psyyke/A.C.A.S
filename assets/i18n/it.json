@@ -175,7 +175,7 @@
         "renderSquarePlayer": ["Controllo dei pezzi propri", "Evidenzia i quadrati che i tuoi pezzi controllano con il verde"],
         "renderSquareEnemy": ["Controllo dei pezzi nemici", "Evidenzia i quadrati che i pezzi nemici controllano con il rosso"],
         "renderSquareContested": ["Quadrati contesi", "Evidenzia i quadrati che entrambi i giocatori controllano con l'arancione"],
-        "renderSquareSafe": ["Quadrati sicuri", "Evidenzia i quadrati sicuri dove un pezzo può muoversi con il ciano"],
+        "renderSquareSafe": ["Case incontrollate", "Evidenzia in ciano le case che non sono controllate dai pezzi di nessuno dei due schieramenti"],
         "renderPiecePlayerCapture": ["Minaccia di cattura dei pezzi propri", "Mostra 💧 sui pezzi che sono in pericolo di cattura"],
         "renderPieceEnemyCapture": ["Minaccia di cattura dei pezzi nemici", "Mostra 🩸 sui pezzi che dovresti attaccare"],
         "enableEveryPieceEvals": ["Mostra contributo di ogni pezzo", "Guarda quanto ogni pezzo contribuisce alla posizione"],
@@ -190,6 +190,7 @@
         "webhookIncludeRawUci": ["UCI grezzo del motore", "Invia righe UCI grezze del motore"],
         "pip": ["Pannello fluttuante", "Importante! Impedisce ad A.C.A.S di bloccarsi!"],
         "pipBoard": ["Mostra la scacchiera", "Invece di solo testo, mostra l'intera scacchiera"],
+        "pipQuality": ["Qualità del pannello fluttuante", "Una risoluzione più bassa potrebbe essere più veloce. Predefinita: 50%."],
         "movesOnDemand": ["Mosse su Richiesta", "Calcola le mosse per i pezzi con cui interagisci"],
         "onlySuggestPieces": ["Suggerisci solo i pezzi", "Indica quale pezzo muovere, senza suggerire una mossa precisa"],
         "isUserscriptGhost": ["Script Fantasma", "Disabilita tutte le funzionalità esterne rilevabili (es. frecce di movimento) per evitare il rilevamento"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Occultamento automatico (ms)", "Nascondi automaticamente le funzioni di assistenza dopo questo tempo"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "poi scocca una freccia in {square}",
+            "names": { "pawn": "Pedone", "lance": "Lancia", "silver": "Generale d'argento", "gold": "Generale d'oro", "cannon": "Cannone", "horse": "Cavallo", "elephant": "Elefante", "advisor": "Consigliere", "general": "Generale", "chariot": "Carro", "soldier": "Soldato", "dragonHorse": "Cavallo drago", "dragonKing": "Re drago", "archbishop": "Arcivescovo", "chancellor": "Cancelliere", "amazon": "Amazzone", "hawk": "Falco", "ferz": "Ferz", "wazir": "Visir", "centaur": "Centauro", "commoner": "Popolano", "banner": "Stendardo", "drunkElephant": "Elefante ubriaco", "crownPrince": "Principe ereditario", "dragon": "Drago", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Posiziona {piece} in {square}", "promoted": "{piece} promosso", "promotionOnly": "promozione", "unknownPiece": "Pezzo {symbol}"
+        },
         "appearance": {
             "customImage": "Immagine di sfondo personalizzata", "blur": "Sfocatura immagine",
             "imageHint": "PNG, JPEG, WebP, GIF o AVIF, fino a 10 MB. Salvata solo in questo browser, non nelle impostazioni esportate.",

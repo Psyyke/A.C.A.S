@@ -178,7 +178,7 @@
         "renderSquarePlayer": ["Controlul pieselor proprii", "Subliniază pătratele pe care le controlează piesele tale cu verde"],
         "renderSquareEnemy": ["Controlul pieselor adversarului", "Subliniază pătratele pe care le controlează piesele adversarului cu roșu"],
         "renderSquareContested": ["Pătrate contestate", "Subliniază pătratele contestate cu portocaliu"],
-        "renderSquareSafe": ["Pătrate sigure", "Subliniază pătratele sigure cu cian"],
+        "renderSquareSafe": ["Câmpuri necontrolate", "Evidențiază cu cian câmpurile care nu sunt controlate de piesele niciuneia dintre părți"],
         "renderPiecePlayerCapture": ["Amenințare de Captură a Pieselor Proprii", "Afișează 💧 pe piesele care sunt în pericol de captură"],
         "renderPieceEnemyCapture": ["Amenințare de Captură a Pieselor Adversarului", "Afișează 🩸 pe piesele pe care ar trebui să le ataci"],
         "enableEveryPieceEvals": ["Afișează contribuția fiecărei piese", "Vezi cât contribuie fiecare piesă la poziție"],
@@ -188,6 +188,7 @@
         "feedbackOnExternalSite": ["Feedback Pe Site-ul Extern", "Afișează feedback pe tabla site-ului de șah (de exemplu, tabla chess.com)"],
         "pip": ["Panou Flotant", "Important! Previne înghețarea A.C.A.S!"],
         "pipBoard": ["Afișează tabla", "În loc de doar text, afișează întreaga tablă"],
+        "pipQuality": ["Calitatea panoului flotant", "O rezoluție mai mică poate fi mai rapidă. Implicit: 50%."],
         "movesOnDemand": ["Mutări la cerere", "Calculează mutări pentru piesele pe care le selectezi"],
         "onlySuggestPieces": ["Sugerează doar piesele", "Arată ce piesă să muți, fără să propună o mutare concretă"],
         "isUserscriptGhost": ["Script fantomă", "Dezactivează orice funcționalitate externă detectabilă (de ex. săgeți de mutare) pentru a evita detectarea"],
@@ -198,6 +199,11 @@
         "concealAssistanceAutoDelayMs": ["Ascundere automată (ms)", "Ascunde automat funcțiile de asistență după acest timp"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "apoi trage o săgeată spre {square}",
+            "names": { "pawn": "Pion", "lance": "Lance", "silver": "General de argint", "gold": "General de aur", "cannon": "Tun", "horse": "Cal", "elephant": "Elefant", "advisor": "Consilier", "general": "General", "chariot": "Car de luptă", "soldier": "Soldat", "dragonHorse": "Cal dragon", "dragonKing": "Rege dragon", "archbishop": "Arhiepiscop", "chancellor": "Cancelar", "amazon": "Amazoană", "hawk": "Șoim", "ferz": "Ferz", "wazir": "Vizir", "centaur": "Centaur", "commoner": "Om de rând", "banner": "Stindard", "drunkElephant": "Elefant beat", "crownPrince": "Prinț moștenitor", "dragon": "Dragon", "met": "Met", "khon": "Khon", "aiwok": "Ai uoc" },
+            "drop": "Plasează {piece} pe {square}", "promoted": "{piece} promovat", "promotionOnly": "promovare", "unknownPiece": "Piesă {symbol}"
+        },
         "appearance": {
             "customImage": "Imagine de fundal personalizată", "blur": "Estomparea imaginii",
             "imageHint": "PNG, JPEG, WebP, GIF sau AVIF, până la 10 MB. Salvată doar în acest browser, nu în setările exportate.",

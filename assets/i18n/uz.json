@@ -120,12 +120,13 @@
         "advancedEloMaxError": ["Eng katta xato (0 - 1000)", "(Hech bir dvijok buni qo‘llab-quvvatlamayotganga o‘xshaydi)"], "advancedEloProbability": ["Ehtimollik (0 - 1000)", "(Hech bir dvijok buni qo‘llab-quvvatlamayotganga o‘xshaydi)"],
         "renderOnExternalSite": ["Tashqi saytda ko‘rsatish", "Shaxmat sayti taxtasida ko‘rsatish (masalan, chess.com)"],
         "renderSquarePlayer": ["O‘z donalarining nazorati", "Donalaringiz nazorat qilayotgan kataklarni yashil bilan belgilash"], "renderSquareEnemy": ["Raqib donalarining nazorati", "Raqib donalari nazorat qilayotgan kataklarni qizil bilan belgilash"],
-        "renderSquareContested": ["Talash kataklar", "Ikkala tomon nazorat qilayotgan kataklarni to‘q sariq bilan belgilash"], "renderSquareSafe": ["Xavfsiz kataklar", "Xavfsiz kataklarni havorang bilan belgilash"],
+        "renderSquareContested": ["Talash kataklar", "Ikkala tomon nazorat qilayotgan kataklarni to‘q sariq bilan belgilash"], "renderSquareSafe": ["Nazoratsiz kataklar", "Hech qaysi tomon donalari nazorat qilmaydigan kataklarni havorang bilan belgilash"],
         "renderPiecePlayerCapture": ["O‘z donalariga xavf", "Olinish xavfidagi donalarda 💧 ko‘rsatish"], "renderPieceEnemyCapture": ["Raqib donalariga hujum", "Hujum qilish kerak bo‘lgan donalarda 🩸 ko‘rsatish"],
         "enableEveryPieceEvals": ["Donalar hissasini ko‘rsatish", "Har bir dona vaziyatga qancha hissa qo‘shayotganini ko‘rish"], "feedbackEngineDepth": ["Qidiruv chuqurligi", "Fairy Stockfish 14 uchun maqsadli chuqurlik"],
         "enableEnemyFeedback": ["Raqibni baholash", "Raqib yurishlarini baholash"], "enableMoveRatings": ["Yurishlarni baholash", "Yurishlaringizni dvijokning eng yaxshi yurishi bilan solishtirish"],
         "feedbackOnExternalSite": ["Tashqi saytda baholash", "Shaxmat sayti taxtasida yurish baholarini ko‘rsatish (masalan, chess.com)"],
         "pip": ["Suzuvchi panel", "Muhim! A.C.A.S qotib qolishining oldini oladi!"], "pipBoard": ["Taxtani ko‘rsatish", "Faqat matn o‘rniga butun taxtani ko‘rsatish"], "pipSan": ["SAN yurish yozuvi", "Suzuvchi panel va ovozli yurishlarda SAN dan foydalanish"],
+        "pipQuality": ["Suzuvchi panel sifati", "Pastroq tasvir aniqligi tezroq ishlashi mumkin. Standart: 50%."],
         "movesOnDemand": ["Talab bo‘yicha yurishlar", "Siz tanlagan donalar uchun yurishlarni hisoblash"], "onlySuggestPieces": ["Faqat donalarni tavsiya qilish", "Aniq yurishni ko‘rsatmay, qaysi donani yurishni tavsiya qilish"],
         "isUserscriptGhost": ["Yashirin skript", "Aniqlanishdan saqlanish uchun barcha aniqlanadigan tashqi funksiyalarni (masalan, yurish strelkalarini) o‘chirish"],
         "useExternalChessEngine": ["Yoqilgan", "Tashqi dvijok yoqilganmi"], "instanceRestartTriggerCode": ["Qayta ishga tushirish tugmasi", "Barcha seanslarni qayta ishga tushiradi; ular to‘xtab qolsa foydali"],
@@ -133,6 +134,11 @@
         "concealAssistanceAutoDelayMs": ["Avtomatik yashirish (ms)", "Shu vaqtdan keyin avtomatik yashirish"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "keyin {square} katagiga o‘q oting",
+            "names": { "pawn": "Piyoda", "lance": "Nayza", "silver": "Kumush general", "gold": "Oltin general", "cannon": "Zambarak", "horse": "Ot", "elephant": "Fil", "advisor": "Maslahatchi", "general": "Sarkarda", "chariot": "Jang aravasi", "soldier": "Askar", "dragonHorse": "Ajdarho oti", "dragonKing": "Ajdarho shohi", "archbishop": "Arxiyepiskop", "chancellor": "Kansler", "amazon": "Amazon", "hawk": "Lochin", "ferz": "Ferz", "wazir": "Vazir", "centaur": "Kentavr", "commoner": "Oddiy shoh", "banner": "Bayroq", "drunkElephant": "Mast fil", "crownPrince": "Valiahd", "dragon": "Ajdarho", "met": "Met", "khon": "Xon", "aiwok": "Ay vok" },
+            "drop": "Joylashtirish: {piece}, katak {square}", "promoted": "Almashtirilgan {piece}", "promotionOnly": "almashish", "unknownPiece": "Dona {symbol}"
+        },
         "appearance": {
             "customImage": "Shaxsiy fon rasmi", "blur": "Rasmni xiralashtirish",
             "imageHint": "PNG, JPEG, WebP, GIF yoki AVIF, ko‘pi bilan 10 MB. Faqat shu brauzerda saqlanadi, eksport qilingan sozlamalarga kirmaydi.",

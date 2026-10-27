@@ -964,7 +964,6 @@ dialog {
 dialog > .floaty-container {
     position: relative;
     z-index: 0;
-    border-radius: inherit;
 }
 dialog > .floaty-container::before {
     /* Keep nested dropdown blur independent of the dialog's glass surface. */

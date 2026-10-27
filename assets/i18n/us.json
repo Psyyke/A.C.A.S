@@ -176,7 +176,7 @@
         "renderSquarePlayer": ["Own Piece Vision", "Highlight squares your pieces see with green"],
         "renderSquareEnemy": ["Enemy Piece Vision", "Highlight squares enemy's pieces see with red"],
         "renderSquareContested": ["Contested Squares", "Highlight contested squares with orange"],
-        "renderSquareSafe": ["Safe Squares", "Highlight safe squares with cyan"],
+        "renderSquareSafe": ["Unwatched Squares", "Highlight squares neither side's pieces see with cyan"],
         "renderPiecePlayerCapture": ["Own Piece Capture", "Display 💧 on pieces that are in danger of capture"],
         "renderPieceEnemyCapture": ["Enemy Piece Capture", "Display 🩸 on pieces that you should attack"],
         "enableEveryPieceEvals": ["Show Piece Contributions", "See how much each piece is contributing to the position"],
@@ -201,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Auto Conceal (ms)", "Automatically conceal after this time"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "then shoot an arrow to {square}",
+            "names": { "pawn": "Pawn", "lance": "Lance", "silver": "Silver general", "gold": "Gold general", "cannon": "Cannon", "horse": "Horse", "elephant": "Elephant", "advisor": "Advisor", "general": "General", "chariot": "Chariot", "soldier": "Soldier", "dragonHorse": "Dragon horse", "dragonKing": "Dragon king", "archbishop": "Archbishop", "chancellor": "Chancellor", "amazon": "Amazon", "hawk": "Hawk", "ferz": "Ferz", "wazir": "Wazir", "centaur": "Centaur", "commoner": "Commoner", "banner": "Banner", "drunkElephant": "Drunk elephant", "crownPrince": "Crown prince", "dragon": "Dragon", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Drop {piece} on {square}", "promoted": "Promoted {piece}", "promotionOnly": "promotes", "unknownPiece": "Piece {symbol}"
+        },
         "appearance": {
             "customImage": "Custom Background Image", "blur": "Image Blur",
             "imageHint": "PNG, JPEG, WebP, GIF or AVIF, up to 10 MB. Saved only in this browser, not in settings exports.",

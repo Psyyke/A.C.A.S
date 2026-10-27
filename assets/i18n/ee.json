@@ -173,7 +173,7 @@
         "renderSquarePlayer": ["Oma tükkide kontroll", "Näita ruute, mida sinu tükid kontrollivad"],
         "renderSquareEnemy": ["Vastase tükkide kontroll", "Näita ruute, mida vastase tükid kontrollivad"],
         "renderSquareContested": ["Vaidlustatud ruudud", "Näita ruute, mida mõlemad mängijad kontrollivad"],
-        "renderSquareSafe": ["Turvalised ruudud", "Näita ruute, kuhu tükk saab turvaliselt liikuda"],
+        "renderSquareSafe": ["Kontrollimata ruudud", "Tõsta türkiissiniselt esile ruudud, mida kummagi poole malendid ei kontrolli"],
         "renderPiecePlayerCapture": ["Ohustatud oma malendid", "Näita 💧 malenditel, mida vastane võib lüüa"],
         "renderPieceEnemyCapture": ["Rünnatavad vastase malendid", "Näita 🩸 malenditel, mida tasub rünnata"],
         "enableEveryPieceEvals": ["Näita iga tüki osalust", "Vaata, kui palju iga tükk positsiooni panustab"],
@@ -188,6 +188,7 @@
         "webhookIncludeRawUci": ["Mootori toor-UCI", "Saada mootorite toor-UCI read"],
         "pip": ["Hõljuv paneel", "Oluline! Takistab A.C.A.S-i külmumist!"],
         "pipBoard": ["Kuva lauda", "Näita kogu lauda tekstipõhise kuvamise asemel"],
+        "pipQuality": ["Hõljuva paneeli kvaliteet", "Madalam eraldusvõime võib olla kiirem. Vaikimisi: 50%."],
         "movesOnDemand": ["Käigud valimisel", "Arvutab käigud malenditele, mille valid"],
         "onlySuggestPieces": ["Soovita ainult malendeid", "Näita, millist malendit liigutada, ilma konkreetset käiku soovitamata"],
         "isUserscriptGhost": ["Kummitusskript", "Keela kõik tuvastatavad välised funktsioonid (nt käigunoole), et vältida tuvastamist"],
@@ -199,6 +200,11 @@
 
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "seejärel lase nool ruudule {square}",
+            "names": { "pawn": "Ettur", "lance": "Oda", "silver": "Hõbekindral", "gold": "Kuldkindral", "cannon": "Kahur", "horse": "Hobune", "elephant": "Elevant", "advisor": "Nõuandja", "general": "Kindral", "chariot": "Sõjavanker", "soldier": "Sõdur", "dragonHorse": "Draakonhobune", "dragonKing": "Draakonikuningas", "archbishop": "Peapiiskop", "chancellor": "Kantsler", "amazon": "Amatsoon", "hawk": "Kull", "ferz": "Fers", "wazir": "Visiir", "centaur": "Kentaur", "commoner": "Tavaline kuningas", "banner": "Lipp", "drunkElephant": "Purjus elevant", "crownPrince": "Kroonprints", "dragon": "Draakon", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Aseta {piece} ruudule {square}", "promoted": "Edutatud {piece}", "promotionOnly": "edutamine", "unknownPiece": "Malend {symbol}"
+        },
         "appearance": {
             "customImage": "Kohandatud taustapilt", "blur": "Pildi hägusus",
             "imageHint": "PNG, JPEG, WebP, GIF või AVIF, kuni 10 MB. Salvestatakse ainult sellesse brauserisse, mitte eksporditud seadetesse.",

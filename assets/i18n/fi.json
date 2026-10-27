@@ -173,7 +173,7 @@
         "renderSquarePlayer": ["Oman nappulan kontrolli", "Korostaa vihreällä ruudut, joita omat nappulat kontrolloivat"],
         "renderSquareEnemy": ["Vastustajan nappulan kontrolli", "Korostaa punaisella ruudut, joita vastustajan nappulat kontrolloivat"],
         "renderSquareContested": ["Kiistellyt ruudut", "Korostaa oranssilla ruudut, joita molemmat pelaajat kontrolloivat"],
-        "renderSquareSafe": ["Turvalliset ruudut", "Korostaa turkoosilla ruudut, joihin nappula voi siirtyä turvallisesti"],
+        "renderSquareSafe": ["Valvomattomat ruudut", "Korostaa turkoosilla ruudut, joita kummankaan puolen nappulat eivät hallitse"],
         "renderPiecePlayerCapture": ["Uhatut omat nappulat", "Näyttää 💧 nappuloissa, jotka ovat vaarassa tulla syödyiksi"],
         "renderPieceEnemyCapture": ["Vastustajan nappulan kaappausuhka", "Näyttää 🩸 nappuloilla, joihin kannattaa hyökätä"],
         "enableEveryPieceEvals": ["Näytä jokaisen nappulan osuus", "Näe, kuinka paljon jokainen nappula vaikuttaa asemaan"],
@@ -188,6 +188,7 @@
         "webhookIncludeRawUci": ["Moottorin UCI sellaisenaan", "Lähetä moottorin UCI-rivit sellaisenaan"],
         "pip": ["Kelluva paneeli", "Tärkeä! Estää A.C.A.S:n jäätymisen!"],
         "pipBoard": ["Näytä lauta", "Näytä koko lauta pelkän tekstin sijaan"],
+        "pipQuality": ["Kelluvan paneelin laatu", "Pienempi tarkkuus voi olla nopeampi. Oletus: 50 %."],
         "movesOnDemand": ["Siirrot pyynnöllä", "Laskee siirtoja nappuloille, joiden kanssa vuorovaikutat"],
         "onlySuggestPieces": ["Ehdota vain nappuloita", "Näytä, mitä nappuloita kannattaa siirtää, mutta älä ehdota tarkkoja siirtoja"],
         "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstään kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"],
@@ -198,6 +199,11 @@
         "concealAssistanceAutoDelayMs": ["Automaattinen piilotus (ms)", "Piilota avustajatoiminnot automaattisesti tämän ajan jälkeen"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "ammu sitten nuoli ruutuun {square}",
+            "names": { "pawn": "Sotilas", "lance": "Peitsi", "silver": "Hopeakenraali", "gold": "Kultakenraali", "cannon": "Tykki", "horse": "Hevonen", "elephant": "Norsu", "advisor": "Neuvonantaja", "general": "Kenraali", "chariot": "Sotavaunu", "soldier": "Sotilas", "dragonHorse": "Lohikäärmehevonen", "dragonKing": "Lohikäärmekuningas", "archbishop": "Arkkipiispa", "chancellor": "Kansleri", "amazon": "Amatsoni", "hawk": "Haukka", "ferz": "Ferssi", "wazir": "Visiiri", "centaur": "Kentauri", "commoner": "Tavallinen kuningas", "banner": "Lippu", "drunkElephant": "Juopunut norsu", "crownPrince": "Kruununprinssi", "dragon": "Lohikäärme", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Pudota {piece} ruutuun {square}", "promoted": "Korotettu {piece}", "promotionOnly": "korotus", "unknownPiece": "Nappula {symbol}"
+        },
         "appearance": {
             "customImage": "Oma taustakuva", "blur": "Kuvan sumennus",
             "imageHint": "PNG, JPEG, WebP, GIF tai AVIF, enintään 10 Mt. Tallennetaan vain tähän selaimeen, ei vietyihin asetuksiin.",

@@ -175,7 +175,7 @@
         "renderSquarePlayer": ["Casillas que controlas", "Resaltar en verde las casillas que controlan tus piezas"],
         "renderSquareEnemy": ["Casillas que controla el rival", "Resaltar en rojo las casillas que controlan las piezas del rival"],
         "renderSquareContested": ["Casillas disputadas", "Resaltar en naranja las casillas que controlan ambos jugadores"],
-        "renderSquareSafe": ["Casillas seguras", "Resaltar en cian las casillas a las que una pieza puede moverse con seguridad"],
+        "renderSquareSafe": ["Casillas sin control", "Resaltar en cian las casillas que no controlan las piezas de ninguno de los dos bandos"],
         "renderPiecePlayerCapture": ["Amenaza de captura de piezas propias", "Mostrar 💧 en las piezas que están en peligro de captura"],
         "renderPieceEnemyCapture": ["Amenaza de captura de piezas enemigas", "Mostrar 🩸 en las piezas que deberías atacar"],
         "enableEveryPieceEvals": ["Contribución de cada pieza", "Mira cuánto contribuye cada pieza a la posición"],
@@ -190,6 +190,7 @@
         "webhookIncludeRawUci": ["UCI sin procesar del motor", "Enviar líneas UCI sin procesar del motor"],
         "pip": ["Panel flotante", "¡Importante! ¡Evita que A.C.A.S se congele!"],
         "pipBoard": ["Mostrar tablero", "En lugar de solo texto, mostrar todo el tablero"],
+        "pipQuality": ["Calidad del panel flotante", "Una resolución más baja podría ser más rápida. Predeterminado: 50 %."],
         "movesOnDemand": ["Jugadas a petición", "Calcula jugadas para las piezas que seleccionas"],
         "onlySuggestPieces": ["Sugerir solo piezas", "Indica qué pieza mover, sin mostrar una jugada concreta"],
         "isUserscriptGhost": ["Script Fantasma", "Desactivar toda funcionalidad externa detectable (p. ej. flechas de movimiento) para evitar la detección"],
@@ -201,6 +202,11 @@
 
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "después dispara una flecha a {square}",
+            "names": { "pawn": "Peón", "lance": "Lanza", "silver": "General de plata", "gold": "General de oro", "cannon": "Cañón", "horse": "Caballo", "elephant": "Elefante", "advisor": "Consejero", "general": "General", "chariot": "Carro", "soldier": "Soldado", "dragonHorse": "Caballo dragón", "dragonKing": "Rey dragón", "archbishop": "Arzobispo", "chancellor": "Canciller", "amazon": "Amazona", "hawk": "Halcón", "ferz": "Ferz", "wazir": "Visir", "centaur": "Centauro", "commoner": "Plebeyo", "banner": "Estandarte", "drunkElephant": "Elefante borracho", "crownPrince": "Príncipe heredero", "dragon": "Dragón", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Colocar {piece} en {square}", "promoted": "{piece} promocionado", "promotionOnly": "promociona", "unknownPiece": "Pieza {symbol}"
+        },
         "appearance": {
             "customImage": "Imagen de fondo personalizada", "blur": "Desenfoque de imagen",
             "imageHint": "PNG, JPEG, WebP, GIF o AVIF, hasta 10 MB. Se guarda solo en este navegador, no en los ajustes exportados.",

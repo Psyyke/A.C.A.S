@@ -1,17 +1,22 @@
 /* [A.C.A.S Board Analyzer]
  * - License: GPLv3
- * - Version: 0.2
- * - Capture indicators use legal, material-only exchanges, not attacker counts.
+ * - Version: 0.3
+ * - Standard chess uses legal exchanges; variant overlays use approximate attacks.
  * */
 
 import CaptureExchange, { getPieceValue } from './misc/captureExchange.js';
+import { parseVariantFen, variantConfig } from './misc/variantPosition.js';
+import { getVariantPiecePaths } from './misc/variantAttacks.js';
 
 export default class BoardAnalyzer {
     constructor(fen, config) {
         this.fen = fen;
         this.debug = config?.debug ? true : false;
-        // Keep the original FEN: the display board may be rotated by parseFEN().
-        this.captureExchange = config?.analyzeCaptures === false ? null : new CaptureExchange(fen);
+        this.variant = variantConfig(config).variant;
+        this.analyzeCaptures = config?.analyzeCaptures !== false;
+        // The exchange calculator only knows orthodox rules. Chess960 has the same
+        // capture geometry; other variants use an inexpensive attack/defense estimate.
+        this.captureExchange = this.analyzeCaptures && this.variant === 'chess' ? new CaptureExchange(fen) : null;
 
         this.isPlayerBlack = (config?.orientation || (fen && fen.split(' ')[1]) || 'w').toLowerCase() === 'b';
         this.board = this.parseFEN();
@@ -45,69 +50,29 @@ export default class BoardAnalyzer {
         return `${file}${rank}`;
     }
 
-    flipFen() {
-        const spaceIndex = this.fen.indexOf(' ');
-        // A board-only FEN has no fields after it, so keep the whole string
-        const firstSpace = spaceIndex === -1 ? this.fen.length : spaceIndex;
-        const board = this.fen.slice(0, firstSpace);
-
-        const flippedBoard = board.split('/')
-            .reverse()
-            .map(rank => [...rank].reverse().join(''))
-            .join('/');
-
-        this.fen = flippedBoard + this.fen.slice(firstSpace);
-    }
-
     parseFEN() {
         if(!this.fen || typeof this.fen !== 'string') return [];
-        if(this.isPlayerBlack) this.flipFen();
-
-        const rows = this.fen.split(' ')[0].split('/');
-        const board = [];
-
-        for(let i = 0; i < rows.length; i++) {
-            const row = [];
-            const rowString = rows[i];
-
-            // Digit runs, so "10" empty squares on a wide board stays 10 and not 1
-            for(const token of rowString.match(/\d+|\D/g) ?? []) {
-                if(isNaN(token))
-                    row.push(token);
-                else
-                    row.push(...Array(parseInt(token, 10)).fill(null));
-            }
-
-            // Ensure that the board has a consistent number of columns
-            // Make sure we match the largest number of columns based on the rows
-            if(this.boardWidth === undefined) {
-                this.boardWidth = row.length;
-            } else {
-                if(row.length !== this.boardWidth) {
-                    if(this.debug) throw new Error('Inconsistent row lengths in FEN');
-                }
-            }
-
-            board.push(row);
-        }
-
-        return board;
+        const { rows } = parseVariantFen(this.fen);
+        if(this.debug && rows.some(row => row.length !== rows[0].length))
+            throw new Error('Inconsistent row lengths in FEN');
+        // Rotate expanded squares, not FEN text ("10", "+P", and pockets are tokens).
+        return this.isPlayerBlack ? rows.reverse().map(row => row.reverse()) : rows;
     }
 
     // Extract all pieces from the board, categorized by player and with paths
-    // Paths are the squares the piece protects or can move to.
-    // Sliding paths stop at the first occupied square; exchanges reveal x-rays later.
+    // Paths are controlled squares, including friendly pieces that are defended.
+    // Sliders stop at the first blocker; cannons require a screen first.
     getPiecesWithPaths() {
         const pieces = { player: [], enemy: [] };
 
         for(let y = 0; y < this.boardHeight; y++) {
             for(let x = 0; x < this.boardWidth; x++) {
                 const pieceFen = this.board[y][x];
-                const isPieceWhite = pieceFen >= 'A' && pieceFen <= 'Z';
+                const isPieceWhite = pieceFen && pieceFen === pieceFen.toUpperCase();
                 const isPlayerPiece = isPieceWhite === !this.isPlayerBlack;
 
-                if(pieceFen) {
-                    const pObj = { 'piece': pieceFen, 'position': [y, x], ranking: this.fenToValue(pieceFen) };
+                if(pieceFen && pieceFen !== '*') {
+                    const pObj = { 'piece': pieceFen, 'position': [y, x], ranking: this.fenToValue(pieceFen.replace(/[+~]/g, '')) };
 
                     pObj['paths'] = this.getPiecePaths(pObj);
 
@@ -123,122 +88,18 @@ export default class BoardAnalyzer {
         return pieces;
     }
 
-    // Moves are kind of like vectors, and the piecePos is a point.
-    // Traverse the vectors from the piece's point to get the end point on the board.
-    coordinatesFromMoves(piecePos, moves) { // piecePos [y, x], moves [[x, y], ...]
-        const result = [];
-
-        for(let i = 0; i < moves.length; i++) {
-            const y = piecePos[0] + moves[i][1];
-            const x = piecePos[1] + moves[i][0];
-            const square = this.board?.[y]?.[x];
-
-            if(square !== undefined) {
-                result.push([y, x]);
-            }
-        }
-
-        return result;
-    }
-
-    // The move arrays such as [1, -1] are [x, y], not board array index.
-    // Returns in board array index format [y, x].
     getPiecePaths(pObj) {
-        if(!pObj) {
-            throw new Error('Failed to process pObj on getPiecePaths()!');
-
-            return [0, 0];
-        }
-
-        const pieceFen = pObj.piece;
-        const piecePos = pObj.position; // [y, x]
-
-        const isPieceWhite = pieceFen >= 'A' && pieceFen <= 'Z';
-        const pieceType = pieceFen.toUpperCase();
-        const [piecePosY, piecePosX] = piecePos;
-
-        const longerBoardSide = Math.max(this.boardWidth, this.boardHeight);
-        const shorterBoardSide = Math.min(this.boardWidth, this.boardHeight);
-
-        const board = this.board;
-
-        function cast(directions, length) {
-            const moves = [];
-
-            for(let direction of directions)
-                for(let i = 1; i < length; i++) {
-                    const y = piecePosY + direction[1] * i;
-                    const x = piecePosX + direction[0] * i;
-                    const square = board?.[y]?.[x];
-
-                    if(square !== undefined) {
-                        moves.push([y, x]);
-
-                        if(square !== null) break;
-
-                    } else break;
-                }
-
-            return moves;
-        }
-
-        function castDiagonal() {
-            return cast([
-                [1, -1], [-1, -1], // top right, top left
-                [1, 1], [-1, 1] // bottom right, bottom left
-            ], shorterBoardSide);
-        }
-
-        function castStraight() {
-              return cast([
-                  [0, -1], [0, 1], // top, bottom
-                  [-1, 0], [1, 0] // left, right
-            ], longerBoardSide);
-        }
-
-        if(pieceType === 'P') {
-            const direction = this.isPlayerBlack === isPieceWhite ? [[-1, 1], [1, 1]] : [[-1, -1], [1, -1]];
-
-            return this.coordinatesFromMoves(piecePos, direction);
-        }
-
-        if(pieceType === 'N') {
-            return this.coordinatesFromMoves(piecePos, [
-                [-2, -1], [-2, 1], [2, -1], [2, 1],
-                [-1, -2], [-1, 2], [1, -2], [1, 2]]);
-        }
-
-        if(pieceType === 'K') {
-            return this.coordinatesFromMoves(piecePos, [
-                [-1, 0], [1, 0], [0, -1], [0, 1],
-                [-1, -1], [1, 1], [-1, 1], [1, -1]]);
-        }
-
-        if(pieceType === 'B') {
-            return castDiagonal();
-        }
-
-        if(pieceType === 'R') {
-            return castStraight();
-        }
-
-        if(pieceType === 'Q') {
-            return [
-                ...castDiagonal(),
-                ...castStraight()
-            ];
-        }
-
-        return [0, 0];
+        if(!pObj) throw new Error('Failed to process pObj on getPiecePaths()!');
+        return getVariantPiecePaths(this.board, pObj.piece, pObj.position, this.variant, this.isPlayerBlack);
     }
 
     createPathLookup(pieces) {
         const lookup = {};
 
         for(let pObj of pieces) {
-            const id = pObj.piece + pObj.position.join('');
+            const id = pObj.piece + pObj.position.join(',');
 
-            lookup[id] = new Set(pObj.paths.map(path => path.join('')));
+            lookup[id] = new Set(pObj.paths.map(path => path.join(',')));
 
             pObj.id = id;
         }
@@ -262,21 +123,24 @@ export default class BoardAnalyzer {
                 const pos = pObj.position;
 
                 // Detect who defends the current piece
-                pObj.defendedBy = pieces.filter(x => piecePaths[x.id]?.has(pos.join('')));
+                pObj.defendedBy = pieces.filter(x => piecePaths[x.id]?.has(pos.join(',')));
                 // Detect attacks on the current piece by opponent
-                pObj.attackedBy = opponentPieces.filter(x => opponentPaths[x.id]?.has(pos.join('')));
+                pObj.attackedBy = opponentPieces.filter(x => opponentPaths[x.id]?.has(pos.join(',')));
 
-                // A defended piece may still lose material, and an outnumbered one
-                // may be safe. Only a strictly profitable legal exchange is danger.
+                // Preserve exact orthodox exchanges. Variants deliberately use a
+                // rough geometric estimate instead of another engine/rules system.
                 pObj.captureLoss = this.captureExchange?.captureLoss(this.indexToFen(pos)) ?? null;
-                pObj.captureDanger = pObj.captureLoss > 0;
+                pObj.captureDanger = this.analyzeCaptures && (this.captureExchange?.valid
+                    ? pObj.captureLoss > 0
+                    : pObj.attackedBy.length > 0 && (pObj.defendedBy.length < pObj.attackedBy.length
+                        || pObj.attackedBy.some(attacker => attacker.ranking > 0 && attacker.ranking < pObj.ranking)));
             }
         };
 
         analyzePieces(player, enemy, playerPaths, enemyPaths);
         analyzePieces(enemy, player, enemyPaths, playerPaths);
 
-        function analyzeSquares() {
+        const analyzeSquares = () => {
             const result = {
                 safe: [],
                 playerOnly: [],
@@ -308,7 +172,8 @@ export default class BoardAnalyzer {
             // Loop through all possible squares on the board
             for(let row = 0; row < boardHeight; row++) {
                 for(let col = 0; col < boardWidth; col++) {
-                    const square = `${row}${col}`;
+                    const square = `${row},${col}`;
+                    if(this.board[row][col] === '*') continue;
 
                     const playerCount = playerSeenCounts.get(square) || 0;
                     const enemyCount = enemySeenCounts.get(square) || 0;
@@ -329,7 +194,7 @@ export default class BoardAnalyzer {
             }
 
             return result;
-        }
+        };
 
         const squares = analyzeSquares();
 

@@ -178,7 +178,7 @@
         "renderSquarePlayer": ["Kendi Taş Kontrolü", "Yeşil ile kendi taşlarınızın kontrol ettiği kareleri vurgula"],
         "renderSquareEnemy": ["Rakip Taş Kontrolü", "Kırmızı ile rakip taşlarının kontrol ettiği kareleri vurgula"],
         "renderSquareContested": ["Çekişmeli Kareler", "Turuncu ile çekişmeli kareleri vurgula"],
-        "renderSquareSafe": ["Güvenli Kareler", "Mavi ile güvenli kareleri vurgula"],
+        "renderSquareSafe": ["Denetimsiz Kareler", "Hiçbir tarafın taşlarının kontrol etmediği kareleri camgöbeğiyle vurgula"],
         "renderPiecePlayerCapture": ["Kendi Taşını Yakalama Tehdidi", "Yakalanma tehlikesinde olan taşlarınızın üzerine 💧 göster"],
         "renderPieceEnemyCapture": ["Rakip Taşını Yakalama Tehdidi", "Saldırmanız gereken rakip taşlarının üzerine 🩸 göster"],
         "enableEveryPieceEvals": ["Her Taşın Katkısını Göster", "Her taşın konuma ne kadar katkı sağladığını gör"],
@@ -188,6 +188,7 @@
         "feedbackOnExternalSite": ["Harici Sitede Geri Bildirim", "Satranç sitesinin tahtasında geri bildirim göster (örneğin, chess.com'un tahtasında)"],
         "pip": ["Yüzen panel", "Önemli! A.C.A.S'in donmasını önlemeye yardımcı olur!"],
         "pipBoard": ["Tahtayı göster", "Yalnızca metin yerine tüm satranç tahtasını göster"],
+        "pipQuality": ["Yüzen Panel Kalitesi", "Daha düşük çözünürlük daha hızlı olabilir. Varsayılan: %50."],
         "movesOnDemand": ["İsteğe bağlı hamleler", "Seçtiğin taşlar için hamleleri hesapla"],
         "onlySuggestPieces": ["Yalnızca taşları öner", "Hangi taşı oynatacağını göster, belirli bir hamle önerme"],
         "isUserscriptGhost": ["Hayalet Betik", "Tespitten kaçınmak için tüm algılanabilir harici işlevleri (örn. hamle okları) devre dışı bırakın"],
@@ -198,6 +199,11 @@
         "concealAssistanceAutoDelayMs": ["Otomatik Gizle (ms)", "Yardım özelliklerini bu süreden sonra otomatik olarak gizle"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "sonra {square} karesine ok at",
+            "names": { "pawn": "Piyon", "lance": "Mızrak", "silver": "Gümüş general", "gold": "Altın general", "cannon": "Top", "horse": "At", "elephant": "Fil", "advisor": "Danışman", "general": "General", "chariot": "Savaş arabası", "soldier": "Asker", "dragonHorse": "Ejderha atı", "dragonKing": "Ejderha kralı", "archbishop": "Başpiskopos", "chancellor": "Şansölye", "amazon": "Amazon", "hawk": "Şahin", "ferz": "Ferz", "wazir": "Vezir", "centaur": "Sentor", "commoner": "Halktan biri", "banner": "Sancak", "drunkElephant": "Sarhoş fil", "crownPrince": "Veliaht", "dragon": "Ejderha", "met": "Met", "khon": "Kon", "aiwok": "Ay vok" },
+            "drop": "Yerleştir: {piece}, hedef {square}", "promoted": "Terfi etmiş {piece}", "promotionOnly": "terfi eder", "unknownPiece": "Taş {symbol}"
+        },
         "appearance": {
             "customImage": "Özel arka plan resmi", "blur": "Resim bulanıklığı",
             "imageHint": "PNG, JPEG, WebP, GIF veya AVIF, en fazla 10 MB. Yalnızca bu tarayıcıda saklanır, dışa aktarılan ayarlara eklenmez.",

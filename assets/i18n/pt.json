@@ -178,7 +178,7 @@
         "renderSquarePlayer": ["Casas que suas peças controlam", "Destacar em verde as casas controladas pelas suas peças"],
         "renderSquareEnemy": ["Casas que o adversário controla", "Destacar em vermelho as casas controladas pelas peças do adversário"],
         "renderSquareContested": ["Casas disputadas", "Destacar em laranja as casas controladas pelos dois jogadores"],
-        "renderSquareSafe": ["Casas seguras", "Destacar em ciano as casas seguras"],
+        "renderSquareSafe": ["Casas sem controle", "Destacar em ciano as casas que as peças de nenhum dos lados controlam"],
         "renderPiecePlayerCapture": ["Ameaça de Captura da Própria Peça", "Exibir 💧 em peças que estão em perigo de captura"],
         "renderPieceEnemyCapture": ["Ameaça de Captura da Peça do Oponente", "Exibir 🩸 em peças que você deve atacar"],
         "enableEveryPieceEvals": ["Mostrar contribuição de cada peça", "Veja o quanto cada peça contribui para a posição"],
@@ -188,6 +188,7 @@
         "feedbackOnExternalSite": ["Feedback No Site Externo", "Mostrar feedback no tabuleiro do site de xadrez (ex: no tabuleiro do chess.com)"],
         "pip": ["Painel Flutuante", "Importante! Impede que A.C.A.S congele!"],
         "pipBoard": ["Exibir Tabuleiro", "Em vez de apenas texto, exibir todo o tabuleiro"],
+        "pipQuality": ["Qualidade do painel flutuante", "Uma resolução mais baixa pode ser mais rápida. Padrão: 50%."],
         "movesOnDemand": ["Movimentos sob Demanda", "Calcula movimentos para as peças com as quais você interage"],
         "onlySuggestPieces": ["Sugerir só as peças", "Indicar qual peça mover, sem mostrar uma jogada específica"],
         "isUserscriptGhost": ["Script Fantasma", "Desativar todas as funcionalidades externas detectáveis (ex.: setas de movimento) para evitar deteção"],
@@ -198,6 +199,11 @@
         "concealAssistanceAutoDelayMs": ["Ocultação automática (ms)", "Ocultar automaticamente os recursos de assistência após este tempo"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "depois dispara uma flecha para {square}",
+            "names": { "pawn": "Peão", "lance": "Lança", "silver": "General de prata", "gold": "General de ouro", "cannon": "Canhão", "horse": "Cavalo", "elephant": "Elefante", "advisor": "Conselheiro", "general": "General", "chariot": "Carruagem", "soldier": "Soldado", "dragonHorse": "Cavalo dragão", "dragonKing": "Rei dragão", "archbishop": "Arcebispo", "chancellor": "Chanceler", "amazon": "Amazona", "hawk": "Falcão", "ferz": "Ferz", "wazir": "Vizir", "centaur": "Centauro", "commoner": "Plebeu", "banner": "Estandarte", "drunkElephant": "Elefante bêbado", "crownPrince": "Príncipe herdeiro", "dragon": "Dragão", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Colocar {piece} em {square}", "promoted": "{piece} promovido", "promotionOnly": "promove", "unknownPiece": "Peça {symbol}"
+        },
         "appearance": {
             "customImage": "Imagem de fundo personalizada", "blur": "Desfoque da imagem",
             "imageHint": "PNG, JPEG, WebP, GIF ou AVIF, até 10 MB. Guardada apenas neste navegador, não nas definições exportadas.",

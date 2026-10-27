@@ -175,7 +175,7 @@
         "renderSquarePlayer": ["Velden die je stukken bestrijken", "Markeer de velden die je stukken bestrijken in het groen"],
         "renderSquareEnemy": ["Velden die de tegenstander bestrijkt", "Markeer de velden die de stukken van de tegenstander bestrijken in het rood"],
         "renderSquareContested": ["Betwiste velden", "Markeer velden die beide spelers bestrijken in het oranje"],
-        "renderSquareSafe": ["Veilige velden", "Markeer veilige velden in het cyaan"],
+        "renderSquareSafe": ["Onbewaakte velden", "Markeer velden die door stukken van geen van beide partijen worden bestreken in het cyaan"],
         "renderPiecePlayerCapture": ["Bedreigde eigen stukken", "Toon 💧 op stukken die geslagen kunnen worden"],
         "renderPieceEnemyCapture": ["Tegenstander Stuk Vangstbedreiging", "Toon 🩸 op stukken die je zou moeten aanvallen"],
         "enableEveryPieceEvals": ["Bijdrage van elk stuk weergeven", "Zie hoeveel elk stuk bijdraagt aan de positie"],
@@ -190,6 +190,7 @@
         "webhookIncludeRawUci": ["Ruwe engine-UCI", "Stuur ruwe engine-UCI-regels"],
         "pip": ["Zwevend Paneel", "Belangrijk! Voorkomt dat A.C.A.S bevriest!"],
         "pipBoard": ["Bord weergeven", "In plaats van alleen tekst, het volledige bord weergeven"],
+        "pipQuality": ["Kwaliteit zwevend paneel", "Een lagere resolutie kan sneller zijn. Standaard: 50%."],
         "movesOnDemand": ["Zetten op Aanvraag", "Berekent zetten voor de stukken waarmee je interageert"],
         "onlySuggestPieces": ["Alleen stukken voorstellen", "Laat zien welk stuk je kunt verplaatsen, zonder een concrete zet voor te stellen"],
         "isUserscriptGhost": ["Spookscript", "Schakelt alle detecteerbare externe functionaliteit uit (bv. zetpijlen) om detectie te vermijden"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Automatisch verbergen (ms)", "Hulpfuncties na deze tijd automatisch verbergen"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "schiet daarna een pijl naar {square}",
+            "names": { "pawn": "Pion", "lance": "Lans", "silver": "Zilveren generaal", "gold": "Gouden generaal", "cannon": "Kanon", "horse": "Paard", "elephant": "Olifant", "advisor": "Adviseur", "general": "Generaal", "chariot": "Strijdwagen", "soldier": "Soldaat", "dragonHorse": "Drakenpaard", "dragonKing": "Drakenkoning", "archbishop": "Aartsbisschop", "chancellor": "Kanselier", "amazon": "Amazone", "hawk": "Havik", "ferz": "Ferz", "wazir": "Vizier", "centaur": "Centaur", "commoner": "Burger", "banner": "Vaandel", "drunkElephant": "Dronken olifant", "crownPrince": "Kroonprins", "dragon": "Draak", "met": "Met", "khon": "Khon", "aiwok": "Ai wok" },
+            "drop": "Plaats {piece} op {square}", "promoted": "Gepromoveerde {piece}", "promotionOnly": "promoveert", "unknownPiece": "Stuk {symbol}"
+        },
         "appearance": {
             "customImage": "Eigen achtergrondafbeelding", "blur": "Afbeeldingsvervaging",
             "imageHint": "PNG, JPEG, WebP, GIF of AVIF, maximaal 10 MB. Alleen in deze browser opgeslagen, niet in geëxporteerde instellingen.",

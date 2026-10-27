@@ -175,7 +175,7 @@
         "renderSquarePlayer": ["Kontrolle eigener Figuren", "Hebe die Felder hervor, die deine Figuren kontrollieren, mit grün"],
         "renderSquareEnemy": ["Kontrolle gegnerischer Figuren", "Hebe die Felder hervor, die die Figuren des Gegners kontrollieren, mit rot"],
         "renderSquareContested": ["Umstrittene Felder", "Hebe die Felder hervor, die beide Spieler kontrollieren, mit orange"],
-        "renderSquareSafe": ["Sichere Felder", "Hebe die Felder hervor, auf die eine Figur sicher ziehen kann, mit cyan"],
+        "renderSquareSafe": ["Unkontrollierte Felder", "Hebe Felder, die von keiner Seite kontrolliert werden, in Cyan hervor"],
         "renderPiecePlayerCapture": ["Bedrohte eigene Figuren", "Zeige 💧 auf Figuren, die geschlagen werden könnten"],
         "renderPieceEnemyCapture": ["Angriffsziele beim Gegner", "Zeige 🩸 auf Figuren, die du angreifen solltest"],
         "enableEveryPieceEvals": ["Beitrag jeder Figur anzeigen", "Sieh, wie sehr jede Figur zur Stellung beiträgt"],
@@ -190,6 +190,7 @@
         "webhookIncludeRawUci": ["Rohes Engine-UCI", "Sende rohe Engine-UCI-Zeilen"],
         "pip": ["Schwebendes Panel", "Wichtig! Verhindert das Einfrieren von A.C.A.S!"],
         "pipBoard": ["Brett anzeigen", "Anstatt nur Text das gesamte Brett anzeigen"],
+        "pipQuality": ["Qualität des schwebenden Panels", "Eine niedrigere Auflösung kann schneller sein. Standard: 50 %."],
         "movesOnDemand": ["Züge auf Anfrage", "Berechnet Züge für Figuren, mit denen du interagierst"],
         "onlySuggestPieces": ["Nur Figuren vorschlagen", "Zeige, welche Figur du ziehen solltest, ohne einen konkreten Zug vorzuschlagen"],
         "isUserscriptGhost": ["Geister-Skript", "Deaktiviert alle erkennbaren externen Funktionen (z. B. Zugpfeile), um eine Erkennung zu vermeiden"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Automatisches Verbergen (ms)", "Hilfsfunktionen nach dieser Zeit automatisch verbergen"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "dann einen Pfeil nach {square} schießen",
+            "names": { "pawn": "Bauer", "lance": "Lanze", "silver": "Silbergeneral", "gold": "Goldgeneral", "cannon": "Kanone", "horse": "Pferd", "elephant": "Elefant", "advisor": "Berater", "general": "General", "chariot": "Streitwagen", "soldier": "Soldat", "dragonHorse": "Drachenpferd", "dragonKing": "Drachenkönig", "archbishop": "Erzbischof", "chancellor": "Kanzler", "amazon": "Amazone", "hawk": "Falke", "ferz": "Fers", "wazir": "Wesir", "centaur": "Zentaur", "commoner": "Bürger", "banner": "Banner", "drunkElephant": "Betrunkener Elefant", "crownPrince": "Kronprinz", "dragon": "Drache", "met": "Met", "khon": "Khon", "aiwok": "Ai Wok" },
+            "drop": "{piece} auf {square} einsetzen", "promoted": "Beförderter {piece}", "promotionOnly": "wird befördert", "unknownPiece": "Figur {symbol}"
+        },
         "appearance": {
             "customImage": "Eigenes Hintergrundbild", "blur": "Bildunschärfe",
             "imageHint": "PNG, JPEG, WebP, GIF oder AVIF, bis zu 10 MB. Nur in diesem Browser gespeichert, nicht in exportierten Einstellungen.",

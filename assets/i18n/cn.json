@@ -173,7 +173,7 @@
         "renderSquarePlayer": ["己方棋子控制", "用绿色标记己方棋子控制的方格"],
         "renderSquareEnemy": ["敌方棋子控制", "用红色标记敌方棋子控制的方格"],
         "renderSquareContested": ["争夺方格", "用橙色标记双方都控制的方格"],
-        "renderSquareSafe": ["安全方格", "用青色标记棋子可以安全移动到的方格"],
+        "renderSquareSafe": ["无控方格", "用青色标记双方棋子都未控制的方格"],
         "renderPiecePlayerCapture": ["己方棋子捕获威胁", "在面临捕获危险的己方棋子上显示💧"],
         "renderPieceEnemyCapture": ["敌方棋子捕获威胁", "在应该攻击的敌方棋子上显示🩸"],
         "enableEveryPieceEvals": ["显示每个棋子的贡献", "查看每个棋子对局势的贡献程度"],
@@ -188,6 +188,7 @@
         "webhookIncludeRawUci": ["原始引擎 UCI", "发送原始引擎 UCI 行"],
         "pip": ["浮动面板", "重要！帮助防止 A.C.A.S 卡住！"],
         "pipBoard": ["显示棋盘", "不是只显示文本，而是显示整个棋盘"],
+        "pipQuality": ["浮动面板画质", "较低的分辨率可能更快。默认：50%。"],
         "movesOnDemand": ["按需计算走法", "为你选中的棋子计算走法"],
         "onlySuggestPieces": ["仅建议棋子", "只提示该动哪个棋子，不显示具体走法"],
         "isUserscriptGhost": ["幽灵脚本", "禁用所有可检测的外部功能（例如行棋箭头）以避免被检测"],
@@ -198,6 +199,12 @@
         "concealAssistanceAutoDelayMs": ["自动隐藏（毫秒）", "此时间后自动隐藏辅助功能"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "然后向{square}射箭",
+            "names": { "pawn": "兵", "lance": "香车", "silver": "银将", "gold": "金将", "cannon": "炮", "horse": "马", "elephant": "象", "advisor": "士", "general": "将", "chariot": "车", "soldier": "兵", "dragonHorse": "龙马", "dragonKing": "龙王", "archbishop": "大主教", "chancellor": "大臣", "amazon": "亚马逊", "hawk": "鹰", "ferz": "菲尔兹", "wazir": "维齐尔", "centaur": "半人马", "commoner": "平民", "banner": "旗", "drunkElephant": "醉象", "crownPrince": "太子", "dragon": "龙", "met": "梅特", "khon": "孔", "aiwok": "艾沃克" },
+            "shogi": { "K": "王将", "R": "飞车", "B": "角行", "N": "桂马", "P": "步兵", "+P": "成步", "+L": "成香", "+N": "成桂", "+S": "成银" },
+            "drop": "将{piece}打入{square}", "promoted": "升变后的{piece}", "promotionOnly": "升变", "unknownPiece": "棋子{symbol}"
+        },
         "appearance": {
             "customImage": "自定义背景图片", "blur": "图片模糊度",
             "imageHint": "支持 PNG、JPEG、WebP、GIF 或 AVIF，最大 10 MB。仅保存在此浏览器中，不包含在导出的设置中。",

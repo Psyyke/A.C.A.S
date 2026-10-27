@@ -55,6 +55,17 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             return;
         }
 
+        const variant = FORMAT_VARIANT(profileVariables.chessVariant) || 'chess';
+        const supportsVariant = profileVariables.chessVariants.some(value => FORMAT_VARIANT(value) === variant);
+        const dimensions = GET_BOARD_DIMENSIONS_FROM_FEN(currentFen);
+        const hasChessDimensions = dimensions[0] === 8 && dimensions[1] === 8;
+        // The GUI warning alone is not enough: sending a variant FEN can crash Stockfish.
+        if(!supportsVariant || variant === 'chess' && !hasChessDimensions) {
+            const message = TRANS_OBJ?.variantNotSupported ?? 'Variant not supported';
+            setProfileBubbleStatus('warning', profileName, `${message}: ${variant} (${dimensions[0]}×${dimensions[1]})`);
+            return;
+        }
+
         const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
         const isPlayerTurn = await this.isPlayerTurn(profileName);
         if(!isCurrentCalculation()) return;
@@ -80,7 +91,6 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             : playerColor;
 
         if(!isCurrentCalculation()) return;
-        const variant = profileVariables.chessVariant;
         const isCustomVariant = variant && variant !== 'chess';
 
         // Don't continue if player is attacking king and the variant is 'chess' (not custom)

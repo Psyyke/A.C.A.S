@@ -117,7 +117,6 @@ export default class AcasInstance {
         this.unprocessedPackets = [];
         this.interfacePollingActive = false;
 
-        this.moveDiffHistory = [];
         this.gameStateHistory = [];
         
         this.profileVariables = class {
@@ -897,94 +896,22 @@ export default class AcasInstance {
 
     isPawnOnPromotionSquare(currentFen) {
         if(!currentFen) return false;
-    
-        currentFen = currentFen.split(' ')[0];
-    
+
+        currentFen = currentFen.split(' ')[0].replace(/\[[^\]]*\]$/, '');
+
         const ranks = currentFen.split('/');
         const boardHeight = ranks.length;
-    
+
         const topRank = ranks[0];
         const bottomRank = ranks[boardHeight - 1];
 
-        const pawnOnPromotionSquare = topRank.includes('P') || bottomRank.includes('p');
-        
+        const pawnOnPromotionSquare = (topRank.match(/\+?[a-zA-Z]~?/g) || []).includes('P')
+            || (bottomRank.match(/\+?[a-zA-Z]~?/g) || []).includes('p');
+
         if(pawnOnPromotionSquare)
             return true;
-    
+
         return false;
-    }
-
-    isAbnormalPieceChange(lastFen, newFen) {
-        if(!lastFen || !newFen) return false;
-    
-        const lastPieceCount = COUNT_TOTAL_PIECES_FROM_FEN(lastFen);
-        const newPieceCount = COUNT_TOTAL_PIECES_FROM_FEN(newFen);
-
-        // (need to implement fix for variants which may add pieces legally)
-        const countChange = newPieceCount - lastPieceCount;
-
-        /* Possible "countChange" value explanations,
-            (countChange < -1) -> multiple pieces have disappeared (atomic chess variant or a faulty newFen?)
-            (countChange = -1) -> piece has been eaten
-            (countChange = 0)  -> piece moved
-            (countChange = 1)  -> piece has spawned
-            (countChange > 1)  -> multiple pieces have spawned (possibly a new game?)
-        */
-
-        if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Changed pieces:', countChange);
-    
-        // Large abnormal piece changes are allowed, as they usually mean something significant has happened
-        // Smaller abnormal piece changes are most likely caused by a faulty newFen provided by the A.C.A.S on the site
-        return (-3 < countChange && countChange < -1) || (0 < countChange && countChange < 2);
-    }
-
-    // Kind of similar to isAbnormalPieceChange function, however it focuses on titles rather than pieces
-    // It checks for how many titles had changes happen in them
-    isCorrectAmountOfBoardChanges(lastFen, newFen) {
-        if(!lastFen || !newFen) return true;
-    
-        let board1 = lastFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
-        let board2 = newFen.split(' ')[0].replace(/\d/g, d => ' '.repeat(d)).split('/').join('');
-        
-        let changedFrom = [];
-        let diff = 0;
-
-        for(let i = 0; i < board1.length; i++) {
-            if(board1[i] !== board2[i]) {
-                if(board1[i]?.trim()?.length > 0) changedFrom.push(board1[i]?.toLowerCase());
-
-                diff += 1;
-            }
-        }
-        
-        /* Possible "diff" value explanations,
-            (diff = 0) -> no changes, same board layout
-            (diff = 1) -> only one tile abruptly changed, shouldn't be possible
-            (diff = 2) -> a piece moved, maybe it ate another piece
-            (diff = 3) -> three tiles had changes, shouldn't be possible (NOTE: it's possible if the fen has skipped one turn...)
-            (diff > 3) -> a lot of tiles had changes, maybe a new game started, the change is significant so allowing it
-            (diff = 4) -> takeback or castling
-        */
-
-        this.moveDiffHistory.unshift(diff);
-        this.moveDiffHistory = this.moveDiffHistory.slice(0, 3);
-
-        if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Changed squares:', diff, 'History:', JSON.stringify(this.moveDiffHistory));
-
-        const isHistoryIndicatingPromotion = JSON.stringify(this.moveDiffHistory) === JSON.stringify([3, 1, 2]);
-        
-        return diff === 2 || diff > 3 || isHistoryIndicatingPromotion;
-    }
-
-    isFenChangeLogical(lastFen, newFen) {
-        if(this.activeVariant === 'atomic') return true;
-
-        const correctAmountOfChanges = this.isCorrectAmountOfBoardChanges(lastFen, newFen);
-        const isAbnormalPieceChange = this.isAbnormalPieceChange(lastFen, newFen);
-
-        if(this.debugLogsEnabled) console.warn('[Logical Change Detection] Is FEN change logical:', { correctAmountOfChanges, isAbnormalPieceChange });
-
-        return correctAmountOfChanges && !isAbnormalPieceChange;
     }
 
     async getPlayerColor(profile) {
@@ -1260,6 +1187,7 @@ export default class AcasInstance {
                     !normalMove.playerHidden && normalMove.hintDetail === 'full' &&
                     normalMove.player?.[0] === parent.from &&
                     normalMove.player?.[1] === parent.to &&
+                    (!parent.shot || normalMove.playerUci === parent.uci) &&
                     normalMove.player?.[1] === futureStart
                 );
             })
@@ -1267,7 +1195,8 @@ export default class AcasInstance {
             .filter((move, index, moves) =>
                 index === moves.findIndex(m =>
                     m.player?.[0] === move.player?.[0] &&
-                    m.player?.[1] === move.player?.[1]
+                    m.player?.[1] === move.player?.[1] &&
+                    m.playerUci === move.playerUci
                 )
             );
 
@@ -1287,7 +1216,7 @@ export default class AcasInstance {
         if(!silent) variables.pastMoveObjects = [];
 
         const presentedMoves = moveObjects.filter(move => !move.isFuture && !move.playerHidden)
-            .map(move => presentHintMove(move.opponentHidden ? { ...move, opponent: [null, null], opponentPromotion: null } : move,
+            .map(move => presentHintMove(move.opponentHidden ? { ...move, opponent: [null, null], opponentUci: null, opponentPromotion: null } : move,
                 move.hintDetail ?? hints.detail));
 
         if(!this.learningMode || review) updatePipHints(this, profile, {

@@ -2,8 +2,8 @@ import MoveEvaluator from '../MoveEvaluator.js';
 import { feedbackText as text, feedbackDisplay, feedbackQualityText } from '../misc/feedbackText.js';
 import { updatePipFeedback } from '../gui/pip.js';
 import { getHintSettings, filterHintMoves, presentHintMove } from '../misc/learningHints.js';
-import { formatMoveNotationAsync, formatPvNotation, getMoveSan, replayPv } from '../misc/moveNotation.js';
-import { parseVariantMove } from '../misc/variantPosition.js';
+import { formatMoveNotationAsync, formatPvNotationAsync, getMoveSan, replayPvAsync, resolveVariantMove } from '../misc/moveNotation.js';
+import { parseVariantMove, variantConfig } from '../misc/variantPosition.js';
 
 const recordedEvaluator = new MoveEvaluator(false);
 
@@ -116,7 +116,16 @@ export async function renderLearningFeedback(specificProfile) {
             continue;
         }
         const changes = after.boardChanges;
-        const move = changes?.from && changes?.to ? `${changes.from}${changes.to}${changes.isPromotion ? String(changes.promotionPiece || '').toLowerCase() : ''}` : null;
+        let move = changes?.from && changes?.to ? `${changes.from}${changes.to}${changes.isPromotion ? String(changes.promotionPiece || '').toLowerCase() : ''}` : null;
+        const context = variantConfig(variables);
+        if(context.variant !== 'chess' || context.useChess960) {
+            const transition = await resolveVariantMove(fen, postFen,
+                [changes?.from, changes?.to, changes?.promotionPiece], { ...context, isCurrent });
+            if(!isCurrent()) continue;
+            // The engine resolves drops, '+' promotions and Chess960 castling,
+            // even when the DOM's ordinary from/to hint is incomplete.
+            move = transition?.selected?.uci || null;
+        }
         const analysis = before.analysis?.[profile], response = after.analysis?.[profile];
         const bestMove = analysis?.engine === variables.analysisKey ? analysis.moves[0] : null;
         const own = { ...CREATE_MOVE_OBJ({ playerMove: parseVariantMove(move), profile }), fen,
@@ -154,10 +163,12 @@ export async function renderLearningFeedback(specificProfile) {
         const allowContinuation = candidate => filterHintMoves([candidate], hints, candidate.fen)
             .some(item => item.hintDetail === 'full');
         const bestPositions = visible[0]?.hintDetail === 'full'
-            ? replayPv(bestMove.pv, bestMove, allowContinuation) : [];
+            ? await replayPvAsync(bestMove.pv, bestMove, allowContinuation, isCurrent) : [];
+        if(!isCurrent()) continue;
         const bestContinuation = bestPositions.map(position => position.san).join(' ➜ ');
         const playedContinuation = showLines && allowContinuation(own)
-            ? formatPvNotation(playedScore.pv, own, allowContinuation) : '';
+            ? await formatPvNotationAsync(playedScore.pv, own, allowContinuation, isCurrent) : '';
+        if(!isCurrent()) continue;
         Object.assign(result, { move, isBook: isBookMove.call(this, profile, fen, move),
             isPlayerMove: fen.split(' ')[1] === playerColor,
             selected: { san: playedName }, bestLine, bestPv: bestContinuation || bestLine,
@@ -375,9 +386,13 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             const notationConfig = {
                 fen: previousFen, chessVariant: variant, useChess960: useChess960 || variables.useChess960
             };
+            const [bestContinuation, playedContinuation] = await Promise.all([
+                formatPvNotationAsync(result.best?.pv, notationConfig, undefined, isCurrentRequest),
+                formatPvNotationAsync(result.played?.pv, notationConfig, undefined, isCurrentRequest)
+            ]);
+            if(!isCurrentRequest()) return;
             const feedbackResult = { ...result, isBook, isPlayerMove: movedColor === latestPlayerColor,
-                bestContinuation: formatPvNotation(result.best?.pv, notationConfig),
-                playedContinuation: formatPvNotation(result.played?.pv, notationConfig) };
+                bestContinuation, playedContinuation };
             const { summary, description } = feedbackDisplay(feedbackResult);
             variables.lastFeedbackFen = currentFen;
             variables.lastFeedbackResult = feedbackResult;

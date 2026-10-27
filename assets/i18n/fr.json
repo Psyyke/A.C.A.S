@@ -175,7 +175,7 @@
         "renderSquarePlayer": ["Cases contrôlées par tes pièces", "Surligne en vert les cases contrôlées par tes pièces"],
         "renderSquareEnemy": ["Cases contrôlées par l'adversaire", "Surligne en rouge les cases contrôlées par les pièces adverses"],
         "renderSquareContested": ["Cases disputées", "Surligne en orange les cases contrôlées par les deux joueurs"],
-        "renderSquareSafe": ["Cases sûres", "Surligne en cyan les cases où une pièce peut aller sans danger"],
+        "renderSquareSafe": ["Cases non contrôlées", "Surligne en cyan les cases que les pièces d'aucun des deux camps ne contrôlent"],
         "renderPiecePlayerCapture": ["Menace de capture des pièces du joueur", "Affiche 💧 sur les pièces qui sont en danger d'être capturées"],
         "renderPieceEnemyCapture": ["Menace de capture des pièces ennemies", "Affiche 🩸 sur les pièces que vous devriez attaquer"],
         "enableEveryPieceEvals": ["Afficher la contribution de chaque pièce", "Voir combien chaque pièce contribue à la position"],
@@ -190,6 +190,7 @@
         "webhookIncludeRawUci": ["UCI brut du moteur", "Envoyer les lignes UCI brutes du moteur"],
         "pip": ["Panneau flottant", "Important ! Aide à éviter qu'A.C.A.S se bloque !"],
         "pipBoard": ["Afficher le plateau", "Au lieu de texte seulement, afficher tout le plateau"],
+        "pipQuality": ["Qualité du panneau flottant", "Une résolution plus basse peut être plus rapide. Par défaut : 50 %."],
         "movesOnDemand": ["Coups à la Demande", "Calcule les coups pour les pièces avec lesquelles vous interagissez"],
         "onlySuggestPieces": ["Suggérer uniquement les pièces", "Indiquer quelle pièce déplacer, sans proposer de coup précis"],
         "useExternalChessEngine": ["Activé", "Le moteur d'échecs externe est-il activé"],
@@ -199,6 +200,11 @@
         "concealAssistanceAutoDelayMs": ["Dissimulation automatique (ms)", "Dissimuler automatiquement les fonctionnalités après ce délai"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "puis tirer une flèche en {square}",
+            "names": { "pawn": "Pion", "lance": "Lance", "silver": "Général d'argent", "gold": "Général d'or", "cannon": "Canon", "horse": "Cheval", "elephant": "Éléphant", "advisor": "Conseiller", "general": "Général", "chariot": "Chariot", "soldier": "Soldat", "dragonHorse": "Cheval dragon", "dragonKing": "Roi dragon", "archbishop": "Archevêque", "chancellor": "Chancelier", "amazon": "Amazone", "hawk": "Faucon", "ferz": "Fers", "wazir": "Vizir", "centaur": "Centaure", "commoner": "Roturier", "banner": "Bannière", "drunkElephant": "Éléphant ivre", "crownPrince": "Prince héritier", "dragon": "Dragon", "met": "Met", "khon": "Khon", "aiwok": "Aï wok" },
+            "drop": "Parachuter {piece} en {square}", "promoted": "{piece} promu", "promotionOnly": "promotion", "unknownPiece": "Pièce {symbol}"
+        },
         "appearance": {
             "customImage": "Image de fond personnalisée", "blur": "Flou de l’image",
             "imageHint": "PNG, JPEG, WebP, GIF ou AVIF, jusqu’à 10 Mo. Enregistrée uniquement dans ce navigateur, pas dans les paramètres exportés.",

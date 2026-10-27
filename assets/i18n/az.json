@@ -175,7 +175,7 @@
         "renderSquarePlayer": ["Öz fiqurlarınızın nəzarəti", "Fiqurlarınızın nəzarət etdiyi xanaları yaşıl rənglə vurğulayın"],
         "renderSquareEnemy": ["Rəqib fiqurlarının nəzarəti", "Rəqibin fiqurlarının nəzarət etdiyi xanaları qırmızı rənglə vurğulayın"],
         "renderSquareContested": ["Ortaq nəzarətdə olan xanalar", "Hər iki tərəfin nəzarət etdiyi xanaları narıncı rənglə vurğulayın"],
-        "renderSquareSafe": ["Təhlükəsiz xanalar", "Fiqurun təhlükəsiz keçə biləcəyi xanaları firuzəyi rənglə vurğulayın"],
+        "renderSquareSafe": ["Nəzarətsiz xanalar", "Heç bir tərəfin fiqurlarının nəzarət etmədiyi xanaları firuzəyi rənglə vurğulayın"],
         "renderPiecePlayerCapture": ["Təhlükədə olan öz fiqurlarınız", "Vurulmaq təhlükəsi olan fiqurlara 💧 işarəsi qoyun"],
         "renderPieceEnemyCapture": ["Hücum ediləcək rəqib fiqurları", "Hücum etməli olduğunuz fiqurlara 🩸 işarəsi qoyun"],
         "enableEveryPieceEvals": ["Hər fiqurun töhfəsini göstər", "Hər fiqurun mövqeyə necə töhfə verdiyini gör"],
@@ -190,6 +190,7 @@
         "webhookIncludeRawUci": ["Xam mühərrik UCI", "Xam mühərrik UCI sətirlərini göndərin"],
         "pip": ["Üzən panel", "Vacibdir! A.C.A.S-ın donmasını qarşısını alır!"],
         "pipBoard": ["Taxtanı göstər", "Yalnız mətn əvəzinə bütün taxtanı göstər"],
+        "pipQuality": ["Üzən panelin keyfiyyəti", "Daha aşağı təsvir ölçüsü daha sürətli ola bilər. Standart: 50%."],
         "movesOnDemand": ["Sorğu ilə gedişlər", "Seçdiyiniz fiqurlar üçün gedişləri hesablayın"],
         "onlySuggestPieces": ["Yalnız fiqurları təklif et", "Hansı fiquru oynatmağı təklif et, amma konkret gediş göstərmə"],
         "isUserscriptGhost": ["Gizli Skript", "Aşkarlanmanı əngəlləmə üçün bütün aşkarlana biləcək xarici funksiyaları (məs. gediş oxları) söndürün"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Avtomatik Gizlət (ms)", "Bu vaxtdan sonra avtomatik olaraq yardım xüsusiyyətlərini gizlət"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "sonra {square} xanasına ox at",
+            "names": { "pawn": "Piyada", "lance": "Nizə", "silver": "Gümüş general", "gold": "Qızıl general", "cannon": "Top", "horse": "At", "elephant": "Fil", "advisor": "Məsləhətçi", "general": "General", "chariot": "Döyüş arabası", "soldier": "Əsgər", "dragonHorse": "Əjdaha atı", "dragonKing": "Əjdaha şahı", "archbishop": "Arxiyepiskop", "chancellor": "Kansler", "amazon": "Amazon", "hawk": "Şahin", "ferz": "Fərz", "wazir": "Vəzir", "centaur": "Kentavr", "commoner": "Adi şah", "banner": "Bayraq", "drunkElephant": "Sərxoş fil", "crownPrince": "Vəliəhd", "dragon": "Əjdaha", "met": "Met", "khon": "Xon", "aiwok": "Ay vok" },
+            "drop": "Yerləşdir: {piece}, xana {square}", "promoted": "Çevrilmiş {piece}", "promotionOnly": "çevrilmə", "unknownPiece": "Fiqur {symbol}"
+        },
         "appearance": {
             "customImage": "Fərdi fon şəkli", "blur": "Şəklin bulanıqlığı",
             "imageHint": "PNG, JPEG, WebP, GIF və ya AVIF, ən çox 10 MB. Yalnız bu brauzerdə saxlanılır, ixrac edilən parametrlərə daxil deyil.",

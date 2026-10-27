@@ -289,8 +289,8 @@ function GET_UNIQUE_MOVES(moves) {
             const m = moves[i];
 
             const key =
-                m.player[0] + ',' + m.player[1] + '|' +
-                m.opponent[0] + ',' + m.opponent[1] + '|' +
+                (m.playerUci || m.player.join(',') + (m.playerPromotion || '')) + '|' +
+                (m.opponentUci || m.opponent.join(',') + (m.opponentPromotion || '')) + '|' +
                 m.profile;
 
             if(!seen.has(key)) {
@@ -317,6 +317,8 @@ const CREATE_MOVE_OBJ = ({
     opponent: [opponentMove?.from ?? null, opponentMove?.to ?? null],
     playerPromotion: playerMove?.promotion ?? null,
     opponentPromotion: opponentMove?.promotion ?? null,
+    playerUci: playerMove?.uci ?? null,
+    opponentUci: opponentMove?.uci ?? null,
     cp,
     profile,
     ranking
@@ -565,7 +567,8 @@ function GET_BASIC_FEN_LOWERCASED(fenStr) {
 function GET_BOARD_DIMENSIONS_FROM_FEN(fenStr) {
     try {
         const formattedFen = GET_BASIC_FEN_LOWERCASED(fenStr);
-        const extendedFen = formattedFen.replace(/\d+/g, (match) => ' '.repeat(Number(match)));
+        // Promotion markers belong to the piece, not to an extra square.
+        const extendedFen = formattedFen.replace(/[+~]/g, '').replace(/\d+/g, (match) => ' '.repeat(Number(match)));
     
         const files = extendedFen.split('/');
         const rank = files[0];
@@ -584,9 +587,9 @@ function GET_PGN_FROM_STATE_HISTORY(gameStateHistory) {
 
     for(const state of gameStateHistory) {
         const change = state.boardChanges;
-        const promotionPiece = change.promotionPiece;
 
         if(!change?.from || !change?.to) continue;
+        const promotionPiece = change.promotionPiece;
 
         chess.move({
             from: change.from,
@@ -1125,8 +1128,8 @@ function PARSE_UCI_RESPONSE(response) {
                 if(Number.isFinite(number)) {
                     data[currentKeyword].push(number);
                 }
-            } else if(['bestmove', 'ponder', 'pv', 'currmove'].includes(currentKeyword)) {
-                // Moves are strings, including the UCI null move "0000".
+            } else if(['bestmove', 'ponder', 'pv', 'currmove', 'Fen:'].includes(currentKeyword)) {
+                // Moves and FENs are strings. FEN counters must not replace the placement.
                 data[currentKeyword] += (data[currentKeyword] ? ' ' : '') + token;
             } else if(token !== '' && Number.isFinite(number)) {
                 data[currentKeyword] = number;

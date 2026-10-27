@@ -1,4 +1,4 @@
-import { parseVariantFen, variantConfig } from './variantPosition.js';
+import { parseVariantFen, variantConfig, getAmazonsShot } from './variantPosition.js';
 
 const hintDetails = Object.freeze({
     full: { detail: 'full' }, piece: { detail: 'piece' }, destination: { detail: 'destination' },
@@ -81,6 +81,8 @@ export function filterHintMoves(moves, settings, fallbackFen, includeOpponent = 
                 const promotedPiece = promotion && /^[a-zA-Z]$/.test(promotion)
                     ? (piece === piece?.toUpperCase() ? promotion.toUpperCase() : promotion.toLowerCase()) : piece;
                 changedSquares.set(parentTo, promotedPiece);
+                const shot = getAmazonsShot(parentMove);
+                if(shot) changedSquares.set(shot.to, '*');
             }
             enPassant = type === 'p' && parentFrom[0] === parentTo[0]
                 && Math.abs(Number(parentFrom.slice(1)) - Number(parentTo.slice(1))) === 2
@@ -132,7 +134,7 @@ export function presentHintMove(move, detail) {
     const isPieceOnly = detail === 'piece';
     return { ...move, hintDetail: detail,
         player: [isPieceOnly ? move.player[0] : '??', isPieceOnly ? '??' : move.player[1]],
-        playerUci: null, playerPromotion: null, opponent: [null, null], opponentPromotion: null };
+        playerUci: null, playerPromotion: null, opponent: [null, null], opponentUci: null, opponentPromotion: null };
 }
 
 // Run before inputs/instances are initialized, also covering imported old configs.

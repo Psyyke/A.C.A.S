@@ -180,7 +180,7 @@
         "renderSquarePlayer": ["Pola kontrolowane przez twoje bierki", "Zaznaczaj na zielono pola kontrolowane przez twoje bierki"],
         "renderSquareEnemy": ["Pola kontrolowane przez przeciwnika", "Zaznaczaj na czerwono pola kontrolowane przez bierki przeciwnika"],
         "renderSquareContested": ["Zakwestionowane pola", "Zaznaczaj zakwestionowane pola na pomarańczowo"],
-        "renderSquareSafe": ["Bezpieczne pola", "Zaznaczaj bezpieczne pola na cyjanowo"],
+        "renderSquareSafe": ["Niekontrolowane pola", "Zaznaczaj na cyjanowo pola, których nie kontrolują bierki żadnej ze stron"],
         "renderPiecePlayerCapture": ["Zagrożone własne bierki", "Wyświetl 💧 na bierkach, którym grozi zbicie"],
         "renderPieceEnemyCapture": ["Bierki przeciwnika do zaatakowania", "Wyświetl 🩸 na bierkach, które warto zaatakować"],
         "enableEveryPieceEvals": ["Pokaż wkład każdej bierki", "Zobacz, jak bardzo każda bierka przyczynia się do pozycji"],
@@ -190,6 +190,7 @@
         "feedbackOnExternalSite": ["Opinie Na Zewnętrznej Stronie", "Pokaż opinie na planszy strony szachowej (np. plansza chess.com)"],
         "pip": ["Pływający panel", "Ważne! Pomaga zapobiegać zawieszaniu się A.C.A.S!"],
         "pipBoard": ["Pokaż szachownicę", "Zamiast samego tekstu pokaż całą szachownicę"],
+        "pipQuality": ["Jakość pływającego panelu", "Niższa rozdzielczość może działać szybciej. Domyślnie: 50%."],
         "movesOnDemand": ["Ruchy na żądanie", "Oblicza ruchy dla wybranych bierek"],
         "onlySuggestPieces": ["Sugeruj tylko bierki", "Pokazuje, którą bierką ruszyć, bez podawania konkretnego ruchu"],
         "isUserscriptGhost": ["Skrypt duch", "Wyłącz wszystkie wykrywalne zewnętrzne funkcje (np. strzałki ruchu), aby uniknąć wykrycia"],
@@ -200,6 +201,11 @@
         "concealAssistanceAutoDelayMs": ["Automatyczne ukrywanie (ms)", "Automatycznie ukryj funkcje wsparcia po tym czasie"]
     },
     "translations": {
+        "variantSpeech": {
+            "shoot": "następnie wystrzel strzałę na {square}",
+            "names": { "pawn": "Pion", "lance": "Lanca", "silver": "Srebrny generał", "gold": "Złoty generał", "cannon": "Armata", "horse": "Koń", "elephant": "Słoń", "advisor": "Doradca", "general": "Generał", "chariot": "Rydwan", "soldier": "Żołnierz", "dragonHorse": "Smoczy koń", "dragonKing": "Smoczy król", "archbishop": "Arcybiskup", "chancellor": "Kanclerz", "amazon": "Amazonka", "hawk": "Jastrząb", "ferz": "Ferz", "wazir": "Wezyr", "centaur": "Centaur", "commoner": "Zwykły król", "banner": "Sztandar", "drunkElephant": "Pijany słoń", "crownPrince": "Książę koronny", "dragon": "Smok", "met": "Met", "khon": "Khon", "aiwok": "Aj wok" },
+            "drop": "Wstaw: {piece}, pole {square}", "promoted": "Promowana figura: {piece}", "promotionOnly": "promocja", "unknownPiece": "Figura {symbol}"
+        },
         "appearance": {
             "customImage": "Własny obraz tła", "blur": "Rozmycie obrazu",
             "imageHint": "PNG, JPEG, WebP, GIF lub AVIF, do 10 MB. Zapisany tylko w tej przeglądarce, nie w eksporcie ustawień.",

@@ -10,14 +10,14 @@ const pipFontSizes = { large: 64, mlarge: 35, medium: 26, feedback: 19, small: 1
 const pipHeaderHeight = 44;
 const pipEvalBarWidth = 40;
 const pipStatusBarHeight = 2;
-const pipBoardSize = 360;
-const pipBoardConfig = [0, pipHeaderHeight, pipBoardSize];
+const pipBoardWidth = 360;
 const pipOpeningHeight = 36;
 const pipFeedbackHeight = 68;
 const pipLayoutWidth = 400;
 const pipTextPadding = 16;
 const pipTextColumnGap = 16;
 let pipLayoutHeight = 200;
+let pipBoardHeight = pipBoardWidth;
 
 let pipCanvas = null;
 let pipVideo = null;
@@ -86,7 +86,7 @@ function getPipOpeningHeight() {
 
 function getPipContentHeight() {
     return pipData.learningMode || pipBoardInput.checked
-        ? pipHeaderHeight + pipBoardSize : 200;
+        ? pipHeaderHeight + pipBoardHeight : 200;
 }
 
 function resizePipCanvas() {
@@ -253,14 +253,14 @@ function canAnimatePipBoard() {
 async function capturePipAnimation(cgElem, positions, rootPosition, outputSize, state, isCurrent) {
     // Chessground snaps its grid to device pixels. Use the live board's source
     // size for every frame so its grid also stays aligned with the root overlay.
-    const sourceSize = cgElem.getBoundingClientRect().width;
+    const sourceRect = cgElem.getBoundingClientRect();
     const preview = cgElem.parentElement.cloneNode(false);
-    preview.style.cssText = `position:absolute; left:-9999px; top:0; width:${sourceSize}px; height:${sourceSize}px; padding:0; display:block;`;
+    preview.style.cssText = `position:absolute; left:-9999px; top:0; width:${sourceRect.width}px; height:${sourceRect.height}px; padding:0; display:block;`;
     preview.setAttribute('aria-hidden', 'true');
     preview.inert = true;
 
     const boardElem = document.createElement('div');
-    boardElem.style.cssText = `width:${sourceSize}px; height:${sourceSize}px;`;
+    boardElem.style.cssText = `width:${sourceRect.width}px; height:${sourceRect.height}px;`;
     preview.appendChild(boardElem);
     cgElem.parentElement.appendChild(preview);
 
@@ -313,14 +313,32 @@ async function renderPipBoards() {
 
     const instanceId = cgElem.parentElement?.parentElement?.dataset?.instanceId;
 
-    const captureSize = Math.max(1, Math.round(pipBoardSize * pipCanvas.width / pipLayoutWidth));
+    // Fit the PiP layout to the live board before capturing, rather than
+    // letterboxing rectangular variants inside a fixed square area.
+    const boardRect = cgElem.getBoundingClientRect();
+    const boardAspectRatio = boardRect.width / boardRect.height;
+
+    // Ignore transient, stretched layouts without replacing the last valid frame.
+    if(!(boardRect.width > 0 && boardRect.height > 0)
+        || !Number.isFinite(boardAspectRatio)
+        || boardAspectRatio < 0.5 || boardAspectRatio > 2) {
+        clearPipBoardAnimation();
+        pipBoardCaptureRevision++;
+        return;
+    }
+
+    pipBoardHeight = pipBoardWidth / boardAspectRatio;
+    resizePipCanvas();
+
+    const captureSize = Math.max(1, Math.round(pipBoardWidth * pipCanvas.width / pipLayoutWidth));
     const positions = canAnimatePipBoard() ? pipData.feedbackPositions || [] : [];
     const state = pipHintInstance?.chessground?.state;
     const boardStyle = getComputedStyle(cgElem.querySelector('cg-board'));
     const animationKey = state && positions.length > 1 ? JSON.stringify([
         instanceId, captureSize, pipHintInstance?.learningReviewPostFen, positions,
         state?.orientation, cgElem.parentElement.className,
-        cgElem.getBoundingClientRect().width, window.devicePixelRatio,
+        cgElem.getBoundingClientRect().width, cgElem.getBoundingClientRect().height,
+        state.dimensions, window.devicePixelRatio,
         boardStyle.backgroundColor, boardStyle.backgroundImage
     ]) : null;
 
@@ -438,8 +456,6 @@ async function captureBoardLayers(instanceId, outputSize, boardElement = null) {
 
     const rect = cgElem.getBoundingClientRect();
 
-    cgElem.style.height = `${rect.width}px`;
-
     const acasInstance = window.AcasInstances?.find(
         i => String(i.id) === String(instanceId)
     );
@@ -481,7 +497,7 @@ async function captureBoardLayers(instanceId, outputSize, boardElement = null) {
         left:-9999px;
         top:0;
         width:${rect.width}px;
-        height:${rect.width}px;
+        height:${rect.height}px;
     `;
 
     document.body.appendChild(container);
@@ -685,11 +701,6 @@ async function refreshPipView() {
 
     resizePipCanvas();
 
-    if(bestMove) {
-        ctxQueue.push(['bestmove', from + to]);
-        pipProcessingBestMove = from + to;
-    }
-
     const isBoard = pipData.learningMode || pipBoardInput.checked;
 
     if(isBoard) await renderPipBoards();
@@ -702,6 +713,12 @@ async function refreshPipView() {
         revision !== pipRefreshRevision
         || pipData.moveObjects !== moveObjects
     ) return;
+
+    // Board capture may resize the canvas and clear the previous drawing queue.
+    if(bestMove) {
+        ctxQueue.push(['bestmove', from + to]);
+        pipProcessingBestMove = from + to;
+    }
 
     const headerWidth = pipLayoutWidth - pipEvalBarWidth;
     const pipMaxTextWidth = headerWidth - pipTextPadding * 2;
@@ -793,15 +810,17 @@ async function refreshPipView() {
         const [bitmap, bitmap2] = pipBoardAnimation?.frames[pipBoardAnimation.index] || pipLastPipBoardBitmaps;
 
         if(bitmap) {
+            const boardRect = [0, pipHeaderHeight, pipBoardWidth, pipBoardHeight];
+
             ctxQueue.push([
                 'drawImage',
-                [bitmap, ...pipBoardConfig, pipBoardSize]
+                [bitmap, ...boardRect]
             ]);
 
             if(bitmap2) {
                 ctxQueue.push([
                     'drawImage',
-                    [bitmap2, ...pipBoardConfig, pipBoardSize]
+                    [bitmap2, ...boardRect]
                 ]);
             }
         }

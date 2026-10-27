@@ -206,6 +206,7 @@ export default async function engineMessageProcessor(msg, profile) {
                 ranking: 99
             });
 
+            Object.assign(futureMoveObj, movePosition);
             futureMoveObj.isFuture = true;
             futureMoveObj.parentMove = moves?.[0];
 
@@ -215,7 +216,8 @@ export default async function engineMessageProcessor(msg, profile) {
             const existingIndex = futureMoves.findIndex(move =>
                 move.parentMove?.from === futureMoveObj.parentMove?.from &&
                 move.parentMove?.to === futureMoveObj.parentMove?.to &&
-                move.parentMove?.promotion === futureMoveObj.parentMove?.promotion
+                move.parentMove?.promotion === futureMoveObj.parentMove?.promotion &&
+                move.parentMove?.uci === futureMoveObj.parentMove?.uci
             );
 
             if(existingIndex !== -1) {
@@ -384,8 +386,8 @@ export default async function engineMessageProcessor(msg, profile) {
             if(this.instanceClosed || this.pV[profile] !== profileObj) return;
 
             const startPosFen = profileObj.variantStartposFen;
-            const dimensions = startPosFen ? GET_BOARD_DIMENSIONS_FROM_FEN(startPosFen) : [8, 8];
-            const startPos = startPosFen || this.defaultStartpos;
+            const startPos = startPosFen || this.currentFen || this.defaultStartpos;
+            const dimensions = GET_BOARD_DIMENSIONS_FROM_FEN(startPos);
 
             const waitForChessgroundLoad = setInterval(() => {
                 const isStale = this.instanceClosed || this.pV[profile] !== profileObj;
@@ -398,7 +400,7 @@ export default async function engineMessageProcessor(msg, profile) {
                 if(window?.ChessgroundX) {
                     clearInterval(waitForChessgroundLoad);
 
-                    this.setupEnvironment(startPos, dimensions);
+                    this.setupEnvironment(startPos, dimensions).catch(console.error);
                     delete profileObj.variantStartposFen;
                 }
             }, 5);
