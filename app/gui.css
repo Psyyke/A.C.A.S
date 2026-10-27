@@ -1123,7 +1123,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #no-instances-subtitle.has-whisper-font {
     font-family: "Whisper", sans-serif;
     font-size: 30px;
-    -webkit-text-stroke: 0.2px currentColor;
+    -webkit-text-stroke: 0.5px currentColor;
 }
 #no-instances-sites {
 	margin: 10px;
