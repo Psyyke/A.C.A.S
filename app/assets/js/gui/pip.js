@@ -12,7 +12,10 @@ const pipBoardWidth = 360;
 const pipOpeningHeight = 36;
 const pipFeedbackHeight = 68;
 const pipFeedbackTotalsHeight = 36;
-const pipFeedbackEmojis = ['🤩', '😁', '😊', '🙂', '📖', '😕', '🤨', '😟', '😨', '💀'];
+const pipFeedbackEmojis = [
+    '🤩', '😁', '😊', '📖', '🙂',
+    '🤨', '😕', '😟', '😨', '💀'
+];
 const pipLayoutWidth = 400;
 const pipTextPadding = 16;
 const pipTextColumnGap = 16;

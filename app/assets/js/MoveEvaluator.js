@@ -6,8 +6,14 @@ export default class MoveEvaluator extends FairyAnalysis {
     constructor(loadEngine = true) {
         super(loadEngine);
         this.searchDepth = 12;
-        this.resultLabels = ['Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic', 'Good Move', 'Excellent', 'Best Move', 'Weak Move'];
-        this.resultEmojis = ['🙂', '🤨', '😟', '😨', '💀', '😊', '😁', '🤩', '😕'];
+        this.resultLabels = [
+            'Neutral', 'Inaccuracy', 'Mistake', 'Blunder', 'Catastrophic',
+            'Good Move', 'Excellent', 'Best Move', 'Weak Move'
+        ];
+        this.resultEmojis = [
+            '🙂', '😕', '😟', '😨', '💀',
+            '😊', '😁', '🤩', '🤨'
+        ];
         this.ratingBands = [
             { limit: 0.75, maxCpLoss: 10, category: 6, reason: 'Nearly matches the best move.' },
             { limit: 1.75, maxCpLoss: 25, category: 5, reason: 'Close to the best move.' },
