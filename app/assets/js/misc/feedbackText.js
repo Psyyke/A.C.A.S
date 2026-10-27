@@ -60,5 +60,5 @@ export function feedbackDisplay(result) {
         `${feedbackText('bestLine', 'Best line')}: ${result.bestPv}.`,
         `${feedbackText('playedLine', 'Played line')}: ${played}.`
     ].filter(Boolean).join('\n');
-    return { summary, description, compact: summary };
+    return { summary, description, compact: summary, emoji: qualityEmoji.trim() };
 }

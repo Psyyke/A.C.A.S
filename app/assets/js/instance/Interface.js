@@ -627,10 +627,11 @@ export default class Interface {
         // The userscript keeps gameStateHistory as [newest, ..., initial], newest index 0.
         // The GUI has it reversed, so [initial, ..., newest], oldest index 0.
         // We update the entire history so that reloading GUI doesn't clear history.
-        const recorded = new Map(this.AcasInstance.gameStateHistory.map(state => [state.fen?.full, state.analysis]));
+        const recorded = new Map(this.AcasInstance.gameStateHistory.map(state => [state.fen?.full, state]));
         this.AcasInstance.gameStateHistory = userscriptGameStateHistory
             .slice()
-            .reverse().map(state => ({ ...state, analysis: recorded.get(state.fen?.full) }));
+            .reverse().map(state => ({ ...state, analysis: recorded.get(state.fen?.full)?.analysis,
+                feedback: recorded.get(state.fen?.full)?.feedback }));
 
         const instanceElem = this?.AcasInstance?.instanceElem;
         const instanceFenElem = instanceElem?.querySelector('.instance-fen');
@@ -780,9 +781,11 @@ export default class Interface {
             && this.liveEvaluationProfile !== profile) return;
 
         const revision = this.evalUpdateRevision = (this.evalUpdateRevision || 0) + 1;
-        const playerColor = await instance.getPlayerColor();
+        // Follow the profile's selected side, including reverseSide. Visual
+        // orientation stays independent; the bar still stores White's advantage.
+        const playerColor = await instance.getPlayerColor(profile);
         if(revision !== this.evalUpdateRevision || !isCurrent()) return;
-        // Leave the bar alone on the enemy's turn, even when hints are requested.
+        // Leave the bar alone on the unselected side's turn.
         if(!review && fen.split(' ')[1] !== playerColor) return;
         const evaluation = evaluationForPlayer(centipawnEval, mate, analyzedColor, playerColor);
         const evalFill = instanceElem.querySelector('.eval-fill');
@@ -790,6 +793,7 @@ export default class Interface {
         const previous = this.evaluationData;
         const depth = Number(context.depth) || 0;
         if(previous?.fen === fen && previous.review === review && previous.variables === variables
+            && previous.playerColor === playerColor
             && (!review || previous.postFen === postFen) && previous.depth > depth) return;
 
         if(!review) this.liveEvaluationProfile = profile;

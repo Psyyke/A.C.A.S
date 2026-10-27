@@ -13,6 +13,8 @@ const pipStatusBarHeight = 2;
 const pipBoardWidth = 360;
 const pipOpeningHeight = 36;
 const pipFeedbackHeight = 68;
+const pipFeedbackTotalsHeight = 36;
+const pipFeedbackEmojis = ['🤩', '😁', '😊', '🙂', '📖', '😕', '🤨', '😟', '😨', '💀'];
 const pipLayoutWidth = 400;
 const pipTextPadding = 16;
 const pipTextColumnGap = 16;
@@ -34,6 +36,8 @@ let pipRefreshRevision = 0;
 let pipBoardCaptureRevision = 0;
 let pipBackgroundCanvas = null;
 let pipBackgroundTheme = null;
+let pipEvaluationState = null;
+let pipEvaluationChangeTimeout = null;
 
 function getPipResolutionScale() {
     const quality = Number(pipQualityInput?.value || 50);
@@ -94,7 +98,7 @@ function resizePipCanvas() {
 
     const height = getPipContentHeight()
         + getPipOpeningHeight()
-        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight : 0);
+        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight + pipFeedbackTotalsHeight : 0);
     const scale = getPipResolutionScale();
     const pixelWidth = Math.max(1, Math.round(pipLayoutWidth * scale));
     const pixelHeight = Math.max(1, Math.round(height * scale));
@@ -132,7 +136,7 @@ export function updatePipData(data) {
 
     if(data) Object.assign(pipData, data);
 
-    if(data && (['moveObjects', 'hintsFiltered', 'openingText', 'feedbackText', 'feedbackPositions', 'learningMode', 'learningPvAnimation', 'learningPvAnimationStopOnEnemyMove', 'feedbackInPip', 'calculationTimeElapsed', 'nodes', 'eval', 'centipawnEval', 'mate', 'playerColor', 'boardOrientation'].some(key => Object.hasOwn(data, key)) || data.depth !== lastProcessedDepth)) {
+    if(data && (['moveObjects', 'hintsFiltered', 'openingText', 'feedbackText', 'feedbackTotals', 'feedbackPositions', 'learningMode', 'learningPvAnimation', 'learningPvAnimationStopOnEnemyMove', 'feedbackInPip', 'calculationTimeElapsed', 'nodes', 'eval', 'centipawnEval', 'mate', 'playerColor', 'boardOrientation'].some(key => Object.hasOwn(data, key)) || data.depth !== lastProcessedDepth)) {
         clearTimeout(pipRefreshTimeout);
 
         lastProcessedDepth = data.depth;
@@ -164,12 +168,47 @@ export function updatePipEvaluation(instance) {
     // shown in PiP may publish it, including when switching between instances.
     if(pipHintInstance !== instance) return;
     const evaluation = !instance.instanceClosed ? instance.Interface.evaluationData : null;
+    const boardOrientation = instance.lastOrientation || evaluation?.playerColor || 'w';
+    const previous = pipEvaluationState;
+    const sameSource = evaluation && previous?.instance === instance
+        && previous.boardOrientation === boardOrientation
+        && previous.evaluation.variables === evaluation.variables
+        && previous.evaluation.profile === evaluation.profile
+        && previous.evaluation.review === evaluation.review
+        && previous.evaluation.playerColor === evaluation.playerColor;
+
+    if(!sameSource) {
+        clearTimeout(pipEvaluationChangeTimeout);
+        pipEvaluationState = evaluation ? {
+            instance, evaluation, boardOrientation, from: evaluation.eval, expiresAt: 0
+        } : null;
+    } else {
+        const samePosition = previous.evaluation.fen === evaluation.fen
+            && (!evaluation.review || previous.evaluation.postFen === evaluation.postFen);
+        const changed = previous.evaluation.eval !== evaluation.eval;
+        // Keep the preceding position's score as the baseline while depth improves.
+        pipEvaluationState = {
+            instance, evaluation, boardOrientation,
+            from: samePosition ? previous.from : previous.evaluation.eval,
+            expiresAt: changed ? Date.now() + 3000 : previous.expiresAt
+        };
+        if(changed) {
+            clearTimeout(pipEvaluationChangeTimeout);
+            if(pipCanvas) {
+                pipEvaluationChangeTimeout = setTimeout(() => {
+                    if(pipEvaluationState) pipEvaluationState.expiresAt = 0;
+                    refreshPipView();
+                }, 3000);
+            }
+        }
+    }
+
     updatePipData({
         eval: evaluation?.eval ?? 0.5,
         centipawnEval: evaluation?.centipawnEval ?? null,
         mate: evaluation?.mate ?? null,
         playerColor: evaluation?.playerColor ?? 'w',
-        boardOrientation: instance.lastOrientation || evaluation?.playerColor || 'w'
+        boardOrientation
     });
 }
 
@@ -183,8 +222,16 @@ export function updatePipFeedback(instance) {
         return variables && (variables.learningMode || !instance.learningMode && variables.feedbackInPip);
     });
     const feedbackText = visibleRows.map(row => row.textContent).join('\n');
-    const variables = instance.pV[instance.learningMode
-        ? instance.learningReviewProfile : visibleRows[0]?.dataset.profileId];
+    const profile = instance.learningMode ? instance.learningReviewProfile
+        : visibleRows[0]?.dataset.profileId || Object.keys(instance.pV).find(profile => instance.pV[profile].feedbackInPip);
+    const variables = instance.pV[profile];
+    const feedbackTotals = Object.fromEntries(pipFeedbackEmojis.map(emoji => [emoji, 0]));
+    if(!instance.instanceClosed) {
+        instance.gameStateHistory.forEach(state => {
+            const emoji = state.feedback?.[profile];
+            if(Object.hasOwn(feedbackTotals, emoji)) feedbackTotals[emoji]++;
+        });
+    }
     const stopOnEnemyMove = variables?.learningPvAnimationStopOnEnemyMove !== false;
     const feedback = variables?.learningMode && variables.lastFeedbackFen === instance.learningReviewPostFen
         && variables.lastFeedbackResult?.bestLine
@@ -196,6 +243,7 @@ export function updatePipFeedback(instance) {
         learningPvAnimationStopOnEnemyMove: stopOnEnemyMove,
         feedbackInPip: Object.values(instance.pV).some(variables => variables.feedbackInPip),
         feedbackText: instance.instanceClosed ? '' : feedbackText,
+        feedbackTotals,
         // Apply the stop setting to refreshes too, so later updates cannot
         // restart an animation that should stay stopped after the reply.
         feedbackPositions: !instance.instanceClosed && (!stopOnEnemyMove || instance.currentFen === instance.learningReviewPostFen)
@@ -212,7 +260,7 @@ export function updatePipHints(instance, profile, result) {
     if(instance.instanceClosed) {
         updatePipEvaluation(instance);
         pipHintInstance = null;
-        updatePipData({ moveObjects: null, hintsFiltered: false, openingText: '', feedbackText: '', feedbackPositions: [], learningMode: false, learningPvAnimation: false, feedbackInPip: false });
+        updatePipData({ moveObjects: null, hintsFiltered: false, openingText: '', feedbackText: '', feedbackTotals: {}, feedbackPositions: [], learningMode: false, learningPvAnimation: false, feedbackInPip: false });
         return;
     }
 
@@ -851,41 +899,87 @@ async function refreshPipView() {
     }
 
     if(openingHeight) {
-        ctxQueue.push(['fillStyle', '#353535']);
+        ctxQueue.push(['fillStyle', '#202020']);
         ctxQueue.push(['fillRect', [0, contentHeight, headerWidth, openingHeight]]);
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.10)']);
         ctxQueue.push(['fillRect', [0, contentHeight, headerWidth, 1]]);
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
-        ctxQueue.push(['text', [pipData.openingText, pipTextPadding, contentHeight,
+        ctxQueue.push(['text', [pipData.openingText, pipTextPadding, contentHeight + 2,
             pipMaxTextWidth, openingHeight,
             `400 ${pipFontSizes.small}px "IBM Plex Sans", "Mona Sans", sans-serif`, 'center']]);
     }
 
     if((pipData.learningMode || pipData.feedbackInPip)) {
-        const top = contentHeight + openingHeight;
+        const totalsTop = contentHeight + openingHeight;
+        const top = totalsTop + pipFeedbackTotalsHeight;
         const lines = String(pipData.feedbackText || '')
             .split('\n')
             .filter(Boolean)
             .slice(0, 2);
 
-        ctxQueue.push(['fillStyle', '#303030']);
+        ctxQueue.push(['fillStyle', '#202020']);
         ctxQueue.push(['fillRect', [0, top, headerWidth, pipFeedbackHeight]]);
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.10)']);
-        ctxQueue.push(['fillRect', [0, top, headerWidth, 1]]);
+        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.08)']);
+        ctxQueue.push(['fillRect', [pipTextPadding, top, pipMaxTextWidth, 1]]);
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
 
         const lineHeight = 26;
-        const textTop = top + (pipFeedbackHeight - lines.length * lineHeight) / 2;
+        const textTop = top + (pipFeedbackHeight - 2 * lineHeight) / 2;
 
         if(!CONCEAL_ASSISTANCE_ACTIVE) {
-            lines.forEach((line, index) => ctxQueue.push(['text', [
-                line,
+            const scoreWidth = 88;
+            const moveWidth = pipMaxTextWidth - scoreWidth - pipTextColumnGap;
+            const font = `400 ${pipFontSizes.feedback}px "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif`;
+
+            lines.forEach((line, index) => {
+                // Separate numeric/mate scores without matching notation parentheses.
+                const score = line.match(/\s*\(([+-]?\d+(?:\.\d+)?|-?M\d+)\)/);
+                const rowTop = textTop + index * lineHeight;
+
+                ctxQueue.push(['text', [
+                    score ? line.replace(score[0], '').trim() : line,
+                    pipTextPadding,
+                    score ? rowTop : top + (pipFeedbackHeight - lineHeight) / 2,
+                    score ? moveWidth : pipMaxTextWidth,
+                    lineHeight,
+                    font,
+                    score ? 'left' : 'center'
+                ]]);
+
+                if(score) {
+                    ctxQueue.push(['text', [
+                        `(${score[1]})`,
+                        headerWidth - pipTextPadding - scoreWidth,
+                        rowTop,
+                        scoreWidth,
+                        lineHeight,
+                        font,
+                        'right'
+                    ]]);
+                }
+            });
+        }
+
+        const totalsText = pipFeedbackEmojis
+            .filter(emoji => pipData.feedbackTotals?.[emoji] > 0)
+            .map(emoji => `${emoji}${pipData.feedbackTotals[emoji]}`)
+            .join('  ');
+        ctxQueue.push(['fillStyle', '#202020']);
+        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, pipFeedbackTotalsHeight]]);
+        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.08)']);
+        ctxQueue.push(['fillRect', [pipTextPadding, totalsTop, pipMaxTextWidth, 1]]);
+        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.85)']);
+
+        if(!CONCEAL_ASSISTANCE_ACTIVE) {
+            ctxQueue.push(['text', [
+                totalsText,
                 pipTextPadding,
-                textTop + index * lineHeight,
+                totalsTop,
                 pipMaxTextWidth,
-                lineHeight,
-                `400 ${pipFontSizes.feedback}px "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif`
-            ]]));
+                pipFeedbackTotalsHeight,
+                '500 17px "Mona Sans", sans-serif',
+                'center'
+            ]]);
         }
     }
 
@@ -904,6 +998,7 @@ async function refreshPipView() {
     }
 
     // Eval bar background + foreground
+    const evalBoundary = boardOrientation === 'b' ? engineEvaluation : 1 - engineEvaluation;
     if(boardOrientation === 'b') {
         ctxQueue.push(['fillStyle', 'rgba(50, 50, 50, 1)']);
         ctxQueue.push([
@@ -923,7 +1018,7 @@ async function refreshPipView() {
                 headerWidth,
                 0,
                 pipEvalBarWidth,
-                pipLayoutHeight * engineEvaluation
+                pipLayoutHeight * evalBoundary
             ]
         ]);
     } else {
@@ -945,9 +1040,26 @@ async function refreshPipView() {
                 headerWidth,
                 0,
                 pipEvalBarWidth,
-                pipLayoutHeight * (1 - engineEvaluation)
+                pipLayoutHeight * evalBoundary
             ]
         ]);
+    }
+
+    if(!CONCEAL_ASSISTANCE_ACTIVE && pipEvaluationState?.expiresAt > Date.now()) {
+        const previousEvaluation = pipEvaluationState.from;
+        const previousBoundary = boardOrientation === 'b' ? previousEvaluation : 1 - previousEvaluation;
+        const currentBoundary = evalBoundary;
+        // Color follows the selected side (reverseSide included), not the board flip.
+        const improved = (engineEvaluation - previousEvaluation)
+            * (pipEvaluationState.evaluation.playerColor === 'b' ? -1 : 1) > 0;
+
+        ctxQueue.push(['fillStyle', improved ? 'rgba(45, 210, 110, 0.55)' : 'rgba(225, 90, 90, 0.28)']);
+        ctxQueue.push(['fillRect', [
+            headerWidth,
+            Math.min(previousBoundary, currentBoundary) * pipLayoutHeight,
+            pipEvalBarWidth,
+            Math.abs(currentBoundary - previousBoundary) * pipLayoutHeight
+        ]]);
     }
 
     if(pipData.mate == null && centipawnEval) {

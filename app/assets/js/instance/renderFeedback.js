@@ -177,7 +177,8 @@ export async function renderLearningFeedback(specificProfile) {
             requestedDepth: Math.max(best.depth || 0, next?.depth || 0) });
         variables.lastFeedbackResult = result;
         variables.lastFeedbackFen = postFen;
-        const { summary, description } = feedbackDisplay(result);
+        const { summary, description, emoji } = feedbackDisplay(result);
+        (after.feedback ??= {})[profile] = emoji;
         setFeedbackMessage.call(this, profile, summary, description);
         queueLearningFeedbackSpeech.call(this, profile, postFen);
         const score = result.played;
@@ -393,7 +394,9 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             if(!isCurrentRequest()) return;
             const feedbackResult = { ...result, isBook, isPlayerMove: movedColor === latestPlayerColor,
                 bestContinuation, playedContinuation };
-            const { summary, description } = feedbackDisplay(feedbackResult);
+            const { summary, description, emoji: ratingEmoji } = feedbackDisplay(feedbackResult);
+            const state = this.gameStateHistory.findLast(item => item.fen?.full === currentFen);
+            if(state) (state.feedback ??= {})[profileID] = ratingEmoji;
             variables.lastFeedbackFen = currentFen;
             variables.lastFeedbackResult = feedbackResult;
             setFeedbackMessage.call(this, profileID, summary, description);

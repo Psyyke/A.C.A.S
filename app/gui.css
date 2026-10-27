@@ -571,13 +571,15 @@ cg-container {
     display: none;
 }
 .instance-feedback-container {
+    box-sizing: border-box;
+    height: 68px;
     padding: 6px 10px;
     gap: 5px;
     display: flex;
     align-items: center;
     flex-direction: column;
-    min-height: 5px;
-    justify-content: center;
+    overflow-y: auto;
+    justify-content: safe center;
     font-size: 15px;
     font-weight: 400;
     color: rgb(255 255 255 / 70%);
@@ -586,6 +588,7 @@ cg-container {
     background-color: rgb(0 0 0 / 16%);
 }
 .instance-feedback {
+    flex-shrink: 0;
     font-size: 14px;
     line-height: 1.5;
     white-space: pre-line;
