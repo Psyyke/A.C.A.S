@@ -47,6 +47,22 @@ export default class MoveEvaluator extends FairyAnalysis {
         return { cpLoss, scaledCpLoss, winningChanceLoss, expectedScoreLoss, loss, qualityLoss };
     }
 
+    meetsBestEvaluation(best, played) {
+        if(best.mate != null || played.mate != null) {
+            if(Number.isFinite(best.mate) && Number.isFinite(played.mate)) {
+                if((best.mate > 0) !== (played.mate > 0)) return played.mate > 0;
+                // Win sooner, or delay a forced loss (mate 0 is an immediate loss).
+                return played.mate <= best.mate;
+            }
+            if(Number.isFinite(played.mate) && best.mate == null && Number.isFinite(best.cp))
+                return played.mate > 0;
+            return Number.isFinite(best.mate) && best.mate <= 0
+                && played.mate == null && Number.isFinite(played.cp);
+        }
+
+        return Number.isFinite(best.cp) && Number.isFinite(played.cp) && played.cp >= best.cp;
+    }
+
     compare(best, played, forced, runnerUp = null) {
         const metrics = this.measureLoss(best, played);
         const { cpLoss, loss, qualityLoss } = metrics;
@@ -64,6 +80,9 @@ export default class MoveEvaluator extends FairyAnalysis {
             category = 7;
             reason = avoidsMate ? 'Only move that avoids forced mate.' : keepsMate ? 'Only move that keeps forced mate.'
                 : critical ? 'Only move that avoids a major concession.' : 'Engine’s top choice.';
+        } else if(this.meetsBestEvaluation(best, played)) {
+            category = 7;
+            reason = 'Matches or exceeds the best recorded evaluation.';
         } else if(played.mate !== null && played.mate <= 0 && (best.mate === null || best.mate > 0)) {
             category = loss >= 35 ? 4 : best.cp !== null && best.cp < -700 ? 2 : 3;
             reason = 'Allows forced mate.';
