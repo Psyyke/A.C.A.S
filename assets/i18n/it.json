@@ -106,7 +106,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Impostazioni del pannello flottante",
         "*[data-translation-ffs-subtitle]": "Queste sono principalmente per gli utenti Firefox",
-        "*[data-translation-ffs-instructions]": "(Nota per gli utenti Firefox: abilita il 'Floating Panel' facendo clic con il tasto destro sul flusso video qui sotto e selezionando 'Guarda in picture-in-picture'. Gli utenti mobili possono provare a premere a lungo il flusso video per un secondo. Questo permette calcoli più veloci e una connessione più stabile. Se non vuoi vedere questo pannello ogni volta che apri A.C.A.S, disattiva 'Floating Panel' o usa Chrome.)",
+        "*[data-translation-ffs-instructions]": "Tieni aperto il pannello flottante, altrimenti A.C.A.S non funzionerà. Disattivando questa funzione viene applicato automaticamente un trucco audio che può mantenere A.C.A.S attivo senza il pannello in alcuni browser. Se qualcosa non funziona, prova Chrome e tieni A.C.A.S visibile in modalità schermo diviso.",
         "*[data-translation-webhook-title]": "Messaggi",
         "*[data-translation-webhook-subtitle]": "Configura i messaggi Discord webhook",
         "*[data-translation-webhook-available-variables]": "Variabili disponibili",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Alcune impostazioni vengono analizzate dinamicamente dall'output UCI del motore. Apri una scacchiera per avviare il motore e caricare le impostazioni dinamiche."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Conteggio mosse nel pannello mobile", "Mostra i conteggi delle valutazioni fuori dalla modalità apprendimento"],
         "learningPvAnimation": ["Anima la variante migliore", "Anima la variante migliore nel pannello mobile"],
         "learningPvAnimationStopOnEnemyMove": ["Ferma dopo la mossa avversaria", "Ferma l’animazione quando l’avversario muove"],
         "learningMode": ["Modalità apprendimento", "Rivedi la tua ultima mossa con il motore di questo profilo"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Le impostazioni si applicano a tutte le istanze",
         "settingsNavbarInstanceSubtitle": "Le impostazioni si applicano solo all’istanza \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Era fin troppo facile", "Bro, perdi ogni tanto", "Mi stupisci, sul serio.", "Ma sei Magnus?", "Bro, datti una calmata.", "Tutto merito mio… cioè, tuo.", "Bevi un po' d'acqua", "DAJEEEEEE!!!!!"],
+            "losingMessages": ["Siamo fritti?", "Ehm...", "Puoi fare di meglio.", "Dai, prossima partita.", "Cosaaaaaaa??", "Stavi giocando bene", "Ci sta", "Pure Magnus sbaglia"],
+            "drawMessage": "Patta, bella partita",
             "bookSummary": "era da libro", "bookSpeech": "Da libro",
             "summaryLabels": ["era neutra", "era un'imprecisione", "era un errore", "era un errore grave", "era catastrofica", "era buona", "era eccellente", "era la migliore", "era debole"],
             "speechLabels": ["Neutra", "Imprecisione", "Errore", "Errore grave", "Catastrofica", "Buona", "Eccellente", "La migliore", "Debole"], "forcedSpeech": "Forzata",

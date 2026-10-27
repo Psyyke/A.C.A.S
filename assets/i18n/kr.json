@@ -105,7 +105,7 @@
         ".multithread-tag": "멀티스레드",
         "*[data-translation-ffs-title]": "플로팅 패널 설정",
         "*[data-translation-ffs-subtitle]": "주로 Firefox 사용자용",
-        "*[data-translation-ffs-instructions]": "(Firefox 사용자 참고: 아래 비디오 스트림에서 오른쪽 클릭한 후 '그림 속의 그림으로 보기'를 선택하여 '플로팅 패널'을 활성화하세요. 모바일 사용자는 비디오 스트림을 1초간 길게 눌러보세요. 이렇게 하면 계산이 빨라지고 연결이 더 안정적입니다. A.C.A.S를 열 때마다 이 패널을 보고 싶지 않으면 '플로팅 패널'을 비활성화하거나 Chrome을 사용하세요.)",
+        "*[data-translation-ffs-instructions]": "플로팅 패널을 열어 두세요. 그렇지 않으면 A.C.A.S가 작동하지 않습니다. 이 기능을 끄면 오디오를 이용한 우회 방법이 자동으로 적용되며, 일부 브라우저에서는 패널 없이도 A.C.A.S를 계속 활성 상태로 유지할 수 있습니다. 제대로 작동하지 않는 부분이 있다면 Chrome을 사용하고 분할 화면에서 A.C.A.S가 보이도록 유지해 보세요.",
         "*[data-translation-webhook-title]": "메시지",
         "*[data-translation-webhook-subtitle]": "Discord 웹훅 메시지 구성",
         "*[data-translation-webhook-available-variables]": "사용 가능한 변수",
@@ -113,6 +113,7 @@
         "#des-no-result-text": "일부 설정은 엔진의 UCI 출력에서 동적으로 분석됩니다. 엔진을 시작하고 동적 설정을 로드하려면 체스 보드를 열어주세요."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["플로팅 패널 수 집계", "학습 모드 밖에서 수 평가별 횟수 표시"],
         "learningPvAnimation": ["최선 수순 애니메이션", "플로팅 패널에서 최선 수순을 애니메이션으로 표시합니다"],
         "learningPvAnimationStopOnEnemyMove": ["상대가 두면 중지", "상대가 수를 두면 애니메이션을 중지합니다"],
         "learningMode": ["학습 모드", "이 프로필의 엔진으로 방금 둔 수를 검토합니다"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "설정은 모든 인스턴스에 적용됩니다",
         "settingsNavbarInstanceSubtitle": "설정은 인스턴스 \"{instanceID}\"에만 적용됩니다",
         "moveFeedback": {
+            "winningMessages": ["이건 너무 쉬웠다", "야 가끔은 좀 져줘", "진짜 감탄만 나오네.", "너 혹시 매그너스?", "야 좀 진정해.", "다 내 덕… 아니 네 덕.", "물 좀 마셔", "와아아아아아!!!!!"],
+            "losingMessages": ["우리 망한 거임?", "어...", "더 잘할 수 있잖아.", "자 다음 판 가자.", "뭐어어어어??", "잘하고 있었는데", "괜찮아", "매그너스도 실수는 해"],
+            "drawMessage": "무승부네, 좋은 경기였어",
             "bookSummary": "정석 수였음", "bookSpeech": "정석",
             "summaryLabels": ["중립적인 수였습니다", "부정확한 수였습니다", "실수였습니다", "큰 실수였습니다", "치명적인 수였습니다", "좋은 수였습니다", "훌륭한 수였습니다", "최선의 수였습니다", "약한 수였습니다"],
             "speechLabels": ["중립", "부정확", "실수", "큰 실수", "치명적", "좋음", "훌륭함", "최선", "약함"], "forcedSpeech": "강제",

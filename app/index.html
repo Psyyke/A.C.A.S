@@ -282,7 +282,7 @@
 			</a>
 			<a id="update-your-userscript-notification" class="hidden" href="https://greasyfork.org/en/scripts/459137">UPDATE YOUR USERSCRIPT, NEW FEATURES MIGHT NOT WORK ON YOUR VERSION</a>
 			<div id="acas-is-free-reminder">
-				<span>(´｡• ◡ •｡`) ♡ <span id="acas-is-free-reminder-text">Help by giving feedback!</span> ⤵</span>
+				<span>(´｡• ◡ •｡`) 🤍 <span id="acas-is-free-reminder-text">Help by giving feedback!</span> ⤵</span>
 				<div class="acas-social-actions">
 					<div class="language-dropdown-input"><div class="dropdown-input-container">
 						<img class="selected-language-img" src="../assets/images/flags/us.svg">
@@ -845,14 +845,15 @@
 
                                                 <div class="setting-panel feedback-display-settings">
                                                     <div class="setting-panel-title" data-translation-feedback-display>Feedback display</div>
+                                                    
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Learning Mode</div>
+                                                        <div class="input-subtitle">Review your last move using this profile's engine</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="learningMode" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
                                                     <div class="input-combination-box">
-                                                        <div class="checkbox-input custom-input"><div><div class="input-title">Learning Mode</div>
-                                                            <div class="input-subtitle">Review your last move using this profile's engine</div></div><div class="checkbox-container">
-                                                            <input type="checkbox" data-key="learningMode" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                                                        </div>
-                                                        <div id="anim-best-line-box" class="checkbox-input sub-input custom-input"><div><div class="input-title">Animate Best Line</div>
+                                                        <div class="checkbox-input custom-input" inert aria-disabled="true"><div><div class="input-title">Animate Best Line</div>
                                                             <div class="input-subtitle">Animate the best line in the floating panel</div></div><div class="checkbox-container">
-                                                            <input type="checkbox" data-key="learningPvAnimation" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                            <input type="checkbox" data-key="learningPvAnimation" data-default-value="false" disabled><div class="checkbox-fill">✔</div></div>
                                                         </div>
                                                         <div id="stop-animation-box" class="checkbox-input sub-input custom-input" inert aria-disabled="true"><div><div class="input-title">Stop After Enemy Move</div>
                                                             <div class="input-subtitle">Stop the animation when the opponent moves</div></div><div class="checkbox-container">
@@ -871,6 +872,7 @@
 														<div class="input-subtitle">Rate opponent moves</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="enableEnemyFeedback" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
+                                                    <div class="settings-divider-line"></div>
                                                     <div class="checkbox-input custom-input"><div><div class="input-title">Feedback On External Site</div>
                                                         <div class="input-subtitle">Show move ratings on the external board</div></div><div class="checkbox-container">
                                                         <input type="checkbox" data-key="feedbackOnExternalSite" data-default-value="false"><div class="checkbox-fill">✔</div></div>
@@ -883,6 +885,11 @@
                                                         <div class="input-subtitle">Show compact feedback in the floating panel</div></div><div class="checkbox-container">
                                                         <input type="checkbox" data-key="feedbackInPip" data-default-value="false"><div class="checkbox-fill">✔</div></div>
                                                     </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Move Counts In Floating Panel</div>
+                                                        <div class="input-subtitle">Show move rating counts outside learning mode</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="feedbackMoveCounts" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+
 													<div class="textfield-input custom-input"><div><div class="input-title">Search Depth</div>
 														<div class="input-subtitle">Fairy Stockfish 14 target depth</div></div>
 														<input type="textfield" data-key="feedbackEngineDepth" data-default-value="10" data-between="1-99">
@@ -1206,7 +1213,7 @@
                                         </div>
                                     </section>
                                     <section class="floaty-body">
-                                        <p data-translation-ffs-instructions>(Note for Firefox users: Enable the 'Floating Panel' by right clicking the videostream below and select 'Watch in Picture-in-Picture'. Mobile users can try pressing down on the videostream for a second. Doing this will allow for faster calculations and more stable connection. If you don't want to see this panel every time you open A.C.A.S, disable 'Floating Panel' or start using Chrome.)</p>
+                                        <p data-translation-ffs-instructions>Keep the Floating Panel open, or A.C.A.S will not work. Disabling this feature automatically applies an audio trick that may keep A.C.A.S active without the panel in some browsers. If anything isn't working, try Chrome and keep A.C.A.S visible in split-screen.</p>
                                         <div class="setting-panel">
                                             <div class="setting-panel-title" data-translation-ffs-videostream>Videostream</div>
                                             <div id="floating-panel-video"></div>

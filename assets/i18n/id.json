@@ -109,11 +109,12 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Pengaturan Panel Mengambang",
         "*[data-translation-ffs-subtitle]": "Ini terutama untuk pengguna Firefox",
-        "*[data-translation-ffs-instructions]": "(Catatan untuk pengguna Firefox: Aktifkan 'Panel Mengambang' dengan klik kanan pada aliran video di bawah dan pilih 'Tonton dalam Gambar-dalam-Gambar'. Pengguna seluler dapat mencoba menekan lama aliran video selama satu detik. Melakukan ini memungkinkan perhitungan lebih cepat dan koneksi lebih stabil. Jika Anda tidak ingin melihat panel ini setiap kali membuka A.C.A.S, nonaktifkan 'Panel Mengambang' atau mulailah menggunakan Chrome.)",
+        "*[data-translation-ffs-instructions]": "Biarkan Panel Mengambang tetap terbuka, atau A.C.A.S tidak akan berfungsi. Menonaktifkan fitur ini secara otomatis menerapkan trik audio yang mungkin dapat menjaga A.C.A.S tetap aktif tanpa panel di beberapa browser. Jika ada yang tidak berfungsi, coba Chrome dan biarkan A.C.A.S tetap terlihat dalam mode layar terbagi.",
         "*[data-translation-ffs-videostream]": "Aliran Video",
         "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Jumlah Langkah di Panel Mengambang", "Tampilkan jumlah penilaian langkah di luar mode belajar"],
         "learningPvAnimation": ["Animasikan Kelanjutan Terbaik", "Animasikan kelanjutan terbaik di panel mengambang"],
         "learningPvAnimationStopOnEnemyMove": ["Berhenti Setelah Langkah Lawan", "Hentikan animasi saat lawan melangkah"],
         "learningMode": ["Mode belajar", "Tinjau langkah terakhirmu dengan mesin profil ini"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Pengaturan berlaku untuk semua instans",
         "settingsNavbarInstanceSubtitle": "Pengaturan hanya berlaku untuk instans \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Ini mah kegampangan", "Bro, sesekali kalah dong", "Asli, gue kagum.", "Lu Magnus ya?", "Bro, santai dikit.", "Semua berkat gue… eh, lu.", "Minum air dulu sana", "WOOOOOOO!!!!!"],
+            "losingMessages": ["Kita tamat nih?", "Eee...", "Lu bisa lebih bagus.", "Next game, gas lah.", "Apaaaaaa??", "Tadi mainnya bagus kok", "Gapapa kok", "Magnus aja bisa blunder"],
+            "drawMessage": "Seri, mainnya bagus",
             "bookSummary": "sesuai buku", "bookSpeech": "Buku",
             "summaryLabels": ["bersifat netral", "merupakan ketidakakuratan", "merupakan kesalahan", "merupakan kesalahan besar", "bersifat fatal", "merupakan langkah bagus", "merupakan langkah luar biasa", "merupakan langkah terbaik", "merupakan langkah lemah"],
             "speechLabels": ["Netral", "Ketidakakuratan", "Kesalahan", "Kesalahan besar", "Fatal", "Bagus", "Luar biasa", "Terbaik", "Lemah"], "forcedSpeech": "Terpaksa",

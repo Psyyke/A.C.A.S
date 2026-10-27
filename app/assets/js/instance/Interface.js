@@ -469,6 +469,7 @@ export default class Interface {
         const isCurrent = () => !instance.instanceClosed && instance.currentFen === fen && this.learningViewRevision === revision;
         const profiles = Object.entries(instance.pV);
         const previousModes = new Map(profiles.map(([profile, variables]) => [profile, variables.learningMode]));
+
         const [settings, ownColor] = await Promise.all([
             Promise.all(profiles.map(async ([profile, variables]) => ({ profile, variables,
                 learningMode: Boolean(await instance.getConfigValue(instance.configKeys.learningMode, profile)),
@@ -478,14 +479,18 @@ export default class Interface {
                 playerColor: await instance.getPlayerColor(profile)
             }))), instance.getPlayerColor()
         ]);
+
         if(!isCurrent()) return;
+
         for(const setting of settings) {
             if(instance.pV[setting.profile] !== setting.variables) continue;
             setting.variables.learningMode = setting.learningMode;
             setting.variables.learningPvAnimation = setting.learningPvAnimation;
             setting.variables.learningPvAnimationStopOnEnemyMove = setting.learningPvAnimationStopOnEnemyMove;
             setting.variables.feedbackInPip = setting.feedbackInPip;
+            setting.variables.feedbackPlayerColor = setting.playerColor;
         }
+
         const enabled = Object.values(instance.pV).some(variables => variables.learningMode);
         const wasEnabled = instance.learningMode;
         const previousReview = instance.learningReviewPostFen;
@@ -501,17 +506,20 @@ export default class Interface {
         instance.instanceElem?.querySelectorAll('.instance-feedback').forEach(row => {
             row.classList.toggle('hidden', enabled && !instance.isLearningProfile(row.dataset.profileId));
         });
+
         const history = instance.gameStateHistory;
         const index = enabled ? history.findLastIndex((state, i) => i > 0
             && history[i - 1].fen?.full?.split(' ')[1] === playerColor
             && state.fen?.full?.split(' ')[1] !== playerColor
             && history[i - 1].fen.full.split(' ')[0] !== state.fen.full.split(' ')[0]) : -1;
         const reviewFen = index > 0 ? history[index - 1].fen.full : null;
+
         instance.learningReviewFen = reviewFen;
         instance.learningReviewPostFen = index > 0 ? history[index].fen.full : null;
         instance.displayFen = reviewFen || fen;
         instance.chessground?.set({ fen: instance.displayFen });
         instance.chessground?.redrawAll();
+        
         // Keep the last valid evaluation while the next review is being scored.
         // Resetting to equal here makes every played move flash through 0.00.
         if(enabled || wasEnabled !== enabled) {
@@ -650,8 +658,8 @@ export default class Interface {
 
         if(fen) {
             this.AcasInstance.currentFen = fen;
-            // Clear/cancel feedback before asynchronous settings application,
-            // not seconds later when renderFeedback eventually gets called.
+            // Cancel stale calculations and board markings immediately.
+            // Keep the latest feedback text visible while the next rating is calculated.
             prepareFeedbackPosition.call(this.AcasInstance, fen);
             setDynamicSettingsContext(this.AcasInstance.instanceID, fen, currentStateObj);
             await this.AcasInstance.syncDynamicSettings();

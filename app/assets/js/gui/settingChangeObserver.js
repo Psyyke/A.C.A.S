@@ -40,42 +40,48 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
     switch(inputElem.dataset.key) {
         case 'learningPvAnimation':
-        case 'learningPvAnimationStopOnEnemyMove': {
-            const animationEnabled = learningPvAnimationInput?.checked;
-            const setting = stopAnimationSettingElem;
-            const input = setting?.querySelector('input');
-
-            if(!setting || !input) break;
-
-            setting.inert = !animationEnabled;
-            setting.setAttribute('aria-disabled', String(!animationEnabled));
-            input.disabled = !animationEnabled;
-            break;
-        }
+        case 'learningPvAnimationStopOnEnemyMove':
         case 'learningMode':
+        case 'feedbackInPip':
+        case 'feedbackMoveCounts':
         case 'enableMoveRatings':
         case 'enableEnemyFeedback': {
-            const learningMode = learningModeInput?.checked;
+            const learningMode = Boolean(learningModeInput?.checked);
+
+            [
+                [learningPvAnimationInput, !learningMode],
+                [stopAnimationSettingElem?.querySelector('input'), !learningMode || !learningPvAnimationInput?.checked]
+            ].forEach(([input, disabled]) => {
+                const setting = input?.closest('.custom-input');
+                if(!setting) return;
+
+                setting.inert = disabled;
+                setting.setAttribute('aria-disabled', String(disabled));
+                input.disabled = disabled;
+            });
+
             const feedbackDisabled = learningMode || !['enableMoveRatings', 'enableEnemyFeedback']
                 .some(key => document.querySelector(`#feedback-floaty input[data-key="${key}"]`)?.checked);
 
-            // The nested Learning Mode combination stays interactive. Only
-            // direct display settings and the move-feedback panel are overridden.
-            document.querySelectorAll('#feedback-floaty .feedback-display-settings > .custom-input, #feedback-floaty .move-feedback-settings')
+            // Keep Learning Mode interactive so it can always be turned off.
+            // Only move feedback is overridden while learning mode is active.
+            document.querySelectorAll('#feedback-floaty .move-feedback-settings')
                 .forEach(setting => {
                     setting.inert = Boolean(learningMode);
                     setting.setAttribute('aria-disabled', String(Boolean(learningMode)));
                     setting.querySelectorAll('input').forEach(input => { input.disabled = Boolean(learningMode); });
                 });
 
-            ['feedbackInPip', 'feedbackEmojis', 'feedbackOnExternalSite', 'feedbackEngineDepth'].forEach(key => {
+            ['feedbackInPip', 'feedbackMoveCounts', 'feedbackEmojis', 'feedbackOnExternalSite', 'feedbackEngineDepth'].forEach(key => {
                 const input = document.querySelector(`#feedback-floaty input[data-key="${key}"]`);
                 if(!input) return;
 
                 const setting = input.closest('.custom-input');
-                setting.inert = feedbackDisabled;
-                setting.setAttribute('aria-disabled', String(feedbackDisabled));
-                input.disabled = feedbackDisabled;
+                const disabled = feedbackDisabled || key === 'feedbackMoveCounts'
+                    && !document.querySelector('#feedback-floaty input[data-key="feedbackInPip"]')?.checked;
+                setting.inert = disabled;
+                setting.setAttribute('aria-disabled', String(disabled));
+                input.disabled = disabled;
             });
 
             break;

@@ -109,11 +109,12 @@
         ".multithread-tag": "Többszálú",
         "*[data-translation-ffs-title]": "Lebegő panel beállításai",
         "*[data-translation-ffs-subtitle]": "Elsősorban Firefox-felhasználóknak",
-        "*[data-translation-ffs-instructions]": "(Megjegyzés Firefox-felhasználóknak: Engedélyezze a 'Lebegő panel'-t az alábbi videófolyamon jobb kattintással, majd válassza a 'Kép a képben megtekintése' opciót. Mobilon próbálja meg hosszan nyomni a videót egy másodpercig. Ez gyorsabb számításokat és stabilabb kapcsolatot tesz lehetővé. Ha nem szeretné mindig látni ezt a panelt A.C.A.S megnyitásakor, kapcsolja ki a 'Lebegő panel'-t vagy kezdjen el Chrome-ot használni.)",
+        "*[data-translation-ffs-instructions]": "Tartsa nyitva a lebegő panelt, különben az A.C.A.S nem fog működni. A funkció kikapcsolásakor automatikusan életbe lép egy hangtrükk, amely egyes böngészőkben panel nélkül is aktívan tarthatja az A.C.A.S-t. Ha valami nem működik, próbálja ki a Chrome-ot, és tartsa láthatóan az A.C.A.S-t osztott képernyőn.",
         "*[data-translation-ffs-videostream]": "Videófolyam",
         "#des-no-result-text": "Egyes beállítások dinamikusan kerülnek elemzésre a motor UCI kimenetéből. Nyisson meg egy sakk táblát a motor elindításához és a dinamikus beállítások betöltéséhez."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Lépésszámláló a lebegő panelen", "Lépésértékelések számának megjelenítése a tanuló módon kívül"],
         "learningPvAnimation": ["Legjobb folytatás animálása", "A legjobb folytatás animálása a lebegő panelen"],
         "learningPvAnimationStopOnEnemyMove": ["Leállítás az ellenfél lépése után", "Az animáció leállítása, amikor az ellenfél lép"],
         "learningMode": ["Tanulási mód", "Tekintse át az utolsó lépését a profil motorjával"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "A beállítások minden példányra érvényesek",
         "settingsNavbarInstanceSubtitle": "A beállítások csak a(z) \"{instanceID}\" példányra érvényesek",
         "moveFeedback": {
+            "winningMessages": ["Ez túl sima volt", "Tesó, néha veszíts is", "Komolyan, le a kalappal.", "Te vagy Magnus?", "Tesó, kicsit lazíts.", "Az én érdemem… mármint a tiéd.", "Igyál egy kis vizet", "EZAAAAAZ!!!!!"],
+            "losingMessages": ["Nekünk annyi?", "Ööö...", "Ennél többet tudsz.", "Jöhet a következő, gyerünk.", "Miiiiiii??", "Pedig tök jól játszottál", "Semmi gáz", "Még Magnus is hibázik"],
+            "drawMessage": "Döntetlen, jó parti volt",
             "bookSummary": "könyv szerinti volt", "bookSpeech": "Könyv szerinti",
             "summaryLabels": ["semleges volt", "pontatlanság volt", "hiba volt", "súlyos hiba volt", "katasztrofális volt", "jó volt", "kiváló volt", "a legjobb volt", "gyenge volt"],
             "speechLabels": ["Semleges", "Pontatlanság", "Hiba", "Súlyos hiba", "Katasztrofális", "Jó", "Kiváló", "Legjobb", "Gyenge"], "forcedSpeech": "Kényszer",

@@ -1,5 +1,5 @@
 :root {
-    --settings-input-main-bg-color: rgb(255 255 255 / 10%);
+    --settings-input-main-bg-color: rgb(255 255 255 / 12%);
     --settings-input-border-width: 0 0 4px 0;
     --settings-input-border-style: solid;
     --settings-input-border-color: rgb(255 255 255 / 25%);
@@ -15,7 +15,7 @@ input:focus,
     justify-content: flex-end;
 }
 .input-title {
-    color: rgb(255 255 255 / 50%);
+    color: rgb(255 255 255 / 65%);
     font-size: 17px;
     pointer-events: none;
     text-transform: capitalize;
@@ -155,7 +155,7 @@ input:focus,
 }
 .input-subtitle {
     font-size: 12px;
-    color: rgb(255 255 255 / 25%);
+    color: rgb(255 255 255 / 35%);
     font-weight: 400;
     overflow-wrap: anywhere;
 }
@@ -1072,6 +1072,9 @@ dialog .input-subtitle {
     color: rgb(255 255 255 / 75%);
     overflow-wrap: anywhere;
 }
+.floaty-header .title p {
+    font-weight: 500;
+}
 .floaty-body {
     background-color: rgb(0 0 0 / 3%);
     border-radius: 0 0 5px 5px;
@@ -1119,6 +1122,7 @@ dialog .input-subtitle {
     padding-left: 5px;
     margin: 0;
     text-transform: capitalize;
+    font-weight: 500;
 }
 @media (max-width: 700px) {
     dialog {

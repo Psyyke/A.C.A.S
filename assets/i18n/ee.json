@@ -104,7 +104,7 @@
         ".multithread-tag": "Mitmelõimeline",
         "*[data-translation-ffs-title]": "Hõljuva paneeli seaded",
         "*[data-translation-ffs-subtitle]": "Need on peamiselt mõeldud Firefoxi kasutajatele",
-        "*[data-translation-ffs-instructions]": "(Märkus Firefoxi kasutajatele: lubage 'Floating Panel', klõpsates alloleval videovoogul parema klahviga ja valides 'Vaata pildi-pildis'. Mobiilikasutajad saavad proovida videovoogu ühe sekundi jooksul all hoida. See võimaldab kiiremaid arvutusi ja stabiilsemat ühendust. Kui te ei soovi seda paneeli näha iga kord, kui avate A.C.A.S, keelake 'Floating Panel' või kasutage Chrome'i.)",
+        "*[data-translation-ffs-instructions]": "Hoidke hõljuv paneel avatuna, muidu A.C.A.S ei tööta. Selle funktsiooni väljalülitamisel rakendatakse automaatselt helinippi, mis võib mõnes brauseris hoida A.C.A.S-i aktiivsena ka ilma paneelita. Kui miski ei tööta, proovige Chrome'i ja hoidke A.C.A.S jagatud ekraanil nähtaval.",
         "*[data-translation-webhook-title]": "Sõnumid",
         "*[data-translation-webhook-subtitle]": "Seadista Discordi webhooki sõnumeid",
         "*[data-translation-webhook-available-variables]": "Saadaval muutujad",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Käikude loendur ujuvpaneelis", "Näita käiguhinnangute arvu väljaspool õppimisrežiimi"],
         "learningPvAnimation": ["Animeeri parimat jätku", "Animeeri parimat jätku ujuvpaneelil"],
         "learningPvAnimationStopOnEnemyMove": ["Peata pärast vastase käiku", "Peata animatsioon, kui vastane teeb käigu"],
         "learningMode": ["Õppimisrežiim", "Vaata oma viimane käik üle selle profiili mootoriga"],
@@ -226,6 +227,9 @@
         "settingsNavbarGlobalSubtitle": "Seaded mõjutavad kõiki instantse",
         "settingsNavbarInstanceSubtitle": "Seaded mõjutavad ainult instantsi \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["See oli liiga lihtne", "Bro, kaota vahel ka", "Olen täitsa sõnatu.", "Sa oled Magnus vä?", "Bro, võta rahulikult.", "Kõik tänu mulle… ei, sulle.", "Joo veits vett", "JAAAAAAA!!!!!"],
+            "losingMessages": ["Meiega on kööga vä?", "Öö...", "Sa suudad paremini.", "Järgmine mäng, davai.", "Midaaaaaaa??", "Sa mängisid ju hästi", "Pole hullu", "Magnus teeb ka vigu"],
+            "drawMessage": "Viik, hea partii",
             "bookSummary": "oli raamatukäik", "bookSpeech": "Raamatukäik",
             "summaryLabels": ["oli neutraalne", "oli ebatäpsus", "oli viga", "oli ränk viga", "oli katastroofiline", "oli hea", "oli suurepärane", "oli parim", "oli nõrk"],
             "speechLabels": ["Neutraalne", "Ebatäpsus", "Viga", "Ränk viga", "Katastroofiline", "Hea", "Suurepärane", "Parim", "Nõrk"], "forcedSpeech": "Sunnitud",

@@ -106,7 +106,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Nastavenia plávajúceho panela",
         "*[data-translation-ffs-subtitle]": "Tieto možnosti sú predovšetkým pre používateľov s podporou PiP",
-        "*[data-translation-ffs-instructions]": "(Poznámka: Na počítači kliknite pravým tlačidlom myši na video (alebo otvorte menu ⋯) a vyberte 'Obrázok v obrázku'. Na mobile podržte video, aby sa zobrazilo rovnaké menu. Ak váš prehliadač nepodporuje PiP, skúste použiť prehliadač s podporou PiP.)",
+        "*[data-translation-ffs-instructions]": "Nechajte plávajúci panel otvorený, inak A.C.A.S nebude fungovať. Vypnutím tejto funkcie sa automaticky použije zvukový trik, ktorý môže v niektorých prehliadačoch udržať A.C.A.S aktívny aj bez panela. Ak niečo nefunguje, skúste Chrome a nechajte A.C.A.S viditeľný na rozdelenej obrazovke.",
         "*[data-translation-webhook-title]": "Správy",
         "*[data-translation-webhook-subtitle]": "Nakonfigurujte správy Discord webhook",
         "*[data-translation-webhook-available-variables]": "Dostupné premenné",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Niektoré nastavenia sú dynamicky analyzované z výstupu UCI motora. Otvorte šachovnicu, aby ste spustili svoj motor a načítali dynamické nastavenia."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Počty ťahov v plávajúcom paneli", "Zobraziť počty hodnotení ťahov mimo režimu učenia"],
         "learningPvAnimation": ["Animovať najlepšie pokračovanie", "Animovať najlepšie pokračovanie v plávajúcom paneli"],
         "learningPvAnimationStopOnEnemyMove": ["Zastaviť po ťahu súpera", "Zastaviť animáciu, keď súper zahrá"],
         "learningMode": ["Režim učenia", "Zhodnoťte svoj posledný ťah pomocou enginu tohto profilu"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Nastavenia platia pre všetky inštancie",
         "settingsNavbarInstanceSubtitle": "Nastavenia platia iba pre inštanciu \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["To bolo moc easy", "Kámo, občas aj prehraj", "Fakt nemám slov.", "Ty si Magnus?", "Kámo, trochu kľud.", "Všetko vďaka mne… teda tebe.", "Daj si trochu vody", "JOOOOOOO!!!!!"],
+            "losingMessages": ["Sme v háji?", "Ehm...", "Máš na viac.", "Ďalšia hra, poď.", "Čooooooo??", "Veď ti to šlo", "To je v pohode", "Aj Magnus robí chyby"],
+            "drawMessage": "Remíza, pekná partia",
             "bookSummary": "bol podľa knihy", "bookSpeech": "Podľa knihy",
             "summaryLabels": ["bol neutrálny", "bol nepresnosťou", "bol chybou", "bol hrubou chybou", "bol katastrofálny", "bol dobrý", "bol výborný", "bol najlepší", "bol slabý"],
             "speechLabels": ["Neutrálny", "Nepresnosť", "Chyba", "Hrubá chyba", "Katastrofálny", "Dobrý", "Výborný", "Najlepší", "Slabý"], "forcedSpeech": "Vynútený",

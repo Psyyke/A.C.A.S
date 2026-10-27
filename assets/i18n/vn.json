@@ -106,7 +106,7 @@
         ".multithread-tag": "Đa luồng",
         "*[data-translation-ffs-title]": "Cài đặt Bảng Nổi",
         "*[data-translation-ffs-subtitle]": "Tùy chọn này chủ yếu dành cho người dùng Firefox",
-        "*[data-translation-ffs-instructions]": "(Lưu ý cho người dùng Firefox: Bật 'Bảng Nổi' bằng cách nhấp chuột phải vào luồng video bên dưới và chọn 'Xem ở chế độ Hình-trong-Hình'. Người dùng di động có thể thử nhấn giữ vào luồng video một giây. Việc này giúp tính toán nhanh hơn và kết nối ổn định hơn. Nếu bạn không muốn thấy bảng này mỗi lần mở A.C.A.S, hãy tắt 'Bảng Nổi' hoặc chuyển sang dùng Chrome.)",
+        "*[data-translation-ffs-instructions]": "Hãy giữ Bảng Nổi mở, nếu không A.C.A.S sẽ không hoạt động. Khi tắt tính năng này, một mẹo âm thanh sẽ tự động được áp dụng và có thể giữ A.C.A.S hoạt động mà không cần bảng trong một số trình duyệt. Nếu có gì không hoạt động, hãy thử Chrome và giữ A.C.A.S luôn hiển thị ở chế độ chia đôi màn hình.",
         "*[data-translation-webhook-title]": "Tin nhắn",
         "*[data-translation-webhook-subtitle]": "Cấu hình tin nhắn Discord webhook",
         "*[data-translation-webhook-available-variables]": "Biến có sẵn",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của engine. Vui lòng mở một bàn cờ để khởi động engine và tải các cài đặt động."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Đếm nước đi trong bảng nổi", "Hiển thị số lần xếp loại nước đi ngoài chế độ học tập"],
         "learningPvAnimation": ["Hoạt ảnh chuỗi nước đi tốt nhất", "Hiển thị hoạt ảnh chuỗi nước đi tốt nhất trong bảng nổi"],
         "learningPvAnimationStopOnEnemyMove": ["Dừng sau nước đi của đối thủ", "Dừng hoạt ảnh khi đối thủ đi"],
         "learningMode": ["Chế độ học tập", "Xem lại nước đi vừa chơi bằng engine của hồ sơ này"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Cài đặt áp dụng cho tất cả các phiên",
         "settingsNavbarInstanceSubtitle": "Cài đặt chỉ áp dụng cho phiên \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Dễ quá rồi", "Bro, thua tí đi", "Nể thật sự luôn.", "Ông là Magnus à?", "Bro, tém lại đi.", "Nhờ tui… à, ông.", "Uống tí nước đi", "WOOOOOOO!!!!!"],
+            "losingMessages": ["Toang rồi hả?", "Ờm...", "Ông làm tốt hơn được.", "Ván sau, cố lên.", "Cáiiiiii??", "Nãy đánh ổn mà", "Không sao đâu", "Magnus cũng mắc lỗi mà"],
+            "drawMessage": "Hòa rồi, ván hay đấy",
             "bookSummary": "là nước đi trong sách", "bookSpeech": "Trong sách",
             "summaryLabels": ["là nước đi trung lập", "là nước đi thiếu chính xác", "là sai lầm", "là sai lầm nghiêm trọng", "là nước đi thảm họa", "là nước đi tốt", "là nước đi xuất sắc", "là nước đi tốt nhất", "là nước đi yếu"],
             "speechLabels": ["Trung lập", "Thiếu chính xác", "Sai lầm", "Sai lầm nghiêm trọng", "Thảm họa", "Tốt", "Xuất sắc", "Tốt nhất", "Yếu"], "forcedSpeech": "Bắt buộc",

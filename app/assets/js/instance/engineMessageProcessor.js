@@ -1,6 +1,6 @@
 import { setProfileBubbleStatus } from '../gui/profiles.js';
 import { fillDynamicEngineOptionContainer, setDynamicOptionsReady } from '../gui/dynamicEngineOptions.js';
-import { updatePipData } from '../gui/pip.js';
+import { updatePipData, updatePipHints } from '../gui/pip.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { isActivityLoggingEnabled, logActivity } from '../misc/activityLog.js';
 import { evaluationForPlayer } from '../misc/evaluation.js';
@@ -295,15 +295,21 @@ export default async function engineMessageProcessor(msg, profile) {
         const bestmove = String(data.bestmove ?? '').trim();
 
         if(!bestmove || ['0000', '0', '(none)', 'none'].includes(bestmove)) {
-            const terminal = oldestUnfinishedCalcRequestObj.annotationScore;
+            const terminal = oldestUnfinishedCalcRequestObj.annotationScore || oldestUnfinishedCalcRequestObj.primaryScore;
 
             if(terminal) {
                 const fen = this.currentFen;
                 const evaluation = evaluationForPlayer(terminal.score, terminal.mate,
                     oldestUnfinishedCalcRequestObj.analyzedColor ?? oldestUnfinishedCalcRequestObj.fen?.split(' ')[1],
-                    await this.getPlayerColor());
+                    await this.getPlayerColor(profile));
 
                 if(evaluation && this.currentFen === fen && this.pV[profile] === profileObj) {
+                    if(!this.learningMode && !this.isLearningProfile(profile)
+                        && oldestUnfinishedCalcRequestObj.annotationEligible && !oldestUnfinishedCalcRequestObj.stopRequested) {
+                        updatePipHints(this, profile, { moveObjects: [],
+                            terminalOutcome: evaluation.playerEvaluation > 0 ? 'winning'
+                                : evaluation.playerEvaluation < 0 ? 'losing' : 'draw' });
+                    }
                     annotateEvaluation.call(this, evaluation.playerEvaluation, fen, profile).catch(console.error);
                 }
             }
@@ -400,8 +406,8 @@ export default async function engineMessageProcessor(msg, profile) {
                 updatePipData({ nodes: this.learningMode ? oldestUnfinishedCalcRequestObj.lastData?.nodes ?? 0 : profileObj.engineNodes,
                     goalDepth: null });
             } else {
-                updatePipData({ depth: this.learningMode ? oldestUnfinishedCalcRequestObj.lastData?.depth ?? 0 : profileObj.searchDepth,
-                    goalNodes: null });
+                // Keep the last reported depth, not the configured search limit.
+                updatePipData({ goalNodes: null });
             }
 
             if(isDelayActive && markingLimit !== 0) {

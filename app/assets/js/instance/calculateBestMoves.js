@@ -1,7 +1,26 @@
 import { setProfileBubbleStatus } from '../gui/profiles.js';
-import { updatePipData } from '../gui/pip.js';
+import { updatePipData, updatePipHints } from '../gui/pip.js';
 import { incrementUserUsageStat } from '../gui/stats.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
+import { Chess } from '../../engines/libraries/chessjs/chess.js';
+
+function getTerminalOutcome(fen, playerColor) {
+    if(!['w', 'b'].includes(playerColor)) return null;
+
+    const position = fen.split(' ')[0];
+    if(position.match(/K/g)?.length !== 1 || position.match(/k/g)?.length !== 1) return null;
+
+    try {
+        const board = new Chess();
+        if(!board.load(fen)) return null;
+
+        if(board.in_checkmate()) return board.turn() === playerColor ? 'losing' : 'winning';
+        return board.in_stalemate() ? 'draw' : null;
+    } catch(error) {
+        // Incomplete DOM positions must not interrupt the next engine search.
+        return null;
+    }
+}
 
 // This function is called every time a seemingly valid new board position is detected on the chess site DOM.
 // The userscript tries to filter out as many weird position changes as possible, but sometimes it can miss some.
@@ -66,6 +85,26 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             return;
         }
 
+        const playerColor = await this.getPlayerColor();
+        const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
+        const isAttackingPlayerColor = reverseSide
+            ? playerColor.toLowerCase() === 'w' ? 'b' : 'w'
+            : playerColor;
+
+        if(!isCurrentCalculation()) return;
+
+        // A winning checkmate leaves the opponent to move. Detect the real result
+        // before own-turn filters, king-attack guards or hypothetical turn rewrites.
+        if(!learning && !specificMovesObj && variant === 'chess' && !profileVariables.useChess960) {
+            const terminalOutcome = getTerminalOutcome(currentFen, isAttackingPlayerColor);
+
+            if(terminalOutcome) {
+                updatePipHints(this, profileName, { moveObjects: [], terminalOutcome });
+                setProfileBubbleStatus('idle', profileName, 'Idle, game has ended.');
+                return;
+            }
+        }
+
         const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
         const isPlayerTurn = await this.isPlayerTurn(profileName);
         if(!isCurrentCalculation()) return;
@@ -82,13 +121,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             return;
         }
 
-        const playerColor = await this.getPlayerColor();
-        const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
         const alwaysMyTurn = await this.getConfigValue(this.configKeys.alwaysMyTurn, profileName);
-
-        const isAttackingPlayerColor = reverseSide
-            ? playerColor.toLowerCase() === 'w' ? 'b' : 'w'
-            : playerColor;
 
         if(!isCurrentCalculation()) return;
         const isCustomVariant = variant && variant !== 'chess';

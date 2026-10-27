@@ -104,7 +104,7 @@
         ".multithread-tag": "多线程",
         "*[data-translation-ffs-title]": "浮动面板设置",
         "*[data-translation-ffs-subtitle]": "主要针对 Firefox 用户",
-        "*[data-translation-ffs-instructions]": "(对 Firefox 用户的说明：通过在下面的视频流上右键单击并选择“在画中画中观看”来启用“浮动面板”。移动用户可以尝试长按视频流一秒钟。这将允许更快的计算和更稳定的连接。如果你不希望每次打开 A.C.A.S 时都看到此面板，请禁用“Floating Panel”或改用 Chrome。)",
+        "*[data-translation-ffs-instructions]": "请保持浮动面板打开，否则 A.C.A.S 将无法工作。关闭此功能后，会自动应用一种音频技巧，在某些浏览器中可能无需面板也能让 A.C.A.S 保持运行。如果有任何功能无法正常工作，请尝试使用 Chrome，并通过分屏让 A.C.A.S 保持可见。",
         "*[data-translation-webhook-title]": "消息",
         "*[data-translation-webhook-subtitle]": "配置 Discord webhook 消息",
         "*[data-translation-webhook-available-variables]": "可用变量",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["浮动面板走法统计", "在非学习模式下显示走法评级次数"],
         "learningPvAnimation": ["最佳变化动画", "在浮动面板中播放最佳变化动画"],
         "learningPvAnimationStopOnEnemyMove": ["对手走棋后停止", "对手走棋时停止动画"],
         "learningMode": ["学习模式", "使用此配置的引擎复盘你的上一手棋"],
@@ -226,6 +227,9 @@
         "settingsNavbarGlobalSubtitle": "设置对所有实例生效",
         "settingsNavbarInstanceSubtitle": "设置仅对实例“{instanceID}”生效",
         "moveFeedback": {
+            "winningMessages": ["这也太轻松了", "哥们，偶尔输一把呗", "真给我看服了。", "你是卡尔森吗？", "哥们，收着点。", "全靠我——啊不，你。", "喝口水吧", "芜湖起飞！！！！！"],
+            "losingMessages": ["这下寄了？", "呃……", "你还能下得更好。", "下把，冲。", "啊啊啊啊啊？？", "你刚下得挺好的", "没事的", "卡尔森也会犯错嘛"],
+            "drawMessage": "平局，好棋",
             "bookSummary": "是棋谱走法", "bookSpeech": "棋谱",
             "summaryLabels": ["表现中性", "不够精确", "是失误", "是严重失误", "是灾难性走法", "是好棋", "非常优秀", "是最佳走法", "是弱棋"],
             "speechLabels": ["中性", "不精确", "失误", "严重失误", "灾难性", "好", "优秀", "最佳", "弱"], "forcedSpeech": "被迫",

@@ -109,11 +109,12 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Paramètres du panneau flottant",
         "*[data-translation-ffs-subtitle]": "Principalement pour les utilisateurs de Firefox",
-        "*[data-translation-ffs-instructions]": "(Remarque pour les utilisateurs de Firefox : activez le « Panneau flottant » en cliquant avec le bouton droit sur le flux vidéo ci-dessous et en sélectionnant « Regarder en image dans l'image ». Les utilisateurs mobiles peuvent essayer d'appuyer longuement sur le flux vidéo. Cela permettra des calculs plus rapides et une connexion plus stable. Si vous ne souhaitez pas voir ce panneau à chaque ouverture d'A.C.A.S, désactivez « Floating Panel » ou utilisez Chrome.)",
+        "*[data-translation-ffs-instructions]": "Gardez le panneau flottant ouvert, sinon A.C.A.S ne fonctionnera pas. Désactiver cette fonction applique automatiquement une astuce audio qui peut maintenir A.C.A.S actif sans le panneau dans certains navigateurs. Si quelque chose ne fonctionne pas, essayez Chrome et gardez A.C.A.S visible en écran partagé.",
         "*[data-translation-ffs-videostream]": "Flux vidéo",
         "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Compteur de coups dans le panneau flottant", "Afficher les comptes des évaluations hors du mode apprentissage"],
         "learningPvAnimation": ["Animer la meilleure variante", "Animer la meilleure variante dans le panneau flottant"],
         "learningPvAnimationStopOnEnemyMove": ["Arrêter après le coup adverse", "Arrêter l’animation quand l’adversaire joue"],
         "learningMode": ["Mode apprentissage", "Analysez votre dernier coup avec le moteur de ce profil"],
@@ -226,6 +227,9 @@
         "settingsNavbarGlobalSubtitle": "Les paramètres s’appliquent à toutes les instances",
         "settingsNavbarInstanceSubtitle": "Les paramètres s’appliquent uniquement à l’instance \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["C'était trop facile", "Frérot, perds parfois", "J'suis bluffé, vraiment.", "T'es Magnus ou quoi ?", "Frérot, calme-toi.", "Tout grâce à moi… euh, toi.", "Bois un peu d'eau", "OUAAAAAIS!!!!!"],
+            "losingMessages": ["On est cuits ?", "Euh...", "Tu peux faire mieux.", "Allez, prochaine partie.", "Quoiiiiiii ??", "Tu jouais bien pourtant", "T'inquiète", "Même Magnus se plante"],
+            "drawMessage": "Match nul, belle partie",
             "bookSummary": "était théorique", "bookSpeech": "Théorique",
             "summaryLabels": ["était neutre", "était une imprécision", "était une erreur", "était une gaffe", "était catastrophique", "était bon", "était excellent", "était le meilleur", "était faible"],
             "speechLabels": ["Neutre", "Imprécision", "Erreur", "Gaffe", "Catastrophique", "Bon", "Excellent", "Le meilleur", "Faible"], "forcedSpeech": "Forcé",

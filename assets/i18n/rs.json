@@ -104,7 +104,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Podešavanja plutajućeg panela",
         "*[data-translation-ffs-subtitle]": "Ove opcije su prvenstveno za korisnike pretraživača koji podržavaju PiP",
-        "*[data-translation-ffs-instructions]": "(Napomena za Firefox korisnike: Omogućite 'Plutajući panel' desnim klikom na video tok ispod i izaberite 'Gledaj u slici-u-slici'. Mobilni korisnici mogu probati da pritisnu i zadrže video tok na jednu sekundu. Ovo omogućava brže proračune i stabilnije povezivanje. Ako ne želite da vidite ovaj panel svaki put kada otvorite A.C.A.S, onemogućite 'Plutajući panel' ili počnite da koristite Chrome.)",
+        "*[data-translation-ffs-instructions]": "Držite plutajući panel otvorenim, inače A.C.A.S neće raditi. Isključivanjem ove funkcije automatski se primenjuje audio trik koji u nekim pregledačima može održati A.C.A.S aktivnim bez panela. Ako nešto ne radi, probajte Chrome i držite A.C.A.S vidljivim na podeljenom ekranu.",
         "*[data-translation-webhook-title]": "Poruke",
         "*[data-translation-webhook-subtitle]": "Konfigurišite Discord webhook poruke",
         "*[data-translation-webhook-available-variables]": "Dostupne promenljive",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Број потеза у плутајућем панелу", "Прикажи број оцена потеза ван режима учења"],
         "learningPvAnimation": ["Animiraj najbolji nastavak", "Animiraj najbolji nastavak u plutajućem panelu"],
         "learningPvAnimationStopOnEnemyMove": ["Zaustavi posle protivnikovog poteza", "Zaustavi animaciju kada protivnik odigra potez"],
         "learningMode": ["Režim učenja", "Pregledajte svoj poslednji potez pomoću motora ovog profila"],
@@ -225,6 +226,9 @@
         "settingsNavbarGlobalSubtitle": "Podešavanja važe za sve instance",
         "settingsNavbarInstanceSubtitle": "Podešavanja važe samo za instancu \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Ово је било прелако", "Брате, изгуби некад", "Стварно, немам речи.", "Јеси ти Магнус?", "Брате, мало искулирај.", "Све захваљујући мени… овај, теби.", "Попиј мало воде", "ИДЕМОООО!!!!!"],
+            "losingMessages": ["Јесмо ли надрљали?", "Овај...", "Можеш ти боље.", "Ајмо, следећа партија.", "Штаааааа??", "Баш ти је ишло", "Све је океј", "И Магнус прави грешке"],
+            "drawMessage": "Реми, добра партија",
             "bookSummary": "био је из књиге", "bookSpeech": "Из књиге",
             "summaryLabels": ["bio je neutralan", "bio je nepreciznost", "bio je greška", "bio je gruba greška", "bio je katastrofalan", "bio je dobar", "bio je odličan", "bio je najbolji", "bio je slab"],
             "speechLabels": ["Neutralan", "Nepreciznost", "Greška", "Gruba greška", "Katastrofalan", "Dobar", "Odličan", "Najbolji", "Slab"], "forcedSpeech": "Iznuđen",

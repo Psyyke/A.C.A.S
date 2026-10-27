@@ -104,7 +104,7 @@
         ".multithread-tag": "Çoklu İş Parçacığı",
         "*[data-translation-ffs-title]": "Yüzen Panel Ayarları",
         "*[data-translation-ffs-subtitle]": "Bu ayarlar öncelikle PiP destekli tarayıcı kullanıcıları içindir",
-        "*[data-translation-ffs-instructions]": "(Not: Videoyu sağ tıklayın (veya ⋯ menüsünü açın) ve 'Resim içinde resim' seçeneğini seçin. Mobilde videoya uzun basarak aynı menüyü açabilirsiniz. Tarayıcınız PiP desteklemiyorsa PiP destekli bir tarayıcı kullanmayı deneyin.)",
+        "*[data-translation-ffs-instructions]": "Yüzen Panel'i açık tutun, aksi takdirde A.C.A.S çalışmaz. Bu özelliği kapattığınızda, bazı tarayıcılarda A.C.A.S'ı panel olmadan etkin tutabilecek bir ses hilesi otomatik olarak uygulanır. Bir şey çalışmıyorsa Chrome'u deneyin ve bölünmüş ekranda A.C.A.S'ı görünür tutun.",
         "*[data-translation-webhook-title]": "Mesajlar",
         "*[data-translation-webhook-subtitle]": "Discord webhook mesajlarını yapılandır",
         "*[data-translation-webhook-available-variables]": "Kullanılabilir değişkenler",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Yüzen panelde hamle sayıları", "Öğrenme modu dışında hamle değerlendirme sayılarını göster"],
         "learningPvAnimation": ["En İyi Devam Yolunu Canlandır", "Yüzen panelde en iyi devam yolunu canlandır"],
         "learningPvAnimationStopOnEnemyMove": ["Rakip Hamlesinden Sonra Durdur", "Rakip hamle yaptığında animasyonu durdur"],
         "learningMode": ["Öğrenme modu", "Bu profilin motoruyla son hamlenizi inceleyin"],
@@ -225,6 +226,9 @@
         "settingsNavbarGlobalSubtitle": "Ayarlar tüm örnekleri etkiler",
         "settingsNavbarInstanceSubtitle": "Ayarlar yalnızca \"{instanceID}\" örneğini etkiler",
         "moveFeedback": {
+            "winningMessages": ["Bu fazla kolaydı", "Kanka, arada kaybet bari", "Harbi hayran kaldım.", "Sen Magnus musun?", "Kanka, bi sakin.", "Hepsi benim sayemde… şey, senin.", "Bi su iç", "VUHUUUUU!!!!!"],
+            "losingMessages": ["Yandık mı?", "Iıı...", "Daha iyisini yaparsın.", "Hadi, sıradaki maç.", "Neeeeeee??", "İyi oynuyodun aslında", "Sıkıntı yok", "Magnus bile hata yapar"],
+            "drawMessage": "Berabere, güzel maçtı",
             "bookSummary": "kitap hamlesiydi", "bookSpeech": "Kitap",
             "summaryLabels": ["nötrdü", "isabetsizdi", "hataydı", "büyük hataydı", "felaketti", "iyiydi", "mükemmeldi", "en iyisiydi", "zayıftı"],
             "speechLabels": ["Nötr", "İsabetsizlik", "Hata", "Büyük hata", "Felaket", "İyi", "Mükemmel", "En iyi", "Zayıf"], "forcedSpeech": "Zorunlu",

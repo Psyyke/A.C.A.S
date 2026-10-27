@@ -109,11 +109,12 @@
         ".multithread-tag": "Multihilo",
         "*[data-translation-ffs-title]": "Ajustes del panel flotante",
         "*[data-translation-ffs-subtitle]": "Principalmente para usuarios de Firefox",
-        "*[data-translation-ffs-instructions]": "(Nota para usuarios de Firefox: Habilita el 'Floating Panel' haciendo clic derecho en la transmisión de vídeo abajo y seleccionando 'Ver en imagen en imagen'. Los usuarios móviles pueden intentar mantener pulsada la transmisión de vídeo durante un segundo. Esto permitirá cálculos más rápidos y una conexión más estable. Si no quieres ver este panel cada vez que abras A.C.A.S, desactiva 'Floating Panel' o usa Chrome.)",
+        "*[data-translation-ffs-instructions]": "Mantén abierto el panel flotante o A.C.A.S no funcionará. Al desactivar esta función, se aplica automáticamente un truco de audio que puede mantener A.C.A.S activo sin el panel en algunos navegadores. Si algo no funciona, prueba Chrome y mantén A.C.A.S visible en pantalla dividida.",
         "*[data-translation-ffs-videostream]": "Transmisión de vídeo",
         "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Recuento de jugadas en el panel flotante", "Muestra los recuentos de valoraciones fuera del modo de aprendizaje"],
         "learningPvAnimation": ["Animar la mejor variante", "Anima la mejor variante en el panel flotante"],
         "learningPvAnimationStopOnEnemyMove": ["Detener tras la jugada rival", "Detén la animación cuando el rival mueva"],
         "learningMode": ["Modo de aprendizaje", "Revisa tu última jugada con el motor de este perfil"],
@@ -228,6 +229,9 @@
         "settingsNavbarGlobalSubtitle": "Los ajustes se aplican a todas las instancias",
         "settingsNavbarInstanceSubtitle": "Los ajustes solo se aplican a la instancia \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Eso fue demasiado fácil", "Bro, pierde alguna vez", "Me flipas, de verdad.", "¿Eres Magnus o qué?", "Bro, relájate.", "Todo gracias a mí… digo, a ti.", "Bebe un poco de agua", "VAMOOOOOS!!!!!"],
+            "losingMessages": ["¿Estamos fritos?", "Ehh...", "Puedes hacerlo mejor.", "Va, siguiente partida.", "¿Quééééééé??", "Estabas jugando bien", "No pasa nada", "Hasta Magnus se equivoca"],
+            "drawMessage": "Tablas, buena partida",
             "bookSummary": "fue de libro", "bookSpeech": "De libro",
             "summaryLabels": ["fue neutral", "fue una imprecisión", "fue un error", "fue un error grave", "fue catastrófica", "fue buena", "fue excelente", "fue la mejor", "fue débil"],
             "speechLabels": ["Neutral", "Imprecisión", "Error", "Error grave", "Catastrófica", "Buena", "Excelente", "La mejor", "Débil"], "forcedSpeech": "Forzada",

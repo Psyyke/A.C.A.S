@@ -106,7 +106,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Instellingen zwevend paneel",
         "*[data-translation-ffs-subtitle]": "Deze opties zijn vooral voor gebruikers met PiP-ondersteuning",
-        "*[data-translation-ffs-instructions]": "(Opmerking voor Firefox-gebruikers: activeer het 'Zwevend paneel' door met de rechtermuisknop op de videostream hieronder te klikken en 'Bekijken in picture-in-picture' te kiezen. Mobiele gebruikers kunnen proberen de video één seconde ingedrukt te houden. Dit maakt snellere berekeningen en een stabielere verbinding mogelijk. Als je dit paneel niet elke keer wilt zien wanneer je A.C.A.S opent, schakel dan 'Zwevend paneel' uit of begin Chrome te gebruiken.)",
+        "*[data-translation-ffs-instructions]": "Houd het zwevende paneel open, anders werkt A.C.A.S niet. Als je deze functie uitschakelt, wordt automatisch een audiotruc toegepast die A.C.A.S in sommige browsers zonder het paneel actief kan houden. Als iets niet werkt, probeer dan Chrome en houd A.C.A.S zichtbaar in een gesplitst scherm.",
         "*[data-translation-webhook-title]": "Berichten",
         "*[data-translation-webhook-subtitle]": "Configureer Discord webhook-berichten",
         "*[data-translation-webhook-available-variables]": "Beschikbare variabelen",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Zettentelling in zwevend paneel", "Toon aantallen zetbeoordelingen buiten de leermodus"],
         "learningPvAnimation": ["Beste variant animeren", "Animeer de beste variant in het zwevende paneel"],
         "learningPvAnimationStopOnEnemyMove": ["Stoppen na zet tegenstander", "Stop de animatie wanneer de tegenstander zet"],
         "learningMode": ["Leermodus", "Bekijk je laatste zet met de engine van dit profiel"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "De instellingen gelden voor alle instanties",
         "settingsNavbarInstanceSubtitle": "De instellingen gelden alleen voor instantie \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Dat was te makkelijk", "Bro, verlies ook eens", "Ik ben echt verbaasd.", "Ben jij Magnus?", "Bro, doe rustig.", "Allemaal dankzij mij… eh, jou.", "Drink ff wat water", "JAAAAAAA!!!!!"],
+            "losingMessages": ["Zijn we cooked?", "Uhh...", "Je kan beter.", "Volgend potje, kom op.", "Waaaaaaat??", "Je speelde best goed", "Geeft niks", "Zelfs Magnus maakt fouten"],
+            "drawMessage": "Remise, mooie partij",
             "bookSummary": "was een boekzet", "bookSpeech": "Boekzet",
             "summaryLabels": ["was neutraal", "was een onnauwkeurigheid", "was een fout", "was een blunder", "was rampzalig", "was goed", "was uitstekend", "was de beste", "was zwak"],
             "speechLabels": ["Neutraal", "Onnauwkeurigheid", "Fout", "Blunder", "Rampzalig", "Goed", "Uitstekend", "Beste", "Zwak"], "forcedSpeech": "Gedwongen",

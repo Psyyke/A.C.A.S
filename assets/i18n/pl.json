@@ -106,7 +106,7 @@
         ".multithread-tag": "Wielowątkowy",
         "*[data-translation-ffs-title]": "Ustawienia panelu pływającego",
         "*[data-translation-ffs-subtitle]": "Opcje dla użytkowników przeglądarek z obsługą PiP",
-        "*[data-translation-ffs-instructions]": "(Uwaga dla użytkowników Firefox: włącz 'Panel pływający', klikając prawym przyciskiem na transmisję wideo poniżej i wybierając 'Obraz w obrazie'. Użytkownicy mobilni mogą spróbować przytrzymać wideo przez sekundę. To umożliwi szybsze obliczenia i stabilniejsze połączenie. Jeśli nie chcesz widzieć tego panelu za każdym razem, gdy otwierasz A.C.A.S, wyłącz 'Panel pływający' lub zacznij używać Chrome.)",
+        "*[data-translation-ffs-instructions]": "Pozostaw panel pływający otwarty, inaczej A.C.A.S nie będzie działać. Wyłączenie tej funkcji automatycznie uruchamia sztuczkę z dźwiękiem, która w niektórych przeglądarkach może utrzymać A.C.A.S aktywny bez panelu. Jeśli coś nie działa, wypróbuj Chrome i pozostaw A.C.A.S widoczny na podzielonym ekranie.",
         "*[data-translation-webhook-title]": "Wiadomości",
         "*[data-translation-webhook-subtitle]": "Konfiguracja wiadomości webhook Discord",
         "*[data-translation-webhook-available-variables]": "Dostępne zmienne",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Licznik ruchów w panelu pływającym", "Pokazuj liczbę ocen ruchów poza trybem nauki"],
         "learningPvAnimation": ["Animuj najlepszy wariant", "Animuj najlepszy wariant w pływającym panelu"],
         "learningPvAnimationStopOnEnemyMove": ["Zatrzymaj po ruchu przeciwnika", "Zatrzymaj animację, gdy przeciwnik wykona ruch"],
         "learningMode": ["Tryb nauki", "Przeanalizuj swój ostatni ruch silnikiem tego profilu"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Ustawienia dotyczą wszystkich instancji",
         "settingsNavbarInstanceSubtitle": "Ustawienia dotyczą tylko instancji \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["To było za łatwe", "Ziomuś, przegraj czasem", "Serio, aż brak słów.", "Ty jesteś Magnus?", "Ziomuś, wyluzuj.", "Wszystko dzięki mnie… znaczy, tobie.", "Napij się trochę wody", "JEEEEEEE!!!!!"],
+            "losingMessages": ["Mamy przechlapane?", "Eee...", "Stać cię na więcej.", "Dawaj, następna partia.", "Cooooooo??", "Przecież dobrze ci szło", "Jest git", "Nawet Magnus robi błędy"],
+            "drawMessage": "Remis, dobra partia",
             "bookSummary": "był książkowy", "bookSpeech": "Książkowy",
             "summaryLabels": ["był neutralny", "był niedokładnością", "był błędem", "był poważnym błędem", "był katastrofalny", "był dobry", "był świetny", "był najlepszy", "był słaby"],
             "speechLabels": ["Neutralny", "Niedokładność", "Błąd", "Poważny błąd", "Katastrofalny", "Dobry", "Świetny", "Najlepszy", "Słaby"], "forcedSpeech": "Wymuszony",

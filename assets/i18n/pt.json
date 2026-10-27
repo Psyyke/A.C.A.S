@@ -104,7 +104,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Definições do Painel Flutuante",
         "*[data-translation-ffs-subtitle]": "Estas opções destinam-se a utilizadores com suporte a PiP",
-        "*[data-translation-ffs-instructions]": "(Nota para usuários do Firefox: Ative o 'Painel Flutuante' clicando com o botão direito no stream de vídeo abaixo e selecionando 'Ver em imagem-in-imagem'. Usuários móveis podem tentar pressionar longamente o vídeo por um segundo. Isso permitirá cálculos mais rápidos e uma conexão mais estável. Se não quiser ver este painel cada vez que abrir o A.C.A.S, desative o 'Painel Flutuante' ou comece a usar o Chrome.)",
+        "*[data-translation-ffs-instructions]": "Mantenha o Painel Flutuante aberto, caso contrário o A.C.A.S não funcionará. Desativar esta funcionalidade aplica automaticamente um truque de áudio que pode manter o A.C.A.S ativo sem o painel em alguns navegadores. Se algo não funcionar, experimente o Chrome e mantenha o A.C.A.S visível em ecrã dividido.",
         "*[data-translation-webhook-title]": "Mensagens",
         "*[data-translation-webhook-subtitle]": "Configurar mensagens Discord webhook",
         "*[data-translation-webhook-available-variables]": "Variáveis disponíveis",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "Algumas configurações são analisadas dinamicamente a partir da saída UCI do motor. Por favor, abra um tabuleiro de xadrez para iniciar o seu motor e carregar as configurações dinâmicas."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Contagem de jogadas no painel flutuante", "Mostrar contagens das avaliações fora do modo de aprendizagem"],
         "learningPvAnimation": ["Animar a melhor variante", "Anime a melhor variante no painel flutuante"],
         "learningPvAnimationStopOnEnemyMove": ["Parar após a jogada adversária", "Pare a animação quando o adversário jogar"],
         "learningMode": ["Modo de aprendizagem", "Revise sua última jogada com o motor deste perfil"],
@@ -225,6 +226,9 @@
         "settingsNavbarGlobalSubtitle": "As configurações se aplicam a todas as instâncias",
         "settingsNavbarInstanceSubtitle": "As configurações se aplicam apenas à instância \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Foi fácil demais", "Mano, perde às vezes", "Estou de boca aberta.", "És o Magnus?", "Mano, tem calma.", "Tudo graças a mim… quer dizer, a ti.", "Bebe um bocado de água", "VAMOOOOOS!!!!!"],
+            "losingMessages": ["Estamos tramados?", "Hã...", "Consegues fazer melhor.", "Bora, próxima partida.", "Quêêêêêêê??", "Estavas a jogar bem", "Está tudo bem", "Até o Magnus erra"],
+            "drawMessage": "Empate, boa partida",
             "bookSummary": "foi de livro", "bookSpeech": "De livro",
             "summaryLabels": ["foi neutra", "foi uma imprecisão", "foi um erro", "foi um erro grave", "foi catastrófica", "foi boa", "foi excelente", "foi a melhor", "foi fraca"],
             "speechLabels": ["Neutra", "Imprecisão", "Erro", "Erro grave", "Catastrófica", "Boa", "Excelente", "A melhor", "Fraca"], "forcedSpeech": "Forçada",

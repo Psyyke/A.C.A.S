@@ -2,23 +2,23 @@ import { floatingPanelVideoElem, floatingFloaty, pipBoardInput, pipSanInput, pip
 import { initMediaSession, setMediaMetadata, stopMediaSession } from './media.js';
 import { formatMoveNotationAsync } from '../misc/moveNotation.js';
 import { getBackgroundGrainTile } from './backgroundGrain.js';
+import { feedbackCountLines } from '../misc/feedbackText.js';
 
 export const pipData = {};
 const pipFontSizes = { large: 64, mlarge: 35, medium: 26, feedback: 19, small: 18, esmall: 18 };
+const pipTextFontFamily = '"Rubik", "IBM Plex Sans", "Mona Sans", sans-serif';
 const pipHeaderHeight = 44;
 const pipEvalBarWidth = 40;
 const pipStatusBarHeight = 2;
 const pipBoardWidth = 360;
 const pipOpeningHeight = 36;
 const pipFeedbackHeight = 68;
-const pipFeedbackTotalsHeight = 36;
-const pipFeedbackEmojis = [
-    '🤩', '😁', '😊', '📖', '🙂',
-    '🤨', '😕', '😟', '😨', '💀'
-];
+const pipFeedbackTotalsLineHeight = 26;
+const pipFeedbackTotalsPadding = 10;
 const pipLayoutWidth = 400;
 const pipTextPadding = 16;
 const pipTextColumnGap = 16;
+const pipTerminalMessageBottomPadding = 42;
 const PIP_CONTEXT_QUEUE_LIMIT = 30;
 
 let pipHintInstance = null;
@@ -98,12 +98,17 @@ function getPipContentHeight() {
         ? pipHeaderHeight + pipBoardHeight : 200;
 }
 
+function getPipTotalsHeight() {
+    const count = pipData.feedbackCounts?.length || 0;
+    return count ? count * pipFeedbackTotalsLineHeight + 2 * pipFeedbackTotalsPadding : 0;
+}
+
 function resizePipCanvas() {
     if(!pipCanvas) return;
 
     const height = getPipContentHeight()
         + getPipOpeningHeight()
-        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight + pipFeedbackTotalsHeight : 0);
+        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight + getPipTotalsHeight() : 0);
     const scale = getPipResolutionScale();
     const pixelWidth = Math.max(1, Math.round(pipLayoutWidth * scale));
     const pixelHeight = Math.max(1, Math.round(height * scale));
@@ -141,7 +146,12 @@ export function updatePipData(data) {
 
     if(data) Object.assign(pipData, data);
 
-    if(data && (['moveObjects', 'hintsFiltered', 'openingText', 'feedbackText', 'feedbackTotals', 'feedbackPositions', 'learningMode', 'learningPvAnimation', 'learningPvAnimationStopOnEnemyMove', 'feedbackInPip', 'calculationTimeElapsed', 'nodes', 'eval', 'centipawnEval', 'mate', 'playerColor', 'boardOrientation'].some(key => Object.hasOwn(data, key)) || data.depth !== lastProcessedDepth)) {
+    if(data && ([
+        'moveObjects', 'hintsFiltered', 'openingText', 'feedbackText', 'feedbackCounts', 'terminalOutcome',
+        'feedbackPositions', 'learningMode', 'learningPvAnimation', 'learningPvAnimationStopOnEnemyMove',
+        'feedbackInPip', 'calculationTimeElapsed', 'nodes', 'eval', 'centipawnEval',
+        'mate', 'playerColor', 'boardOrientation'
+    ].some(key => Object.hasOwn(data, key)) || data.depth !== lastProcessedDepth)) {
         clearTimeout(pipRefreshTimeout);
 
         lastProcessedDepth = data.depth;
@@ -157,7 +167,7 @@ export function resetPipHints(instance) {
     clearPipBoardAnimation();
     pipBoardCaptureRevision++;
     pipHintInstance = instance;
-    updatePipData({ moveObjects: null, hintsFiltered: false });
+    updatePipData({ moveObjects: null, hintsFiltered: false, terminalOutcome: null });
     updatePipFeedback(instance);
 }
 
@@ -219,24 +229,29 @@ export function updatePipEvaluation(instance) {
 
 export function updatePipFeedback(instance) {
     if(pipHintInstance && pipHintInstance !== instance) return;
+    
     updatePipOpening(instance);
     updatePipEvaluation(instance);
+
     const rows = Array.from(instance.instanceElem?.querySelector('.instance-feedback-container')?.children || []);
     const visibleRows = rows.filter(row => {
         const variables = instance.pV[row.dataset.profileId];
-        return variables && (variables.learningMode || !instance.learningMode && variables.feedbackInPip);
+        return variables && (variables.learningMode || !instance.learningMode && variables.feedbackInPip
+            && (variables.enableMoveRatings || variables.enableEnemyFeedback));
     });
+
     const feedbackText = visibleRows.map(row => row.dataset.feedbackText ?? row.textContent).join('\n');
     const profile = instance.learningMode ? instance.learningReviewProfile
-        : visibleRows[0]?.dataset.profileId || Object.keys(instance.pV).find(profile => instance.pV[profile].feedbackInPip);
-    const variables = instance.pV[profile];
-    const feedbackTotals = Object.fromEntries(pipFeedbackEmojis.map(emoji => [emoji, 0]));
-    if(!instance.instanceClosed) {
-        instance.gameStateHistory.forEach(state => {
-            const emoji = state.feedback?.[profile];
-            if(Object.hasOwn(feedbackTotals, emoji)) feedbackTotals[emoji]++;
+        : visibleRows[0]?.dataset.profileId || Object.keys(instance.pV).find(profile => {
+            const variables = instance.pV[profile];
+            return variables.feedbackInPip && (variables.enableMoveRatings || variables.enableEnemyFeedback);
         });
-    }
+    const variables = instance.pV[profile];
+    const feedbackCounts = instance.learningMode || variables?.feedbackMoveCounts
+        ? feedbackCountLines(instance, profile).filter((_, index) => variables.learningMode
+            || (index === 0 ? variables.enableEnemyFeedback : variables.enableMoveRatings))
+        : [];
+
     const stopOnEnemyMove = variables?.learningPvAnimationStopOnEnemyMove !== false;
     const feedback = variables?.learningMode && variables.lastFeedbackFen === instance.learningReviewPostFen
         && variables.lastFeedbackResult?.bestLine
@@ -246,9 +261,10 @@ export function updatePipFeedback(instance) {
     updatePipData({ learningMode: Boolean(instance.learningMode),
         learningPvAnimation: Boolean(variables?.learningMode && variables.learningPvAnimation),
         learningPvAnimationStopOnEnemyMove: stopOnEnemyMove,
-        feedbackInPip: Object.values(instance.pV).some(variables => variables.feedbackInPip),
+        feedbackInPip: !instance.instanceClosed && Object.values(instance.pV).some(variables =>
+            variables.feedbackInPip && (variables.enableMoveRatings || variables.enableEnemyFeedback)),
         feedbackText: instance.instanceClosed ? '' : feedbackText,
-        feedbackTotals,
+        feedbackCounts,
         // Apply the stop setting to refreshes too, so later updates cannot
         // restart an animation that should stay stopped after the reply.
         feedbackPositions: !instance.instanceClosed && (!stopOnEnemyMove || instance.currentFen === instance.learningReviewPostFen)
@@ -257,7 +273,14 @@ export function updatePipFeedback(instance) {
 
 export function updatePipHints(instance, profile, result) {
     if(result && !instance.instanceClosed && instance.pV[profile]) {
-        instance.pV[profile].pipHints = { ...result, fen: instance.learningMode ? instance.displayFen : instance.currentFen, revision: ++pipHintRevision };
+        const previous = instance.pV[profile].pipHints;
+        const sameOutcome = previous?.fen === instance.currentFen && previous.terminalOutcome === result.terminalOutcome;
+        const messages = TRANS_OBJ?.moveFeedback?.[`${result.terminalOutcome}Messages`];
+        const terminalMessageIndex = !result.terminalOutcome ? 0
+            : sameOutcome ? previous.terminalMessageIndex : Math.floor(Math.random() * (messages?.length || 1));
+
+        instance.pV[profile].pipHints = { ...result, terminalMessageIndex,
+            fen: instance.learningMode ? instance.displayFen : instance.currentFen, revision: ++pipHintRevision };
         pipHintInstance = instance;
     }
     // Profile removal on another board must not replace the currently displayed hints.
@@ -265,23 +288,35 @@ export function updatePipHints(instance, profile, result) {
     if(instance.instanceClosed) {
         updatePipEvaluation(instance);
         pipHintInstance = null;
-        updatePipData({ moveObjects: null, hintsFiltered: false, openingText: '', feedbackText: '', feedbackTotals: {}, feedbackPositions: [], learningMode: false, learningPvAnimation: false, feedbackInPip: false });
+
+        updatePipData({
+            moveObjects: null, hintsFiltered: false, openingText: '', feedbackText: '',
+            feedbackCounts: [], feedbackPositions: [], learningMode: false, terminalOutcome: null,
+            learningPvAnimation: false, feedbackInPip: false
+        });
+
         return;
     }
 
     const profiles = Object.values(instance.pV).filter(variables => !instance.learningMode || variables.learningMode);
     const currentHints = variables => variables.pipHints?.fen === (instance.learningMode ? instance.displayFen : instance.currentFen) ? variables.pipHints : null;
     const results = profiles.map(currentHints).filter(Boolean);
-    // Preserve the latest visible profile rather than letting an empty profile win.
-    const visible = results.filter(hints => hints.moveObjects.length)
-        .sort((a, b) => b.revision - a.revision)[0];
+    
+    // A final result takes priority over another profile's hypothetical hints.
+    const visible = results.filter(hints => hints.moveObjects.length || hints.terminalOutcome)
+        .sort((a, b) => Boolean(b.terminalOutcome) - Boolean(a.terminalOutcome) || b.revision - a.revision)[0];
+
     const awaitingHints = profiles.some(variables => variables.engineSettingsReady
         && (variables.multiPV ?? 2) > 0 && !currentHints(variables)
         && (!variables.chessVariants?.length || variables.chessVariants.includes(variables.chessVariant)));
+
     updatePipData({
         moveObjects: visible?.moveObjects ?? (results.length ? [] : null),
+        terminalOutcome: visible?.terminalOutcome || null,
+        terminalMessageIndex: visible?.terminalMessageIndex || 0,
         hintsFiltered: !visible && !awaitingHints && results.some(hints => hints.hintsFiltered)
     });
+
     updatePipFeedback(instance);
 }
 
@@ -289,6 +324,10 @@ window.REFRESH_PIP_DISPLAY = () => {
     clearTimeout(pipRefreshTimeout);
     refreshPipView(true);
 };
+
+document.addEventListener('acas-translations-updated', () => {
+    if(pipHintInstance) updatePipFeedback(pipHintInstance);
+});
 
 function clearPipBoardAnimation() {
     clearTimeout(pipBoardAnimation?.timer);
@@ -587,7 +626,7 @@ window.CAPTURE_BOARD_IMAGE = async instanceId => {
     return outputCanvas.toDataURL('image/png');
 };
 
-function drawPipText(ctx, text, x, y, width, height, font, align = 'left') {
+function drawPipText(ctx, text, x, y, width, height, font, align = 'left', strokeWidth = 0) {
     if(!text || width <= 0 || height <= 0) return;
 
     ctx.save();
@@ -598,8 +637,9 @@ function drawPipText(ctx, text, x, y, width, height, font, align = 'left') {
 
     const metrics = ctx.measureText(text);
     const lineMetrics = ctx.measureText('Mg');
-    const ascent = lineMetrics.actualBoundingBoxAscent;
-    const descent = lineMetrics.actualBoundingBoxDescent;
+    // Include translated/fallback glyphs, whose bounds can exceed Latin metrics.
+    const ascent = Math.max(lineMetrics.actualBoundingBoxAscent, metrics.actualBoundingBoxAscent);
+    const descent = Math.max(lineMetrics.actualBoundingBoxDescent, metrics.actualBoundingBoxDescent);
     const left = metrics.actualBoundingBoxLeft;
     const textWidth = Math.max(metrics.width, left + metrics.actualBoundingBoxRight);
     // Fit long notation and translations uniformly rather than squeezing glyphs.
@@ -614,6 +654,14 @@ function drawPipText(ctx, text, x, y, width, height, font, align = 'left') {
     // Snap baselines to backing pixels at every PiP quality setting.
     ctx.translate(Math.round(textX * scaleX) / scaleX, Math.round(textY * scaleY) / scaleY);
     ctx.scale(scale, scale);
+
+    if(strokeWidth > 0) {
+        ctx.strokeStyle = ctx.fillStyle;
+        ctx.lineWidth = strokeWidth;
+        ctx.lineJoin = 'round';
+        ctx.strokeText(text, 0, 0);
+    }
+
     ctx.fillText(text, 0, 0);
     ctx.restore();
 }
@@ -794,6 +842,7 @@ async function refreshPipView() {
     const contentHeight = getPipContentHeight();
     const headerTextHeight = pipHeaderHeight - pipStatusBarHeight;
     const secondaryMoveY = contentHeight - 40;
+    const showTerminalMessage = !isBoard && Boolean(pipData.terminalOutcome) && !CONCEAL_ASSISTANCE_ACTIVE;
 
     const noInstancesText =
         FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
@@ -835,14 +884,14 @@ async function refreshPipView() {
     // Status and idle messages share the move column's left and right edges.
     ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.7)']);
 
-    if(!pipData.learningMode && (pipData?.moveProgressText || hintsFiltered)) {
+    if(!pipData.learningMode && !showTerminalMessage && (pipData?.moveProgressText || hintsFiltered)) {
         ctxQueue.push(['text', [hintsFiltered ? filteredText : pipData.moveProgressText,
             pipTextPadding, pipHeaderHeight + 12, pipMaxTextWidth, 32,
-            `500 ${pipFontSizes.medium}px "IBM Plex Sans", sans-serif`]]);
+            `700 ${pipFontSizes.medium}px ${pipTextFontFamily}`]]);
     } else if(
         !pipData.learningMode && noInstancesText
         && !pipData?.moveObjects
-        && to !== 'one)'
+        && !pipData.terminalOutcome
     ) {
         const idleFont = `700 ${pipFontSizes.medium}px "IBM Plex Sans", sans-serif`;
         ctxQueue.push(['text', [noInstancesText, pipTextPadding, pipHeaderHeight + 15,
@@ -851,18 +900,20 @@ async function refreshPipView() {
             pipMaxTextWidth, 40, idleFont]]);
     }
 
-    // Time + progress
+    // Text mode already shows depth; time and progress belong in both headers.
     if(pipData.calculationTimeElapsed != null) {
         const timeMs = pipData.calculationTimeElapsed;
 
-        const timeFormatted = timeMs > 9999
+        const timeFormatted = timeMs >= 1000
             ? `${(timeMs / 1000).toFixed(1)}s`
-            : `${timeMs}ms`;
+            : `${Math.round(timeMs)}ms`;
 
         const progressPercent = (progress * 100).toFixed(0);
+        const depthLabel = TRANS_OBJ?.calculationDepth ?? 'Depth';
+        const depthPrefix = isBoard ? `${depthLabel} ${pipData.depth ?? 0}, ` : '';
 
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
-        const statsText = `(${pipData.depth || 0} ∝ ${timeFormatted}, ${progressPercent}%)`;
+        const statsText = `(${depthPrefix}${timeFormatted}, ${progressPercent}%)`;
         const statsX = pipTextPadding + 104 + 2;
 
         ctxQueue.push(['text', [
@@ -871,7 +922,7 @@ async function refreshPipView() {
             2,
             headerWidth - pipTextPadding - statsX,
             headerTextHeight,
-            `600 ${pipFontSizes.small}px "IBM Plex Sans", "Mona Sans", sans-serif`
+            `700 ${pipFontSizes.small}px ${pipTextFontFamily}`
         ]]);
     }
 
@@ -899,17 +950,31 @@ async function refreshPipView() {
     // Text-based rendering
     } else {
         const mainMoveFont = `900 ${pipFontSizes.large}px "Mona Sans", sans-serif`;
-        const mainMoveTop = pipHeaderHeight + 52;
-        if(to === 'one)') {
+        const mainMoveTop = pipHeaderHeight + (showTerminalMessage ? 20 : 52);
+
+        if(showTerminalMessage) {
+            const messages = TRANS_OBJ?.moveFeedback?.[`${pipData.terminalOutcome}Messages`];
+            const message = messages?.[pipData.terminalMessageIndex % messages.length]
+                || (pipData.terminalOutcome === 'winning' ? 'That was too easy'
+                    : pipData.terminalOutcome === 'losing' ? 'Are we cooked?'
+                        : TRANS_OBJ?.moveFeedback?.drawMessage || 'All even, good game');
+            const messageFontSize = pipFontSizes.medium;
+            const messageHeight = 32;
+            const messageTop = contentHeight - pipTerminalMessageBottomPadding - messageHeight;
+            const faceHeight = Math.min(60, messageTop - mainMoveTop - 6);
+            const faceFont = `900 40px "Mona Sans", sans-serif`;
+
             ctxQueue.push(['text', ['≽(•⩊ •マ≼', pipTextPadding, mainMoveTop,
-                pipMaxTextWidth, 60, mainMoveFont]]);
+                pipMaxTextWidth, faceHeight, faceFont, 'center', 2]]);
+            ctxQueue.push(['text', [message, pipTextPadding, messageTop,
+                pipMaxTextWidth, messageHeight, `400 ${messageFontSize}px "IBM Plex Sans", sans-serif`, 'center']]);
         } else if(bestMove && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['text', [bestMoveText, pipTextPadding, mainMoveTop,
                 pipMaxTextWidth, 60, mainMoveFont]]);
         }
 
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
-        const secondaryMoveFont = `500 ${pipFontSizes.medium}px "Mona Sans", sans-serif`;
+        const secondaryMoveFont = `700 ${pipFontSizes.medium}px ${pipTextFontFamily}`;
 
         if(sFrom && sTo && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['text', [`2. (${secondMoveText})`, pipTextPadding, secondaryMoveY,
@@ -930,21 +995,28 @@ async function refreshPipView() {
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
         ctxQueue.push(['text', [pipData.openingText, pipTextPadding, contentHeight + 2,
             pipMaxTextWidth, openingHeight,
-            `400 ${pipFontSizes.small}px "IBM Plex Sans", "Mona Sans", sans-serif`, 'center']]);
+            `700 ${pipFontSizes.small}px ${pipTextFontFamily}`, 'center']]);
     }
 
     if((pipData.learningMode || pipData.feedbackInPip)) {
         const totalsTop = contentHeight + openingHeight;
-        const top = totalsTop + pipFeedbackTotalsHeight;
+        const totalsHeight = getPipTotalsHeight();
+        const top = totalsTop + totalsHeight;
         const lines = String(pipData.feedbackText || '')
             .split('\n')
             .filter(Boolean)
             .slice(0, 2);
 
         ctxQueue.push(['fillStyle', '#202020']);
-        ctxQueue.push(['fillRect', [0, top, headerWidth, pipFeedbackHeight]]);
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.08)']);
-        ctxQueue.push(['fillRect', [pipTextPadding, top, pipMaxTextWidth, 1]]);
+        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, totalsHeight + pipFeedbackHeight]]);
+        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.16)']);
+        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, 1]]);
+
+        if(totalsHeight) {
+            ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.08)']);
+            ctxQueue.push(['fillRect', [pipTextPadding, top, pipMaxTextWidth, 1]]);
+        }
+
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
 
         const lineHeight = 26;
@@ -953,7 +1025,7 @@ async function refreshPipView() {
         if(!CONCEAL_ASSISTANCE_ACTIVE) {
             const scoreWidth = 88;
             const moveWidth = pipMaxTextWidth - scoreWidth - pipTextColumnGap;
-            const font = `400 ${pipFontSizes.feedback}px "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif`;
+            const font = `600 ${pipFontSizes.feedback}px ${pipTextFontFamily}`;
 
             lines.forEach((line, index) => {
                 // Separate numeric/mate scores without matching notation parentheses.
@@ -984,26 +1056,22 @@ async function refreshPipView() {
             });
         }
 
-        const totalsText = pipFeedbackEmojis
-            .filter(emoji => pipData.feedbackTotals?.[emoji] > 0)
-            .map(emoji => `${emoji}${pipData.feedbackTotals[emoji]}`)
-            .join('  ');
-        ctxQueue.push(['fillStyle', '#202020']);
-        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, pipFeedbackTotalsHeight]]);
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.08)']);
-        ctxQueue.push(['fillRect', [pipTextPadding, totalsTop, pipMaxTextWidth, 1]]);
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.85)']);
+        if(totalsHeight) {
+            const countsTop = totalsTop
+                + (totalsHeight - pipData.feedbackCounts.length * pipFeedbackTotalsLineHeight) / 2;
+            ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.85)']);
 
-        if(!CONCEAL_ASSISTANCE_ACTIVE) {
-            ctxQueue.push(['text', [
-                totalsText,
-                pipTextPadding,
-                totalsTop,
-                pipMaxTextWidth,
-                pipFeedbackTotalsHeight,
-                '500 17px "Mona Sans", sans-serif',
-                'center'
-            ]]);
+            if(!CONCEAL_ASSISTANCE_ACTIVE) {
+                pipData.feedbackCounts.forEach((line, index) => ctxQueue.push(['text', [
+                    line,
+                    pipTextPadding,
+                    countsTop + index * pipFeedbackTotalsLineHeight,
+                    pipMaxTextWidth,
+                    pipFeedbackTotalsLineHeight,
+                    `900 ${pipFontSizes.feedback}px "Mona Sans", sans-serif`,
+                    'center'
+                ]]));
+            }
         }
     }
 
@@ -1094,7 +1162,7 @@ async function refreshPipView() {
 
         ctxQueue.push(['fillStyle', 'rgba(125, 125, 125, 1)']);
         ctxQueue.push(['text', [evalText, headerWidth + 4, yPosition, pipEvalBarWidth - 8, 24,
-            `800 ${pipFontSizes.esmall}px "Mona Sans", sans-serif`, 'center']]);
+            `700 ${pipFontSizes.esmall}px ${pipTextFontFamily}`, 'center']]);
     }
 
     // Status bar

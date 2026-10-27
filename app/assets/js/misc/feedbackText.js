@@ -2,6 +2,36 @@ import { featureText } from './featureTranslations.js';
 
 export const feedbackText = (key, fallback, values) => featureText('moveFeedback', key, fallback, values);
 
+const feedbackEmojis = ['🤩', '😁', '😊', '📖', '🙂', '🤨', '😕', '😟', '😨', '💀'];
+
+export function feedbackCountLines(instance, profile) {
+    const variables = instance.pV[profile];
+    if(!variables || instance.instanceClosed) return [];
+
+    const learning = variables.learningMode;
+    const totals = Array.from({ length: learning ? 1 : 2 }, () =>
+        Object.fromEntries(feedbackEmojis.map(emoji => [emoji, 0])));
+
+    instance.gameStateHistory.forEach((state, index, history) => {
+        const emoji = state.feedback?.[profile];
+        const movedColor = history[index - 1]?.fen?.full?.split(' ')[1];
+        const side = learning || movedColor === variables.feedbackPlayerColor ? 0 : 1;
+        if(Object.hasOwn(totals[side], emoji)) totals[side][emoji]++;
+    });
+
+    const countText = counts => feedbackEmojis.filter(emoji => counts[emoji] > 0)
+        .map(emoji => `${emoji}${counts[emoji]}`).join('  ');
+
+    if(learning) return [countText(totals[0])];
+    if(!variables.enableMoveRatings && !variables.enableEnemyFeedback) return [];
+
+    // Keep both slots, including empty or disabled sides, in board order.
+    return [
+        variables.enableEnemyFeedback ? countText(totals[1]) : '',
+        variables.enableMoveRatings ? countText(totals[0]) : ''
+    ];
+}
+
 function matchesBestMove(result) {
     const best = result.bestMove || result.best?.move;
     const played = result.move || result.played?.move || result.selected?.uci;

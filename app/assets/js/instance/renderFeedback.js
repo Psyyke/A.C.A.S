@@ -1,5 +1,5 @@
 import MoveEvaluator from '../MoveEvaluator.js';
-import { feedbackText as text, feedbackDisplay, feedbackQualityText } from '../misc/feedbackText.js';
+import { feedbackText as text, feedbackDisplay, feedbackQualityText, feedbackCountLines } from '../misc/feedbackText.js';
 import { updatePipFeedback } from '../gui/pip.js';
 import { getHintSettings, filterHintMoves, presentHintMove } from '../misc/learningHints.js';
 import { formatMoveNotationAsync, formatPvNotationAsync, getMoveSan, replayPvAsync, resolveVariantMove } from '../misc/moveNotation.js';
@@ -110,9 +110,9 @@ export async function renderLearningFeedback(specificProfile) {
             this.getPlayerColor(profile)
         ]);
         if(!isCurrent()) continue;
-        clearFeedback.call(this, profile);
+        clearFeedback.call(this, profile, true, true);
         if(!before || !after || fen.split(' ')[1] !== playerColor) {
-            setFeedbackMessage.call(this, profile, text('learningWaiting', 'Play a move to see feedback'));
+            if(!variables.lastFeedbackResult) setFeedbackMessage.call(this, profile, text('learningWaiting', 'Play a move to see feedback'));
             continue;
         }
         const changes = after.boardChanges;
@@ -137,12 +137,8 @@ export async function renderLearningFeedback(specificProfile) {
         const valueOnly = String(analysis?.name).toLowerCase().includes('maia');
         const candidate = !valueOnly ? analysis?.moves.find(item => item.playerUci === move
             && (item.mate != null || item.cp != null)) : null;
-        if(!bestMove || !best || (!next && !candidate) || !move) {
-            const message = text('learningUnavailable', '{move}: waiting for evaluations', { move: playedName || '' });
-            // Omit the translated separator too when there is no move to prefix.
-            setFeedbackMessage.call(this, profile, playedName ? message : message.replace(/^[\s:：՝]+/, ''));
-            continue;
-        }
+        if(!bestMove || !best || (!next && !candidate) || !move) continue;
+
         const toScore = (item, negate = false, uci = item.playerUci) => ({
             cp: item.cp == null ? null : item.cp * (negate ? -1 : 1),
             mate: item.mate == null ? null : item.mate * (negate ? -1 : 1),
@@ -206,9 +202,51 @@ function setFeedbackMessage(profileID, message, description = '') {
         row.setAttribute('role', 'status');
         container.appendChild(row);
     }
+    const variables = this.pV[profileID];
+    const isCountEnabled = (_, index) => variables.learningMode
+        || (index === 0 ? variables.enableEnemyFeedback : variables.enableMoveRatings);
+    const allCountLines = feedbackCountLines(this, profileID);
+    const countLines = allCountLines.filter(isCountEnabled);
+    const countLabels = allCountLines.length === 2
+        ? [text('opponent', 'Opponent'), text('yours', 'Yours')].filter(isCountEnabled) : [];
+    const counts = JSON.stringify([countLabels, countLines]);
+    if(row.dataset.feedbackText === String(message) && row.dataset.feedbackCounts === counts
+        && row.title === (description || message)) {
+        row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));
+        updatePipFeedback(this);
+        return;
+    }
+
     // Preserve the original line breaks and score placement for PiP.
     row.dataset.feedbackText = `${message}`;
+    row.dataset.feedbackCounts = counts;
     row.replaceChildren();
+
+    if(countLines.length) {
+        const totals = document.createElement('div');
+        totals.className = 'instance-feedback-totals';
+        countLines.forEach((line, index) => {
+            const countLine = document.createElement('div');
+            countLine.className = 'instance-feedback-count-line';
+            if(countLabels.length) {
+                countLine.classList.add('has-label');
+                const label = document.createElement('span');
+                label.textContent = countLabels[index];
+                const values = document.createElement('span');
+                values.className = 'instance-feedback-counts';
+                values.textContent = line;
+                countLine.append(label, values);
+            } else {
+                countLine.textContent = line;
+            }
+            totals.appendChild(countLine);
+        });
+        row.appendChild(totals);
+    }
+
+    const feedback = document.createElement('div');
+    feedback.className = 'instance-feedback-message';
+
     String(message).split('\n').filter(Boolean).forEach(line => {
         const score = line.match(/\s*\(([+-]?\d+(?:\.\d+)?|-?M\d+)\)/);
         const lineElem = document.createElement('div');
@@ -223,8 +261,9 @@ function setFeedbackMessage(profileID, message, description = '') {
             scoreElem.textContent = `(${score[1]})`;
             lineElem.appendChild(scoreElem);
         }
-        row.appendChild(lineElem);
+        feedback.appendChild(lineElem);
     });
+    row.appendChild(feedback);
     row.title = description || message;
     row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));
     updatePipFeedback(this);
@@ -254,16 +293,21 @@ document.addEventListener('acas-translations-updated', () => {
     }
 });
 
-export function clearFeedback(profileID, clearExternal = true) {
+export function clearFeedback(profileID, clearExternal = true, keepMessage = false) {
     const variables = this.pV[profileID];
     if(!variables) return;
     const hadExternalFeedback = variables.feedbackDisplayedExternally;
     (variables.activeFeedbackDisplays || []).forEach(marking => marking.elem?.remove());
     variables.activeFeedbackDisplays = [];
     variables.feedbackDisplayedExternally = false;
-    variables.lastFeedbackFen = null;
-    variables.lastFeedbackResult = null;
-    setFeedbackMessage.call(this, profileID, null);
+    if(!keepMessage) {
+        variables.lastFeedbackFen = null;
+        variables.lastFeedbackResult = null;
+        setFeedbackMessage.call(this, profileID, null);
+    } else if(variables.lastFeedbackResult) {
+        const { summary, description } = feedbackDisplay(variables.lastFeedbackResult);
+        setFeedbackMessage.call(this, profileID, summary, description);
+    }
     if(clearExternal && hadExternalFeedback) {
         // A shape-less feedback packet clears this profile/category only. An
         // empty array cannot identify which profile's external emoji to remove.
@@ -281,7 +325,9 @@ export function prepareFeedbackPosition(currentFen) {
     this.MoveEval?.cancelPending();
     this.BoardPiecesEval?.cancelStaleRequests();
     Object.keys(this.pV).forEach(profileID => {
-        clearFeedback.call(this, profileID);
+        const variables = this.pV[profileID];
+        const sameGame = Boolean(currentFen) && this.gameStateHistory.some(state => state.fen?.full === variables.lastFeedbackFen);
+        clearFeedback.call(this, profileID, true, sameGame);
         this.pV[profileID].activePieceEvalDisplays?.forEach(marking => marking.elem?.remove());
         this.pV[profileID].activePieceEvalDisplays = [];
     });
@@ -336,6 +382,12 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             ]);
             if(!isCurrentRequest()) return;
 
+            Object.assign(variables, {
+                enableMoveRatings: Boolean(enablePlayerFeedback),
+                enableEnemyFeedback: Boolean(enableEnemyFeedback),
+                feedbackPlayerColor: playerColor
+            });
+
             // turn is the NEXT player, not the piece that just moved. Never
             // rewrite the opponent's turn: the pre-move FEN already has it right.
             const movedColor = previousFen?.split(' ')[1];
@@ -344,18 +396,16 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
                 : enablePlayerFeedback || enableEnemyFeedback;
             const variant = variables.chessVariant || this.activeVariant;
             if(!enabled) {
-                clearFeedback.call(this, profileID);
+                clearFeedback.call(this, profileID, true, Boolean(enablePlayerFeedback || enableEnemyFeedback));
+                updatePipFeedback(this);
                 return;
             }
             if(!previousFen || !['w', 'b'].includes(movedColor)) {
-                clearFeedback.call(this, profileID);
-                setFeedbackMessage.call(this, profileID, text('waiting', 'Waiting for a recorded move.'));
                 return;
             }
-            clearFeedback.call(this, profileID);
-            setFeedbackMessage.call(this, profileID, text('analyzing', 'Analyzing {move}…', {
-                move: [reportedChanges?.from, reportedChanges?.to].filter(Boolean).join(' → ')
-            }));
+
+            // Keep the last rating visible until a replacement is ready.
+            // Calculation placeholders are deliberately omitted.
             if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
             const analysisConfig = { chessVariant: variant, useChess960: useChess960 || variables.useChess960,
                 isCurrent: isCurrentRequest };
@@ -363,22 +413,18 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
                 [reportedChanges?.from, reportedChanges?.to, reportedChanges?.promotionPiece], analysisConfig);
             if(!isCurrentRequest()) return;
             if(!transition) {
-                clearFeedback.call(this, profileID);
-                setFeedbackMessage.call(this, profileID, text('mismatch', 'Move history mismatch or unsupported variant.'));
+                if(!variables.lastFeedbackResult) setFeedbackMessage.call(this, profileID, text('mismatch', 'Move history mismatch or unsupported variant.'));
                 return;
             }
             const changes = transition.selected;
             const promotion = changes.promotion || '';
 
-            clearFeedback.call(this, profileID);
-            setFeedbackMessage.call(this, profileID, text('analyzing', 'Analyzing {move}…', { move: changes.san }));
             const result = await this.MoveEval.eval([changes.from, changes.to, promotion], {
                 ...analysisConfig, fen: previousFen, postFen: currentFen, depth: feedbackEngineDepth || 15, transition
             });
             if(!isCurrentRequest()) return;
             if(!result) {
-                clearFeedback.call(this, profileID);
-                setFeedbackMessage.call(this, profileID, text('unavailable', 'Evaluation unavailable.'));
+                if(!variables.lastFeedbackResult) setFeedbackMessage.call(this, profileID, text('unavailable', 'Evaluation unavailable.'));
                 return;
             }
 
@@ -392,11 +438,10 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             ]);
             if(!isCurrentRequest()) return;
             if(!(movedColor === latestPlayerColor ? playerEnabled : enemyEnabled)) {
-                clearFeedback.call(this, profileID);
+                clearFeedback.call(this, profileID, true, Boolean(playerEnabled || enemyEnabled));
                 return;
             }
 
-            clearFeedback.call(this, profileID, !feedbackOnExternalSite);
             if(!Number.isInteger(result.category)) return;
             const showEmoji = await this.getConfigValue(this.configKeys.feedbackEmojis, profileID) !== false;
             if(!isCurrentRequest()) return;
@@ -415,6 +460,7 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             const { summary, description, emoji: ratingEmoji } = feedbackDisplay(feedbackResult);
             const state = this.gameStateHistory.findLast(item => item.fen?.full === currentFen);
             if(state) (state.feedback ??= {})[profileID] = ratingEmoji;
+            clearFeedback.call(this, profileID, !feedbackOnExternalSite, true);
             variables.lastFeedbackFen = currentFen;
             variables.lastFeedbackResult = feedbackResult;
             setFeedbackMessage.call(this, profileID, summary, description);
@@ -440,8 +486,7 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
                 this.CommLink.commands.renderVisualsToSite(FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE([marking]));
             }
         } catch(error) {
-            if(isCurrentRequest()) {
-                clearFeedback.call(this, profileID);
+            if(isCurrentRequest() && !variables.lastFeedbackResult) {
                 setFeedbackMessage.call(this, profileID, text('unavailable', 'Evaluation unavailable.'));
             }
             console.warn('[Feedback] Could not display rating:', profileID, error);

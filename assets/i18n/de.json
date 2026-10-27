@@ -106,7 +106,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Einstellungen des schwebenden Panels",
         "*[data-translation-ffs-subtitle]": "Diese Einstellungen sind hauptsächlich für Firefox-Nutzer",
-        "*[data-translation-ffs-instructions]": "(Hinweis für Firefox-Nutzer: Aktiviere das 'Floating Panel', indem du im Videostream unten mit der rechten Maustaste klickst und 'Im Bild-in-Bild anzeigen' wählst. Mobile Nutzer können den Videostream kurz gedrückt halten. Dadurch sind Berechnungen schneller und die Verbindung stabiler. Wenn du dieses Panel nicht jedes Mal sehen möchtest, wenn du A.C.A.S öffnest, deaktiviere 'Floating Panel' oder verwende Chrome.)",
+        "*[data-translation-ffs-instructions]": "Lass das schwebende Panel geöffnet, sonst funktioniert A.C.A.S nicht. Wenn du diese Funktion deaktivierst, wird automatisch ein Audio-Trick angewendet, der A.C.A.S in manchen Browsern auch ohne Panel aktiv halten kann. Falls etwas nicht funktioniert, probiere Chrome aus und halte A.C.A.S im geteilten Bildschirm sichtbar.",
         "*[data-translation-webhook-title]": "Nachrichten",
         "*[data-translation-webhook-subtitle]": "Discord-Webhook-Nachrichten konfigurieren",
         "*[data-translation-webhook-available-variables]": "Verfügbare Variablen",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Zugzähler im schwebenden Fenster", "Zugbewertungen außerhalb des Lernmodus zählen"],
         "learningPvAnimation": ["Beste Variante animieren", "Die beste Variante im schwebenden Fenster animieren"],
         "learningPvAnimationStopOnEnemyMove": ["Nach Gegnerzug stoppen", "Die Animation stoppen, wenn der Gegner zieht"],
         "learningMode": ["Lernmodus", "Überprüfe deinen letzten Zug mit der Engine dieses Profils"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Die Einstellungen gelten für alle Instanzen",
         "settingsNavbarInstanceSubtitle": "Die Einstellungen gelten nur für Instanz \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Das war zu easy", "Bro, verlier auch mal", "Bin echt baff.", "Bist du Magnus?", "Bro, chill mal.", "Alles dank mir… äh, dir.", "Trink mal Wasser", "JAAAAAAA!!!!!"],
+            "losingMessages": ["Sind wir cooked?", "Ähm...", "Du kannst das besser.", "Nächste Runde, komm.", "Waaaaaaas??", "Hast doch gut gespielt", "Ist schon okay", "Auch Magnus macht Fehler"],
+            "drawMessage": "Remis, gute Partie",
             "bookSummary": "war ein Buchzug", "bookSpeech": "Buchzug",
             "summaryLabels": ["war neutral", "war eine Ungenauigkeit", "war ein Fehler", "war ein grober Fehler", "war katastrophal", "war gut", "war ausgezeichnet", "war der beste Zug", "war schwach"],
             "speechLabels": ["Neutral", "Ungenauigkeit", "Fehler", "Grober Fehler", "Katastrophal", "Gut", "Ausgezeichnet", "Am besten", "Schwach"], "forcedSpeech": "Erzwungen",

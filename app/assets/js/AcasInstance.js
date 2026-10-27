@@ -37,7 +37,7 @@ const configKeys = Object.freeze([
     'renderSquareContested', 'renderSquareSafe', 'renderSquareAsDots', 'renderPiecePlayerCapture',
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
     'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth', 'learningMode', 'learningPvAnimation',
-    'learningPvAnimationStopOnEnemyMove', 'feedbackInPip', 'feedbackEmojis',
+    'learningPvAnimationStopOnEnemyMove', 'feedbackInPip', 'feedbackMoveCounts', 'feedbackEmojis',
     'enableAdvancedElo', 'advancedEloDepth', 'moveAsFilledSquares',
     'movesOnDemand', ...hintSettingKeys, 'externalChessEngine'
 ].reduce((o, k) => (o[k] = k, o), {}));
@@ -179,7 +179,10 @@ export default class AcasInstance {
                 instance.learningMode = Boolean(await t.getConfigValue(t.configKeys.learningMode, profileName));
                 instance.learningPvAnimation = Boolean(await t.getConfigValue(t.configKeys.learningPvAnimation, profileName));
                 instance.learningPvAnimationStopOnEnemyMove = await t.getConfigValue(t.configKeys.learningPvAnimationStopOnEnemyMove, profileName) !== false;
-                instance.feedbackInPip = Boolean(await t.getConfigValue(t.configKeys.feedbackInPip, profileName));
+
+                for(const key of ['feedbackInPip', 'feedbackMoveCounts', 'enableMoveRatings', 'enableEnemyFeedback']) {
+                    instance[key] = Boolean(await t.getConfigValue(t.configKeys[key], profileName));
+                }
         
                 return instance;
             }

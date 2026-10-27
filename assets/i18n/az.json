@@ -106,7 +106,7 @@
         ".multithread-tag": "Çoxnüvəli",
         "*[data-translation-ffs-title]": "Üzən panel parametrləri",
         "*[data-translation-ffs-subtitle]": "Bunlar əsasən Firefox istifadəçiləri üçündür",
-        "*[data-translation-ffs-instructions]": "(Firefox istifadəçiləri üçün qeyd: Aşağıdakı video axını üzərində sağ klikləyib 'Şəkildə-şəkil olaraq izləyin' seçimini seçməklə 'Floating Panel'-i aktiv edin. Mobil istifadəçilər video axınını bir saniyə basılı saxlayaraq sınaya bilərlər. Bu, daha sürətli hesablamalara və daha stabilləşmiş bağlantıya imkan verəcək. Hər dəfə A.C.A.S açdığınızda bu paneli görmək istəmirsinizsə, 'Floating Panel'-i deaktiv edin və ya Chrome istifadə edin.)",
+        "*[data-translation-ffs-instructions]": "Üzən paneli açıq saxlayın, əks halda A.C.A.S işləməyəcək. Bu funksiyanı söndürdükdə bəzi brauzerlərdə A.C.A.S-ı panelsiz aktiv saxlaya bilən səs hiyləsi avtomatik tətbiq olunur. Nəsə işləmirsə, Chrome-u sınayın və bölünmüş ekranda A.C.A.S-ı görünən saxlayın.",
         "*[data-translation-webhook-title]": "Mesajlar",
         "*[data-translation-webhook-subtitle]": "Discord webhook mesajlarını konfiqurasiya edin",
         "*[data-translation-webhook-available-variables]": "Mövcud dəyişənlər",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Üzən paneldə gediş sayı", "Öyrənmə rejimindən kənarda gediş qiymətlərinin sayını göstər"],
         "learningPvAnimation": ["Ən yaxşı davamın animasiyası", "Üzən paneldə ən yaxşı davamı animasiya ilə göstərin"],
         "learningPvAnimationStopOnEnemyMove": ["Rəqibin gedişindən sonra dayandır", "Rəqib gediş etdikdə animasiyanı dayandırın"],
         "learningMode": ["Öyrənmə rejimi", "Bu profilin mühərriki ilə son gedişinizi nəzərdən keçirin"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Parametrlər bütün instansiyalara təsir edir",
         "settingsNavbarInstanceSubtitle": "Parametrlər yalnız \"{instanceID}\" instansiyasına təsir edir",
         "moveFeedback": {
+            "winningMessages": ["Bu lap asan oldu", "Qaqa, arada uduz da", "Vallah, sözüm yoxdu.", "Sən Maqnussan?", "Qaqa, bir az sakit.", "Hamısı mənim sayəmdə… yəni, sənin.", "Bir az su iç", "YEEESSSS!!!!!"],
+            "losingMessages": ["Batdıq, yoxsa necə?", "Iıı...", "Daha yaxşısını bacararsan.", "Hadi, növbəti oyun.", "Nəəəəəəə??", "Yaxşı oynayırdın axı", "Eybi yox", "Maqnus da səhv edir"],
+            "drawMessage": "Heç-heçə, yaxşı oyun idi",
             "bookSummary": "kitab gedişi idi", "bookSpeech": "Kitab gedişi",
             "summaryLabels": ["neytral idi", "qeyri-dəqiq idi", "səhv idi", "kobud səhv idi", "fəlakətli idi", "yaxşı idi", "əla idi", "ən yaxşı idi", "zəif idi"],
             "speechLabels": ["Neytral", "Qeyri-dəqiqlik", "Səhv", "Kobud səhv", "Fəlakətli", "Yaxşı", "Əla", "Ən yaxşı", "Zəif"], "forcedSpeech": "Məcburi",

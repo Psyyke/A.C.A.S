@@ -81,18 +81,19 @@
     background-repeat: no-repeat;
     pointer-events: none;
 }
-#anim-best-line-box,
 #stop-animation-box {
     background-color: rgb(0 0 0 / 5%);
     border-left: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 0 5px 5px 0;
-}
-#stop-animation-box {
-    margin-left: 20px;
+    margin-left: 10px;
 }
 p[data-translation-remember-perfection],
 p[data-translation-experimental-warning] {
     font-size: 15px;
+}
+.settings-divider-line {
+    border-bottom: 1px dashed grey !important;
+    margin-bottom: 20px !important;
 }
 @media (max-width: 550px) {
     .learning-hints .hint-piece-groups {
@@ -430,6 +431,7 @@ cg-container {
     font-family: "Whisper", sans-serif;
     font-size: 23px;
     margin-top: -10px;
+    -webkit-text-stroke: 0.2px currentColor;
 }
 .acas-instance {
 	display: flex;
@@ -572,7 +574,7 @@ cg-container {
 }
 .instance-feedback-container {
     box-sizing: border-box;
-    height: 68px;
+    min-height: 68px;
     padding: 6px 10px;
     gap: 5px;
     display: flex;
@@ -585,7 +587,7 @@ cg-container {
     color: rgb(255 255 255 / 70%);
     border-bottom: 4px;
     border-radius: 0 0 6px 6px;
-    background-color: rgb(0 0 0 / 16%);
+    background-color: rgb(0 0 0 / 22%);
 }
 .instance-feedback {
     flex-shrink: 0;
@@ -597,21 +599,44 @@ cg-container {
     overflow-wrap: anywhere;
     text-align: center;
 }
-.instance-feedback-line.has-score {
+.instance-feedback-message {
+    min-height: 3em;
+}
+.instance-feedback-line.has-score,
+.instance-feedback-count-line.has-label {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 88px;
     column-gap: 16px;
     text-align: left;
 }
+.instance-feedback-line.has-score {
+    grid-template-columns: minmax(0, 1fr) 88px;
+}
+.instance-feedback-totals {
+    padding: 5px 0;
+    margin-bottom: 5px;
+    border-top: 1px solid rgb(255 255 255 / 8%);
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+.instance-feedback-count-line {
+    min-height: 1.5em;
+}
+.instance-feedback-count-line.has-label {
+    grid-template-columns: auto minmax(0, 1fr);
+}
+.instance-feedback-counts {
+    text-align: right;
+    font-weight: 500;
+}
+
 .instance-feedback-score {
     white-space: nowrap;
     overflow-wrap: normal;
     text-align: right;
+    font-weight: 500;
 }
-#feedback-floaty:has(input[data-key="learningMode"]:checked) .feedback-display-settings > .custom-input,
 #feedback-floaty:has(input[data-key="learningMode"]:checked) .move-feedback-settings,
 #feedback-floaty:not(:has(input[data-key="learningMode"]:checked)) .move-feedback-settings > .custom-input[aria-disabled="true"],
-#stop-animation-box[aria-disabled="true"] {
+#feedback-floaty .feedback-display-settings .custom-input[aria-disabled="true"] {
     filter: blur(2px);
     opacity: 0.5;
     pointer-events: none;
@@ -633,6 +658,7 @@ cg-container {
     border: 2px solid rgb(255 255 255 / 5%);
 	width: fit-content;
     height: fit-content;
+    font-weight: 500;
 }
 .instance-buttons .acas-fancy-button:hover {
 	background-color: rgb(255 255 255 / 10%);
@@ -644,6 +670,7 @@ cg-container {
 	font-stretch: semi-expanded;
 	text-transform: capitalize;
 	font-size: 17px;
+    font-weight: 500;
 }
 .variant-not-supported-text {
 	color: rgb(255 255 255 / 50%);
@@ -651,7 +678,7 @@ cg-container {
 }
 .instance-domain {
 	font-size: 15px;
-	font-weight: 300;
+	font-weight: 400;
 	color: rgb(255 255 255 / 70%);
 }
 .instance-settings-btn {
@@ -678,7 +705,7 @@ cg-container {
 	font-size: 13.5px;
 	margin-top: 5px;
 	color: rgb(255 255 255 / 50%);
-	font-weight: 300;
+	font-weight: 400;
 	text-align: center;
 }
 .on-top-center-screen {
@@ -1078,7 +1105,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 }
 #no-instances-title {
     font-size: 28px;
-    font-weight: 800;
+    font-weight: 900;
     font-stretch: expanded;
     text-transform: uppercase;
     animation: pulsate 4s infinite;
@@ -1096,7 +1123,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #no-instances-subtitle.has-whisper-font {
     font-family: "Whisper", sans-serif;
     font-size: 30px;
-    -webkit-text-stroke: 0.1px currentColor;
+    -webkit-text-stroke: 0.2px currentColor;
 }
 #no-instances-sites {
 	margin: 10px;
@@ -1436,7 +1463,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #no-instances-sites .sites-subtitle {
 	font-size: 16px;
 	color: rgb(255 255 255 / 50%);
-	font-weight: 300;
+	font-weight: 400;
 	text-align: left;
 }
 #no-instances-sites .sites-list {
@@ -1461,6 +1488,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	user-select: none;
 	margin-bottom: 30px;
 	border: 2px solid rgb(255 255 255 / 15%);
+    font-weight: 500;
 }
 #see-supported-sites-btn:hover {
 	background-color: rgb(255 255 255 / 20%);
@@ -1792,7 +1820,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	margin: 0;
 	word-break: keep-all;
 	font-size: 15px;
-	font-weight: 400;
+	font-weight: 500;
 }
 .profile-removal-button {
     position: absolute;

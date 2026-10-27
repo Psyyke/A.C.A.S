@@ -15,21 +15,25 @@ export default async function updateSettings(updateObj) {
         return;
     }
 
-    if(settingKey === this.configKeys.learningMode || settingKey === this.configKeys.feedbackInPip) {
-        if(settingKey === this.configKeys.feedbackInPip) {
-            if(this.pV[profileName]) this.pV[profileName].feedbackInPip = Boolean(settingValue);
+    if(settingKey === this.configKeys.learningMode || ['feedbackInPip', 'feedbackMoveCounts'].includes(settingKey)) {
+        if(settingKey !== this.configKeys.learningMode) {
+            if(this.pV[profileName]) this.pV[profileName][settingKey] = Boolean(settingValue);
             updatePipFeedback(this);
             return;
         }
         const variables = this.pV[profileName];
+
         if(variables) {
             variables.feedbackRequest = (variables.feedbackRequest || 0) + 1;
             delete variables.spokenAdvantage;
             delete variables.spokenEvaluationFen;
             clearFeedback.call(this, profileName);
         }
+
         await this.Interface.updateLearningBoard(profileName);
+
         this.MoveEval?.cancelStaleRequests();
+
         if(this.currentFen && variables) {
             this.engineStopCalculating(profileName, 'Learning mode changed');
             this.calculateBestMoves(this.currentFen, { specificProfileName: profileName, skipValidityChecks: true }).catch(console.error);
@@ -42,6 +46,7 @@ export default async function updateSettings(updateObj) {
     const profilesWithDisabledEngine = profiles.filter(p => p.config.engineEnabled === false);
     const nonexistingProfilesWithEngine = Object.keys(this.pV).filter(profileName => !profiles.find(p => p.name === profileName));
     const isEngineEnabled = await this.getConfigValue(this.configKeys.engineEnabled, profileName);
+    
     if(isEngineEnabled === false) {
         this.killEngine(profileName);
         return false;
@@ -108,10 +113,16 @@ export default async function updateSettings(updateObj) {
         this.configKeys.feedbackEngineDepth, this.configKeys.feedbackOnExternalSite, this.configKeys.reverseSide,
         this.configKeys.chessVariant, this.configKeys.useChess960, this.configKeys.feedbackEmojis];
     if(feedbackKeys.includes(settingKey) && this.pV[profileName]) {
+        const variables = this.pV[profileName];
+        if(['enableMoveRatings', 'enableEnemyFeedback'].includes(settingKey)) variables[settingKey] = Boolean(settingValue);
+
         // Invalidate callbacks immediately, even when the board hasn't moved.
         this.pV[profileName].feedbackRequest = (this.pV[profileName].feedbackRequest || 0) + 1;
         this.MoveEval?.cancelStaleRequests();
-        clearFeedback.call(this, profileName);
+        const keepMessage = (this.isLearningProfile(profileName) || variables.enableMoveRatings || variables.enableEnemyFeedback)
+            && ![this.configKeys.reverseSide, this.configKeys.chessVariant, this.configKeys.useChess960].includes(settingKey);
+        clearFeedback.call(this, profileName, true, Boolean(keepMessage));
+        updatePipFeedback(this);
         if(settingKey === this.configKeys.reverseSide && this.learningMode)
             await this.Interface.updateLearningBoard(profileName);
         else if(!didUpdateVariant && !didUpdate960Mode) refreshFeedback();

@@ -106,7 +106,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Mga Setting ng Lumulutang na Panel",
         "*[data-translation-ffs-subtitle]": "Ang mga opsyong ito para sa mga browser na may suporta sa PiP",
-        "*[data-translation-ffs-instructions]": "(Tandaan para sa mga gumagamit ng Firefox: I-enable ang 'Floating Panel' sa pamamagitan ng pag-right click sa video stream sa ibaba at piliin ang 'Panoorin sa Picture-in-Picture'. Maaari subukan ng mga mobile user ang pag-hold ng video ng isang segundo. Papayagan nito ang mas mabilis na kalkulasyon at mas matatag na koneksyon. Kung ayaw mong makita ang panel na ito sa tuwing binubuksan mo ang A.C.A.S, i-disable ang 'Floating Panel' o gumamit ng Chrome.)",
+        "*[data-translation-ffs-instructions]": "Panatilihing bukas ang Lumulutang na Panel, kung hindi ay hindi gagana ang A.C.A.S. Kapag pinatay ang feature na ito, awtomatikong gagamit ng audio trick na maaaring magpanatiling aktibo sa A.C.A.S nang walang panel sa ilang browser. Kung may hindi gumagana, subukan ang Chrome at panatilihing nakikita ang A.C.A.S sa split-screen.",
         "*[data-translation-webhook-title]": "Mga Mensahe",
         "*[data-translation-webhook-subtitle]": "I-configure ang mga Discord webhook na mensahe",
         "*[data-translation-webhook-available-variables]": "Mga available na variable",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Bilang ng tira sa floating panel", "Ipakita ang bilang ng rating ng mga tira sa labas ng learning mode"],
         "learningPvAnimation": ["I-animate ang Pinakamahusay na Linya", "I-animate ang pinakamahusay na linya sa lumulutang na panel"],
         "learningPvAnimationStopOnEnemyMove": ["Ihinto Pagkatapos Tumira ng Kalaban", "Ihinto ang animation kapag tumira ang kalaban"],
         "learningMode": ["Mode ng pag-aaral", "Suriin ang huli mong galaw gamit ang engine ng profile na ito"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Nalalapat ang mga setting sa lahat ng instance",
         "settingsNavbarInstanceSubtitle": "Nalalapat lang ang mga setting sa instance na \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Sobrang dali naman nun", "Bro, talo rin minsan", "Bilib ako, legit.", "Ikaw ba si Magnus?", "Bro, chill ka lang.", "Dahil sa akin… este, sa 'yo.", "Inom ka munang tubig", "WOOOOOOO!!!!!"],
+            "losingMessages": ["Luto na ba tayo?", "Uhh...", "Kaya mo pang galingan.", "Next game, tara na.", "Anoooooo??", "Ganda naman ng laro mo", "Okay lang yan", "Si Magnus nagkakamali rin"],
+            "drawMessage": "Tabla, ganda ng laro",
             "bookSummary": "ay mula sa aklat", "bookSpeech": "Mula sa aklat",
             "summaryLabels": ["ay neutral", "ay hindi tumpak", "ay isang pagkakamali", "ay isang malaking pagkakamali", "ay mapaminsala", "ay maganda", "ay napakahusay", "ang pinakamahusay", "ay mahina"],
             "speechLabels": ["Neutral", "Hindi tumpak", "Pagkakamali", "Malaking pagkakamali", "Mapaminsala", "Maganda", "Napakahusay", "Pinakamahusay", "Mahina"], "forcedSpeech": "Sapilitan",

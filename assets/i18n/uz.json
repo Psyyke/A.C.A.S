@@ -77,11 +77,12 @@
         "*[data-translation-stat-ec]": "Dvijok hisoblashlari", "*[data-translation-stat-ci]": "Yaratilgan seanslar", "*[data-translation-stat-am]": "Faol daqiqalar",
         ".stable-engine-tag": "Barqaror", ".variants-engine-tag": "Variantlar", ".realistic-engine-tag": "Insonga o‘xshash", ".unstable-engine-tag": "Beqaror", ".multithread-tag": "Ko‘p oqimli",
         "*[data-translation-ffs-title]": "Suzuvchi panel sozlamalari", "*[data-translation-ffs-subtitle]": "Asosan Firefox foydalanuvchilari uchun",
-        "*[data-translation-ffs-instructions]": "(Firefox foydalanuvchilari uchun: pastdagi video oqimini o‘ng tugma bilan bosib, «Tasvir ichida tasvir» bandini tanlash orqali «Suzuvchi panel»ni yoqing. Mobil qurilmada videoni bir soniya bosib turing. Bu hisoblashni tezlashtiradi va ulanishni barqaror qiladi. A.C.A.S har ochilganda panel chiqishini xohlamasangiz, «Suzuvchi panel»ni o‘chiring yoki Chrome dan foydalaning.)",
+        "*[data-translation-ffs-instructions]": "Suzuvchi panelni ochiq tuting, aks holda A.C.A.S ishlamaydi. Bu funksiyani o‘chirsangiz, ayrim brauzerlarda A.C.A.S-ni panelsiz ham faol saqlashi mumkin bo‘lgan audio hiyla avtomatik qo‘llanadi. Biror narsa ishlamasa, Chrome-ni sinab ko‘ring va bo‘lingan ekranda A.C.A.S ko‘rinib tursin.",
         "*[data-translation-webhook-title]": "Xabarlar", "*[data-translation-webhook-subtitle]": "Discord webhook xabarlarini sozlash", "*[data-translation-webhook-available-variables]": "Mavjud o‘zgaruvchilar", "*[data-translation-ffs-videostream]": "Video oqimi",
         "#des-no-result-text": "Ba’zi sozlamalar dvijokning UCI chiqishidan dinamik ravishda olinadi. Dvijokni ishga tushirish va dinamik sozlamalarni yuklash uchun shaxmat taxtasini oching."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Suzuvchi panelda yurishlar soni", "O‘rganish rejimidan tashqarida yurish baholari sonini ko‘rsating"],
         "learningPvAnimation": ["Eng yaxshi davomni jonlantirish", "Suzuvchi panelda eng yaxshi davomni animatsiya bilan ko‘rsating"],
         "learningPvAnimationStopOnEnemyMove": ["Raqib yurgach to‘xtatish", "Raqib yurganda animatsiyani to‘xtating"],
         "learningMode": ["O‘rganish rejimi", "Ushbu profil dvijogi bilan oxirgi yurishingizni tahlil qiling"],
@@ -159,6 +160,9 @@
         "settingsNavbarGlobalSubtitle": "Sozlamalar barcha seanslarga ta’sir qiladi",
         "settingsNavbarInstanceSubtitle": "Sozlamalar faqat \"{instanceID}\" seansiga ta’sir qiladi",
         "moveFeedback": {
+            "winningMessages": ["Bu juda oson bo‘ldi", "Brat, ba’zida yutqaz ham", "Rostan, gap yo‘q.", "Sen Magnusmisan?", "Brat, sal sekinroq.", "Hammasi men tufayli… ya’ni, sen.", "Bir oz suv ich", "YEEESSSS!!!!!"],
+            "losingMessages": ["Ishimiz chatoqmi?", "Eee...", "Bundan zo‘rini qila olasan.", "Qani, keyingi o‘yin.", "Nimaaaaa??", "Yaxshi o‘ynayotganding-ku", "Hechqisi yo‘q", "Magnus ham xato qiladi"],
+            "drawMessage": "Durang, yaxshi o‘yin bo‘ldi",
             "bookSummary": "kitobdagi yurish edi", "bookSpeech": "Kitobdagi yurish",
             "summaryLabels": ["betaraf edi", "noaniqlik edi", "xato edi", "qo‘pol xato edi", "halokatli edi", "yaxshi edi", "ajoyib edi", "eng yaxshisi edi", "zaif edi"],
             "speechLabels": ["Betaraf", "Noaniqlik", "Xato", "Qo‘pol xato", "Halokatli", "Yaxshi", "Ajoyib", "Eng yaxshi", "Zaif"], "forcedSpeech": "Majburiy",

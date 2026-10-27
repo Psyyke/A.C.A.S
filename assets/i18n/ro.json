@@ -104,7 +104,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Setări panou plutitor",
         "*[data-translation-ffs-subtitle]": "Aceste opțiuni sunt pentru utilizatorii browserelor cu suport PiP",
-        "*[data-translation-ffs-instructions]": "(Notă pentru utilizatorii Firefox: Activează 'Panoul plutitor' făcând clic dreapta pe fluxul video de mai jos și selectând 'Vizualizează în imagine în imagine'. Utilizatorii de pe mobil pot încerca să țină apăsat pe video timp de o secundă. Acest lucru va permite calcule mai rapide și o conexiune mai stabilă. Dacă nu dorești să vezi acest panou de fiecare dată când deschizi A.C.A.S, dezactivează 'Panoul plutitor' sau începe să folosești Chrome.)",
+        "*[data-translation-ffs-instructions]": "Ține panoul plutitor deschis, altfel A.C.A.S nu va funcționa. Dezactivarea acestei funcții aplică automat un truc audio care poate menține A.C.A.S activ fără panou în unele browsere. Dacă ceva nu funcționează, încearcă Chrome și păstrează A.C.A.S vizibil în modul ecran împărțit.",
         "*[data-translation-webhook-title]": "Mesaje",
         "*[data-translation-webhook-subtitle]": "Configurați mesajele Discord webhook",
         "*[data-translation-webhook-available-variables]": "Variabile disponibile",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Număr de mutări în panoul plutitor", "Arată numărul evaluărilor de mutări în afara modului de învățare"],
         "learningPvAnimation": ["Animează cea mai bună variantă", "Animează cea mai bună variantă în panoul plutitor"],
         "learningPvAnimationStopOnEnemyMove": ["Oprește după mutarea adversarului", "Oprește animația când mută adversarul"],
         "learningMode": ["Mod de învățare", "Analizează ultima ta mutare cu motorul acestui profil"],
@@ -225,6 +226,9 @@
         "settingsNavbarGlobalSubtitle": "Setările se aplică tuturor instanțelor",
         "settingsNavbarInstanceSubtitle": "Setările se aplică doar instanței \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["A fost prea ușor", "Bro, mai și pierde", "M-ai lăsat mască, sincer.", "Ești cumva Magnus?", "Bro, ia-o mai ușor.", "Totul datorită mie… adică, ție.", "Bea niște apă", "DAAAAAAA!!!!!"],
+            "losingMessages": ["Suntem praf?", "Ăăă...", "Poți mai bine.", "Hai, următoarea partidă.", "Ceeeeeee??", "Chiar jucai bine", "Nu-i nimic", "Și Magnus mai greșește"],
+            "drawMessage": "Remiză, partidă frumoasă",
             "bookSummary": "a fost din carte", "bookSpeech": "Din carte",
             "summaryLabels": ["a fost neutră", "a fost o inexactitate", "a fost o greșeală", "a fost o gafă", "a fost catastrofală", "a fost bună", "a fost excelentă", "a fost cea mai bună", "a fost slabă"],
             "speechLabels": ["Neutră", "Inexactitate", "Greșeală", "Gafă", "Catastrofală", "Bună", "Excelentă", "Cea mai bună", "Slabă"], "forcedSpeech": "Forțată",

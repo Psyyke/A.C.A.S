@@ -104,7 +104,7 @@
         ".multithread-tag": "マルチスレッド",
         "*[data-translation-ffs-title]": "フローティングパネルの設定",
         "*[data-translation-ffs-subtitle]": "主に Firefox ユーザー向けです",
-        "*[data-translation-ffs-instructions]": "(Firefox ユーザー向けの注意：下のビデオストリームを右クリックして「ピクチャー・イン・ピクチャーで再生」を選択すると「Floating Panel」を有効にできます。モバイルの方はビデオストリームを1秒間長押ししてみてください。これにより計算が速くなり、接続が安定します。A.C.A.S を開くたびにこのパネルを表示したくない場合は、「Floating Panel」を無効にするか Chrome を使用してください。)",
+        "*[data-translation-ffs-instructions]": "フローティングパネルを開いたままにしてください。閉じると A.C.A.S は動作しません。この機能を無効にすると、音声を使った回避策が自動的に適用され、一部のブラウザーではパネルなしでも A.C.A.S を動作させ続けられる場合があります。うまく動作しない場合は Chrome を試し、画面分割で A.C.A.S が見える状態にしてください。",
         "*[data-translation-webhook-title]": "メッセージ",
         "*[data-translation-webhook-subtitle]": "Discord webhook メッセージを設定",
         "*[data-translation-webhook-available-variables]": "利用可能な変数",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。"
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["フローティングパネルの手数集計", "学習モード以外で指し手の評価回数を表示"],
         "learningPvAnimation": ["最善手順のアニメーション", "フローティングパネルで最善手順をアニメーション表示します"],
         "learningPvAnimationStopOnEnemyMove": ["相手の着手後に停止", "相手が指したらアニメーションを停止します"],
         "learningMode": ["学習モード", "このプロファイルのエンジンで直前の指し手を振り返ります"],
@@ -226,6 +227,9 @@
         "settingsNavbarGlobalSubtitle": "設定はすべてのインスタンスに適用されます",
         "settingsNavbarInstanceSubtitle": "設定はインスタンス「{instanceID}」にのみ適用されます",
         "moveFeedback": {
+            "winningMessages": ["余裕すぎたな", "たまには負けてあげなよ", "マジで見惚れたわ。", "もしかしてマグヌス？", "ちょ、落ち着いて。", "全部こっちの手柄…いや、そっちの。", "水でも飲も", "うおおおおお！！！！！"],
+            "losingMessages": ["うちら詰んだ？", "えーっと…", "もっとやれるっしょ。", "ほら、次いこ。", "はああああ？？", "いい感じだったよ", "ドンマイ", "マグヌスだってミスるよ"],
+            "drawMessage": "引き分け、おつかれさま",
             "bookSummary": "は定跡手でした", "bookSpeech": "定跡",
             "summaryLabels": ["は中立的な手でした", "は不正確な手でした", "はミスでした", "は大悪手でした", "は致命的な手でした", "は好手でした", "は優れた手でした", "は最善手でした", "は弱い手でした"],
             "speechLabels": ["中立", "不正確", "ミス", "大ミス", "致命的", "良い", "優秀", "最善", "弱い"], "forcedSpeech": "強制",

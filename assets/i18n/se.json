@@ -106,7 +106,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Inställningar för flytande panel",
         "*[data-translation-ffs-subtitle]": "Dessa inställningar är främst för användare med PiP-stöd",
-        "*[data-translation-ffs-instructions]": "(Obs för Firefox-användare: Aktivera 'Flytande panel' genom att högerklicka på videoströmmen nedan och välj 'Titta i bild-i-bild'. Mobila användare kan prova att trycka länge på videon i en sekund. Detta ger snabbare beräkningar och en mer stabil anslutning. Om du inte vill se den här panelen varje gång du öppnar A.C.A.S, avaktivera 'Flytande panel' eller börja använda Chrome.)",
+        "*[data-translation-ffs-instructions]": "Håll den flytande panelen öppen, annars fungerar inte A.C.A.S. När du stänger av den här funktionen används automatiskt ett ljudknep som kan hålla A.C.A.S aktivt utan panelen i vissa webbläsare. Om något inte fungerar, prova Chrome och håll A.C.A.S synligt på delad skärm.",
         "*[data-translation-webhook-title]": "Meddelanden",
         "*[data-translation-webhook-subtitle]": "Konfigurera Discord webhook-meddelanden",
         "*[data-translation-webhook-available-variables]": "Tillgängliga variabler",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Dragräknare i flytande panel", "Visa antalet dragbetyg utanför inlärningsläget"],
         "learningPvAnimation": ["Animera bästa varianten", "Animera den bästa varianten i den flytande panelen"],
         "learningPvAnimationStopOnEnemyMove": ["Stoppa efter motståndarens drag", "Stoppa animeringen när motståndaren gör ett drag"],
         "learningMode": ["Inlärningsläge", "Granska ditt senaste drag med motorn i den här profilen"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Inställningarna gäller alla instanser",
         "settingsNavbarInstanceSubtitle": "Inställningarna gäller endast instansen \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["Det var för lätt", "Bro, förlora nån gång", "Är faktiskt helt paff.", "Är du Magnus?", "Bro, chilla lite.", "Allt tack vare mig… äh, dig.", "Drick lite vatten", "JAAAAAAA!!!!!"],
+            "losingMessages": ["Är vi körda?", "Öhh...", "Du kan bättre.", "Nästa match, kom igen.", "Vaaaaaaad??", "Du spelade ju bra", "Det är lugnt", "Även Magnus gör misstag"],
+            "drawMessage": "Remi, bra parti",
             "bookSummary": "var ett bokdrag", "bookSpeech": "Bokdrag",
             "summaryLabels": ["var neutralt", "var en inexakthet", "var ett misstag", "var en blunder", "var katastrofalt", "var bra", "var utmärkt", "var bäst", "var svagt"],
             "speechLabels": ["Neutralt", "Inexakthet", "Misstag", "Blunder", "Katastrofalt", "Bra", "Utmärkt", "Bäst", "Svagt"], "forcedSpeech": "Framtvingat",

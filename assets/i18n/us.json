@@ -106,7 +106,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Floating Panel Settings",
         "*[data-translation-ffs-subtitle]": "These are mainly for Firefox users",
-        "*[data-translation-ffs-instructions]": "(Note for Firefox users: Enable the 'Floating Panel' by right clicking the videostream below and select 'Watch in Picture-in-Picture'. Mobile users can try pressing down on the videostream for a second. Doing this will allow for faster calculations and more stable connection. If you don't want to see this panel every time you open A.C.A.S, disable 'Floating Panel' or start using Chrome.)",
+        "*[data-translation-ffs-instructions]": "Keep the Floating Panel open, or A.C.A.S will not work. Disabling this feature automatically applies an audio trick that may keep A.C.A.S active without the panel in some browsers. If anything isn't working, try Chrome and keep A.C.A.S visible in split-screen.",
         "*[data-translation-webhook-title]": "Messages",
         "*[data-translation-webhook-subtitle]": "Configure Discord webhook messages",
         "*[data-translation-webhook-available-variables]": "Available variables",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Some settings are parsed dynamically from the engine's UCI output. Please open a chess board to start your engine and load the dynamic settings."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Move Counts In Floating Panel", "Show move rating counts outside learning mode"],
         "learningPvAnimation": ["Animate Best Line", "Animate the best line in the floating panel"],
         "learningPvAnimationStopOnEnemyMove": ["Stop After Enemy Move", "Stop the animation when the opponent moves"],
         "renderSquareAsDots": ["Use centered dots", "Show square colors as small centered dots instead of full highlights"],
@@ -227,6 +228,9 @@
         "settingsNavbarGlobalSubtitle": "Settings affect every instance",
         "settingsNavbarInstanceSubtitle": "Settings only affect instance \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["That was too easy", "Dude, lose sometimes", "I'm amazed, truly.", "Are you Magnus?", "Dude, chill.", "All due to m-, you.", "Drink some water", "WOOOOOOO!!!!!"],
+            "losingMessages": ["Are we cooked?", "Uhh...", "You can do better.", "Next match, cmon.", "Whaaaaaaaaa??", "You were playing well", "It's fine", "Even Magnus makes mistakes"],
+            "drawMessage": "All even, good game",
             "bookSummary": "was book", "bookSpeech": "Book",
             "labels": ["Neutral", "Inaccuracy", "Mistake", "Blunder", "Catastrophic", "Good Move", "Excellent", "Best Move", "Weak Move"],
             "summaryLabels": ["was neutral", "was an inaccuracy", "was a mistake", "was a blunder", "was catastrophic", "was good", "was excellent", "was best", "was weak"],

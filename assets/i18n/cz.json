@@ -104,7 +104,7 @@
         ".multithread-tag": "Multithread",
         "*[data-translation-ffs-title]": "Nastavení plovoucího panelu",
         "*[data-translation-ffs-subtitle]": "Tyto možnosti jsou především pro uživatele Firefoxu",
-        "*[data-translation-ffs-instructions]": "(Poznámka pro uživatele Firefoxu: Povolte 'Floating Panel' kliknutím pravým tlačítkem na video níže a výběrem 'Sledovat v obraze v obraze'. Uživatelé na mobilu mohou vyzkoušet podržení videa na vteřinu. To umožní rychlejší výpočty a stabilnější připojení. Pokud nechcete tento panel vidět při každém otevření A.C.A.S, deaktivujte 'Floating Panel' nebo začněte používat Chrome.)",
+        "*[data-translation-ffs-instructions]": "Nechte plovoucí panel otevřený, jinak A.C.A.S nebude fungovat. Vypnutím této funkce se automaticky použije zvukový trik, který může v některých prohlížečích udržet A.C.A.S aktivní i bez panelu. Pokud něco nefunguje, zkuste Chrome a nechte A.C.A.S viditelný na rozdělené obrazovce.",
         "*[data-translation-webhook-title]": "Zprávy",
         "*[data-translation-webhook-subtitle]": "Nakonfigurovat zprávy webhooku Discord",
         "*[data-translation-webhook-available-variables]": "Dostupné proměnné",
@@ -112,6 +112,7 @@
         "#des-no-result-text": "Některá nastavení jsou dynamicky analyzována z výstupu UCI motoru. Otevřete šachovnici, abyste spustili svůj motor a načetli dynamická nastavení."
     },
     "configTranslations": {
+        "feedbackMoveCounts": ["Počty tahů v plovoucím panelu", "Zobrazit počty hodnocení tahů mimo režim učení"],
         "learningPvAnimation": ["Animovat nejlepší pokračování", "Animovat nejlepší pokračování v plovoucím panelu"],
         "learningPvAnimationStopOnEnemyMove": ["Zastavit po tahu soupeře", "Zastavit animaci, když soupeř zahraje"],
         "learningMode": ["Režim učení", "Zhodnoťte svůj poslední tah pomocí enginu tohoto profilu"],
@@ -225,6 +226,9 @@
         "settingsNavbarGlobalSubtitle": "Nastavení platí pro všechny instance",
         "settingsNavbarInstanceSubtitle": "Nastavení platí pouze pro instanci \"{instanceID}\"",
         "moveFeedback": {
+            "winningMessages": ["To bylo moc easy", "Kámo, někdy taky prohraj", "Fakt nemám slov.", "Ty jsi Magnus?", "Kámo, trochu klid.", "Všechno díky mně… teda tobě.", "Dej si trochu vody", "JOOOOOOO!!!!!"],
+            "losingMessages": ["Jsme v háji?", "Ehm...", "Máš na víc.", "Další hra, pojď.", "Cooooooo??", "Vždyť ti to šlo", "To je v pohodě", "I Magnus dělá chyby"],
+            "drawMessage": "Remíza, pěkná partie",
             "bookSummary": "byl podle knihy", "bookSpeech": "Podle knihy",
             "summaryLabels": ["byl neutrální", "byl nepřesností", "byl chybou", "byl hrubou chybou", "byl katastrofální", "byl dobrý", "byl výborný", "byl nejlepší", "byl slabý"],
             "speechLabels": ["Neutrální", "Nepřesnost", "Chyba", "Hrubá chyba", "Katastrofální", "Dobrý", "Výborný", "Nejlepší", "Slabý"], "forcedSpeech": "Vynucený",
