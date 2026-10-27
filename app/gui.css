@@ -3063,6 +3063,7 @@ input[disabled] {
 #dynamic-settings-floaty .dynamic-axis-label {
     fill: rgb(255 255 255 / 75%);
     font: 12px "Rubik", "IBM Plex Sans", sans-serif;
+    font-weight: 500;
 }
 #dynamic-settings-floaty .dynamic-curve-line {
     fill: none;
@@ -3224,6 +3225,7 @@ input[disabled] {
     border-bottom-width: 4px;
     border-radius: var(--settings-input-border-radius);
     background: var(--settings-input-main-bg-color);
+    border-radius: 0 !important;
 }
 #dynamic-settings-floaty .dynamic-variable-tabs {
     display: flex;
