@@ -862,11 +862,17 @@ async function refreshPipView() {
         const progressPercent = (progress * 100).toFixed(0);
 
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
-        const statsText = pipData.learningMode ? `(${pipData.depth || 0} ∝ ${timeFormatted}, ${progressPercent}%)`
-            : `(${timeFormatted}, ${progressPercent}%)`;
+        const statsText = `(${pipData.depth || 0} ∝ ${timeFormatted}, ${progressPercent}%)`;
         const statsX = pipTextPadding + 104 + 2;
-        ctxQueue.push(['text', [statsText, statsX, 2, headerWidth - pipTextPadding - statsX,
-            headerTextHeight, `600 ${pipFontSizes.small}px "IBM Plex Sans", "Mona Sans", sans-serif`]]);
+
+        ctxQueue.push(['text', [
+            statsText,
+            statsX,
+            2,
+            headerWidth - pipTextPadding - statsX,
+            headerTextHeight,
+            `600 ${pipFontSizes.small}px "IBM Plex Sans", "Mona Sans", sans-serif`
+        ]]);
     }
 
     ctxQueue.push(['fillStyle', 'white']);
