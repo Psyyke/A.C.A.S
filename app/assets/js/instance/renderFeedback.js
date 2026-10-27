@@ -207,9 +207,10 @@ function setFeedbackMessage(profileID, message, description = '') {
         || (index === 0 ? variables.enableEnemyFeedback : variables.enableMoveRatings);
     const allCountLines = feedbackCountLines(this, profileID);
     const countLines = allCountLines.filter(isCountEnabled);
+    const countTitles = feedbackCountLines(this, profileID, true).filter(isCountEnabled);
     const countLabels = allCountLines.length === 2
         ? [text('opponent', 'Opponent'), text('yours', 'Yours')].filter(isCountEnabled) : [];
-    const counts = JSON.stringify([countLabels, countLines]);
+    const counts = JSON.stringify([countLabels, countLines, countTitles]);
     if(row.dataset.feedbackText === String(message) && row.dataset.feedbackCounts === counts
         && row.title === (description || message)) {
         row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));
@@ -228,17 +229,18 @@ function setFeedbackMessage(profileID, message, description = '') {
         countLines.forEach((line, index) => {
             const countLine = document.createElement('div');
             countLine.className = 'instance-feedback-count-line';
+            const values = document.createElement('span');
+            values.className = 'instance-feedback-counts';
+            values.textContent = line;
+            values.title = countTitles[index];
+
             if(countLabels.length) {
                 countLine.classList.add('has-label');
                 const label = document.createElement('span');
                 label.textContent = countLabels[index];
-                const values = document.createElement('span');
-                values.className = 'instance-feedback-counts';
-                values.textContent = line;
-                countLine.append(label, values);
-            } else {
-                countLine.textContent = line;
+                countLine.appendChild(label);
             }
+            countLine.appendChild(values);
             totals.appendChild(countLine);
         });
         row.appendChild(totals);

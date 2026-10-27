@@ -2,9 +2,13 @@ import { featureText } from './featureTranslations.js';
 
 export const feedbackText = (key, fallback, values) => featureText('moveFeedback', key, fallback, values);
 
-const feedbackEmojis = ['🤩', '😁', '😊', '📖', '🙂', '🤨', '😕', '😟', '😨', '💀'];
+const feedbackCategories = {
+    '🤩': 7, '😁': 6, '😊': 5, '📖': null, '🙂': 0,
+    '🤨': 8, '😕': 1, '😟': 2, '😨': 3, '💀': 4
+};
+const feedbackEmojis = Object.keys(feedbackCategories);
 
-export function feedbackCountLines(instance, profile) {
+export function feedbackCountLines(instance, profile, includeNames = false) {
     const variables = instance.pV[profile];
     if(!variables || instance.instanceClosed) return [];
 
@@ -20,7 +24,11 @@ export function feedbackCountLines(instance, profile) {
     });
 
     const countText = counts => feedbackEmojis.filter(emoji => counts[emoji] > 0)
-        .map(emoji => `${emoji}${counts[emoji]}`).join('  ');
+        .map(emoji => {
+            if(!includeNames) return `${emoji}${counts[emoji]}`;
+            const name = feedbackQualityText({ category: feedbackCategories[emoji], isBook: emoji === '📖' }, true);
+            return `${emoji} ${name}: ${counts[emoji]}`;
+        }).join(includeNames ? '\n' : '  ');
 
     if(learning) return [countText(totals[0])];
     if(!variables.enableMoveRatings && !variables.enableEnemyFeedback) return [];
