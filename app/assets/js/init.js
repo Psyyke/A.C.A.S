@@ -1,6 +1,6 @@
 import { createInstance } from './instanceManager.js';
 import { installNotificationElem, autoMoveCheckbox, hiddenSettingPanel, tosCheckboxElem,
-    tosContinueBtnElem, tosContainerElem } from './gui/elementDeclarations.js';
+    tosContinueBtnElem, tosContainerElem, settingsControlPanelElem, seeSupportedSitesBtn } from './gui/elementDeclarations.js';
 import { highlightSettingElem, initGUI } from './gui.js';
 import { initializeActivityLogging } from './misc/activityLog.js';
 
@@ -81,10 +81,13 @@ async function initializeDatabase() {
     const expiredKeys = await Promise.all(
         tempValueKeys.map(async key => {
             const configValue = await USERSCRIPT.getValue(key);
+
             // Treat malformed/missing entries as expired so they get cleaned up,
             // and avoid crashing initializeDatabase() on a TypeError.
             if(!configValue || typeof configValue.date !== 'number') return key;
+
             const isExpired = Date.now() - configValue.date > 6e4 * 60;
+
             return isExpired ? key : null;
         })
     );
@@ -104,11 +107,11 @@ function processUrlParams() {
     if(highlight) {
         switch(highlight) {
             case 'controlPanel':
-                highlightSettingElem(document.querySelector('#settings-control-panel'), 
+                highlightSettingElem(settingsControlPanelElem,
                     REMOVE_PARAM_FROM_URL('hl'));
                 break;
             case 'supportedSites':
-                highlightSettingElem(document.querySelector('#see-supported-sites-btn'), 
+                highlightSettingElem(seeSupportedSitesBtn,
                     REMOVE_PARAM_FROM_URL('hl'));
                 break;
         }

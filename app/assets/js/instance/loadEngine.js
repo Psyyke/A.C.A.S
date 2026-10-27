@@ -6,14 +6,19 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     const profileVariables = this.pV[profileName];
     const profileObj = await GET_PROFILE_FOR_INSTANCE(profileName, this.instanceID);
     const isCurrentLoad = () => !this.instanceClosed && this.pV[profileName] === profileVariables;
+
     if(!profileObj || !isCurrentLoad()) return;
+
     const profileChessEngine = engineName || profileVariables.startupConfig?.chessEngine || profileObj.config.chessEngine;
+
     if(isActivityLoggingEnabled()) {
         const engineContext = this.getEngineActivityContext(profileName);
+
         logActivity('engine', `Loading ${engineContext.engine}${attempt ? ` (attempt ${attempt})` : ''}`, {
             instanceID: this.instanceID, profile: profileName, ...engineContext
         });
     }
+
     const isReload = attempt > 0;
     let alreadyRestarted = false;
 
@@ -33,6 +38,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
     const processEngineMessage = msg => {
         if(!isCurrentLoad()) return;
+
         this.engineMessageProcessor(msg, profileName).catch(e => {
             console.error('Engine', this.instanceID, profileName, 'error:', e);
         });
@@ -40,6 +46,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
     const restartEngine = error => {
         if(!isCurrentLoad() || alreadyRestarted) return;
+
         alreadyRestarted = true;
         setProfileBubbleStatus('warning', profileName, `Restarting the instance due to the error: ${error?.message}`);
         console.error(`Restarting the instance "${profileChessEngine}" due to the error:`, error);
@@ -48,9 +55,12 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
 
     async function startGame(variant = profileVariables.chessVariant ?? 'chess') {
         if(!isCurrentLoad()) return;
+
         await this.engineStartNewGame(variant, profileName);
         await WAIT_UNTIL_VAR(() => this.instanceReady);
+
         if(!isCurrentLoad()) return;
+
         await this.Interface.updateBoardFen({ 'skipValidityChecks': true, 'specificProfileName': profileName });
     }
     
@@ -66,6 +76,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
     }
 
     this.pendingEngineLoads ??= new Set();
+
     loadEngineWorker(getEngineWorkerConfig(profileChessEngine), {
         type: profileChessEngine,
         profileName,
@@ -75,6 +86,7 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
         onError: restartEngine,
         onReady: async engine => {
             this.engines.push(engine);
+
             if(profileChessEngine === 'lc0') {
                 try {
                     await this.setEngineWeight(profileVariables.lc0WeightName, profileName);
@@ -86,8 +98,10 @@ export default async function loadEngine(profileName, engineName, attempt = 0) {
                         if(index !== -1) this.engines.splice(index, 1);
                     }
                 }
+
                 if(!isCurrentLoad()) return;
             }
+
             if(profileChessEngine === 'fairy-stockfish-nnue-wasm') {
                 await startGame.call(this, FORMAT_VARIANT(profileVariables.chessVariant));
             } else {

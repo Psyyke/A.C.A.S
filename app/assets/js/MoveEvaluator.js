@@ -22,12 +22,15 @@ export default class MoveEvaluator extends FairyAnalysis {
 
     winningChances(score) {
         if(score.mate !== null) return score.mate > 0 ? 100 : 0;
+
         return 100 / (1 + Math.exp(-0.00368208 * Math.max(-4000, Math.min(4000, score.cp))));
     }
 
     expectedScore(score) {
         if(score.mate !== null) return score.mate > 0 ? 100 : 0;
+
         const total = score.wdl?.reduce((sum, value) => sum + value, 0);
+
         return total > 0 ? 100 * (score.wdl[0] + score.wdl[1] / 2) / total : null;
     }
 
@@ -40,6 +43,7 @@ export default class MoveEvaluator extends FairyAnalysis {
         const scaledCpLoss = cpLoss === null ? 0 : cpLoss / (1 + Math.min(Math.abs(best.cp), 2000) / 400);
         const baseLoss = Math.max(winningChanceLoss, scaledCpLoss / 12.5);
         const qualityLoss = Math.max(baseLoss, Math.min(expectedScoreLoss, baseLoss * 1.25));
+
         return { cpLoss, scaledCpLoss, winningChanceLoss, expectedScoreLoss, loss, qualityLoss };
     }
 
@@ -53,8 +57,10 @@ export default class MoveEvaluator extends FairyAnalysis {
         const keepsMate = best.mate > 0 && runnerUp && !(runnerUp.mate > 0);
         const critical = best.move === played.move && Boolean(runnerUp) && (avoidsMate || keepsMate || alternativeLoss >= 10);
         let category, reason;
-        if(forced) { category = 0; reason = 'Only legal move.'; }
-        else if(best.move === played.move) {
+        if(forced) {
+            category = 0;
+            reason = 'Only legal move.';
+        } else if(best.move === played.move) {
             category = 7;
             reason = avoidsMate ? 'Only move that avoids forced mate.' : keepsMate ? 'Only move that keeps forced mate.'
                 : critical ? 'Only move that avoids a major concession.' : 'Engine’s top choice.';
@@ -85,23 +91,33 @@ export default class MoveEvaluator extends FairyAnalysis {
 
     async evaluateJob(job) {
         const transition = job.transition || await this.resolveTransition(job, job.postFen, job.hint);
+
         if(!transition || job.cancelled) return null;
+
         const moves = transition.moves;
         const move = transition.selected.uci;
         const baseline = await this.search(job, job.depth, moves, Math.min(2, moves.length));
+
         if(job.cancelled) return null;
+
         let depth = Math.max(...baseline.iterations.keys());
         let lines = baseline.iterations.get(depth);
         let played = lines.find(line => line.move === move), restricted = null;
+
         if(!played) {
             restricted = await this.search(job, depth, [move], 1);
+
             if(job.cancelled) return null;
+
             const common = [...restricted.iterations.keys()].filter(value => baseline.iterations.has(value));
+
             if(!common.length) return null;
+
             depth = Math.max(...common);
             lines = baseline.iterations.get(depth);
             played = restricted.iterations.get(depth)[0];
         }
+
         const result = this.compare(lines[0], played, moves.length === 1, lines[1]);
         const recent = [...baseline.iterations.keys()].filter(value => value <= depth && value >= depth - 2).map(value => {
             const candidates = baseline.iterations.get(value);
@@ -115,7 +131,9 @@ export default class MoveEvaluator extends FairyAnalysis {
         const uncertainty = result.forced ? '' : depth < 8 ? 'Shallow search.' : conflict ? 'Search scores disagree.'
             : gradeChanged || spread >= 2 ? 'Recent depths disagree.' : recent.length < 2 ? 'No stable depth comparison.' : '';
         const bestMove = await this.describeMoveWithSan(job, result.best.move, moves);
+
         if(job.cancelled) return null;
+
         return { ...result, move, fen: job.fen, requestedDepth: job.depth, provisional, uncertainty,
             selected: transition.selected, chessVariant: job.variant,
             bestLine: bestMove.san,

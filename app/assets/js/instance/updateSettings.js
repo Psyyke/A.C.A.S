@@ -51,13 +51,13 @@ export default async function updateSettings(updateObj) {
     for(const profileObj of profilesWithDisabledEngine) {
         const disabledProfileName = profileObj.name;
 
-        if(this.pV[disabledProfileName]) {
-            this.killEngine(disabledProfileName);
+        if(!this.pV[disabledProfileName]) continue;
 
-            // Only stop here if the changed profile is the one being disabled; killing
-            // an unrelated profile's engine must not abort this profile's update.
-            if(disabledProfileName === profileName) return false;
-        }
+        this.killEngine(disabledProfileName);
+
+        // Only stop here if the changed profile is the one being disabled; killing
+        // an unrelated profile's engine must not abort this profile's update.
+        if(disabledProfileName === profileName) return false;
     }
 
     // Handle profiles which do not exist anymore

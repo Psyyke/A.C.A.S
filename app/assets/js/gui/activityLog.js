@@ -4,39 +4,52 @@ import {
     setActivityLoggingEnabled
 } from '../misc/activityLog.js';
 import { featureText } from '../misc/featureTranslations.js';
+import { getActivityLogElements } from './elementDeclarations.js';
 
-let initialized = false;
 const PANEL_STORAGE_KEY = 'acas.activity-log.panel';
 const PRECISE_TIME_STORAGE_KEY = 'acas.activity-log.precise-time';
 const FILTER_STORAGE_KEY = 'acas.activity-log.filters';
 const reportStorageError = console.error.bind(console);
+
+let initialized = false;
 let panelStorageErrorReported = false;
 let preciseTimestamps = false;
+
 const text = (key, fallback, values) => featureText('activityLog', key, fallback, values);
+
 const typeLabel = type => (typeof TRANS_OBJ === 'undefined' ? null : TRANS_OBJ)?.activityLog?.types?.[type]
     ?? (type === 'session-start' ? 'Session start' : type.replaceAll('-', ' '));
+
 const externalEngineTag = engineId => typeof document === 'undefined' ? '' :
     [...document.querySelectorAll('#external-engine-dropdown .dropdown-item')]
         .find(item => item.dataset.value === engineId)
         ?.querySelector('.engine-type-tag.list-tag')?.textContent?.trim() || '';
+
 const isExternalEngineId = value => /^[a-f\d]{64}$/i.test(value || '');
+
 const engineLabelForEntry = entry => entry.engineId
     ? entry.engine || externalEngineTag(entry.engineId) || text('externalEngine', 'External engine')
     : isExternalEngineId(entry.engine)
         ? externalEngineTag(entry.engine) || text('externalEngine', 'External engine')
         : entry.engine || '';
+
 const formatLogTime = (timestamp, type, precise) => {
     const date = new Date(timestamp);
+
     if(!precise) return type === 'session-start' ? date.toLocaleString() : date.toLocaleTimeString();
+
     const seconds = new Intl.DateTimeFormat(undefined, { second: '2-digit' })
         .formatToParts(date)
         .find(part => part.type === 'second')?.value;
+
     return `${seconds}.${String(date.getMilliseconds()).padStart(3, '0')}`;
 };
+
 export function formatLogForClipboard(entries) {
     const sites = new Set();
     const engines = new Set();
     const instanceLabels = new Map();
+
     entries.forEach(entry => {
         const site = entry.site || (entry.type === 'instance'
             ? entry.message.match(/^Instance created for (.+)\.$/)?.[1]
@@ -59,6 +72,7 @@ export function formatLogForClipboard(entries) {
         sites.size && `Sites: ${[...sites].join(', ')}`,
         engines.size && `Engines: ${[...engines].join(', ')}`
     ].filter(Boolean);
+
     const sections = entries.map(entry => {
         const date = new Date(entry.timestamp);
         const timestamp = `${date.toLocaleString()}.${String(date.getMilliseconds()).padStart(3, '0')}`;
@@ -167,18 +181,14 @@ export function createLogRow(entry, previousEntry) {
 }
 
 export function initializeActivityLog() {
-    const dialog = document.getElementById('log-floaty');
-    const list = document.getElementById('activity-log-entries');
-    const status = document.getElementById('activity-log-status');
-    const clear = document.getElementById('activity-log-clear');
-    const copy = document.getElementById('activity-log-copy');
-    const timeToggle = document.getElementById('activity-log-time-toggle');
-    const loggingToggle = document.getElementById('activity-log-toggle');
-    const filter = document.getElementById('activity-log-filter');
-    const search = document.getElementById('activity-log-search');
+    const { dialog, list, status, clear, copy, timeToggle, loggingToggle, filter, search,
+        header, filterToggle, filterLabel, searchLabel, launcher, close } = getActivityLogElements();
+
     if(initialized || !dialog || !list || !status || !clear || !copy || !timeToggle
         || !loggingToggle || !filter || !search) return;
+
     initialized = true;
+
     try {
         const savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || 'null');
         if(savedFilters && typeof savedFilters === 'object') {
@@ -190,11 +200,13 @@ export function initializeActivityLog() {
     } catch(error) {
         console.error('Activity log filters could not be restored.', error);
     }
+
     try {
         preciseTimestamps = localStorage.getItem(PRECISE_TIME_STORAGE_KEY) === 'true';
     } catch(error) {
         console.error('Activity log time format could not be restored.', error);
     }
+
     const updateTimeDisplay = () => {
         timeToggle.setAttribute('aria-pressed', String(preciseTimestamps));
         const label = text(
@@ -218,6 +230,7 @@ export function initializeActivityLog() {
         updateTimeDisplay();
     };
     updateTimeDisplay();
+
     const updateLoggingToggle = () => {
         const enabled = isActivityLoggingEnabled();
         const label = enabled
@@ -233,13 +246,18 @@ export function initializeActivityLog() {
         render();
     };
     updateLoggingToggle();
-    const header = dialog.querySelector('.floaty-header');
+
     const desktopPanel = window.matchMedia('(min-width: 768px) and (any-pointer: fine)');
+
     let drag = null;
     let resizeDrag = null;
     let panelSaveTimer = null;
+    let pendingRender = null;
+    let lastRenderedId = 0;
+
     const reportPanelStorageError = error => {
         if(panelStorageErrorReported) return;
+
         panelStorageErrorReported = true;
         reportStorageError('Activity log panel settings could not be saved.', error);
     };
@@ -414,8 +432,6 @@ export function initializeActivityLog() {
     if(typeof ResizeObserver !== 'undefined') {
         new ResizeObserver(schedulePanelSave).observe(dialog);
     }
-    let pendingRender = null;
-    let lastRenderedId = 0;
     const render = () => {
         if(pendingRender !== null) clearTimeout(pendingRender);
         pendingRender = null;
@@ -449,7 +465,10 @@ export function initializeActivityLog() {
         if(dialog.open) restorePanelGeometry();
         scheduleRender();
     }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
-    clear.onclick = () => { activityLog.clear(); render(); };
+    clear.onclick = () => {
+        activityLog.clear();
+        render();
+    };
     copy.onclick = async () => {
         const entries = filterLogEntries(activityLog.getEntries(), filter.value, search.value);
         const originalTitle = text('copyLog', 'Copy visible log entries');
@@ -493,11 +512,11 @@ export function initializeActivityLog() {
         dialog.setAttribute('aria-label', text('title', 'Activity Log'));
         updateTimeDisplay();
         updateLoggingToggle();
-        const filterToggle = dialog.querySelector('.activity-log-filters summary');
+
         filterToggle.setAttribute('aria-label', text('filter', 'Filter activity by type'));
         filterToggle.title = text('filter', 'Filter activity by type');
-        dialog.querySelector('.activity-log-filter-label span').textContent = text('show', 'Show');
-        dialog.querySelector('.activity-log-search-label span').textContent = text('search', 'Search');
+        filterLabel.textContent = text('show', 'Show');
+        searchLabel.textContent = text('search', 'Search');
         search.placeholder = text('searchPlaceholder', 'Search log entries...');
         clear.setAttribute('aria-label', text('clear', 'Clear log'));
         clear.title = text('clear', 'Clear log');
@@ -508,10 +527,8 @@ export function initializeActivityLog() {
         [...filter.options].forEach(option => {
             option.textContent = option.value === 'all' ? text('all', 'All activity') : typeLabel(option.value);
         });
-        const launcher = document.querySelector('.activity-log-launcher .open-floaty-btn');
         launcher.title = text('title', 'Activity Log');
         launcher.setAttribute('aria-label', text('title', 'Activity Log'));
-        const close = dialog.querySelector('.floaty-close-btn');
         close.setAttribute('aria-label', text('close', 'Close activity log'));
         close.title = text('close', 'Close activity log');
         list.setAttribute('aria-label', text('title', 'Activity Log'));

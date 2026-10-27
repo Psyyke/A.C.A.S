@@ -1,7 +1,11 @@
+import { learningHintsDialogElem } from './elementDeclarations.js';
+
 // Piece colors follow the player's identity, not a flipped board or Reverse Side.
 export function initializeHintPieceFilters() {
-    const dialog = document.querySelector('#learning-hints-floaty');
+    const dialog = learningHintsDialogElem;
+
     if(!dialog) return;
+
     let revision = 0;
 
     const update = async () => {
@@ -11,6 +15,7 @@ export function initializeHintPieceFilters() {
         const instance = (instanceID ? instances.find(item => item.id === instanceID)
             : instances.find(item => !item.instance.instanceClosed))?.instance;
         const playerColor = await instance?.getPlayerColor() ?? 'w';
+
         if(request !== revision || instanceID !== SETTING_FILTER_OBJ.instanceID) return;
 
         dialog.querySelectorAll('[data-hint-side]').forEach(group => {
@@ -26,6 +31,7 @@ export function initializeHintPieceFilters() {
     document.addEventListener('acas-settings-updated', refresh);
     new MutationObserver(() => { if(dialog.open) refresh(); })
         .observe(dialog, { attributes: true, attributeFilter: ['open'] });
+
     // Player identity may arrive after the board, without an orientation change.
     setInterval(() => { if(dialog.open) refresh(); }, 750);
     refresh();

@@ -1,7 +1,6 @@
 import { setProfileBubbleStatus } from '../gui/profiles.js';
-import { fillDynamicEngineOptionContainer } from '../gui/dynamicEngineOptions.js';
+import { fillDynamicEngineOptionContainer, setDynamicOptionsReady } from '../gui/dynamicEngineOptions.js';
 import { updatePipData } from '../gui/pip.js';
-import { setDynamicOptionsReady } from '../gui/dynamicEngineOptions.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { isActivityLoggingEnabled, logActivity } from '../misc/activityLog.js';
 import { evaluationForPlayer } from '../misc/evaluation.js';
@@ -12,8 +11,11 @@ import { recordEngineAnalysis } from './renderFeedback.js';
 
 export default async function engineMessageProcessor(msg, profile) {
     msg = msg?.trim();
+
     if(!msg) return;
+
     const profileObj = this.pV[profile];
+
     if(isActivityLoggingEnabled()) {
         logActivity(/^(?:info string )?(?:error|failed|failure)\b|\bno such option\b/i.test(msg) ? 'error' : 'engine-output', msg, {
             instanceID: this.instanceID,
@@ -31,13 +33,18 @@ export default async function engineMessageProcessor(msg, profile) {
     const data = PARSE_UCI_RESPONSE(msg);
     const isBestmove = Object.hasOwn(data, 'bestmove');
     const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
+
     if(oldestUnfinishedCalcRequestObj) {
         oldestUnfinishedCalcRequestObj.rawLine = msg;
+
         if(!data.pv && !isBestmove) recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile);
     }
+
     if(!isBestmove && msg.startsWith('info ') && oldestUnfinishedCalcRequestObj) oldestUnfinishedCalcRequestObj.lastData = data;
+
     const isMessageForCurrentFen = Boolean(oldestUnfinishedCalcRequestObj?.fen)
         && oldestUnfinishedCalcRequestObj.fen === this.currentFen;
+
     // Keep notation tied to the search root, including turn overrides. The PIP
     // can show another instance/profile than the currently selected settings.
     const movePosition = {
@@ -48,52 +55,80 @@ export default async function engineMessageProcessor(msg, profile) {
     const calculationTimeElapsed = oldestUnfinishedCalcRequestObj?.startedAt
         ? Date.now() - oldestUnfinishedCalcRequestObj.startedAt
         : 0;
-    if(isMessageForCurrentFen && (msg.startsWith('info ') || isBestmove))
-        updatePipData({ calculationTimeElapsed, calculationFinished: isBestmove,
-            ...(data.nodes != null ? { nodes: data.nodes } : {}) });
+
+    if(isMessageForCurrentFen && (msg.startsWith('info ') || isBestmove)) {
+        updatePipData({
+            calculationTimeElapsed,
+            calculationFinished: isBestmove,
+            ...(data.nodes != null ? { nodes: data.nodes } : {})
+        });
+    }
+
     let parsedMove;
+
     if(data.pv || isBestmove) {
         const line = data.pv?.trim().split(/\s+/) || [data.bestmove];
         const playerMove = parseVariantMove(line[0]);
+
         if(playerMove) {
-            parsedMove = CREATE_MOVE_OBJ({ playerMove, opponentMove: parseVariantMove(line[1]),
-                cp: data.cp, profile, ranking: Number(data.multipv) || 1 });
+            parsedMove = CREATE_MOVE_OBJ({
+                playerMove,
+                opponentMove: parseVariantMove(line[1]),
+                cp: data.cp,
+                profile,
+                ranking: Number(data.multipv) || 1
+            });
+
             Object.assign(parsedMove, movePosition, { playerUci: playerMove.uci });
             recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile, parsedMove);
+
             if(data.pv && isMessageForCurrentFen) profileObj.pastMoveObjects.push(parsedMove);
-        } else recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile);
+        } else {
+            recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile);
+        }
     }
+
     const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant') && !msg.includes('UCI_');
     const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
     const isMsgOption = msg.startsWith('option name ');
+
     if(isMsgOption) {
         if(msg.startsWith('option name UCI_Variant type combo')) {
             const chessVariants = PARSE_UCI_OPTION(msg)?.vars ?? [];
+
             profileObj.chessVariants = chessVariants;
             this.guiBroadcastChannel.postMessage({ type: 'updateChessVariants', data: chessVariants });
         }
+
         // Register in wire order, but never block normal bestmove processing behind
         // startup: settings applied on bestmove may themselves request another uciok.
         profileObj.uciOptionRegistrations ??= Promise.resolve();
         profileObj.uciOptionRegistrations = profileObj.uciOptionRegistrations.then(() => {
             if(this.pV[profile] !== profileObj || this.instanceClosed) return;
+
             return fillDynamicEngineOptionContainer(msg, profile, this.instanceID,
                 profileObj.useExternalChessEngine ? profileObj.externalChessEngine : this.getEngineAcasObj(profile)?.type);
         }).catch(console.error);
+
         await profileObj.uciOptionRegistrations;
+
         return;
     }
 
     const finishOldestUnfinishedCalculation = () => {
         // Unsolicited/late bestmove must not finish a different profile's work.
         if(!oldestUnfinishedCalcRequestObj || oldestUnfinishedCalcRequestObj.finished) return;
+
         if(isBestmove) profileObj.externalSearchRecoveryAttempts = 0;
+
         oldestUnfinishedCalcRequestObj.finished = true;
         clearTimeout(profileObj.currentMovetimeTimeout);
         clearTimeout(profileObj.currentStopTimeout);
 
         const request = profileObj.pendingCalculationRequest;
+
         delete profileObj.pendingCalculationRequest;
+
         // Compare the full FEN: the same pieces can have a different side to move.
         if(!profileObj.recoveringSearch && (request || oldestUnfinishedCalcRequestObj.fen !== this.currentFen)) {
             this.calculateBestMoves(this.currentFen, request?.fen === this.currentFen
@@ -147,17 +182,23 @@ export default async function engineMessageProcessor(msg, profile) {
                 const fen = this.currentFen;
                 const mate = data.mate != null;
                 const score = mate ? data.mate : data.cp;
+
                 // Capture synchronously: a fast worker can deliver bestmove while color lookup is pending.
                 const primaryScore = { score, mate };
+
                 oldestUnfinishedCalcRequestObj.primaryScore = primaryScore;
+
                 if(!/\b(?:lowerbound|upperbound)\b/.test(msg) && oldestUnfinishedCalcRequestObj.annotationEligible) {
                     oldestUnfinishedCalcRequestObj.annotationScore = primaryScore;
                 }
+
                 const analyzedColor = oldestUnfinishedCalcRequestObj?.analyzedColor
                     ?? oldestUnfinishedCalcRequestObj?.fen?.split(' ')[1];
                 const evaluation = evaluationForPlayer(score, mate, analyzedColor, await this.getPlayerColor());
+
                 if(this.pV[profile] !== profileObj || this.currentFen !== fen
                     || oldestUnfinishedCalcRequestObj.primaryScore !== primaryScore) return;
+
                 if(evaluation && oldestUnfinishedCalcRequestObj) {
                     oldestUnfinishedCalcRequestObj.primaryEvaluation = evaluation.playerEvaluation;
                     // Hypothetical turns, restricted searches and score bounds
@@ -182,6 +223,7 @@ export default async function engineMessageProcessor(msg, profile) {
 
     if(data?.pv && isMessageForCurrentFen) {
         let moves = data.pv.trim().split(/\s+/).map(parseVariantMove);
+
         if(!moves[0]) return;
 
         if(moves?.length === 1) // if no opponent move guesses yet
@@ -247,20 +289,27 @@ export default async function engineMessageProcessor(msg, profile) {
 
     if(isBestmove) {
         finishOldestUnfinishedCalculation();
+
         if(!oldestUnfinishedCalcRequestObj || !isMessageForCurrentFen) return;
+
         const bestmove = String(data.bestmove ?? '').trim();
+
         if(!bestmove || ['0000', '0', '(none)', 'none'].includes(bestmove)) {
             const terminal = oldestUnfinishedCalcRequestObj.annotationScore;
+
             if(terminal) {
                 const fen = this.currentFen;
                 const evaluation = evaluationForPlayer(terminal.score, terminal.mate,
                     oldestUnfinishedCalcRequestObj.analyzedColor ?? oldestUnfinishedCalcRequestObj.fen?.split(' ')[1],
                     await this.getPlayerColor());
+
                 if(evaluation && this.currentFen === fen && this.pV[profile] === profileObj) {
                     annotateEvaluation.call(this, evaluation.playerEvaluation, fen, profile).catch(console.error);
                 }
             }
+
             setProfileBubbleStatus('idle', profile, 'Idle, engine returned no legal move.');
+
             return;
         }
 
@@ -269,7 +318,9 @@ export default async function engineMessageProcessor(msg, profile) {
         const fen = this.currentFen;
         const primaryScore = oldestUnfinishedCalcRequestObj?.primaryScore;
         const playerColor = await this.getPlayerColor();
+
         if(this.pV[profile] !== profileObj || this.currentFen !== fen) return;
+
         const completedEvaluation = primaryScore && evaluationForPlayer(primaryScore.score, primaryScore.mate,
             oldestUnfinishedCalcRequestObj.analyzedColor ?? oldestUnfinishedCalcRequestObj.fen?.split(' ')[1],
             playerColor);
@@ -277,11 +328,14 @@ export default async function engineMessageProcessor(msg, profile) {
         const annotationScore = oldestUnfinishedCalcRequestObj.annotationScore;
         const annotation = annotationScore && evaluationForPlayer(annotationScore.score, annotationScore.mate,
             oldestUnfinishedCalcRequestObj.analyzedColor, playerColor);
+
         if(isMessageForCurrentFen && annotation) {
             annotateEvaluation.call(this, annotation.playerEvaluation, fen, profile).catch(error => console.warn('[Audio] Evaluation annotation failed:', error));
         }
+
         const shouldUpdateDynamicContext = isMessageForCurrentFen
             && Number.isFinite(evaluation) && this.dynamicEvaluationFen !== fen;
+
         if(shouldUpdateDynamicContext) {
             this.dynamicEvaluationFen = fen;
             setDynamicSettingsContext(this.instanceID, fen, { evaluation });
@@ -324,7 +378,9 @@ export default async function engineMessageProcessor(msg, profile) {
         if(isMessageForCurrentFen && profileObj.activeGuiMoveMarkings.length === 0) {
             const markingLimit = profileObj.multiPV;
             const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
+
             if(this.pV[profile] !== profileObj || this.currentFen !== fen || this.instanceClosed) return;
+
             const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
             let topMoveObjects = profileObj.pastMoveObjects?.slice(markingLimit * -1);
@@ -337,7 +393,9 @@ export default async function engineMessageProcessor(msg, profile) {
             }
 
             const engineName = await this.getEngineName(profile);
+
             if(this.pV[profile] !== profileObj || this.currentFen !== fen || this.instanceClosed) return;
+
             if(engineName === 'lc0' || profileObj.engineNodes > 0) {
                 updatePipData({ nodes: this.learningMode ? oldestUnfinishedCalcRequestObj.lastData?.nodes ?? 0 : profileObj.engineNodes,
                     goalDepth: null });
@@ -350,6 +408,7 @@ export default async function engineMessageProcessor(msg, profile) {
                 const timeElapsed = oldestUnfinishedCalcRequestObj?.startedAt
                     ? Date.now() - oldestUnfinishedCalcRequestObj.startedAt : calculationTimeElapsed;
                 const remainingDelay = Math.max(0, moveDisplayDelay - timeElapsed);
+
                 setTimeout(() => {
                     if(!this.instanceClosed && this.pV[profile] === profileObj
                         && fen === this.currentFen && !this.isEngineCalculating(profile)) {
@@ -371,11 +430,14 @@ export default async function engineMessageProcessor(msg, profile) {
     }
 
     const variantStartposFen = data['Fen:'];
+
     if(variantStartposFen) profileObj.variantStartposFen = variantStartposFen;
 
     if(msg === 'uciok') {
         await profileObj.uciOptionRegistrations;
+
         if(this.pV[profile] !== profileObj || this.instanceClosed) return;
+
         setDynamicOptionsReady(profile, this.instanceID);
 
         const waitsForFairyStartup = isBuiltInFairyEngine(profileObj);

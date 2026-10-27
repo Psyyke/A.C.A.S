@@ -4,8 +4,6 @@ import { formatMoveNotationAsync } from '../misc/moveNotation.js';
 import { getBackgroundGrainTile } from './backgroundGrain.js';
 
 export const pipData = {};
-let pipHintInstance = null;
-let pipHintRevision = 0;
 const pipFontSizes = { large: 64, mlarge: 35, medium: 26, feedback: 19, small: 18, esmall: 18 };
 const pipHeaderHeight = 44;
 const pipEvalBarWidth = 40;
@@ -18,6 +16,10 @@ const pipFeedbackEmojis = ['🤩', '😁', '😊', '🙂', '📖', '😕', '🤨
 const pipLayoutWidth = 400;
 const pipTextPadding = 16;
 const pipTextColumnGap = 16;
+const PIP_CONTEXT_QUEUE_LIMIT = 30;
+
+let pipHintInstance = null;
+let pipHintRevision = 0;
 let pipLayoutHeight = 200;
 let pipBoardHeight = pipBoardWidth;
 
@@ -26,7 +28,6 @@ let pipVideo = null;
 let pipLastPipBoardBitmaps = [null, null];
 let pipBoardAnimation = null;
 let pipBoardCapture = null;
-const PIP_CONTEXT_QUEUE_LIMIT = 30;
 
 let pipContextQueue = [];
 let pipProcessingBestMove = false;

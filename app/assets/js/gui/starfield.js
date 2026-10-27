@@ -1,5 +1,8 @@
+import { acasInstanceContainer } from './elementDeclarations.js';
+
 export function initializeStarfield() {
-    const container = document.querySelector('#acas-instance-container');
+    const container = acasInstanceContainer;
+
     if(!container || container.querySelector('.starfield-animation')) return;
 
     const layer = document.createElement('div');

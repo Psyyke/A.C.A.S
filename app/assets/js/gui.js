@@ -1,6 +1,9 @@
 import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exportSettingsBtn, resetSettingsBtn,
     noInstancesSitesElem, seeSupportedSitesBtn, ttsNameDropdownElem, userscriptInfoElem, updateYourUserscriptElem,
-    decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, beggingFloaty, profileListContainerElem } from './gui/elementDeclarations.js';
+    decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, beggingFloaty, profileListContainerElem,
+    settingsContainerElem, settingsHeaderElem, settingsPanelsElem, settingContainerElem, renderingDialogElem,
+    engineDialogElem, webhookMessageTemplateInput, webhookTemplateHighlightElem, themeColorInput,
+    backgroundTextureInput, customBackgroundBlurInput, getActivityLogElements } from './gui/elementDeclarations.js';
 import { importSettings, exportSettings, resetSettings, migrateFeedbackSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
 import { monitorInstances, monitorInstanceTabs, toggleSelectedNavbarItem } from './gui/instances.js';
@@ -23,7 +26,8 @@ export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
 
 function setupSettingsContainerHoverRecovery() {
-    const settingsContainer = document.querySelector('#acas-settings-container');
+    const settingsContainer = settingsContainerElem;
+
     if(!settingsContainer) return;
 
     const setActive = (active) => settingsContainer.classList.toggle('is-active', active);
@@ -38,7 +42,8 @@ function setupSettingsContainerHoverRecovery() {
 }
 
 function setupSettingsHeaderBackground() {
-    const settingsHeader = document.querySelector('#settings-header');
+    const settingsHeader = settingsHeaderElem;
+
     if(!settingsHeader) return;
 
     const updateHeight = () => document.body.style.setProperty(
@@ -50,13 +55,15 @@ function setupSettingsHeaderBackground() {
 }
 
 function initializeWebhookTemplateEditor() {
-    const textarea = document.querySelector('.webhook-message-template');
-    const highlight = document.querySelector('.webhook-template-highlight');
+    const textarea = webhookMessageTemplateInput;
+    const highlight = webhookTemplateHighlightElem;
+
     if(!textarea || !highlight) return;
 
     const translatePlaceholder = () => {
         textarea.placeholder = TRANS_OBJ?.activityLog?.discordMessagePlaceholder ?? 'Write your Discord message here...';
     };
+
     document.addEventListener('acas-translations-updated', translatePlaceholder);
     translatePlaceholder();
 
@@ -89,22 +96,15 @@ export function setThemeColorHex(value) {
 export function highlightSettingElem(targetElem, cb) {
     if(!targetElem) return;
 
-    const subtleElems = ['#settings-header', '#settings-panels', '#setting-container']
-        .map(x => document.querySelector(x))
-        .filter(x => x);
-
+    const subtleElems = [settingsHeaderElem, settingsPanelsElem, settingContainerElem].filter(x => x);
     const targetInput = targetElem.querySelector('input');
 
     if(targetInput?.dataset?.renderSetting) {
-        const renderDialog = document.querySelector('.floaty-wrapper > #rendering-floaty');
-
-        if(renderDialog) renderDialog.showModal();
+        if(renderingDialogElem) renderingDialogElem.showModal();
     }
 
     if(targetInput?.dataset?.engineSetting) {
-        const engineDialog = document.querySelector('.floaty-wrapper > #engine-floaty');
-
-        if(engineDialog) engineDialog.showModal();
+        if(engineDialogElem) engineDialogElem.showModal();
     }
 
     targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -157,6 +157,7 @@ function fillChessVariantDropdowns(arr) {
 function fillTextToSpeechVoices() {
     const waitForTTSVoices = setInterval(() => {
         const ttsVoices = GET_TTS_VOICES();
+
         if(!ttsVoices?.length) return;
 
         ttsVoices.forEach(x => addDropdownItem(ttsNameDropdownElem, x));
@@ -166,17 +167,21 @@ function fillTextToSpeechVoices() {
 }
 
 function initializeFloatyButtons() {
-    const activityLogDialog = document.getElementById('log-floaty');
+    const { dialog: activityLogDialog, launcher: activityLogLauncher } = getActivityLogElements();
+
     if(activityLogDialog && activityLogDialog.parentElement !== document.body) {
         document.body.appendChild(activityLogDialog);
     }
+
     const floatyDialogs = [...document.querySelectorAll('.floaty-wrapper > dialog')];
+
     if(activityLogDialog) floatyDialogs.push(activityLogDialog);
+
     floatyDialogs.forEach(floatyDialog => {
         // Explicit dialog links keep working when launchers move out of the wrapper.
         const btn = document.querySelector(`.open-floaty-btn[aria-controls~="${CSS.escape(floatyDialog.id)}"]`)
             || (floatyDialog.id === 'log-floaty'
-            ? document.querySelector('.activity-log-launcher .open-floaty-btn')
+            ? activityLogLauncher
             : floatyDialog.parentElement.querySelector('.open-floaty-btn'));
         const closeBtn = floatyDialog.querySelector('.floaty-close-btn');
         const activityLogOpenKey = 'acas.activity-log.open';
@@ -275,7 +280,7 @@ async function updateUserscriptInfoText() {
 async function initializeBackgroundAppearance() {
     // Restore these before revealing the page, not in the later profile/settings loop.
     const keys = ['themeColorHex', 'backgroundTextureClass', 'customBackgroundBlur'];
-    const inputs = keys.map(key => document.querySelector(`input[data-key="${key}"]`));
+    const inputs = [themeColorInput, backgroundTextureInput, customBackgroundBlurInput];
     const values = await Promise.all(keys.map(key => GET_GM_CFG_BASE_VALUE(key, false, false)));
 
     inputs.forEach((input, index) => {
@@ -302,6 +307,7 @@ export async function initGUI() {
     const config = await USERSCRIPT.getValue(USERSCRIPT_SHARED_VARS.gmConfigKey);
     const hintsMigrated = migrateHintSettings(config);
     const feedbackMigrated = migrateFeedbackSettings(config);
+
     if(hintsMigrated || feedbackMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
 
     initializeBackgroundGrain();
@@ -356,7 +362,9 @@ export async function initGUI() {
     initializeDynamicSettings();
     initializeInputElems();
     initializeAppearanceTranslations();
+
     const customBackgroundReady = initializeCustomBackground();
+
     await initializeBackgroundAppearance();
     initializeWebhookTemplateEditor();
     initializePolyglotBookLoader();
@@ -385,7 +393,8 @@ export async function initGUI() {
     );
 
     if(acasInstanceContainer.classList.contains('custom-image-texture')) await customBackgroundReady;
-    await waitForBackgroundImages(acasInstanceContainer, document.querySelector('#setting-container'));
+
+    await waitForBackgroundImages(acasInstanceContainer, settingContainerElem);
 
     initialized = true;
 }

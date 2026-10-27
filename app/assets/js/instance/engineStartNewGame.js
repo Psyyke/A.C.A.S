@@ -189,23 +189,20 @@ export default async function engineStartNewGame(variant, profile, isDynamicChan
             if(!isCurrentStart()) return;
         }
 
-        if(isExternalRecovery) {
+        if(isExternalRecovery && profileVariables.externalEngineOptionsRestored) {
             // appServer restores this instance's last-sent options before forwarding
             // uciok. Do not overwrite that snapshot with freshly resolved GUI values.
-            if(profileVariables.externalEngineOptionsRestored) {
-                const positionSent = await sendStartupCommands.call(this,
-                    positionCommands, profileName, isCurrentStart, true);
+            const positionSent = await sendStartupCommands.call(this,
+                positionCommands, profileName, isCurrentStart, true);
 
-                if(!positionSent) return;
+            if(!positionSent) return;
 
-                profileVariables.engineSettingsReady = true;
+            profileVariables.engineSettingsReady = true;
 
-                return;
-            }
-
-            // Missing or incomplete snapshots fall back to normal initialization.
+            return;
         }
 
+        // Missing or incomplete recovery snapshots fall back to normal initialization.
         if(isAdvancedElo) {
             await startWithDynamicOptions.call(this, profileVariant, engineName, profileName, isCurrentStart);
         } else {

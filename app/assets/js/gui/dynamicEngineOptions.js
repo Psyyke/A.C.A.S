@@ -1,4 +1,5 @@
-import { dynamicSettingsContainer, dynamicEngineSettingNoResultText } from './elementDeclarations.js';
+import { dynamicSettingsContainer, dynamicEngineSettingNoResultText, useExternalChessEngineInput,
+    externalChessEngineInput, chessEngineInput } from './elementDeclarations.js';
 import { setInputValue, initializeSettingInputElem } from './domInputs.js';
 import { scheduleSettingsUpdate } from './settings.js';
 import { initializeDropdown } from './domDropdown.js';
@@ -13,8 +14,9 @@ function getDynamicEngineSettingDatasetKey(engineId, profileName) {
 
 export function ensureOneDynamicEngineSettingVisible(engineId) {
     if(engineId === undefined) {
-        const isExternal = document.querySelector('input[data-key="useExternalChessEngine"]')?.checked;
-        engineId = document.querySelector(`input[data-key="${isExternal ? 'externalChessEngine' : 'chessEngine'}"]`)?.value;
+        const isExternal = useExternalChessEngineInput?.checked;
+
+        engineId = (isExternal ? externalChessEngineInput : chessEngineInput)?.value;
     }
 
     const dynamicEngineSettingContainers = [...document.querySelectorAll('.dynamic-setting-profile-container')];
@@ -68,6 +70,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     setDynamicOption(dbKey, { name, defaultValue, type, min, max, vars }, profileName, instanceID);
 
     let profileContainer = dynamicSettingsContainer.querySelector(`.dynamic-setting-profile-container[data-id="${profileContainerId}"]`);
+
     if(!profileContainer) {
         profileContainer = document.createElement('div');
         profileContainer.classList.add('dynamic-setting-profile-container');
@@ -84,6 +87,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     ensureOneDynamicEngineSettingVisible();
 
     const doesOptionAlreadyExist = profileContainer.querySelector(`*[data-key="${dbKey}"]`);
+
     if(doesOptionAlreadyExist) return;
 
     const createDropdownItem = value => {

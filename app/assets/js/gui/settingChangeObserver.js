@@ -1,6 +1,8 @@
 import { acasInstanceContainer, ttsNameDropdownElem, ttsSpeedRangeElem, chessVariantDropdown, enemyEloInputContainer,
   engineEloInput, lc0WeightDropdown, chess960Checkbox, advancedEloEnableInput, normalEloInput, basicAdvancedSettingsPanel,
-  chessEngineInput, engineNodesInput, advancedEloDepthInput, chessEngineDropdown } from './elementDeclarations.js';
+  chessEngineInput, engineNodesInput, advancedEloDepthInput, chessEngineDropdown, dynamicSettingsContainer,
+  learningPvAnimationInput, stopAnimationSettingElem, learningModeInput, learningHintsContainerElem,
+  reverseSideInput } from './elementDeclarations.js';
 import { connectAcasToServer, disconnectAcasFromServer } from '../AcasWebSocketClient.js';
 import { ensureOneDynamicEngineSettingVisible } from './dynamicEngineOptions.js';
 import { setIsExternalEngineSettingActive } from './externalEngine.js';
@@ -11,11 +13,11 @@ import { initMediaSession } from './media.js';
 import { setThemeColorHex } from '../gui.js';
 import { updateCustomBackgroundControls, setCustomBackgroundBlur } from './customBackground.js';
 
-
 const processedElems = [];
 
 function setAdvancedEloCheckboxChecked(isChecked) {
     const isUsingExternalEngine = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
+
     if(isUsingExternalEngine) return;
 
     const shouldDispatchEvent = advancedEloEnableInput.checked !== isChecked;
@@ -39,9 +41,10 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
     switch(inputElem.dataset.key) {
         case 'learningPvAnimation':
         case 'learningPvAnimationStopOnEnemyMove': {
-            const animationEnabled = document.querySelector('#feedback-floaty input[data-key="learningPvAnimation"]')?.checked;
-            const setting = document.querySelector('#stop-animation-box');
+            const animationEnabled = learningPvAnimationInput?.checked;
+            const setting = stopAnimationSettingElem;
             const input = setting?.querySelector('input');
+
             if(!setting || !input) break;
 
             setting.inert = !animationEnabled;
@@ -52,7 +55,7 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
         case 'learningMode':
         case 'enableMoveRatings':
         case 'enableEnemyFeedback': {
-            const learningMode = document.querySelector('#feedback-floaty input[data-key="learningMode"]')?.checked;
+            const learningMode = learningModeInput?.checked;
             const feedbackDisabled = learningMode || !['enableMoveRatings', 'enableEnemyFeedback']
                 .some(key => document.querySelector(`#feedback-floaty input[data-key="${key}"]`)?.checked);
 
@@ -78,8 +81,9 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             break;
         }
         case 'chessFont': {
-            const container = document.querySelector('.learning-hints');
+            const container = learningHintsContainerElem;
             const font = FORMAT_CHESS_FONT(value);
+
             ['staunty', 'merida', 'cburnett', 'letters'].forEach(name =>
                 container?.classList.toggle(name, name === font));
             break;
@@ -224,7 +228,7 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             break;
         case 'alwaysMyTurn':
-            const inputValue = document.querySelector(`input[data-key="reverseSide"]`);
+            const inputValue = reverseSideInput;
 
             if(value) inputValue.removeAttribute('disabled');
             else inputValue.setAttribute('disabled', 'true');
@@ -233,7 +237,6 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
         case 'enableAdvancedElo':
             if(!normalEloInput) return;
 
-            const dynamicSettingContainer = document.querySelector('#dynamic-engine-settings');
             const incompatibleSettingKeys = [
                 'moveSuggestionAmount',
                 'useChess960',
@@ -253,13 +256,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             }
 
             if(value)  {
-                dynamicSettingContainer.classList.remove('blurred');
+                dynamicSettingsContainer.classList.remove('blurred');
                 basicAdvancedSettingsPanel
                     .querySelectorAll('.custom-input')
                     .forEach(elem => elem.classList.remove('blurred'));
             }
             else {
-                dynamicSettingContainer.classList.add('blurred');
+                dynamicSettingsContainer.classList.add('blurred');
                 basicAdvancedSettingsPanel
                     .querySelectorAll('.custom-input')
                     .forEach(elem => elem.classList.add('blurred'));

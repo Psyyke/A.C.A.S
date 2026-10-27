@@ -28,12 +28,10 @@ export function setInputValue(elem, val, min, max) {
                 else
                     elem.classList.remove(selectedItemKey);
             });
-        } else {
-            if(min != null && max != null) {
-                const clamped = Math.max(min, Math.min(max, val));
+        } else if(min != null && max != null) {
+            const clamped = Math.max(min, Math.min(max, val));
 
-                val = Number.isNaN(clamped) ? min : clamped;
-            }
+            val = Number.isNaN(clamped) ? min : clamped;
         }
 
         const preserveText = elem.dataset.uciOptionType === 'string' || elem.dataset.dynamicValueType === 'text';
@@ -63,13 +61,14 @@ export function activateInputDefaultValue(elem) {
 
 export function initializeSettingInputElem(elem, skipDefaultValueSet) {
     if(!elem) return;
-    if(elem.type === 'range') initializeRangeInput(elem);
 
-    let [min, max] = [null, null];
+    if(elem.type === 'range') initializeRangeInput(elem);
 
     const defaultVal = VAR_TO_CORRECT_TYPE(elem.dataset.defaultValue);
     // Native sliders enforce their own min/max/step; these are legacy text bounds.
     const isRange = elem.type !== 'range' && (elem.dataset?.between || elem.dataset?.spin);
+
+    let [min, max] = [null, null];
 
     if(defaultVal && !skipDefaultValueSet) {
         activateInputDefaultValue(elem);
@@ -97,23 +96,25 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
             e.target.value = Number.isNaN(clamped) ? min : clamped;
         }
 
-        if(e.target.value || e.target.checked || e.target.value === '') {
-            saveSetting(elem, true);
-
-            if(
-                e?.target?.dataset?.key === 'displayMovesOnExternalSite' ||
-                e?.target?.dataset?.key === 'renderOnExternalSite' ||
-                e?.target?.dataset?.key === 'movesOnDemand' ||
-                e?.target?.dataset?.key === 'isUserscriptGhost'
-            ) {
-                const msg = TRANS_OBJ?.refreshSiteNotification ?? 'Refresh the external site to see changes!';
-                toast.create('message', '👀', msg, 3000);
-            }
-
-            runSettingChangeObserver(e.target, 50);
-        } else {
+        if(!(e.target.value || e.target.checked || e.target.value === '')) {
             removeSetting(elem);
+            return;
         }
+
+        saveSetting(elem, true);
+
+        if(
+            e?.target?.dataset?.key === 'displayMovesOnExternalSite' ||
+            e?.target?.dataset?.key === 'renderOnExternalSite' ||
+            e?.target?.dataset?.key === 'movesOnDemand' ||
+            e?.target?.dataset?.key === 'isUserscriptGhost'
+        ) {
+            const msg = TRANS_OBJ?.refreshSiteNotification ?? 'Refresh the external site to see changes!';
+
+            toast.create('message', '👀', msg, 3000);
+        }
+
+        runSettingChangeObserver(e.target, 50);
     }
 }
 

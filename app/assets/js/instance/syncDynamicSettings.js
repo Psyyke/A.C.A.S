@@ -128,13 +128,14 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
             }
         }
         const names = new Set(profiles.map(profile => profile.name));
+
         for(const name of this.effectiveSettings.keys()) {
-            if(!names.has(name)) {
-                this.killEngine(name);
-                this.effectiveSettings.delete(name);
-                this.appliedSettingValues.delete(name);
-                this.pendingDynamicSettingChanges.delete(name);
-            }
+            if(names.has(name)) continue;
+
+            this.killEngine(name);
+            this.effectiveSettings.delete(name);
+            this.appliedSettingValues.delete(name);
+            this.pendingDynamicSettingChanges.delete(name);
         }
         if(Boolean(this.learningMode) !== Object.values(this.pV).some(variables => variables.learningMode))
             await this.Interface.updateLearningBoard();

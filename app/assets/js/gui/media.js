@@ -1,7 +1,10 @@
+import { silenceAudioElem } from './elementDeclarations.js';
+
+const audioInteractionEvents = ['click', 'keydown', 'touchstart'];
+
 let mediaSessionEnabled = false;
 let mediaPlaybackVersion = 0;
 let latestMediaMetadata = null;
-const audioInteractionEvents = ['click', 'keydown', 'touchstart'];
 
 function removeAudioInteractionListeners() {
     audioInteractionEvents.forEach(event => window.removeEventListener(event, startAudio));
@@ -25,7 +28,7 @@ export function stopMediaSession() {
     mediaSessionEnabled = false;
     mediaPlaybackVersion++;
     removeAudioInteractionListeners();
-    document.querySelector('#silence-audio')?.pause();
+    silenceAudioElem?.pause();
 
     if('mediaSession' in navigator) {
         navigator.mediaSession.metadata = null;
@@ -34,13 +37,15 @@ export function stopMediaSession() {
 }
 
 async function startAudio(event) {
-    const audio = document.querySelector('#silence-audio');
+    const audio = silenceAudioElem;
+
     if(!mediaSessionEnabled || document.pictureInPictureElement || !audio) return;
 
     const version = ++mediaPlaybackVersion;
 
     try {
         await audio.play();
+
         if(version !== mediaPlaybackVersion) return;
 
         // PiP may have opened while the play request was pending.
@@ -66,7 +71,8 @@ export function initMediaSession() {
         return;
     }
 
-    if(mediaSessionEnabled || !document.querySelector('#silence-audio')) return;
+    if(mediaSessionEnabled || !silenceAudioElem) return;
+
     mediaSessionEnabled = true;
 
     audioInteractionEvents.forEach(event => window.addEventListener(event, startAudio));

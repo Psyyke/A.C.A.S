@@ -143,7 +143,7 @@
         "engineNodes": ["Search Nodes", "More nodes let the engine analyze more positions"],
         "lc0Weight": ["Lc0 Weights", "Read more here"],
         "legitModeType": ["Playing Style", "Choose the playing style for Auto Move"],
-        "openingBookName": ["Opening Book", "Load a Polyglot opening book (.bin)"],
+        "openingBookName": ["Opening Book", "Load a Polyglot (.bin) or move-annotated EPD (.epd) opening book"],
         "bookMoveOpacity": ["Book move opacity (1 - 100%)", "Change the opacity of the opening book arrows"],
         "bookMoveColorHex": ["Book Move Color", "Opening book arrow color"],
         "alwaysMyTurn": ["Always My Turn", "Force turn to be your turn"],

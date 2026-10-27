@@ -1017,7 +1017,9 @@ export default class AcasInstance {
 
             return true;
 
-        } else if(!engineExists && profileVariables) {
+        }
+
+        if(!engineExists && profileVariables) {
             let elapsed = 0;
 
             return new Promise(resolve => {
@@ -1030,6 +1032,7 @@ export default class AcasInstance {
 
                     if(this.getEngineAcasObj(i)?.sendMsg) {
                         clearInterval(waitForEngineToLoad);
+
                         try {
                             this.getEngineAcasObj(i).sendMsg(msg);
                             logEngineInput();
@@ -1038,26 +1041,34 @@ export default class AcasInstance {
                             console.error('Could not send engine input:', context, msg, error);
                             resolve(false);
                         }
-                    } else {
-                        // Wait max 10 seconds
-                        if(elapsed++ > 100) {
-                            logActivity('error', `Engine input timed out while waiting for the engine: ${msg}`, context);
-                            if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
-                            clearInterval(waitForEngineToLoad);
-                            resolve(false);
-                        }
+
+                        return;
                     }
+
+                    // Wait max 10 seconds.
+                    if(elapsed++ <= 100) return;
+
+                    logActivity('error', `Engine input timed out while waiting for the engine: ${msg}`, context);
+
+                    if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
+
+                    clearInterval(waitForEngineToLoad);
+                    resolve(false);
                 }, 100);
             });
-        } else if(engineExists) {
+        }
+
+        if(engineExists) {
             this.getEngineAcasObj(i).sendMsg(msg);
             logEngineInput();
             return true;
-        } else {
-            logActivity('warning', `Cannot send input to a missing engine: ${msg}`, context);
-            if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
-            return false;
         }
+
+        logActivity('warning', `Cannot send input to a missing engine: ${msg}`, context);
+
+        if(this.debugLogsEnabled) console.warn('Attempted to send message to non existing engine?', `(${i})`);
+
+        return false;
     }
 
     isEngineCalculating(profile) {
@@ -1076,7 +1087,12 @@ export default class AcasInstance {
         const book = this.openingBooks?.get(profile);
 
         if(!book) {
+            variables.bookHintRevision = (variables.bookHintRevision || 0) + 1;
             this.Interface.removeBookMarkings(profile);
+            if(variables.bookHintsExternal) {
+                this.CommLink.commands.renderVisualsToSite([{ profileID: profile, category: 'book' }]);
+                variables.bookHintsExternal = false;
+            }
             return;
         }
 
@@ -1088,9 +1104,15 @@ export default class AcasInstance {
 
         if(!this.isLearningProfile(profile) && alwaysMyTurn && fen.split(' ')[1] !== playerColor) fen = REVERSE_FEN_TURN(fen);
 
-        const bookMoves = book.getMoves(fen)
+        // Allow variant books with compatible keys/moves; the reader safely
+        // returns no moves for positions its format cannot represent.
+        const bookContext = {
+            chessVariant: variables.chessVariant || this.activeVariant || this.detectedChessVariant,
+            useChess960: variables.useChess960
+        };
+        const bookMoves = book.getMoves(fen, bookContext)
             .slice(0, moveSuggestionAmount)
-            .map(move => ({ ...move, profile, fen }));
+            .map(move => ({ ...move, profile, fen, ...bookContext }));
 
         await this.Interface.displayBookMoves(bookMoves, profile);
     }

@@ -41,11 +41,17 @@ export function importSettings() {
     input.onchange = e => {
         const file = e.target.files[0];
     
-        if (file.type === 'application/json') {
-            const reader = new FileReader();
+        if(file.type !== 'application/json') {
+            const msg = TRANS_OBJ?.configInvalidFiletype ?? `Wrong file type loaded, the config needs to be a .json file!`;
 
-            reader.onload = event => {
-                try {
+            toast.error(msg, 30000);
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = event => {
+            try {
                 const jsonString = event.target.result;
                 const jsonData = JSON.parse(jsonString);
 
@@ -53,33 +59,30 @@ export function importSettings() {
                     jsonData['instance'] = {};
                 }
 
-                if ('global' in jsonData) {
-                    USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, jsonData);
-
-                    console.log(jsonData);
-
-                    loopThroughAndUpdateSettingsValues(true);
-
-                    console.log('Successfully imported settings from a config file!');
-
-                    location.reload();
-                } else {
+                if(!('global' in jsonData)) {
                     const msg = TRANS_OBJ?.configInvalidError ?? 'Invalid config file, missing "global" or "instance" keys!';
-                    toast.error(msg, 15000);
-                }
-                } catch (error) {
-                    const msg = TRANS_OBJ?.configUnknownError ?? `Error while loading config!`;
-                    toast.error(`${msg}\n\n${error}`, 30000);
-                }
-            };
 
-            reader.readAsText(file);
-        } 
-        
-        else {
-            const msg = TRANS_OBJ?.configInvalidFiletype ?? `Wrong file type loaded, the config needs to be a .json file!`;
-            toast.error(msg, 30000);
-        }
+                    toast.error(msg, 15000);
+                    return;
+                }
+
+                USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, jsonData);
+
+                console.log(jsonData);
+
+                loopThroughAndUpdateSettingsValues(true);
+
+                console.log('Successfully imported settings from a config file!');
+
+                location.reload();
+            } catch(error) {
+                const msg = TRANS_OBJ?.configUnknownError ?? `Error while loading config!`;
+
+                toast.error(`${msg}\n\n${error}`, 30000);
+            }
+        };
+
+        reader.readAsText(file);
     };
     
     input.click();

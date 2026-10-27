@@ -1,4 +1,5 @@
 import { updateEnginesList } from './gui/externalEngine.js';
+import { externalEngineServerPortInput as serverPortInput } from './gui/elementDeclarations.js';
 
 const SERVER_PORT_STORAGE_KEY = 'acasExternalEngineServerPort';
 const DEFAULT_SERVER_PORT = 2800;
@@ -202,11 +203,11 @@ const ws = new AcasWebSocketClient((type, data) => {
     }
 });
 
-const serverPortInput = document.querySelector('#external-engine-server-port');
 if(serverPortInput) {
     serverPortInput.value = String(ws.port);
     serverPortInput.addEventListener('change', () => {
         const port = Number(serverPortInput.value);
+
         if(!serverPortInput.reportValidity() || !Number.isInteger(port) || port < 1 || port > 65535) {
             serverPortInput.value = String(ws.port);
             return;

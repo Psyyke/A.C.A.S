@@ -47,11 +47,12 @@ function getAllUserUsageStats() {
     const storageKeys = Object.keys(localStorage);
 
     for(let i = 0; i < storageKeys.length; i++) {
-        if(storageKeys[i].startsWith(USER_USAGE_PREFIX)) {
-            const cleanKey = storageKeys[i].replace(USER_USAGE_PREFIX, '');
-            const stat = getUserUsageStat(cleanKey);
-            if(stat) stats.push(stat);
-        }
+        if(!storageKeys[i].startsWith(USER_USAGE_PREFIX)) continue;
+
+        const cleanKey = storageKeys[i].replace(USER_USAGE_PREFIX, '');
+        const stat = getUserUsageStat(cleanKey);
+
+        if(stat) stats.push(stat);
     }
 
     return stats;

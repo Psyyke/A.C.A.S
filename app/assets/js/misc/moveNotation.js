@@ -3,9 +3,6 @@ import { variantConfig, parseVariantFen, parseVariantMove, getAmazonsShot } from
 import { englishVariantSpeech, getVariantSpeech, speechPieceName, shogiSpeechVariants } from './variantSpeech.js';
 
 const notationCache = new Map();
-let fairyNotationPromise = null;
-let fairyNotationIdleTimeout = null;
-let pendingNotationRequests = 0;
 const englishSpeech = {
     lang: 'en-US',
     pieces: { K: 'King', Q: 'Queen', R: 'Rook', B: 'Bishop', N: 'Knight', P: 'Pawn',
@@ -25,6 +22,10 @@ const englishSpeech = {
     advantage: ['You are losing badly', 'You are losing', 'You are slightly behind', 'The position is equal',
         'You are slightly ahead', 'You are winning', 'You are winning decisively']
 };
+
+let fairyNotationPromise = null;
+let fairyNotationIdleTimeout = null;
+let pendingNotationRequests = 0;
 
 export function getMoveSpeechConfig(translateAudio = false) {
     const translated = translateAudio && typeof TRANS_OBJ !== 'undefined' ? TRANS_OBJ?.moveSpeech : null;

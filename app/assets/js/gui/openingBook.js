@@ -1,29 +1,38 @@
 import { saveSetting } from './settings.js';
 import { setInputValue } from './domInputs.js';
 import { appearanceText as text } from './appearanceTranslations.js';
+import { bookFileInput, bookFileNameInput, bookFileRemoveBtn } from './elementDeclarations.js';
 
 export function initializePolyglotBookLoader() {
-    const fileInput = document.querySelector('#book-file');
-    const nameInput = document.querySelector('#book-file-name');
-    const remove = document.querySelector('#book-file-remove');
+    const fileInput = bookFileInput;
+    const nameInput = bookFileNameInput;
+    const remove = bookFileRemoveBtn;
+
     if(!fileInput || !nameInput || !remove) return;
 
     let busy = false;
+
     const updateControls = () => {
         nameInput.disabled = busy;
         fileInput.disabled = busy;
         remove.disabled = busy || !nameInput.value;
         nameInput.title = nameInput.value || text('chooseBook', 'Choose an opening book');
     };
+
     const sameOwner = owner => Object.keys(owner).every(key => owner[key] === SETTING_FILTER_OBJ[key]);
+
     const reloadBooks = async () => {
         await Promise.all((window.AcasInstances ?? []).map(item => item.instance.loadOpeningBook()));
     };
+
     const saveBookName = async (value, owner) => {
         // Capture the profile/instance before file IO; a tab switch must not redirect it.
         const setting = nameInput.cloneNode();
+
         setting.value = value;
+
         await saveSetting(setting, true, owner);
+
         if(sameOwner(owner)) setInputValue(nameInput, value);
     };
 
@@ -40,8 +49,11 @@ export function initializePolyglotBookLoader() {
     fileInput.addEventListener('change', async () => {
         const file = fileInput.files?.[0];
         const owner = { ...SETTING_FILTER_OBJ };
+
         fileInput.value = '';
+
         if(!file) return;
+
         busy = true;
         updateControls();
 
@@ -50,7 +62,7 @@ export function initializePolyglotBookLoader() {
             await POLYGLOT_BOOK.fromFile(file);
             await POLYGLOT_BOOK.saveToStorage(file);
             const book = await POLYGLOT_BOOK.loadFromStorage(file.name);
-            if(!book) throw new Error('The selected file is not a valid Polyglot book.');
+            if(!book) throw new Error('The selected file is not a valid opening book.');
             await saveBookName(file.name, owner);
             POLY_OPENING_BOOKS.set(owner.profileID, book);
             await reloadBooks();
@@ -58,7 +70,8 @@ export function initializePolyglotBookLoader() {
                 .replace('{fileName}', file.name), 2500);
         } catch(error) {
             console.error('Failed to load opening book:', error);
-            toast.error(TRANS_OBJ?.openingBookSaveFailed ?? 'Failed to save opening book to storage.', 5000);
+            const message = TRANS_OBJ?.openingBookSaveFailed ?? 'Failed to save opening book to storage.';
+            toast.error(/\.epd$/i.test(file.name) ? `${message} ${error.message}` : message, 8000);
         } finally {
             busy = false;
             updateControls();
@@ -68,7 +81,9 @@ export function initializePolyglotBookLoader() {
     remove.addEventListener('click', async () => {
         const fileName = nameInput.value;
         const owner = { ...SETTING_FILTER_OBJ };
+
         if(!fileName || busy) return;
+
         busy = true;
         updateControls();
 

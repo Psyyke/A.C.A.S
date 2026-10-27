@@ -86,9 +86,15 @@ class POLYGLOT_BOOK {
     }
 
     static async fromFile(file) {
-        return new POLYGLOT_BOOK(
-            await file.arrayBuffer()
-        );
+        return POLYGLOT_BOOK.fromData(await file.arrayBuffer(), file.name);
+    }
+
+    static async fromData(data, fileName = '') {
+        if(/\.epd$/i.test(fileName)) {
+            const { default: EpdBook } = await import('./EpdBook.js');
+            return new EpdBook(new TextDecoder('utf-8', { fatal: true }).decode(data));
+        }
+        return new POLYGLOT_BOOK(data);
     }
 
     static async openDatabase() {
@@ -175,7 +181,7 @@ class POLYGLOT_BOOK {
             const store = transaction.objectStore(POLYGLOT_BOOK.STORE_NAME);
             const request = store.get(fileName);
 
-            request.onsuccess = () => {
+            request.onsuccess = async () => {
                 const value = request.result;
 
                 if(value == null) {
@@ -184,7 +190,7 @@ class POLYGLOT_BOOK {
                 }
 
                 try {
-                    resolve(new POLYGLOT_BOOK(value));
+                    resolve(await POLYGLOT_BOOK.fromData(value, fileName));
                 } catch(error) {
                     console.error('Failed to load opening book from storage:', error);
                     resolve(null);
@@ -204,6 +210,9 @@ class POLYGLOT_BOOK {
 
     getMoves(fullFen) {
         const key = this.fenToKey(fullFen);
+
+        if(key === null) return [];
+
         const first = this.findFirstKey(key);
 
         if(first < 0) {
@@ -396,11 +405,13 @@ class POLYGLOT_BOOK {
     }
 
     fenToKey(fullFen) {
+        if(typeof fullFen !== 'string') return null;
+
         const fields =
             fullFen.trim().split(/\s+/);
 
         if(fields.length < 4)
-            throw new Error('Invalid FEN');
+            return null;
 
         const [
             boardFen,
@@ -409,9 +420,15 @@ class POLYGLOT_BOOK {
             enPassant
         ] = fields;
 
-        let key = 0n;
+        // This reader cannot encode variant castling rights or extra board state.
+        if(!/^[wb]$/.test(turn)
+            || !/^(?:-|K?Q?k?q?)$/.test(castling)
+            || !/^(?:-|[a-h][36])$/.test(enPassant)) return null;
 
-        key ^= this.hashPieces(boardFen);
+        let key = this.hashPieces(boardFen);
+
+        if(key === null) return null;
+
         key ^= this.hashCastling(castling);
         key ^= this.hashEnPassant(
             boardFen,
@@ -434,17 +451,24 @@ class POLYGLOT_BOOK {
         const ranks =
             boardFen.split('/');
 
+        // Reject variant boards, pockets and promoted/fairy pieces instead of
+        // indexing RANDOM with an unsupported piece or an out-of-range square.
+        if(ranks.length !== 8) return null;
+
         for(let fenRank = 0; fenRank < 8; fenRank++) {
             let file = 0;
 
             for(const char of ranks[fenRank]) {
                 if(char >= '1' && char <= '8') {
                     file += Number(char);
+                    if(file > 8) return null;
                     continue;
                 }
 
                 const pieceIndex =
                     POLYGLOT_BOOK.PIECE_INDEX[char];
+
+                if(pieceIndex === undefined || file >= 8) return null;
 
                 const square =
                     ((7 - fenRank) << 3) | file;
@@ -456,6 +480,8 @@ class POLYGLOT_BOOK {
 
                 file++;
             }
+
+            if(file !== 8) return null;
         }
 
         return key;

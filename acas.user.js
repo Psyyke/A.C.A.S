@@ -1874,8 +1874,9 @@ function getPieceElem(getAll) {
     const boardElem = getBoardElem();
 
     const boardQuerySelector = (getAll ? query => {
-      const elems = boardElem?.querySelectorAll(query);
-      return elems?.length ? [...elems] : null;
+        const elems = boardElem?.querySelectorAll(query);
+
+        return elems?.length ? [...elems] : null;
     } : boardElem?.querySelector?.bind(boardElem));
 
     if(typeof boardQuerySelector !== 'function')

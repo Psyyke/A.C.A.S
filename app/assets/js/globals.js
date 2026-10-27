@@ -1374,14 +1374,15 @@ async function MIGRATE_OUTDATED_PROFILE_KEYS() {
         let changed = false;
 
         for(const key of Object.keys(profilesObj)) {
-            if(key !== 'default' && !key.startsWith(PROFILE_STORAGE_KEY_PREFIX)) {
-                const newKey = GET_PROFILE_STORAGE_KEY(key);
-                if(key !== newKey) {
-                    profilesObj[newKey] = profilesObj[key];
-                    delete profilesObj[key];
-                    changed = true;
-                }
-            }
+            if(key === 'default' || key.startsWith(PROFILE_STORAGE_KEY_PREFIX)) continue;
+
+            const newKey = GET_PROFILE_STORAGE_KEY(key);
+
+            if(key === newKey) continue;
+
+            profilesObj[newKey] = profilesObj[key];
+            delete profilesObj[key];
+            changed = true;
         }
 
         return changed;

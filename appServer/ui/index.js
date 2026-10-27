@@ -1,20 +1,3 @@
-const stopBtn = document.getElementById('stopBtn');
-const clearBtn = document.getElementById('clearBtn');
-const engineUiGrid = document.getElementById('engineGrid');
-const portDisplay = document.getElementById('portDisplay');
-const portSettingsBtn = document.getElementById('portSettingsBtn');
-const portSettingsDialog = document.getElementById('portSettingsDialog');
-const portSettingsForm = document.getElementById('portSettingsForm');
-const serverPortInput = document.getElementById('serverPortInput');
-const portSettingsCancel = document.getElementById('portSettingsCancel');
-const portSettingsSave = document.getElementById('portSettingsSave');
-const statusDot = document.getElementById('statusDot');
-const consolesContainer = document.getElementById('consoles-container');
-const addEngineBtn = document.getElementById('addEngineBtn');
-const engineFilePicker = document.getElementById('filePicker');
-const engineSummary = document.getElementById('engineSummary');
-const panelsToggle = document.getElementById('panelsToggle');
-
 let savedEngines = [];
 let runningEngines = [];
 let serverConnectionStatus = false;
@@ -31,6 +14,7 @@ const setPortSettingsBusy = busy => {
 
 portSettingsBtn.addEventListener('click', async () => {
     if(portSettingsDialog.open || portUpdatePending) return;
+
     try {
         serverPortInput.value = String(await window.serverAPI.getPort());
         portSettingsDialog.showModal();
@@ -47,18 +31,23 @@ portSettingsDialog.addEventListener('cancel', event => {
 });
 portSettingsForm.addEventListener('submit', async event => {
     event.preventDefault();
+
     if(portUpdatePending || !portSettingsForm.reportValidity()) return;
 
     const port = Number(serverPortInput.value);
+
     if(!Number.isInteger(port) || port < 1 || port > 65535) {
         toast.error('Port must be a whole number between 1 and 65535.', 5000);
         return;
     }
 
     let restarting = false;
+
     setPortSettingsBusy(true);
+
     try {
         const result = await window.serverAPI.setPort(port);
+
         if(typeof result === 'string') {
             toast.error(result, 5000);
             return;
@@ -98,7 +87,7 @@ panelsToggle.addEventListener('click', () => {
 (async () => {
     try {
         const version = await window.electronAPI.getVersion();
-        document.getElementById('acas-version-tag').textContent = `v${version}`;
+        serverVersionTagElem.textContent = `v${version}`;
         document.title = `Advanced Chess Assistance Server v${version} (Beta)`;
     } catch(error) {
         console.error('Failed to load server version:', error);
@@ -113,16 +102,14 @@ document.querySelectorAll('a.external')
         });
     });
 
-[document.querySelector('.engine-grid')]
-    .forEach(scrollContainer => {
-        if(!scrollContainer) return;
+if(engineUiGrid) {
+    engineUiGrid.addEventListener('wheel', (evt) => {
+        if(evt.ctrlKey || evt.deltaX !== 0 || evt.target.closest('.engine-process-list')) return;
 
-        scrollContainer.addEventListener('wheel', (evt) => {
-            if(evt.ctrlKey || evt.deltaX !== 0 || evt.target.closest('.engine-process-list')) return;
-            evt.preventDefault();
-            scrollContainer.scrollLeft += evt.deltaY;
-        }, { passive: false });
-    });
+        evt.preventDefault();
+        engineUiGrid.scrollLeft += evt.deltaY;
+    }, { passive: false });
+}
 
 stopBtn.onclick = () => window.engineAPI.killAllEngines();
 clearBtn.onclick = () => {
@@ -131,6 +118,7 @@ clearBtn.onclick = () => {
 };
 addEngineBtn.onclick = async () => {
     const filePath = await window.fileAPI.pickFile();
+
     if(!filePath) return;
 
     const fileInfo = {

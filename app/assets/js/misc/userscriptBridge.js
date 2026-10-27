@@ -2,15 +2,16 @@
     function messageUserscript(type, args = []) {
         return new Promise((resolve, reject) => {
             const messageId = GET_UNIQUE_ID();
+
             let timeoutId;
 
             const listener = (event) => {
-                if(event?.data?.messageId === messageId && event.data.sender !== 'GUI') {
-                    clearTimeout(timeoutId);
-                    window.removeEventListener('message', listener);
+                if(event?.data?.messageId !== messageId || event.data.sender === 'GUI') return;
 
-                    resolve(event.data.value);
-                }
+                clearTimeout(timeoutId);
+                window.removeEventListener('message', listener);
+
+                resolve(event.data.value);
             };
 
             window.addEventListener('message', listener);

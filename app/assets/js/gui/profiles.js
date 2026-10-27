@@ -28,25 +28,25 @@ async function deleteProfile(profileName) {
     const warningText = `(${GET_HUMAN_READABLE_PROFILE_NAME(profileName)?.toUpperCase()}) `
         + (TRANS_OBJ?.profileRemovalWarning ?? 'Are you sure you want to remove this profile?\n\nThis action cannot be reversed.');
 
-    if(confirm(warningText)) {
-        const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
+    if(!confirm(warningText)) return;
 
-        selectNearestProfileTab(profileTabs, profileName);
-        removeProfileTabItem(profileTabs, profileName);
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
 
-        const config = await USERSCRIPT.getValue(gmConfigKey);
-        const profileKey = GET_PROFILE_STORAGE_KEY(profileName);
+    selectNearestProfileTab(profileTabs, profileName);
+    removeProfileTabItem(profileTabs, profileName);
 
-        if(SETTING_FILTER_OBJ.instanceID) {
-            delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey];
-        } else {
-            delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey];
-        }
+    const config = await USERSCRIPT.getValue(gmConfigKey);
+    const profileKey = GET_PROFILE_STORAGE_KEY(profileName);
 
-        USERSCRIPT.setValue(gmConfigKey, config);
-
-        closeAllExternalEnginesWithId(profileName, 'profileName');
+    if(SETTING_FILTER_OBJ.instanceID) {
+        delete config?.[SETTING_FILTER_OBJ.type]?.[SETTING_FILTER_OBJ.instanceID]?.['profiles']?.[profileKey];
+    } else {
+        delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey];
     }
+
+    USERSCRIPT.setValue(gmConfigKey, config);
+
+    closeAllExternalEnginesWithId(profileName, 'profileName');
 }
 
 function selectNearestProfileTab(tabsElem, profileName) {
@@ -193,16 +193,16 @@ export async function fillProfileTabs() {
             elem => elem.dataset.value === formattedName
         );
 
-        if(!nameExists) {
-            const isDefault = profileName?.toLowerCase() === defaultValue?.toLowerCase();
-            const itemElem = addProfileTabItem(profileTabs, profileName, isDefault);
-            const currentActiveProfileName = await GET_GM_CFG_VALUE('chessEngineProfile', SETTING_FILTER_OBJ.instanceID, false);
+        if(nameExists) continue;
 
-            if(profileName === currentActiveProfileName) {
-                setTimeout(() => {
-                    itemElem.click();
-                }, 100);
-            }
+        const isDefault = profileName?.toLowerCase() === defaultValue?.toLowerCase();
+        const itemElem = addProfileTabItem(profileTabs, profileName, isDefault);
+        const currentActiveProfileName = await GET_GM_CFG_VALUE('chessEngineProfile', SETTING_FILTER_OBJ.instanceID, false);
+
+        if(profileName === currentActiveProfileName) {
+            setTimeout(() => {
+                itemElem.click();
+            }, 100);
         }
     }
 }

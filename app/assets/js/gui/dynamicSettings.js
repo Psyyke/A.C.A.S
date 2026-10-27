@@ -4,23 +4,14 @@ import { describeSettingInput, categoricalCurveDefinition, alignCategoricalCurve
 import { otherVariableLines, createVariableLinks, confirmLineRemoval } from './dynamicSettingActions.js';
 import { logActivity } from '../misc/activityLog.js';
 import { dynamicText as text, dynamicVariableLabel } from '../misc/featureTranslations.js';
+import { dynamicSettingsGraphElem as graph, dynamicSettingsElements as ui, dynamicSettingsDialogElem as dialog,
+    dynamicSettingsBodyElem, dynamicGraphPanelElem, dynamicEvaluationTabElem, settingsNavbarElem } from './elementDeclarations.js';
 
 const core = AppDynamicSettingsCore;
 const STORAGE_KEY = DYNAMIC_SETTINGS_STORAGE_KEY;
-const graph = document.querySelector('#dynamic-settings-graph');
 const svgNS = 'http://www.w3.org/2000/svg';
 const plot = { left: 48, top: 28, right: 986, bottom: 448 };
-
-const ui = Object.fromEntries([
-    'dynamic-variable-select', 'dynamic-fullscreen-toggle',
-    'dynamic-add-setting', 'dynamic-add-line',
-    'dynamic-interpolation', 'dynamic-interpolation-lock', 'dynamic-interpolation-status', 'dynamic-delete-point', 'dynamic-delete-line',
-    'dynamic-zoom-in', 'dynamic-zoom-out', 'dynamic-fit-graph',
-    'dynamic-current-values', 'dynamic-lines-list', 'dynamic-add-point',
-    'dynamic-variable-control', 'dynamic-variable-compact',
-    'dynamic-point-x', 'dynamic-point-y', 'dynamic-point-status', 'dynamic-point-choice',
-    'dynamic-point-text-control', 'dynamic-point-text', 'dynamic-apply-text'
-].map(id => [id, document.getElementById(id)]));
+const pointers = new Map();
 
 let curves = [];
 let selectedLineId = '';
@@ -32,7 +23,6 @@ let currentVariableValue = null;
 let currentContext = {};
 let previewInstanceID = null;
 let profileInfo = [];
-const pointers = new Map();
 let pendingSaves = Promise.resolve();
 let initialized = false;
 let loadVersion = 0;
@@ -48,7 +38,6 @@ const dynamicSettingsChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 const variableLabel = key => dynamicVariableLabel(key, core.variables[key]?.label ?? key);
 
 function translateUI() {
-    const dialog = document.getElementById('dynamic-settings-floaty');
     [
         ['.title h1', 'title', 'Dynamic Settings'],
         ['.title p', 'subtitle', 'Shape settings as the game changes'],
@@ -85,7 +74,7 @@ function translateUI() {
         ['#dynamic-settings-graph', 'title', 'Dynamic Settings']
     ].forEach(([selector, key, fallback]) => { dialog.querySelector(selector).setAttribute('aria-label', text(key, fallback)); });
     const evaluationHint = text('evaluationHint', 'Your advantage: negative means losing, zero means equal, positive means winning. Uses the latest completed primary evaluation.');
-    dialog.querySelector('#dynamic-tab-evaluation').title = evaluationHint;
+    dynamicEvaluationTabElem.title = evaluationHint;
     ui['dynamic-variable-compact'].title = variable === 'evaluation' ? evaluationHint : '';
     ui['dynamic-fit-graph'].title = text('fitHint', 'Fit both axes with space around the line');
     ui['dynamic-point-text'].placeholder = text('customText', 'Custom text');
@@ -107,8 +96,10 @@ function getSettingDefinition(key) {
     const input = [...document.querySelectorAll('input[data-key],textarea[data-key],select[data-key]')]
         .find(elem => elem.dataset.key === key);
     const definition = describeSettingInput(input, PARSE_MINMAX_FROM_STR);
+
     const line = curves.find(line => line.key === key && lineId(line) === selectedLineId)
         ?? curves.find(line => line.key === key);
+
     return categoricalCurveDefinition(definition, line?.curve);
 }
 
@@ -125,6 +116,7 @@ function refreshSettingShortcuts(event) {
     const buttons = container
         ? [...container.querySelectorAll('.dynamic-setting-shortcut')].filter(button => button.dataset.key === changedInput.dataset.key)
         : document.querySelectorAll('.dynamic-setting-shortcut');
+
     buttons.forEach(button => {
         const key = button.dataset.key;
         const line = curves.find(item => item.profile === activeProfile && item.key === key);
@@ -136,6 +128,7 @@ function refreshSettingShortcuts(event) {
         const settingName = settingLabel(key);
         const contexts = previewContexts();
         const state = describeDynamicSetting(core, base, line?.curve, currentContext, settingName);
+
         if(contexts.length > 1 && line) {
             const states = contexts.map(({ instanceID, context }, index) => ({
                 instanceName: document.querySelector(`.dropdown-item[data-instance-id="${instanceID}"] .dropdown-item-title`)?.textContent || `${text('instance', 'Instance')} ${index + 1}`,
@@ -144,34 +137,42 @@ function refreshSettingShortcuts(event) {
             state.displayValue = states.map(item => `${item.instanceName}: ${item.state.displayValue}`).join(' · ');
             state.description = states.map(item => `${item.instanceName}: ${item.state.description}`).join(' ');
         }
+
         updateDynamicSettingShortcut(button, state, settingName);
     });
 }
 
 async function openSettingCurve(key, button, keyboardActivated) {
     shortcutOpener = { button, keyboardActivated };
+
     // Mark this as an explicit choice before loadCurves rebuilds the picker.
     settingChosen = true;
     ui['dynamic-add-setting'].value = key;
     await loadCurves();
     ui['dynamic-add-setting'].value = key;
     selectSetting();
-    const dialog = document.getElementById('dynamic-settings-floaty');
+
     if(!dialog.open) {
         dialog.showModal();
         document.body.style.overflow = 'hidden';
     }
+
     if(dialog.open) ui['dynamic-add-setting'].focus({ preventScroll: true });
 }
 
 function initializeSettingShortcuts() {
     document.querySelectorAll('#main-setting-panel .custom-input').forEach(container => {
         if(container.closest('#dynamic-settings-floaty')) return;
+
         const input = getOwnedSettingInput(container);
         const key = input?.dataset.key;
+
         if(!key || !getSettingDefinition(key)) return;
+
         const button = createDynamicSettingShortcut(container, input, openSettingCurve);
+
         if(!button) return;
+
         input.addEventListener('input', refreshSettingShortcuts);
         input.addEventListener('change', refreshSettingShortcuts);
         input.addEventListener('acas-value-set', refreshSettingShortcuts);
@@ -279,7 +280,7 @@ function selectVariable(nextVariable) {
     ui['dynamic-variable-compact'].value = variable;
     ui['dynamic-variable-compact'].title = variable === 'evaluation'
         ? text('evaluationHint', 'Your advantage: negative is losing, zero is equal, positive is winning. Latest completed primary evaluation.') : '';
-    document.getElementById('dynamic-graph-panel').setAttribute('aria-labelledby', `dynamic-tab-${variable}`);
+    dynamicGraphPanelElem.setAttribute('aria-labelledby', `dynamic-tab-${variable}`);
     updateVariableLayout();
     ensureSelection();
     viewport = fitGraphViewport();
@@ -833,35 +834,42 @@ function fillAddSettingOptions() {
 
 function updateSettingToolbar() {
     const label = settingLabel(ui['dynamic-add-setting'].value) || text('chooseSetting', 'Choose a setting');
+
     ui['dynamic-lines-list'].setAttribute('aria-label', text('profileLines', '{setting} profile lines', { setting: label }));
     updateAddSettingTitle();
 }
 
 function setGraphFullscreen(fullscreen) {
-    const dialog = document.getElementById('dynamic-settings-floaty');
     // Use a viewport-sized graph mode rather than the browser Fullscreen API,
     // so it also works in mobile browsers and inside the modal dialog.
     if(drag?.kind === 'point' && drag.changed) {
         const line = selectedLine();
+
         if(line) saveLine(line);
     }
+
     const ids = [...pointers.keys()];
+
     pointers.clear();
     drag = null;
     ids.forEach(id => { if(graph.hasPointerCapture(id)) graph.releasePointerCapture(id); });
     graph.classList.remove('is-panning');
     dialog.classList.toggle('is-graph-fullscreen', fullscreen);
+
     if(fullscreen) {
-        document.querySelector('#dynamic-settings-floaty .dynamic-settings-body').scrollTop = 0;
-        document.getElementById('dynamic-graph-panel').scrollTop = 0;
+        dynamicSettingsBodyElem.scrollTop = 0;
+        dynamicGraphPanelElem.scrollTop = 0;
     }
+
     const button = ui['dynamic-fullscreen-toggle'];
+
     button.setAttribute('aria-pressed', String(fullscreen));
     button.setAttribute('aria-label', text(fullscreen ? 'exitFullscreen' : 'fullscreen', fullscreen ? 'Exit fullscreen graph' : 'Fullscreen graph'));
     button.title = button.getAttribute('aria-label') + (fullscreen ? ' (Escape)' : '');
     button.querySelector('path').setAttribute('d', fullscreen
         ? 'M4 8h4V4m12 4h-4V4M8 16H4v4m12-4h4v4'
         : 'M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4');
+
     // Keep zoom, pan, selected line and point intact while resizing the plot.
     requestAnimationFrame(() => {
         updateVariableLayout();
@@ -1162,17 +1170,22 @@ function onGraphKeyDown(event) {
 
 function initialize() {
     if(!graph || !core || initialized) return;
+
     initialized = true;
+
     const tabs = [...ui['dynamic-variable-select'].querySelectorAll('[role="tab"]')];
+
     tabs.forEach((tab, index) => {
         tab.onclick = () => selectVariable(tab.dataset.variable);
         tab.onkeydown = event => {
             let next = index;
+
             if(event.key === 'ArrowRight') next = (index + 1) % tabs.length;
             else if(event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
             else if(event.key === 'Home') next = 0;
             else if(event.key === 'End') next = tabs.length - 1;
             else return;
+
             event.preventDefault();
             selectVariable(tabs[next].dataset.variable);
             tabs[next].focus();
@@ -1185,25 +1198,33 @@ function initialize() {
     ui['dynamic-add-line'].onclick = addLine;
     ui['dynamic-add-setting'].onchange = selectSetting;
     ui['dynamic-fullscreen-toggle'].onclick = () => {
-        const dialog = document.getElementById('dynamic-settings-floaty');
         setGraphFullscreen(!dialog.classList.contains('is-graph-fullscreen'));
     };
     ui['dynamic-interpolation'].onchange = () => {
         const line = selectedLine();
         const definition = line && getSettingDefinition(line.key);
-        if(line) { line.curve.interpolation = definition.boolean || definition.categorical ? 'step' : ui['dynamic-interpolation'].value; saveLine(line); }
+
+        if(line) {
+            line.curve.interpolation = definition.boolean || definition.categorical ? 'step' : ui['dynamic-interpolation'].value;
+            saveLine(line);
+        }
     };
     ui['dynamic-add-point'].onclick = addPoint;
     ui['dynamic-delete-point'].onclick = deletePoint;
     ui['dynamic-apply-text'].onclick = applyPointText;
     ui['dynamic-point-text'].oninput = () => ui['dynamic-point-text'].setCustomValidity('');
     ui['dynamic-point-text'].onkeydown = event => {
-        if(event.key === 'Enter' && !event.isComposing) { event.preventDefault(); applyPointText(); }
+        if(event.key === 'Enter' && !event.isComposing) {
+            event.preventDefault();
+            applyPointText();
+        }
     };
     ui['dynamic-point-choice'].onchange = () => {
         const line = selectedLine();
         const point = line?.curve.points[selectedPointIndex];
+
         if(!point) return;
+
         setPointPosition(point.x, Number(ui['dynamic-point-choice'].value));
         saveLine(line);
     };
@@ -1279,15 +1300,17 @@ function initialize() {
     graph.addEventListener('pointercancel', onGraphPointerUp);
     graph.addEventListener('lostpointercapture', onGraphPointerUp);
     graph.addEventListener('keydown', onGraphKeyDown);
-    const dialog = document.getElementById('dynamic-settings-floaty');
+
     dialog.addEventListener('cancel', event => {
         if(!dialog.classList.contains('is-graph-fullscreen')) return;
+
         event.preventDefault();
         setGraphFullscreen(false);
         ui['dynamic-fullscreen-toggle'].focus({ preventScroll: true });
     });
     const onOpen = () => {
         if(!dialog.open) return;
+
         updateVariableLayout();
         currentContext = core.getContext(SETTING_FILTER_OBJ.instanceID ?? previewInstanceID);
         currentVariableValue = core.getVariableValue(variable, currentContext);
@@ -1311,8 +1334,8 @@ function initialize() {
         shortcutOpener = null;
     });
     new ResizeObserver(resizeGraph).observe(graph);
-    const settingsNavbar = document.getElementById('settings-navbar');
-    if(settingsNavbar) new MutationObserver(() => loadCurves()).observe(settingsNavbar, {
+
+    if(settingsNavbarElem) new MutationObserver(() => loadCurves()).observe(settingsNavbarElem, {
         attributes: true,
         subtree: true,
         attributeFilter: ['class']
@@ -1347,24 +1370,33 @@ function initialize() {
 
 function updatePreviewContext(instanceID, context) {
     if(!context || typeof context !== 'object') return;
+
     core.setContext(instanceID, context);
+
     const selectedInstanceID = SETTING_FILTER_OBJ.instanceID;
+
     if(selectedInstanceID && String(instanceID) !== String(selectedInstanceID)) return;
 
     previewInstanceID = instanceID;
     currentContext = core.getContext(instanceID);
     currentVariableValue = core.getVariableValue(variable, currentContext);
-    if(initialized) { render(); refreshSettingShortcuts(); }
+    if(initialized) {
+        render();
+        refreshSettingShortcuts();
+    }
 }
 
 function setDynamicSettingsContext(instanceID, fen, state = {}) {
     if(!fen) return;
+
     const context = {
         ...core.getContextFromFen(fen),
         ...(Object.hasOwn(state, 'evaluation') ? { evaluation: state.evaluation } : {})
     };
     const previous = core.getContext(instanceID);
+
     if(Object.entries(context).every(([key, value]) => Object.is(previous[key], value))) return;
+
     updatePreviewContext(instanceID, context);
     dynamicSettingsChannel.postMessage({ type: 'dynamicVariableUpdate', data: { instanceID, context } });
 }
@@ -1375,7 +1407,11 @@ function removeDynamicSettingsContext(instanceID, broadcast = true) {
         previewInstanceID = core.getContexts()[0]?.instanceID ?? null;
         currentContext = core.getContext(previewInstanceID);
     }
-    if(initialized) { render(); refreshSettingShortcuts(); }
+    if(initialized) {
+        render();
+        refreshSettingShortcuts();
+    }
+
     if(broadcast) dynamicSettingsChannel.postMessage({ type: 'dynamicInstanceClosed', data: { instanceID } });
 }
 

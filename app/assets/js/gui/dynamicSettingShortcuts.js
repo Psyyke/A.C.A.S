@@ -25,16 +25,19 @@ export function describeDynamicSetting(core, base, curve, context, name) {
             : text('defaultActive', 'Dynamic curve enabled · using the saved default here.')
         : curve ? text('disabled', 'Dynamic curve disabled.') : text('noCurve', 'No dynamic curve enabled.');
     const description = `${name} · ${status} ${text('description', 'Saved value: {value}. The input keeps this editable value; it is used when no curve applies. Open dynamic settings to edit the curve.', { value: format(base) })}`;
+
     return { enabled, overridden, effectiveValue, displayValue: format(effectiveValue), description };
 }
 
 export function createDynamicSettingShortcut(container, input, openSetting) {
     const title = [...container.querySelectorAll('.input-title')]
         .find(element => element.closest('.custom-input') === container);
+
     if(!title || title.parentElement.classList.contains('dynamic-setting-title-row')) return null;
 
     const copy = title.parentElement;
     if(copy !== container) copy.classList.add('dynamic-setting-copy');
+
     const row = document.createElement('div');
     row.className = 'dynamic-setting-title-row';
     title.replaceWith(row);
@@ -61,11 +64,13 @@ export function createDynamicSettingShortcut(container, input, openSetting) {
     // The button's accessible description already includes the live value.
     liveValue.setAttribute('aria-hidden', 'true');
     row.append(button, liveValue);
+
     return button;
 }
 
 export function restoreDynamicSettingShortcutFocus(button, keyboardActivated) {
     if(!button?.isConnected) return;
+
     if(keyboardActivated) {
         button.focus({ preventScroll: true });
     } else if(button.ownerDocument.activeElement === button) {

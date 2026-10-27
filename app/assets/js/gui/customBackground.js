@@ -1,10 +1,14 @@
 import { appearanceText as text } from './appearanceTranslations.js';
+import { backgroundTextureInput, customBackgroundControlsElem, customBackgroundDialogElem,
+    customBackgroundLauncherBtn, customBackgroundStatusElem, customBackgroundNameInput,
+    customBackgroundFileInput, customBackgroundRemoveBtn, customBackgroundBlurInput } from './elementDeclarations.js';
 
 const DATABASE_NAME = 'A.C.A.S-backgrounds';
 const STORE_NAME = 'images';
 const IMAGE_KEY = 'custom-background';
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif']);
+
 let databasePromise;
 let activeImageUrl = null;
 let statusKey = null;
@@ -14,18 +18,22 @@ function openDatabase() {
     if(!databasePromise) {
         databasePromise = new Promise((resolve, reject) => {
             const request = indexedDB.open(DATABASE_NAME, 1);
+
             request.onupgradeneeded = () => request.result.createObjectStore(STORE_NAME);
             request.onsuccess = () => {
                 const database = request.result;
+
                 database.onversionchange = () => {
                     database.close();
                     databasePromise = null;
                 };
+
                 resolve(database);
             };
             request.onerror = () => reject(request.error);
         }).catch(error => {
             databasePromise = null;
+
             throw error;
         });
     }
@@ -53,29 +61,28 @@ function applyImageUrl(url) {
     else document.body.style.removeProperty('--custom-background-image');
 
     if(activeImageUrl) URL.revokeObjectURL(activeImageUrl);
+
     activeImageUrl = url;
 }
 
 function updateStatus(key = null) {
     statusKey = key;
-    const status = document.querySelector('#custom-background-status');
+
     const fallback = key === 'loadingImage' ? 'Loading saved image…'
         : key === 'imageUnavailable' ? 'Saved image unavailable. Choose an image to try again.' : '';
-    if(status) status.textContent = key ? text(key, fallback) : '';
-    const name = document.querySelector('#custom-background-name');
-    if(name) {
-        name.value = imageName;
-        name.title = imageName || text('chooseImage', 'Choose a background image');
+
+    if(customBackgroundStatusElem) customBackgroundStatusElem.textContent = key ? text(key, fallback) : '';
+
+    if(customBackgroundNameInput) {
+        customBackgroundNameInput.value = imageName;
+        customBackgroundNameInput.title = imageName || text('chooseImage', 'Choose a background image');
     }
 }
 
 function setBusy(isBusy) {
-    const upload = document.querySelector('#custom-background-name');
-    const remove = document.querySelector('#custom-background-remove');
-    const file = document.querySelector('#custom-background-file');
-    if(upload) upload.disabled = isBusy;
-    if(remove) remove.disabled = isBusy || !activeImageUrl;
-    if(file) file.disabled = isBusy;
+    if(customBackgroundNameInput) customBackgroundNameInput.disabled = isBusy;
+    if(customBackgroundRemoveBtn) customBackgroundRemoveBtn.disabled = isBusy || !activeImageUrl;
+    if(customBackgroundFileInput) customBackgroundFileInput.disabled = isBusy;
 }
 
 function validateImage(url) {
@@ -90,20 +97,21 @@ function validateImage(url) {
 
 export function updateCustomBackgroundControls(textureClass) {
     const isCustomImage = textureClass === 'custom-image-texture';
-    document.querySelector('#custom-background-controls')
-        ?.classList.toggle('hidden', !isCustomImage);
-    document.querySelector('.open-floaty-btn[aria-controls="custom-background-floaty"]')
-        ?.classList.toggle('hidden', !isCustomImage);
-    const dialog = document.querySelector('#custom-background-floaty');
-    if(!isCustomImage && dialog?.open) dialog.close();
+
+    customBackgroundControlsElem?.classList.toggle('hidden', !isCustomImage);
+    customBackgroundLauncherBtn?.classList.toggle('hidden', !isCustomImage);
+
+    if(!isCustomImage && customBackgroundDialogElem?.open) customBackgroundDialogElem.close();
 }
 
 export function setCustomBackgroundBlur(value) {
     const number = Number(value);
     const blur = Number.isFinite(number) ? Math.max(0, Math.min(40, number)) : 0;
+
     document.body.style.setProperty('--custom-background-blur', `${blur}px`);
 
-    const input = document.querySelector('#custom-background-blur');
+    const input = customBackgroundBlurInput;
+
     if(input) {
         input.value = blur;
         input.dispatchEvent(new Event('acas-value-set'));
@@ -120,14 +128,16 @@ export async function clearCustomBackgroundImage() {
 }
 
 export async function initializeCustomBackground() {
-    const fileInput = document.querySelector('#custom-background-file');
-    const upload = document.querySelector('#custom-background-name');
-    const remove = document.querySelector('#custom-background-remove');
+    const fileInput = customBackgroundFileInput;
+    const upload = customBackgroundNameInput;
+    const remove = customBackgroundRemoveBtn;
+
     if(!fileInput || !upload || !remove) return;
 
-    const textureInput = document.querySelector('input[data-key="backgroundTextureClass"]');
-    const dialog = document.querySelector('#custom-background-floaty');
-    const launcher = document.querySelector('.open-floaty-btn[aria-controls="custom-background-floaty"]');
+    const textureInput = backgroundTextureInput;
+    const dialog = customBackgroundDialogElem;
+    const launcher = customBackgroundLauncherBtn;
+
     // Open only for an explicit selection, not on startup or settings refreshes.
     textureInput?.addEventListener('change', () => {
         updateCustomBackgroundControls(textureInput.value);
@@ -140,7 +150,7 @@ export async function initializeCustomBackground() {
 
     document.addEventListener('acas-translations-updated', () => {
         updateStatus(statusKey);
-        setCustomBackgroundBlur(document.querySelector('#custom-background-blur')?.value ?? 0);
+        setCustomBackgroundBlur(customBackgroundBlurInput?.value ?? 0);
     });
 
     upload.addEventListener('click', () => fileInput.click());
@@ -150,12 +160,16 @@ export async function initializeCustomBackground() {
             fileInput.click();
         }
     });
+
     fileInput.addEventListener('change', async () => {
         const file = fileInput.files?.[0];
+
         fileInput.value = '';
+
         if(!file) return;
 
         let nextUrl;
+
         setBusy(true);
 
         try {
@@ -186,6 +200,7 @@ export async function initializeCustomBackground() {
 
     remove.addEventListener('click', async () => {
         setBusy(true);
+
         try {
             await clearCustomBackgroundImage();
         } catch(error) {
@@ -198,6 +213,7 @@ export async function initializeCustomBackground() {
 
     try {
         const record = await accessStoredImage('get');
+
         if(record?.file instanceof Blob && IMAGE_TYPES.has(record.file.type)) {
             const url = URL.createObjectURL(record.file);
             try {

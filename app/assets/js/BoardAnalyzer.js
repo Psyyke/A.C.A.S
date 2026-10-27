@@ -14,6 +14,7 @@ export default class BoardAnalyzer {
         this.debug = config?.debug ? true : false;
         this.variant = variantConfig(config).variant;
         this.analyzeCaptures = config?.analyzeCaptures !== false;
+
         // The exchange calculator only knows orthodox rules. Chess960 has the same
         // capture geometry; other variants use an inexpensive attack/defense estimate.
         this.captureExchange = this.analyzeCaptures && this.variant === 'chess' ? new CaptureExchange(fen) : null;
@@ -52,9 +53,12 @@ export default class BoardAnalyzer {
 
     parseFEN() {
         if(!this.fen || typeof this.fen !== 'string') return [];
+
         const { rows } = parseVariantFen(this.fen);
+
         if(this.debug && rows.some(row => row.length !== rows[0].length))
             throw new Error('Inconsistent row lengths in FEN');
+
         // Rotate expanded squares, not FEN text ("10", "+P", and pockets are tokens).
         return this.isPlayerBlack ? rows.reverse().map(row => row.reverse()) : rows;
     }
@@ -71,16 +75,16 @@ export default class BoardAnalyzer {
                 const isPieceWhite = pieceFen && pieceFen === pieceFen.toUpperCase();
                 const isPlayerPiece = isPieceWhite === !this.isPlayerBlack;
 
-                if(pieceFen && pieceFen !== '*') {
-                    const pObj = { 'piece': pieceFen, 'position': [y, x], ranking: this.fenToValue(pieceFen.replace(/[+~]/g, '')) };
+                if(!pieceFen || pieceFen === '*') continue;
 
-                    pObj['paths'] = this.getPiecePaths(pObj);
+                const pObj = { 'piece': pieceFen, 'position': [y, x], ranking: this.fenToValue(pieceFen.replace(/[+~]/g, '')) };
 
-                    if(isPlayerPiece) {
-                        pieces.player.push(pObj);
-                    } else {
-                        pieces.enemy.push(pObj);
-                    }
+                pObj['paths'] = this.getPiecePaths(pObj);
+
+                if(isPlayerPiece) {
+                    pieces.player.push(pObj);
+                } else {
+                    pieces.enemy.push(pObj);
                 }
             }
         }
@@ -90,6 +94,7 @@ export default class BoardAnalyzer {
 
     getPiecePaths(pObj) {
         if(!pObj) throw new Error('Failed to process pObj on getPiecePaths()!');
+
         return getVariantPiecePaths(this.board, pObj.piece, pObj.position, this.variant, this.isPlayerBlack);
     }
 

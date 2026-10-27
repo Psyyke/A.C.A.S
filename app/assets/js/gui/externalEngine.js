@@ -1,4 +1,5 @@
-import { externalChessEngineDropdown } from './elementDeclarations.js';
+import { externalChessEngineDropdown, externalChessEngineInput, externalEngineDropdownListElem,
+    installAcasServerTextElem } from './elementDeclarations.js';
 import { setInputValue, initializeSettingInputElem } from './domInputs.js';
 import { saveSetting } from './settings.js';
 
@@ -11,9 +12,9 @@ function updateExternalEngineDropdownState() {
 }
 
 export async function updateEnginesList(engines) {
-    const installText = document.querySelector('#install-acas-server-text');
-    const dropdownListContainer = externalChessEngineDropdown.querySelector('.dropdown-list-container');
-    const input = externalChessEngineDropdown.querySelector('input');
+    const installText = installAcasServerTextElem;
+    const dropdownListContainer = externalEngineDropdownListElem;
+    const input = externalChessEngineInput;
 
     const selectedEngineID = await GET_GM_CFG_VALUE('externalChessEngine', SETTING_FILTER_OBJ.instanceID, SETTING_FILTER_OBJ.profileID);
 
@@ -35,12 +36,14 @@ export async function updateEnginesList(engines) {
     const existingElements = dropdownListContainer.querySelectorAll('.dropdown-item');
     existingElements.forEach(el => {
         const id = el.dataset.value;
-        if(!currentIds.has(id)) {
-            const paramInputElem = document.querySelector(`input[data-key="${GET_EXTERNAL_PARAM_DB_KEY(id)}"]`);
-            if(paramInputElem) paramInputElem.closest('.direct-engine-settings-container')?.remove();
 
-            el.remove();
-        }
+        if(currentIds.has(id)) return;
+
+        const paramInputElem = document.querySelector(`input[data-key="${GET_EXTERNAL_PARAM_DB_KEY(id)}"]`);
+
+        if(paramInputElem) paramInputElem.closest('.direct-engine-settings-container')?.remove();
+
+        el.remove();
     });
 
     let foundSelectedEngineID = false;
@@ -49,10 +52,10 @@ export async function updateEnginesList(engines) {
         const dbKey = GET_EXTERNAL_PARAM_DB_KEY(engineId);
         const existingDbValue = await GET_GM_CFG_VALUE(dbKey, SETTING_FILTER_OBJ.instanceID, SETTING_FILTER_OBJ.profileID);
 
-        const container = document.createElement('div'),
-              textContainer = document.createElement('div'),
-              title = document.createElement('div'),
-              input = document.createElement('input');
+        const container = document.createElement('div');
+        const textContainer = document.createElement('div');
+        const title = document.createElement('div');
+        const input = document.createElement('input');
 
         container.classList.add('textfield-input');
         container.classList.add('custom-input');

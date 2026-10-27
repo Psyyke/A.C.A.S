@@ -80,14 +80,13 @@ export function removeInstanceFromSettingsDropdown(instanceID) {
 
 export function monitorInstanceTabs() {
     new MutationObserver(() => {
-        const navbarInstanceContentElems = [...settingsInstanceDropdownElem.querySelector('.dropdown-content').children];
+        const navbarInstanceContentElems = [...settingsInstanceDropdownContentElem.children];
         
         navbarInstanceContentElems.forEach(elem => {
-            if(!elem.dataset?.activated) {
-                elem.onclick = () => toggleSelectedNavbarItem(settingsInstanceDropdownElem, elem.dataset.instanceId);
-    
-                elem.dataset.activated = true;
-            }
+            if(elem.dataset?.activated) return;
+
+            elem.onclick = () => toggleSelectedNavbarItem(settingsInstanceDropdownElem, elem.dataset.instanceId);
+            elem.dataset.activated = true;
         });
     }).observe(settingsNavbarElem, { childList: true, subtree: true });
 }
