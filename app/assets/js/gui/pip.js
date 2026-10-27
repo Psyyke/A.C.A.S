@@ -25,6 +25,7 @@ let pipBoardHeight = pipBoardWidth;
 
 let pipCanvas = null;
 let pipVideo = null;
+let pipStreamLayoutHeight = null;
 let pipLastPipBoardBitmaps = [null, null];
 let pipBoardAnimation = null;
 let pipBoardCapture = null;
@@ -115,8 +116,8 @@ function resizePipCanvas() {
         pipVideo.height = height / 2;
     }
 
-    // The existing canvas stream follows its new aspect ratio without reopening
-    // PIP. Never replay drawing commands made for the previous dimensions.
+    // Never replay drawing commands made for the previous dimensions. Refresh
+    // the stream after drawing the new layout so PiP picks up its aspect ratio.
     pipContextQueue = [];
     pipProcessingBestMove = false;
     pipBoardCaptureRevision++;
@@ -661,6 +662,19 @@ function updatePipContext() {
         ctx.fillStyle = shade;
         ctx.fillRect(0, 0, pipLayoutWidth, pipLayoutHeight);
         ctx.restore();
+
+        if(pipVideo?.srcObject && pipStreamLayoutHeight !== pipLayoutHeight) {
+            // Keep the same video/PiP window, but replace the capture so browsers
+            // do not retain the old wide aspect ratio when Learning Mode starts.
+            const previousStream = pipVideo.srcObject;
+            const stream = pipCanvas.captureStream();
+            pipStreamLayoutHeight = pipLayoutHeight;
+            pipVideo.srcObject = stream;
+            pipVideo.play().catch(error => {
+                if(error.name !== 'AbortError') console.warn('[PiP] Could not resume the resized stream:', error);
+            });
+            previousStream.getTracks().forEach(track => track.stop());
+        }
     }
 }
 
@@ -1107,6 +1121,7 @@ async function refreshPipView() {
 
 export async function startPictureInPicture() {
     const video = document.createElement('video');
+    video.muted = true;
 
     video.addEventListener('enterpictureinpicture', stopMediaSession);
     video.addEventListener('leavepictureinpicture', initMediaSession);
@@ -1117,6 +1132,7 @@ export async function startPictureInPicture() {
     resizePipCanvas();
 
     const stream = pipCanvas.captureStream();
+    pipStreamLayoutHeight = pipLayoutHeight;
     video.srcObject = stream;
 
     floatingPanelVideoElem.innerHTML = '';
@@ -1128,7 +1144,7 @@ export async function startPictureInPicture() {
 
     const attemptPlay = async () => {
         try {
-            refreshPipView();
+            await refreshPipView();
 
             await video.play();
 
