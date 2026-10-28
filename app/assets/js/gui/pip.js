@@ -967,7 +967,7 @@ async function refreshPipView() {
             ctxQueue.push(['text', ['≽(•⩊ •マ≼', pipTextPadding, mainMoveTop,
                 pipMaxTextWidth, faceHeight, faceFont, 'center', 2]]);
             ctxQueue.push(['text', [message, pipTextPadding, messageTop,
-                pipMaxTextWidth, messageHeight, `400 ${messageFontSize}px "IBM Plex Sans", sans-serif`, 'center']]);
+                pipMaxTextWidth, messageHeight, `700 ${messageFontSize}px "IBM Plex Sans", sans-serif`, 'center']]);
         } else if(bestMove && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['text', [bestMoveText, pipTextPadding, mainMoveTop,
                 pipMaxTextWidth, 60, mainMoveFont]]);

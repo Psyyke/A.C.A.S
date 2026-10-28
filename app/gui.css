@@ -670,7 +670,7 @@ cg-container {
 	font-stretch: semi-expanded;
 	text-transform: capitalize;
 	font-size: 17px;
-    font-weight: 500;
+    font-weight: 400;
 }
 .variant-not-supported-text {
 	color: rgb(255 255 255 / 50%);
