@@ -32,7 +32,7 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (**
 * No anti-features on userscript
 
 <details>
-  
+
 <summary>Used Libraries ❤️</summary>
 
 | Library | Description | License |
@@ -64,15 +64,11 @@ There might be more, please let us know if anything is missing, thank you!
 
 </details>
 
-| Example 1 | Example 2 |
-|---|---|
-| ![Image 1](https://github.com/user-attachments/assets/3966322b-ba25-4962-b667-d5a5c36e6318) | <img height="300" alt="image" src="https://github.com/user-attachments/assets/6a6e453a-46ac-41ff-b71e-ea7e9831af88" />
+<img width="1968" height="1651" alt="image (1)" src="https://github.com/user-attachments/assets/5e53c07f-687e-4157-8781-c10f7f9d9ee3" />
+<img width="1968" height="1033" alt="image (2)" src="https://github.com/user-attachments/assets/ea118d50-7c54-4b96-a526-c0605734cc79" />
 
-<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/dada18bf-cf76-4465-bf60-68e4552dacfe" />
-<img style="width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/5fc8a0ee-6bfc-411d-a709-33b129b7baa9" />
 
 <img width="2381" height="1797" alt="image" src="https://github.com/user-attachments/assets/4172ec0f-0479-44b1-9b0c-76d594a6a60e" />
-<img width="1888" height="1686" alt="image" src="https://github.com/user-attachments/assets/c3f83522-50c7-4a18-a08b-cc361a584df0" />
 
 ## How does it work?
 
