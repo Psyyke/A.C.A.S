@@ -252,7 +252,7 @@ function drawProfileLabel(context, panel, top, width, contentHeight = 0) {
     context.restore();
 }
 
-function drawGroup(context, layout) {
+function drawGroup(context, layout, terminalMessageRenderer) {
     const { group, width, barWidth, labels, contents, board, bottom, evaluations } = layout;
     for(const label of labels) {
         drawProfileLabel(context, label.panel, label.top, label.width, label.contentHeight);
@@ -266,6 +266,13 @@ function drawGroup(context, layout) {
 
     for(const content of contents) {
         const { renderer, top, sourceTop, height, joined } = content;
+        // Keep duplicate terminal cards in the layout, but copy only their
+        // feedback footer. Their existing card background leaves the body blank.
+        const blankHeight = renderer === terminalMessageRenderer ? 0
+            : Math.max(0, Math.min(height, renderer.terminalMessageHeight - sourceTop));
+        const drawHeight = height - blankHeight;
+        if(drawHeight <= 0) continue;
+
         const scale = renderer.canvas.height / renderer.height;
         const sourceWidth = renderer.canvas.width * (renderer.evaluation ? panelWidth - pipEvalBarWidth : panelWidth) / panelWidth;
         context.save();
@@ -274,8 +281,8 @@ function drawGroup(context, layout) {
                 width - pipContentGap * 2, profileLabelHeight + height);
             context.clip();
         }
-        context.drawImage(renderer.canvas, 0, sourceTop * scale, sourceWidth, height * scale,
-            0, top, width, height);
+        context.drawImage(renderer.canvas, 0, (sourceTop + blankHeight) * scale, sourceWidth, drawHeight * scale,
+            0, top + blankHeight, width, drawHeight);
         context.restore();
     }
 
@@ -288,14 +295,15 @@ function composePanels() {
     if(!canvas || !video) return;
 
     const visible = visibleRenderers();
-    // Keep the previous layout until every shared capture matches its current
-    // target, both at startup and when profiles finish refreshing out of order.
-    if(visible.some(panel => panel.renderer.waitingForBoard)) return;
+    // Publish complete layouts only. Missing profiles would temporarily change
+    // the stream's dimensions and scale, resizing PiP and all of its text.
+    if(visible.some(panel => !panel.renderer.ready || panel.renderer.waitingForBoard)) return;
 
-    const panels = visible.filter(panel => panel.renderer.ready);
+    const panels = visible;
     if(!panels.length) return;
 
     const idle = panels[0] === idleRenderer;
+    const terminalMessageRenderer = panels.find(panel => panel.renderer.terminalMessageHeight > 0)?.renderer;
     const groups = idle ? [] : panelGroups(panels);
     let bottom = pipHeaderHeight + pipContentGap;
     const layouts = groups.map(group => {
@@ -327,27 +335,30 @@ function composePanels() {
     if(idle) {
         context.drawImage(panels[0].renderer.canvas, 0, 0, panelWidth, height);
     } else {
-        context.fillStyle = pipHeaderBackground;
-        context.fillRect(0, 0, panelWidth, pipHeaderHeight);
-        context.fillStyle = 'white';
-        context.font = '900 26px "Mona Sans", sans-serif';
-        context.textBaseline = 'middle';
-        context.textAlign = 'left';
-        context.strokeStyle = 'white';
-        context.lineWidth = 0.5;
-        context.lineJoin = 'round';
-        context.strokeText('A.C.A.S', 12, pipHeaderHeight / 2);
-        context.fillText('A.C.A.S', 12, pipHeaderHeight / 2);
-
-        context.save();
-        context.font = '600 16px "Rubik", "IBM Plex Sans", sans-serif';
-        context.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        context.textAlign = 'right';
-        context.fillText(activeInstance?.domain || '', panelWidth - 12, pipHeaderHeight / 2, panelWidth - 150);
-        context.restore();
-
-        layouts.forEach(layout => drawGroup(context, layout));
+        layouts.forEach(layout => drawGroup(context, layout, terminalMessageRenderer));
     }
+
+    // Draw the same header at the same scale in every view, never a fitted
+    // version copied from an individual renderer's canvas.
+    context.save();
+    context.fillStyle = pipHeaderBackground;
+    context.fillRect(0, 0, panelWidth, pipHeaderHeight);
+    context.fillStyle = 'white';
+    context.font = '900 26px "Mona Sans", sans-serif';
+    context.textBaseline = 'middle';
+    context.textAlign = 'left';
+    context.strokeStyle = 'white';
+    context.lineWidth = 0.5;
+    context.lineJoin = 'round';
+    context.strokeText('A.C.A.S', 12, pipHeaderHeight / 2);
+    context.fillText('A.C.A.S', 12, pipHeaderHeight / 2);
+
+    context.font = '600 16px "Rubik", "IBM Plex Sans", sans-serif';
+    context.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    context.textAlign = 'right';
+    context.fillText(idle ? '' : activeInstance?.domain || '',
+        panelWidth - 12, pipHeaderHeight / 2, panelWidth - 150);
+    context.restore();
 
     // One gentle, full-width divider for both live and waiting-screen headers.
     context.fillStyle = mainHeaderBorderColor;

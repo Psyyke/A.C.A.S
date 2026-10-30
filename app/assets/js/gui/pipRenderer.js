@@ -22,7 +22,6 @@ const pipLayoutWidth = 400;
 const pipTextPadding = 16;
 const pipTextColumnGap = 16;
 const pipTextContentHeight = 120;
-const pipTerminalMessageBottomPadding = 42;
 const PIP_CONTEXT_QUEUE_LIMIT = 30;
 
 export function getPipBoardHeight(width, aspectRatio) {
@@ -167,6 +166,7 @@ let pipLastPipBoardBitmaps = [null, null];
 let pipBoardPosition = null;
 let pipStatusText = '';
 let pipStatusParts = [];
+let pipTerminalMessageHeight = 0;
 let pipBoardAnimation = null;
 let pipBoardCapture = null;
 
@@ -195,8 +195,8 @@ function getPipContentHeight() {
 
     const contentHeight = isPipBoardVisible()
         ? getPipBoardHeight(getPipTextWidth(), pipBoardAspectRatio)
-        // Terminal messages keep their extra room for the face and caption.
-        : pipData.terminalOutcome ? 200 - pipHeaderHeight : pipTextContentHeight;
+        // Moves and terminal messages share a height so PiP never resizes at game end.
+        : pipTextContentHeight;
 
     return headerHeight + contentHeight;
 }
@@ -226,9 +226,10 @@ function getPipTotalsHeight() {
 function resizePipCanvas() {
     if(!pipCanvas) return;
 
-    const height = getPipContentHeight()
+    // The saved idle height already includes the entire live layout.
+    const height = pipIdleLayoutHeight ?? (getPipContentHeight()
         + getPipOpeningHeight()
-        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight + getPipTotalsHeight() : 0);
+        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight + getPipTotalsHeight() : 0));
     const scale = getPipResolutionScale();
     const pixelWidth = Math.max(1, Math.round(pipLayoutWidth * scale));
     const pixelHeight = Math.max(1, Math.round(height * scale));
@@ -845,14 +846,6 @@ async function refreshPipView() {
         ctxQueue.push(['fillRect', [0, headerHeight, headerWidth * progress, bodyRect[3]]]);
     }
 
-    if(headerHeight) {
-        ctxQueue.push(['fillStyle', pipHeaderBackground]);
-        ctxQueue.push(['fillRect', [0, 0, headerWidth, headerHeight]]);
-        ctxQueue.push(['fillStyle', 'white']);
-        ctxQueue.push(['text', ['A.C.A.S', 10, 3, 108, headerHeight,
-            `900 ${pipFontSizes.medium}px "Mona Sans", sans-serif`, 'left', 0.5]]);
-    }
-
     // Profile progress belongs beside its name, leaving the board unobstructed.
     if(
         pipData.idle && !pipData.learningMode && noInstancesText
@@ -871,8 +864,12 @@ async function refreshPipView() {
             pipMaxTextWidth, idleHeight - messageHeight - idleGap, emoticonFont, 'center']]);
     }
 
-    pipStatusText = '';
-    pipStatusParts = [];
+    // Only the move content changes at game end. Keep the last status so the
+    // profile header retains its text allocation and fitted name size.
+    if(!showTerminalMessage || CONCEAL_ASSISTANCE_ACTIVE) {
+        pipStatusText = '';
+        pipStatusParts = [];
+    }
     if(!showTerminalMessage && !CONCEAL_ASSISTANCE_ACTIVE) {
         if(hintsFiltered) {
             pipStatusText = filteredText;
@@ -903,7 +900,7 @@ async function refreshPipView() {
     // Text-based rendering
     } else if(!pipData.learningMode) {
         const mainMoveFont = `900 ${pipFontSizes.large}px "Mona Sans", sans-serif`;
-        const mainMoveTop = headerHeight + (showTerminalMessage ? 20 : 16);
+        const mainMoveTop = headerHeight + pipTextPadding;
 
         if(showTerminalMessage) {
             const messages = TRANS_OBJ?.moveFeedback?.[`${pipData.terminalOutcome}Messages`];
@@ -913,7 +910,7 @@ async function refreshPipView() {
                         : TRANS_OBJ?.moveFeedback?.drawMessage || 'All even, good game');
             const messageFontSize = pipFontSizes.medium;
             const messageHeight = 32;
-            const messageTop = contentHeight - pipTerminalMessageBottomPadding - messageHeight;
+            const messageTop = contentHeight - pipTextPadding - messageHeight;
             const faceHeight = Math.min(60, messageTop - mainMoveTop - 6);
             const faceFont = `900 40px "Mona Sans", sans-serif`;
 
@@ -1051,6 +1048,7 @@ async function refreshPipView() {
         pipContextQueue.length = PIP_CONTEXT_QUEUE_LIMIT;
     }
 
+    pipTerminalMessageHeight = showTerminalMessage ? contentHeight : 0;
     updatePipContext();
 }
 
@@ -1082,6 +1080,7 @@ return {
     get canvas() { return pipCanvas; },
     get ready() { return pipReady; },
     get height() { return pipLayoutHeight; },
+    get terminalMessageHeight() { return pipTerminalMessageHeight; },
     get statusText() { return pipStatusText; },
     get statusParts() { return [...pipStatusParts]; },
     get textMovePanel() { return Boolean(instance && !isPipBoardVisible() && !pipData.learningMode); },
