@@ -114,6 +114,7 @@
         "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas."
     },
     "configTranslations": {
+        "pipEval": ["Mostrar evaluación", "Muestra la barra y la puntuación de evaluación en todos los modos del panel flotante"],
         "feedbackMoveCounts": ["Recuento de jugadas en el panel flotante", "Muestra los recuentos de valoraciones fuera del modo de aprendizaje"],
         "learningPvAnimation": ["Animar la mejor variante", "Anima la mejor variante en el panel flotante"],
         "learningPvAnimationStopOnEnemyMove": ["Detener tras la jugada rival", "Detén la animación cuando el rival mueva"],
@@ -229,6 +230,7 @@
         "settingsNavbarGlobalSubtitle": "Los ajustes se aplican a todas las instancias",
         "settingsNavbarInstanceSubtitle": "Los ajustes solo se aplican a la instancia \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Las valoraciones de Maia 2/3 son aproximadas. Usa Stockfish para un análisis fiable.",
             "winningMessages": ["Eso fue demasiado fácil", "Bro, pierde alguna vez", "Me flipas, de verdad.", "¿Eres Magnus o qué?", "Bro, relájate.", "Todo gracias a mí… digo, a ti.", "Bebe un poco de agua", "VAMOOOOOS!!!!!"],
             "losingMessages": ["¿Estamos fritos?", "Ehh...", "Puedes hacerlo mejor.", "Va, siguiente partida.", "¿Quééééééé??", "Estabas jugando bien", "No pasa nada", "Hasta Magnus se equivoca"],
             "drawMessage": "Tablas, buena partida",
@@ -254,6 +256,10 @@
             "check": "jaque", "checkmate": "jaque mate"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Tiempo de jugada del rival (ms)",
+            "opponentMoveTimeHint": "Duración observada del turno rival, no del reloj. Una curva lineal X = Y iguala el tiempo máximo por jugada; requiere observar un turno completo.",
+            "materialBalance": "Balance de material (cp)",
+            "materialBalanceHint": "Tu material menos el rival (peón 100, caballo 320, alfil 330, torre 500, dama 900). Adapta el esfuerzo de búsqueda al desequilibrio; solo piezas estándar.",
             "useText": "Usar texto",
             "textLabel": "Texto",
             "pointText": "Texto personalizado del punto seleccionado",
@@ -298,8 +304,8 @@
             "copiedLog": "Copiado",
             "copiedEntries": "Se copiaron {count} entradas",
             "copyFailed": "Error al copiar: {error}",
-            "enableLogging": "El registro de actividad está DESACTIVADO — haz clic para activarlo",
-            "disableLogging": "El registro de actividad está activado — haz clic para desactivarlo",
+            "enableLogging": "El registro de actividad está DESACTIVADO - haz clic para activarlo",
+            "disableLogging": "El registro de actividad está activado - haz clic para desactivarlo",
             "profile": "Perfil", "engine": "Motor", "site": "Sitio", "externalEngine": "Motor externo",
             "search": "Buscar", "searchPlaceholder": "Buscar en el registro…", "discordMessagePlaceholder": "Escribe aquí tu mensaje de Discord…",
             "title": "Registro de actividad", "subtitle": "Mensajes del motor, cambios dinámicos, advertencias y errores",

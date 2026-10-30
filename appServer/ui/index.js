@@ -339,7 +339,7 @@ async function renderEngineGrid(engines) {
 
 window.serverAPI.onListening(({ address, family, port }) => {
 	portDisplay.textContent = String(port);
-	portSettingsBtn.title = `Local server port ${port} — click to change`;
+	portSettingsBtn.title = `Local server port ${port} - click to change`;
 	statusDot.style.background = '#2ecc71';
 	statusDot.style.boxShadow = '0 0 8px #2ecc71';
 });

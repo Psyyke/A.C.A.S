@@ -1,4 +1,4 @@
-import { floatingPanelVideoElem, floatingFloaty, pipBoardInput, pipSanInput, pipQualityInput } from './elementDeclarations.js';
+import { floatingPanelVideoElem, floatingFloaty, pipBoardInput, pipEvalInput, pipSanInput, pipQualityInput } from './elementDeclarations.js';
 import { initMediaSession, setMediaMetadata, stopMediaSession } from './media.js';
 import { formatMoveNotationAsync } from '../misc/moveNotation.js';
 import { getBackgroundGrainTile } from './backgroundGrain.js';
@@ -10,7 +10,6 @@ const pipTextFontFamily = '"Rubik", "IBM Plex Sans", "Mona Sans", sans-serif';
 const pipHeaderHeight = 44;
 const pipEvalBarWidth = 40;
 const pipStatusBarHeight = 2;
-const pipBoardWidth = 360;
 const pipOpeningHeight = 36;
 const pipFeedbackHeight = 68;
 const pipFeedbackTotalsLineHeight = 26;
@@ -24,7 +23,8 @@ const PIP_CONTEXT_QUEUE_LIMIT = 30;
 let pipHintInstance = null;
 let pipHintRevision = 0;
 let pipLayoutHeight = 200;
-let pipBoardHeight = pipBoardWidth;
+let pipBoardAspectRatio = 1;
+let pipIdleLayoutHeight = null;
 
 let pipCanvas = null;
 let pipVideo = null;
@@ -51,7 +51,7 @@ function getPipResolutionScale() {
 }
 
 function getPipBackground() {
-    const logicalWidth = pipLayoutWidth - pipEvalBarWidth;
+    const logicalWidth = getPipTextWidth();
     const width = Math.max(1, Math.round(logicalWidth * pipCanvas.width / pipLayoutWidth));
     const height = pipCanvas.height;
     const theme = pipData.themeColorHex || '#5f8895';
@@ -90,12 +90,22 @@ function getPipBackground() {
 }
 
 function getPipOpeningHeight() {
-    return pipData.learningMode ? pipOpeningHeight : 0;
+    return pipData.learningMode && isPipBoardVisible() ? pipOpeningHeight : 0;
 }
 
 function getPipContentHeight() {
-    return pipData.learningMode || pipBoardInput.checked
-        ? pipHeaderHeight + pipBoardHeight : 200;
+    if(pipIdleLayoutHeight !== null) return pipIdleLayoutHeight;
+    if(pipData.learningMode && !isPipBoardVisible()) return pipHeaderHeight;
+
+    return isPipBoardVisible() ? pipHeaderHeight + getPipTextWidth() / pipBoardAspectRatio : 200;
+}
+
+function isPipBoardVisible() {
+    return Boolean(pipBoardInput?.checked);
+}
+
+function getPipTextWidth() {
+    return pipEvalInput?.checked === false ? pipLayoutWidth : pipLayoutWidth - pipEvalBarWidth;
 }
 
 function getPipTotalsHeight() {
@@ -175,7 +185,7 @@ export function updatePipOpening(instance) {
     if(pipHintInstance && pipHintInstance !== instance) return;
     const openingText = instance.instanceClosed ? ''
         : instance.instanceElem?.querySelector('.instance-opening-container span')?.textContent?.trim() || '';
-    updatePipData({ openingText });
+    updatePipData({ openingText: openingText.replace(/\s*\([A-E]\d{2}\)\s*$/i, '').trim() });
 }
 
 export function updatePipEvaluation(instance) {
@@ -228,7 +238,8 @@ export function updatePipEvaluation(instance) {
 }
 
 export function updatePipFeedback(instance) {
-    if(pipHintInstance && pipHintInstance !== instance) return;
+    if(instance.instanceClosed || (pipHintInstance && pipHintInstance !== instance)) return;
+    pipIdleLayoutHeight = null;
     
     updatePipOpening(instance);
     updatePipEvaluation(instance);
@@ -286,13 +297,26 @@ export function updatePipHints(instance, profile, result) {
     // Profile removal on another board must not replace the currently displayed hints.
     if(pipHintInstance !== instance) return;
     if(instance.instanceClosed) {
+        // Keep the current aspect ratio while idle instead of widening the PiP
+        // window when the learning/feedback sections disappear.
+        pipIdleLayoutHeight = pipCanvas ? pipLayoutHeight : null;
+        pipLastPipBoardBitmaps.forEach(bitmap => bitmap?.close?.());
+        pipLastPipBoardBitmaps = [null, null];
         updatePipEvaluation(instance);
         pipHintInstance = null;
+
+        const nextInstance = window.AcasInstances?.find(entry => entry.instance !== instance && !entry.instance.instanceClosed)?.instance;
+        if(nextInstance) {
+            pipHintInstance = nextInstance;
+            updatePipHints(nextInstance);
+            return;
+        }
 
         updatePipData({
             moveObjects: null, hintsFiltered: false, openingText: '', feedbackText: '',
             feedbackCounts: [], feedbackPositions: [], learningMode: false, terminalOutcome: null,
-            learningPvAnimation: false, feedbackInPip: false
+            learningPvAnimation: false, feedbackInPip: false,
+            moveProgressText: '', calculationTimeElapsed: null, isWinning: 0
         });
 
         return;
@@ -335,7 +359,7 @@ function clearPipBoardAnimation() {
 }
 
 function canAnimatePipBoard() {
-    return pipData.learningMode && pipData.learningPvAnimation && !CONCEAL_ASSISTANCE_ACTIVE
+    return pipData.learningMode && isPipBoardVisible() && pipData.learningPvAnimation && !CONCEAL_ASSISTANCE_ACTIVE
         && pipHintInstance && !pipHintInstance.instanceClosed
         && pipHintInstance.learningReviewPostFen
         && (pipData.learningPvAnimationStopOnEnemyMove === false
@@ -419,10 +443,10 @@ async function renderPipBoards() {
         return;
     }
 
-    pipBoardHeight = pipBoardWidth / boardAspectRatio;
+    pipBoardAspectRatio = boardAspectRatio;
     resizePipCanvas();
 
-    const captureSize = Math.max(1, Math.round(pipBoardWidth * pipCanvas.width / pipLayoutWidth));
+    const captureSize = Math.max(1, Math.round(getPipTextWidth() * pipCanvas.width / pipLayoutWidth));
     const positions = canAnimatePipBoard() ? pipData.feedbackPositions || [] : [];
     const state = pipHintInstance?.chessground?.state;
     const boardStyle = getComputedStyle(cgElem.querySelector('cg-board'));
@@ -779,6 +803,8 @@ async function refreshPipView() {
         : hintsFiltered ? filteredText : `Hold on, I'm thinking...`;
 
     const engineEvaluation = Number.isFinite(pipData.eval) ? pipData.eval : 0.5;
+    const mediaEvaluation = pipEvalInput?.checked === false ? ''
+        : ` | Eval ${Number.isFinite(centipawnEval) ? centipawnEval.toFixed(2) : '0.00'}`;
     let progress = 0;
 
     if(pipData.calculationFinished) {
@@ -804,20 +830,16 @@ async function refreshPipView() {
 
     setMediaMetadata({
         title: mediaTitle,
-        artist: `Depth ${pipData?.depth ?? 0} (${Math.round((progress ?? 0) * 100)}%) | Eval ${
-            Number.isFinite(centipawnEval)
-                ? centipawnEval.toFixed(2)
-                : "0.00"
-        }`
+        artist: `Depth ${pipData?.depth ?? 0} (${Math.round((progress ?? 0) * 100)}%)${mediaEvaluation}`
     });
 
     if(!pipCanvas) return; // do not continue if pip is not enabled
 
     resizePipCanvas();
 
-    const isBoard = pipData.learningMode || pipBoardInput.checked;
+    const isBoard = isPipBoardVisible();
 
-    if(isBoard) await renderPipBoards();
+    if(isBoard && pipIdleLayoutHeight === null) await renderPipBoards();
     else {
         clearPipBoardAnimation();
         pipBoardCaptureRevision++;
@@ -834,7 +856,8 @@ async function refreshPipView() {
         pipProcessingBestMove = from + to;
     }
 
-    const headerWidth = pipLayoutWidth - pipEvalBarWidth;
+    const headerWidth = getPipTextWidth();
+    const evalBarWidth = pipLayoutWidth - headerWidth;
     const pipMaxTextWidth = headerWidth - pipTextPadding * 2;
     const alternativeWidth = (pipMaxTextWidth - pipTextColumnGap) / 2;
     const thirdMoveX = pipTextPadding + alternativeWidth + pipTextColumnGap;
@@ -842,7 +865,7 @@ async function refreshPipView() {
     const contentHeight = getPipContentHeight();
     const headerTextHeight = pipHeaderHeight - pipStatusBarHeight;
     const secondaryMoveY = contentHeight - 40;
-    const showTerminalMessage = !isBoard && Boolean(pipData.terminalOutcome) && !CONCEAL_ASSISTANCE_ACTIVE;
+    const showTerminalMessage = !pipData.learningMode && !isBoard && Boolean(pipData.terminalOutcome) && !CONCEAL_ASSISTANCE_ACTIVE;
 
     const noInstancesText =
         FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
@@ -884,7 +907,7 @@ async function refreshPipView() {
     // Status and idle messages share the move column's left and right edges.
     ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.7)']);
 
-    if(!pipData.learningMode && !showTerminalMessage && (pipData?.moveProgressText || hintsFiltered)) {
+    if(pipIdleLayoutHeight === null && !pipData.learningMode && !showTerminalMessage && (pipData?.moveProgressText || hintsFiltered)) {
         ctxQueue.push(['text', [hintsFiltered ? filteredText : pipData.moveProgressText,
             pipTextPadding, pipHeaderHeight + 12, pipMaxTextWidth, 32,
             `700 ${pipFontSizes.medium}px ${pipTextFontFamily}`]]);
@@ -894,14 +917,23 @@ async function refreshPipView() {
         && !pipData.terminalOutcome
     ) {
         const idleFont = `700 ${pipFontSizes.medium}px "IBM Plex Sans", sans-serif`;
-        ctxQueue.push(['text', [noInstancesText, pipTextPadding, pipHeaderHeight + 15,
-            pipMaxTextWidth, 32, idleFont]]);
-        ctxQueue.push(['text', ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', pipTextPadding, pipHeaderHeight + 43,
-            pipMaxTextWidth, 40, idleFont]]);
+        const faceHeight = Math.max(0, Math.min(40, contentHeight - pipHeaderHeight - 44));
+        ctxQueue.push(['text', [noInstancesText, pipTextPadding, pipHeaderHeight + 20,
+            pipMaxTextWidth, 24, idleFont]]);
+        ctxQueue.push(['text', ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', pipTextPadding, pipHeaderHeight + 44,
+            pipMaxTextWidth, faceHeight, idleFont]]);
     }
 
+    const statusX = pipTextPadding + 104 + 2;
+    const statusWidth = headerWidth - pipTextPadding - statusX;
+
+    // Compact learning mode shares the header with the opening, not a footer.
+    if(pipData.learningMode && !isBoard) {
+        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
+        ctxQueue.push(['text', [pipData.openingText, statusX, 2, statusWidth, headerTextHeight,
+            `700 ${pipFontSizes.small}px ${pipTextFontFamily}`]]);
     // Text mode already shows depth; time and progress belong in both headers.
-    if(pipData.calculationTimeElapsed != null) {
+    } else if(pipIdleLayoutHeight === null && pipData.calculationTimeElapsed != null) {
         const timeMs = pipData.calculationTimeElapsed;
 
         const timeFormatted = timeMs >= 1000
@@ -914,13 +946,11 @@ async function refreshPipView() {
 
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
         const statsText = `(${depthPrefix}${timeFormatted}, ${progressPercent}%)`;
-        const statsX = pipTextPadding + 104 + 2;
-
         ctxQueue.push(['text', [
             statsText,
-            statsX,
+            statusX,
             2,
-            headerWidth - pipTextPadding - statsX,
+            statusWidth,
             headerTextHeight,
             `700 ${pipFontSizes.small}px ${pipTextFontFamily}`
         ]]);
@@ -929,11 +959,11 @@ async function refreshPipView() {
     ctxQueue.push(['fillStyle', 'white']);
 
     // Board rendering
-    if(isBoard) {
+    if(isBoard && pipIdleLayoutHeight === null) {
         const [bitmap, bitmap2] = pipBoardAnimation?.frames[pipBoardAnimation.index] || pipLastPipBoardBitmaps;
 
         if(bitmap) {
-            const boardRect = [0, pipHeaderHeight, pipBoardWidth, pipBoardHeight];
+            const boardRect = [0, pipHeaderHeight, headerWidth, headerWidth / pipBoardAspectRatio];
 
             ctxQueue.push([
                 'drawImage',
@@ -948,7 +978,7 @@ async function refreshPipView() {
             }
         }
     // Text-based rendering
-    } else {
+    } else if(!pipData.learningMode) {
         const mainMoveFont = `900 ${pipFontSizes.large}px "Mona Sans", sans-serif`;
         const mainMoveTop = pipHeaderHeight + (showTerminalMessage ? 20 : 52);
 
@@ -1076,7 +1106,7 @@ async function refreshPipView() {
     }
 
     // Keep the Learning Mode board free of the calculation progress sweep.
-    if(!pipData.learningMode) {
+    if(pipIdleLayoutHeight === null && !pipData.learningMode) {
         ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.1)']);
         ctxQueue.push([
             'fillRect',
@@ -1098,7 +1128,7 @@ async function refreshPipView() {
             [
                 headerWidth,
                 0,
-                pipEvalBarWidth,
+                evalBarWidth,
                 pipLayoutHeight
             ]
         ]);
@@ -1109,7 +1139,7 @@ async function refreshPipView() {
             [
                 headerWidth,
                 0,
-                pipEvalBarWidth,
+                evalBarWidth,
                 pipLayoutHeight * evalBoundary
             ]
         ]);
@@ -1120,7 +1150,7 @@ async function refreshPipView() {
             [
                 headerWidth,
                 0,
-                pipEvalBarWidth,
+                evalBarWidth,
                 pipLayoutHeight
             ]
         ]);
@@ -1131,13 +1161,13 @@ async function refreshPipView() {
             [
                 headerWidth,
                 0,
-                pipEvalBarWidth,
+                evalBarWidth,
                 pipLayoutHeight * evalBoundary
             ]
         ]);
     }
 
-    if(!CONCEAL_ASSISTANCE_ACTIVE && pipEvaluationState?.expiresAt > Date.now()) {
+    if(evalBarWidth && !CONCEAL_ASSISTANCE_ACTIVE && pipEvaluationState?.expiresAt > Date.now()) {
         const previousEvaluation = pipEvaluationState.from;
         const previousBoundary = boardOrientation === 'b' ? previousEvaluation : 1 - previousEvaluation;
         const currentBoundary = evalBoundary;
@@ -1149,12 +1179,12 @@ async function refreshPipView() {
         ctxQueue.push(['fillRect', [
             headerWidth,
             Math.min(previousBoundary, currentBoundary) * pipLayoutHeight,
-            pipEvalBarWidth,
+            evalBarWidth,
             Math.abs(currentBoundary - previousBoundary) * pipLayoutHeight
         ]]);
     }
 
-    if(pipData.mate == null && centipawnEval) {
+    if(evalBarWidth && pipData.mate == null && centipawnEval) {
         const isTop = boardOrientation === 'w' ? centipawnEval < 0 : centipawnEval > 0;
         const yPosition = isTop ? 8 : pipLayoutHeight - 32;
 
@@ -1172,7 +1202,7 @@ async function refreshPipView() {
             'rgba(40, 40, 40, 0.9)',
             'rgba(0, 255, 0, 1)',
             'rgba(255, 0, 0, 1)'
-        ][pipData.isWinning ?? 0]
+        ][pipIdleLayoutHeight !== null || pipEvalInput?.checked === false ? 0 : (pipData.isWinning ?? 0)]
     ]);
 
     ctxQueue.push([

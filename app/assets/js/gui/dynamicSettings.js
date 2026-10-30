@@ -55,8 +55,13 @@ function translateUI() {
     ].forEach(([selector, key, fallback]) => { dialog.querySelector(selector).textContent = text(key, fallback); });
     Object.keys(core.variables).forEach(key => {
         const label = variableLabel(key);
-        dialog.querySelector(`#dynamic-tab-${key} span`).textContent = label;
-        ui['dynamic-variable-compact'].querySelector(`option[value="${key}"]`).textContent = label;
+        const tab = dialog.querySelector(`#dynamic-tab-${key}`);
+        const option = ui['dynamic-variable-compact'].querySelector(`option[value="${key}"]`);
+
+        tab.querySelector('span').textContent = label;
+        tab.title = text(`${key}Hint`, core.variables[key].hint || '');
+        option.textContent = label;
+        option.title = tab.title;
     });
     [
         ['.floaty-close-btn', 'close', 'Close graph editor'],
@@ -75,7 +80,8 @@ function translateUI() {
     ].forEach(([selector, key, fallback]) => { dialog.querySelector(selector).setAttribute('aria-label', text(key, fallback)); });
     const evaluationHint = text('evaluationHint', 'Your advantage: negative means losing, zero means equal, positive means winning. Uses the latest completed primary evaluation.');
     dynamicEvaluationTabElem.title = evaluationHint;
-    ui['dynamic-variable-compact'].title = variable === 'evaluation' ? evaluationHint : '';
+    ui['dynamic-variable-compact'].querySelector('option[value="evaluation"]').title = evaluationHint;
+    ui['dynamic-variable-compact'].title = dialog.querySelector(`#dynamic-tab-${variable}`).title;
     ui['dynamic-fit-graph'].title = text('fitHint', 'Fit both axes with space around the line');
     ui['dynamic-point-text'].placeholder = text('customText', 'Custom text');
     ui['dynamic-apply-text'].title = text('useTextHint', 'Use this exact text at the selected point. Empty text is allowed.');
@@ -278,8 +284,7 @@ function selectVariable(nextVariable) {
         tab.tabIndex = active ? 0 : -1;
     });
     ui['dynamic-variable-compact'].value = variable;
-    ui['dynamic-variable-compact'].title = variable === 'evaluation'
-        ? text('evaluationHint', 'Your advantage: negative is losing, zero is equal, positive is winning. Latest completed primary evaluation.') : '';
+    ui['dynamic-variable-compact'].title = dialog.querySelector(`#dynamic-tab-${variable}`).title;
     dynamicGraphPanelElem.setAttribute('aria-labelledby', `dynamic-tab-${variable}`);
     updateVariableLayout();
     ensureSelection();
@@ -622,7 +627,7 @@ function renderLinesList() {
 }
 
 function displayLineValue(line) {
-    if(!line.curve.enabled) return '—';
+    if(!line.curve.enabled) return '-';
     const contexts = previewContexts();
     const base = settingBase(line.profile, line.key);
     return contexts.length ? contexts.map(({ instanceID, context }, index) => {
@@ -1173,6 +1178,29 @@ function initialize() {
 
     initialized = true;
 
+    // Reuse the registry for both selectors so new inputs need no duplicated markup.
+    Object.entries(core.variables).forEach(([key, definition]) => {
+        if(dialog.querySelector(`#dynamic-tab-${key}`)) return;
+
+        const tab = document.createElement('button');
+        const label = document.createElement('span');
+
+        tab.id = `dynamic-tab-${key}`;
+        tab.type = 'button';
+        tab.className = 'tab-item';
+        tab.dataset.variable = key;
+        tab.tabIndex = -1;
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-selected', 'false');
+        tab.setAttribute('aria-controls', 'dynamic-graph-panel');
+        tab.title = definition.hint || '';
+        label.textContent = definition.label;
+
+        tab.append(label);
+        ui['dynamic-variable-select'].append(tab);
+        ui['dynamic-variable-compact'].append(new Option(definition.label, key));
+    });
+
     const tabs = [...ui['dynamic-variable-select'].querySelectorAll('[role="tab"]')];
 
     tabs.forEach((tab, index) => {
@@ -1390,8 +1418,10 @@ function setDynamicSettingsContext(instanceID, fen, state = {}) {
     if(!fen) return;
 
     const context = {
-        ...core.getContextFromFen(fen),
-        ...(Object.hasOwn(state, 'evaluation') ? { evaluation: state.evaluation } : {})
+        ...core.getContextFromFen(fen, state.playerColor),
+        ...Object.fromEntries(Object.keys(core.variables)
+            .filter(key => Object.hasOwn(state, key))
+            .map(key => [key, state[key]]))
     };
     const previous = core.getContext(instanceID);
 

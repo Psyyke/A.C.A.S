@@ -49,7 +49,7 @@ const ACTIVE_INPUT_LISTENERS = [];
 
 const POLY_OPENING_BOOKS = new Map();
 
-const USERSCRIPT_MIN_VERSION = '2.5.0';
+const USERSCRIPT_MIN_VERSION = '2.5.4';
 
 let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js
@@ -1100,7 +1100,7 @@ function PARSE_UCI_RESPONSE(response) {
         'id', 'name', 'author', 'uciok', 'readyok',
         'bestmove', 'option', 'info', 'score', 'pv', 'mate', 'cp',
         'wdl', 'depth', 'seldepth', 'nodes', 'time', 'nps', 'tbhits',
-        'currmove', 'currmovenumber', 'hashfull', 'multipv', 'prob',
+        'currmove', 'currmovenumber', 'hashfull', 'multipv', 'prob', 'rootcp', 'rootmate', 'rootwdl', 'rootmove', 'rootpv',
         'refutation', 'line', 'stop', 'ponderhit', 'ucs', 'baseTurn',
         'position', 'startpos', 'moves', 'files', 'ranks',
         'pocket', 'template', 'variant', 'ponder', 'Fen:', 'bmc', 'error'
@@ -1119,16 +1119,16 @@ function PARSE_UCI_RESPONSE(response) {
 
             currentKeyword = token;
 
-            data[currentKeyword] = currentKeyword === 'wdl' ? [] : '';
+            data[currentKeyword] = ['wdl', 'rootwdl'].includes(currentKeyword) ? [] : '';
 
         } else if(currentKeyword !== null) {
             const number = Number(token);
 
-            if(currentKeyword === 'wdl') {
+            if(['wdl', 'rootwdl'].includes(currentKeyword)) {
                 if(Number.isFinite(number)) {
                     data[currentKeyword].push(number);
                 }
-            } else if(['bestmove', 'ponder', 'pv', 'currmove', 'Fen:'].includes(currentKeyword)) {
+            } else if(['bestmove', 'ponder', 'pv', 'rootmove', 'rootpv', 'currmove', 'Fen:'].includes(currentKeyword)) {
                 // Moves and FENs are strings. FEN counters must not replace the placement.
                 data[currentKeyword] += (data[currentKeyword] ? ' ' : '') + token;
             } else if(token !== '' && Number.isFinite(number)) {

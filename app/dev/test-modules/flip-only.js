@@ -30,7 +30,7 @@ export async function init(container, { test } = {}) {
     async function run() {
         try {
             const flipDelay = (test && test.flipDelay != null) ? test.flipDelay : 200;
-            info.textContent = `Loaded: ${startFen} — flipping in ${flipDelay}ms`;
+            info.textContent = `Loaded: ${startFen} - flipping in ${flipDelay}ms`;
             await wait(flipDelay);
             if (cancelled) return;
             if (typeof cg.toggleOrientation === 'function') {

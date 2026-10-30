@@ -114,6 +114,7 @@
         "#des-no-result-text": "Alcune impostazioni vengono analizzate dinamicamente dall'output UCI del motore. Apri una scacchiera per avviare il motore e caricare le impostazioni dinamiche."
     },
     "configTranslations": {
+        "pipEval": ["Mostra valutazione", "Mostra la barra e il punteggio di valutazione in tutte le modalità del pannello mobile"],
         "feedbackMoveCounts": ["Conteggio mosse nel pannello mobile", "Mostra i conteggi delle valutazioni fuori dalla modalità apprendimento"],
         "learningPvAnimation": ["Anima la variante migliore", "Anima la variante migliore nel pannello mobile"],
         "learningPvAnimationStopOnEnemyMove": ["Ferma dopo la mossa avversaria", "Ferma l’animazione quando l’avversario muove"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Le impostazioni si applicano a tutte le istanze",
         "settingsNavbarInstanceSubtitle": "Le impostazioni si applicano solo all’istanza \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Le valutazioni di Maia 2/3 sono approssimative. Usa Stockfish per analisi affidabili.",
             "winningMessages": ["Era fin troppo facile", "Bro, perdi ogni tanto", "Mi stupisci, sul serio.", "Ma sei Magnus?", "Bro, datti una calmata.", "Tutto merito mio… cioè, tuo.", "Bevi un po' d'acqua", "DAJEEEEEE!!!!!"],
             "losingMessages": ["Siamo fritti?", "Ehm...", "Puoi fare di meglio.", "Dai, prossima partita.", "Cosaaaaaaa??", "Stavi giocando bene", "Ci sta", "Pure Magnus sbaglia"],
             "drawMessage": "Patta, bella partita",
@@ -253,6 +255,10 @@
             "check": "scacco", "checkmate": "scacco matto"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Tempo della mossa avversaria (ms)",
+            "opponentMoveTimeHint": "Durata osservata del turno avversario, non dell’orologio. Una curva lineare X = Y adegua il tempo massimo per mossa; richiede un turno interamente osservato.",
+            "materialBalance": "Bilancio materiale (cp)",
+            "materialBalanceHint": "Il tuo materiale meno quello avversario (pedone 100, cavallo 320, alfiere 330, torre 500, donna 900). Adatta lo sforzo di ricerca allo squilibrio; solo pezzi standard.",
             "useText": "Usa testo",
             "textLabel": "Testo",
             "pointText": "Testo personalizzato del punto selezionato",
@@ -276,8 +282,8 @@
             "copiedLog": "Copiato",
             "copiedEntries": "{count} voci copiate",
             "copyFailed": "Copia non riuscita: {error}",
-            "enableLogging": "La registrazione delle attività è DISATTIVATA — fai clic per attivarla",
-            "disableLogging": "La registrazione delle attività è attiva — fai clic per disattivarla",
+            "enableLogging": "La registrazione delle attività è DISATTIVATA - fai clic per attivarla",
+            "disableLogging": "La registrazione delle attività è attiva - fai clic per disattivarla",
             "profile": "Profilo", "engine": "Motore", "site": "Sito", "externalEngine": "Motore esterno",
             "search": "Cerca", "searchPlaceholder": "Cerca nel registro…", "discordMessagePlaceholder": "Scrivi qui il tuo messaggio Discord…",
             "title": "Registro attività", "subtitle": "Messaggi del motore, modifiche dinamiche, avvisi ed errori", "show": "Mostra", "clear": "Svuota registro", "filter": "Filtra per tipo", "all": "Tutte le attività", "close": "Chiudi registro", "instance": "Istanza", "empty": "Nessuna voce ancora.", "status": "{shown} visibili · {total} totali",

@@ -112,6 +112,7 @@
         "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。"
     },
     "configTranslations": {
+        "pipEval": ["評価を表示", "フローティングパネルのすべてのモードで評価バーと評価値を表示します"],
         "feedbackMoveCounts": ["フローティングパネルの手数集計", "学習モード以外で指し手の評価回数を表示"],
         "learningPvAnimation": ["最善手順のアニメーション", "フローティングパネルで最善手順をアニメーション表示します"],
         "learningPvAnimationStopOnEnemyMove": ["相手の着手後に停止", "相手が指したらアニメーションを停止します"],
@@ -227,6 +228,7 @@
         "settingsNavbarGlobalSubtitle": "設定はすべてのインスタンスに適用されます",
         "settingsNavbarInstanceSubtitle": "設定はインスタンス「{instanceID}」にのみ適用されます",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3 の評価は概算です。信頼できる分析には Stockfish を使用してください。",
             "winningMessages": ["余裕すぎたな", "たまには負けてあげなよ", "マジで見惚れたわ。", "もしかしてマグヌス？", "ちょ、落ち着いて。", "全部こっちの手柄…いや、そっちの。", "水でも飲も", "うおおおおお！！！！！"],
             "losingMessages": ["うちら詰んだ？", "えーっと…", "もっとやれるっしょ。", "ほら、次いこ。", "はああああ？？", "いい感じだったよ", "ドンマイ", "マグヌスだってミスるよ"],
             "drawMessage": "引き分け、おつかれさま",
@@ -252,6 +254,10 @@
             "check": "チェック", "checkmate": "チェックメイト"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "相手の着手時間（ミリ秒）",
+            "opponentMoveTimeHint": "時計の残り時間ではなく、観測した相手の手番の長さです。線形曲線 X = Y で最大着手時間を合わせられます。手番全体の観測が必要です。",
+            "materialBalance": "駒の価値の差（cp）",
+            "materialBalanceHint": "自分の駒の価値から相手の駒の価値を引いた値です（ポーン100、ナイト320、ビショップ330、ルーク500、クイーン900）。駒の差に応じて探索量を調整できます。標準の駒のみ。",
             "useText": "テキストを使用",
             "textLabel": "テキスト",
             "pointText": "選択した点のカスタムテキスト",
@@ -271,8 +277,8 @@
             "copiedLog": "コピーしました",
             "copiedEntries": "{count} 件をコピーしました",
             "copyFailed": "コピーに失敗しました：{error}",
-            "enableLogging": "活動の記録はオフです — クリックして有効化",
-            "disableLogging": "活動の記録はオンです — クリックして無効化",
+            "enableLogging": "活動の記録はオフです - クリックして有効化",
+            "disableLogging": "活動の記録はオンです - クリックして無効化",
             "profile": "プロフィール", "engine": "エンジン", "site": "サイト", "externalEngine": "外部エンジン",
             "search": "検索", "searchPlaceholder": "ログを検索…", "discordMessagePlaceholder": "Discordに送信するメッセージを入力…",
             "title": "活動ログ", "subtitle": "エンジンのメッセージ、動的変更、警告とエラー", "show": "表示", "clear": "ログを消去", "filter": "種類で絞り込み", "all": "すべての活動", "close": "ログを閉じる", "instance": "インスタンス", "empty": "ログはまだありません。", "status": "{shown} 件表示 · 合計 {total} 件",

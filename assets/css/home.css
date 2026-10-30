@@ -24,6 +24,9 @@ html {
 body {
 	font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif;
     margin: 0;
+    width: 100%;
+    /* Keep decorative pieces from widening the viewport on tablets. */
+    overflow-x: clip;
     color: #213a43;
     background-color: white;
     display: flex;
@@ -319,6 +322,7 @@ input {
     font-size: 15px;
 }
 main {
+    box-sizing: border-box;
     font-size: 16px;
     max-width: 1100px;
     font-size: 18px;
@@ -659,7 +663,8 @@ ul {
         flex-direction: column-reverse;
     }
 }
-@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+/* Select the compact layout by viewport width, not touch input. */
+@media (max-width: 768px) {
     main {
         margin-top: 0px !important;
     }

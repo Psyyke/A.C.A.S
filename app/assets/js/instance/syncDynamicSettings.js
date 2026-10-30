@@ -8,7 +8,7 @@ export function changedSettingKeys(previous, current, keys, forcedKeys = []) {
         current[key] !== undefined && (forcedKeys.includes(key) || !Object.is(previous?.[key], current[key])));
 }
 
-export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
+export default function syncDynamicSettings(forcedProfile, forcedKeys = [], isDirectlyCausedByUser = false) {
     this.dynamicSettingsQueue ??= Promise.resolve();
     const synchronize = async () => {
         if(this.instanceClosed) return;
@@ -92,9 +92,12 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = []) {
                     if(identityKeys.includes(key) || key === 'engineEnabled') continue;
                     if(isManagedVariant) continue;
 
+                    // Preserve user feedback only for the saved setting, not other resolved changes.
+                    const isUserSave = isDirectlyCausedByUser && name === forcedProfile && forcedKeys.includes(key);
+
                     const result = await this.updateSettings({ type: 'settingSave', data: {
                         key, value: current[key], profile: { ...profile, config: current },
-                        isDirectlyCausedByUser: false, isDynamicChange: true
+                        isDirectlyCausedByUser: isUserSave, isDynamicChange: true
                     } });
                     if(result === false) {
                         const curve = current.dynamicSettings?.[key];

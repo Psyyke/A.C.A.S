@@ -1,3 +1,5 @@
+import { maiaValueToCp } from '../maiaEvaluation.js';
+
 let allPossibleMoves = null;
 let allPossibleMovesReversed = null;
 let eloDict = null;
@@ -130,8 +132,11 @@ function mirrorFEN(fen) {
 		.join('/');
 
 	const mirroredTurn = turn === 'w' ? 'b' : 'w';
+	const swappedCastling = new Set([...castling].map(right => right === right.toUpperCase()
+		? right.toLowerCase() : right.toUpperCase()));
+	const mirroredCastling = [...'KQkq'].filter(right => swappedCastling.has(right)).join('') || '-';
 
-	return `${mirroredPos} ${mirroredTurn} ${castling} ${mirrorEP(ep)} ${hm} ${fm}`;
+	return `${mirroredPos} ${mirroredTurn} ${mirroredCastling} ${mirrorEP(ep)} ${hm} ${fm}`;
 }
 
 function boardToTensor(fen) {
@@ -161,7 +166,7 @@ function boardToTensor(fen) {
 
 	if(enPassant!=='-') {
 		const file = enPassant.charCodeAt(0)-97;
-		const rank = 7-(parseInt(enPassant[1])-1);
+		const rank = parseInt(enPassant[1]) - 1;
 		tensor[17*64 + rank*8 + file] = 1;
 	}
 
@@ -189,35 +194,23 @@ function preprocess(fen, eloSelf, eloOppo, ChessLib) {
 	return { boardInput, eloSelfCategory, eloOppoCategory, legalMoves };
 }
 
-function policyToUciLines(fen, policyObj, multipv = 1) {
+function policyToUciLines(fen, policyObj, multipv = 1, candidateScores = null) {
     const policy = policyObj.policy;
-    const winPercentage = policyObj.value;
-    const cp = Math.round(-800 * Math.log10(1 / winPercentage - 1));
-	const isPlayerBlack = fen.split(' ')[1]==='b';
-	const squaresToIgnore = [];
-
-	if(isPlayerBlack) {
-		if(fen.includes('rnbqkbnr/pppppppp')) squaresToIgnore.push(['g8'], ['b8']);
-	} else {
-		if(fen.includes('PPPPPPPP/RNBQKBNR')) squaresToIgnore.push(['g1'], ['b1']);
-	}
-
-	let sortedMoves = Object.entries(policy).sort((a, b) => b[1] - a[1]);
-
-	if(squaresToIgnore.length > 0) {
-		sortedMoves = sortedMoves.filter(([move, value]) => {
-			const startSquare = move.slice(0, 2);
-			return !squaresToIgnore.flat().includes(startSquare);
-		});
-	}
+    // Maia 2 preprocesses black positions into the side-to-move's perspective.
+    const cp = maiaValueToCp(policyObj.value);
+    const sortedMoves = Object.entries(policy).sort((a, b) => b[1] - a[1]);
 
     const lines = [];
 
-    for(let i = 0; i < Math.min(multipv, sortedMoves.length); i++) {
+    for(let i = 0; i < Math.min(20, Math.max(1, Number(multipv) || 1), sortedMoves.length); i++) {
         const [move, prob] = sortedMoves[i];
+        const candidate = candidateScores?.get(move);
+        const score = candidate?.mate != null ? `mate ${candidate.mate}` : `cp ${candidate?.cp ?? cp}`;
+        const positionScore = candidate && cp !== null ? ` rootcp ${cp}` : '';
+        if(!candidate && cp === null) continue;
 
         lines.push(
-            `info depth 1 seldepth 1 multipv ${i + 1} score cp ${cp} nodes 1 nps 1 time 0 pv ${move}`
+            `info depth 1 seldepth 1 multipv ${i + 1} score ${score}${positionScore} nodes 1 nps 1 time 0 pv ${move} prob ${(prob * 100).toFixed(2)}`
         );
     }
 

@@ -33,7 +33,7 @@
         ".tab-item[data-value=\"default\"] p": "Standart profil",
         ".engine-panel-title": "Dvijok", ".visual-panel-title": "Ko‘rinish", ".audible-panel-title": "Ovoz", ".misc-panel-title": "Boshqa", ".hidden-panel-title": "Yashirin",
         "#tos-title": "Xush kelibsiz, do‘stim!",
-        ".tos-description": "Kelganingizdan xursandmiz! Foydalanuvchi skriptingiz o‘rnatilgan, A.C.A.S esa ishga tayyor.\n\nImkoniyatlarni ko‘rib chiqing, sinab ko‘ring va o‘zingizni erkin his qiling. Yordam kerakmi yoki shunchaki o‘ynashni xohlaysizmi — boshlaymiz!",
+        ".tos-description": "Kelganingizdan xursandmiz! Foydalanuvchi skriptingiz o‘rnatilgan, A.C.A.S esa ishga tayyor.\n\nImkoniyatlarni ko‘rib chiqing, sinab ko‘ring va o‘zingizni erkin his qiling. Yordam kerakmi yoki shunchaki o‘ynashni xohlaysizmi - boshlaymiz!",
         "#tos-continue-button": "A.C.A.S ni boshlash",
         ".tos-link": "Foydalanish shartlarini o‘qidim va ularga roziman.",
         ".tos-footer-small": "A.C.A.S dan foydalanish orqali shartlarni o‘qiganingizni, tushunganingizni va ularga rioya qilishga roziligingizni tasdiqlaysiz.",
@@ -82,6 +82,7 @@
         "#des-no-result-text": "Ba’zi sozlamalar dvijokning UCI chiqishidan dinamik ravishda olinadi. Dvijokni ishga tushirish va dinamik sozlamalarni yuklash uchun shaxmat taxtasini oching."
     },
     "configTranslations": {
+        "pipEval": ["Baholashni ko‘rsatish", "Suzuvchi panelning barcha rejimlarida baholash chizig‘i va ballini ko‘rsatish"],
         "feedbackMoveCounts": ["Suzuvchi panelda yurishlar soni", "O‘rganish rejimidan tashqarida yurish baholari sonini ko‘rsating"],
         "learningPvAnimation": ["Eng yaxshi davomni jonlantirish", "Suzuvchi panelda eng yaxshi davomni animatsiya bilan ko‘rsating"],
         "learningPvAnimationStopOnEnemyMove": ["Raqib yurgach to‘xtatish", "Raqib yurganda animatsiyani to‘xtating"],
@@ -100,7 +101,7 @@
         "webhookEnabled": ["Yoqilgan", "Bu profilga webhook xabarlarini yuborishga ruxsat berish"], "webhookUrl": ["Discord webhook URL manzili", "Bu manzilni sir saqlang"],
         "webhookMessageTemplate": ["Xabar andozasi", "Shaxmat ma’lumotlarini kiritish uchun {variables} dan foydalaning"], "webhookIncludeBoard": ["Taxta rasmini qo‘shish", "Joriy shaxmat taxtasining rasmini biriktirish"],
         "webhookIncludeRawUci": ["Dvijok UCI chiqishi o‘z holicha", "Dvijokning UCI satrlarini o‘zgartirmasdan yuborish"],
-        "moveSuggestionAmount": ["Yurish tavsiyalari", "Nechta yurish tavsiyasi ko‘rsatiladi"], "maxMovetime": ["Yurish uchun eng ko‘p vaqt (ms)", "1000 ms — 1 soniya"],
+        "moveSuggestionAmount": ["Yurish tavsiyalari", "Nechta yurish tavsiyasi ko‘rsatiladi"], "maxMovetime": ["Yurish uchun eng ko‘p vaqt (ms)", "1000 ms - 1 soniya"],
         "arrowOpacity": ["Yurish belgisi xiraligi (1 - 100%)", "Ko‘rsatilgan yurishlarning xiraligini o‘zgartirish"],
         "autoMove": ["Avtomatik yurish", "Chess.com uchun. Faqat botlarga qarshi ishlating"], "autoMoveAfterUser": ["Foydalanuvchidan keyin", "Foydalanuvchi yurganidan keyin avtomatik yurishni boshlash"],
         "autoMoveLegit": ["Insonga o‘xshash o‘yin", "Avtomatik yurishlarni inson o‘yiniga o‘xshatishga harakat qilish"], "autoMoveRandom": ["Tasodifiy rejim", "Eng yaxshi yurishdan boshqa yurishlarni o‘ynash"],
@@ -160,6 +161,7 @@
         "settingsNavbarGlobalSubtitle": "Sozlamalar barcha seanslarga ta’sir qiladi",
         "settingsNavbarInstanceSubtitle": "Sozlamalar faqat \"{instanceID}\" seansiga ta’sir qiladi",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3 baholari taxminiy. Ishonchli tahlil uchun Stockfish ishlating.",
             "winningMessages": ["Bu juda oson bo‘ldi", "Brat, ba’zida yutqaz ham", "Rostan, gap yo‘q.", "Sen Magnusmisan?", "Brat, sal sekinroq.", "Hammasi men tufayli… ya’ni, sen.", "Bir oz suv ich", "YEEESSSS!!!!!"],
             "losingMessages": ["Ishimiz chatoqmi?", "Eee...", "Bundan zo‘rini qila olasan.", "Qani, keyingi o‘yin.", "Nimaaaaa??", "Yaxshi o‘ynayotganding-ku", "Hechqisi yo‘q", "Magnus ham xato qiladi"],
             "drawMessage": "Durang, yaxshi o‘yin bo‘ldi",
@@ -182,6 +184,10 @@
             "castleKingside": "Qisqa rokirovka", "castleQueenside": "Uzun rokirovka", "check": "shoh", "checkmate": "mot"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Raqib yurishi vaqti (ms)",
+            "opponentMoveTimeHint": "Soat vaqti emas, kuzatilgan raqib navbatining davomiyligi. Chiziqli X = Y maksimal yurish vaqtini tenglashtiradi; to‘liq navbatni kuzatish kerak.",
+            "materialBalance": "Material balansi (cp)",
+            "materialBalanceHint": "Sizning materialingiz minus raqibniki (piyoda 100, ot 320, fil 330, rux 500, farzin 900). Qidiruv kuchini farqqa moslang; faqat standart donalar.",
             "useText": "Matndan foydalanish", "textLabel": "Matn", "pointText": "Tanlangan nuqta uchun maxsus matn", "customText": "Maxsus matn",
             "useTextHint": "Tanlangan nuqtada aynan shu matndan foydalanish. Bo‘sh matn ham mumkin.", "emptyText": "(bo‘sh matn)", "addValuePointHint": "Tanlangan chiziqqa nuqta qo‘shish",
             "textStepHint": "Matn har bir nuqtada o‘zgaradi. Saqlangan variantni tanlang yoki maxsus matn kiritib, «Matndan foydalanish»ni bosing; matnlar orasida oraliq qiymat hisoblanmaydi.",
@@ -190,7 +196,7 @@
             "curve": "Egri chiziq", "selectLine": "Chiziqni tanlang", "step": "Pog‘onali", "linear": "Chiziqli", "smooth": "Silliq", "pieceCount": "Donalar soni", "moveNumber": "Yurish raqami", "evaluation": "Baho (sizning ustunligingiz, cp)",
             "close": "Grafik muharririni yopish", "variable": "Grafik o‘zgaruvchisi", "chooseSetting": "Ko‘rish va tahrirlash uchun sozlama", "zoomIn": "Yaqinlashtirish", "zoomOut": "Uzoqlashtirish", "fit": "Grafikni sig‘dirish",
             "coordinates": "Tanlangan nuqta koordinatalari", "pointX": "Tanlangan nuqtaning X qiymati", "pointY": "Tanlangan nuqtaning Y qiymati",
-            "evaluationHint": "Sizning ustunligingiz: manfiy qiymat — ortdasiz, nol — tenglik, musbat qiymat — oldindasiz. Oxirgi tugallangan asosiy baho ishlatiladi.",
+            "evaluationHint": "Sizning ustunligingiz: manfiy qiymat - ortdasiz, nol - tenglik, musbat qiymat - oldindasiz. Oxirgi tugallangan asosiy baho ishlatiladi.",
             "fitHint": "Chiziq atrofida bo‘sh joy qoldirib, ikkala o‘qni sig‘dirish",
             "graphHint": "Nuqtani siljitish uchun uni, ko‘rinishni surish uchun bo‘sh joyni torting. Masshtabni chimchilash yoki aylantirish bilan o‘zgartiring. Strelkalar tanlangan nuqtani bir qadam, Shift bilan o‘n qadam siljitadi. Delete nuqtani o‘chiradi.",
             "exitFullscreen": "To‘liq ekranli grafikdan chiqish", "fullscreen": "Grafikni to‘liq ekranda ochish", "instance": "Seans", "equal": "Teng (0 cp)", "visibility": "Egri chiziqni ko‘rsatish va qo‘llash yoki yashirish va o‘chirish",
@@ -209,7 +215,7 @@
             "showMilliseconds": "Faqat soniya va millisoniyalarni ko‘rsatish", "hideMilliseconds": "To‘liq vaqt belgilarini ko‘rsatish", "copyLog": "Ko‘rinayotgan jurnal yozuvlarini nusxalash", "copiedLog": "Nusxalandi", "copiedEntries": "{count} ta yozuv nusxalandi", "copyFailed": "Nusxalash amalga oshmadi: {error}",
             "profile": "Profil", "engine": "Dvijok", "site": "Sayt", "externalEngine": "Tashqi dvijok", "title": "Faoliyat jurnali", "subtitle": "Dvijok xabarlari, dinamik o‘zgarishlar, ogohlantirish va xatolar",
             "show": "Ko‘rsatish", "search": "Qidirish", "searchPlaceholder": "Jurnal yozuvlarini qidirish...", "discordMessagePlaceholder": "Discord xabaringizni shu yerga yozing...", "clear": "Jurnalni tozalash", "filter": "Faoliyatni turi bo‘yicha saralash", "all": "Barcha faoliyat",
-            "close": "Faoliyat jurnalini yopish", "instance": "Seans", "empty": "Hali jurnal yozuvlari yo‘q.", "enableLogging": "Faoliyatni yozish O‘CHIRILGAN — yoqish uchun bosing", "disableLogging": "Faoliyat yozilmoqda — o‘chirish uchun bosing", "status": "{shown} ta ko‘rsatilgan · jami {total} ta",
+            "close": "Faoliyat jurnalini yopish", "instance": "Seans", "empty": "Hali jurnal yozuvlari yo‘q.", "enableLogging": "Faoliyatni yozish O‘CHIRILGAN - yoqish uchun bosing", "disableLogging": "Faoliyat yozilmoqda - o‘chirish uchun bosing", "status": "{shown} ta ko‘rsatilgan · jami {total} ta",
             "types": {"engine-input": "Dvijokka kiritish", "engine-output": "Dvijok chiqishi", "dynamic-change": "Dinamik o‘zgarishlar", "setting-change": "Sozlama o‘zgarishlari", "engine": "Dvijok hayot sikli", "instance": "Seans hayot sikli", "game": "O‘yin hodisalari", "site": "Sayt xabarlari", "warning": "Ogohlantirishlar", "error": "Xatolar", "app": "Ilova hodisalari"}
         },
         "profileRemovalWarning": "Bu profilni olib tashlashga ishonchingiz komilmi?\n\nBu amalni bekor qilib bo‘lmaydi.",

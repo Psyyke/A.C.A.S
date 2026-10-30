@@ -2,6 +2,9 @@ import { featureText } from './featureTranslations.js';
 
 export const feedbackText = (key, fallback, values) => featureText('moveFeedback', key, fallback, values);
 
+export const maiaLearningWarning = () => feedbackText('maiaWarning',
+    'Maia 2/3 ratings are approximate. Use Stockfish for reliable reviews.');
+
 const feedbackCategories = {
     '🤩': 7, '😁': 6, '😊': 5, '📖': null, '🙂': 0,
     '🤨': 8, '😕': 1, '😟': 2, '😨': 3, '💀': 4
@@ -94,7 +97,7 @@ export function feedbackDisplay(result) {
         result.cpLoss !== null ? `${feedbackText('loss', 'Eval loss')}: ${(result.cpLoss / 100).toFixed(2)}.` : null,
         `${feedbackText('depth', 'Depth')}: ${result.depth}/${result.requestedDepth}.`,
         `${feedbackText('engine', 'Engine')}: ${result.engineName || 'Fairy Stockfish 14'}.`,
-        result.recorded ? feedbackText('recorded', 'Recorded evaluations may have different search depths.') : null,
+        result.uncertainty || (result.recorded ? feedbackText('recorded', 'Recorded evaluations may have different search depths.') : null),
         `${feedbackText('bestLine', 'Best line')}: ${result.bestPv}.`,
         `${feedbackText('playedLine', 'Played line')}: ${played}.`
     ].filter(Boolean).join('\n');

@@ -114,6 +114,7 @@
         "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia."
     },
     "configTranslations": {
+        "pipEval": ["Pokaż ocenę", "Pokazuj pasek i wartość oceny we wszystkich trybach pływającego panelu"],
         "feedbackMoveCounts": ["Licznik ruchów w panelu pływającym", "Pokazuj liczbę ocen ruchów poza trybem nauki"],
         "learningPvAnimation": ["Animuj najlepszy wariant", "Animuj najlepszy wariant w pływającym panelu"],
         "learningPvAnimationStopOnEnemyMove": ["Zatrzymaj po ruchu przeciwnika", "Zatrzymaj animację, gdy przeciwnik wykona ruch"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Ustawienia dotyczą wszystkich instancji",
         "settingsNavbarInstanceSubtitle": "Ustawienia dotyczą tylko instancji \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Oceny Maia 2/3 są przybliżone. Do wiarygodnej analizy użyj Stockfisha.",
             "winningMessages": ["To było za łatwe", "Ziomuś, przegraj czasem", "Serio, aż brak słów.", "Ty jesteś Magnus?", "Ziomuś, wyluzuj.", "Wszystko dzięki mnie… znaczy, tobie.", "Napij się trochę wody", "JEEEEEEE!!!!!"],
             "losingMessages": ["Mamy przechlapane?", "Eee...", "Stać cię na więcej.", "Dawaj, następna partia.", "Cooooooo??", "Przecież dobrze ci szło", "Jest git", "Nawet Magnus robi błędy"],
             "drawMessage": "Remis, dobra partia",
@@ -253,6 +255,10 @@
             "check": "szach", "checkmate": "szach mat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Czas ruchu przeciwnika (ms)",
+            "opponentMoveTimeHint": "Zaobserwowana długość tury przeciwnika, nie czas zegara. Liniowa krzywa X = Y dopasowuje maksymalny czas ruchu; wymaga obserwacji całej tury.",
+            "materialBalance": "Bilans materiału (cp)",
+            "materialBalanceHint": "Twój materiał minus materiał przeciwnika (pion 100, skoczek 320, goniec 330, wieża 500, hetman 900). Dostosuj wysiłek wyszukiwania do różnicy; tylko standardowe figury.",
             "useText": "Użyj tekstu",
             "textLabel": "Tekst",
             "pointText": "Własny tekst dla wybranego punktu",
@@ -272,8 +278,8 @@
             "copiedLog": "Skopiowano",
             "copiedEntries": "Skopiowano {count} wpisów",
             "copyFailed": "Kopiowanie nie powiodło się: {error}",
-            "enableLogging": "Rejestrowanie aktywności jest WYŁĄCZONE — kliknij, aby włączyć",
-            "disableLogging": "Rejestrowanie aktywności jest włączone — kliknij, aby wyłączyć",
+            "enableLogging": "Rejestrowanie aktywności jest WYŁĄCZONE - kliknij, aby włączyć",
+            "disableLogging": "Rejestrowanie aktywności jest włączone - kliknij, aby wyłączyć",
             "profile": "Profil", "engine": "Silnik", "site": "Strona", "externalEngine": "Silnik zewnętrzny",
             "search": "Szukaj", "searchPlaceholder": "Szukaj w dzienniku…", "discordMessagePlaceholder": "Wpisz tutaj wiadomość na Discorda…",
             "title": "Dziennik aktywności", "subtitle": "Wiadomości silnika, zmiany dynamiczne, ostrzeżenia i błędy", "show": "Pokaż", "clear": "Wyczyść dziennik", "filter": "Filtruj według typu", "all": "Cała aktywność", "close": "Zamknij dziennik", "instance": "Instancja", "empty": "Brak wpisów.", "status": "Widoczne {shown} · razem {total}",

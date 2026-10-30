@@ -114,6 +114,7 @@
         "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting."
     },
     "configTranslations": {
+        "pipEval": ["Ipakita ang Ebalwasyon", "Ipakita ang bar at iskor ng ebalwasyon sa lahat ng mode ng lumulutang na panel"],
         "feedbackMoveCounts": ["Bilang ng tira sa floating panel", "Ipakita ang bilang ng rating ng mga tira sa labas ng learning mode"],
         "learningPvAnimation": ["I-animate ang Pinakamahusay na Linya", "I-animate ang pinakamahusay na linya sa lumulutang na panel"],
         "learningPvAnimationStopOnEnemyMove": ["Ihinto Pagkatapos Tumira ng Kalaban", "Ihinto ang animation kapag tumira ang kalaban"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Nalalapat ang mga setting sa lahat ng instance",
         "settingsNavbarInstanceSubtitle": "Nalalapat lang ang mga setting sa instance na \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Tantiya lang ang mga rating ng Maia 2/3. Gamitin ang Stockfish para sa maaasahang pagsusuri.",
             "winningMessages": ["Sobrang dali naman nun", "Bro, talo rin minsan", "Bilib ako, legit.", "Ikaw ba si Magnus?", "Bro, chill ka lang.", "Dahil sa akin… este, sa 'yo.", "Inom ka munang tubig", "WOOOOOOO!!!!!"],
             "losingMessages": ["Luto na ba tayo?", "Uhh...", "Kaya mo pang galingan.", "Next game, tara na.", "Anoooooo??", "Ganda naman ng laro mo", "Okay lang yan", "Si Magnus nagkakamali rin"],
             "drawMessage": "Tabla, ganda ng laro",
@@ -253,6 +255,10 @@
             "check": "check", "checkmate": "checkmate"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Oras ng Tira ng Kalaban (ms)",
+            "opponentMoveTimeHint": "Naobserbahang tagal ng turno ng kalaban, hindi oras ng orasan. Itinutugma ng linear na X = Y ang pinakamahabang oras ng tira; kailangang maobserbahan ang buong turno.",
+            "materialBalance": "Balanse ng Materyal (cp)",
+            "materialBalanceHint": "Materyal mo bawas sa kalaban (pawn 100, knight 320, bishop 330, rook 500, queen 900). Iangkop ang paghahanap sa diperensiya; karaniwang piyesa lamang.",
             "useText": "Gamitin ang teksto",
             "textLabel": "Teksto",
             "pointText": "Pasadyang teksto para sa napiling punto",
@@ -272,8 +278,8 @@
             "copiedLog": "Nakopya",
             "copiedEntries": "Nakopya ang {count} tala",
             "copyFailed": "Hindi makopya: {error}",
-            "enableLogging": "NAKA-OFF ang pagtatala ng aktibidad — i-click para i-on",
-            "disableLogging": "Naka-on ang pagtatala ng aktibidad — i-click para i-off",
+            "enableLogging": "NAKA-OFF ang pagtatala ng aktibidad - i-click para i-on",
+            "disableLogging": "Naka-on ang pagtatala ng aktibidad - i-click para i-off",
             "profile": "Profile", "engine": "Engine", "site": "Site", "externalEngine": "Panlabas na engine",
             "search": "Maghanap", "searchPlaceholder": "Maghanap sa log…", "discordMessagePlaceholder": "Isulat dito ang iyong mensahe sa Discord…",
             "title": "Talaan ng aktibidad", "subtitle": "Mga mensahe ng engine, dinamikong pagbabago, babala at error", "show": "Ipakita", "clear": "Burahin ang talaan", "filter": "I-filter ayon sa uri", "all": "Lahat ng aktibidad", "close": "Isara ang talaan", "instance": "Instance", "empty": "Wala pang tala.", "status": "{shown} ipinakita · {total} kabuuan",

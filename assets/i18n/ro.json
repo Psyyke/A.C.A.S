@@ -112,6 +112,7 @@
         "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice."
     },
     "configTranslations": {
+        "pipEval": ["Arată evaluarea", "Arată bara și scorul evaluării în toate modurile panoului flotant"],
         "feedbackMoveCounts": ["Număr de mutări în panoul plutitor", "Arată numărul evaluărilor de mutări în afara modului de învățare"],
         "learningPvAnimation": ["Animează cea mai bună variantă", "Animează cea mai bună variantă în panoul plutitor"],
         "learningPvAnimationStopOnEnemyMove": ["Oprește după mutarea adversarului", "Oprește animația când mută adversarul"],
@@ -226,6 +227,7 @@
         "settingsNavbarGlobalSubtitle": "Setările se aplică tuturor instanțelor",
         "settingsNavbarInstanceSubtitle": "Setările se aplică doar instanței \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Evaluările Maia 2/3 sunt aproximative. Folosește Stockfish pentru o analiză fiabilă.",
             "winningMessages": ["A fost prea ușor", "Bro, mai și pierde", "M-ai lăsat mască, sincer.", "Ești cumva Magnus?", "Bro, ia-o mai ușor.", "Totul datorită mie… adică, ție.", "Bea niște apă", "DAAAAAAA!!!!!"],
             "losingMessages": ["Suntem praf?", "Ăăă...", "Poți mai bine.", "Hai, următoarea partidă.", "Ceeeeeee??", "Chiar jucai bine", "Nu-i nimic", "Și Magnus mai greșește"],
             "drawMessage": "Remiză, partidă frumoasă",
@@ -251,6 +253,10 @@
             "check": "șah", "checkmate": "șah mat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Timpul mutării adversarului (ms)",
+            "opponentMoveTimeHint": "Durata observată a turei adversarului, nu timpul ceasului. Curba liniară X = Y potrivește timpul maxim pe mutare; necesită observarea unei ture complete.",
+            "materialBalance": "Balanță materială (cp)",
+            "materialBalanceHint": "Materialul tău minus al adversarului (pion 100, cal 320, nebun 330, turn 500, damă 900). Adaptează efortul de căutare la diferență; doar piese standard.",
             "useText": "Folosește textul",
             "textLabel": "Text",
             "pointText": "Text personalizat pentru punctul selectat",
@@ -270,8 +276,8 @@
             "copiedLog": "Copiat",
             "copiedEntries": "{count} înregistrări copiate",
             "copyFailed": "Copierea a eșuat: {error}",
-            "enableLogging": "Înregistrarea activității este DEZACTIVATĂ — clic pentru activare",
-            "disableLogging": "Înregistrarea activității este activată — clic pentru dezactivare",
+            "enableLogging": "Înregistrarea activității este DEZACTIVATĂ - clic pentru activare",
+            "disableLogging": "Înregistrarea activității este activată - clic pentru dezactivare",
             "profile": "Profil", "engine": "Motor", "site": "Site", "externalEngine": "Motor extern",
             "search": "Caută", "searchPlaceholder": "Caută în jurnal…", "discordMessagePlaceholder": "Scrie aici mesajul pentru Discord…",
             "title": "Jurnal de activitate", "subtitle": "Mesaje ale motorului, modificări dinamice, avertismente și erori", "show": "Afișează", "clear": "Golește jurnalul", "filter": "Filtrează după tip", "all": "Toată activitatea", "close": "Închide jurnalul", "instance": "Instanță", "empty": "Încă nu sunt înregistrări.", "status": "{shown} afișate · {total} în total",

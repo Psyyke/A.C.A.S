@@ -114,6 +114,7 @@
         "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
     },
     "configTranslations": {
+        "pipEval": ["Bewertung anzeigen", "Bewertungsbalken und Wert in allen Modi des schwebenden Fensters anzeigen"],
         "feedbackMoveCounts": ["Zugzähler im schwebenden Fenster", "Zugbewertungen außerhalb des Lernmodus zählen"],
         "learningPvAnimation": ["Beste Variante animieren", "Die beste Variante im schwebenden Fenster animieren"],
         "learningPvAnimationStopOnEnemyMove": ["Nach Gegnerzug stoppen", "Die Animation stoppen, wenn der Gegner zieht"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Die Einstellungen gelten für alle Instanzen",
         "settingsNavbarInstanceSubtitle": "Die Einstellungen gelten nur für Instanz \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Maia-2/3-Bewertungen sind Näherungen. Nutze Stockfish für verlässliche Analysen.",
             "winningMessages": ["Das war zu easy", "Bro, verlier auch mal", "Bin echt baff.", "Bist du Magnus?", "Bro, chill mal.", "Alles dank mir… äh, dir.", "Trink mal Wasser", "JAAAAAAA!!!!!"],
             "losingMessages": ["Sind wir cooked?", "Ähm...", "Du kannst das besser.", "Nächste Runde, komm.", "Waaaaaaas??", "Hast doch gut gespielt", "Ist schon okay", "Auch Magnus macht Fehler"],
             "drawMessage": "Remis, gute Partie",
@@ -253,6 +255,10 @@
             "check": "Schach", "checkmate": "Schachmatt"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Gegnerische Zugzeit (ms)",
+            "opponentMoveTimeHint": "Beobachtete Dauer des gegnerischen Zuges, nicht die Schachuhr. Eine lineare Kurve X = Y gleicht die maximale Zugzeit an; erfordert einen vollständig beobachteten Zug.",
+            "materialBalance": "Materialbilanz (cp)",
+            "materialBalanceHint": "Eigenes Material minus gegnerisches (Bauer 100, Springer 320, Läufer 330, Turm 500, Dame 900). Suchaufwand an die Materialdifferenz anpassen; nur Standardfiguren.",
             "useText": "Text verwenden",
             "textLabel": "Text",
             "pointText": "Benutzerdefinierter Text für den ausgewählten Punkt",
@@ -287,8 +293,8 @@
             "copiedLog": "Kopiert",
             "copiedEntries": "{count} Einträge kopiert",
             "copyFailed": "Kopieren fehlgeschlagen: {error}",
-            "enableLogging": "Aktivitätsprotokollierung ist AUS — zum Aktivieren klicken",
-            "disableLogging": "Aktivitätsprotokollierung ist an — zum Deaktivieren klicken",
+            "enableLogging": "Aktivitätsprotokollierung ist AUS - zum Aktivieren klicken",
+            "disableLogging": "Aktivitätsprotokollierung ist an - zum Deaktivieren klicken",
             "profile": "Profil", "engine": "Engine", "site": "Website", "externalEngine": "Externe Engine",
             "search": "Suchen", "searchPlaceholder": "Protokolleinträge durchsuchen…", "discordMessagePlaceholder": "Gib hier deine Discord-Nachricht ein…",
             "title": "Aktivitätsprotokoll", "subtitle": "Engine-Nachrichten, dynamische Änderungen, Warnungen und Fehler", "show": "Anzeigen", "clear": "Protokoll leeren", "filter": "Nach Typ filtern", "all": "Alle Aktivitäten", "close": "Protokoll schließen", "instance": "Instanz", "empty": "Noch keine Einträge.", "status": "{shown} angezeigt · {total} insgesamt",

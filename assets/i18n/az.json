@@ -114,6 +114,7 @@
         "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
     },
     "configTranslations": {
+        "pipEval": ["Qiymətləndirməni göstər", "Üzən panelin bütün rejimlərində qiymətləndirmə zolağını və xalını göstər"],
         "feedbackMoveCounts": ["Üzən paneldə gediş sayı", "Öyrənmə rejimindən kənarda gediş qiymətlərinin sayını göstər"],
         "learningPvAnimation": ["Ən yaxşı davamın animasiyası", "Üzən paneldə ən yaxşı davamı animasiya ilə göstərin"],
         "learningPvAnimationStopOnEnemyMove": ["Rəqibin gedişindən sonra dayandır", "Rəqib gediş etdikdə animasiyanı dayandırın"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Parametrlər bütün instansiyalara təsir edir",
         "settingsNavbarInstanceSubtitle": "Parametrlər yalnız \"{instanceID}\" instansiyasına təsir edir",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3 qiymətləri təxminidir. Etibarlı təhlil üçün Stockfish istifadə edin.",
             "winningMessages": ["Bu lap asan oldu", "Qaqa, arada uduz da", "Vallah, sözüm yoxdu.", "Sən Maqnussan?", "Qaqa, bir az sakit.", "Hamısı mənim sayəmdə… yəni, sənin.", "Bir az su iç", "YEEESSSS!!!!!"],
             "losingMessages": ["Batdıq, yoxsa necə?", "Iıı...", "Daha yaxşısını bacararsan.", "Hadi, növbəti oyun.", "Nəəəəəəə??", "Yaxşı oynayırdın axı", "Eybi yox", "Maqnus da səhv edir"],
             "drawMessage": "Heç-heçə, yaxşı oyun idi",
@@ -253,6 +255,10 @@
             "check": "şah", "checkmate": "mat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Rəqibin gediş vaxtı (ms)",
+            "opponentMoveTimeHint": "Saat vaxtı deyil, müşahidə edilən rəqib növbəsinin müddəti. Xətti X = Y maksimum gediş vaxtını uyğunlaşdırır; tam növbə müşahidə olunmalıdır.",
+            "materialBalance": "Material balansı (cp)",
+            "materialBalanceHint": "Sizin materialınız çıxılsın rəqibinki (piyada 100, at 320, fil 330, top 500, vəzir 900). Axtarış səyini fərqə uyğunlaşdırın; yalnız standart fiqurlar.",
             "useText": "Mətni istifadə et",
             "textLabel": "Mətn",
             "pointText": "Seçilmiş nöqtə üçün xüsusi mətn",
@@ -272,8 +278,8 @@
             "copiedLog": "Kopyalandı",
             "copiedEntries": "{count} qeyd kopyalandı",
             "copyFailed": "Kopyalama alınmadı: {error}",
-            "enableLogging": "Fəaliyyət qeydi sönülüdür — aktivləşdirmək üçün klikləyin",
-            "disableLogging": "Fəaliyyət qeydi aktivdir — söndürmək üçün klikləyin",
+            "enableLogging": "Fəaliyyət qeydi sönülüdür - aktivləşdirmək üçün klikləyin",
+            "disableLogging": "Fəaliyyət qeydi aktivdir - söndürmək üçün klikləyin",
             "profile": "Profil", "engine": "Mühərrik", "site": "Sayt", "externalEngine": "Xarici mühərrik",
             "search": "Axtar", "searchPlaceholder": "Jurnalda axtar…", "discordMessagePlaceholder": "Discord mesajınızı bura yazın…",
             "title": "Fəaliyyət jurnalı", "subtitle": "Mühərrik mesajları, dinamik dəyişikliklər, xəbərdarlıqlar və xətalar", "show": "Göstər", "clear": "Jurnalı təmizlə", "filter": "Növə görə süzgəc", "all": "Bütün fəaliyyət", "close": "Jurnalı bağla", "instance": "Nüsxə", "empty": "Hələ qeyd yoxdur.", "status": "{shown} göstərilir · cəmi {total}",

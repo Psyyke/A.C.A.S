@@ -1,5 +1,6 @@
 import * as ort from '../libraries/onnxruntime-web/ort.wasm.bundle.min.js';
 import { preprocess, mirrorMove, allPossibleMovesReversed, parseSetOption, parseGo, parsePosition, policyToUciLines } from './utils.js';
+import { scoreMaiaCandidates } from '../maiaEvaluation.js';
 
 export default class Maia {
 	constructor(modelUrl, ChessLib, board) {
@@ -60,6 +61,8 @@ export default class Maia {
                     this.options.eloOppo = parseInt(option.value);
                 else if(option.name === 'MultiPV')
                     this.options.multipv = parseInt(option.value);
+                else if(option.name === 'ACAS_LearningMode')
+                    this.options.learningMode = option.value === 'true';
 
 				break;
 	
@@ -76,7 +79,7 @@ export default class Maia {
 					this.board.move({
 						from: move.slice(0, 2),
 						to: move.slice(2, 4),
-						promotion: 'q'
+						promotion: move[4]
 					});
 				}
 
@@ -89,10 +92,23 @@ export default class Maia {
 			case 'go':
 				const { nodes, history, searchMoves } = parseGo(line);
 				const calculatedFen = this.board.fen();
+				const options = { ...this.options };
 
-				const processedOutputs = await this.evaluate(searchMoves);
+				const processedOutputs = await this.evaluate(searchMoves, calculatedFen, options);
+				let candidateScores = null;
 
-				policyToUciLines(calculatedFen, processedOutputs, this.options.multipv).forEach(line => this.listen(line));
+				if(options.learningMode) {
+					try {
+						candidateScores = await scoreMaiaCandidates(calculatedFen, processedOutputs.policy, options.multipv,
+							async fen => (await this.evaluate(null, fen, {
+								...options, eloSelf: options.eloOppo, eloOppo: options.eloSelf
+							})).value, this.ChessLib);
+					} catch(error) {
+						console.warn('[Maia 2] Candidate evaluation unavailable:', error);
+					}
+				}
+
+				policyToUciLines(calculatedFen, processedOutputs, options.multipv, candidateScores).forEach(line => this.listen(line));
 
 				break;
 		}
@@ -110,10 +126,10 @@ export default class Maia {
 		return res.arrayBuffer();
 	}
 
-	async evaluate(searchMoves, forcedFen) {
+	async evaluate(searchMoves, forcedFen, options = this.options) {
 		const fen = forcedFen || this.board.fen();
 		const { boardInput, legalMoves, eloSelfCategory, eloOppoCategory } =
-			preprocess(fen, this.options.eloSelf, this.options.eloOppo, this.ChessLib);
+			preprocess(fen, options.eloSelf, options.eloOppo, this.ChessLib);
 
 		const feeds = {
 			boards: new ort.Tensor('float32', boardInput, [1,18,8,8]),

@@ -9,7 +9,7 @@ export default async function updateSettings(updateObj) {
     const isDirectlyCausedByUser = updateObj.data.isDirectlyCausedByUser;
     const isDynamicUciSetting = settingKey.startsWith('DYNAMIC_');
 
-    if(settingKey === this.configKeys.learningPvAnimation || settingKey === this.configKeys.learningPvAnimationStopOnEnemyMove) {
+    if(['learningPvAnimation', 'learningPvAnimationStopOnEnemyMove'].includes(settingKey)) {
         if(this.pV[profileName]) this.pV[profileName][settingKey] = Boolean(settingValue);
         updatePipFeedback(this);
         return;

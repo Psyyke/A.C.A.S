@@ -614,7 +614,11 @@ export default class Interface {
     async updateBoardFen(calculateMovesConfig) {
         const request = (this.boardUpdateRequest || 0) + 1;
         this.boardUpdateRequest = request;
-        const userscriptGameStateHistory = await GET_STATE_HISTORY(this.AcasInstance.instanceID);
+        const [userscriptGameStateHistory, playerColor] = await Promise.all([
+            GET_STATE_HISTORY(this.AcasInstance.instanceID),
+            this.AcasInstance.getPlayerColor()
+        ]);
+
         if(this.boardUpdateRequest !== request || this.AcasInstance.instanceClosed) return;
         const currentStateObj = userscriptGameStateHistory[0];
         const fen = currentStateObj?.fen?.full;
@@ -661,7 +665,11 @@ export default class Interface {
             // Cancel stale calculations and board markings immediately.
             // Keep the latest feedback text visible while the next rating is calculated.
             prepareFeedbackPosition.call(this.AcasInstance, fen);
-            setDynamicSettingsContext(this.AcasInstance.instanceID, fen, currentStateObj);
+            setDynamicSettingsContext(this.AcasInstance.instanceID, fen, {
+                ...currentStateObj,
+                opponentMoveTime: currentStateObj.opponentMoveTime ?? null,
+                playerColor
+            });
             await this.AcasInstance.syncDynamicSettings();
             if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen || this.AcasInstance.instanceClosed) return;
             instanceFenElem.innerText = fen;

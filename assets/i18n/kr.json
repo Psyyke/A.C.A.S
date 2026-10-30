@@ -113,6 +113,7 @@
         "#des-no-result-text": "일부 설정은 엔진의 UCI 출력에서 동적으로 분석됩니다. 엔진을 시작하고 동적 설정을 로드하려면 체스 보드를 열어주세요."
     },
     "configTranslations": {
+        "pipEval": ["평가 표시", "플로팅 패널의 모든 모드에서 평가 막대와 점수를 표시합니다"],
         "feedbackMoveCounts": ["플로팅 패널 수 집계", "학습 모드 밖에서 수 평가별 횟수 표시"],
         "learningPvAnimation": ["최선 수순 애니메이션", "플로팅 패널에서 최선 수순을 애니메이션으로 표시합니다"],
         "learningPvAnimationStopOnEnemyMove": ["상대가 두면 중지", "상대가 수를 두면 애니메이션을 중지합니다"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "설정은 모든 인스턴스에 적용됩니다",
         "settingsNavbarInstanceSubtitle": "설정은 인스턴스 \"{instanceID}\"에만 적용됩니다",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3의 평가는 근사치입니다. 신뢰할 수 있는 분석에는 Stockfish를 사용하세요.",
             "winningMessages": ["이건 너무 쉬웠다", "야 가끔은 좀 져줘", "진짜 감탄만 나오네.", "너 혹시 매그너스?", "야 좀 진정해.", "다 내 덕… 아니 네 덕.", "물 좀 마셔", "와아아아아아!!!!!"],
             "losingMessages": ["우리 망한 거임?", "어...", "더 잘할 수 있잖아.", "자 다음 판 가자.", "뭐어어어어??", "잘하고 있었는데", "괜찮아", "매그너스도 실수는 해"],
             "drawMessage": "무승부네, 좋은 경기였어",
@@ -253,6 +255,10 @@
             "check": "체크", "checkmate": "체크메이트"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "상대의 수 소요 시간(ms)",
+            "opponentMoveTimeHint": "체스 시계가 아닌 관측된 상대 차례의 길이입니다. 선형 곡선 X = Y로 최대 수 시간을 맞출 수 있으며, 차례 전체를 관측해야 합니다.",
+            "materialBalance": "기물 가치 차이(cp)",
+            "materialBalanceHint": "내 기물 가치에서 상대 기물 가치를 뺍니다(폰 100, 나이트 320, 비숍 330, 룩 500, 퀸 900). 차이에 따라 탐색 노력을 조절하며 표준 기물만 계산합니다.",
             "useText": "텍스트 사용",
             "textLabel": "텍스트",
             "pointText": "선택한 점의 사용자 지정 텍스트",
@@ -272,8 +278,8 @@
             "copiedLog": "복사됨",
             "copiedEntries": "{count}개 항목을 복사했습니다",
             "copyFailed": "복사 실패: {error}",
-            "enableLogging": "활동 기록이 꺼져 있습니다 — 클릭하여 켜기",
-            "disableLogging": "활동 기록이 켜져 있습니다 — 클릭하여 끄기",
+            "enableLogging": "활동 기록이 꺼져 있습니다 - 클릭하여 켜기",
+            "disableLogging": "활동 기록이 켜져 있습니다 - 클릭하여 끄기",
             "profile": "프로필", "engine": "엔진", "site": "사이트", "externalEngine": "외부 엔진",
             "search": "검색", "searchPlaceholder": "로그 항목 검색…", "discordMessagePlaceholder": "Discord 메시지를 여기에 입력하세요…",
             "title": "활동 로그", "subtitle": "엔진 메시지, 동적 변경, 경고 및 오류", "show": "표시", "clear": "로그 지우기", "filter": "유형별 필터", "all": "모든 활동", "close": "로그 닫기", "instance": "인스턴스", "empty": "아직 로그가 없습니다.", "status": "{shown}개 표시 · 총 {total}개",

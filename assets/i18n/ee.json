@@ -112,6 +112,7 @@
         "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
     },
     "configTranslations": {
+        "pipEval": ["Näita hinnangut", "Näita hinnanguriba ja skoori ujuvpaneeli kõigis režiimides"],
         "feedbackMoveCounts": ["Käikude loendur ujuvpaneelis", "Näita käiguhinnangute arvu väljaspool õppimisrežiimi"],
         "learningPvAnimation": ["Animeeri parimat jätku", "Animeeri parimat jätku ujuvpaneelil"],
         "learningPvAnimationStopOnEnemyMove": ["Peata pärast vastase käiku", "Peata animatsioon, kui vastane teeb käigu"],
@@ -227,6 +228,7 @@
         "settingsNavbarGlobalSubtitle": "Seaded mõjutavad kõiki instantse",
         "settingsNavbarInstanceSubtitle": "Seaded mõjutavad ainult instantsi \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3 hinnangud on ligikaudsed. Usaldusväärseks analüüsiks kasuta Stockfishi.",
             "winningMessages": ["See oli liiga lihtne", "Bro, kaota vahel ka", "Olen täitsa sõnatu.", "Sa oled Magnus vä?", "Bro, võta rahulikult.", "Kõik tänu mulle… ei, sulle.", "Joo veits vett", "JAAAAAAA!!!!!"],
             "losingMessages": ["Meiega on kööga vä?", "Öö...", "Sa suudad paremini.", "Järgmine mäng, davai.", "Midaaaaaaa??", "Sa mängisid ju hästi", "Pole hullu", "Magnus teeb ka vigu"],
             "drawMessage": "Viik, hea partii",
@@ -252,6 +254,10 @@
             "check": "tuli", "checkmate": "matt"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Vastase käiguaeg (ms)",
+            "opponentMoveTimeHint": "Vastase vaadeldud käigukorra kestus, mitte malekella aeg. Lineaarne X = Y sobitab maksimaalse käiguaja; vaadelda tuleb tervet käigukorda.",
+            "materialBalance": "Materjali tasakaal (cp)",
+            "materialBalanceHint": "Sinu materjal miinus vastase oma (ettur 100, ratsu 320, oda 330, vanker 500, lipp 900). Kohanda otsingupanust erinevusega; ainult tavalised malendid.",
             "useText": "Kasuta teksti",
             "textLabel": "Tekst",
             "pointText": "Valitud punkti kohandatud tekst",
@@ -271,8 +277,8 @@
             "copiedLog": "Kopeeritud",
             "copiedEntries": "Kopeeritud {count} kirjet",
             "copyFailed": "Kopeerimine ebaõnnestus: {error}",
-            "enableLogging": "Tegevuse logimine on VÄLJAS — klõpsa lubamiseks",
-            "disableLogging": "Tegevuse logimine on sees — klõpsa keelamiseks",
+            "enableLogging": "Tegevuse logimine on VÄLJAS - klõpsa lubamiseks",
+            "disableLogging": "Tegevuse logimine on sees - klõpsa keelamiseks",
             "profile": "Profiil", "engine": "Mootor", "site": "Sait", "externalEngine": "Väline mootor",
             "search": "Otsi", "searchPlaceholder": "Otsi logist…", "discordMessagePlaceholder": "Kirjuta siia oma Discordi sõnum…",
             "title": "Tegevuslogi", "subtitle": "Mootori sõnumid, dünaamilised muudatused, hoiatused ja vead", "show": "Näita", "clear": "Tühjenda logi", "filter": "Filtreeri tüübi järgi", "all": "Kõik tegevused", "close": "Sulge logi", "instance": "Eksemplar", "empty": "Logikirjeid veel pole.", "status": "Näidatud {shown} · kokku {total}",

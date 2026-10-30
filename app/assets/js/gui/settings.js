@@ -21,6 +21,21 @@ export function migrateFeedbackSettings(config) {
             delete scope[key];
             changed = true;
         }
+
+        // Board visibility now belongs to the shared floating-panel settings.
+        // Preserve an explicitly saved learning choice for the selected profile.
+        const profiles = scope.profiles || {};
+        const selectedProfile = profiles[scope.chessEngineProfile] || profiles.default;
+        const profile = selectedProfile?.learningMode ? selectedProfile
+            : Object.values(profiles).find(settings => settings?.learningMode);
+        if(typeof profile?.learningPipBoard === 'boolean' && profile.learningMode) {
+            scope.pipBoard = profile.learningPipBoard;
+        }
+        for(const settings of [scope, ...Object.values(profiles)]) {
+            if(!settings || !Object.hasOwn(settings, 'learningPipBoard')) continue;
+            delete settings.learningPipBoard;
+            changed = true;
+        }
     }
     return changed;
 }

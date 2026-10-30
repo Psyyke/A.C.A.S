@@ -112,6 +112,7 @@
         "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
     },
     "configTranslations": {
+        "pipEval": ["显示局面评估", "在浮动面板的所有模式中显示评估条和分数"],
         "feedbackMoveCounts": ["浮动面板走法统计", "在非学习模式下显示走法评级次数"],
         "learningPvAnimation": ["最佳变化动画", "在浮动面板中播放最佳变化动画"],
         "learningPvAnimationStopOnEnemyMove": ["对手走棋后停止", "对手走棋时停止动画"],
@@ -227,7 +228,8 @@
         "settingsNavbarGlobalSubtitle": "设置对所有实例生效",
         "settingsNavbarInstanceSubtitle": "设置仅对实例“{instanceID}”生效",
         "moveFeedback": {
-            "winningMessages": ["这也太轻松了", "哥们，偶尔输一把呗", "真给我看服了。", "你是卡尔森吗？", "哥们，收着点。", "全靠我——啊不，你。", "喝口水吧", "芜湖起飞！！！！！"],
+            "maiaWarning": "Maia 2/3 的评级仅为近似值。如需可靠分析，请使用 Stockfish。",
+            "winningMessages": ["这也太轻松了", "哥们，偶尔输一把呗", "真给我看服了。", "你是卡尔森吗？", "哥们，收着点。", "全靠我--啊不，你。", "喝口水吧", "芜湖起飞！！！！！"],
             "losingMessages": ["这下寄了？", "呃……", "你还能下得更好。", "下把，冲。", "啊啊啊啊啊？？", "你刚下得挺好的", "没事的", "卡尔森也会犯错嘛"],
             "drawMessage": "平局，好棋",
             "bookSummary": "是棋谱走法", "bookSpeech": "棋谱",
@@ -252,6 +254,10 @@
             "check": "将军", "checkmate": "将死"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "对手走棋用时（毫秒）",
+            "opponentMoveTimeHint": "观测到的对手回合时长，并非棋钟时间。线性曲线 X = Y 可让最大走棋用时与之匹配；需完整观测一个回合。",
+            "materialBalance": "子力差（厘兵）",
+            "materialBalanceHint": "你的子力减去对手子力（兵100、马320、象330、车500、后900）。按子力差调整搜索力度；仅计算标准棋子。",
             "useText": "使用文本",
             "textLabel": "文本",
             "pointText": "所选点的自定义文本",
@@ -271,8 +277,8 @@
             "copiedLog": "已复制",
             "copiedEntries": "已复制 {count} 条记录",
             "copyFailed": "复制失败：{error}",
-            "enableLogging": "活动日志记录已关闭 — 点击启用",
-            "disableLogging": "活动日志记录已开启 — 点击关闭",
+            "enableLogging": "活动日志记录已关闭 - 点击启用",
+            "disableLogging": "活动日志记录已开启 - 点击关闭",
             "profile": "配置文件", "engine": "引擎", "site": "网站", "externalEngine": "外部引擎",
             "search": "搜索", "searchPlaceholder": "搜索日志条目…", "discordMessagePlaceholder": "在此输入要发送到 Discord 的消息…",
             "title": "活动日志", "subtitle": "引擎消息、动态更改、警告与错误", "show": "显示", "clear": "清空日志", "filter": "按类型筛选", "all": "全部活动", "close": "关闭日志", "instance": "实例", "empty": "暂无日志。", "status": "显示 {shown} 条 · 共 {total} 条",

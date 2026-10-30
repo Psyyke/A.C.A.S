@@ -234,8 +234,8 @@ export function initializeActivityLog() {
     const updateLoggingToggle = () => {
         const enabled = isActivityLoggingEnabled();
         const label = enabled
-            ? text('disableLogging', 'Activity logging is on — click to disable')
-            : text('enableLogging', 'Activity logging is OFF — click to enable');
+            ? text('disableLogging', 'Activity logging is on - click to disable')
+            : text('enableLogging', 'Activity logging is OFF - click to enable');
         loggingToggle.setAttribute('aria-pressed', String(enabled));
         loggingToggle.setAttribute('aria-label', label);
         loggingToggle.title = label;

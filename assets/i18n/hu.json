@@ -114,6 +114,7 @@
         "#des-no-result-text": "Egyes beállítások dinamikusan kerülnek elemzésre a motor UCI kimenetéből. Nyisson meg egy sakk táblát a motor elindításához és a dinamikus beállítások betöltéséhez."
     },
     "configTranslations": {
+        "pipEval": ["Értékelés megjelenítése", "Az értékelési sáv és pontszám megjelenítése a lebegő panel minden módjában"],
         "feedbackMoveCounts": ["Lépésszámláló a lebegő panelen", "Lépésértékelések számának megjelenítése a tanuló módon kívül"],
         "learningPvAnimation": ["Legjobb folytatás animálása", "A legjobb folytatás animálása a lebegő panelen"],
         "learningPvAnimationStopOnEnemyMove": ["Leállítás az ellenfél lépése után", "Az animáció leállítása, amikor az ellenfél lép"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "A beállítások minden példányra érvényesek",
         "settingsNavbarInstanceSubtitle": "A beállítások csak a(z) \"{instanceID}\" példányra érvényesek",
         "moveFeedback": {
+            "maiaWarning": "A Maia 2/3 értékelései hozzávetőlegesek. Megbízható elemzéshez használj Stockfisht.",
             "winningMessages": ["Ez túl sima volt", "Tesó, néha veszíts is", "Komolyan, le a kalappal.", "Te vagy Magnus?", "Tesó, kicsit lazíts.", "Az én érdemem… mármint a tiéd.", "Igyál egy kis vizet", "EZAAAAAZ!!!!!"],
             "losingMessages": ["Nekünk annyi?", "Ööö...", "Ennél többet tudsz.", "Jöhet a következő, gyerünk.", "Miiiiiii??", "Pedig tök jól játszottál", "Semmi gáz", "Még Magnus is hibázik"],
             "drawMessage": "Döntetlen, jó parti volt",
@@ -253,6 +255,10 @@
             "check": "sakk", "checkmate": "matt"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Ellenfél lépésideje (ms)",
+            "opponentMoveTimeHint": "Az ellenfél megfigyelt körének időtartama, nem a sakkóra ideje. A lineáris X = Y hozzáigazítja a maximális lépésidőt; teljes kör megfigyelése szükséges.",
+            "materialBalance": "Anyagegyensúly (cp)",
+            "materialBalanceHint": "Saját anyag mínusz az ellenfélé (gyalog 100, huszár 320, futó 330, bástya 500, vezér 900). Igazítsa a keresési erőfeszítést a különbséghez; csak hagyományos figurák.",
             "useText": "Szöveg használata",
             "textLabel": "Szöveg",
             "pointText": "Egyéni szöveg a kijelölt ponthoz",
@@ -272,8 +278,8 @@
             "copiedLog": "Másolva",
             "copiedEntries": "{count} bejegyzés másolva",
             "copyFailed": "A másolás sikertelen: {error}",
-            "enableLogging": "A tevékenységnaplózás KI van kapcsolva — kattints a bekapcsoláshoz",
-            "disableLogging": "A tevékenységnaplózás be van kapcsolva — kattints a kikapcsoláshoz",
+            "enableLogging": "A tevékenységnaplózás KI van kapcsolva - kattints a bekapcsoláshoz",
+            "disableLogging": "A tevékenységnaplózás be van kapcsolva - kattints a kikapcsoláshoz",
             "profile": "Profil", "engine": "Motor", "site": "Webhely", "externalEngine": "Külső motor",
             "search": "Keresés", "searchPlaceholder": "Keresés a naplóban…", "discordMessagePlaceholder": "Ide írd a Discord-üzenetedet…",
             "title": "Tevékenységnapló", "subtitle": "Motorüzenetek, dinamikus változások, figyelmeztetések és hibák", "show": "Megjelenítés", "clear": "Napló törlése", "filter": "Szűrés típus szerint", "all": "Minden tevékenység", "close": "Napló bezárása", "instance": "Példány", "empty": "Még nincs naplóbejegyzés.", "status": "{shown} látható · összesen {total}",

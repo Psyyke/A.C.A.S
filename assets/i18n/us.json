@@ -114,6 +114,7 @@
         "#des-no-result-text": "Some settings are parsed dynamically from the engine's UCI output. Please open a chess board to start your engine and load the dynamic settings."
     },
     "configTranslations": {
+        "pipEval": ["Display Evaluation", "Show the evaluation bar and score in every floating panel mode"],
         "feedbackMoveCounts": ["Move Counts In Floating Panel", "Show move rating counts outside learning mode"],
         "learningPvAnimation": ["Animate Best Line", "Animate the best line in the floating panel"],
         "learningPvAnimationStopOnEnemyMove": ["Stop After Enemy Move", "Stop the animation when the opponent moves"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Settings affect every instance",
         "settingsNavbarInstanceSubtitle": "Settings only affect instance \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3 ratings are approximate. Use Stockfish for reliable reviews.",
             "winningMessages": ["That was too easy", "Dude, lose sometimes", "I'm amazed, truly.", "Are you Magnus?", "Dude, chill.", "All due to m-, you.", "Drink some water", "WOOOOOOO!!!!!"],
             "losingMessages": ["Are we cooked?", "Uhh...", "You can do better.", "Next match, cmon.", "Whaaaaaaaaa??", "You were playing well", "It's fine", "Even Magnus makes mistakes"],
             "drawMessage": "All even, good game",
@@ -255,6 +257,10 @@
             "check": "check", "checkmate": "checkmate"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Opponent Move Time (ms)",
+            "opponentMoveTimeHint": "Observed opponent turn duration, not clock time. Linear X = Y matches Max Movetime; waits for a full observed turn.",
+            "materialBalance": "Material Balance (cp)",
+            "materialBalanceHint": "Your material minus theirs (pawn 100, knight 320, bishop 330, rook 500, queen 900). Adapt search effort to material imbalance; standard pieces only.",
             "useText": "Use text",
             "textLabel": "Text",
             "pointText": "Custom text for selected point",
@@ -338,7 +344,7 @@
             "discordMessagePlaceholder": "Write your Discord message here...",
             "clear": "Clear log", "filter": "Filter activity by type", "all": "All activity",
             "close": "Close activity log", "instance": "Instance", "empty": "No log entries yet.",
-            "enableLogging": "Activity logging is OFF — click to enable", "disableLogging": "Activity logging is on — click to disable",
+            "enableLogging": "Activity logging is OFF - click to enable", "disableLogging": "Activity logging is on - click to disable",
             "status": "{shown} shown · {total} total",
             "types": {
                 "engine-input": "Engine input", "engine-output": "Engine output", "dynamic-change": "Dynamic changes",

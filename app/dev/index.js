@@ -297,7 +297,7 @@ async function loadTest(index) {
         return;
     }
 
-    info.innerHTML = '<strong>' + (test.title || 'Untitled Test') + '</strong>' + (test.description ? (' — ' + test.description) : '');
+    info.innerHTML = '<strong>' + (test.title || 'Untitled Test') + '</strong>' + (test.description ? (' - ' + test.description) : '');
 
     let cancelled = false;
     const myIndex = index;
@@ -307,7 +307,7 @@ async function loadTest(index) {
                 const m = moves[j] || {};
                 const fen = m.fen ? normalizeFen(m.fen) : '';
                 if (fen) cg.set({ fen });
-                if (m.annotation) info.innerHTML = '<strong>' + (test.title || 'Untitled Test') + '</strong> — ' + (m.annotation || '');
+                if (m.annotation) info.innerHTML = '<strong>' + (test.title || 'Untitled Test') + '</strong> - ' + (m.annotation || '');
 
                 // delay: m.delay overrides, otherwise random from test.delayRange [min,max], default 800
                 const DEFAULT_DELAY = 800;

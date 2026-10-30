@@ -114,6 +114,7 @@
         "#des-no-result-text": "Niektoré nastavenia sú dynamicky analyzované z výstupu UCI motora. Otvorte šachovnicu, aby ste spustili svoj motor a načítali dynamické nastavenia."
     },
     "configTranslations": {
+        "pipEval": ["Zobraziť hodnotenie", "Zobraziť ukazovateľ a hodnotu hodnotenia vo všetkých režimoch plávajúceho panela"],
         "feedbackMoveCounts": ["Počty ťahov v plávajúcom paneli", "Zobraziť počty hodnotení ťahov mimo režimu učenia"],
         "learningPvAnimation": ["Animovať najlepšie pokračovanie", "Animovať najlepšie pokračovanie v plávajúcom paneli"],
         "learningPvAnimationStopOnEnemyMove": ["Zastaviť po ťahu súpera", "Zastaviť animáciu, keď súper zahrá"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Nastavenia platia pre všetky inštancie",
         "settingsNavbarInstanceSubtitle": "Nastavenia platia iba pre inštanciu \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Hodnotenia Maia 2/3 sú približné. Na spoľahlivú analýzu použite Stockfish.",
             "winningMessages": ["To bolo moc easy", "Kámo, občas aj prehraj", "Fakt nemám slov.", "Ty si Magnus?", "Kámo, trochu kľud.", "Všetko vďaka mne… teda tebe.", "Daj si trochu vody", "JOOOOOOO!!!!!"],
             "losingMessages": ["Sme v háji?", "Ehm...", "Máš na viac.", "Ďalšia hra, poď.", "Čooooooo??", "Veď ti to šlo", "To je v pohode", "Aj Magnus robí chyby"],
             "drawMessage": "Remíza, pekná partia",
@@ -253,6 +255,10 @@
             "check": "šach", "checkmate": "mat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Čas ťahu súpera (ms)",
+            "opponentMoveTimeHint": "Pozorovaná dĺžka súperovho ťahu, nie čas na hodinách. Lineárna krivka X = Y prispôsobí maximálny čas ťahu; vyžaduje celý pozorovaný ťah.",
+            "materialBalance": "Materiálna bilancia (cp)",
+            "materialBalanceHint": "Váš materiál mínus súperov (pešiak 100, jazdec 320, strelec 330, veža 500, dáma 900). Prispôsobte úsilie hľadania rozdielu; iba štandardné figúry.",
             "useText": "Použiť text",
             "textLabel": "Text",
             "pointText": "Vlastný text pre vybraný bod",
@@ -272,8 +278,8 @@
             "copiedLog": "Skopírované",
             "copiedEntries": "Skopírovaných {count} záznamov",
             "copyFailed": "Kopírovanie zlyhalo: {error}",
-            "enableLogging": "Zaznamenávanie aktivít je VYPNUTÉ — kliknutím zapnete",
-            "disableLogging": "Zaznamenávanie aktivít je zapnuté — kliknutím vypnete",
+            "enableLogging": "Zaznamenávanie aktivít je VYPNUTÉ - kliknutím zapnete",
+            "disableLogging": "Zaznamenávanie aktivít je zapnuté - kliknutím vypnete",
             "profile": "Profil", "engine": "Engine", "site": "Web", "externalEngine": "Externý engine",
             "search": "Hľadať", "searchPlaceholder": "Hľadať v denníku…", "discordMessagePlaceholder": "Sem napíšte správu pre Discord…",
             "title": "Denník aktivít", "subtitle": "Správy enginu, dynamické zmeny, upozornenia a chyby", "show": "Zobraziť", "clear": "Vymazať denník", "filter": "Filtrovať podľa typu", "all": "Všetky aktivity", "close": "Zavrieť denník", "instance": "Inštancia", "empty": "Zatiaľ žiadne záznamy.", "status": "Zobrazené {shown} · spolu {total}",

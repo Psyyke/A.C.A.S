@@ -41,7 +41,7 @@
         "#tos-continue-button": "Khởi động A.C.A.S",
         ".tos-link": "Tôi đã đọc và đồng ý với Điều khoản Dịch vụ.",
         ".tos-footer-small": "Bằng việc sử dụng A.C.A.S, bạn xác nhận đã đọc, hiểu và đồng ý tuân thủ Điều khoản Dịch vụ.",
-        "#thanks-for-using-footer-text": "Cảm ơn bạn đã dùng A.C.A.S — dự án được một nhà phát triển tự tay xây dựng và chăm chút.",
+        "#thanks-for-using-footer-text": "Cảm ơn bạn đã dùng A.C.A.S - dự án được một nhà phát triển tự tay xây dựng và chăm chút.",
         ".no-updates-disclaimer-text": "Đừng yêu cầu cập nhật cho những mục này",
         ".tos-reminder-link": "Hãy nhớ tuân thủ Điều khoản Dịch vụ",
         "#install-title": "KHÔNG PHÁT HIỆN USERSCRIPT",
@@ -114,6 +114,7 @@
         "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của engine. Vui lòng mở một bàn cờ để khởi động engine và tải các cài đặt động."
     },
     "configTranslations": {
+        "pipEval": ["Hiện đánh giá", "Hiển thị thanh và điểm đánh giá trong mọi chế độ của bảng nổi"],
         "feedbackMoveCounts": ["Đếm nước đi trong bảng nổi", "Hiển thị số lần xếp loại nước đi ngoài chế độ học tập"],
         "learningPvAnimation": ["Hoạt ảnh chuỗi nước đi tốt nhất", "Hiển thị hoạt ảnh chuỗi nước đi tốt nhất trong bảng nổi"],
         "learningPvAnimationStopOnEnemyMove": ["Dừng sau nước đi của đối thủ", "Dừng hoạt ảnh khi đối thủ đi"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Cài đặt áp dụng cho tất cả các phiên",
         "settingsNavbarInstanceSubtitle": "Cài đặt chỉ áp dụng cho phiên \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Xếp loại Maia 2/3 chỉ mang tính gần đúng. Dùng Stockfish để phân tích đáng tin cậy.",
             "winningMessages": ["Dễ quá rồi", "Bro, thua tí đi", "Nể thật sự luôn.", "Ông là Magnus à?", "Bro, tém lại đi.", "Nhờ tui… à, ông.", "Uống tí nước đi", "WOOOOOOO!!!!!"],
             "losingMessages": ["Toang rồi hả?", "Ờm...", "Ông làm tốt hơn được.", "Ván sau, cố lên.", "Cáiiiiii??", "Nãy đánh ổn mà", "Không sao đâu", "Magnus cũng mắc lỗi mà"],
             "drawMessage": "Hòa rồi, ván hay đấy",
@@ -253,6 +255,10 @@
             "check": "chiếu", "checkmate": "chiếu hết"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Thời gian nước đi của đối thủ (ms)",
+            "opponentMoveTimeHint": "Thời lượng lượt đối thủ quan sát được, không phải đồng hồ. Đường tuyến tính X = Y khớp thời gian nước đi tối đa; cần quan sát trọn một lượt.",
+            "materialBalance": "Chênh lệch vật chất (cp)",
+            "materialBalanceHint": "Vật chất của bạn trừ đối thủ (tốt 100, mã 320, tượng 330, xe 500, hậu 900). Điều chỉnh mức tìm kiếm theo chênh lệch; chỉ quân tiêu chuẩn.",
             "useText": "Dùng văn bản",
             "textLabel": "Văn bản",
             "pointText": "Văn bản tùy chỉnh cho điểm đã chọn",
@@ -272,8 +278,8 @@
             "copiedLog": "Đã sao chép",
             "copiedEntries": "Đã sao chép {count} mục",
             "copyFailed": "Sao chép thất bại: {error}",
-            "enableLogging": "Ghi nhật ký hoạt động đang TẮT — nhấp để bật",
-            "disableLogging": "Ghi nhật ký hoạt động đang bật — nhấp để tắt",
+            "enableLogging": "Ghi nhật ký hoạt động đang TẮT - nhấp để bật",
+            "disableLogging": "Ghi nhật ký hoạt động đang bật - nhấp để tắt",
             "profile": "Hồ sơ", "engine": "Engine", "site": "Trang web", "externalEngine": "Engine bên ngoài",
             "search": "Tìm kiếm", "searchPlaceholder": "Tìm trong nhật ký…", "discordMessagePlaceholder": "Nhập tin nhắn Discord của bạn tại đây…",
             "title": "Nhật ký hoạt động", "subtitle": "Thông báo engine, thay đổi động, cảnh báo và lỗi", "show": "Hiện", "clear": "Xóa nhật ký", "filter": "Lọc theo loại", "all": "Mọi hoạt động", "close": "Đóng nhật ký", "instance": "Phiên", "empty": "Chưa có mục nhật ký.", "status": "Hiện {shown} · tổng {total}",

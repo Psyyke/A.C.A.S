@@ -570,6 +570,9 @@
 														<div class="dropdown-input-container">
 															<input disabled type="text" additional-type="dropdown" data-key="chessEngine" data-default-value="maia3" placeholder="Maia 3"><div class="dropdown-icon"></div>
 															<div class="dropdown-list-container">
+                                                                <div class="dropdown-item" data-value="acas-fusion">
+																Fusion α<span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">Maia 3 + SF18</span> <span class="realistic-engine-tag list-tag">Realistic</span>
+																</div>
                                                                 <div class="dropdown-item" data-value="stockfish-19">
 																Stockfish 19 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(98MB)</span>
 																</div>
@@ -608,9 +611,6 @@
 																</div>
 																<div class="dropdown-item" data-value="lozza-5">
 																Lozza 5 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(400KB)</span> <span class="needs-fixing-engine-tag list-tag" data-translation-needs-fixing-tag="">Needs fixing</span>
-																</div>
-																<div class="dropdown-item force-hidden" data-value="acas-fusion">
-																Fusion α<span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(>15MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-11">
 																Stockfish 11 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(4MB)</span>
@@ -695,7 +695,7 @@
 							</div>
                             <div id="enemy-elo-input" class="textfield-input custom-input hidden"><div><div class="input-title">Enemy ELO</div>
 								<div class="input-subtitle">For more human-like engine</div></div>
-								<input type="textfield" data-key="engineEnemyElo" data-default-value="1500" data-between="600-2600">
+								<input type="textfield" data-key="engineEnemyElo" data-default-value="1500" data-between="600-3200">
 							</div>
 							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
 								<a href="../usage/" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
@@ -850,6 +850,7 @@
                                                         <div class="input-subtitle">Review your last move using this profile's engine</div></div><div class="checkbox-container">
                                                         <input type="checkbox" data-key="learningMode" data-default-value="false"><div class="checkbox-fill">✔</div></div>
                                                     </div>
+
                                                     <div class="input-combination-box">
                                                         <div class="checkbox-input custom-input" inert aria-disabled="true"><div><div class="input-title">Animate Best Line</div>
                                                             <div class="input-subtitle">Animate the best line in the floating panel</div></div><div class="checkbox-container">
@@ -1232,9 +1233,13 @@
                                                 <div class="input-subtitle">Instead of just text, display the entire board</div></div><div class="checkbox-container">
                                                 <input type="checkbox" data-key="pipBoard" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
                                             </div>
+                                            <div class="checkbox-input custom-input"><div><div class="input-title">Display Evaluation</div>
+                                                <div class="input-subtitle">Show the evaluation bar and score in every floating panel mode</div></div><div class="checkbox-container">
+                                                <input type="checkbox" data-key="pipEval" data-no-profile="true" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                            </div>
                                             <div class="checkbox-input custom-input"><div><div class="input-title">SAN Move Notation</div>
                                                 <div class="input-subtitle">Use SAN in PIP and Move TTS</div></div><div class="checkbox-container">
-                                                <input type="checkbox" data-key="pipSan" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                <input type="checkbox" data-key="pipSan" data-no-profile="true" data-default-value="true"><div class="checkbox-fill">✔</div></div>
                                             </div>
                                         </div>
 

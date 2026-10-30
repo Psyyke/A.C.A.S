@@ -1,5 +1,5 @@
 import MoveEvaluator from '../MoveEvaluator.js';
-import { feedbackText as text, feedbackDisplay, feedbackQualityText, feedbackCountLines } from '../misc/feedbackText.js';
+import { feedbackText as text, feedbackDisplay, feedbackQualityText, feedbackCountLines, maiaLearningWarning } from '../misc/feedbackText.js';
 import { updatePipFeedback } from '../gui/pip.js';
 import { getHintSettings, filterHintMoves, presentHintMove } from '../misc/learningHints.js';
 import { formatMoveNotationAsync, formatPvNotationAsync, getMoveSan, replayPvAsync, resolveVariantMove } from '../misc/moveNotation.js';
@@ -53,7 +53,8 @@ function queueLearningFeedbackSpeech(profile, postFen) {
 }
 
 export function recordEngineAnalysis(data, calculation, profile, moveObject) {
-    if(!calculation?.annotationEligible || (!data.pv && !data.bestmove && data.cp == null && data.mate == null)
+    if(!calculation?.annotationEligible || (!data.pv && !data.bestmove && data.cp == null && data.mate == null
+        && !Number.isFinite(data.rootcp) && !Number.isFinite(data.rootmate))
         || /\b(?:lowerbound|upperbound)\b/.test(calculation.rawLine || '')) return;
     const variables = this.pV[profile];
     const state = this.gameStateHistory.findLast(item => item.fen?.full === calculation.fen);
@@ -65,6 +66,16 @@ export function recordEngineAnalysis(data, calculation, profile, moveObject) {
     const ranking = Number(data.multipv) || 1;
     const mate = data.mate != null && Number.isFinite(Number(data.mate)) ? Number(data.mate) : null;
     const cp = data.cp != null && Number.isFinite(Number(data.cp)) ? Number(data.cp) : null;
+    const isFusionEngine = !variables.useExternalChessEngine && variables.requestedEngine === 'acas-fusion';
+    const hasCandidateScores = !variables.useExternalChessEngine && ['maia2', 'maia3', 'acas-fusion'].includes(variables.requestedEngine)
+        && (Number.isFinite(data.rootcp) || Number.isFinite(data.rootmate));
+    if(hasCandidateScores && ranking === 1) {
+        analysis.positionScore = { cp: Number.isFinite(data.rootcp) ? data.rootcp : null,
+            mate: Number.isFinite(data.rootmate) ? data.rootmate : null, depth: Number(data.depth) || 0,
+            playerUci: data.rootmove, pv: data.rootpv?.trim().split(/\s+/) || [] };
+    } else if(ranking === 1 && data.pv) {
+        delete analysis.positionScore;
+    }
     analysis.name = variables.useExternalChessEngine ? `External (${variables.externalChessEngine})` : variables.requestedEngine;
     if(!moveObject) {
         if(ranking === 1 && (cp !== null || mate !== null)) {
@@ -74,12 +85,21 @@ export function recordEngineAnalysis(data, calculation, profile, moveObject) {
         }
         return;
     }
-    if(data.pv && (cp !== null || mate !== null)) {
+    if(isFusionEngine && ranking === 1 && data.pv) {
+        // The next complete Fusion set may contain fewer moves than the last one.
+        analysis.moves = [];
+    }
+    if(data.pv && (cp !== null || mate !== null || isFusionEngine)) {
         const candidate = { ...moveObject, cp,
             fen: calculation.fen, chessVariant: calculation.chessVariant, useChess960: calculation.useChess960,
-            playerUci: uci, mate, depth: Number(data.depth) || 0, pv: data.pv.split(/\s+/) };
+            playerUci: uci, mate, depth: Number(data.depth) || 0, pv: data.pv.split(/\s+/),
+            ...(hasCandidateScores && (cp !== null || mate !== null) ? { candidateScore: true } : {}) };
         analysis.moves = [...analysis.moves.filter(item => item.ranking !== ranking), candidate].sort((a, b) => a.ranking - b.ranking);
-        if(ranking === 1) analysis.score = candidate;
+        if(ranking === 1) {
+            // Unscored fallback moves must not inherit a root/previous score.
+            if(cp !== null || mate !== null) analysis.score = candidate;
+            else delete analysis.score;
+        }
     } else if(!analysis.moves.length) {
         analysis.moves = [{ ...moveObject, cp: null, mate: null,
             ...analysis.score, fen: calculation.fen, playerUci: uci,
@@ -131,12 +151,23 @@ export async function renderLearningFeedback(specificProfile) {
         const own = { ...CREATE_MOVE_OBJ({ playerMove: parseVariantMove(move), profile }), fen,
             playerUci: move, chessVariant: variables.chessVariant, useChess960: variables.useChess960 };
         const playedName = getMoveSan(own) || move;
-        const best = analysis?.score;
-        const next = response?.engine === variables.analysisKey ? response.score : null;
-        // Value-only networks (Maia) score the position, not each policy move.
+        const scoredCandidates = bestMove?.candidateScore ? analysis.moves.filter(item => item.candidateScore) : [];
+        const hasCandidateScores = scoredCandidates.length > 0;
+        // Human policy order is not evaluation order. Use the strongest recorded
+        // candidate as the rating baseline, while preserving Maia's suggestions.
+        const strongestSuggestion = hasCandidateScores ? scoredCandidates
+            .reduce((strongest, item) => recordedEvaluator.meetsBestEvaluation(strongest, item) ? item : strongest)
+            : analysis?.score;
+        // Fusion's objective reference may not be a human-plausible suggestion.
+        // Use its actual score for grading without relabeling a style move best.
+        const best = !variables.useExternalChessEngine && variables.requestedEngine === 'acas-fusion'
+            ? analysis?.positionScore || strongestSuggestion : strongestSuggestion;
+        const next = response?.engine === variables.analysisKey ? response.positionScore || response.score : null;
+        // Older Maia records only have a position score; never treat that score
+        // as an evaluation of every policy move.
         const valueOnly = String(analysis?.name).toLowerCase().includes('maia');
-        const candidate = !valueOnly ? analysis?.moves.find(item => item.playerUci === move
-            && (item.mate != null || item.cp != null)) : null;
+        const candidate = analysis?.moves.find(item => item.playerUci === move
+            && (!valueOnly || item.candidateScore) && (item.mate != null || item.cp != null));
         if(!bestMove || !best || (!next && !candidate) || !move) continue;
 
         const toScore = (item, negate = false, uci = item.playerUci) => ({
@@ -149,9 +180,14 @@ export async function renderLearningFeedback(specificProfile) {
         const replyPv = next ? (next.pv?.length ? next.pv : response?.moves?.[0]?.pv || []) : [];
         const playedScore = candidate ? toScore(candidate) : { ...toScore(next, true, move), pv: [move, ...replyPv] };
         if(playedScore.pv.length < 2 && replyPv.length) playedScore.pv = [move, ...replyPv];
-        const result = recordedEvaluator.compare(toScore(best, false, bestMove.playerUci), playedScore, false);
+        const result = recordedEvaluator.compare(toScore(best, false, best.playerUci || bestMove.playerUci), playedScore, false);
+        if(valueOnly) {
+            result.provisional = true;
+            result.uncertainty = maiaLearningWarning();
+        }
         const showLines = (variables.multiPV ?? 0) > 0 && arrowOpacity > 1;
-        const visible = showLines ? filterHintMoves([bestMove], hints, fen) : [];
+        const displayedBest = hasCandidateScores ? strongestSuggestion : bestMove;
+        const visible = showLines ? filterHintMoves([displayedBest], hints, fen) : [];
         const bestLine = visible[0] ? await formatMoveNotationAsync(presentHintMove(visible[0], visible[0].hintDetail), true, false, undefined, isCurrent) : '';
         if(!isCurrent()) continue;
         // A review's explanatory PV is independent of the opponent-arrow toggle.
@@ -159,7 +195,7 @@ export async function renderLearningFeedback(specificProfile) {
         const allowContinuation = candidate => filterHintMoves([candidate], hints, candidate.fen)
             .some(item => item.hintDetail === 'full');
         const bestPositions = visible[0]?.hintDetail === 'full'
-            ? await replayPvAsync(bestMove.pv, bestMove, allowContinuation, isCurrent) : [];
+            ? await replayPvAsync(displayedBest.pv, displayedBest, allowContinuation, isCurrent) : [];
         if(!isCurrent()) continue;
         const bestContinuation = bestPositions.map(position => position.san).join(' ➜ ');
         const playedContinuation = showLines && allowContinuation(own)

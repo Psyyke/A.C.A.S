@@ -1,7 +1,7 @@
 import { Chess } from '../libraries/chessjs/chess.js';
 
-const allPossibleMovesMaia3 = await fetch('./data/all_moves_maia3.json').then(r => r.json());
-const allPossibleMovesMaia3Reversed = await fetch('./data/all_moves_maia3_reversed.json').then(r => r.json());
+const allPossibleMovesMaia3 = await fetch(new URL('./data/all_moves_maia3.json', import.meta.url)).then(r => r.json());
+const allPossibleMovesMaia3Reversed = await fetch(new URL('./data/all_moves_maia3_reversed.json', import.meta.url)).then(r => r.json());
 
 function mirrorMove(moveUci) {
 	const isPromotion = moveUci.length > 4;

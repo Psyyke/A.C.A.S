@@ -114,6 +114,7 @@
         "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden."
     },
     "configTranslations": {
+        "pipEval": ["Evaluatie tonen", "Toon de evaluatiebalk en score in alle modi van het zwevende paneel"],
         "feedbackMoveCounts": ["Zettentelling in zwevend paneel", "Toon aantallen zetbeoordelingen buiten de leermodus"],
         "learningPvAnimation": ["Beste variant animeren", "Animeer de beste variant in het zwevende paneel"],
         "learningPvAnimationStopOnEnemyMove": ["Stoppen na zet tegenstander", "Stop de animatie wanneer de tegenstander zet"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "De instellingen gelden voor alle instanties",
         "settingsNavbarInstanceSubtitle": "De instellingen gelden alleen voor instantie \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3-beoordelingen zijn benaderingen. Gebruik Stockfish voor betrouwbare analyses.",
             "winningMessages": ["Dat was te makkelijk", "Bro, verlies ook eens", "Ik ben echt verbaasd.", "Ben jij Magnus?", "Bro, doe rustig.", "Allemaal dankzij mij… eh, jou.", "Drink ff wat water", "JAAAAAAA!!!!!"],
             "losingMessages": ["Zijn we cooked?", "Uhh...", "Je kan beter.", "Volgend potje, kom op.", "Waaaaaaat??", "Je speelde best goed", "Geeft niks", "Zelfs Magnus maakt fouten"],
             "drawMessage": "Remise, mooie partij",
@@ -253,6 +255,10 @@
             "check": "schaak", "checkmate": "schaakmat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Zettijd tegenstander (ms)",
+            "opponentMoveTimeHint": "Waargenomen duur van de beurt van de tegenstander, niet de schaakklok. Een lineaire X = Y past de maximale zettijd aan; vereist een volledig waargenomen beurt.",
+            "materialBalance": "Materiaalbalans (cp)",
+            "materialBalanceHint": "Jouw materiaal min dat van de tegenstander (pion 100, paard 320, loper 330, toren 500, dame 900). Pas zoekinspanning aan het verschil aan; alleen standaardstukken.",
             "useText": "Tekst gebruiken",
             "textLabel": "Tekst",
             "pointText": "Aangepaste tekst voor het geselecteerde punt",
@@ -276,8 +282,8 @@
             "copiedLog": "Gekopieerd",
             "copiedEntries": "{count} vermeldingen gekopieerd",
             "copyFailed": "Kopiëren mislukt: {error}",
-            "enableLogging": "Activiteitenregistratie staat UIT — klik om in te schakelen",
-            "disableLogging": "Activiteitenregistratie staat aan — klik om uit te schakelen",
+            "enableLogging": "Activiteitenregistratie staat UIT - klik om in te schakelen",
+            "disableLogging": "Activiteitenregistratie staat aan - klik om uit te schakelen",
             "profile": "Profiel", "engine": "Engine", "site": "Website", "externalEngine": "Externe engine",
             "search": "Zoeken", "searchPlaceholder": "Log doorzoeken…", "discordMessagePlaceholder": "Typ hier je Discord-bericht…",
             "title": "Activiteitenlogboek", "subtitle": "Engineberichten, dynamische wijzigingen, waarschuwingen en fouten", "show": "Toon", "clear": "Logboek wissen", "filter": "Filter op type", "all": "Alle activiteit", "close": "Logboek sluiten", "instance": "Instantie", "empty": "Nog geen vermeldingen.", "status": "{shown} getoond · {total} totaal",

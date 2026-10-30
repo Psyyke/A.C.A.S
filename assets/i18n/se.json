@@ -114,6 +114,7 @@
         "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
     },
     "configTranslations": {
+        "pipEval": ["Visa utvärdering", "Visa utvärderingsstapeln och poängen i alla lägen för den flytande panelen"],
         "feedbackMoveCounts": ["Dragräknare i flytande panel", "Visa antalet dragbetyg utanför inlärningsläget"],
         "learningPvAnimation": ["Animera bästa varianten", "Animera den bästa varianten i den flytande panelen"],
         "learningPvAnimationStopOnEnemyMove": ["Stoppa efter motståndarens drag", "Stoppa animeringen när motståndaren gör ett drag"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Inställningarna gäller alla instanser",
         "settingsNavbarInstanceSubtitle": "Inställningarna gäller endast instansen \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3-bedömningar är ungefärliga. Använd Stockfish för tillförlitlig analys.",
             "winningMessages": ["Det var för lätt", "Bro, förlora nån gång", "Är faktiskt helt paff.", "Är du Magnus?", "Bro, chilla lite.", "Allt tack vare mig… äh, dig.", "Drick lite vatten", "JAAAAAAA!!!!!"],
             "losingMessages": ["Är vi körda?", "Öhh...", "Du kan bättre.", "Nästa match, kom igen.", "Vaaaaaaad??", "Du spelade ju bra", "Det är lugnt", "Även Magnus gör misstag"],
             "drawMessage": "Remi, bra parti",
@@ -253,6 +255,10 @@
             "check": "schack", "checkmate": "schackmatt"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Motståndarens dragtid (ms)",
+            "opponentMoveTimeHint": "Observerad längd på motståndarens tur, inte schackklockan. En linjär X = Y anpassar maximal dragtid; kräver en helt observerad tur.",
+            "materialBalance": "Materialbalans (cp)",
+            "materialBalanceHint": "Ditt material minus motståndarens (bonde 100, springare 320, löpare 330, torn 500, dam 900). Anpassa sökinsatsen efter skillnaden; endast standardpjäser.",
             "useText": "Använd text",
             "textLabel": "Text",
             "pointText": "Anpassad text för den valda punkten",
@@ -272,8 +278,8 @@
             "copiedLog": "Kopierat",
             "copiedEntries": "{count} poster kopierade",
             "copyFailed": "Kopiering misslyckades: {error}",
-            "enableLogging": "Aktivitetsloggning är AV — klicka för att aktivera",
-            "disableLogging": "Aktivitetsloggning är på — klicka för att inaktivera",
+            "enableLogging": "Aktivitetsloggning är AV - klicka för att aktivera",
+            "disableLogging": "Aktivitetsloggning är på - klicka för att inaktivera",
             "profile": "Profil", "engine": "Motor", "site": "Webbplats", "externalEngine": "Extern motor",
             "search": "Sök", "searchPlaceholder": "Sök i loggen…", "discordMessagePlaceholder": "Skriv ditt Discord-meddelande här…",
             "title": "Aktivitetslogg", "subtitle": "Motormeddelanden, dynamiska ändringar, varningar och fel", "show": "Visa", "clear": "Rensa loggen", "filter": "Filtrera efter typ", "all": "All aktivitet", "close": "Stäng loggen", "instance": "Instans", "empty": "Inga loggposter ännu.", "status": "{shown} visas · {total} totalt",

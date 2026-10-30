@@ -21,7 +21,7 @@ class Maia {
 	}
 
 	initialize(modelUrl, modelVersion) {
-		this.worker = new Worker('./maiaWorker.js', { type: 'module' });
+		this.worker = new Worker(new URL('./maiaWorker.js', import.meta.url), { type: 'module' });
 
 		this.worker.onmessage = (e) => {
 			const msg = e.data;

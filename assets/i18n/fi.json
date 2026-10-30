@@ -112,6 +112,7 @@
         "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset."
     },
     "configTranslations": {
+        "pipEval": ["Näytä arvio", "Näytä arviopalkki ja arvioluku kelluvan paneelin kaikissa tiloissa"],
         "feedbackMoveCounts": ["Siirtolaskuri kelluvassa paneelissa", "Näytä siirtoarvioiden määrät oppimistilan ulkopuolella"],
         "learningPvAnimation": ["Animoi paras jatko", "Animoi paras jatko kelluvassa paneelissa"],
         "learningPvAnimationStopOnEnemyMove": ["Pysäytä vastustajan siirron jälkeen", "Pysäytä animaatio, kun vastustaja siirtää"],
@@ -226,6 +227,7 @@
         "settingsNavbarGlobalSubtitle": "Asetukset vaikuttavat kaikkiin instansseihin",
         "settingsNavbarInstanceSubtitle": "Asetukset vaikuttavat vain instanssiin \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3:n arviot ovat suuntaa antavia. Käytä Stockfishia luotettavaan analyysiin.",
             "winningMessages": ["Tää oli liian helppo", "Bro, hävii joskus", "Oon oikeesti ihan sanaton.", "Ooks sä Magnus?", "Bro, ota iisisti.", "Mun ansiota… siis sun.", "Juo vähän vettä", "JESSSSS!!!!!"],
             "losingMessages": ["Ollaanks me pulassa?", "Öö...", "Sä pystyt parempaan.", "Seuraava peli, noni.", "Mitäähhhhh??", "Sähän pelasit hyvin", "Ei se mitään", "Magnuskin tekee mokia"],
             "drawMessage": "Tasapeli, hyvä peli",
@@ -251,6 +253,10 @@
             "check": "shakki", "checkmate": "shakkimatti"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Vastustajan siirtoaika (ms)",
+            "opponentMoveTimeHint": "Havaittu vastustajan vuoron kesto, ei shakkikellon aika. Lineaarinen X = Y sovittaa siirron enimmäisajan; koko vuoro on havaittava.",
+            "materialBalance": "Materiaalitasapaino (cp)",
+            "materialBalanceHint": "Oma materiaali miinus vastustajan (sotilas 100, ratsu 320, lähetti 330, torni 500, kuningatar 900). Sovita hakupanostus eroon; vain tavalliset nappulat.",
             "useText": "Käytä tekstiä",
             "textLabel": "Teksti",
             "pointText": "Valitun pisteen mukautettu teksti",
@@ -296,8 +302,8 @@
             "copiedLog": "Kopioitu",
             "copiedEntries": "Kopioitu {count} merkintää",
             "copyFailed": "Kopiointi epäonnistui: {error}",
-            "enableLogging": "Toimintaloki on POIS käytöstä — ota käyttöön napsauttamalla",
-            "disableLogging": "Toimintaloki on käytössä — poista käytöstä napsauttamalla",
+            "enableLogging": "Toimintaloki on POIS käytöstä - ota käyttöön napsauttamalla",
+            "disableLogging": "Toimintaloki on käytössä - poista käytöstä napsauttamalla",
             "profile": "Profiili", "engine": "Moottori", "site": "Sivusto", "externalEngine": "Ulkoinen moottori",
             "search": "Hae", "searchPlaceholder": "Hae lokista…", "discordMessagePlaceholder": "Kirjoita Discord-viestisi tähän…",
             "title": "Tapahtumaloki", "subtitle": "Moottoriviestit, dynaamiset muutokset, varoitukset ja virheet",

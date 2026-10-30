@@ -3232,7 +3232,21 @@ input[disabled] {
     width: 100%;
     min-width: 0;
     overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
     scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
+}
+#dynamic-settings-floaty .dynamic-variable-tabs:is(:hover, :focus-within) {
+    scrollbar-color: var(--scrollbar-thumb-hover-background) var(--scrollbar-track-background);
+}
+@supports selector(::-webkit-scrollbar) {
+    #dynamic-settings-floaty .dynamic-variable-tabs,
+    #dynamic-settings-floaty .dynamic-variable-tabs:is(:hover, :focus-within) {
+        /* Use the shared rounded scrollbar and thumb hover styles. */
+        scrollbar-width: auto;
+        scrollbar-color: auto;
+    }
 }
 #dynamic-settings-floaty .dynamic-variable-tabs.is-measuring {
     position: absolute;

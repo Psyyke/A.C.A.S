@@ -112,6 +112,7 @@
         "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
     },
     "configTranslations": {
+        "pipEval": ["Прикажи процену", "Прикажи траку и вредност процене у свим режимима плутајућег панела"],
         "feedbackMoveCounts": ["Број потеза у плутајућем панелу", "Прикажи број оцена потеза ван режима учења"],
         "learningPvAnimation": ["Animiraj najbolji nastavak", "Animiraj najbolji nastavak u plutajućem panelu"],
         "learningPvAnimationStopOnEnemyMove": ["Zaustavi posle protivnikovog poteza", "Zaustavi animaciju kada protivnik odigra potez"],
@@ -226,6 +227,7 @@
         "settingsNavbarGlobalSubtitle": "Podešavanja važe za sve instance",
         "settingsNavbarInstanceSubtitle": "Podešavanja važe samo za instancu \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Оцене Maia 2/3 су приближне. За поуздану анализу користите Stockfish.",
             "winningMessages": ["Ово је било прелако", "Брате, изгуби некад", "Стварно, немам речи.", "Јеси ти Магнус?", "Брате, мало искулирај.", "Све захваљујући мени… овај, теби.", "Попиј мало воде", "ИДЕМОООО!!!!!"],
             "losingMessages": ["Јесмо ли надрљали?", "Овај...", "Можеш ти боље.", "Ајмо, следећа партија.", "Штаааааа??", "Баш ти је ишло", "Све је океј", "И Магнус прави грешке"],
             "drawMessage": "Реми, добра партија",
@@ -251,6 +253,10 @@
             "check": "шах", "checkmate": "мат"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Vreme protivnikovog poteza (ms)",
+            "opponentMoveTimeHint": "Posmatrano trajanje protivnikovog reda, ne vreme sata. Linearna kriva X = Y usklađuje maksimalno vreme poteza; potreban je potpuno posmatran red.",
+            "materialBalance": "Materijalni balans (cp)",
+            "materialBalanceHint": "Vaš materijal minus protivnikov (pešak 100, skakač 320, lovac 330, top 500, dama 900). Prilagodite napor pretrage razlici; samo standardne figure.",
             "useText": "Koristi tekst",
             "textLabel": "Tekst",
             "pointText": "Prilagođeni tekst za izabranu tačku",
@@ -270,8 +276,8 @@
             "copiedLog": "Kopirano",
             "copiedEntries": "Kopirano {count} zapisa",
             "copyFailed": "Kopiranje nije uspelo: {error}",
-            "enableLogging": "Beleženje aktivnosti je ISKLJUČENO — kliknite za uključivanje",
-            "disableLogging": "Beleženje aktivnosti je uključeno — kliknite za isključivanje",
+            "enableLogging": "Beleženje aktivnosti je ISKLJUČENO - kliknite za uključivanje",
+            "disableLogging": "Beleženje aktivnosti je uključeno - kliknite za isključivanje",
             "profile": "Profil", "engine": "Motor", "site": "Sajt", "externalEngine": "Spoljašnji motor",
             "search": "Pretraži", "searchPlaceholder": "Pretraži dnevnik…", "discordMessagePlaceholder": "Ovde napišite poruku za Discord…",
             "title": "Dnevnik aktivnosti", "subtitle": "Poruke motora, dinamičke promene, upozorenja i greške", "show": "Prikaži", "clear": "Očisti dnevnik", "filter": "Filtriraj po tipu", "all": "Sve aktivnosti", "close": "Zatvori dnevnik", "instance": "Instanca", "empty": "Još nema zapisa.", "status": "Prikazano {shown} · ukupno {total}",

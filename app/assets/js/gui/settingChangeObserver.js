@@ -1,7 +1,7 @@
 import { acasInstanceContainer, ttsNameDropdownElem, ttsSpeedRangeElem, chessVariantDropdown, enemyEloInputContainer,
   engineEloInput, lc0WeightDropdown, chess960Checkbox, advancedEloEnableInput, normalEloInput, basicAdvancedSettingsPanel,
   chessEngineInput, engineNodesInput, advancedEloDepthInput, chessEngineDropdown, dynamicSettingsContainer,
-  learningPvAnimationInput, stopAnimationSettingElem, learningModeInput, learningHintsContainerElem,
+  learningPvAnimationInput, pipBoardInput, stopAnimationSettingElem, learningModeInput, learningHintsContainerElem,
   reverseSideInput } from './elementDeclarations.js';
 import { connectAcasToServer, disconnectAcasFromServer } from '../AcasWebSocketClient.js';
 import { ensureOneDynamicEngineSettingVisible } from './dynamicEngineOptions.js';
@@ -12,6 +12,7 @@ import { getInputValue } from './domInputs.js';
 import { initMediaSession } from './media.js';
 import { setThemeColorHex } from '../gui.js';
 import { updateCustomBackgroundControls, setCustomBackgroundBlur } from './customBackground.js';
+import { maiaLearningWarning } from '../misc/feedbackText.js';
 
 const processedElems = [];
 
@@ -38,7 +39,17 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
     if(alreadyProcessed && inputElem.dataset.key === 'pip')
         return;
 
+    if(['learningMode', 'chessEngine', 'useExternalChessEngine'].includes(inputElem.dataset.key)) {
+        const maiaLearning = learningModeInput?.checked && ['maia2', 'maia3'].includes(chessEngineInput?.value)
+            && !IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
+
+        if(maiaLearning && !wasCalledByUpdateLoop && !alreadyProcessed) {
+            toast.warning(maiaLearningWarning(), 12000);
+        }
+    }
+
     switch(inputElem.dataset.key) {
+        case 'pipBoard':
         case 'learningPvAnimation':
         case 'learningPvAnimationStopOnEnemyMove':
         case 'learningMode':
@@ -47,10 +58,11 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
         case 'enableMoveRatings':
         case 'enableEnemyFeedback': {
             const learningMode = Boolean(learningModeInput?.checked);
+            const learningBoard = learningMode && pipBoardInput?.checked;
 
             [
-                [learningPvAnimationInput, !learningMode],
-                [stopAnimationSettingElem?.querySelector('input'), !learningMode || !learningPvAnimationInput?.checked]
+                [learningPvAnimationInput, !learningBoard],
+                [stopAnimationSettingElem?.querySelector('input'), !learningBoard || !learningPvAnimationInput?.checked]
             ].forEach(([input, disabled]) => {
                 const setting = input?.closest('.custom-input');
                 if(!setting) return;
@@ -83,6 +95,8 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
                 setting.setAttribute('aria-disabled', String(disabled));
                 input.disabled = disabled;
             });
+
+            if(inputElem.dataset.key === 'pipBoard' && !alreadyProcessed) window.REFRESH_PIP_DISPLAY?.();
 
             break;
         }
@@ -135,6 +149,7 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             const oppMoveGuessInputContainer = document.querySelector('input[data-key="showOpponentMoveGuess"]')
                 ?.parentElement?.parentElement?.parentElement;
             const isMaiaEngine = value && value.includes('maia');
+            const isFusionEngine = value === 'acas-fusion';
             const enginesWithoutAdvancedElo = ['maia2', 'maia3'];
             const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
 
@@ -151,10 +166,10 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             if(value !== 'fairy-stockfish-nnue-wasm') chessVariantDropdown.classList.add('hidden');
             else chessVariantDropdown.classList.remove('hidden');
 
-            if(isMaiaEngine) {
+            if(isMaiaEngine || isFusionEngine) {
                 chess960Checkbox.classList.add('hidden');
                 enemyEloInputContainer.classList.remove('hidden');
-                oppMoveGuessInputContainer?.classList?.add('disabled');
+                oppMoveGuessInputContainer?.classList?.toggle('disabled', isMaiaEngine);
             } else {
                 chess960Checkbox.classList.remove('hidden');
                 enemyEloInputContainer.classList.add('hidden');
@@ -221,12 +236,7 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             }
 
             break;
-        case 'pipBoard':
-            if(wasCalledByUpdateLoop) return;
-
-            startPictureInPicture();
-
-            break;
+        case 'pipEval':
         case 'pipQuality':
         case 'pipSan':
             if(processedElems.findLast(([elem]) => elem === inputElem)?.[1] !== value)
@@ -247,12 +257,14 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
                 'moveSuggestionAmount',
                 'useChess960',
                 'chessVariant',
-                'engineElo'
+                'engineElo',
+                'engineEnemyElo'
             ];
 
             const processIncompatibleSettings = isIncompatible => {
                 incompatibleSettingKeys.forEach(key => {
                     const inputValue = document.querySelector(`input[data-key="${key}"]`);
+                    if(!inputValue) return;
 
                     if(isIncompatible)
                         inputValue.setAttribute('disabled', 'true');

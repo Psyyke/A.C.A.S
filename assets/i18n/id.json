@@ -114,6 +114,7 @@
         "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis."
     },
     "configTranslations": {
+        "pipEval": ["Tampilkan Evaluasi", "Tampilkan bilah dan skor evaluasi di semua mode panel mengambang"],
         "feedbackMoveCounts": ["Jumlah Langkah di Panel Mengambang", "Tampilkan jumlah penilaian langkah di luar mode belajar"],
         "learningPvAnimation": ["Animasikan Kelanjutan Terbaik", "Animasikan kelanjutan terbaik di panel mengambang"],
         "learningPvAnimationStopOnEnemyMove": ["Berhenti Setelah Langkah Lawan", "Hentikan animasi saat lawan melangkah"],
@@ -228,6 +229,7 @@
         "settingsNavbarGlobalSubtitle": "Pengaturan berlaku untuk semua instans",
         "settingsNavbarInstanceSubtitle": "Pengaturan hanya berlaku untuk instans \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Penilaian Maia 2/3 bersifat perkiraan. Gunakan Stockfish untuk analisis yang andal.",
             "winningMessages": ["Ini mah kegampangan", "Bro, sesekali kalah dong", "Asli, gue kagum.", "Lu Magnus ya?", "Bro, santai dikit.", "Semua berkat gue… eh, lu.", "Minum air dulu sana", "WOOOOOOO!!!!!"],
             "losingMessages": ["Kita tamat nih?", "Eee...", "Lu bisa lebih bagus.", "Next game, gas lah.", "Apaaaaaa??", "Tadi mainnya bagus kok", "Gapapa kok", "Magnus aja bisa blunder"],
             "drawMessage": "Seri, mainnya bagus",
@@ -253,6 +255,10 @@
             "check": "skak", "checkmate": "skakmat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Waktu Langkah Lawan (ms)",
+            "opponentMoveTimeHint": "Durasi giliran lawan yang teramati, bukan waktu jam. Kurva linear X = Y menyamakan waktu langkah maksimum; perlu mengamati satu giliran penuh.",
+            "materialBalance": "Selisih Materi (cp)",
+            "materialBalanceHint": "Materi Anda dikurangi lawan (pion 100, kuda 320, gajah 330, benteng 500, menteri 900). Sesuaikan upaya pencarian dengan selisih materi; hanya buah standar.",
             "useText": "Gunakan teks",
             "textLabel": "Teks",
             "pointText": "Teks khusus untuk titik yang dipilih",
@@ -272,8 +278,8 @@
             "copiedLog": "Disalin",
             "copiedEntries": "{count} entri disalin",
             "copyFailed": "Gagal menyalin: {error}",
-            "enableLogging": "Pencatatan aktivitas NONAKTIF — klik untuk mengaktifkan",
-            "disableLogging": "Pencatatan aktivitas aktif — klik untuk menonaktifkan",
+            "enableLogging": "Pencatatan aktivitas NONAKTIF - klik untuk mengaktifkan",
+            "disableLogging": "Pencatatan aktivitas aktif - klik untuk menonaktifkan",
             "profile": "Profil", "engine": "Mesin", "site": "Situs", "externalEngine": "Mesin eksternal",
             "search": "Cari", "searchPlaceholder": "Cari di log aktivitas…", "discordMessagePlaceholder": "Tulis pesan Discord Anda di sini…",
             "title": "Log aktivitas", "subtitle": "Pesan mesin, perubahan dinamis, peringatan dan kesalahan", "show": "Tampilkan", "clear": "Bersihkan log", "filter": "Filter berdasarkan jenis", "all": "Semua aktivitas", "close": "Tutup log", "instance": "Instans", "empty": "Belum ada entri log.", "status": "{shown} ditampilkan · {total} total",

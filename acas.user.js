@@ -80,7 +80,7 @@
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.5.3
+// @version     2.5.4
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -120,7 +120,23 @@ const DynamicSettingsCore = (() => {
         moveNumber: Object.freeze({ label: 'Move Number', min: 1, max: 1000,
             getValue: safeMethod(context => context?.moveNumber, () => null) }),
         evaluation: Object.freeze({ label: 'Evaluation (your advantage, cp)', min: -10000, max: 10000,
-            getValue: safeMethod(context => context?.evaluation, () => null) })
+            getValue: safeMethod(context => context?.evaluation, () => null) }),
+
+        opponentMoveTime: Object.freeze({
+            label: 'Opponent Move Time (ms)',
+            hint: 'Time between observing your move and the opponent reply, not the site clock. Use a linear X = Y curve to match Max Movetime. Waits for a complete observed opponent turn.',
+            min: 1,
+            max: 100000,
+            getValue: safeMethod(context => context?.opponentMoveTime, () => null)
+        }),
+
+        materialBalance: Object.freeze({
+            label: 'Material Balance (cp)',
+            hint: 'Your material minus the opponent material: pawn 100, knight 320, bishop 330, rook 500, queen 900. Increase search effort when behind or reduce assistance when ahead. Standard pieces only.',
+            min: -10000,
+            max: 10000,
+            getValue: safeMethod(context => context?.materialBalance, () => null)
+        })
     });
 
     // Accept data, not objects with custom coercion or values such as Symbols.
@@ -284,12 +300,31 @@ const DynamicSettingsCore = (() => {
         return coerceSettingValue(result, fallback, curve);
     }
 
-    function getContextFromFen(fen) {
+    function getContextFromFen(fen, playerColor) {
         if(typeof fen !== 'string' || !fen.trim()) return {};
         const fields = fen.trim().split(/\s+/);
+
+        // Count on-board fairy pieces too, without counting pieces held in hand.
+        // Promotion markers (+ and ~) and multi-digit empty runs are not pieces.
+        const board = fields[0].split('[')[0];
+        const pieces = board.match(/[a-z]/gi) ?? [];
+        const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+        const ranks = fields[0].split('/');
+        const standardBoard = /^[rnbqkpRNBQKP1-8/]+$/.test(fields[0]) && ranks.length === 8
+            && ranks.every(rank => [...rank].reduce((width, square) => width + (Number(square) || 1), 0) === 8);
+
+        // Unknown pieces and variant promotion/pocket syntax have no reliable
+        // standard material value. Leave this variable unavailable, not zero.
+        const materialBalance = standardBoard && ['w', 'b'].includes(playerColor) ? pieces.reduce((total, piece) => {
+            const value = pieceValues[piece.toLowerCase()];
+
+            return total + (piece === piece.toUpperCase() ? value : -value);
+        }, 0) * (playerColor === 'b' ? -1 : 1) : null;
+
         return {
-            pieceCount: (fields[0].match(/[rnbqkpRNBQKP]/g) ?? []).length,
+            pieceCount: pieces.length,
             moveNumber: Math.max(1, Math.round(finiteNumber(fields[5], 1))),
+            materialBalance,
             gameStart: 0
         };
     }
@@ -728,7 +763,7 @@ function updateUserscriptDynamicContext(context, fen) {
         let updated = false;
         if(typeof core?.setContext === 'function') {
             const fenContext = typeof fen === 'string' && typeof core.getContextFromFen === 'function'
-                ? core.getContextFromFen(fen) : {};
+                ? core.getContextFromFen(fen, getPlayerColor()) : {};
             const state = context && typeof context === 'object' && !Array.isArray(context) ? context : {};
             core.setContext(commLinkInstanceID, { ...fenContext, ...state });
             updated = true;
@@ -2980,6 +3015,12 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
     const previousBasicFen = stateHistory[0]?.fen?.basic;
     const isTurnForced = typeof forcedTurn === 'string';
 
+    const previousState = stateHistory[0];
+    const positionChanged = previousBasicFen !== basicFenToProcess;
+    const observedAt = positionChanged ? Date.now() : previousState?.observedAt ?? Date.now();
+    const isTakeback = positionChanged && boardChanges?.movedPieceColor !== previousState?.turn
+        && stateHistory.some(state => state.fen?.basic === basicFenToProcess);
+
     const movedPieceColor = boardChanges?.movedPieceColor;
     const turn = forcedTurn || (movedPieceColor === 'w' ? 'b' : movedPieceColor === 'b' ? 'w' :
         getSiteData('turn') || stateHistory[0]?.turn || 'w');
@@ -3107,7 +3148,24 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
                 .join('') || '-'
             : '-';
 
+    // Only time a reply if the beginning of the opponent's turn was observed.
+    // Refreshes preserve the timestamp; takebacks and skipped positions are not samples.
+    const turnStartedByMove = positionChanged
+        ? Boolean(!forceFen && movedPieceColor && (!previousState || previousState.turn === movedPieceColor)
+            && !isTakeback && !boardChanges.missedFen && boardChanges.changedSquaresAmount <= 4)
+        : previousState?.turnStartedByMove ?? false;
+    const completeOpponentTurn = positionChanged && !forceFen && !isTakeback && previousState?.turnStartedByMove
+        && previousState.turn === movedPieceColor && movedPieceColor !== getPlayerColor()
+        && ['w', 'b'].includes(movedPieceColor) && !boardChanges.missedFen
+        && boardChanges.changedSquaresAmount <= 4;
+    const moveTime = observedAt - previousState?.observedAt;
+    const opponentMoveTime = isTakeback ? null : completeOpponentTurn && moveTime > 0
+        ? moveTime : previousState?.opponentMoveTime ?? null;
+
     const stateObj = {
+        observedAt,
+        turnStartedByMove,
+        opponentMoveTime,
         turn,
         movedPiece,
         enPassantTarget,
@@ -3156,7 +3214,7 @@ async function processBoardPosition() {
     const latestState = stateHistory[0];
     const squareChangeAmount = latestState?.boardChanges?.changedSquaresAmount || 0;
 
-    updateUserscriptDynamicContext({ gameStart: 0 }, gameState?.fen?.full);
+    updateUserscriptDynamicContext({ gameStart: 0, opponentMoveTime: latestState?.opponentMoveTime ?? null }, gameState?.fen?.full);
 
     await checkBoardOrientationChange();
 
@@ -3174,7 +3232,7 @@ async function processBoardPosition() {
 
     if(isNewMatch) {
         resetStoredMatchVariables();
-        updateUserscriptDynamicContext({ evaluation: null, gameStart: 1 });
+        updateUserscriptDynamicContext({ evaluation: null, opponentMoveTime: null, materialBalance: null, gameStart: 1 });
 
         matchFirstSuggestionGiven = false;
     }

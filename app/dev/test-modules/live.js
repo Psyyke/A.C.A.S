@@ -33,7 +33,7 @@ export async function init(container, { test }) {
     const title = document.createElement('div');
     title.innerHTML =
         '<strong>' + (test.title || 'Live') + '</strong>' +
-        (test.description ? (' — ' + test.description) : '');
+        (test.description ? (' - ' + test.description) : '');
     title.style.marginBottom = '8px';
     panel.appendChild(title);
 
@@ -252,7 +252,7 @@ export async function init(container, { test }) {
             return;
         }
 
-        console.log(`[${ENGINE_NAME}] Suggests ${moveUci} — applying move.`);
+        console.log(`[${ENGINE_NAME}] Suggests ${moveUci} - applying move.`);
 
         // Increment persistent move counter
         incrementMoveCounter();

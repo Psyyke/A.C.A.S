@@ -112,6 +112,7 @@
         "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
     },
     "configTranslations": {
+        "pipEval": ["Değerlendirmeyi Göster", "Yüzen panelin tüm modlarında değerlendirme çubuğunu ve puanını göster"],
         "feedbackMoveCounts": ["Yüzen panelde hamle sayıları", "Öğrenme modu dışında hamle değerlendirme sayılarını göster"],
         "learningPvAnimation": ["En İyi Devam Yolunu Canlandır", "Yüzen panelde en iyi devam yolunu canlandır"],
         "learningPvAnimationStopOnEnemyMove": ["Rakip Hamlesinden Sonra Durdur", "Rakip hamle yaptığında animasyonu durdur"],
@@ -226,6 +227,7 @@
         "settingsNavbarGlobalSubtitle": "Ayarlar tüm örnekleri etkiler",
         "settingsNavbarInstanceSubtitle": "Ayarlar yalnızca \"{instanceID}\" örneğini etkiler",
         "moveFeedback": {
+            "maiaWarning": "Maia 2/3 puanları yaklaşık değerlerdir. Güvenilir analiz için Stockfish kullanın.",
             "winningMessages": ["Bu fazla kolaydı", "Kanka, arada kaybet bari", "Harbi hayran kaldım.", "Sen Magnus musun?", "Kanka, bi sakin.", "Hepsi benim sayemde… şey, senin.", "Bi su iç", "VUHUUUUU!!!!!"],
             "losingMessages": ["Yandık mı?", "Iıı...", "Daha iyisini yaparsın.", "Hadi, sıradaki maç.", "Neeeeeee??", "İyi oynuyodun aslında", "Sıkıntı yok", "Magnus bile hata yapar"],
             "drawMessage": "Berabere, güzel maçtı",
@@ -251,6 +253,10 @@
             "check": "şah", "checkmate": "şah mat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Rakibin Hamle Süresi (ms)",
+            "opponentMoveTimeHint": "Saatteki süre değil, gözlemlenen rakip turunun süresi. Doğrusal X = Y eğrisi azami hamle süresini eşitler; tam bir turun gözlemlenmesi gerekir.",
+            "materialBalance": "Materyal Dengesi (cp)",
+            "materialBalanceHint": "Sizin materyaliniz eksi rakibinki (piyon 100, at 320, fil 330, kale 500, vezir 900). Arama çabasını materyal farkına göre ayarlayın; yalnızca standart taşlar.",
             "useText": "Metni kullan",
             "textLabel": "Metin",
             "pointText": "Seçili nokta için özel metin",
@@ -270,8 +276,8 @@
             "copiedLog": "Kopyalandı",
             "copiedEntries": "{count} kayıt kopyalandı",
             "copyFailed": "Kopyalama başarısız: {error}",
-            "enableLogging": "Etkinlik kaydı KAPALI — açmak için tıklayın",
-            "disableLogging": "Etkinlik kaydı açık — kapatmak için tıklayın",
+            "enableLogging": "Etkinlik kaydı KAPALI - açmak için tıklayın",
+            "disableLogging": "Etkinlik kaydı açık - kapatmak için tıklayın",
             "profile": "Profil", "engine": "Motor", "site": "Site", "externalEngine": "Harici motor",
             "search": "Ara", "searchPlaceholder": "Günlükte ara…", "discordMessagePlaceholder": "Discord mesajınızı buraya yazın…",
             "title": "Etkinlik günlüğü", "subtitle": "Motor mesajları, dinamik değişiklikler, uyarılar ve hatalar", "show": "Göster", "clear": "Günlüğü temizle", "filter": "Türe göre filtrele", "all": "Tüm etkinlikler", "close": "Günlüğü kapat", "instance": "Örnek", "empty": "Henüz kayıt yok.", "status": "{shown} gösteriliyor · toplam {total}",

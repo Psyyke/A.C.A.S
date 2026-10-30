@@ -133,6 +133,8 @@
                         <li><p>You will see your engines as list on the GUI. Click to select the engine you want to use.</p><small>(Remember to add engines using step 2 to be able to see them)</small></li>
                     </ol>
 
+                    <p>If the server is running but the GUI won't connect, check <strong>Server Port</strong> in Engine Settings. It must match the port shown in the Calculation Server. The GUI starts with 2800; only change it if your server uses another port.</p>
+
                     <h3>Meaning of the connection status circle</h3>
                     <ul>
                         <li>🔴 Something is wrong, the server could not start or crashed.</li>
@@ -178,20 +180,44 @@
                 <section>
                     <h2 id="settings">⚙️ Settings</h2>
 
+                    <p>There's quite a lot here, but you don't need to change everything. The defaults are fine to start with. Click a setting's name below to find it on the <a target="_blank" href="../app">GUI</a>.</p>
+                    <ul>
+                        <li><a href="#⚙️-profiles">Profiles</a> and <a href="#⚙️-dynamic-settings">Dynamic Settings</a></li>
+                        <li><a href="#⚙️-floating-panel">Floating Panel</a>, <a href="#⚙️-chess-engine">Chess Engine</a> and <a href="#⚙️-fusion">Fusion</a></li>
+                        <li><a href="#⚙️-move-suggestions">Move Suggestions</a>, <a href="#⚙️-move-timing">Move Timing</a> and <a href="#⚙️-opening-book">Opening Book</a></li>
+                        <li><a href="#⚙️-learning-mode">Learning Mode</a>, <a href="#⚙️-feedback">Feedback</a> and <a href="#⚙️-move-detail">Move Detail</a></li>
+                        <li><a href="#⚙️-turn-settings">Turn Settings</a> and <a href="#render-settings">Render Settings</a></li>
+                        <li><a href="#⚙️-move-tts">Spoken Moves</a>, <a href="#⚙️-messages">Messages</a> and <a href="#⚙️-ghost-script">Ghost Script</a></li>
+                    </ul>
+
+                    <h3 id="⚙️-profiles">⚙️ Profiles</h3>
+                    <p>A profile is a separate set of engine settings. Use the + button next to the profile tabs to add one. For example, you could have a Stockfish profile and a Maia profile to compare their suggestions.</p>
+                    <p class="tip">Selecting a profile only changes which settings you're editing. Other enabled profiles keep running! Turn off the <a target="_blank" href="../app?shl=engineEnabled">Enabled</a> setting in profiles you don't need, especially if your device is struggling.</p>
+                    <p>Global settings apply across your boards. When instance selection is available, you can instead change settings for just one board. An "instance" is simply a board A.C.A.S has connected to. Some settings, such as the Floating Panel, are shared and don't belong to a particular profile.</p>
+
                     <h3 id="⚙️-floating-panel">⚙️ Floating Panel</h3>
                     <p>The <a target="_blank" href="../app?shl=pip">Floating Panel</a> setting creates a small "<em>Picture-in-Picture</em>" view you can resize to be even smaller that will stay on top of every window. It contains important information about the current match.</p>
-                    <p class="tip">This setting is very important to know because it stops A.C.A.S from freezing, and makes the engine run faster!</p>
-                    <p>For Chromium based browsers, such as Chrome, disabling the floating panel creates a "mediaSession" which plays silent audio in loop to keep A.C.A.S active, even when not viewing the tab. Please keep in mind that you need to interact with the A.C.A.S GUI everytime you open it, so that this feature activates.</p>
-                    <p>If you don't want to use the floating panel, you can also create two browser windows (tabs) next to each other, so that the A.C.A.S tab is visible, even if just a little bit, which also stops the A.C.A.S tab from freezing.</p>
-                    <h3 id="⚙️-chess-engine">⚙️ Chess Engine</h3>
-                    <p>The <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a> setting changes the engine which is used to calculate moves. We recommend using <strong>Stockfish 17 Lite</strong> as its the fastest and basically strongest engine, although it does not play like a human and has a hard time playing badly. If you want to play chess variants, use <strong>Fairy Stockfish 14</strong>.</p>
+                    <p class="tip">This setting is very important to know because it helps keep A.C.A.S active when you're not viewing its tab. If suggestions freeze when you switch tabs, keep the panel open.</p>
+                    <p>Disabling the floating panel uses a silent audio loop to try to keep A.C.A.S active instead. This may help in browsers such as Chrome, but isn't guaranteed. Please keep in mind that you need to interact with the A.C.A.S GUI every time you open it, so that the browser allows audio to start.</p>
+                    <p>If you don't want to use the floating panel, you can also keep two browser windows next to each other so that A.C.A.S stays visible, even if just a little bit. This can help prevent the browser from putting the tab to sleep.</p>
+                    <p>Click the settings button next to Floating Panel to find these:</p>
                     <ul>
-                        <li>Stockfish &lt;17 (The strongest gameplay)</li>
+                        <li><a target="_blank" href="../app?shl=pipBoard">Display Board</a> shows the board instead of just text, including in Learning Mode.</li>
+                        <li><a target="_blank" href="../app?shl=pipEval">Display Evaluation</a> shows the evaluation bar and score in every Floating Panel mode, independently of Display Board.</li>
+                        <li><a target="_blank" href="../app?shl=pipQuality">PiP Quality</a> changes the picture resolution, not the engine's strength. Lower it if the panel is slow or your tablet gets warm. The default is 50%.</li>
+                        <li><a target="_blank" href="../app?shl=pipSan">SAN Move Notation</a> uses familiar notation such as Nf3 instead of square-to-square notation such as g1f3. This also applies to Move TTS.</li>
+                    </ul>
+
+                    <h3 id="⚙️-chess-engine">⚙️ Chess Engine</h3>
+                    <p>The <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a> setting changes the engine used to calculate moves. <strong>Maia 3</strong> is the default. For strong analysis, choose Stockfish. The Lite versions are smaller downloads, which can be useful on a phone or tablet. If you want to play chess variants, use <strong>Fairy Stockfish 14</strong>.</p>
+                    <ul>
+                        <li>Stockfish, including Stockfish 19 (Strong engine analysis)</li>
                         <li>Fairy Stockfish 14 (Chess variants)</li>
-                        <li>Maia 2 (Semi-realistic human-like gameplay)</li>
+                        <li>Maia 3 and Maia 2 (Suggestions based on human play at different ratings)</li>
+                        <li>Fusion (Stockfish 18 Lite Single analysis with a mandatory Maia 3 human-move policy and configurable styles)</li>
                         <li>Lc0 with Maia (Semi-realistic human-like gameplay)</li>
                         <li>Lozza 9 (Quite strong engine-like gameplay)</li>
-                        <li>External engine (You choose, can be extremely realistic)</li>
+                        <li>External engine (An engine you run through the <a href="#external">Calculation Server</a>)</li>
                     </ul>
                     <p class="tip">A.C.A.S takes information from the engine's results to give you insights into the match. Some engines offer less of extra information which cannot then be analyzed. Use Stockfish for best results.</p>
                     <p>None of these engines will play like a human for you. Do not think you can get away playing 2500 ELO matches as a 1000 ELO player with an engine. We do not want to hear any complaining on why you got banned when you broke our ToS.</p>
@@ -201,53 +227,230 @@
                     <p>The <a target="_blank" href="../app?shl=chessVariant">Chess Variant</a> setting changes the type of chess Fairy Stockfish plays. Other engines don’t really support it, but most do support <a target="_blank" href="../app?shl=useChess960">Chess 960</a>, which is a variant of chess in which the piece starting positions are randomized. If you happen to play variants, you need to use Fairy Stockfish <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a>.</p>
                     
                     <h3 id="⚙️-engine-elo">⚙️ Engine Elo</h3>
-                    <p>The <a target="_blank" href="../app?shl=engineElo">Engine Elo</a> setting controls how strong the engine plays (between 500-3200 ELO). Note that engines like Stockfish are <strong>very strong</strong>, playing way above human 3000 ELO. For that reason, making them play at low ELO (below 2000) might result in weird behaviour. The "Maia 2" engine is better suited for that.</p>
-                    
+                    <p>The <a target="_blank" href="../app?shl=engineElo">Engine Elo</a> setting controls how strong the engine plays (between 600-3200 ELO). Treat it as a rough strength setting, not a promise that it plays exactly like someone with that rating. Making Stockfish play at low ELO might result in weird behaviour. Maia is better suited for suggestions based on lower-rated human play.</p>
+                    <p>Standalone Maia 3 uses 600–2600 Elo in A.C.A.S, while Maia 2 uses 1100–2000. The shared inputs allow 600–3200; when either saved rating is outside a standalone Maia engine's range, A.C.A.S warns and limits the applied value without changing your saved choice. Fusion accepts 600–3200 for both rating inputs, but values above 2600 are uncalibrated model assumptions, not a measured playing-strength claim. For Stockfish-style engines, setting 3200 removes the usual strength and depth limits. <a target="_blank" href="../app?shl=maxMovetime">Max Movetime</a> can still stop the search.</p>
+
                     <img alt="Chart displaying the ELO depending on the engine search depth and skill level." height="441" src="../assets/images/chart.png">
 
+                    <h4>⚙️ Opponent Elo</h4>
+                    <p>The <a target="_blank" href="../app?shl=engineEnemyElo">Opponent Elo</a> setting tells Maia what rating to assume for the other player. Maia uses both ratings when choosing its suggestions. It doesn't change the actual opponent or read their rating automatically. If you're unsure, leaving it the same as Engine Elo is fine.</p>
+                    <p>This shared field allows <strong>600–3200</strong>, including with Fusion. Standalone Maia 3 still applies its 600–2600 app range, and Maia 2 applies 1100–2000, with a warning when either rating needs limiting. With Advanced Elo enabled, the regular Engine Elo and Opponent Elo fields are disabled and blurred; use the engine's advanced rating options instead.</p>
+
                     <h4>⚙️ Advanced Elo</h4>
-                    <p>The above chart shows a couple variables A.C.A.S changes for you automatically when you use the basic <a target="_blank" href="../app?shl=engineElo">Engine Elo</a> setting.
-                    Some users don't like it, so clicking the settings button next to the Engine ELO opens up "Advanced Elo" settings which overrides basic ELO settings. These are loaded dynamically when your engine starts, so you might not see any settings there while you have no instances running. It might also be buggy so refresh the site.
-                    </p>
+                    <p>The above chart shows how A.C.A.S adjusts depth and skill level for the basic Engine Elo setting. It doesn't describe how Maia's rating inputs work. If you want to set the limits yourself, click the settings button next to Engine Elo and <a target="_blank" href="../app?shl=enableAdvancedElo">enable Advanced Elo</a>. Just opening the panel doesn't enable it.</p>
+                    <ul>
+                        <li><a target="_blank" href="../app?shl=advancedEloDepth">Depth</a> controls how far the engine searches. A larger number generally takes longer. It isn't a number of complete turns, and the engine doesn't examine every possible line equally.</li>
+                        <li><a target="_blank" href="../app?shl=engineNodes">Search Nodes</a> limits how much search work the engine does. A positive node limit is used instead of the depth limit. In Advanced Elo, 0 means use depth instead.</li>
+                    </ul>
+                    <p>Other options come directly from your engine and appear once it starts. Open a chess board if the list is empty. Advanced Elo overrides the basic Elo controls, so disable it again if you want the normal Engine Elo setting to take over.</p>
 
                     <p>Note that not every "Advanced Elo" setting does something. For example "Ponder" option won't most likely do anything as it's not implemented to A.C.A.S. If you're running a built-in engine, it's limited by your browser and might not be able to take usage of any more cores, memory, external files and so on. The setting is meant for advanced users who know what they are doing.</p>
 
                     <p>Feel free to play around and try different things. If you notice something is not working, please understand that the dynamic nature of these settings causes bugs and not everything can be tested beforehand. If you're using a custom engine and encounter them, please feel free to report them to GitHub.</p>
+     
+                    <h3 id="fusion">⚙️ Fusion Engine</h3>
+
+                    <p>Fusion combines <strong>Maia 3</strong> move predictions with <strong>Stockfish 18 Lite Single</strong> analysis. Personality settings adjust move preferences without changing Stockfish's evaluations.</p>
+
+                    <p>Select Fusion under <a target="_blank" href="../app?shl=chessEngine">Chess Engine</a>. For extra controls, enable <a target="_blank" href="../app?shl=enableAdvancedElo">Advanced Elo</a> and open a chess board. Only standard chess is supported.</p>
+
+                    <p>If no combined suggestion passes the filters, Fusion <strong>falls back to Maia with your personality and Personal Variation</strong>. This bypasses Stockfish's quality penalties and Tactical Safety, so the move may be weaker. Fusion never switches to Stockfish-only suggestions.</p>
+
+                    <p>A suggestion still requires a valid Maia prediction for an allowed legal move. Loading errors, timeouts or stopping before Maia responds can leave you without a suggestion. <strong>Maia Wait</strong> limits extra waiting after Stockfish finishes, subject to the search's time limit.</p>
+
+                    <h4>Main settings</h4>
+                    <ul>
+                        <li><strong>Stockfish Weight:</strong> Higher values favor stronger evaluated moves. At 0, only Maia and style preferences guide selection.</li>
+                        <li><strong>Human Plausibility:</strong> Higher values exclude more moves Maia considers unlikely.</li>
+                        <li><strong>Maia Temperature:</strong> Lower values emphasize Maia's favorites; higher values spread preferences more evenly.</li>
+                        <li><strong>Personality and Personality Strength:</strong> Choose a style and how strongly its bonuses apply.</li>
+                        <li><strong>Personal Variation:</strong> Adds consistent individual preferences using a saved identity. Random Seed can override that identity.</li>
+                        <li><strong>Randomness and Top P:</strong> Allow alternative choices and limit their selection pool. Randomness 0 keeps ranking deterministic.</li>
+                        <li><strong>Tactical Safety and Max Centipawn Loss:</strong> Filter combined suggestions by evaluation loss. They do not protect Maia fallback moves.</li>
+                        <li><strong>Candidate Moves and MultiPV:</strong> Control how many alternatives Stockfish examines and how many suggestions Fusion returns.</li>
+                    </ul>
+
+                    <h4>Ratings and depth</h4>
+                    <p>In Advanced Elo, <strong>UCI_Elo</strong> and <strong>Enemy_Elo</strong> set Maia's rating assumptions from 600 to 3200. Values above 2600 are uncalibrated. Depth and Search Nodes control Stockfish, not Maia. A high Elo input cannot fix a shallow search.</p>
+
+                    <p><strong>Learning Mode</strong> disables random sampling and uses Stockfish's evaluation for grading, while keeping Maia and personality preferences.</p>
+
+                    <p class="tip">Fusion does not guarantee a particular playing strength or human-like play. Follow the chess platform's rules and our <a href="../tos/">Terms of Service</a>.</p>
             
                     <h3 id="⚙️-weights">⚙️ Weights</h3>
                     <p>The <a target="_blank" href="../app?shl=lc0Weight">Lc0 Weights</a> setting determines how the Lc0 engine plays. The weight controls the engine's playing style, influencing the decisions it makes while playing. <strong>Maia weights</strong> have the ELO they're roughly playing at marked on them. The ELO and playing style of other weights is not known, but most of them are quite weak.</p>
-                    <p class="tip">Most weights A.C.A.S has, Maia specifically, are designed to only use 1 search node. It's fine that it goes just to depth 1. Using more than 1 search node might cause weird behavior.</p>
-                    
+                    <p class="tip">The Maia weights for Lc0 are intended for a single-node search. It's fine that the engine barely searches ahead; increasing Search Nodes changes how those suggestions are chosen. These weights are separate from the built-in Maia 2 and Maia 3 engines.</p>
+
+                    <h3 id="⚙️-move-suggestions">⚙️ Move Suggestions &amp; Only Top Moves</h3>
+                    <p>The <a target="_blank" href="../app?shl=moveSuggestionAmount">Move Suggestions</a> setting controls how many candidate moves the engine tries to provide. For example, 3 asks for up to three different moves, not the next three moves of one line. Some engines may provide fewer. More suggestions can mean more work for the engine.</p>
+                    <p><a target="_blank" href="../app?shl=onlyShowTopMoves">Only Top Moves</a> mainly changes <strong>when</strong> suggestions appear. When enabled, A.C.A.S normally waits until the search finishes instead of showing suggestions that keep changing as the engine thinks. It doesn't force Move Suggestions down to 1. Searches without a normal stopping limit can still show updates while thinking.</p>
+                    <p class="tip">If you want just one arrow, set Move Suggestions to 1. Setting it to 0 hides the engine's move suggestions, but doesn't turn off the engine.</p>
+
+                    <h3 id="⚙️-move-timing">⚙️ Move Delay &amp; Max Movetime</h3>
+                    <p>These sound similar, but do different things. Both use milliseconds: <strong>1000ms is 1 second</strong>.</p>
+                    <ul>
+                        <li><a target="_blank" href="../app?shl=moveDisplayDelay">Move Delay</a> holds back the suggestions until at least this much time has passed since calculation started. It doesn't give the engine more thinking time. If the search takes longer than the delay, you'll still have to wait for its results.</li>
+                        <li><a target="_blank" href="../app?shl=maxMovetime">Max Movetime</a> stops the engine's search after roughly this much time. The engine can finish earlier if it reaches its depth or node limit. 0 means no extra time limit, not instant results.</li>
+                    </ul>
+                    <p>For example, with Max Movetime at 1000 and Move Delay at 3000, the engine can stop thinking after about a second, but the suggestions won't appear until about three seconds after it started.</p>
+
+                    <p>You can also make Max Movetime follow the opponent's latest observed thinking time instead of choosing one fixed value. See <a href="#⚙️-opponent-move-time">Opponent Move Time</a> under Dynamic Settings for the graph setup and its limitations.</p>
+
+                    <h3 id="⚙️-opening-book">⚙️ Opening Book</h3>
+                    <p>The <a target="_blank" href="../app?shl=openingBookName">Opening Book</a> setting loads saved moves from a file. Click the filename box to choose a Polyglot <strong>.bin</strong> or move-annotated <strong>.epd</strong> book. These moves are shown separately from the engine's suggestions, with white arrows by default. The engine keeps calculating normally.</p>
+                    <p>A book only has moves for positions stored in it. If nothing shows up, your position might simply not be in the book. Move Suggestions also limits how many book moves are shown. You can change their color and opacity in Accessibility Settings, or use the × button next to the filename to remove the book from that profile.</p>
+                    <p class="tip">Not every .epd file is an opening book. It needs move annotations such as <code>bm</code>, <code>pm</code> or <code>pv</code>. A list of starting positions alone doesn't tell A.C.A.S which moves to show. Books are stored in this browser, so you may need to import them again on another device.</p>
+
+                    <h3 id="⚙️-learning-mode">⚙️ Learning Mode</h3>
+                    <p>The <a target="_blank" href="../app?shl=learningMode">Learning Mode</a> setting is for reviewing a move <strong>after you've played it</strong>, rather than being told what to play next. The GUI shows the position before your last move, along with that profile's engine suggestions and a rating of the move you actually played. The board being a move behind is intentional!</p>
+                    <p>Learning Mode uses the engine selected in that profile, with its Elo and search settings. A Maia review can therefore differ from a Stockfish review. This is different from ordinary Move Ratings, which use a separate Fairy Stockfish engine. Keep A.C.A.S connected while playing; it needs the recorded positions to review your move.</p>
+                    <p class="tip">Learning Mode may not work well with Maia 2 or 3. A.C.A.S evaluates their suggested positions and keeps the player/opponent Elo roles aligned, but their ratings remain approximate outcome estimates rather than deep tactical analysis. Use Stockfish for more reliable move reviews.</p>
+                    <p>Live move arrows and opening book hints from a learning profile aren't sent to the chess site's board. Move TTS reads the move's rating instead of announcing the next suggested move. Learning profiles also ignore Moves On Demand, Only Own Turn and Always My Turn so they can record both sides of the position correctly.</p>
+
+                    <h4>⚙️ Display Board &amp; Evaluation</h4>
+                    <p>The <a target="_blank" href="../app?shl=pipBoard">Display Board</a> checkbox in Floating Panel settings controls the board in both normal and Learning Mode. Turn it off for a compact learning panel with the opening beside A.C.A.S in the header, rating counts and move feedback. <a target="_blank" href="../app?shl=pipEval">Display Evaluation</a> independently controls the evaluation bar and score in every mode. The GUI's main board and move review still work normally.</p>
+                    <p>Hiding the board pauses its floating-panel animation and disables the animation controls without clearing your saved choices. Showing it again allows animation to resume when an eligible review is available. It doesn't close the Floating Panel or change its keep-alive purpose. When the last instance closes, the panel keeps its dimensions instead of widening.</p>
+
+                    <h4>⚙️ Animate Best Line</h4>
+                    <p>Enable <a target="_blank" href="../app?shl=learningPvAnimation">Animate Best Line</a> to replay the engine's preferred continuation in the Floating Panel when it found a different move from yours. A "line" is a sequence of moves and replies. Display Board must be enabled to see the animation.</p>
+                    <p><a target="_blank" href="../app?shl=learningPvAnimationStopOnEnemyMove">Stop After Enemy Move</a> stops that replay when the opponent plays their actual reply. Disable it if you'd rather keep watching the review until your next move.</p>
+                    <p class="tip">Learning Mode belongs to a profile. It doesn't disable other profiles that are still giving live suggestions. If you only want reviews, turn off those other engines.</p>
+
+                    <h3 id="⚙️-feedback">⚙️ Move Ratings &amp; Feedback</h3>
+                    <p><a target="_blank" href="../app?shl=enableMoveRatings">Move Ratings</a> compares your played move with the best move found by a separate Fairy Stockfish engine. <a target="_blank" href="../app?shl=enableEnemyFeedback">Opponent Ratings</a> does the same for the other player. These are reviews of moves already played, not predictions of the next move.</p>
+                    <p>The <a target="_blank" href="../app?shl=feedbackEngineDepth">Search Depth</a> in Feedback Settings controls this separate engine, not your main engine. Higher depth can give it a better look at the position, but takes longer and uses more of your device's processing power. In Learning Mode, the selected profile's engine supplies the review instead.</p>
+                    <p>Ratings consider how much worse the played move is than the engine's best choice, including changes in evaluation and forced mates. A.C.A.S isn't using the chess site's own rating system, so don't expect the labels to match exactly. Shallow analysis can also miss things.</p>
+                    <ul>
+                        <li><a target="_blank" href="../app?shl=feedbackOnExternalSite">Feedback On External Site</a> puts the rating on the chess site's board. This is separate from Moves On External Site and Render On External Site.</li>
+                        <li><a target="_blank" href="../app?shl=feedbackEmojis">Feedback Emojis</a> controls the rating emojis beside moves. Turning them off doesn't stop the review itself.</li>
+                        <li><a target="_blank" href="../app?shl=feedbackInPip">Feedback In Floating Panel</a> puts a compact version of the feedback in the panel.</li>
+                        <li><a target="_blank" href="../app?shl=feedbackMoveCounts">Move Counts In Floating Panel</a> adds totals for the different move ratings outside Learning Mode. Enable the ratings you want counted and Feedback In Floating Panel too.</li>
+                    </ul>
+                    <p class="tip">Engine critiques are comparisons to the engine's idea of the best move, not a judgement of you as a player. Use them to find something worth reviewing, not to worry about every small inaccuracy.</p>
+
+                    <h3 id="⚙️-move-detail">⚙️ Move Detail &amp; Filter Shown Pieces</h3>
+                    <p>The <a target="_blank" href="../app?shl=hintDetail">Move Detail</a> setting lets you ask for less help. Instead of showing the whole move, A.C.A.S can leave part of it for you to figure out:</p>
+                    <ul>
+                        <li><strong>Full move</strong> shows where the piece starts and where it should go.</li>
+                        <li><strong>Piece only</strong> shows which piece to consider, but not where to move it.</li>
+                        <li><strong>Destination only</strong> shows the target square, but not which piece should move there.</li>
+                        <li><strong>Captures only</strong> or <strong>Non-captures only</strong> hides suggestions of the other kind. You can combine these with piece-only or destination-only hints.</li>
+                    </ul>
+                    <p><strong>Filter Shown Pieces</strong> lets you hide suggestions for particular piece types. It has separate lists for <a target="_blank" href="../app?shl=suggestPawn">your pieces</a> and <a target="_blank" href="../app?shl=suggestEnemyPawn">opponent pieces</a>. For example, you can hide your queen moves while leaving knight suggestions visible.</p>
+                    <p>Move Detail applies to your move hints. Opponent move guesses have their own piece filters and can still show a full reply, so turn those off too if you don't want that information.</p>
+                    <p class="tip">These settings filter the suggestions the engine already found. They don't force it to find a different move with an allowed piece. If all its suggestions are filtered out, you might see no hint at all. Moves On Demand uses full move detail outside Learning Mode.</p>
+
+                    <h3 id="⚙️-moves-on-demand">⚙️ Moves On Demand</h3>
+                    <p>The <a target="_blank" href="../app?shl=movesOnDemand">Moves On Demand</a> setting waits for you to interact with a piece on the chess site's board. Click or tap a piece to ask the engine about moves with that piece, rather than getting suggestions for the whole board automatically.</p>
+                    <p>It's useful when you want to choose the piece yourself. Refresh the chess site after changing this setting if it doesn't respond. Ghost Script disables the board overlay this feature needs, so the two don't work together.</p>
+
+                    <h3 id="⚙️-turn-settings">⚙️ Only Own Turn, Always My Turn &amp; Reverse Side</h3>
+                    <p>These change which side the main engine calculates for. They're easy to mix up:</p>
+                    <ul>
+                        <li><a target="_blank" href="../app?shl=onlyCalculateOwnTurn">Only Own Turn</a> skips normal suggestion searches while it's the opponent's turn. It doesn't turn off separate feedback analysis.</li>
+                        <li><a target="_blank" href="../app?shl=alwaysMyTurn">Always My Turn</a> asks the engine to treat the current board as if you could move next, even while the opponent is thinking. Those suggestions are hypothetical: their actual reply can change everything. Disable it to analyze the side whose turn it really is.</li>
+                        <li><a target="_blank" href="../app?shl=reverseSide">Reverse Side</a> switches the profile's side to the opponent. With Always My Turn, you can use it to look for their best moves instead of yours. It doesn't just rotate the board.</li>
+                    </ul>
+
+                    <h3 id="⚙️-dynamic-settings">⚙️ Dynamic Settings</h3>
+                    <p>Dynamic Settings lets a setting change as the game changes. Click the small curve button beside a supported setting to open its graph. This is optional; if you want one value for the whole game, just use the normal setting.</p>
+                    <p>The horizontal axis (X) is what you're watching, and the vertical axis (Y) is the setting's value:</p>
+                    <ul>
+                        <li><strong>Piece Count</strong> counts pieces and pawns from both sides, including kings. Ordinary chess starts at 32.</li>
+                        <li><strong>Move Number</strong> is the full move number. White and Black each playing once advances it by one.</li>
+                        <li><strong>Evaluation</strong> is your advantage from the latest completed primary engine evaluation. Negative means you're losing, positive means you're winning, and 0 is equal. It's measured in centipawns, so +100 means roughly a one-pawn advantage, not necessarily an extra pawn on the board.</li>
+                        <li><a href="#⚙️-opponent-move-time"><strong>Opponent Move Time (ms)</strong></a> is the duration of the opponent's latest fully observed turn. Use it to adapt a setting to their pace.</li>
+                        <li><a href="#⚙️-material-balance"><strong>Material Balance (cp)</strong></a> is your remaining material minus theirs, using fixed piece values. It updates from the board without waiting for engine analysis.</li>
+                    </ul>
+                    <p>Choose a variable, choose a setting, then use <strong>＋ Line</strong> for the profile you're editing. Drag the points or select one and type its X and Y values. Use <strong>＋ Point</strong> to add another. Changes are saved as you edit.</p>
+                    <p>For example, choose Move Number and Engine Elo. Put one point at X 1, Y 1200 and another at X 40, Y 1800. With a Linear curve, the Elo gradually rises from 1200 to 1800 over those moves. After move 40, it returns to your normal saved Elo unless you extend the line.</p>
+                    <ul>
+                        <li><strong>Step</strong> holds a value until the next point.</li>
+                        <li><strong>Linear</strong> changes evenly between points.</li>
+                        <li><strong>Smooth</strong> follows a curved transition between points.</li>
+                    </ul>
+                    <p>Checkboxes and dropdowns use Step because they need a definite choice, not an in-between value. For dropdowns, <strong>Saved default</strong> means use the value in the normal setting. Each setting has one curve per profile; you can't give it separate Piece Count and Move Number curves at the same time.</p>
+                    <p>A graph doesn't bypass the setting's normal rules. For example, an Engine Elo curve won't take over while Advanced Elo is enabled. If you graph Chess Engine itself, it returns to your saved engine at the start of a new game.</p>
+                    <p class="tip">The normal input keeps showing your saved value even while a graph is overriding it. Check the curve button's live value if the engine seems to be using something else. Outside the line's range, or while its variable isn't available yet, the saved value is used. Remove the line to go back to a fixed setting.</p>
+
+                    <h4 id="⚙️-opponent-move-time">⚙️ Opponent Move Time (ms)</h4>
+                    <p>This measures the time between the userscript observing your move and observing the opponent's reply. It is <strong>not the chess site's clock time</strong>: network delays, board animations and delayed move detection can affect it. It uses the actual player's side, not a profile's Reverse Side setting.</p>
+                    <p>To make <a target="_blank" href="../app?shl=maxMovetime">Max Movetime</a> match the latest sample, open its curve editor, choose Opponent Move Time, add a line for your profile and select <strong>Linear</strong>. Set the endpoints to <code>X 1, Y 1</code> and <code>X 100000, Y 100000</code>. For example, an observed reply taking 2400ms sets Max Movetime to 2400ms. This changes the search budget, not the time at which an automatic move is played; depth or node limits can still end the search earlier.</p>
+                    <p>The value changes after a complete observed opponent turn, not continuously while they think, and stays at the latest valid sample between replies. Loading mid-turn doesn't provide a complete sample. Reconstructed missed moves aren't timing samples, and a new game clears the value. Until a sample is available, or if it falls outside your curve's range, the normal saved setting is used. The example covers 1ms to 100 seconds; it doesn't bypass Max Movetime's normal limits.</p>
+
+                    <h4 id="⚙️-material-balance">⚙️ Material Balance vs. Evaluation</h4>
+                    <p>Both use <strong>centipawns (cp), where 100 cp is one pawn unit</strong>, but they answer different questions:</p>
+                    <ul>
+                        <li><strong>Material Balance:</strong> how much material do you have compared with the opponent? It adds pawn 100, knight 320, bishop 330, rook 500 and queen 900, then subtracts their total from yours. Kings contribute 0. Positive means extra material, negative means less material, and 0 means equal total value.</li>
+                        <li><strong>Evaluation / Your Advantage:</strong> how good does the engine think your position is? It considers the position, including threats, king safety, piece activity and material, rather than just adding up pieces. It depends on the engine and analysis available.</li>
+                    </ul>
+                    <p>For example, after sacrificing a rook for a winning attack, your Material Balance could be <strong>−500 cp</strong> while Evaluation is <strong>+800 cp</strong>. You're down material but the engine thinks you're winning. Material Balance is therefore not another win/loss estimate.</p>
+                    <p>Use Evaluation when you want settings to follow the engine's overall assessment. Use Material Balance for predictable, engine-independent rules, such as giving more hints when down a piece. Unlike Piece Count, it distinguishes losing a queen from losing a pawn. The calculation uses standard pieces on an 8×8 board and doesn't provide variant-specific piece values.</p>
+                    <p class="tip">The board checkbox and GUI-side Material Balance don't require new userscript data. Opponent Move Time requires the updated userscript to record timing. Update the userscript on the chess site as well for settings resolved there to follow either new variable. Older scripts can still run A.C.A.S, but these parts of the new features may be unavailable or use the normal saved setting instead.</p>
+
                     <h3 id="⚙️-moves-on-external-site">⚙️ Moves On External Site</h3>
-                    <p>The <a target="_blank" href="../app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting adds details about the move (<em>such has the arrow</em>) to the external site, which could be Chess.com for example, directly on the board you're playing on.</p>
-                    <p class="tip">Chess sites <em>could</em> implement detections to this. Right now no site seems to detect it, but if you're extra worried, disable this, it doesn't matter if you're not following the engine moves.</p>
-                    
+                    <p>The <a target="_blank" href="../app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting shows move hints directly on the board you're playing on, instead of only on the GUI's board.</p>
+                    <p>This only controls move hints, including opening book hints. Board metrics and move ratings have their own switches: <a target="_blank" href="../app?shl=renderOnExternalSite">Render On External Site</a> and <a target="_blank" href="../app?shl=feedbackOnExternalSite">Feedback On External Site</a>. Turning off move arrows alone doesn't turn those off.</p>
+                    <p class="tip">Adding things to a chess site's board could be detected. Hiding arrows doesn't make engine use safe or allowed. Please follow the site's rules and our <a href="../tos/">ToS</a>.</p>
+
+                    <h3 id="⚙️-opponent-move-guess">⚙️ Opponent Move Guess</h3>
+                    <p>The <a target="_blank" href="../app?shl=showOpponentMoveGuess">Opponent Move Guess</a> setting shows the reply the engine expects <strong>after you play its suggested move</strong>. It's not necessarily the move the opponent should make on the board right now, and it isn't a promise of what they'll actually play.</p>
+                    <p>Normally the reply appears when you hover over the square the suggested move starts from. Enable <a target="_blank" href="../app?shl=showOpponentMoveGuessConstantly">Constantly Visible</a> to leave it showing, which is useful on touchscreens. Some engines don't provide a reply, so there may be nothing to show.</p>
+
                     <h3 id="⚙️-theme-color">⚙️ Theme Color</h3>
                     <p><a target="_blank" href="../app?shl=themeColorHex">Theme Color</a> setting and the settings below it allow you to change the theme to your liking.</p>
                     <p>🟩 Best Move, 🟦 Secondary Move, 🟥 Enemy Move</p>
-                    <blockquote class="bordered">
-                        <p>Enemy move is shown if <a target="_blank" href="../app?shl=showOpponentMoveGuess">Opponent Move Guess</a> setting is activated and the square an arrow starts from is hovered. The enemy move arrow is just a guess made by the engine and means that the engine thinks after you make the move the arrow suggests, the enemy will make the move the enemy arrow suggests.</p>
-                    </blockquote>
-            
+                    <p>These are the default move colors, not the square colors explained below. Accessibility Settings has separate controls for move colors and opacity. <a target="_blank" href="../app?shl=moveAsFilledSquares">Colored Squares</a> replaces move arrows with highlighted squares if you find those easier to read.</p>
+
+                    <h3 id="⚙️-move-tts">⚙️ Move TTS &amp; Spoken Announcements</h3>
+                    <p><a target="_blank" href="../app?shl=ttsVoiceEnabled">Move TTS</a> reads suggested moves aloud. TTS just means text-to-speech. Choose a voice and adjust the speed in the Audible settings. The available voices depend on your browser and device.</p>
+                    <p><a target="_blank" href="../app?shl=ttsAnnounceEnemyMoves">Announce Opponent Moves</a> reads the move the opponent <strong>just played</strong>, not the engine's guess. <a target="_blank" href="../app?shl=ttsAnnounceEvaluation">Announce Advantage Changes</a> tells you when the position shifts between states such as equal, winning or losing, rather than reading every small evaluation update. These have their own switches, so you can hear them without enabling spoken move suggestions.</p>
+                    <p><a target="_blank" href="../app?shl=ttsTranslateAudio">Translate Audio</a> uses your selected GUI language where translations are available. Choose a suitable voice for that language too. In Learning Mode, spoken feedback is limited to the move's rating rather than live suggestions or advantage commentary.</p>
+
+                    <h3 id="⚙️-messages">⚙️ Messages</h3>
+                    <p>The Messages panel can send engine results to a Discord channel through a webhook. Enter your <a target="_blank" href="../app?shl=webhookUrl">Discord Webhook URL</a> and turn on <a target="_blank" href="../app?shl=webhookEnabled">Enabled</a> for the profile you want to send from. A message is sent when that profile finishes a search for the current position.</p>
+                    <p>The <a target="_blank" href="../app?shl=webhookMessageTemplate">Message Template</a> is the text to send. Words in braces are replaced with engine data. For example, <code>{profile}: {bestMove} (depth {depth})</code> includes the profile name, move and search depth. Available variables are listed below the template. Values an engine doesn't provide are left blank.</p>
+                    <p><a target="_blank" href="../app?shl=webhookIncludeBoard">Include Board Photo</a> attaches an image of the GUI's board. Unlike normal local analysis, this feature sends the chosen information to Discord. Keep your webhook URL private; someone with it can post messages through that webhook.</p>
+
+                    <h3 id="⚙️-ghost-script">⚙️ Ghost Script</h3>
+                    <p>The <a target="_blank" href="../app?shl=isUserscriptGhost">Ghost Script</a> setting prevents A.C.A.S from creating its board overlay on the chess site. That means no external move arrows, rendered metrics or feedback markings. Moves On Demand also needs that overlay, so it won't work with Ghost Script enabled. Refresh the chess site after changing this setting.</p>
+                    <p>The GUI can still receive the board and calculate. If it no longer opens automatically, open it yourself and keep it running. Ghost Script isn't an "undetectable" mode and doesn't change the rules about using assistance.</p>
+
+                    <h3 id="⚙️-concealment">⚙️ Concealment &amp; Restart Triggers</h3>
+                    <p>The <a target="_blank" href="../app?shl=concealAssistanceTriggerCode">Concealment Trigger</a> temporarily hides assistance such as arrows and feedback, including in the Floating Panel, and stops current speech. Use the trigger again to show assistance. It doesn't stop engine calculations or unload the userscript.</p>
+                    <p><a target="_blank" href="../app?shl=concealAssistanceAutoDelayMs">Auto Conceal</a> hides assistance again after the chosen time whenever you reveal it. For example, 3000 means you get about three seconds to look. 0 disables the automatic timer.</p>
+                    <p>The <a target="_blank" href="../app?shl=instanceRestartTriggerCode">Restart Trigger</a> restarts connected instances if they get stuck. It doesn't reset your saved settings. Both triggers can use a key or one of the listed mouse gestures, so check them if assistance keeps disappearing or restarting unexpectedly.</p>
+
                     <h2 id="render-settings">⚙️ Render Settings</h2>
-                    <p>The rendering settings allow you to display various metrics about the match. These features do not use the chess engine and don't go into great depths if any at all. The features don't give you straight answers on what to do, but just show you the <strong>current</strong> situation on the board. Could be great features for learning.</p><img alt="Image of A.C.A.S' instance view, displaying a chessboard with information rendered on top of it." height="645" src="../assets/images/render-example.png">
+                    <p>The rendering settings display information about the position, rather than telling you a move to play. Square vision and capture warnings don't use a chess engine. <strong>Show Piece Contributions</strong> does use a separate engine, so it can take longer. These features can be useful for learning, but they're not a replacement for checking a line yourself.</p><img alt="Image of A.C.A.S' instance view, displaying a chessboard with information rendered on top of it." height="645" src="../assets/images/render-example.png">
+                    <p>They're shown on the GUI's board. Enable <a target="_blank" href="../app?shl=renderOnExternalSite">Render On External Site</a> if you want them on the chess site's board too. This switch doesn't enable any particular metric by itself; choose the ones you want below it.</p>
             
                     <h3 id="⚙️-colors">⚙️ Colors</h3>
-                    <p><strong>Green</strong> squares indicate that <strong>at least one of your piece</strong> is defending that square, and that the enemy <strong>does not have any pieces attacking them</strong>. The same goes for <strong>Red</strong> squares, however it indicates that <strong>none of your pieces attack that square</strong> and that the enemy has <strong>at least one piece defending that square</strong>.</p>
-                    <p><strong>Orange</strong> indicates that the square is <strong>contested</strong>, which means that <em>at least one</em> of your- and the enemy's piece attacks/defends it. On the other hand, <strong>Aqua</strong> means that there is no activity on that square, no one is defending it, nor attacking it.</p>
+                    <p><a target="_blank" href="../app?shl=renderSquarePlayer">Own Piece Vision</a> uses <strong>Green</strong> for squares your pieces see. <a target="_blank" href="../app?shl=renderSquareEnemy">Enemy Piece Vision</a> uses <strong>Red</strong> for squares the enemy's pieces see. With the square categories enabled together, green and red show squares only that side sees. If you enable just one side's vision, it includes contested squares too.</p>
+                    <p><strong>Orange</strong> means the square is <strong>contested</strong>: at least one piece from each side sees it. <strong>Aqua</strong> means neither side sees the square.</p>
                     <blockquote class="bordered">
-                        <p>You can often change the board background color on chess sites. If its hard to see the colors, change the board to be something more white and not so colored.</p>
+                        <p>You can often change the board colors on chess sites. If the highlights are hard to see, try a less colorful board.</p>
                     </blockquote>
+
+                    <h3 id="⚙️-centered-dots">⚙️ Use Centered Dots</h3>
+                    <p>The <a target="_blank" href="../app?shl=renderSquareAsDots">Use Centered Dots</a> setting replaces full square highlights with small colored dots. It doesn't change what the colors mean. Orange dots replace the contested square's fire emojis and counts; a red outline means more enemy pieces see that square than yours.</p>
+                    <p><a target="_blank" href="../app?shl=renderSquareSafe">Unwatched Squares</a> are cyan because neither side sees them. "Unwatched" doesn't mean a piece is guaranteed to be safe there after moving. Moving it can open up a line or change what the enemy attacks.</p>
                     
                     <h3 id="⚙️-contested-squares">⚙️ Contested Squares</h3>
-                    <p>The <a target="_blank" href="../app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. For clarity, fire emojis 🔥 indicate <strong>contested squares</strong> too. If two fire emojis are stacked it means there are 4 or 5 pieces attacking that square. 3 fire emojis stacked mean there are 6 or 7 pieces attacking that square, 4 fire emojis mean that 8 or 9 pieces are attacking it, and so fourth.</p>
+                    <p>The <a target="_blank" href="../app?shl=renderSquareContested">Contested Squares</a> setting displays contested squares with the color orange. Fire emojis 🔥 indicate <strong>contested squares</strong> too. One fire emoji means 2 or 3 pieces from both sides see that square in total. Two stacked fire emojis mean 4 or 5 pieces, three mean 6 or 7, and so on. These counts don't consider the value of those pieces.</p>
                     <p>The fire emoji can have text, for example, 🔥 with -2 text means that the square is defended by 2 less pieces than the enemy attacks it with (e.g. you have 1 piece defending the square, the enemy has 3 pieces attacking it, so 1 - 3 = -2). +2 means that you have 2 more pieces attacking the specific square than the enemy does (e.g. you attack a square with 4 pieces and the enemy defends it with only 2, so 4 - 2 = 2).</p>
                     
                     <h3 id="⚙️-own-piece-capture">⚙️ Own Piece Capture</h3>
-                    <p>The <a target="_blank" href="../app?shl=renderPiecePlayerCapture">Own Piece Capture</a> setting displays your vulnerable pieces. The teardrop emoji 💧 appears on <strong>your pieces</strong> which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, an enemy <strong>Queen</strong> attacks your <strong>Rook</strong> which is protected. However, if an enemy <strong>Rook</strong> was to attack your <strong>Queen</strong>, 💧 would appear on your <strong>Queen</strong>.</p>
+                    <p>The <a target="_blank" href="../app?shl=renderPiecePlayerCapture">Own Piece Capture</a> setting puts 💧 on your pieces when the opponent could win material by capturing them. In ordinary chess, it checks captures and recaptures on that square, not just how many pieces attack or defend it. For example, a queen taking your protected rook might lose the queen in return, so that alone wouldn't mark your rook as vulnerable.</p>
                     
                     <h3 id="⚙️-enemy-piece-capture">⚙️ Enemy Piece Capture</h3>
-                    <p>The <a target="_blank" href="../app?shl=renderPieceEnemyCapture">Enemy Piece Capture</a> setting displays vulnerable enemy pieces. The bleed emoji 🩸 appears on <strong>enemy pieces</strong> which are vulnerable to attack. It takes into account the value of the pieces, so it doesn't appear if, for example, your <strong>Queen</strong> attacks an enemy <strong>Rook</strong> which is protected. However, if your <strong>Rook</strong> was to attack an enemy <strong>Queen</strong>, 🩸 would appear on the enemy <strong>Queen</strong>.</p>
+                    <p>The <a target="_blank" href="../app?shl=renderPieceEnemyCapture">Enemy Piece Capture</a> setting does the same for enemy pieces, using 🩸 when you could gain material from a capture. Equal exchanges aren't marked just because a capture is available.</p>
+                    <p class="tip">These warnings look at the exchange, not the whole game. They don't tell you whether taking the piece allows mate elsewhere, or whether a sacrifice is worth it. Chess variants use a rougher attack-and-defence estimate.</p>
+
+                    <h3 id="⚙️-piece-contributions">⚙️ Show Piece Contributions</h3>
+                    <p>The <a target="_blank" href="../app?shl=enableEveryPieceEvals">Show Piece Contributions</a> setting puts an estimated contribution beside each piece. A.C.A.S uses Fairy Stockfish to compare the position with and without that piece. A larger positive number means the piece appears to be helping its own side more in that position.</p>
+                    <p>The numbers use pawn units, but aren't fixed material values. A rook doesn't always get 5, and a pawn doesn't always get 1. The number includes how the position changes when the piece is removed, and can even be negative. Ordinary kings aren't given a contribution this way.</p>
+                    <p class="tip">This is experimental and uses a shallow search for many modified positions. It can be slow, and odd numbers are possible. Leave it off if you'd rather save battery or keep the board less cluttered.</p>
                 </section>
                 <section>
                     <hr>

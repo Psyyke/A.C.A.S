@@ -30,9 +30,19 @@ export default async function engineMessageProcessor(msg, profile) {
         return;
     }
 
+    const isFusionEngine = !profileObj.useExternalChessEngine && profileObj.requestedEngine === 'acas-fusion';
     const data = PARSE_UCI_RESPONSE(msg);
     const isBestmove = Object.hasOwn(data, 'bestmove');
     const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
+
+    // A missing mandatory human policy is not checkmate/stalemate. Wait for the
+    // following bestmove to finish the request, preserving search queue order.
+    if(isFusionEngine && msg.startsWith('info string Fusion: error: ')) {
+        if(oldestUnfinishedCalcRequestObj) {
+            oldestUnfinishedCalcRequestObj.fusionFailure = msg.slice('info string Fusion: error: '.length);
+        }
+        return;
+    }
 
     if(oldestUnfinishedCalcRequestObj) {
         oldestUnfinishedCalcRequestObj.rawLine = msg;
@@ -74,7 +84,7 @@ export default async function engineMessageProcessor(msg, profile) {
             parsedMove = CREATE_MOVE_OBJ({
                 playerMove,
                 opponentMove: parseVariantMove(line[1]),
-                cp: data.cp,
+                cp: data.cp ?? (isFusionEngine ? null : undefined),
                 profile,
                 ranking: Number(data.multipv) || 1
             });
@@ -82,14 +92,29 @@ export default async function engineMessageProcessor(msg, profile) {
             Object.assign(parsedMove, movePosition, { playerUci: playerMove.uci });
             recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile, parsedMove);
 
-            if(data.pv && isMessageForCurrentFen) profileObj.pastMoveObjects.push(parsedMove);
+            if(data.pv && isFusionEngine && oldestUnfinishedCalcRequestObj) {
+                // Fusion publishes a complete ranked set starting at MultiPV 1.
+                // Keep that set separate from earlier mixed/fallback iterations.
+                if(parsedMove.ranking === 1) {
+                    oldestUnfinishedCalcRequestObj.fusionMoves = [];
+                    oldestUnfinishedCalcRequestObj.fusionPrimaryData = data;
+                    if(isMessageForCurrentFen) profileObj.futureMoves = [];
+                }
+                oldestUnfinishedCalcRequestObj.fusionMoves ??= [];
+                oldestUnfinishedCalcRequestObj.fusionMoves.push(parsedMove);
+            } else if(data.pv && isMessageForCurrentFen) {
+                profileObj.pastMoveObjects.push(parsedMove);
+            }
         } else {
             recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile);
         }
     }
 
     const isMsgNoSuchOption = msg.includes('No such option') && !msg.includes('Variant') && !msg.includes('UCI_');
-    const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type');
+    // Fusion recovery diagnostics can quote "Failed" from a retryable error.
+    // Only its explicit final failure plus bestmove completes that search.
+    const isMsgFailure = msg.includes('Failed') && !msg.includes('MIME type')
+        && !msg.startsWith('info string Fusion:');
     const isMsgOption = msg.startsWith('option name ');
 
     if(isMsgOption) {
@@ -166,9 +191,11 @@ export default async function engineMessageProcessor(msg, profile) {
                 const winningText = TRANS_OBJ?.winning ?? 'Winning';
                 const losingText = TRANS_OBJ?.losing ?? 'Losing';
 
-                if(data?.mate && !this.learningMode) {
-                    const isWinning = data.mate > 0;
-                    const mateText = `${isWinning ? winningText : losingText} ${Math.abs(data.mate)}`;
+                const progressMate = Number.isFinite(data.rootmate) ? data.rootmate
+                    : Number.isFinite(data.rootcp) ? null : data.mate;
+                if(progressMate && !this.learningMode) {
+                    const isWinning = progressMate > 0;
+                    const mateText = `${isWinning ? winningText : losingText} ${Math.abs(progressMate)}`;
 
                     this.Interface.updateMoveProgress(`${mateText} | ${depthText} ${data.depth}`, isWinning ? 1 : 2);
                 } else {
@@ -178,10 +205,13 @@ export default async function engineMessageProcessor(msg, profile) {
                 updatePipData({ depth: data.depth });
             }
 
-            if((data?.cp != null || data?.mate != null) && isMessageForCurrentFen) {
+            if((data?.cp != null || data?.mate != null || Number.isFinite(data.rootcp)
+                || Number.isFinite(data.rootmate)) && isMessageForCurrentFen) {
                 const fen = this.currentFen;
-                const mate = data.mate != null;
-                const score = mate ? data.mate : data.cp;
+                const hasRootScore = Number.isFinite(data.rootcp);
+                const hasRootMate = Number.isFinite(data.rootmate);
+                const mate = hasRootMate || (!hasRootScore && data.mate != null);
+                const score = hasRootMate ? data.rootmate : hasRootScore ? data.rootcp : mate ? data.mate : data.cp;
 
                 // Capture synchronously: a fast worker can deliver bestmove while color lookup is pending.
                 const primaryScore = { score, mate };
@@ -215,13 +245,15 @@ export default async function engineMessageProcessor(msg, profile) {
         }
     }
 
-    if(data?.wdl && isMessageForCurrentFen && !this.learningMode) {
-        const [winChance, drawChance, lossChance] = data?.wdl ?? [];
+    if((data?.rootwdl || data?.wdl) && isMessageForCurrentFen && !this.learningMode
+        && (data.multipv == null || data.multipv === 1)) {
+        const [winChance, drawChance, lossChance] = data.rootwdl || data.wdl;
 
         updatePipData({ winChance, drawChance, lossChance });
     }
 
     if(data?.pv && isMessageForCurrentFen) {
+        const fusionMoves = oldestUnfinishedCalcRequestObj?.fusionMoves;
         let moves = data.pv.trim().split(/\s+/).map(parseVariantMove);
 
         if(!moves[0]) return;
@@ -233,18 +265,26 @@ export default async function engineMessageProcessor(msg, profile) {
         const onlyShowTopMoves = await this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
         const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
         const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
+
+        // A newer Fusion set can arrive while settings are being read. Do not
+        // restore an obsolete continuation or suggestion after that replacement.
+        if(isFusionEngine && (this.pV[profile] !== profileObj || this.currentFen !== oldestUnfinishedCalcRequestObj.fen
+            || fusionMoves !== oldestUnfinishedCalcRequestObj.fusionMoves || !fusionMoves?.includes(parsedMove))) return;
+
         const markingLimit = this.pV[profile].multiPV;
         const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
         const [topMoveObjects, removedDuplicateMoveAmount]
-            = GET_UNIQUE_MOVES(this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
+            = GET_UNIQUE_MOVES(isFusionEngine
+                ? fusionMoves.slice(0, markingLimit)
+                : this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
         const ownFutureMove = moves?.[2];
 
         if(ownFutureMove) {
             const futureMoveObj = CREATE_MOVE_OBJ({
                 playerMove: ownFutureMove,
                 profile,
-                cp: 0,
+                cp: isFusionEngine ? null : 0,
                 ranking: 99
             });
 
@@ -277,6 +317,9 @@ export default async function engineMessageProcessor(msg, profile) {
             isSearchInfinite = this.pV[profile].engineNodes > 9e6 ? true : false;
         }
 
+        if(isFusionEngine && (this.pV[profile] !== profileObj || this.currentFen !== oldestUnfinishedCalcRequestObj.fen
+            || fusionMoves !== oldestUnfinishedCalcRequestObj.fusionMoves)) return;
+
         if(
             markingLimit !== 0
             && topMoveObjects.length === (markingLimit - removedDuplicateMoveAmount)
@@ -295,6 +338,13 @@ export default async function engineMessageProcessor(msg, profile) {
         const bestmove = String(data.bestmove ?? '').trim();
 
         if(!bestmove || ['0000', '0', '(none)', 'none'].includes(bestmove)) {
+            if(oldestUnfinishedCalcRequestObj.fusionFailure) {
+                this.Interface.removeMarkings(profile, 'Fusion human policy unavailable for allowed legal moves');
+                updatePipHints(this, profile, { moveObjects: [] });
+                setProfileBubbleStatus(oldestUnfinishedCalcRequestObj.stopRequested ? 'idle' : 'warning', profile,
+                    oldestUnfinishedCalcRequestObj.fusionFailure);
+                return;
+            }
             const terminal = oldestUnfinishedCalcRequestObj.annotationScore || oldestUnfinishedCalcRequestObj.primaryScore;
 
             if(terminal) {
@@ -344,7 +394,7 @@ export default async function engineMessageProcessor(msg, profile) {
 
         if(shouldUpdateDynamicContext) {
             this.dynamicEvaluationFen = fen;
-            setDynamicSettingsContext(this.instanceID, fen, { evaluation });
+            setDynamicSettingsContext(this.instanceID, fen, { evaluation, playerColor });
             // A missing/older userscript can take three 1.5s attempts to reply.
             // Notify it independently; completed suggestions must not wait for that reply.
             this.CommLink.commands.updateDynamicContext({ evaluation, fen }).catch(console.error);
@@ -353,7 +403,8 @@ export default async function engineMessageProcessor(msg, profile) {
         setProfileBubbleStatus('idle', profile, 'Idle, calculated best moves successfully!');
 
         if(isMessageForCurrentFen) {
-            const lastData = oldestUnfinishedCalcRequestObj?.lastData ?? {};
+            const lastData = oldestUnfinishedCalcRequestObj.fusionPrimaryData
+                ?? oldestUnfinishedCalcRequestObj.lastData ?? {};
 
             SEND_WEBHOOK({
                 instanceId: this.instanceID,
@@ -381,7 +432,7 @@ export default async function engineMessageProcessor(msg, profile) {
             }).catch(console.error);
         }
 
-        if(isMessageForCurrentFen && profileObj.activeGuiMoveMarkings.length === 0) {
+        if(isMessageForCurrentFen && (isFusionEngine || profileObj.activeGuiMoveMarkings.length === 0)) {
             const markingLimit = profileObj.multiPV;
             const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
 
@@ -389,7 +440,9 @@ export default async function engineMessageProcessor(msg, profile) {
 
             const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
-            let topMoveObjects = profileObj.pastMoveObjects?.slice(markingLimit * -1);
+            let topMoveObjects = isFusionEngine
+                ? oldestUnfinishedCalcRequestObj.fusionMoves?.slice(0, markingLimit) ?? []
+                : profileObj.pastMoveObjects?.slice(markingLimit * -1);
 
             if(topMoveObjects?.length === 0) {
                 topMoveObjects = [];
@@ -398,6 +451,11 @@ export default async function engineMessageProcessor(msg, profile) {
                 topMoveObjects = GET_UNIQUE_MOVES(topMoveObjects)?.[0];
             }
 
+            // Replace stale secondary/future arrows without repeating speech or
+            // Auto Move when this primary suggestion is already displayed.
+            const silent = isFusionEngine && profileObj.activeGuiMoveMarkings.length > 0
+                && profileObj.hintCandidates?.fen === fen
+                && profileObj.hintCandidates.moves[0]?.playerUci === topMoveObjects[0]?.playerUci;
             const engineName = await this.getEngineName(profile);
 
             if(this.pV[profile] !== profileObj || this.currentFen !== fen || this.instanceClosed) return;
@@ -418,12 +476,12 @@ export default async function engineMessageProcessor(msg, profile) {
                 setTimeout(() => {
                     if(!this.instanceClosed && this.pV[profile] === profileObj
                         && fen === this.currentFen && !this.isEngineCalculating(profile)) {
-                        this.displayMoves(topMoveObjects, profile).catch(console.error);
+                        this.displayMoves(topMoveObjects, profile, false, silent).catch(console.error);
                     }
                 }, remainingDelay);
             } else {
                 if(markingLimit !== 0)
-                    await this.displayMoves(topMoveObjects, profile);
+                    await this.displayMoves(topMoveObjects, profile, false, silent);
             }
         }
 

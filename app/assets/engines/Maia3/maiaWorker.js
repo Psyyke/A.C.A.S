@@ -1,5 +1,5 @@
 /**
- * Maia3 Web Worker — runs ONNX inference off the main thread.
+ * Maia3 Web Worker - runs ONNX inference off the main thread.
  *
  * Messages FROM main thread:
  *   { type: 'init', modelUrl, modelVersion }

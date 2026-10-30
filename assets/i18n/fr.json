@@ -114,6 +114,7 @@
         "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
     },
     "configTranslations": {
+        "pipEval": ["Afficher l’évaluation", "Afficher la barre et le score d’évaluation dans tous les modes du panneau flottant"],
         "feedbackMoveCounts": ["Compteur de coups dans le panneau flottant", "Afficher les comptes des évaluations hors du mode apprentissage"],
         "learningPvAnimation": ["Animer la meilleure variante", "Animer la meilleure variante dans le panneau flottant"],
         "learningPvAnimationStopOnEnemyMove": ["Arrêter après le coup adverse", "Arrêter l’animation quand l’adversaire joue"],
@@ -227,6 +228,7 @@
         "settingsNavbarGlobalSubtitle": "Les paramètres s’appliquent à toutes les instances",
         "settingsNavbarInstanceSubtitle": "Les paramètres s’appliquent uniquement à l’instance \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Les évaluations de Maia 2/3 sont approximatives. Utilisez Stockfish pour une analyse fiable.",
             "winningMessages": ["C'était trop facile", "Frérot, perds parfois", "J'suis bluffé, vraiment.", "T'es Magnus ou quoi ?", "Frérot, calme-toi.", "Tout grâce à moi… euh, toi.", "Bois un peu d'eau", "OUAAAAAIS!!!!!"],
             "losingMessages": ["On est cuits ?", "Euh...", "Tu peux faire mieux.", "Allez, prochaine partie.", "Quoiiiiiii ??", "Tu jouais bien pourtant", "T'inquiète", "Même Magnus se plante"],
             "drawMessage": "Match nul, belle partie",
@@ -252,6 +254,10 @@
             "check": "échec", "checkmate": "échec et mat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Temps du coup adverse (ms)",
+            "opponentMoveTimeHint": "Durée observée du tour adverse, pas celle de la pendule. Une courbe linéaire X = Y ajuste le temps maximal par coup ; nécessite un tour entièrement observé.",
+            "materialBalance": "Bilan matériel (cp)",
+            "materialBalanceHint": "Votre matériel moins celui de l’adversaire (pion 100, cavalier 320, fou 330, tour 500, dame 900). Adaptez l’effort de recherche au déséquilibre ; pièces standard uniquement.",
             "useText": "Utiliser le texte",
             "textLabel": "Texte",
             "pointText": "Texte personnalisé du point sélectionné",
@@ -296,8 +302,8 @@
             "copiedLog": "Copié",
             "copiedEntries": "{count} entrées copiées",
             "copyFailed": "Échec de la copie : {error}",
-            "enableLogging": "La journalisation est DÉSACTIVÉE — cliquez pour l’activer",
-            "disableLogging": "La journalisation est activée — cliquez pour la désactiver",
+            "enableLogging": "La journalisation est DÉSACTIVÉE - cliquez pour l’activer",
+            "disableLogging": "La journalisation est activée - cliquez pour la désactiver",
             "profile": "Profil", "engine": "Moteur", "site": "Site", "externalEngine": "Moteur externe",
             "search": "Rechercher", "searchPlaceholder": "Rechercher dans le journal…", "discordMessagePlaceholder": "Rédigez votre message Discord ici…",
             "title": "Journal d’activité", "subtitle": "Messages du moteur, changements dynamiques, avertissements et erreurs",

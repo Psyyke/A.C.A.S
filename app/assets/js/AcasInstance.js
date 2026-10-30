@@ -286,7 +286,7 @@ export default class AcasInstance {
                     const isFirstTime = msg?.data?.isFirstTime;
                     if(msg.data?.instanceID != null && String(msg.data.instanceID) !== String(this.instanceID)) break;
                     if(!isFirstTime && !msg.data?.noProfile && msg.data?.profile?.name)
-                        await this.syncDynamicSettings(msg.data.profile.name, [msg.data.key]);
+                        await this.syncDynamicSettings(msg.data.profile.name, [msg.data.key], msg.data.isDirectlyCausedByUser);
                     else if(!isFirstTime) await this.updateSettings(msg);
                     break;
                 }
@@ -340,8 +340,12 @@ export default class AcasInstance {
     async createAndLoadSpecificEngine(profileName, resolvedConfig) {
         this.currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
         if(this.instanceClosed) return;
-        if(this.currentFen && DynamicSettingsCore.getVariableValue('pieceCount', DynamicSettingsCore.getContext(this.instanceID)) === null)
-            setDynamicSettingsContext(this.instanceID, this.currentFen);
+        if(this.currentFen && DynamicSettingsCore.getVariableValue('pieceCount', DynamicSettingsCore.getContext(this.instanceID)) === null) {
+            const playerColor = await this.getPlayerColor();
+            if(this.instanceClosed) return;
+
+            setDynamicSettingsContext(this.instanceID, this.currentFen, { playerColor });
+        }
         this.killEngine(profileName);
 
         this.pV[profileName] = await this.profileVariables.create(this, profileName, resolvedConfig);
@@ -430,7 +434,7 @@ export default class AcasInstance {
         logActivity('game', 'New game started; resetting dynamic settings and engines.', { instanceID: this.instanceID });
         this.newMatchPromise = (async () => {
             this.dynamicEvaluationFen = null;
-            DynamicSettingsCore.setContext(this.instanceID, { gameStart: 1, evaluation: null });
+            DynamicSettingsCore.setContext(this.instanceID, { gameStart: 1, evaluation: null, opponentMoveTime: null, materialBalance: null });
             await this.syncDynamicSettings();
             await this.engineStartNewGame();
             this.Interface.lastAcceptedBasicFen = null;
@@ -447,6 +451,7 @@ export default class AcasInstance {
             const engineType = await this.getEngineName(profile);
             const isExternal = await this.getConfigValue(this.configKeys.useExternalChessEngine, profile);
 
+            const isFusionEngine = engineType === 'acas-fusion';
             const isMaiaEngine = engineType.includes('maia');
             const engineEnemyElo = await this.getConfigValue(this.configKeys.engineEnemyElo, profile);
             if(this.pV[profile] !== profileVariables || this.instanceClosed) return false;
@@ -456,15 +461,27 @@ export default class AcasInstance {
                 maia3: [600, 2600]
             };
 
-            if(isMaiaEngine && !isExternal) {
+            if(isFusionEngine && !isExternal) {
+                const ownElo = Math.max(600, Math.min(3200, elo));
+                const opponentElo = Math.max(600, Math.min(3200, Number(engineEnemyElo) || 1500));
+                if(await this.sendMsgToEngine(`setoption name Enemy_Elo value ${opponentElo}`, profile) === false
+                    || this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+                if(await this.sendMsgToEngine(`setoption name UCI_Elo value ${ownElo}`, profile) === false
+                    || this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+                appliedSettings.engineElo = ownElo;
+                appliedSettings.engineEnemyElo = opponentElo;
+            } else if(isMaiaEngine && !isExternal) {
                 const [min, max] = maiaEloRanges[engineType];
 
                 const clampedEngineElo = Math.max(min, Math.min(max, elo));
                 const clampedEnemyElo = Math.max(min, Math.min(max, engineEnemyElo));
 
-                if(didUserUpdateSetting && (clampedEngineElo !== elo || clampedEnemyElo !== engineEnemyElo)) {
-                    toast.warning(`"Maia ${engineType === 'maia3' ? 3 : 2}" ELO: ${min}–${max}`, 30000);
+                const outsideRange = clampedEngineElo !== elo || clampedEnemyElo !== engineEnemyElo;
+                const warningKey = `${engineType}|${elo}|${engineEnemyElo}`;
+                if(outsideRange && (didUserUpdateSetting || profileVariables.maiaEloWarning !== warningKey)) {
+                    toast.warning(`Maia ${engineType === 'maia3' ? 3 : 2}: ${min}–${max} Elo`, 5000);
                 }
+                profileVariables.maiaEloWarning = outsideRange ? warningKey : null;
 
                 if(await this.sendMsgToEngine(`setoption name Enemy_Elo value ${clampedEnemyElo}`, profile) === false
                     || this.pV[profile] !== profileVariables || this.instanceClosed) return false;

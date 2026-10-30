@@ -112,6 +112,7 @@
         "#des-no-result-text": "Algumas configurações são analisadas dinamicamente a partir da saída UCI do motor. Por favor, abra um tabuleiro de xadrez para iniciar o seu motor e carregar as configurações dinâmicas."
     },
     "configTranslations": {
+        "pipEval": ["Mostrar avaliação", "Mostrar a barra e a pontuação de avaliação em todos os modos do painel flutuante"],
         "feedbackMoveCounts": ["Contagem de jogadas no painel flutuante", "Mostrar contagens das avaliações fora do modo de aprendizagem"],
         "learningPvAnimation": ["Animar a melhor variante", "Anime a melhor variante no painel flutuante"],
         "learningPvAnimationStopOnEnemyMove": ["Parar após a jogada adversária", "Pare a animação quando o adversário jogar"],
@@ -226,6 +227,7 @@
         "settingsNavbarGlobalSubtitle": "As configurações se aplicam a todas as instâncias",
         "settingsNavbarInstanceSubtitle": "As configurações se aplicam apenas à instância \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "As avaliações do Maia 2/3 são aproximadas. Use Stockfish para análises fiáveis.",
             "winningMessages": ["Foi fácil demais", "Mano, perde às vezes", "Estou de boca aberta.", "És o Magnus?", "Mano, tem calma.", "Tudo graças a mim… quer dizer, a ti.", "Bebe um bocado de água", "VAMOOOOOS!!!!!"],
             "losingMessages": ["Estamos tramados?", "Hã...", "Consegues fazer melhor.", "Bora, próxima partida.", "Quêêêêêêê??", "Estavas a jogar bem", "Está tudo bem", "Até o Magnus erra"],
             "drawMessage": "Empate, boa partida",
@@ -251,6 +253,10 @@
             "check": "xeque", "checkmate": "xeque-mate"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Tempo do lance adversário (ms)",
+            "opponentMoveTimeHint": "Duração observada do turno adversário, não do relógio. Uma curva linear X = Y iguala o tempo máximo por lance; requer observar um turno completo.",
+            "materialBalance": "Balanço de material (cp)",
+            "materialBalanceHint": "Seu material menos o adversário (peão 100, cavalo 320, bispo 330, torre 500, dama 900). Adapte o esforço de busca ao desequilíbrio; apenas peças padrão.",
             "useText": "Usar texto",
             "textLabel": "Texto",
             "pointText": "Texto personalizado do ponto selecionado",
@@ -278,8 +284,8 @@
             "copiedLog": "Copiado",
             "copiedEntries": "{count} entradas copiadas",
             "copyFailed": "Falha ao copiar: {error}",
-            "enableLogging": "O registro de atividades está DESATIVADO — clique para ativar",
-            "disableLogging": "O registro de atividades está ativado — clique para desativar",
+            "enableLogging": "O registro de atividades está DESATIVADO - clique para ativar",
+            "disableLogging": "O registro de atividades está ativado - clique para desativar",
             "profile": "Perfil", "engine": "Motor", "site": "Site", "externalEngine": "Motor externo",
             "search": "Pesquisar", "searchPlaceholder": "Pesquisar no registro…", "discordMessagePlaceholder": "Escreva sua mensagem do Discord aqui…",
             "title": "Registro de atividade", "subtitle": "Mensagens do motor, mudanças dinâmicas, avisos e erros", "show": "Mostrar", "clear": "Limpar registro", "filter": "Filtrar por tipo", "all": "Toda a atividade", "close": "Fechar registro", "instance": "Instância", "empty": "Ainda sem registros.", "status": "{shown} exibidos · {total} no total",

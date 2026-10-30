@@ -29,7 +29,10 @@ function getTerminalOutcome(fen, playerColor) {
 export default async function calculateBestMoves(currentFen, config = {}) {
     if(!currentFen || this.instanceClosed) return;
 
-    setDynamicSettingsContext(this.instanceID, currentFen);
+    const playerColor = await this.getPlayerColor();
+    if(this.instanceClosed || (this.currentFen && this.currentFen !== currentFen)) return;
+
+    setDynamicSettingsContext(this.instanceID, currentFen, { playerColor });
     await this.syncDynamicSettings();
     const profiles = await GET_PROFILES(this.instanceID);
     let { skipValidityChecks, specificMovesObj, specificProfileName } = config;
@@ -85,7 +88,6 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             return;
         }
 
-        const playerColor = await this.getPlayerColor();
         const reverseSide = await this.getConfigValue(this.configKeys.reverseSide, profileName);
         const isAttackingPlayerColor = reverseSide
             ? playerColor.toLowerCase() === 'w' ? 'b' : 'w'
@@ -166,38 +168,18 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         if(specificMovesObj?.moves)
             specificMoves = ' searchmoves ' + specificMovesObj.moves.join(' ');
 
-        // Should not actually go infinite depth, read commenting below.
-        // This is just a backup. It's not terrible to go infinite depth but problematic.
-        let searchCommandStr = 'go infinite' + specificMoves;
+        // Cap otherwise unlimited searches: the app needs a final bestmove.
+        // Fusion accepts the same limits and searchmoves as the other UCI engines.
+        const depth = profileVariables.searchDepth || 100;
+        const nodes = profileVariables.engineNodes;
+        let searchCommandStr;
 
-        switch(engineName) {
-            case 'acas-fusion':
-                const calcDepth = this.pV[profileName].searchDepth || 100;
-
-                console.error('This engine is not supported at the moment');
-                
-                //const historyString = GENERATE_HISTORY_STR(this.gameStateHistory.slice(0, -1));
-                //searchCommandStr = `go depth ${calcDepth}${specificMoves} history ${historyString}`;
-                //updatePipData({ 'goalDepth': calcDepth });
-                
-                break;
-
-            default:
-                // The search is "infinite" if the searchDepth is null. The engine's max depth seems to be 245 on 'go infinite',
-                // but if it reaches that max depth on 'go infinite' it does not give 'bestmove'. A.C.A.S expects a bestmove, so that is no good.
-                // That is why we limit the infinite search depth ourselves.
-                const depth = this.pV[profileName].searchDepth || 100;
-                const nodes = this.pV[profileName].engineNodes;
-
-                if(nodes > 0) {
-                    searchCommandStr = `go nodes ${nodes}${specificMoves}`;
-                    updatePipData({ goalNodes: nodes, goalDepth: null });
-                } else {
-                    searchCommandStr = `go depth ${depth}${specificMoves}`;
-                    updatePipData({ goalDepth: depth, goalNodes: null });
-                }
-
-                break;
+        if(nodes > 0) {
+            searchCommandStr = `go nodes ${nodes}${specificMoves}`;
+            updatePipData({ goalNodes: nodes, goalDepth: null });
+        } else {
+            searchCommandStr = `go depth ${depth}${specificMoves}`;
+            updatePipData({ goalDepth: depth, goalNodes: null });
         }
 
         const abandonCalculation = (retryLatest = true) => {
@@ -213,6 +195,28 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         };
 
         try {
+            if(!profileVariables.useExternalChessEngine && ['maia2', 'maia3', 'acas-fusion'].includes(engineName)) {
+                // Maia's Elo inputs belong to the side to move, not always us.
+                const ownColor = await this.getPlayerColor(profileName);
+                const { engineElo, engineEnemyElo } = profileVariables.appliedSettings || {};
+                const ownTurn = calculation.analyzedColor === ownColor;
+                const commands = [`setoption name ACAS_LearningMode value ${learning}`];
+
+                if(!profileVariables.usingAdvancedMode && Number.isFinite(engineElo) && Number.isFinite(engineEnemyElo)) {
+                    commands.push(`setoption name UCI_Elo value ${ownTurn ? engineElo : engineEnemyElo}`,
+                        `setoption name Enemy_Elo value ${ownTurn ? engineEnemyElo : engineElo}`);
+                }
+
+                for(const command of commands) {
+                    if(!isCurrentCalculation() || calculation.stopRequested
+                        || await this.sendMsgToEngine(command, profileName, true,
+                            () => isCurrentCalculation() && !calculation.stopRequested) === false) {
+                        abandonCalculation();
+                        return;
+                    }
+                }
+            }
+
             if(await this.sendMsgToEngine(`position fen ${reversedFen || profileFen}`, profileName, false,
                 () => isCurrentCalculation() && !calculation.stopRequested) === false) {
                 abandonCalculation(!isCurrentCalculation() || calculation.stopRequested);

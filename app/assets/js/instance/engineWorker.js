@@ -1,3 +1,5 @@
+import { getFusionIdentitySeed } from '../misc/fusionIdentity.js';
+
 const stockfishEngines = new Set([
     'stockfish-19', 'stockfish-19-lite-single', 'stockfish-18-single',
     'stockfish-18-lite-single', 'stockfish-17-single', 'stockfish-17-lite-single',
@@ -28,7 +30,8 @@ export function getEngineWorkerConfig(engineName) {
 export default function loadEngineWorker(config, {
     type, profileName, pendingLoads, isCurrent, onReady, onMessage, onError
 }) {
-    const url = `../app/assets/engines/${config.path}.js`;
+    const identity = type === 'acas-fusion' ? `?identitySeed=${getFusionIdentitySeed()}` : '';
+    const url = `../app/assets/engines/${config.path}.js${identity}`;
     const worker = config.module ? new Worker(url, { type: 'module' }) : new Worker(url);
     const entry = { worker, intervalId: null, profileName };
     let ready = false;

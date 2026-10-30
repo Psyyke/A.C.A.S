@@ -1,176 +1,154 @@
-import { preprocess, mirrorFenIfNecessary, mirrorMove, allPossibleMovesReversed, parseSetOption, parseGo, parsePosition } from './utils.js';
+import MaiaEngine from '../../Maia3/maiaEngine.js';
 
-import * as ort from '../../libraries/onnxruntime-web/ort.wasm.bundle.min.js';
-import { Chess } from '../../libraries/chessjs/chess.js';
+const MAX_ATTEMPTS = 3;
+const LOAD_TIMEOUT = 45000;
+const INFERENCE_TIMEOUT = 10000;
+const pause = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
+// Maia is mandatory. At most three worker generations are created per Fusion
+// instance, including startup and recovery, so a broken backend cannot spin.
 export default class Neural {
-	constructor(modelUrl) {
-		this.modelUrl = modelUrl;
-		this.ChessLib = Chess;
-		this.board = new Chess();
-		this.ready = false;
-		this.listen = () => null;
-		this.options = { history: [], multipv: 1 };
+    constructor(report = () => {}) {
+        this.report = report;
+        this.cache = new Map();
+        this.queue = Promise.resolve();
+        this.generations = 0;
+        this.closed = false;
+        this.ready = this.initialize();
+        this.ready.catch(() => {});
+    }
 
-		this.init();
-	}
+    initialize() {
+        if(this.closed) return Promise.reject(new Error('Fusion closed'));
+        if(this.unavailable) return Promise.reject(this.unavailable);
+        if(this.engine?.ready && !this.sessionError) return Promise.resolve();
+        if(this.initializing) return this.initializing;
 
-	async init() {
-		const buffer = await this.getCachedModel(this.modelUrl);
+        this.initializing = (async () => {
+            for(let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+                if(this.closed) throw new Error('Fusion closed');
+                if(this.generations >= MAX_ATTEMPTS) {
+                    this.unavailable = this.sessionError || new Error('Maia recovery budget exhausted');
+                    throw this.unavailable;
+                }
+                try {
+                    await this.openSession();
+                    return;
+                } catch(error) {
+                    this.destroySession(error);
+                    if(this.closed) throw error;
+                    if(this.generations >= MAX_ATTEMPTS) {
+                        this.unavailable = error;
+                        throw error;
+                    }
+                    this.report(`Maia load retry (${MAX_ATTEMPTS - this.generations} attempts remaining): ${error.message}`);
+                    await pause(250 * (attempt + 1));
+                }
+            }
+        })().finally(() => this.initializing = null);
+        return this.initializing;
+    }
 
-		console.log(buffer, this.modelUrl);
+    openSession() {
+        if(this.closed) return Promise.reject(new Error('Fusion closed'));
+        this.sessionError = null;
+        this.generations++;
 
-		this.model = await ort.InferenceSession.create(buffer, {
-			executionProviders: ['webgpu', 'wasm'],
-			webgpu: {
-				devicePreference: 'high-performance',
-				pipelineHint: 'fastest'
-			},
-			wasm: {
-				threads: navigator.hardwareConcurrency || 4,
-				simd: true
-			}
-		});
-		this.ready = true;
-	}
+        return new Promise((resolve, reject) => {
+            this.rejectLoad = reject;
+            const timer = setTimeout(() => reject(new Error('Maia 3 loading timed out')), LOAD_TIMEOUT);
+            this.loadTimer = timer;
+            this.engine = new MaiaEngine({
+                onMessage: () => {},
+                onStatus: status => {
+                    if(this.closed) return;
+                    if(status === 'ready') {
+                        clearTimeout(timer);
+                        this.rejectLoad = null;
+                        resolve();
+                    }
+                    if(status === 'no-cache') this.engine.download().catch(reject);
+                },
+                onProgress: progress => this.report(`Maia 3 loading ${progress}%`),
+                onError: message => this.destroySession(new Error(message))
+            });
+        });
+    }
 
-	async uci(line) {
-		const tokens = line.split(/\s+/);
-		const cmd = tokens[0];
+    evaluate(fen, eloSelf, eloOpponent, isCurrent = () => true) {
+        const evaluation = this.queue.then(async () => {
+            const own = Math.max(600, Math.min(3200, eloSelf));
+            const opponent = Math.max(600, Math.min(3200, eloOpponent));
+            const key = `${fen}|${own}|${opponent}`;
 
-		switch (cmd) {
-			case 'uci':
-				this.listen('id name Fusion Alpha');
-				this.listen('id author Haka (Thanks to the Lc0-, Maia- & Stockfish developers!)');
-				this.listen('uciok');
-				break;
-	
-			case 'isready':
-				this.listen('readyok');
-				break;
-	
-			case 'ucinewgame':
-				this.board.reset();
-				break;
-	
-			case 'setoption':
-				const option = parseSetOption(line);
-	
-				if(!option) break;
-				if(option.name === 'MultiPV') this.options.multipv = parseInt(option.value);
+            if(!isCurrent() || this.closed) return null;
+            if(this.cache.has(key)) return this.cache.get(key);
 
-				break;
-	
-			case 'position':
-				const { fen, moves } = parsePosition(line);
-				
-				if(fen !== 'startpos') {
-					this.board.load(mirrorFenIfNecessary(fen));
-				} else {
-					this.board.reset();
-				}
-		
-				for(const move of moves) {
-					this.board.move({
-						from: move.slice(0, 2),
-						to: move.slice(2, 4),
-						promotion: 'q'
-					});
-				}
+            for(let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+                let timer;
+                try {
+                    await this.initialize();
+                    if(!isCurrent() || this.closed) return null;
 
-				break;
+                    timer = setTimeout(() => this.destroySession(new Error('Maia 3 inference timed out')), INFERENCE_TIMEOUT);
+                    const result = await this.engine.evaluate(fen, own, opponent);
+                    this.validatePolicy(result);
 
-			case 'd':
-				this.listen(`Fen: ${this.board.fen()}`);
-				break;
-	
-			case 'go':
-				const { nodes, history, searchMoves } = parseGo(line);
+                    if(this.cache.size >= 64) this.cache.delete(this.cache.keys().next().value);
+                    this.cache.set(key, result);
+                    return result;
+                } catch(error) {
+                    this.destroySession(error);
+                    if(this.closed || !isCurrent()) return null;
+                    if(this.unavailable || this.generations >= MAX_ATTEMPTS || attempt === MAX_ATTEMPTS - 1) {
+                        this.unavailable = error;
+                        throw error;
+                    }
+                    this.report(`Maia inference retry ${attempt + 1}/${MAX_ATTEMPTS - 1}: ${error.message}`);
+                    await pause(250 * (attempt + 1));
+                } finally {
+                    clearTimeout(timer);
+                }
+            }
+        });
+        this.queue = evaluation.catch(() => {});
+        return evaluation;
+    }
 
-				if(history === 'none') this.options.history = [];
-				else if(history) this.options.history = history;
+    validatePolicy(result) {
+        const probabilities = Object.values(result?.policy || {});
+        if(!probabilities.length || probabilities.some(value => !Number.isFinite(value) || value < 0)
+            || probabilities.reduce((sum, value) => sum + value, 0) <= 0) {
+            throw new Error('Maia returned an invalid move policy');
+        }
+    }
 
-				const output = await this.evaluate(searchMoves);
+    clear() {
+        this.cache.clear();
+    }
 
-				this.listen({ 'fen': this.board.fen(), 'policy': output.policy });
+    destroySession(error) {
+        this.sessionError = error;
+        clearTimeout(this.loadTimer);
+        this.rejectLoad?.(error);
+        this.rejectLoad = null;
 
-				break;
-		}
-	}
+        const runtime = this.engine?.maia;
+        this.engine = null;
+        if(!runtime) return;
 
-	async getCachedModel(url) {
-		const cache = await caches.open('fusion-neural-model');
-		let res = await cache.match(url);
-		if(res) return res.arrayBuffer();
+        runtime.worker.onmessage = null;
+        runtime.worker.onerror = null;
+        runtime.worker.terminate();
+        runtime.pendingDownload?.reject(error);
+        runtime.pendingDownload = null;
+        for(const pending of runtime.pendingInferences.values()) pending.reject(error);
+        runtime.pendingInferences.clear();
+    }
 
-		res = await fetch(url);
-		if(!res.ok) throw new Error('Failed to fetch model');
-
-		await cache.put(url, res.clone());
-		return res.arrayBuffer();
-	}
-
-	async evaluate(searchMoves, forcedFen) {
-		const fen = forcedFen || this.board.fen();
-		const { boardInput, legalMoves } =
-			preprocess(fen, this.options.history, this.ChessLib);
-
-		const feeds = {
-			'/input/planes': new ort.Tensor('float32', boardInput, [1, 112, 8, 8])
-		};
-
-		const neuralOut = await this.model.run(feeds);
-
-		return this.processOutputs(fen, neuralOut, legalMoves, searchMoves);
-	}
-
-	processOutputs(fen, neuralOut, legalMoves, searchMoves) {
-		const policyTensor = neuralOut['/output/policy']?.cpuData;
-		const wdlTensor = neuralOut['/output/wdl']?.cpuData;
-
-		let winProb = wdlTensor
-			? wdlTensor[0] + 0.5 * wdlTensor[1]
-			: 0.5;
-		winProb = Math.min(Math.max(winProb, 0), 1);
-
-		const blackFlag = fen.split(' ')[1] === 'b';
-
-		const legalIdx = [...legalMoves.entries()]
-			.filter(([_, v]) => v > 0)
-			.map(([i]) => i);
-
-		const moves = legalIdx.map(i =>
-			blackFlag
-				? mirrorMove(allPossibleMovesReversed[i])
-				: allPossibleMovesReversed[i]
-		);
-
-		const temp = 1.61;
-		const legalLogits = legalIdx.map(i => policyTensor[i]);
-		const maxLogit = Math.max(...legalLogits);
-
-		const expLogits = legalLogits.map(l =>
-			Math.exp((l - maxLogit) / temp)
-		);
-		const sumExp = expLogits.reduce((a, b) => a + b, 0);
-
-		let policyEntries = moves.map((m, i) => [
-			m,
-			expLogits[i] / sumExp
-		]);
-
-		if (searchMoves) {
-			policyEntries = policyEntries.filter(([key]) =>
-				searchMoves.some(sm => key.startsWith(sm[0] + sm[1]))
-			);
-		}
-
-		// sort best policy first
-		policyEntries.sort((a, b) => b[1] - a[1]);
-
-		return {
-			policy: policyEntries,
-			value: Math.round(winProb * 10000) / 10000
-		};
-	}
+    dispose() {
+        this.closed = true;
+        this.destroySession(new Error('Fusion closed'));
+        this.cache.clear();
+    }
 }

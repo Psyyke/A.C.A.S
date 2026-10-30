@@ -112,6 +112,7 @@
         "#des-no-result-text": "Některá nastavení jsou dynamicky analyzována z výstupu UCI motoru. Otevřete šachovnici, abyste spustili svůj motor a načetli dynamická nastavení."
     },
     "configTranslations": {
+        "pipEval": ["Zobrazit hodnocení", "Zobrazit ukazatel a hodnotu hodnocení ve všech režimech plovoucího panelu"],
         "feedbackMoveCounts": ["Počty tahů v plovoucím panelu", "Zobrazit počty hodnocení tahů mimo režim učení"],
         "learningPvAnimation": ["Animovat nejlepší pokračování", "Animovat nejlepší pokračování v plovoucím panelu"],
         "learningPvAnimationStopOnEnemyMove": ["Zastavit po tahu soupeře", "Zastavit animaci, když soupeř zahraje"],
@@ -226,6 +227,7 @@
         "settingsNavbarGlobalSubtitle": "Nastavení platí pro všechny instance",
         "settingsNavbarInstanceSubtitle": "Nastavení platí pouze pro instanci \"{instanceID}\"",
         "moveFeedback": {
+            "maiaWarning": "Hodnocení Maia 2/3 jsou přibližná. Pro spolehlivý rozbor použijte Stockfish.",
             "winningMessages": ["To bylo moc easy", "Kámo, někdy taky prohraj", "Fakt nemám slov.", "Ty jsi Magnus?", "Kámo, trochu klid.", "Všechno díky mně… teda tobě.", "Dej si trochu vody", "JOOOOOOO!!!!!"],
             "losingMessages": ["Jsme v háji?", "Ehm...", "Máš na víc.", "Další hra, pojď.", "Cooooooo??", "Vždyť ti to šlo", "To je v pohodě", "I Magnus dělá chyby"],
             "drawMessage": "Remíza, pěkná partie",
@@ -251,6 +253,10 @@
             "check": "šach", "checkmate": "mat"
         },
         "dynamicSettings": {
+            "opponentMoveTime": "Čas tahu soupeře (ms)",
+            "opponentMoveTimeHint": "Pozorovaná délka soupeřova tahu, nikoli čas na hodinách. Lineární X = Y přizpůsobí maximální čas tahu; vyžaduje celý pozorovaný tah.",
+            "materialBalance": "Materiální bilance (cp)",
+            "materialBalanceHint": "Váš materiál minus soupeřův (pěšec 100, jezdec 320, střelec 330, věž 500, dáma 900). Přizpůsobte úsilí hledání rozdílu; pouze standardní figury.",
             "useText": "Použít text",
             "textLabel": "Text",
             "pointText": "Vlastní text pro vybraný bod",
@@ -270,8 +276,8 @@
             "copiedLog": "Zkopírováno",
             "copiedEntries": "Zkopírováno {count} záznamů",
             "copyFailed": "Kopírování selhalo: {error}",
-            "enableLogging": "Záznam aktivit je vypnutý — kliknutím zapnete",
-            "disableLogging": "Záznam aktivit je zapnutý — kliknutím vypnete",
+            "enableLogging": "Záznam aktivit je vypnutý - kliknutím zapnete",
+            "disableLogging": "Záznam aktivit je zapnutý - kliknutím vypnete",
             "profile": "Profil", "engine": "Engine", "site": "Web", "externalEngine": "Externí engine",
             "search": "Hledat", "searchPlaceholder": "Hledat v protokolu…", "discordMessagePlaceholder": "Sem napište zprávu pro Discord…",
             "title": "Protokol aktivit", "subtitle": "Zprávy enginu, dynamické změny, varování a chyby", "show": "Zobrazit", "clear": "Vymazat protokol", "filter": "Filtrovat podle typu", "all": "Všechny aktivity", "close": "Zavřít protokol", "instance": "Instance", "empty": "Zatím žádné záznamy.", "status": "Zobrazeno {shown} · celkem {total}",
