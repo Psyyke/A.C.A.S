@@ -303,7 +303,6 @@ const DynamicSettingsCore = (() => {
     function getContextFromFen(fen, playerColor) {
         if(typeof fen !== 'string' || !fen.trim()) return {};
         const fields = fen.trim().split(/\s+/);
-
         // Count on-board fairy pieces too, without counting pieces held in hand.
         // Promotion markers (+ and ~) and multi-digit empty runs are not pieces.
         const board = fields[0].split('[')[0];
