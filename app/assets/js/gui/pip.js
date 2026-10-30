@@ -863,7 +863,8 @@ async function refreshPipView() {
     const thirdMoveX = pipTextPadding + alternativeWidth + pipTextColumnGap;
     const openingHeight = getPipOpeningHeight();
     const contentHeight = getPipContentHeight();
-    const headerTextHeight = pipHeaderHeight - pipStatusBarHeight;
+    const statusBarHeight = pipData.learningMode && !isBoard ? 0 : pipStatusBarHeight;
+    const headerTextHeight = pipHeaderHeight - statusBarHeight;
     const secondaryMoveY = contentHeight - 40;
     const showTerminalMessage = !pipData.learningMode && !isBoard && Boolean(pipData.terminalOutcome) && !CONCEAL_ASSISTANCE_ACTIVE;
 
@@ -896,7 +897,7 @@ async function refreshPipView() {
     ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.7)']);
     ctxQueue.push([
         'fillRect',
-        [0, 0, headerWidth, pipHeaderHeight - pipStatusBarHeight]
+        [0, 0, headerWidth, headerTextHeight]
     ]);
 
     // Header title
@@ -1195,25 +1196,27 @@ async function refreshPipView() {
             `700 ${pipFontSizes.esmall}px ${pipTextFontFamily}`, 'center']]);
     }
 
-    // Status bar
-    ctxQueue.push([
-        'fillStyle',
-        [
-            'rgba(40, 40, 40, 0.9)',
-            'rgba(0, 255, 0, 1)',
-            'rgba(255, 0, 0, 1)'
-        ][pipIdleLayoutHeight !== null || pipEvalInput?.checked === false ? 0 : (pipData.isWinning ?? 0)]
-    ]);
+    // Compact learning mode uses the feedback divider instead of a status strip.
+    if(statusBarHeight) {
+        ctxQueue.push([
+            'fillStyle',
+            [
+                'rgba(40, 40, 40, 0.9)',
+                'rgba(0, 255, 0, 1)',
+                'rgba(255, 0, 0, 1)'
+            ][pipIdleLayoutHeight !== null || pipEvalInput?.checked === false ? 0 : (pipData.isWinning ?? 0)]
+        ]);
 
-    ctxQueue.push([
-        'fillRect',
-        [
-            0,
-            pipHeaderHeight - pipStatusBarHeight,
-            headerWidth,
-            pipStatusBarHeight
-        ]
-    ]);
+        ctxQueue.push([
+            'fillRect',
+            [
+                0,
+                headerTextHeight,
+                headerWidth,
+                statusBarHeight
+            ]
+        ]);
+    }
 
     pipContextQueue.unshift(ctxQueue);
 
