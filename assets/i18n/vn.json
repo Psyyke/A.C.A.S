@@ -114,6 +114,7 @@
         "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của engine. Vui lòng mở một bàn cờ để khởi động engine và tải các cài đặt động."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Chia sẻ bàn cờ", "Dùng chung một bàn cờ với các hồ sơ khác"],
         "pipEval": ["Hiện đánh giá", "Hiển thị thanh và điểm đánh giá trong mọi chế độ của bảng nổi"],
         "feedbackMoveCounts": ["Đếm nước đi trong bảng nổi", "Hiển thị số lần xếp loại nước đi ngoài chế độ học tập"],
         "learningPvAnimation": ["Hoạt ảnh chuỗi nước đi tốt nhất", "Hiển thị hoạt ảnh chuỗi nước đi tốt nhất trong bảng nổi"],
@@ -192,7 +193,7 @@
         "feedbackOnExternalSite": ["Phản hồi trên trang bên ngoài", "Hiển thị phản hồi trực tiếp trên bàn cờ của trang (ví dụ: bàn cờ chess.com)"],
         "pip": ["Bảng Nổi", "Quan trọng! Giúp A.C.A.S không bị treo!"],
         "pipBoard": ["Hiển thị bàn cờ", "Hiển thị toàn bộ bàn cờ thay vì chỉ hiển thị chữ"],
-        "pipQuality": ["Chất lượng bảng nổi", "Độ phân giải thấp hơn có thể nhanh hơn. Mặc định: 50%."],
+        "pipQuality": ["Chất lượng bảng nổi", "Độ phân giải thấp hơn có thể nhanh hơn. Mặc định: 70%."],
         "movesOnDemand": ["Gợi ý theo yêu cầu", "Chỉ tính nước đi cho các quân mà bạn tương tác"],
         "onlySuggestPieces": ["Chỉ gợi ý quân cờ", "Chỉ gợi ý quân nên đi, không hiển thị nước cụ thể"],
         "isUserscriptGhost": ["Chế độ ẩn (Ghost)", "Tắt mọi hiển thị bên ngoài có thể bị phát hiện (ví dụ: mũi tên nước đi) để tránh bị phát hiện"],

@@ -114,6 +114,7 @@
         "#des-no-result-text": "Alcune impostazioni vengono analizzate dinamicamente dall'output UCI del motore. Apri una scacchiera per avviare il motore e caricare le impostazioni dinamiche."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Condividi scacchiera", "Condividi una scacchiera con altri profili"],
         "pipEval": ["Mostra valutazione", "Mostra la barra e il punteggio di valutazione in tutte le modalità del pannello mobile"],
         "feedbackMoveCounts": ["Conteggio mosse nel pannello mobile", "Mostra i conteggi delle valutazioni fuori dalla modalità apprendimento"],
         "learningPvAnimation": ["Anima la variante migliore", "Anima la variante migliore nel pannello mobile"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["UCI grezzo del motore", "Invia righe UCI grezze del motore"],
         "pip": ["Pannello fluttuante", "Importante! Impedisce ad A.C.A.S di bloccarsi!"],
         "pipBoard": ["Mostra la scacchiera", "Invece di solo testo, mostra l'intera scacchiera"],
-        "pipQuality": ["Qualità del pannello fluttuante", "Una risoluzione più bassa potrebbe essere più veloce. Predefinita: 50%."],
+        "pipQuality": ["Qualità del pannello fluttuante", "Una risoluzione più bassa potrebbe essere più veloce. Predefinita: 70%."],
         "movesOnDemand": ["Mosse su Richiesta", "Calcola le mosse per i pezzi con cui interagisci"],
         "onlySuggestPieces": ["Suggerisci solo i pezzi", "Indica quale pezzo muovere, senza suggerire una mossa precisa"],
         "isUserscriptGhost": ["Script Fantasma", "Disabilita tutte le funzionalità esterne rilevabili (es. frecce di movimento) per evitare il rilevamento"],

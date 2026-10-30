@@ -5,6 +5,7 @@ import { toggleSelectedNavbarItem } from './instances.js';
 import { guiBroadcastChannel } from '../gui.js';
 import { logActivity, formatLogValue } from '../misc/activityLog.js';
 import { clearCustomBackgroundImage } from './customBackground.js';
+import { pipSettingKeys } from './pip.js';
 
 let dynamicOptionThrottleSettingUpdate = null;
 let settingsUpdateVersion = 0;
@@ -22,21 +23,60 @@ export function migrateFeedbackSettings(config) {
             changed = true;
         }
 
-        // Board visibility now belongs to the shared floating-panel settings.
-        // Preserve an explicitly saved learning choice for the selected profile.
         const profiles = scope.profiles || {};
-        const selectedProfile = profiles[scope.chessEngineProfile] || profiles.default;
-        const profile = selectedProfile?.learningMode ? selectedProfile
-            : Object.values(profiles).find(settings => settings?.learningMode);
-        if(typeof profile?.learningPipBoard === 'boolean' && profile.learningMode) {
-            scope.pipBoard = profile.learningPipBoard;
-        }
         for(const settings of [scope, ...Object.values(profiles)]) {
             if(!settings || !Object.hasOwn(settings, 'learningPipBoard')) continue;
+            if(typeof settings.learningPipBoard === 'boolean' && settings.learningMode) {
+                settings.pipBoard ??= settings.learningPipBoard;
+            }
             delete settings.learningPipBoard;
             changed = true;
         }
     }
+    return changed;
+}
+
+export function migratePipSettings(config) {
+    let changed = false;
+
+    const globalProfiles = Object.keys(config?.global?.profiles || {});
+    const keysToMigrate = ['pip', 'pipBoard', 'pipEval', 'pipSan', 'pipQuality'];
+    const globalDefaults = Object.fromEntries(keysToMigrate
+        .filter(key => Object.hasOwn(config?.global || {}, key))
+        .map(key => [key, config.global[key]]));
+
+    for(const scope of [config?.global, ...Object.values(config?.instance || {})]) {
+        if(!scope) continue;
+        const keys = keysToMigrate.filter(key => Object.hasOwn(scope, key));
+
+        // Instance-only profiles inherited the former global panel preferences.
+        // Preserve that without creating those profiles on unrelated instances.
+        if(scope !== config?.global) {
+            for(const [name, settings] of Object.entries(scope.profiles || {})) {
+                if(globalProfiles.includes(name)) continue;
+                for(const [key, value] of Object.entries(globalDefaults)) {
+                    if(Object.hasOwn(settings, key) || keys.includes(key)) continue;
+                    settings[key] = value;
+                    changed = true;
+                }
+            }
+        }
+
+        if(!keys.length) continue;
+        scope.profiles ??= {};
+        scope.profiles.default ??= {};
+        if(scope !== config?.global) {
+            for(const profile of globalProfiles) scope.profiles[profile] ??= {};
+        }
+
+        for(const settings of Object.values(scope.profiles)) {
+            for(const key of keys) settings[key] ??= scope[key];
+        }
+
+        for(const key of keys) delete scope[key];
+        changed = true;
+    }
+
     return changed;
 }
 
@@ -81,6 +121,8 @@ export function importSettings() {
                     return;
                 }
 
+                migrateFeedbackSettings(jsonData);
+                migratePipSettings(jsonData);
                 USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, jsonData);
 
                 console.log(jsonData);
@@ -216,6 +258,10 @@ export async function saveSetting(settingElem, isDirectlyCausedByUser = false, s
     }
 
     await USERSCRIPT.setValue(gmConfigKey, config);
+
+    if(pipSettingKeys.includes(settingObj.key)) {
+        window.REFRESH_PIP_DISPLAY?.();
+    }
 
     if(isDirectlyCausedByUser) logActivity('setting-change', `Saved ${settingObj.key}: ${formatLogValue(settingObj.value)}`, {
         instanceID: settingFilter.instanceID,

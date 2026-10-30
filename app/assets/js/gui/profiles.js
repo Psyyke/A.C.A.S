@@ -5,6 +5,117 @@ import { guiBroadcastChannel } from '../gui.js';
 import { ensureOneDynamicEngineSettingVisible } from './dynamicEngineOptions.js';
 import { closeAllExternalEnginesWithId } from '../AcasWebSocketClient.js';
 
+let profileSortingInitialized = false;
+
+function profileTabItems() {
+    return [...profileTabs.querySelectorAll('.profile-tab')];
+}
+
+async function saveProfileOrder(order) {
+    const key = USERSCRIPT_SHARED_VARS.gmConfigKey;
+    const config = await USERSCRIPT.getValue(key);
+    const previous = Array.isArray(config.profileOrder) ? config.profileOrder : [];
+    config.profileOrder = [...new Set([...order, ...previous])];
+    await USERSCRIPT.setValue(key, config);
+    window.REFRESH_PIP_DISPLAY?.();
+}
+
+function initializeProfileSorting() {
+    if(profileSortingInitialized) return;
+    profileSortingInitialized = true;
+
+    const list = profileTabs.querySelector('.tabs-list-container');
+    let drag = null;
+    let animationFrame = null;
+    let suppressClickUntil = 0;
+
+    function moveTab() {
+        const bounds = list.getBoundingClientRect();
+        if(drag.y < bounds.top || drag.y > bounds.bottom) return;
+
+        // Scroll while held near either edge, including on touchscreens.
+        const edge = Math.min(40, bounds.width / 4);
+        if(drag.x < bounds.left + edge) list.scrollLeft -= 8;
+        else if(drag.x > bounds.right - edge) list.scrollLeft += 8;
+
+        const x = Math.max(bounds.left + 1, Math.min(bounds.right - 1, drag.x));
+        const target = document.elementFromPoint(x, drag.y)?.closest('.profile-tab');
+        if(!target || target === drag.item || target.parentElement !== list) return;
+
+        const rect = target.getBoundingClientRect();
+        list.insertBefore(drag.item, x < rect.left + rect.width / 2 ? target : target.nextSibling);
+    }
+
+    function animateDrag() {
+        if(!drag?.active) return;
+        moveTab();
+        animationFrame = requestAnimationFrame(animateDrag);
+    }
+
+    list.addEventListener('pointerdown', event => {
+        const item = event.target.closest('.profile-tab');
+        if(drag || !event.isPrimary || event.button !== 0 || !item
+            || event.target.closest('.profile-removal-button')) return;
+
+        drag = { item, pointerId: event.pointerId, x: event.clientX, y: event.clientY,
+            startX: event.clientX, startY: event.clientY, active: false, original: profileTabItems() };
+    });
+
+    list.addEventListener('pointermove', event => {
+        if(!drag || event.pointerId !== drag.pointerId) return;
+        drag.x = event.clientX;
+        drag.y = event.clientY;
+        if(!drag.active) {
+            if(Math.abs(drag.x - drag.startX) < 6 || Math.abs(drag.y - drag.startY) > Math.abs(drag.x - drag.startX)) return;
+            drag.active = true;
+            // Capture on the stationary list, not a tab that is being reparented.
+            list.setPointerCapture(event.pointerId);
+            drag.item.classList.add('is-profile-dragging');
+            animateDrag();
+        }
+        event.preventDefault();
+    });
+
+    function finishDrag(event) {
+        if(!drag || event.pointerId !== drag.pointerId) return;
+        if(event.type === 'lostpointercapture' && event.target !== list) return;
+        if(drag.active && event.type === 'pointerup') {
+            drag.x = event.clientX;
+            drag.y = event.clientY;
+            moveTab();
+        }
+
+        const finished = drag;
+        drag = null;
+        cancelAnimationFrame(animationFrame);
+        finished.item.classList.remove('is-profile-dragging');
+        if(list.hasPointerCapture(event.pointerId)) list.releasePointerCapture(event.pointerId);
+        if(!finished.active) return;
+
+        suppressClickUntil = performance.now() + 400;
+        if(event.type !== 'pointerup') {
+            finished.original.forEach(item => list.insertBefore(item, addNewProfileBtn));
+            return;
+        }
+
+        const items = profileTabItems();
+        if(items.every((item, index) => item === finished.original[index])) return;
+        saveProfileOrder(items.map(item => item.dataset.value)).catch(error => {
+            console.error('Could not save profile order:', error);
+            fillProfileTabs().catch(console.error);
+        });
+    }
+
+    window.addEventListener('pointerup', finishDrag);
+    window.addEventListener('pointercancel', finishDrag);
+    list.addEventListener('lostpointercapture', finishDrag);
+    list.addEventListener('click', event => {
+        if(performance.now() >= suppressClickUntil) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }, true);
+}
+
 function settingPanelTransitionAnimation(duration = 400) {
     if(!duration) return;
     if(!settingsPanelsElem) return;
@@ -44,7 +155,8 @@ async function deleteProfile(profileName) {
         delete config?.[SETTING_FILTER_OBJ.type]?.['profiles']?.[profileKey];
     }
 
-    USERSCRIPT.setValue(gmConfigKey, config);
+    await USERSCRIPT.setValue(gmConfigKey, config);
+    window.REFRESH_PIP_DISPLAY?.();
 
     closeAllExternalEnginesWithId(profileName, 'profileName');
 }
@@ -57,11 +169,11 @@ function selectNearestProfileTab(tabsElem, profileName) {
     const formattedName = GET_PROFILE_STORAGE_KEY(profileName);
     const indexOfCurrentTab = listTabItems.findIndex(x => x.dataset.value === formattedName);
 
-    if(indexOfCurrentTab && indexOfCurrentTab >= 1) {
-        const nearestTabToLeft = listTabItems[indexOfCurrentTab - 1];
+    if(indexOfCurrentTab >= 0) {
+        const nearestTab = listTabItems[indexOfCurrentTab - 1] || listTabItems[indexOfCurrentTab + 1];
 
         setTimeout(() => {
-            nearestTabToLeft?.click();
+            nearestTab?.click();
         }, 100);
     }
 }
@@ -176,6 +288,7 @@ function removeProfileTabItem(tabsElem, itemValue, newValue) {
 }
 
 export async function fillProfileTabs() {
+    initializeProfileSorting();
     const defaultValue = profileTabs.querySelector('input').dataset.defaultValue || 'default';
     let profileNames = await GET_PROFILE_NAMES();
 
@@ -193,7 +306,10 @@ export async function fillProfileTabs() {
             elem => elem.dataset.value === formattedName
         );
 
-        if(nameExists) continue;
+        if(nameExists) {
+            addNewProfileBtn.before(nameExists);
+            continue;
+        }
 
         const isDefault = profileName?.toLowerCase() === defaultValue?.toLowerCase();
         const itemElem = addProfileTabItem(profileTabs, profileName, isDefault);

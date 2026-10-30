@@ -114,6 +114,7 @@
         "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Wspólna szachownica", "Używaj jednej szachownicy z innymi profilami"],
         "pipEval": ["Pokaż ocenę", "Pokazuj pasek i wartość oceny we wszystkich trybach pływającego panelu"],
         "feedbackMoveCounts": ["Licznik ruchów w panelu pływającym", "Pokazuj liczbę ocen ruchów poza trybem nauki"],
         "learningPvAnimation": ["Animuj najlepszy wariant", "Animuj najlepszy wariant w pływającym panelu"],
@@ -192,7 +193,7 @@
         "feedbackOnExternalSite": ["Opinie Na Zewnętrznej Stronie", "Pokaż opinie na planszy strony szachowej (np. plansza chess.com)"],
         "pip": ["Pływający panel", "Ważne! Pomaga zapobiegać zawieszaniu się A.C.A.S!"],
         "pipBoard": ["Pokaż szachownicę", "Zamiast samego tekstu pokaż całą szachownicę"],
-        "pipQuality": ["Jakość pływającego panelu", "Niższa rozdzielczość może działać szybciej. Domyślnie: 50%."],
+        "pipQuality": ["Jakość pływającego panelu", "Niższa rozdzielczość może działać szybciej. Domyślnie: 70%."],
         "movesOnDemand": ["Ruchy na żądanie", "Oblicza ruchy dla wybranych bierek"],
         "onlySuggestPieces": ["Sugeruj tylko bierki", "Pokazuje, którą bierką ruszyć, bez podawania konkretnego ruchu"],
         "isUserscriptGhost": ["Skrypt duch", "Wyłącz wszystkie wykrywalne zewnętrzne funkcje (np. strzałki ruchu), aby uniknąć wykrycia"],

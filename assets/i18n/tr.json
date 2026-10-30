@@ -112,6 +112,7 @@
         "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Tahtayı paylaş", "Diğer profillerle aynı tahtayı kullan"],
         "pipEval": ["Değerlendirmeyi Göster", "Yüzen panelin tüm modlarında değerlendirme çubuğunu ve puanını göster"],
         "feedbackMoveCounts": ["Yüzen panelde hamle sayıları", "Öğrenme modu dışında hamle değerlendirme sayılarını göster"],
         "learningPvAnimation": ["En İyi Devam Yolunu Canlandır", "Yüzen panelde en iyi devam yolunu canlandır"],
@@ -190,7 +191,7 @@
         "feedbackOnExternalSite": ["Harici Sitede Geri Bildirim", "Satranç sitesinin tahtasında geri bildirim göster (örneğin, chess.com'un tahtasında)"],
         "pip": ["Yüzen panel", "Önemli! A.C.A.S'in donmasını önlemeye yardımcı olur!"],
         "pipBoard": ["Tahtayı göster", "Yalnızca metin yerine tüm satranç tahtasını göster"],
-        "pipQuality": ["Yüzen Panel Kalitesi", "Daha düşük çözünürlük daha hızlı olabilir. Varsayılan: %50."],
+        "pipQuality": ["Yüzen Panel Kalitesi", "Daha düşük çözünürlük daha hızlı olabilir. Varsayılan: %70."],
         "movesOnDemand": ["İsteğe bağlı hamleler", "Seçtiğin taşlar için hamleleri hesapla"],
         "onlySuggestPieces": ["Yalnızca taşları öner", "Hangi taşı oynatacağını göster, belirli bir hamle önerme"],
         "isUserscriptGhost": ["Hayalet Betik", "Tespitten kaçınmak için tüm algılanabilir harici işlevleri (örn. hamle okları) devre dışı bırakın"],

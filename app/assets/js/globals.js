@@ -58,6 +58,16 @@ let LAST_FORCE_CLOSE_TIME = 0;
 let CONCEAL_ASSISTANCE_ACTIVE = null;
 let CONCEAL_TIMEOUT = null;
 
+function GET_NO_INSTANCES_FONT_FAMILY(text) {
+    // Match Mona Sans's Latin unicode-range in gui.css. Choose for the whole
+    // title, not individual glyphs, so partially supported scripts stay uniform.
+    const title = text.normalize('NFC').toUpperCase();
+    const supportsMonaSans = /^[\u0000-\u024f\p{P}\p{Z}\s]*$/u.test(title);
+    const fallback = '"IBM Plex Sans", Inter, sans-serif';
+
+    return supportsMonaSans ? `"Mona Sans", ${fallback}` : fallback;
+}
+
 function FORCE_CLOSE_ALL_INSTANCES() {
     const now = Date.now();
     
@@ -77,6 +87,8 @@ function CREATE_BOARD_DRAWER_MOVE_OBJ(
     profileID = null,
     category = null
 ) {
+    if(elem && profileID !== null) elem.dataset.profileId = profileID;
+
     return {
         elem,
 
@@ -843,8 +855,12 @@ async function GET_PROFILE_NAMES(instanceID = SETTING_FILTER_OBJ.instanceID) {
 
     const globalProfilesObj = config?.global?.profiles;
     const instanceProfilesObj = instanceID ? config?.instance?.[instanceID]?.profiles : null;
-    if(globalProfilesObj || instanceProfilesObj)
-        return [...new Set([...Object.keys(globalProfilesObj ?? {}), ...Object.keys(instanceProfilesObj ?? {})])];
+    if(globalProfilesObj || instanceProfilesObj) {
+        const names = [...new Set([...Object.keys(globalProfilesObj ?? {}), ...Object.keys(instanceProfilesObj ?? {})])];
+        const order = Array.isArray(config.profileOrder) ? config.profileOrder : [];
+
+        return [...new Set([...order.filter(name => names.includes(name)), ...names])];
+    }
 
     console.error('Could not find profile names!', { ...SETTING_FILTER_OBJ, gmConfigKey, config });
 

@@ -112,6 +112,7 @@
         "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Jaa lauta", "Käytä samaa lautaa muiden profiilien kanssa"],
         "pipEval": ["Näytä arvio", "Näytä arviopalkki ja arvioluku kelluvan paneelin kaikissa tiloissa"],
         "feedbackMoveCounts": ["Siirtolaskuri kelluvassa paneelissa", "Näytä siirtoarvioiden määrät oppimistilan ulkopuolella"],
         "learningPvAnimation": ["Animoi paras jatko", "Animoi paras jatko kelluvassa paneelissa"],
@@ -190,7 +191,7 @@
         "webhookIncludeRawUci": ["Moottorin UCI sellaisenaan", "Lähetä moottorin UCI-rivit sellaisenaan"],
         "pip": ["Kelluva paneeli", "Tärkeä! Estää A.C.A.S:n jäätymisen!"],
         "pipBoard": ["Näytä lauta", "Näytä koko lauta pelkän tekstin sijaan"],
-        "pipQuality": ["Kelluvan paneelin laatu", "Pienempi tarkkuus voi olla nopeampi. Oletus: 50 %."],
+        "pipQuality": ["Kelluvan paneelin laatu", "Pienempi tarkkuus voi olla nopeampi. Oletus: 70 %."],
         "movesOnDemand": ["Siirrot pyynnöllä", "Laskee siirtoja nappuloille, joiden kanssa vuorovaikutat"],
         "onlySuggestPieces": ["Ehdota vain nappuloita", "Näytä, mitä nappuloita kannattaa siirtää, mutta älä ehdota tarkkoja siirtoja"],
         "isUserscriptGhost": ["Suojamoodi", "Poistaa käytöstään kaikki havaittavissa olevat ulkoiset toiminnot (esim. siirtonuolet) havaitsemisen välttämiseksi"],

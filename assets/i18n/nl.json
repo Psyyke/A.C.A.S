@@ -114,6 +114,7 @@
         "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Bord delen", "Deel één bord met andere profielen"],
         "pipEval": ["Evaluatie tonen", "Toon de evaluatiebalk en score in alle modi van het zwevende paneel"],
         "feedbackMoveCounts": ["Zettentelling in zwevend paneel", "Toon aantallen zetbeoordelingen buiten de leermodus"],
         "learningPvAnimation": ["Beste variant animeren", "Animeer de beste variant in het zwevende paneel"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["Ruwe engine-UCI", "Stuur ruwe engine-UCI-regels"],
         "pip": ["Zwevend Paneel", "Belangrijk! Voorkomt dat A.C.A.S bevriest!"],
         "pipBoard": ["Bord weergeven", "In plaats van alleen tekst, het volledige bord weergeven"],
-        "pipQuality": ["Kwaliteit zwevend paneel", "Een lagere resolutie kan sneller zijn. Standaard: 50%."],
+        "pipQuality": ["Kwaliteit zwevend paneel", "Een lagere resolutie kan sneller zijn. Standaard: 70%."],
         "movesOnDemand": ["Zetten op Aanvraag", "Berekent zetten voor de stukken waarmee je interageert"],
         "onlySuggestPieces": ["Alleen stukken voorstellen", "Laat zien welk stuk je kunt verplaatsen, zonder een concrete zet voor te stellen"],
         "isUserscriptGhost": ["Spookscript", "Schakelt alle detecteerbare externe functionaliteit uit (bv. zetpijlen) om detectie te vermijden"],

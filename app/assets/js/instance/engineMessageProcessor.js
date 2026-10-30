@@ -71,7 +71,7 @@ export default async function engineMessageProcessor(msg, profile) {
             calculationTimeElapsed,
             calculationFinished: isBestmove,
             ...(data.nodes != null ? { nodes: data.nodes } : {})
-        });
+        }, this, profile);
     }
 
     let parsedMove;
@@ -193,16 +193,16 @@ export default async function engineMessageProcessor(msg, profile) {
 
                 const progressMate = Number.isFinite(data.rootmate) ? data.rootmate
                     : Number.isFinite(data.rootcp) ? null : data.mate;
-                if(progressMate && !this.learningMode) {
+                if(progressMate && !this.isLearningProfile(profile)) {
                     const isWinning = progressMate > 0;
                     const mateText = `${isWinning ? winningText : losingText} ${Math.abs(progressMate)}`;
 
-                    this.Interface.updateMoveProgress(`${mateText} | ${depthText} ${data.depth}`, isWinning ? 1 : 2);
+                    this.Interface.updateMoveProgress(`${mateText} | ${depthText} ${data.depth}`, isWinning ? 1 : 2, profile);
                 } else {
-                    this.Interface.updateMoveProgress(`${depthText} ${data.depth}`, 0);
+                    this.Interface.updateMoveProgress(`${depthText} ${data.depth}`, 0, profile);
                 }
 
-                updatePipData({ depth: data.depth });
+                updatePipData({ depth: data.depth }, this, profile);
             }
 
             if((data?.cp != null || data?.mate != null || Number.isFinite(data.rootcp)
@@ -245,11 +245,11 @@ export default async function engineMessageProcessor(msg, profile) {
         }
     }
 
-    if((data?.rootwdl || data?.wdl) && isMessageForCurrentFen && !this.learningMode
+    if((data?.rootwdl || data?.wdl) && isMessageForCurrentFen && !this.isLearningProfile(profile)
         && (data.multipv == null || data.multipv === 1)) {
         const [winChance, drawChance, lossChance] = data.rootwdl || data.wdl;
 
-        updatePipData({ winChance, drawChance, lossChance });
+        updatePipData({ winChance, drawChance, lossChance }, this, profile);
     }
 
     if(data?.pv && isMessageForCurrentFen) {
@@ -309,7 +309,7 @@ export default async function engineMessageProcessor(msg, profile) {
             futureMoves.push(futureMoveObj);
         }
 
-        updatePipData({ calculationTimeElapsed, 'nodes': data?.nodes, topMoveObjects });
+        updatePipData({ calculationTimeElapsed, 'nodes': data?.nodes, topMoveObjects }, this, profile);
         
         let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
 
@@ -354,7 +354,7 @@ export default async function engineMessageProcessor(msg, profile) {
                     await this.getPlayerColor(profile));
 
                 if(evaluation && this.currentFen === fen && this.pV[profile] === profileObj) {
-                    if(!this.learningMode && !this.isLearningProfile(profile)
+                    if(!this.isLearningProfile(profile)
                         && oldestUnfinishedCalcRequestObj.annotationEligible && !oldestUnfinishedCalcRequestObj.stopRequested) {
                         updatePipHints(this, profile, { moveObjects: [],
                             terminalOutcome: evaluation.playerEvaluation > 0 ? 'winning'
@@ -461,11 +461,11 @@ export default async function engineMessageProcessor(msg, profile) {
             if(this.pV[profile] !== profileObj || this.currentFen !== fen || this.instanceClosed) return;
 
             if(engineName === 'lc0' || profileObj.engineNodes > 0) {
-                updatePipData({ nodes: this.learningMode ? oldestUnfinishedCalcRequestObj.lastData?.nodes ?? 0 : profileObj.engineNodes,
-                    goalDepth: null });
+                updatePipData({ nodes: this.isLearningProfile(profile) ? oldestUnfinishedCalcRequestObj.lastData?.nodes ?? 0 : profileObj.engineNodes,
+                    goalDepth: null }, this, profile);
             } else {
                 // Keep the last reported depth, not the configured search limit.
-                updatePipData({ goalNodes: null });
+                updatePipData({ goalNodes: null }, this, profile);
             }
 
             if(isDelayActive && markingLimit !== 0) {

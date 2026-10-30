@@ -114,6 +114,7 @@
         "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Brett teilen", "Ein Brett mit anderen Profilen teilen"],
         "pipEval": ["Bewertung anzeigen", "Bewertungsbalken und Wert in allen Modi des schwebenden Fensters anzeigen"],
         "feedbackMoveCounts": ["Zugzähler im schwebenden Fenster", "Zugbewertungen außerhalb des Lernmodus zählen"],
         "learningPvAnimation": ["Beste Variante animieren", "Die beste Variante im schwebenden Fenster animieren"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["Rohes Engine-UCI", "Sende rohe Engine-UCI-Zeilen"],
         "pip": ["Schwebendes Panel", "Wichtig! Verhindert das Einfrieren von A.C.A.S!"],
         "pipBoard": ["Brett anzeigen", "Anstatt nur Text das gesamte Brett anzeigen"],
-        "pipQuality": ["Qualität des schwebenden Panels", "Eine niedrigere Auflösung kann schneller sein. Standard: 50 %."],
+        "pipQuality": ["Qualität des schwebenden Panels", "Eine niedrigere Auflösung kann schneller sein. Standard: 70 %."],
         "movesOnDemand": ["Züge auf Anfrage", "Berechnet Züge für Figuren, mit denen du interagierst"],
         "onlySuggestPieces": ["Nur Figuren vorschlagen", "Zeige, welche Figur du ziehen solltest, ohne einen konkreten Zug vorzuschlagen"],
         "isUserscriptGhost": ["Geister-Skript", "Deaktiviert alle erkennbaren externen Funktionen (z. B. Zugpfeile), um eine Erkennung zu vermeiden"],

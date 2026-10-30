@@ -12,8 +12,7 @@ import applyDynamicOption from './instance/applyDynamicOption.js';
 import { setDynamicSettingsContext, removeDynamicSettingsContext } from './gui/dynamicSettings.js';
 import { sendUciToExternalEngine, closeAllExternalEnginesWithId } from './AcasWebSocketClient.js';
 import { removeInstance } from './instanceManager.js';
-import { updatePipData, updatePipHints } from './gui/pip.js';
-import { pipSanInput } from './gui/elementDeclarations.js';
+import { updatePipData, updatePipHints, syncPictureInPicture, pipSettingKeys } from './gui/pip.js';
 import { formatMoveNotationAsync, getMoveSpeechConfig } from './misc/moveNotation.js';
 import { feedbackQualityText } from './misc/feedbackText.js';
 import { isActivityLoggingEnabled, logActivity } from './misc/activityLog.js';
@@ -39,7 +38,7 @@ const configKeys = Object.freeze([
     'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth', 'learningMode', 'learningPvAnimation',
     'learningPvAnimationStopOnEnemyMove', 'feedbackInPip', 'feedbackMoveCounts', 'feedbackEmojis',
     'enableAdvancedElo', 'advancedEloDepth', 'moveAsFilledSquares',
-    'movesOnDemand', ...hintSettingKeys, 'externalChessEngine'
+    'movesOnDemand', ...hintSettingKeys, ...pipSettingKeys, 'externalChessEngine'
 ].reduce((o, k) => (o[k] = k, o), {}));
 
 export default class AcasInstance {
@@ -182,6 +181,10 @@ export default class AcasInstance {
 
                 for(const key of ['feedbackInPip', 'feedbackMoveCounts', 'enableMoveRatings', 'enableEnemyFeedback']) {
                     instance[key] = Boolean(await t.getConfigValue(t.configKeys[key], profileName));
+                }
+
+                for(const key of pipSettingKeys) {
+                    instance[key] = await t.getConfigValue(key, profileName);
                 }
         
                 return instance;
@@ -528,7 +531,7 @@ export default class AcasInstance {
                         toast.message(`${engineNotLimitedSkillLevel} | ${searchDepthMsg} ${depth}`, 8000);
                 } else {
                     this.pV[profile].searchDepth = null;
-                    updatePipData({ 'goalDepth': null });
+                    updatePipData({ 'goalDepth': null }, this, profile);
 
                     if(didUserUpdateSetting && !isMaiaEngine)
                         toast.message(engineNoLimitations, 8000);
@@ -862,7 +865,7 @@ export default class AcasInstance {
             if(this.pV[profile] !== variables || this.instanceClosed || CONCEAL_ASSISTANCE_ACTIVE
                 || options.isCurrent && !options.isCurrent()) return;
             const speech = getMoveSpeechConfig(translateAudio);
-            const useSan = Boolean(options.useSan ?? pipSanInput?.checked);
+            const useSan = options.useSan ?? (await this.getConfigValue(this.configKeys.pipSan, profile) !== false);
             const isCurrent = () => this.pV[profile] === variables && !this.instanceClosed && !CONCEAL_ASSISTANCE_ACTIVE && allowed()
                 && (isFeedback || variables.hintRevision === hintRevision)
                 && (!options.isCurrent || options.isCurrent())
@@ -870,7 +873,7 @@ export default class AcasInstance {
                 // also differ from the displayed board. Track the live board,
                 // not the notation root, while conversion is asynchronous.
                 && (options.review ? this.learningReviewPostFen : this.currentFen) === speechFen
-                && (isFeedback || Boolean(options.useSan ?? pipSanInput?.checked) === useSan);
+                && (isFeedback || (options.useSan ?? (variables.pipSan !== false)) === useSan);
             let spokenText = isFeedback ? feedbackQualityText(moveObj.feedbackResult, Boolean(translateAudio))
                 : moveObj.advantageBand !== undefined ? speech.advantage[moveObj.advantageBand]
                 : await formatMoveNotationAsync(moveObj, useSan, true, speech, isCurrent);
@@ -1261,7 +1264,7 @@ export default class AcasInstance {
             .map(move => presentHintMove(move.opponentHidden ? { ...move, opponent: [null, null], opponentUci: null, opponentPromotion: null } : move,
                 move.hintDetail ?? hints.detail));
 
-        if(!this.learningMode || review) updatePipHints(this, profile, {
+        if(!learning || review) updatePipHints(this, profile, {
             moveObjects: presentedMoves,
             hintsFiltered: presentedMoves.length === 0 && candidates.length > 0
         });
@@ -1335,7 +1338,7 @@ export default class AcasInstance {
             if(newInfoStr.length > 0) {
                 if(additionalInfoElem) additionalInfoElem.innerText = newInfoStr;
 
-                updatePipData({ 'engineText': newInfoStr });
+                updatePipData({ 'engineText': newInfoStr }, this);
             }
         }, 500);
 
@@ -1417,6 +1420,7 @@ export default class AcasInstance {
         this.MoveEval?.cancelStaleRequests();
         this.BoardPiecesEval?.cancelStaleRequests();
         updatePipHints(this);
+        syncPictureInPicture().catch(console.error);
     }
 
     async killEngines() {

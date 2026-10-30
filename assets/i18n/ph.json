@@ -114,6 +114,7 @@
         "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Ibahagi ang board", "Gumamit ng iisang board kasama ang ibang profile"],
         "pipEval": ["Ipakita ang Ebalwasyon", "Ipakita ang bar at iskor ng ebalwasyon sa lahat ng mode ng lumulutang na panel"],
         "feedbackMoveCounts": ["Bilang ng tira sa floating panel", "Ipakita ang bilang ng rating ng mga tira sa labas ng learning mode"],
         "learningPvAnimation": ["I-animate ang Pinakamahusay na Linya", "I-animate ang pinakamahusay na linya sa lumulutang na panel"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["Hilaw na UCI ng engine", "Magpadala ng hilaw na UCI lines ng engine"],
         "pip": ["Floating Panel", "Mahalaga! Pinipigilan ang A.C.A.S na mag-freeze!"],
         "pipBoard": ["Ipakita ang board", "Ipakita ang buong chess board sa halip na text lang"],
-        "pipQuality": ["Kalidad ng Floating Panel", "Maaaring mas mabilis ang mas mababang resolusyon. Default: 50%."],
+        "pipQuality": ["Kalidad ng Floating Panel", "Maaaring mas mabilis ang mas mababang resolusyon. Default: 70%."],
         "movesOnDemand": ["Mga tira kapag pumili ka", "Kalkulahin ang mga tira para sa mga piyesang pinipili mo"],
         "onlySuggestPieces": ["Piyesa lang ang imungkahi", "Ipakita kung aling piyesa ang dapat ilipat, pero hindi ang eksaktong tira"],
         "isUserscriptGhost": ["Tagong Script", "Patayin ang lahat ng mga natutukoy na panlabas na functionality (hal. mga arrow ng galaw) upang maiwasan ang pagtuklas"],

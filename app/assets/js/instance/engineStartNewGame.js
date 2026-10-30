@@ -53,7 +53,7 @@ async function startWithDynamicOptions(variant, engineName, profile, isCurrentSt
     profileVariables.engineNodes = engineNodes;
 
     if(engineNodes > 0) {
-        updatePipData({ 'goalDepth': null });
+        updatePipData({ 'goalDepth': null }, this, profile);
     }
 
     for(const [key, value] of Object.entries(allSavedOptions ?? {})) {

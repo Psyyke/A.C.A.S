@@ -132,7 +132,10 @@ export async function renderLearningFeedback(specificProfile) {
         if(!isCurrent()) continue;
         clearFeedback.call(this, profile, true, true);
         if(!before || !after || fen.split(' ')[1] !== playerColor) {
-            if(!variables.lastFeedbackResult) setFeedbackMessage.call(this, profile, text('learningWaiting', 'Play a move to see feedback'));
+            if(!variables.lastFeedbackResult) {
+                setFeedbackMessage.call(this, profile, text('learningWaiting', 'Play a move to see feedback'),
+                    '', { waitingForMove: true });
+            }
             continue;
         }
         const changes = after.boardChanges;
@@ -222,7 +225,7 @@ export async function renderLearningFeedback(specificProfile) {
     }
 }
 
-function setFeedbackMessage(profileID, message, description = '') {
+function setFeedbackMessage(profileID, message, description = '', { waitingForMove = false } = {}) {
     const container = this.instanceElem?.querySelector('.instance-feedback-container');
     if(!container) return;
     let row = Array.from(container.children).find(elem => elem.dataset.profileId === profileID);
@@ -247,6 +250,7 @@ function setFeedbackMessage(profileID, message, description = '') {
     const countLabels = allCountLines.length === 2
         ? [text('opponent', 'Opponent'), text('yours', 'Yours')].filter(isCountEnabled) : [];
     const counts = JSON.stringify([countLabels, countLines, countTitles]);
+    row.dataset.waitingForMove = String(waitingForMove);
     if(row.dataset.feedbackText === String(message) && row.dataset.feedbackCounts === counts
         && row.title === (description || message)) {
         row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));

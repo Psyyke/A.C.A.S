@@ -114,6 +114,7 @@
         "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Partager l’échiquier", "Partagez un échiquier avec d’autres profils"],
         "pipEval": ["Afficher l’évaluation", "Afficher la barre et le score d’évaluation dans tous les modes du panneau flottant"],
         "feedbackMoveCounts": ["Compteur de coups dans le panneau flottant", "Afficher les comptes des évaluations hors du mode apprentissage"],
         "learningPvAnimation": ["Animer la meilleure variante", "Animer la meilleure variante dans le panneau flottant"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["UCI brut du moteur", "Envoyer les lignes UCI brutes du moteur"],
         "pip": ["Panneau flottant", "Important ! Aide à éviter qu'A.C.A.S se bloque !"],
         "pipBoard": ["Afficher le plateau", "Au lieu de texte seulement, afficher tout le plateau"],
-        "pipQuality": ["Qualité du panneau flottant", "Une résolution plus basse peut être plus rapide. Par défaut : 50 %."],
+        "pipQuality": ["Qualité du panneau flottant", "Une résolution plus basse peut être plus rapide. Par défaut : 70 %."],
         "movesOnDemand": ["Coups à la Demande", "Calcule les coups pour les pièces avec lesquelles vous interagissez"],
         "onlySuggestPieces": ["Suggérer uniquement les pièces", "Indiquer quelle pièce déplacer, sans proposer de coup précis"],
         "useExternalChessEngine": ["Activé", "Le moteur d'échecs externe est-il activé"],

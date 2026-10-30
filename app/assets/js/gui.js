@@ -4,13 +4,13 @@ import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exp
     settingsContainerElem, settingsHeaderElem, settingsPanelsElem, settingContainerElem, renderingDialogElem,
     engineDialogElem, webhookMessageTemplateInput, webhookTemplateHighlightElem, themeColorInput,
     backgroundTextureInput, customBackgroundBlurInput, getActivityLogElements } from './gui/elementDeclarations.js';
-import { importSettings, exportSettings, resetSettings, migrateFeedbackSettings } from './gui/settings.js';
+import { importSettings, exportSettings, resetSettings, migrateFeedbackSettings, migratePipSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
 import { monitorInstances, monitorInstanceTabs, toggleSelectedNavbarItem } from './gui/instances.js';
 import { initializeInputElems, setInputValue, getInputValue } from './gui/domInputs.js';
 import { incrementUserUsageStat, updateUserUsageStats } from './gui/stats.js';
 import { fillProfileTabs, createNewProfile } from './gui/profiles.js';
-import { pipData, startPictureInPicture } from './gui/pip.js';
+import { updatePipData } from './gui/pip.js';
 import { initializeDynamicSettings } from './gui/dynamicSettings.js';
 import { initializeActivityLog } from './gui/activityLog.js';
 import { initializeCustomBackground, setCustomBackgroundBlur, updateCustomBackgroundControls } from './gui/customBackground.js';
@@ -89,7 +89,7 @@ export function setThemeColorHex(value) {
     document.body.style['background-color'] = value || null;
     document.body.style.setProperty('--background-texture-base', value || '#5f8895');
     acasInstanceContainer.style['background-color'] = value || null;
-    pipData[THEME_COLOR_STORAGE_KEY] = value;
+    updatePipData({ [THEME_COLOR_STORAGE_KEY]: value });
     localStorage.setItem(THEME_COLOR_STORAGE_KEY, value);
 }
 
@@ -307,8 +307,9 @@ export async function initGUI() {
     const config = await USERSCRIPT.getValue(USERSCRIPT_SHARED_VARS.gmConfigKey);
     const hintsMigrated = migrateHintSettings(config);
     const feedbackMigrated = migrateFeedbackSettings(config);
+    const pipMigrated = migratePipSettings(config);
 
-    if(hintsMigrated || feedbackMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
+    if(hintsMigrated || feedbackMigrated || pipMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
 
     initializeBackgroundGrain();
     initializeStarfield();

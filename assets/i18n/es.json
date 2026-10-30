@@ -114,6 +114,7 @@
         "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Compartir tablero", "Comparte un tablero con otros perfiles"],
         "pipEval": ["Mostrar evaluación", "Muestra la barra y la puntuación de evaluación en todos los modos del panel flotante"],
         "feedbackMoveCounts": ["Recuento de jugadas en el panel flotante", "Muestra los recuentos de valoraciones fuera del modo de aprendizaje"],
         "learningPvAnimation": ["Animar la mejor variante", "Anima la mejor variante en el panel flotante"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["UCI sin procesar del motor", "Enviar líneas UCI sin procesar del motor"],
         "pip": ["Panel flotante", "¡Importante! ¡Evita que A.C.A.S se congele!"],
         "pipBoard": ["Mostrar tablero", "En lugar de solo texto, mostrar todo el tablero"],
-        "pipQuality": ["Calidad del panel flotante", "Una resolución más baja podría ser más rápida. Predeterminado: 50 %."],
+        "pipQuality": ["Calidad del panel flotante", "Una resolución más baja podría ser más rápida. Predeterminado: 70 %."],
         "movesOnDemand": ["Jugadas a petición", "Calcula jugadas para las piezas que seleccionas"],
         "onlySuggestPieces": ["Sugerir solo piezas", "Indica qué pieza mover, sin mostrar una jugada concreta"],
         "isUserscriptGhost": ["Script Fantasma", "Desactivar toda funcionalidad externa detectable (p. ej. flechas de movimiento) para evitar la detección"],

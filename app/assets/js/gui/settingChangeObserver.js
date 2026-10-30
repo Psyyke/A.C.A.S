@@ -7,9 +7,8 @@ import { connectAcasToServer, disconnectAcasFromServer } from '../AcasWebSocketC
 import { ensureOneDynamicEngineSettingVisible } from './dynamicEngineOptions.js';
 import { setIsExternalEngineSettingActive } from './externalEngine.js';
 import { setProfileBubbleStatus } from './profiles.js';
-import { startPictureInPicture } from './pip.js';
+import { syncPictureInPicture } from './pip.js';
 import { getInputValue } from './domInputs.js';
-import { initMediaSession } from './media.js';
 import { setThemeColorHex } from '../gui.js';
 import { updateCustomBackgroundControls, setCustomBackgroundBlur } from './customBackground.js';
 import { maiaLearningWarning } from '../misc/feedbackText.js';
@@ -36,9 +35,6 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
     const valueExists = typeof value === 'boolean' || value;
     const alreadyProcessed = processedElems.findLast(([elem]) => elem === inputElem)?.[1] === value;
 
-    if(alreadyProcessed && inputElem.dataset.key === 'pip')
-        return;
-
     if(['learningMode', 'chessEngine', 'useExternalChessEngine'].includes(inputElem.dataset.key)) {
         const maiaLearning = learningModeInput?.checked && ['maia2', 'maia3'].includes(chessEngineInput?.value)
             && !IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
@@ -59,6 +55,13 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
         case 'enableEnemyFeedback': {
             const learningMode = Boolean(learningModeInput?.checked);
             const learningBoard = learningMode && pipBoardInput?.checked;
+
+            if(learningModeInput) {
+                learningModeInput.disabled = false;
+                const toggle = learningModeInput.closest('.custom-input');
+                toggle.inert = false;
+                toggle.setAttribute('aria-disabled', 'false');
+            }
 
             [
                 [learningPvAnimationInput, !learningBoard],
@@ -222,25 +225,11 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             break;
         case 'pip':
-            if(value) {
-                if(!document.pictureInPictureElement) startPictureInPicture();
-            } else {
-                if(document.pictureInPictureElement) {
-                    try {
-                        await document.exitPictureInPicture();
-                    } catch(error) {
-                        console.error('[PiP] Could not close the floating panel:', error);
-                    }
-                }
-                initMediaSession();
-            }
-
-            break;
+        case 'pipSharedBoard':
         case 'pipEval':
         case 'pipQuality':
         case 'pipSan':
-            if(processedElems.findLast(([elem]) => elem === inputElem)?.[1] !== value)
-                window.REFRESH_PIP_DISPLAY?.();
+            if(!alreadyProcessed) await syncPictureInPicture();
 
             break;
         case 'alwaysMyTurn':
@@ -330,14 +319,6 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
                 engineNodesInput.parentElement.style.opacity = '1';
                 advancedEloDepthInput.parentElement.style.opacity = '0.3';
             }
-
-            break;
-        case 'chessEngineProfile':
-            const showRenderingSettings = SETTING_FILTER_OBJ.profileID === 'default';
-
-            [...document.querySelectorAll('.only-default-profile-setting')].forEach(x => {
-                showRenderingSettings ? x.classList.remove('disabled') : x.classList.add('disabled');
-            });
 
             break;
     }

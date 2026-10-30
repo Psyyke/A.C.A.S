@@ -112,6 +112,7 @@
         "#des-no-result-text": "Některá nastavení jsou dynamicky analyzována z výstupu UCI motoru. Otevřete šachovnici, abyste spustili svůj motor a načetli dynamická nastavení."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Sdílet šachovnici", "Sdílejte jednu šachovnici s dalšími profily"],
         "pipEval": ["Zobrazit hodnocení", "Zobrazit ukazatel a hodnotu hodnocení ve všech režimech plovoucího panelu"],
         "feedbackMoveCounts": ["Počty tahů v plovoucím panelu", "Zobrazit počty hodnocení tahů mimo režim učení"],
         "learningPvAnimation": ["Animovat nejlepší pokračování", "Animovat nejlepší pokračování v plovoucím panelu"],
@@ -190,7 +191,7 @@
         "webhookIncludeRawUci": ["Hrubé UCI motoru", "Odesílat surové řádky UCI motoru"],
         "pip": ["Plovoucí panel", "Důležité! Zabrání zamrznutí A.C.A.S!"],
         "pipBoard": ["Zobrazit šachovnici", "Místo pouhého textu zobrazit celou šachovnici"],
-        "pipQuality": ["Kvalita plovoucího panelu", "Nižší rozlišení může být rychlejší. Výchozí: 50 %."],
+        "pipQuality": ["Kvalita plovoucího panelu", "Nižší rozlišení může být rychlejší. Výchozí: 70 %."],
         "movesOnDemand": ["Tahy na vyžádání", "Vypočítá tahy pro figury, které vybereš"],
         "onlySuggestPieces": ["Navrhovat pouze figury", "Ukáže, kterou figurou táhnout, ale nenavrhne konkrétní tah"],
         "isUserscriptGhost": ["Skrytý skript", "Vypne všechny zjistitelné externí funkce, například šipky tahů"],

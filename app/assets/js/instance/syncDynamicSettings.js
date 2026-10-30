@@ -1,6 +1,7 @@
 import { logAppliedSetting, finishPendingSettingChanges } from '../misc/settingActivity.js';
 import { fairyVariantKey, fairyChess960Key, isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 import { hintSettingKeys } from '../misc/learningHints.js';
+import { syncPictureInPicture } from '../gui/pip.js';
 
 // Every instance owns its effective-value cache and queue. Never consult the GUI filter.
 export function changedSettingKeys(previous, current, keys, forcedKeys = []) {
@@ -142,6 +143,8 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = [], isDi
         }
         if(Boolean(this.learningMode) !== Object.values(this.pV).some(variables => variables.learningMode))
             await this.Interface.updateLearningBoard();
+        // Rendering must not delay engine settings or fail their application.
+        syncPictureInPicture().catch(error => console.warn('[PiP] Could not update profiles:', error));
     };
     const operation = this.dynamicSettingsQueue.then(synchronize);
     this.dynamicSettingsQueue = operation.catch(error => {

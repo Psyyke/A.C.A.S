@@ -211,8 +211,9 @@
                     <p>Click the settings button next to Floating Panel to find these:</p>
                     <ul>
                         <li><a target="_blank" href="../app?shl=pipBoard">Display Board</a> shows the board instead of just text, including in Learning Mode.</li>
+                        <li><a target="_blank" href="../app?shl=pipSharedBoard">Share Board</a> combines move overlays from profiles on one board. Enable Display Board and Share Board for every profile you want to combine. Profiles must show the same position and orientation; animated Learning Mode boards remain separate. Each profile keeps its own status, evaluation and feedback.</li>
                         <li><a target="_blank" href="../app?shl=pipEval">Display Evaluation</a> shows the evaluation bar and score in every Floating Panel mode, independently of Display Board.</li>
-                        <li><a target="_blank" href="../app?shl=pipQuality">PiP Quality</a> changes the picture resolution, not the engine's strength. Lower it if the panel is slow or your tablet gets warm. The default is 50%.</li>
+                        <li><a target="_blank" href="../app?shl=pipQuality">PiP Quality</a> changes the picture resolution, not the engine's strength. Lower it if the panel is slow or your tablet gets warm. The default is 70%; existing saved values are kept.</li>
                         <li><a target="_blank" href="../app?shl=pipSan">SAN Move Notation</a> uses familiar notation such as Nf3 instead of square-to-square notation such as g1f3. This also applies to Move TTS.</li>
                     </ul>
 
@@ -436,7 +437,7 @@
 
                     <h2 id="render-settings">⚙️ Render Settings</h2>
                     <p>The rendering settings display information about the position, rather than telling you a move to play. Square vision and capture warnings don't use a chess engine. <strong>Show Piece Contributions</strong> does use a separate engine, so it can take longer. These features can be useful for learning, but they're not a replacement for checking a line yourself.</p><img alt="Image of A.C.A.S' instance view, displaying a chessboard with information rendered on top of it." height="645" src="../assets/images/render-example.png">
-                    <p>They're shown on the GUI's board. Enable <a target="_blank" href="../app?shl=renderOnExternalSite">Render On External Site</a> if you want them on the chess site's board too. This switch doesn't enable any particular metric by itself; choose the ones you want below it.</p>
+                    <p>Rendering settings are configured separately for each profile and shown on the GUI's board. Enable <a target="_blank" href="../app?shl=renderOnExternalSite">Render On External Site</a> for that profile if you want them on the chess site's board too. This switch doesn't enable any particular metric by itself; choose the ones you want below it.</p>
             
                     <h3 id="⚙️-colors">⚙️ Colors</h3>
                     <p><a target="_blank" href="../app?shl=renderSquarePlayer">Own Piece Vision</a> uses <strong>Green</strong> for squares your pieces see. <a target="_blank" href="../app?shl=renderSquareEnemy">Enemy Piece Vision</a> uses <strong>Red</strong> for squares the enemy's pieces see. With the square categories enabled together, green and red show squares only that side sees. If you enable just one side's vision, it includes contested squares too.</p>

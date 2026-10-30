@@ -114,6 +114,7 @@
         "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Taxtanı paylaş", "Digər profillərlə bir taxtadan istifadə et"],
         "pipEval": ["Qiymətləndirməni göstər", "Üzən panelin bütün rejimlərində qiymətləndirmə zolağını və xalını göstər"],
         "feedbackMoveCounts": ["Üzən paneldə gediş sayı", "Öyrənmə rejimindən kənarda gediş qiymətlərinin sayını göstər"],
         "learningPvAnimation": ["Ən yaxşı davamın animasiyası", "Üzən paneldə ən yaxşı davamı animasiya ilə göstərin"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["Xam mühərrik UCI", "Xam mühərrik UCI sətirlərini göndərin"],
         "pip": ["Üzən panel", "Vacibdir! A.C.A.S-ın donmasını qarşısını alır!"],
         "pipBoard": ["Taxtanı göstər", "Yalnız mətn əvəzinə bütün taxtanı göstər"],
-        "pipQuality": ["Üzən panelin keyfiyyəti", "Daha aşağı təsvir ölçüsü daha sürətli ola bilər. Standart: 50%."],
+        "pipQuality": ["Üzən panelin keyfiyyəti", "Daha aşağı təsvir ölçüsü daha sürətli ola bilər. Standart: 70%."],
         "movesOnDemand": ["Sorğu ilə gedişlər", "Seçdiyiniz fiqurlar üçün gedişləri hesablayın"],
         "onlySuggestPieces": ["Yalnız fiqurları təklif et", "Hansı fiquru oynatmağı təklif et, amma konkret gediş göstərmə"],
         "isUserscriptGhost": ["Gizli Skript", "Aşkarlanmanı əngəlləmə üçün bütün aşkarlana biləcək xarici funksiyaları (məs. gediş oxları) söndürün"],

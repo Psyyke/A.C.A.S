@@ -1,4 +1,4 @@
-import { updatePipData, updatePipFeedback } from '../gui/pip.js';
+import { updatePipData, updatePipFeedback, pipSettingKeys } from '../gui/pip.js';
 import { clearFeedback } from './renderFeedback.js';
 import { isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 
@@ -8,6 +8,11 @@ export default async function updateSettings(updateObj) {
     const profileName = updateObj.data.profile?.name || settingValue;
     const isDirectlyCausedByUser = updateObj.data.isDirectlyCausedByUser;
     const isDynamicUciSetting = settingKey.startsWith('DYNAMIC_');
+
+    if(pipSettingKeys.includes(settingKey)) {
+        if(this.pV[profileName]) this.pV[profileName][settingKey] = settingValue;
+        return;
+    }
 
     if(['learningPvAnimation', 'learningPvAnimationStopOnEnemyMove'].includes(settingKey)) {
         if(this.pV[profileName]) this.pV[profileName][settingKey] = Boolean(settingValue);
@@ -30,7 +35,7 @@ export default async function updateSettings(updateObj) {
             clearFeedback.call(this, profileName);
         }
 
-        await this.Interface.updateLearningBoard(profileName);
+        await this.Interface.updateLearningBoard(profileName, Boolean(settingValue));
 
         this.MoveEval?.cancelStaleRequests();
 
@@ -131,10 +136,10 @@ export default async function updateSettings(updateObj) {
     if(settingKey === this.configKeys.enableEveryPieceEvals && this.pV[profileName]) {
         this.pV[profileName].pieceEvalRequest = (this.pV[profileName].pieceEvalRequest || 0) + 1;
         this.BoardPiecesEval?.cancelStaleRequests();
-        if(this.currentFen) this.renderMetric(this.learningMode ? this.displayFen : this.currentFen, profileName).catch(console.error);
     }
-    if(settingKey === this.configKeys.renderSquareAsDots && this.pV[profileName]) {
-        if(this.currentFen) await this.renderMetric(this.learningMode ? this.displayFen : this.currentFen, profileName).catch(console.error);
+    if((settingKey.startsWith('render') || settingKey === this.configKeys.enableEveryPieceEvals) && this.pV[profileName]) {
+        // Piece contributions can take time; do not block the settings queue.
+        if(this.currentFen) this.renderMetric(this.learningMode ? this.displayFen : this.currentFen, profileName).catch(console.error);
         return;
     }
     if(settingKey === this.configKeys.ttsAnnounceEvaluation && this.pV[profileName]) {
@@ -222,7 +227,7 @@ export default async function updateSettings(updateObj) {
         if(this.pV[profileName]) this.pV[profileName].engineNodes = this.pV[profileName].usingAdvancedMode || await this.getEngineName(profileName) === 'lc0'
             ? await this.getConfigValue(this.configKeys.engineNodes, profileName) : 0;
 
-        updatePipData({ 'goalDepth': null });
+        updatePipData({ 'goalDepth': null }, this, profileName);
         return this.pV[profileName] ? { appliedValue: this.pV[profileName].engineNodes } : false;
     }
 

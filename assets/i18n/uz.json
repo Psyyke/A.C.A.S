@@ -82,6 +82,7 @@
         "#des-no-result-text": "Ba’zi sozlamalar dvijokning UCI chiqishidan dinamik ravishda olinadi. Dvijokni ishga tushirish va dinamik sozlamalarni yuklash uchun shaxmat taxtasini oching."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Umumiy taxta", "Boshqa profillar bilan bitta taxtadan foydalanish"],
         "pipEval": ["Baholashni ko‘rsatish", "Suzuvchi panelning barcha rejimlarida baholash chizig‘i va ballini ko‘rsatish"],
         "feedbackMoveCounts": ["Suzuvchi panelda yurishlar soni", "O‘rganish rejimidan tashqarida yurish baholari sonini ko‘rsating"],
         "learningPvAnimation": ["Eng yaxshi davomni jonlantirish", "Suzuvchi panelda eng yaxshi davomni animatsiya bilan ko‘rsating"],
@@ -128,7 +129,7 @@
         "enableEnemyFeedback": ["Raqibni baholash", "Raqib yurishlarini baholash"], "enableMoveRatings": ["Yurishlarni baholash", "Yurishlaringizni dvijokning eng yaxshi yurishi bilan solishtirish"],
         "feedbackOnExternalSite": ["Tashqi saytda baholash", "Shaxmat sayti taxtasida yurish baholarini ko‘rsatish (masalan, chess.com)"],
         "pip": ["Suzuvchi panel", "Muhim! A.C.A.S qotib qolishining oldini oladi!"], "pipBoard": ["Taxtani ko‘rsatish", "Faqat matn o‘rniga butun taxtani ko‘rsatish"], "pipSan": ["SAN yurish yozuvi", "Suzuvchi panel va ovozli yurishlarda SAN dan foydalanish"],
-        "pipQuality": ["Suzuvchi panel sifati", "Pastroq tasvir aniqligi tezroq ishlashi mumkin. Standart: 50%."],
+        "pipQuality": ["Suzuvchi panel sifati", "Pastroq tasvir aniqligi tezroq ishlashi mumkin. Standart: 70%."],
         "movesOnDemand": ["Talab bo‘yicha yurishlar", "Siz tanlagan donalar uchun yurishlarni hisoblash"], "onlySuggestPieces": ["Faqat donalarni tavsiya qilish", "Aniq yurishni ko‘rsatmay, qaysi donani yurishni tavsiya qilish"],
         "isUserscriptGhost": ["Yashirin skript", "Aniqlanishdan saqlanish uchun barcha aniqlanadigan tashqi funksiyalarni (masalan, yurish strelkalarini) o‘chirish"],
         "useExternalChessEngine": ["Yoqilgan", "Tashqi dvijok yoqilganmi"], "instanceRestartTriggerCode": ["Qayta ishga tushirish tugmasi", "Barcha seanslarni qayta ishga tushiradi; ular to‘xtab qolsa foydali"],

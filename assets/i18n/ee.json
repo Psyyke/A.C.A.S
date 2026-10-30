@@ -112,6 +112,7 @@
         "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Jaga lauda", "Kasuta üht lauda koos teiste profiilidega"],
         "pipEval": ["Näita hinnangut", "Näita hinnanguriba ja skoori ujuvpaneeli kõigis režiimides"],
         "feedbackMoveCounts": ["Käikude loendur ujuvpaneelis", "Näita käiguhinnangute arvu väljaspool õppimisrežiimi"],
         "learningPvAnimation": ["Animeeri parimat jätku", "Animeeri parimat jätku ujuvpaneelil"],
@@ -190,7 +191,7 @@
         "webhookIncludeRawUci": ["Mootori toor-UCI", "Saada mootorite toor-UCI read"],
         "pip": ["Hõljuv paneel", "Oluline! Takistab A.C.A.S-i külmumist!"],
         "pipBoard": ["Kuva lauda", "Näita kogu lauda tekstipõhise kuvamise asemel"],
-        "pipQuality": ["Hõljuva paneeli kvaliteet", "Madalam eraldusvõime võib olla kiirem. Vaikimisi: 50%."],
+        "pipQuality": ["Hõljuva paneeli kvaliteet", "Madalam eraldusvõime võib olla kiirem. Vaikimisi: 70%."],
         "movesOnDemand": ["Käigud valimisel", "Arvutab käigud malenditele, mille valid"],
         "onlySuggestPieces": ["Soovita ainult malendeid", "Näita, millist malendit liigutada, ilma konkreetset käiku soovitamata"],
         "isUserscriptGhost": ["Kummitusskript", "Keela kõik tuvastatavad välised funktsioonid (nt käigunoole), et vältida tuvastamist"],

@@ -114,6 +114,7 @@
         "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Bagikan Papan", "Gunakan satu papan bersama profil lain"],
         "pipEval": ["Tampilkan Evaluasi", "Tampilkan bilah dan skor evaluasi di semua mode panel mengambang"],
         "feedbackMoveCounts": ["Jumlah Langkah di Panel Mengambang", "Tampilkan jumlah penilaian langkah di luar mode belajar"],
         "learningPvAnimation": ["Animasikan Kelanjutan Terbaik", "Animasikan kelanjutan terbaik di panel mengambang"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["UCI mesin mentah", "Kirim baris UCI mesin mentah"],
         "pip": ["Panel mengambang", "Penting! Membantu mencegah A.C.A.S macet!"],
         "pipBoard": ["Tampilkan papan", "Alih-alih hanya teks, tampilkan seluruh papan"],
-        "pipQuality": ["Kualitas Panel Mengambang", "Resolusi lebih rendah mungkin lebih cepat. Bawaan: 50%."],
+        "pipQuality": ["Kualitas Panel Mengambang", "Resolusi lebih rendah mungkin lebih cepat. Bawaan: 70%."],
         "movesOnDemand": ["Langkah sesuai pilihan", "Hitung langkah untuk buah catur yang kamu pilih"],
         "onlySuggestPieces": ["Sarankan buah catur saja", "Tunjukkan buah catur yang sebaiknya digerakkan, tanpa menyebut langkah tertentu"],
         "isUserscriptGhost": ["Skrip Hantu", "Nonaktifkan semua fungsi eksternal yang dapat dideteksi (mis. panah gerakan) untuk menghindari deteksi"],

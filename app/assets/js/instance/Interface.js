@@ -371,6 +371,7 @@ export default class Interface {
         };
 
         const siteMoveShapes = [];
+        const pipMoveShapes = [];
         let visibleMoveIndex = 0;
 
         moveObjArr.forEach((mObj, idx) => {
@@ -380,6 +381,7 @@ export default class Interface {
             // Threat-only candidates must not demote the first visible own move.
             const shapeIndex = mObj.playerHidden ? idx : visibleMoveIndex++;
             const shapes = this.getMoveShapes(mObj, shapeIndex, shapeCtx);
+            pipMoveShapes.push(...shapes.map(shape => ({ ...shape, pipAlwaysVisible: showOpponentMoveGuessConstantly })));
             if(!shapes.length) return;
 
             const [from] = mObj.player;
@@ -388,6 +390,7 @@ export default class Interface {
                     ? BoardDrawer.createShape(shape.shapeType, shape.shapeSquare, shape.shapeConfig) : null)
                 .map((elem, i) => {
                     if(!elem) return elem;
+                    elem.dataset.profileId = profile;
 
                     const shape = shapes[i];
                     if(shape.isOpponent) {
@@ -427,6 +430,7 @@ export default class Interface {
         variables.hintsExternal = Boolean(displayMovesExternally);
 
         this.AcasInstance.pV[profile].activeSquareListeners = squareListeners;
+        this.AcasInstance.pV[profile].pipMoveShapes = pipMoveShapes;
     }
 
     removeMarkingFromProfile(p) {
@@ -448,6 +452,7 @@ export default class Interface {
         this.AcasInstance.pV[p].activeSquareListeners = [];
         this.AcasInstance.pV[p].activeGuiMoveMarkings = [];
         this.AcasInstance.pV[p].activeFutureMoveMarkings = [];
+        this.AcasInstance.pV[p].pipMoveShapes = [];
     }
 
     removeMarkings(profile, reason) {
@@ -462,7 +467,7 @@ export default class Interface {
         }
     }
 
-    async updateLearningBoard(specificProfile) {
+    async updateLearningBoard(specificProfile, learningModeOverride) {
         const instance = this.AcasInstance;
         const fen = instance.currentFen;
         const revision = this.learningViewRevision = (this.learningViewRevision || 0) + 1;
@@ -470,9 +475,17 @@ export default class Interface {
         const profiles = Object.entries(instance.pV);
         const previousModes = new Map(profiles.map(([profile, variables]) => [profile, variables.learningMode]));
 
+        // Apply a manual toggle immediately, even if a board update supersedes
+        // the asynchronous rendering work below.
+        if(typeof learningModeOverride === 'boolean' && instance.pV[specificProfile]) {
+            instance.pV[specificProfile].learningMode = learningModeOverride;
+            updatePipFeedback(instance);
+        }
+
         const [settings, ownColor] = await Promise.all([
             Promise.all(profiles.map(async ([profile, variables]) => ({ profile, variables,
-                learningMode: Boolean(await instance.getConfigValue(instance.configKeys.learningMode, profile)),
+                learningMode: profile === specificProfile && typeof learningModeOverride === 'boolean'
+                    ? learningModeOverride : Boolean(await instance.getConfigValue(instance.configKeys.learningMode, profile)),
                 learningPvAnimation: Boolean(await instance.getConfigValue(instance.configKeys.learningPvAnimation, profile)),
                 learningPvAnimationStopOnEnemyMove: await instance.getConfigValue(instance.configKeys.learningPvAnimationStopOnEnemyMove, profile) !== false,
                 feedbackInPip: Boolean(await instance.getConfigValue(instance.configKeys.feedbackInPip, profile)),
@@ -557,6 +570,7 @@ export default class Interface {
             }
         }
         if(!isCurrent()) return;
+        updatePipFeedback(instance);
         if(enabled) await renderLearningFeedback.call(instance,
             previousReview === instance.learningReviewPostFen ? specificProfile : undefined);
         updatePipFeedback(instance);
@@ -744,15 +758,14 @@ export default class Interface {
         updatePipEvaluation(this.AcasInstance);
     }
 
-    updateMoveProgress(text, status) {
+    updateMoveProgress(text, status, profile) {
         if(!this.AcasInstance.instanceElem) return;
 
         const infoTextElem = this.AcasInstance.instanceElem.querySelector('.instance-info-text');
 
         infoTextElem.innerText = text;
 
-        updatePipData({ 'moveProgressText': text });
-        updatePipData({ 'isWinning': status });
+        updatePipData({ moveProgressText: text, isWinning: status }, this.AcasInstance, profile);
 
         const statusArr = ['info-text-winning', 'info-text-losing'];
 
@@ -771,6 +784,10 @@ export default class Interface {
         this.evalUpdateRevision = (this.evalUpdateRevision || 0) + 1;
         this.evaluationData = null;
         this.liveEvaluationProfile = null;
+        Object.values(this.AcasInstance.pV).forEach(variables => {
+            variables.pipEvalRevision = (variables.pipEvalRevision || 0) + 1;
+            delete variables.pipEvaluationData;
+        });
         const evalFill = this.AcasInstance.instanceElem?.querySelector('.eval-fill');
         if(evalFill) evalFill.style.height = '50%';
         updatePipEvaluation(this.AcasInstance);
@@ -784,42 +801,43 @@ export default class Interface {
         const postFen = context.postFen ?? instance.learningReviewPostFen;
         const isCurrent = () => !instance.instanceClosed && instance.instanceElem === instanceElem
             && instance.pV[profile] === variables
-            && (review ? instance.learningMode && instance.isLearningProfile(profile)
-                && instance.learningReviewProfile === profile && instance.learningReviewFen === fen
+            && (review ? instance.isLearningProfile(profile)
+                && instance.learningReviewFen === fen
                 && instance.learningReviewPostFen === postFen
-                : !instance.learningMode && !instance.isLearningProfile(profile) && instance.currentFen === fen)
+                : !instance.isLearningProfile(profile) && instance.currentFen === fen)
             && (!context.isCurrent || context.isCurrent());
         if(!instanceElem || !variables || !fen || !isCurrent()) return;
         if(!review && analyzedColor !== fen.split(' ')[1]) return;
-        // A single live profile owns the bar; concurrent engines must not fight
-        // over it. Learning Mode explicitly selects its review profile instead.
-        if(!review && this.liveEvaluationProfile && instance.pV[this.liveEvaluationProfile]
-            && this.liveEvaluationProfile !== profile) return;
-
-        const revision = this.evalUpdateRevision = (this.evalUpdateRevision || 0) + 1;
+        const revision = variables.pipEvalRevision = (variables.pipEvalRevision || 0) + 1;
         // Follow the profile's selected side, including reverseSide. Visual
         // orientation stays independent; the bar still stores White's advantage.
         const playerColor = await instance.getPlayerColor(profile);
-        if(revision !== this.evalUpdateRevision || !isCurrent()) return;
+        if(revision !== variables.pipEvalRevision || !isCurrent()) return;
         // Leave the bar alone on the unselected side's turn.
         if(!review && fen.split(' ')[1] !== playerColor) return;
         const evaluation = evaluationForPlayer(centipawnEval, mate, analyzedColor, playerColor);
         const evalFill = instanceElem.querySelector('.eval-fill');
         if(!evalFill || !evaluation) return;
-        const previous = this.evaluationData;
+        const previous = variables.pipEvaluationData;
         const depth = Number(context.depth) || 0;
         if(previous?.fen === fen && previous.review === review && previous.variables === variables
             && previous.playerColor === playerColor
             && (!review || previous.postFen === postFen) && previous.depth > depth) return;
 
-        if(!review) this.liveEvaluationProfile = profile;
-        this.evaluationData = {
+        variables.pipEvaluationData = {
             eval: evaluation.whiteAdvantage, playerColor, centipawnEval: evaluation.whiteEvaluation,
             mate: mate ? Number(centipawnEval) * (analyzedColor === 'w' ? 1 : -1) : null,
             fen, postFen, profile, variables, review, depth
         };
-        evalFill.style.height = `${evaluation.whiteAdvantage * 100}%`;
         updatePipEvaluation(instance);
+
+        // Every PiP profile keeps its score, while one profile owns the GUI bar.
+        if(review ? instance.learningReviewProfile !== profile : instance.learningMode) return;
+        if(!review && this.liveEvaluationProfile && instance.pV[this.liveEvaluationProfile]
+            && this.liveEvaluationProfile !== profile) return;
+        if(!review) this.liveEvaluationProfile = profile;
+        this.evaluationData = variables.pipEvaluationData;
+        evalFill.style.height = `${evaluation.whiteAdvantage * 100}%`;
     }
 
     displayConnectionIssueWarning() {

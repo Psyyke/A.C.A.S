@@ -114,6 +114,7 @@
         "#des-no-result-text": "Niektoré nastavenia sú dynamicky analyzované z výstupu UCI motora. Otvorte šachovnicu, aby ste spustili svoj motor a načítali dynamické nastavenia."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Zdieľať šachovnicu", "Zdieľajte jednu šachovnicu s ďalšími profilmi"],
         "pipEval": ["Zobraziť hodnotenie", "Zobraziť ukazovateľ a hodnotu hodnotenia vo všetkých režimoch plávajúceho panela"],
         "feedbackMoveCounts": ["Počty ťahov v plávajúcom paneli", "Zobraziť počty hodnotení ťahov mimo režimu učenia"],
         "learningPvAnimation": ["Animovať najlepšie pokračovanie", "Animovať najlepšie pokračovanie v plávajúcom paneli"],
@@ -192,7 +193,7 @@
         "feedbackOnExternalSite": ["Spätná Väzba Na Externom Webe", "Zobraziť spätnú väzbu na šachovnici webovej stránky (napr. šachovnici chess.com)"],
         "pip": ["Plávajúci panel", "Dôležité! Pomáha predchádzať zamŕzaniu A.C.A.S!"],
         "pipBoard": ["Zobraziť šachovnicu", "Namiesto iba textu zobraziť celú šachovnicu"],
-        "pipQuality": ["Kvalita plávajúceho panela", "Nižšie rozlíšenie môže byť rýchlejšie. Predvolené: 50 %."],
+        "pipQuality": ["Kvalita plávajúceho panela", "Nižšie rozlíšenie môže byť rýchlejšie. Predvolené: 70 %."],
         "movesOnDemand": ["Ťahy na požiadanie", "Vypočíta ťahy pre figúry, ktoré vyberieš"],
         "onlySuggestPieces": ["Navrhovať iba figúry", "Ukáže, ktorou figúrou ťahať, bez návrhu konkrétneho ťahu"],
         "isUserscriptGhost": ["Tajný skript", "Vypne všetky detegovateľné externé funkcie (napr. šípky ťahov) aby sa zabránilo detekcii"],

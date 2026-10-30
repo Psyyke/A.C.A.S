@@ -112,6 +112,7 @@
         "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Zajednička tabla", "Koristi jednu tablu sa drugim profilima"],
         "pipEval": ["Прикажи процену", "Прикажи траку и вредност процене у свим режимима плутајућег панела"],
         "feedbackMoveCounts": ["Број потеза у плутајућем панелу", "Прикажи број оцена потеза ван режима учења"],
         "learningPvAnimation": ["Animiraj najbolji nastavak", "Animiraj najbolji nastavak u plutajućem panelu"],
@@ -190,7 +191,7 @@
         "feedbackOnExternalSite": ["Povratne Informacije Na Spoljnom Sajtu", "Prikaži povratne informacije na tabli šahovskog sajta (npr. na tabli chess.com)"],
         "pip": ["Plutajući panel", "Važno! Pomaže da se A.C.A.S ne zamrzne!"],
         "pipBoard": ["Prikaži tablu", "Umesto samo teksta, prikaži celu tablu"],
-        "pipQuality": ["Kvalitet plutajućeg panela", "Niža rezolucija može biti brža. Podrazumevano: 50%."],
+        "pipQuality": ["Kvalitet plutajućeg panela", "Niža rezolucija može biti brža. Podrazumevano: 70%."],
         "movesOnDemand": ["Potezi na Zahtev", "Izračunava poteze za figure sa kojima radite"],
         "onlySuggestPieces": ["Predloži samo figure", "Pokaži koju figuru da pomeriš, bez predlaganja konkretnog poteza"],
         "isUserscriptGhost": ["Prividni skript", "Onemogući sve detektujuće spoljne funkcije (npr. strelice poteza) da bi se izbeglo otkrivanje"],

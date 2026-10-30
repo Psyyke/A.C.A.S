@@ -756,7 +756,62 @@
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👀</div>
-							<div class="floaty-input only-default-profile-setting custom-input">
+                            <div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
+                                <div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div>
+                                <div class="floaty-wrapper">
+                                    <button class="open-floaty-btn acas-fancy-button">⚙️</button>
+                                    <dialog id="floating-floaty">
+                                        <div class="floaty-container">
+                                            <section class="floaty-header">
+                                                <div class="title">
+                                                    <h1 data-translation-ffs-title>Floating Panel Settings</h1>
+                                                    <p data-translation-ffs-subtitle>These are mainly for Firefox users</p>
+                                                </div>
+                                                <div class="floaty-buttons">
+                                                    <button class="floaty-close-btn acas-fancy-button">💾</button>
+                                                </div>
+                                            </section>
+                                            <section class="floaty-body">
+                                                <p data-translation-ffs-instructions>Keep the Floating Panel open, or A.C.A.S will not work. Disabling this feature automatically applies an audio trick that may keep A.C.A.S active without the panel in some browsers. If anything isn't working, try Chrome and keep A.C.A.S visible in split-screen.</p>
+                                                <div class="setting-panel">
+                                                    <div class="setting-panel-title" data-translation-ffs-videostream>Videostream</div>
+                                                    <div id="floating-panel-video"></div>
+                                                </div>
+                                                <div class="setting-panel">
+                                                    <div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
+                                                    <div class="range-input custom-input">
+                                                        <div><label class="input-title" for="pip-quality">PiP Quality</label>
+                                                            <div class="input-subtitle" id="pip-quality-description">Lower resolution might be faster. Default: 70%.</div></div>
+                                                        <div class="range-control">
+                                                            <input id="pip-quality" type="range" min="1" max="100" step="1" value="70" data-range-unit="%" data-key="pipQuality" data-default-value="70" aria-describedby="pip-quality-description">
+                                                            <output for="pip-quality">70 %</output>
+                                                        </div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Display Board</div>
+                                                        <div class="input-subtitle">Instead of just text, display the entire board</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="pipBoard" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Share Board</div>
+                                                        <div class="input-subtitle">Share one board with other profiles</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="pipSharedBoard" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Display Evaluation</div>
+                                                        <div class="input-subtitle">Show the evaluation bar and score in every floating panel mode</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="pipEval" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">SAN Move Notation</div>
+                                                        <div class="input-subtitle">Use SAN in PIP and Move TTS</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="pipSan" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                </div>
+                                                <a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
+                                            </section>
+                                        </div>
+                                    </dialog>
+                                </div>
+                                <div class="checkbox-container"><input type="checkbox" data-key="pip" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                            </div>
+							<div class="floaty-input custom-input">
 								<div><div class="input-title" data-translation-rendering-title>Rendering Settings</div><div class="input-subtitle" data-translation-rendering-subtitle>Display various metrics on the board</div></div>
 								<div class="floaty-wrapper">
 									<button class="open-floaty-btn acas-fancy-button">⚙️</button>
@@ -1197,58 +1252,6 @@
                     <div class="checkbox-input custom-input"><div><div class="input-title">Ghost Script</div>
                         <div class="input-subtitle">Disable all detectable external functionality (e.g. move arrows) to avoid detection</div></div><div class="checkbox-container">
                         <input type="checkbox" data-key="isUserscriptGhost" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                    </div>
-                    <div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
-                        <div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div>
-                        <div class="floaty-wrapper">
-                            <button class="open-floaty-btn acas-fancy-button">⚙️</button>
-                            <dialog id="floating-floaty">
-                                <div class="floaty-container">
-                                    <section class="floaty-header">
-                                        <div class="title">
-                                            <h1 data-translation-ffs-title>Floating Panel Settings</h1>
-                                            <p data-translation-ffs-subtitle>These are mainly for Firefox users</p>
-                                        </div>
-                                        <div class="floaty-buttons">
-                                            <button class="floaty-close-btn acas-fancy-button">💾</button>
-                                        </div>
-                                    </section>
-                                    <section class="floaty-body">
-                                        <p data-translation-ffs-instructions>Keep the Floating Panel open, or A.C.A.S will not work. Disabling this feature automatically applies an audio trick that may keep A.C.A.S active without the panel in some browsers. If anything isn't working, try Chrome and keep A.C.A.S visible in split-screen.</p>
-                                        <div class="setting-panel">
-                                            <div class="setting-panel-title" data-translation-ffs-videostream>Videostream</div>
-                                            <div id="floating-panel-video"></div>
-                                        </div>
-                                        <div class="setting-panel">
-                                            <div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
-                                            <div class="range-input custom-input">
-                                                <div><label class="input-title" for="pip-quality">PiP Quality</label>
-                                                    <div class="input-subtitle" id="pip-quality-description">Lower resolution might be faster. Default: 50%.</div></div>
-                                                <div class="range-control">
-                                                    <input id="pip-quality" type="range" min="1" max="100" step="1" value="50" data-range-unit="%" data-key="pipQuality" data-no-profile="true" data-default-value="50" aria-describedby="pip-quality-description">
-                                                    <output for="pip-quality">50 %</output>
-                                                </div>
-                                            </div>
-                                            <div class="checkbox-input custom-input"><div><div class="input-title">Display Board</div>
-                                                <div class="input-subtitle">Instead of just text, display the entire board</div></div><div class="checkbox-container">
-                                                <input type="checkbox" data-key="pipBoard" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                                            </div>
-                                            <div class="checkbox-input custom-input"><div><div class="input-title">Display Evaluation</div>
-                                                <div class="input-subtitle">Show the evaluation bar and score in every floating panel mode</div></div><div class="checkbox-container">
-                                                <input type="checkbox" data-key="pipEval" data-no-profile="true" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                            </div>
-                                            <div class="checkbox-input custom-input"><div><div class="input-title">SAN Move Notation</div>
-                                                <div class="input-subtitle">Use SAN in PIP and Move TTS</div></div><div class="checkbox-container">
-                                                <input type="checkbox" data-key="pipSan" data-no-profile="true" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                            </div>
-                                        </div>
-
-                                        <a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
-                                    </section>
-                                </div>
-                            </dialog>
-                        </div>
-                        <div class="checkbox-container"><input type="checkbox" data-key="pip" data-no-profile="true" data-default-value="true"><div class="checkbox-fill">✔</div></div>
                     </div>
                     <div id="restart-keybind-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Restart Trigger</div>
                         <div class="input-subtitle">Restarts all instances, useful if they crash</div></div><div class="dropdown-input-container">

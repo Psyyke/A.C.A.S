@@ -1111,7 +1111,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     animation: pulsate 4s infinite;
     color: rgb(255 255 255 / 90%);
     text-shadow: 0px 2px 0px rgb(0 0 0 / 50%);
-    font-family: "Mona Sans", "IBM Plex Sans";
+    font-family: "Mona Sans", "IBM Plex Sans", Inter, sans-serif;
 }
 #no-instances-subtitle {
     margin: 20px;
@@ -1792,6 +1792,15 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	color: #c0c0c0;
 	cursor: pointer;
 	font-weight: 700;
+}
+#chess-engine-profile-tabs .profile-tab {
+    touch-action: pan-y;
+    cursor: grab;
+}
+#chess-engine-profile-tabs .is-profile-dragging {
+    cursor: grabbing;
+    background-color: rgb(255 255 255 / 20%) !important;
+    box-shadow: inset 0 -3px rgb(255 255 255 / 35%);
 }
 .selected-tab-item:hover .profile-removal-button {
     display: flex;

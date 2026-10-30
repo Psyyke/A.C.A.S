@@ -112,6 +112,7 @@
         "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Tablă comună", "Folosește aceeași tablă cu alte profiluri"],
         "pipEval": ["Arată evaluarea", "Arată bara și scorul evaluării în toate modurile panoului flotant"],
         "feedbackMoveCounts": ["Număr de mutări în panoul plutitor", "Arată numărul evaluărilor de mutări în afara modului de învățare"],
         "learningPvAnimation": ["Animează cea mai bună variantă", "Animează cea mai bună variantă în panoul plutitor"],
@@ -190,7 +191,7 @@
         "feedbackOnExternalSite": ["Feedback Pe Site-ul Extern", "Afișează feedback pe tabla site-ului de șah (de exemplu, tabla chess.com)"],
         "pip": ["Panou Flotant", "Important! Previne înghețarea A.C.A.S!"],
         "pipBoard": ["Afișează tabla", "În loc de doar text, afișează întreaga tablă"],
-        "pipQuality": ["Calitatea panoului flotant", "O rezoluție mai mică poate fi mai rapidă. Implicit: 50%."],
+        "pipQuality": ["Calitatea panoului flotant", "O rezoluție mai mică poate fi mai rapidă. Implicit: 70%."],
         "movesOnDemand": ["Mutări la cerere", "Calculează mutări pentru piesele pe care le selectezi"],
         "onlySuggestPieces": ["Sugerează doar piesele", "Arată ce piesă să muți, fără să propună o mutare concretă"],
         "isUserscriptGhost": ["Script fantomă", "Dezactivează orice funcționalitate externă detectabilă (de ex. săgeți de mutare) pentru a evita detectarea"],

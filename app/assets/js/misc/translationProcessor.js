@@ -21,15 +21,18 @@
 		return `../assets/images/flags/${flagCode}.svg`;
 	}
 
-	function updateWhisperFontEligibility() {
+	function updateFontEligibility() {
 		const supportsWhisper = text => /^[\p{Script_Extensions=Latin}\p{M}\p{N}\p{P}\p{Z}\s]*$/u.test(text);
 		['#no-instances-subtitle', '#acas-logo-secondary']
 			.flatMap(selector => [...document.querySelectorAll(selector)])
 			.forEach(element => {
 				element.classList.toggle('has-whisper-font', supportsWhisper(element.textContent));
-		});
+			});
+
+		const title = document.querySelector('#no-instances-title');
+		if(title) title.style.fontFamily = GET_NO_INSTANCES_FONT_FAMILY(title.textContent);
 	}
-	document.addEventListener('acas-translations-updated', () => queueMicrotask(updateWhisperFontEligibility));
+	document.addEventListener('acas-translations-updated', () => queueMicrotask(updateFontEligibility));
 
 	function initializeLanguageDropdown(dropdownElem) {
 		// Avoid re-attaching event listeners
@@ -97,7 +100,6 @@
 
 			updateTextContent();
 			translateConfig();
-			updateWhisperFontEligibility();
 			document.dispatchEvent(new Event('acas-translations-updated'));
 
 			if(firstLoad) {
@@ -190,6 +192,7 @@
 					});
 			}
 		});
+		updateFontEligibility();
 	}
 
 	const savedLanguage = localStorage.getItem(storageLanguageKey) || currentLang;

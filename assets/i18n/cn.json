@@ -112,6 +112,7 @@
         "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
     },
     "configTranslations": {
+        "pipSharedBoard": ["共享棋盘", "与其他配置共用一个棋盘"],
         "pipEval": ["显示局面评估", "在浮动面板的所有模式中显示评估条和分数"],
         "feedbackMoveCounts": ["浮动面板走法统计", "在非学习模式下显示走法评级次数"],
         "learningPvAnimation": ["最佳变化动画", "在浮动面板中播放最佳变化动画"],
@@ -190,7 +191,7 @@
         "webhookIncludeRawUci": ["原始引擎 UCI", "发送原始引擎 UCI 行"],
         "pip": ["浮动面板", "重要！帮助防止 A.C.A.S 卡住！"],
         "pipBoard": ["显示棋盘", "不是只显示文本，而是显示整个棋盘"],
-        "pipQuality": ["浮动面板画质", "较低的分辨率可能更快。默认：50%。"],
+        "pipQuality": ["浮动面板画质", "较低的分辨率可能更快。默认：70%。"],
         "movesOnDemand": ["按需计算走法", "为你选中的棋子计算走法"],
         "onlySuggestPieces": ["仅建议棋子", "只提示该动哪个棋子，不显示具体走法"],
         "isUserscriptGhost": ["幽灵脚本", "禁用所有可检测的外部功能（例如行棋箭头）以避免被检测"],

@@ -114,6 +114,7 @@
         "#des-no-result-text": "Egyes beállítások dinamikusan kerülnek elemzésre a motor UCI kimenetéből. Nyisson meg egy sakk táblát a motor elindításához és a dinamikus beállítások betöltéséhez."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Tábla megosztása", "Egy tábla közös használata más profilokkal"],
         "pipEval": ["Értékelés megjelenítése", "Az értékelési sáv és pontszám megjelenítése a lebegő panel minden módjában"],
         "feedbackMoveCounts": ["Lépésszámláló a lebegő panelen", "Lépésértékelések számának megjelenítése a tanuló módon kívül"],
         "learningPvAnimation": ["Legjobb folytatás animálása", "A legjobb folytatás animálása a lebegő panelen"],
@@ -192,7 +193,7 @@
         "webhookIncludeRawUci": ["Nyers motor UCI", "Nyers motor UCI sorok küldése"],
         "pip": ["Lebegő panel", "Fontos! Segít megelőzni az A.C.A.S lefagyását!"],
         "pipBoard": ["Tábla megjelenítése", "Ahelyett, hogy csak szöveg jelenne meg, jelenítse meg az egész táblát"],
-        "pipQuality": ["Lebegő panel minősége", "Az alacsonyabb felbontás gyorsabb lehet. Alapértelmezett: 50%."],
+        "pipQuality": ["Lebegő panel minősége", "Az alacsonyabb felbontás gyorsabb lehet. Alapértelmezett: 70%."],
         "movesOnDemand": ["Lépések kérésre", "A kiválasztott bábukhoz számít lépéseket"],
         "onlySuggestPieces": ["Csak bábukat javasol", "Megmutatja, melyik bábuval lépj, konkrét lépés nélkül"],
         "isUserscriptGhost": ["Szellem script", "Letiltja az összes észlelhető külső funkciót (pl. lépés nyilak), hogy elkerülje a felismerést"],

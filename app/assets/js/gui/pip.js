@@ -1,1287 +1,602 @@
-import { floatingPanelVideoElem, floatingFloaty, pipBoardInput, pipEvalInput, pipSanInput, pipQualityInput } from './elementDeclarations.js';
-import { initMediaSession, setMediaMetadata, stopMediaSession } from './media.js';
-import { formatMoveNotationAsync } from '../misc/moveNotation.js';
-import { getBackgroundGrainTile } from './backgroundGrain.js';
-import { feedbackCountLines } from '../misc/feedbackText.js';
+import { floatingPanelVideoElem, floatingFloaty } from './elementDeclarations.js';
+import { initMediaSession, stopMediaSession } from './media.js';
+import {
+    createPipRenderer,
+    drawPipBoard,
+    drawPipEvaluation,
+    getPipBoardHeight,
+    tracePipRoundedRect,
+    pipEvalBarWidth,
+    pipContentGap,
+    pipHeaderHeight,
+    pipHeaderBackground,
+    pipProfileHeaderBackground,
+    pipContentBackground
+} from './pipRenderer.js';
+import { captureBoardImage } from './boardCapture.js';
 
 export const pipData = {};
-const pipFontSizes = { large: 64, mlarge: 35, medium: 26, feedback: 19, small: 18, esmall: 18 };
-const pipTextFontFamily = '"Rubik", "IBM Plex Sans", "Mona Sans", sans-serif';
-const pipHeaderHeight = 44;
-const pipEvalBarWidth = 40;
-const pipStatusBarHeight = 2;
-const pipOpeningHeight = 36;
-const pipFeedbackHeight = 68;
-const pipFeedbackTotalsLineHeight = 26;
-const pipFeedbackTotalsPadding = 10;
-const pipLayoutWidth = 400;
-const pipTextPadding = 16;
-const pipTextColumnGap = 16;
-const pipTerminalMessageBottomPadding = 42;
-const PIP_CONTEXT_QUEUE_LIMIT = 30;
+export const pipSettingKeys = ['pip', 'pipBoard', 'pipSharedBoard', 'pipEval', 'pipSan', 'pipQuality'];
 
-let pipHintInstance = null;
-let pipHintRevision = 0;
-let pipLayoutHeight = 200;
-let pipBoardAspectRatio = 1;
-let pipIdleLayoutHeight = null;
+const panelWidth = 400;
+const profileLabelHeight = 30;
+const mainHeaderBorderColor = 'rgba(255, 255, 255, 0.12)';
+const sharedEvalBarWidth = 40;
+// Set to true to restore stepped bars and expanding headers in shared views.
+const useSteppedSharedEvaluation = false;
+const layoutStorageKey = 'acas.pip.layout';
+const renderers = new Map();
 
-let pipCanvas = null;
-let pipVideo = null;
-let pipStreamLayoutHeight = null;
-let pipLastPipBoardBitmaps = [null, null];
-let pipBoardAnimation = null;
-let pipBoardCapture = null;
+let activeInstance = null;
+let idleRenderer = null;
+let idleEnabled = true;
+let canvas = null;
+let video = null;
+let starting = false;
+let needsOpening = false;
+let syncRevision = 0;
+let composeTimer = null;
+let interactionHandler = null;
+let lastLiveLayout = readSavedLayout();
 
-let pipContextQueue = [];
-let pipProcessingBestMove = false;
-let pipRefreshTimeout = null;
-let lastProcessedDepth = null;
-let pipRefreshRevision = 0;
-let pipBoardCaptureRevision = 0;
-let pipBackgroundCanvas = null;
-let pipBackgroundTheme = null;
-let pipEvaluationState = null;
-let pipEvaluationChangeTimeout = null;
-
-function getPipResolutionScale() {
-    const quality = Number(pipQualityInput?.value || 50);
-    // Preserve the original 400px-wide stream at the default 50% quality.
-    return (Number.isFinite(quality) ? Math.max(1, Math.min(100, quality)) : 50) / 50;
-}
-
-function getPipBackground() {
-    const logicalWidth = getPipTextWidth();
-    const width = Math.max(1, Math.round(logicalWidth * pipCanvas.width / pipLayoutWidth));
-    const height = pipCanvas.height;
-    const theme = pipData.themeColorHex || '#5f8895';
-
-    if(
-        pipBackgroundCanvas?.width === width
-        && pipBackgroundCanvas.height === height
-        && pipBackgroundTheme === theme
-    ) return pipBackgroundCanvas;
-
-    const background = document.createElement('canvas');
-    background.width = width;
-    background.height = height;
-
-    const ctx = background.getContext('2d');
-    if(!ctx) return null;
-
-    ctx.setTransform(width / logicalWidth, 0, 0, height / pipLayoutHeight, 0, 0);
-    ctx.fillStyle = theme;
-    ctx.fillRect(0, 0, logicalWidth, pipLayoutHeight);
-
-    const tile = getBackgroundGrainTile();
-    const grain = tile && ctx.createPattern(tile, 'repeat');
-
-    if(grain) {
-        ctx.fillStyle = grain;
-        ctx.fillRect(0, 0, logicalWidth, pipLayoutHeight);
+function readSavedLayout() {
+    try {
+        const layout = JSON.parse(localStorage.getItem(layoutStorageKey));
+        if(Number.isFinite(layout?.height) && layout.height >= pipHeaderHeight
+            && Number.isFinite(layout.scale) && layout.scale > 0 && layout.scale <= 2) return layout;
+    } catch(error) {
+        console.warn('[PiP] Could not read the saved layout:', error);
     }
 
-    // Rebuild only on theme/size changes. Normal PiP updates copy one bitmap;
-    // no noise generation, image decoding or additional refresh loop is needed.
-    pipBackgroundCanvas = background;
-    pipBackgroundTheme = theme;
-
-    return background;
+    return null;
 }
 
-function getPipOpeningHeight() {
-    return pipData.learningMode && isPipBoardVisible() ? pipOpeningHeight : 0;
+function rememberLayout(height, scale) {
+    if(lastLiveLayout?.height === height && lastLiveLayout.scale === scale) return;
+    lastLiveLayout = { height, scale };
+
+    try {
+        localStorage.setItem(layoutStorageKey, JSON.stringify(lastLiveLayout));
+    } catch(error) {
+        console.warn('[PiP] Could not save the layout:', error);
+    }
 }
 
-function getPipContentHeight() {
-    if(pipIdleLayoutHeight !== null) return pipIdleLayoutHeight;
-    if(pipData.learningMode && !isPipBoardVisible()) return pipHeaderHeight;
+function fitProfileStatus(context, renderer, width) {
+    const parts = renderer.statusParts;
+    if(!parts.length) return renderer.statusText;
 
-    return isPipBoardVisible() ? pipHeaderHeight + getPipTextWidth() / pipBoardAspectRatio : 200;
+    let text = parts.join('  ');
+    while(parts.length > 1 && context.measureText(text).width > width) {
+        parts.shift();
+        text = parts.join('  ');
+    }
+
+    return text;
 }
 
-function isPipBoardVisible() {
-    return Boolean(pipBoardInput?.checked);
+function liveInstances() {
+    return (window.AcasInstances || []).map(entry => entry.instance).filter(instance => !instance.instanceClosed);
 }
 
-function getPipTextWidth() {
-    return pipEvalInput?.checked === false ? pipLayoutWidth : pipLayoutWidth - pipEvalBarWidth;
+function profileRenderers(instance) {
+    return renderers.get(instance) || new Map();
 }
 
-function getPipTotalsHeight() {
-    const count = pipData.feedbackCounts?.length || 0;
-    return count ? count * pipFeedbackTotalsLineHeight + 2 * pipFeedbackTotalsPadding : 0;
+function visibleRenderers() {
+    if(profileRenderers(activeInstance).size) return [...profileRenderers(activeInstance).values()];
+
+    const next = liveInstances().find(instance => profileRenderers(instance).size);
+    if(next) {
+        activeInstance = next;
+        return [...profileRenderers(next).values()];
+    }
+
+    return !liveInstances().length && idleEnabled && idleRenderer ? [idleRenderer] : [];
 }
 
-function resizePipCanvas() {
-    if(!pipCanvas) return;
+function scheduleComposition() {
+    if(composeTimer !== null) return;
 
-    const height = getPipContentHeight()
-        + getPipOpeningHeight()
-        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight + getPipTotalsHeight() : 0);
-    const scale = getPipResolutionScale();
-    const pixelWidth = Math.max(1, Math.round(pipLayoutWidth * scale));
+    composeTimer = setTimeout(() => {
+        composeTimer = null;
+        refreshPanels().then(() => {
+            if(needsOpening && !starting && video?.srcObject) return startPictureInPicture();
+        }).catch(console.error);
+    }, 0);
+}
+
+function panelGroups(panels) {
+    const groups = [];
+
+    for(const panel of panels) {
+        const board = panel.settings.pipSharedBoard ? panel.renderer.board : null;
+        const group = board && !board.animated ? groups.find(group => {
+            const first = group[0];
+            const other = first.renderer.board;
+            return first.settings.pipSharedBoard && other && !other.animated
+                && board.fen === other.fen && board.orientation === other.orientation
+                && Math.abs(board.aspectRatio - other.aspectRatio) < 0.001;
+        }) : null;
+
+        if(group) group.push(panel);
+        else groups.push([panel]);
+    }
+
+    return groups;
+}
+
+function sharedEvaluationLayout(group) {
+    const count = group.filter(panel => panel.renderer.evaluation).length;
+    // Keep scores readable; unusually large groups retain at least 160px of board.
+    const barWidth = count ? Math.min(sharedEvalBarWidth, (panelWidth - 160) / count) : 0;
+    return { barWidth, boardWidth: panelWidth - count * barWidth };
+}
+
+function layoutGroup(group, top) {
+    const shared = group.length > 1;
+    const evaluationLayout = shared ? sharedEvaluationLayout(group) : null;
+    const barWidth = shared ? evaluationLayout.barWidth
+        : (group[0].renderer.evaluation ? pipEvalBarWidth : 0);
+    const width = shared ? evaluationLayout.boardWidth : panelWidth - barWidth;
+    const labels = [];
+    const contents = [];
+    let board = null;
+    let bottom = top;
+
+    function addProfile(panel, sourceTop = 0, sourceBottom = 0) {
+        const height = panel.renderer.height - sourceTop - sourceBottom;
+        const joined = panel.renderer.textMovePanel && height > 0;
+        labels.push({ panel, top: bottom, contentHeight: joined ? height : 0 });
+        bottom += profileLabelHeight;
+
+        if(height <= 0) return;
+
+        if(!joined) bottom += pipContentGap;
+        contents.push({ renderer: panel.renderer, top: bottom, sourceTop, height, joined });
+        bottom += height;
+    }
+
+    if(!shared) {
+        const panel = group[0];
+        const profileBoard = panel.renderer.board;
+        // Strip the board's outer vertical insets; the compositor supplies them.
+        addProfile(panel, profileBoard ? pipContentGap : 0,
+            profileBoard && panel.renderer.height <= profileBoard.height ? pipContentGap : 0);
+    } else {
+        for(const panel of group) {
+            if(panel.renderer.height > panel.renderer.board.height) continue;
+            labels.push({ panel, top: bottom });
+            bottom += profileLabelHeight + pipContentGap;
+        }
+
+        const height = getPipBoardHeight(width, group[0].renderer.board.aspectRatio) - pipContentGap * 2;
+        board = { top: bottom };
+        bottom += height;
+
+        // Keep each feedback footer beside its own profile header.
+        for(const panel of group) {
+            if(panel.renderer.height <= panel.renderer.board.height) continue;
+            bottom += pipContentGap;
+            addProfile(panel, panel.renderer.board.height);
+        }
+    }
+
+    // Shared bars normally span the entire group, with uniform header widths.
+    // The optional stepped layout starts each bar at its own header instead.
+    const stepped = shared && useSteppedSharedEvaluation;
+    const evaluationLabels = stepped ? [...labels].reverse() : labels;
+    const evaluations = [];
+    let left = width;
+    for(const label of evaluationLabels) {
+        label.width = stepped ? left : width;
+
+        const evaluation = label.panel.renderer.evaluation;
+        if(!evaluation) continue;
+
+        evaluations.push({ evaluation, left, top: stepped ? label.top : top });
+        left += barWidth;
+    }
+
+    return { group, width, barWidth, labels, contents, board, bottom, evaluations };
+}
+
+function drawProfileLabel(context, panel, top, width, contentHeight = 0) {
+    const textLeft = pipContentGap * 3;
+    const textWidth = width - textLeft * 2;
+
+    context.save();
+    context.fillStyle = pipProfileHeaderBackground;
+    // A text-move header and body share one outline: no rounded corners or gap
+    // at their join, with rounding only at the card's outer top and bottom.
+    tracePipRoundedRect(context, pipContentGap, top, width - pipContentGap * 2, profileLabelHeight + contentHeight);
+    context.fill();
+
+    if(contentHeight > 0) {
+        context.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        context.fillRect(pipContentGap, top + profileLabelHeight - 1, width - pipContentGap * 2, 1);
+    }
+
+    context.textBaseline = 'middle';
+    context.textAlign = 'left';
+    context.font = '700 16px "Rubik", "IBM Plex Sans", sans-serif';
+
+    const status = panel.renderer.statusText;
+    const name = panel.name.replace(/\p{L}/u, letter => letter.toLocaleUpperCase());
+    let nameWidth = status ? Math.min(170, textWidth / 2, context.measureText(name).width) : textWidth;
+    if(status) {
+        context.font = '600 14px "Rubik", "IBM Plex Sans", sans-serif';
+        const parts = panel.renderer.statusParts;
+        const minimumStatus = parts.length ? parts[parts.length - 1] : '';
+        nameWidth = Math.max(0, Math.min(nameWidth,
+            textWidth - pipContentGap * 2 - context.measureText(minimumStatus).width));
+        context.font = '700 16px "Rubik", "IBM Plex Sans", sans-serif';
+    }
+    context.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    if(nameWidth > 0) context.fillText(name, textLeft, top + profileLabelHeight / 2, nameWidth);
+
+    if(status) {
+        const statusX = textLeft + nameWidth + pipContentGap * 2;
+        context.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        context.font = '600 14px "Rubik", "IBM Plex Sans", sans-serif';
+        const statusWidth = Math.max(0, width - statusX - textLeft);
+        const fittedStatus = fitProfileStatus(context, panel.renderer, statusWidth);
+        context.textAlign = 'right';
+        if(panel.renderer.statusParts.length) {
+            context.fillText(fittedStatus, width - textLeft, top + profileLabelHeight / 2);
+        } else if(statusWidth > 0) {
+            context.fillText(fittedStatus, width - textLeft, top + profileLabelHeight / 2, statusWidth);
+        }
+    }
+
+    context.restore();
+}
+
+function drawGroup(context, layout) {
+    const { group, width, barWidth, labels, contents, board, bottom, evaluations } = layout;
+    for(const label of labels) {
+        drawProfileLabel(context, label.panel, label.top, label.width, label.contentHeight);
+    }
+
+    if(board) {
+        const source = group[0].renderer.board;
+        const overlays = CONCEAL_ASSISTANCE_ACTIVE ? [] : group.map(panel => panel.renderer.board.overlay);
+        drawPipBoard(context, source.bitmap, overlays, board.top - pipContentGap, width, source.aspectRatio);
+    }
+
+    for(const content of contents) {
+        const { renderer, top, sourceTop, height, joined } = content;
+        const scale = renderer.canvas.height / renderer.height;
+        const sourceWidth = renderer.canvas.width * (renderer.evaluation ? panelWidth - pipEvalBarWidth : panelWidth) / panelWidth;
+        context.save();
+        if(joined) {
+            tracePipRoundedRect(context, pipContentGap, top - profileLabelHeight,
+                width - pipContentGap * 2, profileLabelHeight + height);
+            context.clip();
+        }
+        context.drawImage(renderer.canvas, 0, sourceTop * scale, sourceWidth, height * scale,
+            0, top, width, height);
+        context.restore();
+    }
+
+    for(const { evaluation, left, top } of evaluations) {
+        drawPipEvaluation(context, evaluation, left, top, barWidth, bottom - top);
+    }
+}
+
+function composePanels() {
+    if(!canvas || !video) return;
+
+    const visible = visibleRenderers();
+    // Keep the previous layout until every shared capture matches its current
+    // target, both at startup and when profiles finish refreshing out of order.
+    if(visible.some(panel => panel.renderer.waitingForBoard)) return;
+
+    const panels = visible.filter(panel => panel.renderer.ready);
+    if(!panels.length) return;
+
+    const idle = panels[0] === idleRenderer;
+    const groups = idle ? [] : panelGroups(panels);
+    let bottom = pipHeaderHeight + pipContentGap;
+    const layouts = groups.map(group => {
+        const layout = layoutGroup(group, bottom);
+        bottom = layout.bottom + pipContentGap;
+        return layout;
+    });
+    const height = idle ? panels[0].renderer.height : bottom;
+    const scale = idle && lastLiveLayout ? lastLiveLayout.scale
+        : Math.max(...panels.map(panel => panel.renderer.canvas.width / panelWidth));
+    const width = Math.max(1, Math.round(panelWidth * scale));
     const pixelHeight = Math.max(1, Math.round(height * scale));
 
-    if(pipCanvas.width === pixelWidth && pipCanvas.height === pixelHeight && pipLayoutHeight === height) return;
+    if(!idle) rememberLayout(height, scale);
 
-    pipLayoutHeight = height;
-    pipCanvas.width = pixelWidth;
-    pipCanvas.height = pixelHeight;
-
-    if(pipVideo) {
-        pipVideo.width = pipLayoutWidth / 2;
-        pipVideo.height = height / 2;
+    if(canvas.width !== width || canvas.height !== pixelHeight) {
+        canvas.width = width;
+        canvas.height = pixelHeight;
     }
 
-    // Never replay drawing commands made for the previous dimensions. Refresh
-    // the stream after drawing the new layout so PiP picks up its aspect ratio.
-    pipContextQueue = [];
-    pipProcessingBestMove = false;
-    pipBoardCaptureRevision++;
-    clearPipBoardAnimation();
+    video.width = panelWidth / 2;
+    video.height = height / 2;
+
+    const context = canvas.getContext('2d');
+    context.setTransform(width / panelWidth, 0, 0, pixelHeight / height, 0, 0);
+    context.fillStyle = pipContentBackground;
+    context.fillRect(0, 0, panelWidth, height);
+
+    if(idle) {
+        context.drawImage(panels[0].renderer.canvas, 0, 0, panelWidth, height);
+    } else {
+        context.fillStyle = pipHeaderBackground;
+        context.fillRect(0, 0, panelWidth, pipHeaderHeight);
+        context.fillStyle = 'white';
+        context.font = '900 26px "Mona Sans", sans-serif';
+        context.textBaseline = 'middle';
+        context.textAlign = 'left';
+        context.strokeStyle = 'white';
+        context.lineWidth = 0.5;
+        context.lineJoin = 'round';
+        context.strokeText('A.C.A.S', 12, pipHeaderHeight / 2);
+        context.fillText('A.C.A.S', 12, pipHeaderHeight / 2);
+
+        context.save();
+        context.font = '600 16px "Rubik", "IBM Plex Sans", sans-serif';
+        context.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        context.textAlign = 'right';
+        context.fillText(activeInstance?.domain || '', panelWidth - 12, pipHeaderHeight / 2, panelWidth - 150);
+        context.restore();
+
+        layouts.forEach(layout => drawGroup(context, layout));
+    }
+
+    // One gentle, full-width divider for both live and waiting-screen headers.
+    context.fillStyle = mainHeaderBorderColor;
+    context.fillRect(0, pipHeaderHeight - 1, panelWidth, 1);
+
+    // Resize the captured canvas, not the video source. Replacing srcObject can
+    // exit native PiP when an instance arrives or the profile layout changes.
+    if(!video.srcObject) video.srcObject = canvas.captureStream();
 }
 
-export function updatePipData(data) {
-    // Invalidate an in-flight capture before it can paint an older evaluation
-    // or the previous board's orientation over the latest values.
-    if(data && ['eval', 'centipawnEval', 'mate', 'playerColor', 'boardOrientation', 'learningMode']
-        .some(key => Object.hasOwn(data, key) && data[key] !== pipData[key])) pipRefreshRevision++;
-    if(data?.learningMode === false || data?.learningPvAnimation === false
-        || (data && Object.hasOwn(data, 'feedbackPositions')
-            && JSON.stringify(data.feedbackPositions) !== JSON.stringify(pipData.feedbackPositions))) {
-        clearPipBoardAnimation();
-        pipBoardCaptureRevision++;
+function makePanel(instance, profile, settings) {
+    const name = profile === 'default'
+        ? FULL_TRANS_OBJ?.domTranslations?.['.tab-item[data-value="default"] p'] || 'Default Profile'
+        : GET_HUMAN_READABLE_PROFILE_NAME(profile);
+    const renderer = createPipRenderer(instance, profile, settings, scheduleComposition);
+    if(!instance && lastLiveLayout) renderer.setIdleHeight(lastLiveLayout.height);
+    renderer.update({ ...pipData, ...instance?.pV[profile]?.pipData });
+    renderer.update({ idle: !instance });
+    if(instance) renderer.updateHints(instance, profile);
+    return { name, profile, settings, renderer };
+}
+
+async function refreshPanels(force = false) {
+    if(!video) return;
+    await Promise.all(visibleRenderers().filter(panel => force || !panel.renderer.ready || panel.renderer.waitingForBoard).map(panel =>
+        panel.renderer.refresh().catch(error => console.warn(`[PiP] Could not render ${panel.name}:`, error))));
+    composePanels();
+}
+
+export async function syncPictureInPicture() {
+    const revision = ++syncRevision;
+    const instances = liveInstances();
+    const scopes = instances.length ? instances : [null];
+    const profilesByInstance = await Promise.all(scopes.map(async instance => ({
+        instance,
+        profiles: (await GET_PROFILES(instance?.instanceID ?? null)).filter(Boolean)
+    })));
+
+    if(revision !== syncRevision) return;
+
+    for(const [instance, panels] of renderers) {
+        if(instances.includes(instance)) continue;
+        panels.forEach(panel => panel.renderer.destroy());
+        renderers.delete(instance);
     }
 
-    if(data) Object.assign(pipData, data);
+    for(const { instance, profiles } of profilesByInstance) {
+        if(!instance) {
+            const enabled = profiles.filter(profile => profile.config.engineEnabled !== false && profile.config.pip !== false);
+            idleEnabled = enabled.length > 0;
+            const profile = enabled[0];
+            if(profile && idleRenderer?.profile === profile.name) {
+                idleRenderer.settings = profile.config;
+                idleRenderer.renderer.setSettings(profile.config);
+            } else if(profile) {
+                idleRenderer?.renderer.destroy();
+                idleRenderer = makePanel(null, profile.name, profile.config);
+            } else {
+                idleRenderer?.renderer.destroy();
+                idleRenderer = null;
+            }
+            continue;
+        }
 
-    if(data && ([
-        'moveObjects', 'hintsFiltered', 'openingText', 'feedbackText', 'feedbackCounts', 'terminalOutcome',
-        'feedbackPositions', 'learningMode', 'learningPvAnimation', 'learningPvAnimationStopOnEnemyMove',
-        'feedbackInPip', 'calculationTimeElapsed', 'nodes', 'eval', 'centipawnEval',
-        'mate', 'playerColor', 'boardOrientation'
-    ].some(key => Object.hasOwn(data, key)) || data.depth !== lastProcessedDepth)) {
-        clearTimeout(pipRefreshTimeout);
+        const panels = profileRenderers(instance);
+        renderers.set(instance, panels);
+        const enabled = new Set();
 
-        lastProcessedDepth = data.depth;
+        for(const profile of profiles) {
+            const variables = instance.pV[profile.name];
+            if(variables) {
+                for(const key of pipSettingKeys) variables[key] = profile.config[key];
+            }
+            if(profile.config.engineEnabled === false || profile.config.pip === false) continue;
+            enabled.add(profile.name);
 
-        pipRefreshTimeout = setTimeout(() => {
-            refreshPipView(true);
-        }, 25);
+            const panel = panels.get(profile.name);
+            if(panel) {
+                panel.settings = profile.config;
+                panel.renderer.setSettings(profile.config);
+            }
+            else panels.set(profile.name, makePanel(instance, profile.name, profile.config));
+        }
+
+        for(const [profile, panel] of panels) {
+            if(enabled.has(profile)) continue;
+            panel.renderer.destroy();
+            panels.delete(profile);
+        }
+
+        // Map insertion order must follow the saved profile order after a drag,
+        // without destroying captures or restarting existing renderers.
+        renderers.set(instance, new Map(profiles
+            .filter(profile => panels.has(profile.name))
+            .map(profile => [profile.name, panels.get(profile.name)])));
     }
+
+    if(instances.length) {
+        idleRenderer?.renderer.destroy();
+        idleRenderer = null;
+    }
+
+    if(!visibleRenderers().length) {
+        if(video && document.pictureInPictureElement === video) {
+            await document.exitPictureInPicture().catch(console.error);
+        }
+        if(revision !== syncRevision) return;
+        video?.pause();
+        video?.srcObject?.getTracks().forEach(track => track.stop());
+        if(video) video.srcObject = null;
+        needsOpening = false;
+        clearInteractionHandler();
+        initMediaSession();
+        return;
+    }
+
+    if(!video || (video.paused && !starting)) await startPictureInPicture();
+    else await refreshPanels();
+}
+
+export function updatePipData(data, instance, profile) {
+    if(instance && profile) {
+        const variables = instance.pV[profile];
+        if(!variables) return;
+        Object.assign(variables.pipData ??= {}, data);
+        profileRenderers(instance).get(profile)?.renderer.update(data);
+        return;
+    }
+
+    if(instance) {
+        Object.values(instance.pV).forEach(variables => Object.assign(variables.pipData ??= {}, data));
+        profileRenderers(instance).forEach(panel => panel.renderer.update(data));
+    } else {
+        Object.assign(pipData, data);
+        renderers.forEach(panels => panels.forEach(panel => panel.renderer.update(data)));
+        idleRenderer?.renderer.update(data);
+    }
+}
+
+export function updatePipHints(instance, profile, result) {
+    const variables = instance.pV[profile];
+    if(result && variables && !instance.instanceClosed) {
+        const previous = variables.pipHints;
+        const messages = TRANS_OBJ?.moveFeedback?.[`${result.terminalOutcome}Messages`];
+        variables.pipHints = {
+            ...result,
+            fen: variables.learningMode ? instance.displayFen : instance.currentFen,
+            terminalMessageIndex: previous?.fen === instance.currentFen && previous.terminalOutcome === result.terminalOutcome
+                ? previous.terminalMessageIndex : Math.floor(Math.random() * (messages?.length || 1))
+        };
+        if(profileRenderers(instance).has(profile)) {
+            const changedInstance = activeInstance !== instance;
+            activeInstance = instance;
+            if(changedInstance) refreshPanels().catch(console.error);
+        }
+    }
+
+    if(instance.instanceClosed) {
+        profileRenderers(instance).forEach(panel => panel.renderer.destroy());
+        renderers.delete(instance);
+        if(activeInstance === instance) activeInstance = null;
+        syncPictureInPicture().catch(console.error);
+        return;
+    }
+
+    profileRenderers(instance).forEach((panel, name) => panel.renderer.updateHints(instance, name));
 }
 
 export function resetPipHints(instance) {
     Object.values(instance.pV).forEach(variables => { delete variables.pipHints; });
-    clearPipBoardAnimation();
-    pipBoardCaptureRevision++;
-    pipHintInstance = instance;
-    updatePipData({ moveObjects: null, hintsFiltered: false, terminalOutcome: null });
-    updatePipFeedback(instance);
-}
-
-export function updatePipOpening(instance) {
-    if(pipHintInstance && pipHintInstance !== instance) return;
-    const openingText = instance.instanceClosed ? ''
-        : instance.instanceElem?.querySelector('.instance-opening-container span')?.textContent?.trim() || '';
-    updatePipData({ openingText: openingText.replace(/\s*\([A-E]\d{2}\)\s*$/i, '').trim() });
-}
-
-export function updatePipEvaluation(instance) {
-    // Each GUI board retains its own last valid score. Only the board currently
-    // shown in PiP may publish it, including when switching between instances.
-    if(pipHintInstance !== instance) return;
-    const evaluation = !instance.instanceClosed ? instance.Interface.evaluationData : null;
-    const boardOrientation = instance.lastOrientation || evaluation?.playerColor || 'w';
-    const previous = pipEvaluationState;
-    const sameSource = evaluation && previous?.instance === instance
-        && previous.boardOrientation === boardOrientation
-        && previous.evaluation.variables === evaluation.variables
-        && previous.evaluation.profile === evaluation.profile
-        && previous.evaluation.review === evaluation.review
-        && previous.evaluation.playerColor === evaluation.playerColor;
-
-    if(!sameSource) {
-        clearTimeout(pipEvaluationChangeTimeout);
-        pipEvaluationState = evaluation ? {
-            instance, evaluation, boardOrientation, from: evaluation.eval, expiresAt: 0
-        } : null;
-    } else {
-        const samePosition = previous.evaluation.fen === evaluation.fen
-            && (!evaluation.review || previous.evaluation.postFen === evaluation.postFen);
-        const changed = previous.evaluation.eval !== evaluation.eval;
-        // Keep the preceding position's score as the baseline while depth improves.
-        pipEvaluationState = {
-            instance, evaluation, boardOrientation,
-            from: samePosition ? previous.from : previous.evaluation.eval,
-            expiresAt: changed ? Date.now() + 3000 : previous.expiresAt
-        };
-        if(changed) {
-            clearTimeout(pipEvaluationChangeTimeout);
-            if(pipCanvas) {
-                pipEvaluationChangeTimeout = setTimeout(() => {
-                    if(pipEvaluationState) pipEvaluationState.expiresAt = 0;
-                    refreshPipView();
-                }, 3000);
-            }
-        }
-    }
-
-    updatePipData({
-        eval: evaluation?.eval ?? 0.5,
-        centipawnEval: evaluation?.centipawnEval ?? null,
-        mate: evaluation?.mate ?? null,
-        playerColor: evaluation?.playerColor ?? 'w',
-        boardOrientation
-    });
+    profileRenderers(instance).forEach(panel => panel.renderer.resetHints(instance));
+    syncPictureInPicture().catch(console.error);
 }
 
 export function updatePipFeedback(instance) {
-    if(instance.instanceClosed || (pipHintInstance && pipHintInstance !== instance)) return;
-    pipIdleLayoutHeight = null;
-    
-    updatePipOpening(instance);
-    updatePipEvaluation(instance);
-
-    const rows = Array.from(instance.instanceElem?.querySelector('.instance-feedback-container')?.children || []);
-    const visibleRows = rows.filter(row => {
-        const variables = instance.pV[row.dataset.profileId];
-        return variables && (variables.learningMode || !instance.learningMode && variables.feedbackInPip
-            && (variables.enableMoveRatings || variables.enableEnemyFeedback));
-    });
-
-    const feedbackText = visibleRows.map(row => row.dataset.feedbackText ?? row.textContent).join('\n');
-    const profile = instance.learningMode ? instance.learningReviewProfile
-        : visibleRows[0]?.dataset.profileId || Object.keys(instance.pV).find(profile => {
-            const variables = instance.pV[profile];
-            return variables.feedbackInPip && (variables.enableMoveRatings || variables.enableEnemyFeedback);
-        });
-    const variables = instance.pV[profile];
-    const feedbackCounts = instance.learningMode || variables?.feedbackMoveCounts
-        ? feedbackCountLines(instance, profile).filter((_, index) => variables.learningMode
-            || (index === 0 ? variables.enableEnemyFeedback : variables.enableMoveRatings))
-        : [];
-
-    const stopOnEnemyMove = variables?.learningPvAnimationStopOnEnemyMove !== false;
-    const feedback = variables?.learningMode && variables.lastFeedbackFen === instance.learningReviewPostFen
-        && variables.lastFeedbackResult?.bestLine
-        && variables.lastFeedbackResult.bestMove !== variables.lastFeedbackResult.move
-        ? variables.lastFeedbackResult : null;
-
-    updatePipData({ learningMode: Boolean(instance.learningMode),
-        learningPvAnimation: Boolean(variables?.learningMode && variables.learningPvAnimation),
-        learningPvAnimationStopOnEnemyMove: stopOnEnemyMove,
-        feedbackInPip: !instance.instanceClosed && Object.values(instance.pV).some(variables =>
-            variables.feedbackInPip && (variables.enableMoveRatings || variables.enableEnemyFeedback)),
-        feedbackText: instance.instanceClosed ? '' : feedbackText,
-        feedbackCounts,
-        // Apply the stop setting to refreshes too, so later updates cannot
-        // restart an animation that should stay stopped after the reply.
-        feedbackPositions: !instance.instanceClosed && (!stopOnEnemyMove || instance.currentFen === instance.learningReviewPostFen)
-            ? feedback?.bestPositions || [] : [] });
+    if(instance.instanceClosed) return;
+    profileRenderers(instance).forEach(panel => panel.renderer.updateFeedback(instance));
 }
 
-export function updatePipHints(instance, profile, result) {
-    if(result && !instance.instanceClosed && instance.pV[profile]) {
-        const previous = instance.pV[profile].pipHints;
-        const sameOutcome = previous?.fen === instance.currentFen && previous.terminalOutcome === result.terminalOutcome;
-        const messages = TRANS_OBJ?.moveFeedback?.[`${result.terminalOutcome}Messages`];
-        const terminalMessageIndex = !result.terminalOutcome ? 0
-            : sameOutcome ? previous.terminalMessageIndex : Math.floor(Math.random() * (messages?.length || 1));
-
-        instance.pV[profile].pipHints = { ...result, terminalMessageIndex,
-            fen: instance.learningMode ? instance.displayFen : instance.currentFen, revision: ++pipHintRevision };
-        pipHintInstance = instance;
-    }
-    // Profile removal on another board must not replace the currently displayed hints.
-    if(pipHintInstance !== instance) return;
-    if(instance.instanceClosed) {
-        // Keep the current aspect ratio while idle instead of widening the PiP
-        // window when the learning/feedback sections disappear.
-        pipIdleLayoutHeight = pipCanvas ? pipLayoutHeight : null;
-        pipLastPipBoardBitmaps.forEach(bitmap => bitmap?.close?.());
-        pipLastPipBoardBitmaps = [null, null];
-        updatePipEvaluation(instance);
-        pipHintInstance = null;
-
-        const nextInstance = window.AcasInstances?.find(entry => entry.instance !== instance && !entry.instance.instanceClosed)?.instance;
-        if(nextInstance) {
-            pipHintInstance = nextInstance;
-            updatePipHints(nextInstance);
-            return;
-        }
-
-        updatePipData({
-            moveObjects: null, hintsFiltered: false, openingText: '', feedbackText: '',
-            feedbackCounts: [], feedbackPositions: [], learningMode: false, terminalOutcome: null,
-            learningPvAnimation: false, feedbackInPip: false,
-            moveProgressText: '', calculationTimeElapsed: null, isWinning: 0
-        });
-
-        return;
-    }
-
-    const profiles = Object.values(instance.pV).filter(variables => !instance.learningMode || variables.learningMode);
-    const currentHints = variables => variables.pipHints?.fen === (instance.learningMode ? instance.displayFen : instance.currentFen) ? variables.pipHints : null;
-    const results = profiles.map(currentHints).filter(Boolean);
-    
-    // A final result takes priority over another profile's hypothetical hints.
-    const visible = results.filter(hints => hints.moveObjects.length || hints.terminalOutcome)
-        .sort((a, b) => Boolean(b.terminalOutcome) - Boolean(a.terminalOutcome) || b.revision - a.revision)[0];
-
-    const awaitingHints = profiles.some(variables => variables.engineSettingsReady
-        && (variables.multiPV ?? 2) > 0 && !currentHints(variables)
-        && (!variables.chessVariants?.length || variables.chessVariants.includes(variables.chessVariant)));
-
-    updatePipData({
-        moveObjects: visible?.moveObjects ?? (results.length ? [] : null),
-        terminalOutcome: visible?.terminalOutcome || null,
-        terminalMessageIndex: visible?.terminalMessageIndex || 0,
-        hintsFiltered: !visible && !awaitingHints && results.some(hints => hints.hintsFiltered)
-    });
-
-    updatePipFeedback(instance);
+export function updatePipOpening(instance) {
+    profileRenderers(instance).forEach(panel => panel.renderer.updateOpening(instance));
 }
 
-window.REFRESH_PIP_DISPLAY = () => {
-    clearTimeout(pipRefreshTimeout);
-    refreshPipView(true);
-};
-
-document.addEventListener('acas-translations-updated', () => {
-    if(pipHintInstance) updatePipFeedback(pipHintInstance);
-});
-
-function clearPipBoardAnimation() {
-    clearTimeout(pipBoardAnimation?.timer);
-    pipBoardAnimation = null;
+export function updatePipEvaluation(instance) {
+    profileRenderers(instance).forEach(panel => panel.renderer.updateEvaluation(instance));
 }
 
-function canAnimatePipBoard() {
-    return pipData.learningMode && isPipBoardVisible() && pipData.learningPvAnimation && !CONCEAL_ASSISTANCE_ACTIVE
-        && pipHintInstance && !pipHintInstance.instanceClosed
-        && pipHintInstance.learningReviewPostFen
-        && (pipData.learningPvAnimationStopOnEnemyMove === false
-            || pipHintInstance.currentFen === pipHintInstance.learningReviewPostFen);
-}
-
-async function capturePipAnimation(cgElem, positions, rootPosition, outputSize, state, isCurrent) {
-    // Chessground snaps its grid to device pixels. Use the live board's source
-    // size for every frame so its grid also stays aligned with the root overlay.
-    const sourceRect = cgElem.getBoundingClientRect();
-    const preview = cgElem.parentElement.cloneNode(false);
-    preview.style.cssText = `position:absolute; left:-9999px; top:0; width:${sourceRect.width}px; height:${sourceRect.height}px; padding:0; display:block;`;
-    preview.setAttribute('aria-hidden', 'true');
-    preview.inert = true;
-
-    const boardElem = document.createElement('div');
-    boardElem.style.cssText = `width:${sourceRect.width}px; height:${sourceRect.height}px;`;
-    preview.appendChild(boardElem);
-    cgElem.parentElement.appendChild(preview);
-
-    let ground;
-    const frames = [];
-
-    try {
-        ground = window.ChessgroundX(boardElem, {
-            fen: rootPosition.fen,
-            orientation: state.orientation,
-            dimensions: state.dimensions,
-            coordinates: state.coordinates,
-            notation: state.notation,
-            viewOnly: true,
-            animation: { enabled: false },
-            drawable: { enabled: false, visible: false }
-        });
-
-        // Include the starting position in the same rendering/capture path;
-        // mixing a live-board screenshot with preview frames causes a tiny jump.
-        for(const position of [rootPosition, ...positions]) {
-            if(!isCurrent()) break;
-            ground.set({ fen: position.fen, lastMove: position.lastMove });
-            ground.state.dom.redrawNow();
-
-            const { boardCanvas } = await captureBoardLayers(null, outputSize, boardElem);
-            if(!boardCanvas) break;
-            frames.push([boardCanvas, null]);
-        }
-    } catch(error) {
-        console.warn('[PiP] Could not capture the feedback animation:', error);
-    } finally {
-        ground?.destroy();
-        preview.remove();
-    }
-
-    return frames;
-}
-
-async function renderPipBoards() {
-    const cgElem = pipHintInstance?.instanceElem?.querySelector('.chessground-x') || document.querySelector(
-        '.chessground-x[data-is-latest-updated="true"]'
-    );
-
-    if(!cgElem) {
-        clearPipBoardAnimation();
-        pipBoardCaptureRevision++;
-        return;
-    }
-
-    const instanceId = cgElem.parentElement?.parentElement?.dataset?.instanceId;
-
-    // Fit the PiP layout to the live board before capturing, rather than
-    // letterboxing rectangular variants inside a fixed square area.
-    const boardRect = cgElem.getBoundingClientRect();
-    const boardAspectRatio = boardRect.width / boardRect.height;
-
-    // Ignore transient, stretched layouts without replacing the last valid frame.
-    if(!(boardRect.width > 0 && boardRect.height > 0)
-        || !Number.isFinite(boardAspectRatio)
-        || boardAspectRatio < 0.5 || boardAspectRatio > 2) {
-        clearPipBoardAnimation();
-        pipBoardCaptureRevision++;
-        return;
-    }
-
-    pipBoardAspectRatio = boardAspectRatio;
-    resizePipCanvas();
-
-    const captureSize = Math.max(1, Math.round(getPipTextWidth() * pipCanvas.width / pipLayoutWidth));
-    const positions = canAnimatePipBoard() ? pipData.feedbackPositions || [] : [];
-    const state = pipHintInstance?.chessground?.state;
-    const boardStyle = getComputedStyle(cgElem.querySelector('cg-board'));
-    const animationKey = state && positions.length > 1 ? JSON.stringify([
-        instanceId, captureSize, pipHintInstance?.learningReviewPostFen, positions,
-        state?.orientation, cgElem.parentElement.className,
-        cgElem.getBoundingClientRect().width, cgElem.getBoundingClientRect().height,
-        state.dimensions, window.devicePixelRatio,
-        boardStyle.backgroundColor, boardStyle.backgroundImage
-    ]) : null;
-
-    // Engine progress can refresh often; only capture again when the line or appearance changes.
-    if(animationKey && pipBoardAnimation?.key === animationKey) return;
-    if(animationKey && pipBoardCapture?.key === animationKey && pipBoardCapture.revision === pipBoardCaptureRevision) {
-        await pipBoardCapture.promise;
-        return;
-    }
-
-    clearPipBoardAnimation();
-    const revision = ++pipBoardCaptureRevision;
-    const promise = capturePipBoards(cgElem, instanceId, captureSize, positions, state, animationKey, revision);
-    pipBoardCapture = { key: animationKey, revision, promise };
-
-    try {
-        await promise;
-    } finally {
-        if(pipBoardCapture?.promise === promise) pipBoardCapture = null;
-    }
-}
-
-async function capturePipBoards(cgElem, instanceId, captureSize, positions, state, animationKey, captureRevision) {
-    const instance = pipHintInstance;
-    const reviewFen = instance?.learningReviewPostFen;
-    const rootPosition = animationKey ? {
-        fen: instance.chessground.getFen(),
-        lastMove: state.lastMove ? [...state.lastMove] : undefined
-    } : null;
-    const positionKey = JSON.stringify(positions);
-    const isCurrent = () => captureRevision === pipBoardCaptureRevision
-        && (!animationKey || canAnimatePipBoard() && pipHintInstance === instance
-            && instance.learningReviewPostFen === reviewFen
-            && JSON.stringify(pipData.feedbackPositions || []) === positionKey);
-    const { boardCanvas, overlayCanvas } = await captureBoardLayers(instanceId, captureSize);
-
-    if(!boardCanvas) return;
-
-    const bitmap = await createImageBitmap(boardCanvas);
-
-    const emptyOverlayCanvas = document.createElement('canvas');
-    emptyOverlayCanvas.width = boardCanvas.width;
-    emptyOverlayCanvas.height = boardCanvas.height;
-
-    const bitmap2 = await createImageBitmap(
-        overlayCanvas || emptyOverlayCanvas
-    );
-    const animationFrames = animationKey && isCurrent()
-        ? await capturePipAnimation(cgElem, positions, rootPosition, captureSize, state, isCurrent) : [];
-
-    // Captures are asynchronous. Discard an older capture if a newer refresh
-    // started while this one was being rendered, so stale pixels cannot win a race.
-    if(!isCurrent()) {
-        bitmap.close?.();
-        bitmap2.close?.();
-        return;
-    }
-
-    const previousBitmaps = pipLastPipBoardBitmaps;
-    pipLastPipBoardBitmaps = [bitmap, bitmap2];
-
-    for(const previousBitmap of previousBitmaps) {
-        previousBitmap?.close?.();
-    }
-
-    if(animationFrames.length > 2) {
-        const animation = pipBoardAnimation = {
-            key: animationKey,
-            frames: [[animationFrames[0][0], bitmap2], ...animationFrames.slice(1)],
-            index: 0
-        };
-
-        const advance = async () => {
-            if(pipBoardAnimation !== animation) return;
-            if(!isCurrent()) {
-                clearPipBoardAnimation();
-            } else {
-                animation.index = (animation.index + 1) % animation.frames.length;
-            }
-
-            try {
-                await refreshPipView();
-            } catch(error) {
-                console.error(error);
-            }
-            if(pipBoardAnimation === animation) {
-                // Hold the start for two seconds and the final position for five.
-                const delay = animation.index === 0 ? 2000
-                    : animation.index === animation.frames.length - 1 ? 5000 : 1000;
-                animation.timer = setTimeout(advance, delay);
-            }
-        };
-        animation.timer = setTimeout(advance, 2000);
-    }
-}
-
-async function captureBoardLayers(instanceId, outputSize, boardElement = null) {
-    const boards = [
-        ...document.querySelectorAll(
-            '.chessground-x'
-        )
-    ];
-
-    const cgElem = boardElement || (instanceId
-        ? boards.find(
-            elem =>
-                elem.parentElement?.parentElement?.dataset?.instanceId
-                === String(instanceId)
-        ) || boards[0]
-        : boards[0]);
-
-    if(!cgElem) {
-        return { boardCanvas: null, overlayCanvas: null };
-    }
-
-    const rect = cgElem.getBoundingClientRect();
-
-    const acasInstance = window.AcasInstances?.find(
-        i => String(i.id) === String(instanceId)
-    );
-
-    if(!boardElement && acasInstance?.instance?.chessground) {
-        acasInstance.instance.chessground.redrawAll();
-    }
-
-    // Render PiP captures at their actual stream resolution, not the full DOM
-    // board size. Screenshot exports omit outputSize and retain native quality.
-    const captureOptions = { fast: true };
-    if(outputSize && rect.width > 0) {
-        captureOptions.scale = outputSize / rect.width;
-        captureOptions.dpr = 1;
-    }
-
-    const boardCanvas = await snapdom.toCanvas(cgElem, captureOptions);
-
-    // Future positions have their own last-move highlight, not the root's arrows.
-    if(boardElement) return { boardCanvas, overlayCanvas: null };
-
-    const boardDrawerSvg = document.querySelector(
-        `#board-drawings svg${instanceId ? `[data-instance-id="${instanceId}"]` : ''}`
-    );
-
-    if(!boardDrawerSvg) {
-        return { boardCanvas, overlayCanvas: null };
-    }
-
-    const svg = boardDrawerSvg.cloneNode(true);
-    svg.style.position = 'unset';
-
-    const container = document.createElement('div');
-
-    container.appendChild(svg);
-
-    container.style.cssText = `
-        position:absolute;
-        left:-9999px;
-        top:0;
-        width:${rect.width}px;
-        height:${rect.height}px;
-    `;
-
-    document.body.appendChild(container);
-
-    try {
-        const overlayCanvas = await snapdom.toCanvas(
-            container,
-            captureOptions
-        );
-
-        return { boardCanvas, overlayCanvas };
-    } finally {
-        container.remove();
-    }
-}
-
-window.CAPTURE_BOARD_IMAGE = async instanceId => {
-    const { boardCanvas, overlayCanvas } = await captureBoardLayers(instanceId);
-
-    if(!boardCanvas) return null;
-
-    const outputCanvas = document.createElement('canvas');
-    outputCanvas.width = boardCanvas.width;
-    outputCanvas.height = boardCanvas.height;
-
-    const context = outputCanvas.getContext('2d');
-
-    context.drawImage(boardCanvas, 0, 0);
-
-    if(overlayCanvas) {
-        context.drawImage(overlayCanvas, 0, 0);
-    }
-
-    return outputCanvas.toDataURL('image/png');
-};
-
-function drawPipText(ctx, text, x, y, width, height, font, align = 'left', strokeWidth = 0) {
-    if(!text || width <= 0 || height <= 0) return;
-
-    ctx.save();
-    ctx.font = font;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.direction = 'ltr';
-
-    const metrics = ctx.measureText(text);
-    const lineMetrics = ctx.measureText('Mg');
-    // Include translated/fallback glyphs, whose bounds can exceed Latin metrics.
-    const ascent = Math.max(lineMetrics.actualBoundingBoxAscent, metrics.actualBoundingBoxAscent);
-    const descent = Math.max(lineMetrics.actualBoundingBoxDescent, metrics.actualBoundingBoxDescent);
-    const left = metrics.actualBoundingBoxLeft;
-    const textWidth = Math.max(metrics.width, left + metrics.actualBoundingBoxRight);
-    // Fit long notation and translations uniformly rather than squeezing glyphs.
-    const scale = Math.min(1, width / Math.max(1, textWidth), height / Math.max(1, ascent + descent));
-    const remainingWidth = width - textWidth * scale;
-    const offset = align === 'center' ? remainingWidth / 2 : align === 'right' ? remainingWidth : 0;
-    const textX = x + offset + left * scale;
-    const textY = y + (height - (ascent + descent) * scale) / 2 + ascent * scale;
-    const scaleX = pipCanvas.width / pipLayoutWidth;
-    const scaleY = pipCanvas.height / pipLayoutHeight;
-
-    // Snap baselines to backing pixels at every PiP quality setting.
-    ctx.translate(Math.round(textX * scaleX) / scaleX, Math.round(textY * scaleY) / scaleY);
-    ctx.scale(scale, scale);
-
-    if(strokeWidth > 0) {
-        ctx.strokeStyle = ctx.fillStyle;
-        ctx.lineWidth = strokeWidth;
-        ctx.lineJoin = 'round';
-        ctx.strokeText(text, 0, 0);
-    }
-
-    ctx.fillText(text, 0, 0);
-    ctx.restore();
-}
-
-function updatePipContext() {
-    const ctx = pipCanvas.getContext('2d');
-    // All layout coordinates stay in the original 400px space. Only the backing
-    // resolution changes, keeping text, feedback and evaluation bars in place.
-    ctx.setTransform(pipCanvas.width / pipLayoutWidth, 0, 0, pipCanvas.height / pipLayoutHeight, 0, 0);
-
-    const latestQueueArr = pipProcessingBestMove
-        ? pipContextQueue.find(x => x?.[0]?.[1] === pipProcessingBestMove)
-        : pipContextQueue?.[0];
-
-    if(latestQueueArr) {
-        if(pipProcessingBestMove) {
-            pipProcessingBestMove = false;
-            pipContextQueue = [];
-        }
-
-        for(const [cmd, args] of latestQueueArr) {
-            if(cmd === 'text') {
-                drawPipText(ctx, ...args);
-            } else if(cmd in ctx) {
-                if(Array.isArray(args)) ctx[cmd](...args);
-                else ctx[cmd] = args;
-            }
-        }
-
-        // Shade the board area, leaving the opening and feedback footers flat.
-        // Every queued frame clears the canvas first, so this never accumulates.
-        ctx.save();
-        const shadedHeight = getPipContentHeight();
-        ctx.beginPath();
-        ctx.rect(0, 0, pipLayoutWidth, shadedHeight);
-        ctx.clip();
-
-        const shade = ctx.createLinearGradient(
-            0,
-            pipLayoutHeight,
-            pipLayoutWidth,
-            0
-        );
-
-        shade.addColorStop(0, 'rgba(0, 0, 0, 0.38)');
-        shade.addColorStop(0.18, 'rgba(0, 0, 0, 0.12)');
-        shade.addColorStop(0.45, 'rgba(0, 0, 0, 0)');
-
-        ctx.fillStyle = shade;
-        ctx.fillRect(0, 0, pipLayoutWidth, pipLayoutHeight);
-        ctx.restore();
-
-        if(pipVideo?.srcObject && pipStreamLayoutHeight !== pipLayoutHeight) {
-            // Keep the same video/PiP window, but replace the capture so browsers
-            // do not retain the old wide aspect ratio when Learning Mode starts.
-            const previousStream = pipVideo.srcObject;
-            const stream = pipCanvas.captureStream();
-            pipStreamLayoutHeight = pipLayoutHeight;
-            pipVideo.srcObject = stream;
-            pipVideo.play().catch(error => {
-                if(error.name !== 'AbortError') console.warn('[PiP] Could not resume the resized stream:', error);
-            });
-            previousStream.getTracks().forEach(track => track.stop());
-        }
-    }
-}
-
-async function refreshPipView() {
-    const revision = ++pipRefreshRevision;
-    const moveObjects = pipData.moveObjects;
-    const ctxQueue = [];
-
-    const boardOrientation = pipData.boardOrientation || pipData.playerColor,
-          bestMove = pipData?.moveObjects?.[0],
-          sMove = pipData?.moveObjects?.[1],
-          tMove = pipData?.moveObjects?.[2],
-          from = bestMove?.player?.[0],
-          to = bestMove?.player?.[1],
-          sFrom = sMove?.player?.[0],
-          sTo = sMove?.player?.[1],
-          tFrom = tMove?.player?.[0],
-          tTo = tMove?.player?.[1];
-
-    const useSan = Boolean(pipSanInput?.checked);
-
-    const isCurrentNotation = () =>
-        pipData.moveObjects === moveObjects
-        && Boolean(pipSanInput?.checked) === useSan
-        && !CONCEAL_ASSISTANCE_ACTIVE;
-
-    const [bestMoveText, secondMoveText, thirdMoveText] = await Promise.all(
-        [bestMove, sMove, tMove].map(
-            move => formatMoveNotationAsync(
-                move,
-                useSan,
-                false,
-                undefined,
-                isCurrentNotation
-            )
-        )
-    );
-
-    if(
-        revision !== pipRefreshRevision
-        || pipData.moveObjects !== moveObjects
-        || Boolean(pipSanInput?.checked) !== useSan
-    ) return;
-
-    const centipawnEval = pipData?.centipawnEval / 100;
-
-    const filteredText = TRANS_OBJ?.moveSpeech?.hintsFiltered ?? 'Suggestions filtered';
-    const hintsFiltered = !moveObjects?.length && pipData.hintsFiltered && !CONCEAL_ASSISTANCE_ACTIVE;
-    const mediaTitle = pipData.learningMode ? 'A.C.A.S' : from && !CONCEAL_ASSISTANCE_ACTIVE
-        ? bestMoveText
-        : hintsFiltered ? filteredText : `Hold on, I'm thinking...`;
-
-    const engineEvaluation = Number.isFinite(pipData.eval) ? pipData.eval : 0.5;
-    const mediaEvaluation = pipEvalInput?.checked === false ? ''
-        : ` | Eval ${Number.isFinite(centipawnEval) ? centipawnEval.toFixed(2) : '0.00'}`;
-    let progress = 0;
-
-    if(pipData.calculationFinished) {
-        progress = 1;
-    } else if(Number.isFinite(pipData.movetime) && pipData.movetime > 0) {
-        progress = pipData.calculationTimeElapsed / pipData.movetime;
-    } else if(
-        (pipData.goalDepth && pipData.goalDepth < 100)
-        || (pipData.depth === null)
-    ) {
-        const depth = pipData.depth ?? pipData.goalDepth;
-
-        progress = depth / pipData.goalDepth;
-    } else if(pipData?.goalNodes) {
-        progress = pipData?.nodes / pipData?.goalNodes;
-    } else {
-        progress = CALC_TIME_PROGRESS(
-            pipData.startTime,
-            pipData.movetime
-        );
-    }
-    progress = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
-
-    setMediaMetadata({
-        title: mediaTitle,
-        artist: `Depth ${pipData?.depth ?? 0} (${Math.round((progress ?? 0) * 100)}%)${mediaEvaluation}`
-    });
-
-    if(!pipCanvas) return; // do not continue if pip is not enabled
-
-    resizePipCanvas();
-
-    const isBoard = isPipBoardVisible();
-
-    if(isBoard && pipIdleLayoutHeight === null) await renderPipBoards();
-    else {
-        clearPipBoardAnimation();
-        pipBoardCaptureRevision++;
-    }
-
-    if(
-        revision !== pipRefreshRevision
-        || pipData.moveObjects !== moveObjects
-    ) return;
-
-    // Board capture may resize the canvas and clear the previous drawing queue.
-    if(bestMove) {
-        ctxQueue.push(['bestmove', from + to]);
-        pipProcessingBestMove = from + to;
-    }
-
-    const headerWidth = getPipTextWidth();
-    const evalBarWidth = pipLayoutWidth - headerWidth;
-    const pipMaxTextWidth = headerWidth - pipTextPadding * 2;
-    const alternativeWidth = (pipMaxTextWidth - pipTextColumnGap) / 2;
-    const thirdMoveX = pipTextPadding + alternativeWidth + pipTextColumnGap;
-    const openingHeight = getPipOpeningHeight();
-    const contentHeight = getPipContentHeight();
-    const statusBarHeight = pipData.learningMode && !isBoard ? 0 : pipStatusBarHeight;
-    const headerTextHeight = pipHeaderHeight - statusBarHeight;
-    const secondaryMoveY = contentHeight - 40;
-    const showTerminalMessage = !pipData.learningMode && !isBoard && Boolean(pipData.terminalOutcome) && !CONCEAL_ASSISTANCE_ACTIVE;
-
-    const noInstancesText =
-        FULL_TRANS_OBJ?.domTranslations?.['#no-instances-title'];
-
-    // Clear canvas
-    ctxQueue.push([
-        'clearRect',
-        [0, 0, pipLayoutWidth, pipLayoutHeight]
-    ]);
-
-    // Grain stays behind the header, notation and board, not over their pixels.
-    const background = getPipBackground();
-
-    if(background) {
-        ctxQueue.push(['drawImage', [background, 0, 0, headerWidth, pipLayoutHeight]]);
-    } else {
-        ctxQueue.push([
-            'fillStyle',
-            pipData.themeColorHex || '#5f8895'
-        ]);
-        ctxQueue.push([
-            'fillRect',
-            [0, 0, headerWidth, pipLayoutHeight]
-        ]);
-    }
-
-    // Header background
-    ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.7)']);
-    ctxQueue.push([
-        'fillRect',
-        [0, 0, headerWidth, headerTextHeight]
-    ]);
-
-    // Header title
-    ctxQueue.push(['fillStyle', 'white']);
-    ctxQueue.push(['text', ['A.C.A.S', 10, 3, 104, headerTextHeight,
-        `800 ${pipFontSizes.medium}px "Mona Sans", sans-serif`]]);
-
-    // Status and idle messages share the move column's left and right edges.
-    ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.7)']);
-
-    if(pipIdleLayoutHeight === null && !pipData.learningMode && !showTerminalMessage && (pipData?.moveProgressText || hintsFiltered)) {
-        ctxQueue.push(['text', [hintsFiltered ? filteredText : pipData.moveProgressText,
-            pipTextPadding, pipHeaderHeight + 12, pipMaxTextWidth, 32,
-            `700 ${pipFontSizes.medium}px ${pipTextFontFamily}`]]);
-    } else if(
-        !pipData.learningMode && noInstancesText
-        && !pipData?.moveObjects
-        && !pipData.terminalOutcome
-    ) {
-        const idleFont = `700 ${pipFontSizes.medium}px "IBM Plex Sans", sans-serif`;
-        const faceHeight = Math.max(0, Math.min(40, contentHeight - pipHeaderHeight - 44));
-        ctxQueue.push(['text', [noInstancesText, pipTextPadding, pipHeaderHeight + 20,
-            pipMaxTextWidth, 24, idleFont]]);
-        ctxQueue.push(['text', ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', pipTextPadding, pipHeaderHeight + 44,
-            pipMaxTextWidth, faceHeight, idleFont]]);
-    }
-
-    const statusX = pipTextPadding + 104 + 2;
-    const statusWidth = headerWidth - pipTextPadding - statusX;
-
-    // Compact learning mode shares the header with the opening, not a footer.
-    if(pipData.learningMode && !isBoard) {
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
-        ctxQueue.push(['text', [pipData.openingText, statusX, 2, statusWidth, headerTextHeight,
-            `700 ${pipFontSizes.small}px ${pipTextFontFamily}`]]);
-    // Text mode already shows depth; time and progress belong in both headers.
-    } else if(pipIdleLayoutHeight === null && pipData.calculationTimeElapsed != null) {
-        const timeMs = pipData.calculationTimeElapsed;
-
-        const timeFormatted = timeMs >= 1000
-            ? `${(timeMs / 1000).toFixed(1)}s`
-            : `${Math.round(timeMs)}ms`;
-
-        const progressPercent = (progress * 100).toFixed(0);
-        const depthLabel = TRANS_OBJ?.calculationDepth ?? 'Depth';
-        const depthPrefix = isBoard ? `${depthLabel} ${pipData.depth ?? 0}, ` : '';
-
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
-        const statsText = `(${depthPrefix}${timeFormatted}, ${progressPercent}%)`;
-        ctxQueue.push(['text', [
-            statsText,
-            statusX,
-            2,
-            statusWidth,
-            headerTextHeight,
-            `700 ${pipFontSizes.small}px ${pipTextFontFamily}`
-        ]]);
-    }
-
-    ctxQueue.push(['fillStyle', 'white']);
-
-    // Board rendering
-    if(isBoard && pipIdleLayoutHeight === null) {
-        const [bitmap, bitmap2] = pipBoardAnimation?.frames[pipBoardAnimation.index] || pipLastPipBoardBitmaps;
-
-        if(bitmap) {
-            const boardRect = [0, pipHeaderHeight, headerWidth, headerWidth / pipBoardAspectRatio];
-
-            ctxQueue.push([
-                'drawImage',
-                [bitmap, ...boardRect]
-            ]);
-
-            if(bitmap2) {
-                ctxQueue.push([
-                    'drawImage',
-                    [bitmap2, ...boardRect]
-                ]);
-            }
-        }
-    // Text-based rendering
-    } else if(!pipData.learningMode) {
-        const mainMoveFont = `900 ${pipFontSizes.large}px "Mona Sans", sans-serif`;
-        const mainMoveTop = pipHeaderHeight + (showTerminalMessage ? 20 : 52);
-
-        if(showTerminalMessage) {
-            const messages = TRANS_OBJ?.moveFeedback?.[`${pipData.terminalOutcome}Messages`];
-            const message = messages?.[pipData.terminalMessageIndex % messages.length]
-                || (pipData.terminalOutcome === 'winning' ? 'That was too easy'
-                    : pipData.terminalOutcome === 'losing' ? 'Are we cooked?'
-                        : TRANS_OBJ?.moveFeedback?.drawMessage || 'All even, good game');
-            const messageFontSize = pipFontSizes.medium;
-            const messageHeight = 32;
-            const messageTop = contentHeight - pipTerminalMessageBottomPadding - messageHeight;
-            const faceHeight = Math.min(60, messageTop - mainMoveTop - 6);
-            const faceFont = `900 40px "Mona Sans", sans-serif`;
-
-            ctxQueue.push(['text', ['≽(•⩊ •マ≼', pipTextPadding, mainMoveTop,
-                pipMaxTextWidth, faceHeight, faceFont, 'center', 2]]);
-            ctxQueue.push(['text', [message, pipTextPadding, messageTop,
-                pipMaxTextWidth, messageHeight, `700 ${messageFontSize}px "IBM Plex Sans", sans-serif`, 'center']]);
-        } else if(bestMove && !CONCEAL_ASSISTANCE_ACTIVE) {
-            ctxQueue.push(['text', [bestMoveText, pipTextPadding, mainMoveTop,
-                pipMaxTextWidth, 60, mainMoveFont]]);
-        }
-
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.5)']);
-        const secondaryMoveFont = `700 ${pipFontSizes.medium}px ${pipTextFontFamily}`;
-
-        if(sFrom && sTo && !CONCEAL_ASSISTANCE_ACTIVE) {
-            ctxQueue.push(['text', [`2. (${secondMoveText})`, pipTextPadding, secondaryMoveY,
-                alternativeWidth, 28, secondaryMoveFont]]);
-        }
-
-        if(tFrom && tTo && !CONCEAL_ASSISTANCE_ACTIVE) {
-            ctxQueue.push(['text', [`3. (${thirdMoveText})`, thirdMoveX, secondaryMoveY,
-                alternativeWidth, 28, secondaryMoveFont]]);
-        }
-    }
-
-    if(openingHeight) {
-        ctxQueue.push(['fillStyle', '#202020']);
-        ctxQueue.push(['fillRect', [0, contentHeight, headerWidth, openingHeight]]);
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.10)']);
-        ctxQueue.push(['fillRect', [0, contentHeight, headerWidth, 1]]);
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
-        ctxQueue.push(['text', [pipData.openingText, pipTextPadding, contentHeight + 2,
-            pipMaxTextWidth, openingHeight,
-            `700 ${pipFontSizes.small}px ${pipTextFontFamily}`, 'center']]);
-    }
-
-    if((pipData.learningMode || pipData.feedbackInPip)) {
-        const totalsTop = contentHeight + openingHeight;
-        const totalsHeight = getPipTotalsHeight();
-        const top = totalsTop + totalsHeight;
-        const lines = String(pipData.feedbackText || '')
-            .split('\n')
-            .filter(Boolean)
-            .slice(0, 2);
-
-        ctxQueue.push(['fillStyle', '#202020']);
-        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, totalsHeight + pipFeedbackHeight]]);
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.16)']);
-        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, 1]]);
-
-        if(totalsHeight) {
-            ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.08)']);
-            ctxQueue.push(['fillRect', [pipTextPadding, top, pipMaxTextWidth, 1]]);
-        }
-
-        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
-
-        const lineHeight = 26;
-        const textTop = top + (pipFeedbackHeight - 2 * lineHeight) / 2;
-
-        if(!CONCEAL_ASSISTANCE_ACTIVE) {
-            const scoreWidth = 88;
-            const moveWidth = pipMaxTextWidth - scoreWidth - pipTextColumnGap;
-            const font = `600 ${pipFontSizes.feedback}px ${pipTextFontFamily}`;
-
-            lines.forEach((line, index) => {
-                // Separate numeric/mate scores without matching notation parentheses.
-                const score = line.match(/\s*\(([+-]?\d+(?:\.\d+)?|-?M\d+)\)/);
-                const rowTop = textTop + index * lineHeight;
-
-                ctxQueue.push(['text', [
-                    score ? line.replace(score[0], '').trim() : line,
-                    pipTextPadding,
-                    score ? rowTop : top + (pipFeedbackHeight - lineHeight) / 2,
-                    score ? moveWidth : pipMaxTextWidth,
-                    lineHeight,
-                    font,
-                    score ? 'left' : 'center'
-                ]]);
-
-                if(score) {
-                    ctxQueue.push(['text', [
-                        `(${score[1]})`,
-                        headerWidth - pipTextPadding - scoreWidth,
-                        rowTop,
-                        scoreWidth,
-                        lineHeight,
-                        font,
-                        'right'
-                    ]]);
-                }
-            });
-        }
-
-        if(totalsHeight) {
-            const countsTop = totalsTop
-                + (totalsHeight - pipData.feedbackCounts.length * pipFeedbackTotalsLineHeight) / 2;
-            ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.85)']);
-
-            if(!CONCEAL_ASSISTANCE_ACTIVE) {
-                pipData.feedbackCounts.forEach((line, index) => ctxQueue.push(['text', [
-                    line,
-                    pipTextPadding,
-                    countsTop + index * pipFeedbackTotalsLineHeight,
-                    pipMaxTextWidth,
-                    pipFeedbackTotalsLineHeight,
-                    `900 ${pipFontSizes.feedback}px "Mona Sans", sans-serif`,
-                    'center'
-                ]]));
-            }
-        }
-    }
-
-    // Keep the Learning Mode board free of the calculation progress sweep.
-    if(pipIdleLayoutHeight === null && !pipData.learningMode) {
-        ctxQueue.push(['fillStyle', 'rgba(0, 0, 0, 0.1)']);
-        ctxQueue.push([
-            'fillRect',
-            [
-                0,
-                pipHeaderHeight,
-                headerWidth * progress,
-                contentHeight - pipHeaderHeight
-            ]
-        ]);
-    }
-
-    // Eval bar background + foreground
-    const evalBoundary = boardOrientation === 'b' ? engineEvaluation : 1 - engineEvaluation;
-    if(boardOrientation === 'b') {
-        ctxQueue.push(['fillStyle', 'rgba(50, 50, 50, 1)']);
-        ctxQueue.push([
-            'fillRect',
-            [
-                headerWidth,
-                0,
-                evalBarWidth,
-                pipLayoutHeight
-            ]
-        ]);
-
-        ctxQueue.push(['fillStyle', 'rgba(200, 200, 200, 1)']);
-        ctxQueue.push([
-            'fillRect',
-            [
-                headerWidth,
-                0,
-                evalBarWidth,
-                pipLayoutHeight * evalBoundary
-            ]
-        ]);
-    } else {
-        ctxQueue.push(['fillStyle', 'rgba(200, 200, 200, 1)']);
-        ctxQueue.push([
-            'fillRect',
-            [
-                headerWidth,
-                0,
-                evalBarWidth,
-                pipLayoutHeight
-            ]
-        ]);
-
-        ctxQueue.push(['fillStyle', 'rgba(50, 50, 50, 1)']);
-        ctxQueue.push([
-            'fillRect',
-            [
-                headerWidth,
-                0,
-                evalBarWidth,
-                pipLayoutHeight * evalBoundary
-            ]
-        ]);
-    }
-
-    if(evalBarWidth && !CONCEAL_ASSISTANCE_ACTIVE && pipEvaluationState?.expiresAt > Date.now()) {
-        const previousEvaluation = pipEvaluationState.from;
-        const previousBoundary = boardOrientation === 'b' ? previousEvaluation : 1 - previousEvaluation;
-        const currentBoundary = evalBoundary;
-        // Color follows the selected side (reverseSide included), not the board flip.
-        const improved = (engineEvaluation - previousEvaluation)
-            * (pipEvaluationState.evaluation.playerColor === 'b' ? -1 : 1) > 0;
-
-        ctxQueue.push(['fillStyle', improved ? 'rgba(155, 220, 175, 1)' : 'rgba(240, 145, 145, 1)']);
-        ctxQueue.push(['fillRect', [
-            headerWidth,
-            Math.min(previousBoundary, currentBoundary) * pipLayoutHeight,
-            evalBarWidth,
-            Math.abs(currentBoundary - previousBoundary) * pipLayoutHeight
-        ]]);
-    }
-
-    if(evalBarWidth && pipData.mate == null && centipawnEval) {
-        const isTop = boardOrientation === 'w' ? centipawnEval < 0 : centipawnEval > 0;
-        const yPosition = isTop ? 8 : pipLayoutHeight - 32;
-
-        const evalText = Math.abs(centipawnEval).toFixed(1);
-
-        ctxQueue.push(['fillStyle', 'rgba(125, 125, 125, 1)']);
-        ctxQueue.push(['text', [evalText, headerWidth + 4, yPosition, pipEvalBarWidth - 8, 24,
-            `700 ${pipFontSizes.esmall}px ${pipTextFontFamily}`, 'center']]);
-    }
-
-    // Compact learning mode uses the feedback divider instead of a status strip.
-    if(statusBarHeight) {
-        ctxQueue.push([
-            'fillStyle',
-            [
-                'rgba(40, 40, 40, 0.9)',
-                'rgba(0, 255, 0, 1)',
-                'rgba(255, 0, 0, 1)'
-            ][pipIdleLayoutHeight !== null || pipEvalInput?.checked === false ? 0 : (pipData.isWinning ?? 0)]
-        ]);
-
-        ctxQueue.push([
-            'fillRect',
-            [
-                0,
-                headerTextHeight,
-                headerWidth,
-                statusBarHeight
-            ]
-        ]);
-    }
-
-    pipContextQueue.unshift(ctxQueue);
-
-    // The queue was only emptied once a bestmove arrived. During a long search
-    // updatePipData fires on every info line, so it grew for the whole session.
-    if(pipContextQueue.length > PIP_CONTEXT_QUEUE_LIMIT) {
-        pipContextQueue.length = PIP_CONTEXT_QUEUE_LIMIT;
-    }
-
-    updatePipContext();
+function clearInteractionHandler() {
+    if(!interactionHandler) return;
+    document.removeEventListener('click', interactionHandler);
+    document.removeEventListener('keydown', interactionHandler);
+    interactionHandler = null;
 }
 
 export async function startPictureInPicture() {
-    const video = document.createElement('video');
-    video.muted = true;
+    if(starting || !visibleRenderers().length) return;
+    starting = true;
+    needsOpening = true;
 
-    video.addEventListener('enterpictureinpicture', stopMediaSession);
-    video.addEventListener('leavepictureinpicture', initMediaSession);
-
-    pipVideo = video;
-    pipCanvas = document.createElement('canvas');
-
-    resizePipCanvas();
-
-    const stream = pipCanvas.captureStream();
-    pipStreamLayoutHeight = pipLayoutHeight;
-    video.srcObject = stream;
-
-    floatingPanelVideoElem.innerHTML = '';
-    floatingPanelVideoElem.appendChild(video);
-
-    if(!document.pictureInPictureEnabled && floatingPanelVideoElem) {
-        floatingFloaty.showModal();
+    if(!video) {
+        canvas = document.createElement('canvas');
+        video = document.createElement('video');
+        video.muted = true;
+        video.addEventListener('enterpictureinpicture', stopMediaSession);
+        video.addEventListener('leavepictureinpicture', initMediaSession);
+        floatingPanelVideoElem.replaceChildren(video);
     }
 
-    const attemptPlay = async () => {
-        try {
-            await refreshPipView();
-
-            await video.play();
-
-            if(document.pictureInPictureEnabled && video?.requestPictureInPicture
-                && document.querySelector('input[data-key="pip"]')?.checked) {
-                await video.requestPictureInPicture();
-            } else {
-                initMediaSession();
-            }
-        } catch(err) {
+    try {
+        await refreshPanels();
+        if(!visibleRenderers().length) return;
+        if(!video.srcObject) return;
+        await video.play();
+        if(!visibleRenderers().length) return;
+        if(document.pictureInPictureEnabled && video.requestPictureInPicture) {
+            if(document.pictureInPictureElement !== video) await video.requestPictureInPicture();
+        } else {
+            if(!floatingFloaty.open) floatingFloaty.showModal();
             initMediaSession();
-
-            if(err.name === 'NotAllowedError') {
-                const handleUserInteraction = async () => {
-                    document.removeEventListener('click', handleUserInteraction);
-                    document.removeEventListener('keydown', handleUserInteraction);
-
-                    await attemptPlay();
-                };
-
-                document.addEventListener('click', handleUserInteraction);
-                document.addEventListener('keydown', handleUserInteraction);
-            } else {
-                console.error(err);
-            }
         }
-    };
-
-    await attemptPlay();
+        needsOpening = false;
+        clearInteractionHandler();
+    } catch(error) {
+        needsOpening = false;
+        initMediaSession();
+        if(error.name === 'NotAllowedError' && !interactionHandler) {
+            interactionHandler = () => {
+                clearInteractionHandler();
+                startPictureInPicture().catch(console.error);
+            };
+            document.addEventListener('click', interactionHandler);
+            document.addEventListener('keydown', interactionHandler);
+        } else if(error.name !== 'AbortError') {
+            console.error('[PiP] Could not open the floating panel:', error);
+        }
+    } finally {
+        starting = false;
+    }
 }
+
+window.REFRESH_PIP_DISPLAY = () => syncPictureInPicture()
+    .then(() => refreshPanels(true)).catch(console.error);
+window.CAPTURE_BOARD_IMAGE = captureBoardImage;
+document.addEventListener('acas-translations-updated', () => {
+    renderers.forEach(panels => panels.forEach(panel => {
+        if(panel.profile === 'default') {
+            panel.name = FULL_TRANS_OBJ?.domTranslations?.['.tab-item[data-value="default"] p'] || 'Default Profile';
+        }
+    }));
+    refreshPanels(true).catch(console.error);
+});
+document.addEventListener('acas-settings-updated', () => syncPictureInPicture().catch(console.error));

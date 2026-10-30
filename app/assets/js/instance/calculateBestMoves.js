@@ -176,10 +176,10 @@ export default async function calculateBestMoves(currentFen, config = {}) {
 
         if(nodes > 0) {
             searchCommandStr = `go nodes ${nodes}${specificMoves}`;
-            updatePipData({ goalNodes: nodes, goalDepth: null });
+            updatePipData({ goalNodes: nodes, goalDepth: null }, this, profileName);
         } else {
             searchCommandStr = `go depth ${depth}${specificMoves}`;
-            updatePipData({ goalDepth: depth, goalNodes: null });
+            updatePipData({ goalDepth: depth, goalNodes: null }, this, profileName);
         }
 
         const abandonCalculation = (retryLatest = true) => {
@@ -245,7 +245,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         incrementUserUsageStat('engineCalculations');
         if(!isCurrentCalculation() || calculation.finished || calculation.stopRequested) return;
 
-        updatePipData({ startTime: Date.now(), movetime, depth: 0, nodes: 0, calculationTimeElapsed: 0, calculationFinished: false });
+        updatePipData({ startTime: Date.now(), movetime, depth: 0, nodes: 0, calculationTimeElapsed: 0, calculationFinished: false }, this, profileName);
 
         const statusText = `Calculating best moves with UCI command: ${searchCommandStr}\n`
             + `Max movetime: ${movetime || 'None'}`;

@@ -114,6 +114,7 @@
         "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
     },
     "configTranslations": {
+        "pipSharedBoard": ["Dela bräde", "Dela ett bräde med andra profiler"],
         "pipEval": ["Visa utvärdering", "Visa utvärderingsstapeln och poängen i alla lägen för den flytande panelen"],
         "feedbackMoveCounts": ["Dragräknare i flytande panel", "Visa antalet dragbetyg utanför inlärningsläget"],
         "learningPvAnimation": ["Animera bästa varianten", "Animera den bästa varianten i den flytande panelen"],
@@ -192,7 +193,7 @@
         "feedbackOnExternalSite": ["Feedback På Extern Webbplats", "Visa feedback på schackwebbplatsens bräda (t.ex. chess.com:s bräda)"],
         "pip": ["Flytande Panel", "Viktigt! Förhindrar att A.C.A.S fryser!"],
         "pipBoard": ["Visa brädet", "Visa hela brädet istället för bara text"],
-        "pipQuality": ["Kvalitet på flytande panel", "Lägre upplösning kan vara snabbare. Standard: 50 %."],
+        "pipQuality": ["Kvalitet på flytande panel", "Lägre upplösning kan vara snabbare. Standard: 70 %."],
         "movesOnDemand": ["Drag på Begäran", "Beräknar drag för pjäser du interagerar med"],
         "onlySuggestPieces": ["Föreslå bara pjäser", "Visa vilken pjäs du bör flytta, utan att föreslå ett specifikt drag"],
         "isUserscriptGhost": ["Spökskript", "Inaktivera all upptäckbar extern funktionalitet (t.ex. dragpilar) för att undvika upptäckt"],
