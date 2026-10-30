@@ -858,6 +858,7 @@ async function refreshPipView() {
         const idleGap = Math.min(4, idleHeight);
         const messageHeight = (idleHeight - idleGap) * 3 / 8;
         const idleTop = headerHeight + (contentHeight - headerHeight - idleHeight) / 2;
+        ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.6)']);
         ctxQueue.push(['text', [noInstancesText, pipTextPadding, idleTop,
             pipMaxTextWidth, messageHeight, idleFont, 'center']]);
         ctxQueue.push(['text', ['ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧', pipTextPadding, idleTop + messageHeight + idleGap,
