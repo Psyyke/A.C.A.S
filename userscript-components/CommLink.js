@@ -105,10 +105,12 @@ class CommLinkHandler {
         this.pendingWake = false;
         this.wake = null;
         this.lastActivity = 0;
-        this.burstMs = configObj?.burstMs || 400;
-        this.legacyIdleIntervalMs = configObj?.legacyIdleIntervalMs || 10;
+        this.burstMs = configObj?.burstMs || 1e4;
+        this.legacyIdleIntervalMs = configObj?.legacyIdleIntervalMs || 20;
         this.bellFallbackIntervalMs = configObj?.bellFallbackIntervalMs || 250;
         this.receiverRunning = false;
+        // Keep-alive traffic must not keep the fast 1 ms polling on forever
+        this.keepAliveCommands = configObj?.keepAliveCommands || ['createInstance', 'ping'];
 
         const addValueChangeListenerMethod = [
             typeof GM_addValueChangeListener !== 'undefined' ? GM_addValueChangeListener : undefined,
@@ -162,7 +164,6 @@ class CommLinkHandler {
 
     onBell() {
         this.bellConfirmed = true;
-        this.lastActivity = Date.now();
         this.pendingWake = true;
 
         if(this.wake) this.wake();
@@ -310,6 +311,8 @@ class CommLinkHandler {
                 this.addPacket(packet);
                 this.ringBell();
 
+                if(!this.keepAliveCommands.includes(cmd)) this.lastActivity = Date.now();
+
                 for(;;) {
                     let poolPacket;
 
@@ -379,7 +382,7 @@ class CommLinkHandler {
                     try {
                         const result = await listener.commandHandler(packet);
                         packet.result = result === undefined ? null : result;
-                        handledAmount++;
+                        if(!this.keepAliveCommands.includes(packet.command)) handledAmount++;
 
                         await this.editPacket(packet);
                         
