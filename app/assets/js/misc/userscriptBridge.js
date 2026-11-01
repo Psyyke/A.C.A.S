@@ -60,6 +60,22 @@
                 fen: createInstanceVar('fen'),
                 gameStateHistory: createInstanceVar('gameStateHistory')
             },
+            // Calls back when a stored value changes. Older userscripts ignore the request
+            // and never answer, which CommLink handles by keeping its polling.
+            addValueChangeListener: (key, callback) => {
+                window.addEventListener('message', event => {
+                    if(event?.data?.type === 'USERSCRIPT_valueChanged' && event.data.key === key) {
+                        try { callback(key); } catch(e) {}
+                    }
+                });
+
+                window.postMessage({
+                    sender: 'GUI',
+                    type: 'USERSCRIPT_addValueChangeListener',
+                    messageId: null,
+                    args: [key]
+                }, '*');
+            },
             // NON-ASYNC
             deleteValue: (key) => messageUserscript('USERSCRIPT_deleteValue', [key]),
             setValue: (key, value) => {

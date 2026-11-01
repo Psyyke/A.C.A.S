@@ -284,7 +284,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
 
             if(this.debugLogsEnabled) console.log(`Engine and GUI for variant "${variant}" updated!`);
         } else {
-            acasInstanceContainer.appendChild(this.instanceElem);
+            acasInstanceContainer.prepend(this.instanceElem);
 
             if(this.debugLogsEnabled) console.log(`Engine and GUI for variant "${variant}" loaded!`);
 

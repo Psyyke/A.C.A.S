@@ -201,6 +201,7 @@ export default class AcasInstance {
                 'setValue': USERSCRIPT.setValue,
                 'deleteValue': USERSCRIPT.deleteValue,
                 'listValues': USERSCRIPT.listValues,
+                'addValueChangeListener': USERSCRIPT.addValueChangeListener,
             }
         });
 
