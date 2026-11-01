@@ -194,13 +194,14 @@ export default class AcasInstance {
         this.CommLink = new CommLinkHandler(`backend_${this.instanceID}`, {
             'singlePacketResponseWaitTime': 1500,
             'maxSendAttempts': 3,
-            'statusCheckInterval': 20,
+            'statusCheckInterval': 1,
             'silentMode': true,
             'functions': {
                 'getValue': USERSCRIPT.getValue,
                 'setValue': USERSCRIPT.setValue,
                 'deleteValue': USERSCRIPT.deleteValue,
                 'listValues': USERSCRIPT.listValues,
+                'addValueChangeListener': USERSCRIPT.addValueChangeListener,
             }
         });
 

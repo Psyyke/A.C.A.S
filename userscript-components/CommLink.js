@@ -1,5 +1,5 @@
 /* CommLink.js
- - Version: 1.0.3
+ - Version: 1.1.0
  - Author: Haka
  - Description: A userscript library for cross-window communication via the userscript storage
  - GitHub: https://github.com/AugmentedWeb/CommLink
@@ -97,6 +97,50 @@ class CommLinkHandler {
 
         this.lastStaleCleanup = Date.now();
 
+        // Event-driven wake-up through a single shared "bell" key, used only if the manager
+        // supports value change listeners. Peers without the update never ring the bell, so
+        // until a ring is actually seen we keep polling for them (see getPollDelay).
+        this.bellKey = 'commlink-bell';
+        this.bellConfirmed = false;
+        this.pendingWake = false;
+        this.wake = null;
+        this.lastActivity = 0;
+        this.burstMs = configObj?.burstMs || 400;
+        this.legacyIdleIntervalMs = configObj?.legacyIdleIntervalMs || 10;
+        this.bellFallbackIntervalMs = configObj?.bellFallbackIntervalMs || 250;
+        this.receiverRunning = false;
+
+        const addValueChangeListenerMethod = [
+            typeof GM_addValueChangeListener !== 'undefined' ? GM_addValueChangeListener : undefined,
+            this.greasy?.addValueChangeListener,
+            configObj?.functions?.addValueChangeListener
+        ].find(func => typeof func === 'function');
+
+        this.hasBell = false;
+
+        if(addValueChangeListenerMethod) {
+            try {
+                const bell = CommLinkHandler.__bell || (CommLinkHandler.__bell = { subscribers: new Set(), registered: false });
+
+                bell.subscribers.add(this);
+
+                if(!bell.registered) {
+                    bell.registered = true;
+
+                    const result = addValueChangeListenerMethod(this.bellKey, () => {
+                        bell.subscribers.forEach(handler => handler.onBell());
+                    });
+
+                    // Async APIs (GM.addValueChangeListener) may reject
+                    if(result && typeof result.catch === 'function') result.catch(() => { bell.registered = false; });
+                }
+
+                this.hasBell = true;
+            } catch(e) {
+                this.hasBell = false;
+            }
+        }
+
         if(typeof GM_info !== 'undefined') {
             const grants = (GM_info?.script?.grant) || [];
             const missingGrants = ['getValue', 'setValue', 'deleteValue', 'listValues']
@@ -114,6 +158,63 @@ class CommLinkHandler {
 
         packets.filter(packet => Date.now() - packet?.date > 2e4)
             .forEach(packet => this.removePacketByID(packet.id));
+    }
+
+    onBell() {
+        this.bellConfirmed = true;
+        this.lastActivity = Date.now();
+        this.pendingWake = true;
+
+        if(this.wake) this.wake();
+    }
+
+    ringBell() {
+        if(!this.hasBell) return;
+
+        try {
+            Promise.resolve(this.storage.setValue(this.bellKey, { t: Date.now(), r: Math.random() })).catch(() => {});
+        } catch(e) {}
+    }
+
+    getPollDelay() {
+        if(Date.now() - this.lastActivity < this.burstMs) return this.statusCheckInterval;
+
+        // A peer that rings the bell is answered instantly; the timer is only a safety net.
+        if(this.bellConfirmed) return this.bellFallbackIntervalMs;
+
+        return Math.max(this.legacyIdleIntervalMs, this.statusCheckInterval);
+    }
+
+    startReceiver() {
+        if(this.receiverRunning) return;
+
+        this.receiverRunning = true;
+
+        const loop = async () => {
+            while(this.receiverRunning) {
+                let delay;
+
+                try {
+                    this.pendingWake = false;
+
+                    if(await this.receivePackets()) this.lastActivity = Date.now();
+
+                    delay = this.getPollDelay();
+                } catch(e) {
+                    delay = 50; // back off, never a hot loop
+                }
+
+                if(this.pendingWake) continue;
+
+                await new Promise(resolve => {
+                    const timer = setTimeout(() => { this.wake = null; resolve(); }, delay);
+
+                    this.wake = () => { clearTimeout(timer); this.wake = null; resolve(); };
+                });
+            }
+        };
+
+        loop();
     }
 
     setIntervalAsync(callback, interval = this.statusCheckInterval) {
@@ -207,6 +308,7 @@ class CommLinkHandler {
                     console.log(`[CommLink Sender] Sending packet! (#${attempts} attempt):`, packet);
 
                 this.addPacket(packet);
+                this.ringBell();
 
                 for(;;) {
                     let poolPacket;
@@ -253,15 +355,12 @@ class CommLinkHandler {
     }
 
     registerListener(sender, commandHandler) {
-        const listener = {
-            sender,
-            commandHandler,
-            intervalObj: this.setIntervalAsync(async () => {
-                await this.receivePackets();
-            }, this.statusCheckInterval),
-        };
-    
+        const listener = { sender, commandHandler };
+
         this.listeners.push(listener);
+
+        // One shared receive loop per handler, not one per listener
+        this.startReceiver();
     }
 
     async receivePackets() {
@@ -272,12 +371,15 @@ class CommLinkHandler {
             this.removeOldPackets(packets).catch(() => {});
         }
 
+        let handledAmount = 0;
+
         for(const packet of packets) {
             for(const listener of this.listeners) {
                 if(packet.sender === listener.sender && !packet.hasOwnProperty('result')) {
                     try {
                         const result = await listener.commandHandler(packet);
-                        packet.result = result;
+                        packet.result = result === undefined ? null : result;
+                        handledAmount++;
 
                         await this.editPacket(packet);
                         
@@ -288,14 +390,20 @@ class CommLinkHandler {
                                 console.log('[CommLink Receiver] Successfully handled a packet:', packet);
                         }
                     } catch(error) {
-                        console.error('[CommLink Receiver] Error handling packet:', error);
+                        if(!this.silentMode) console.error('[CommLink Receiver] Error handling packet:', error);
                     }
                 }
             }
         }
-    }    
+
+        return handledAmount;
+    }
 
     kill() {
-        this.listeners.forEach(listener => listener.intervalObj.stop());
+        this.receiverRunning = false;
+
+        if(this.wake) this.wake();
+
+        CommLinkHandler.__bell?.subscribers.delete(this);
     }
 }

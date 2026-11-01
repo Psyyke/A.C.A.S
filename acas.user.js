@@ -64,6 +64,7 @@
 // @grant       GM_setValue
 // @grant       GM_deleteValue
 // @grant       GM_listValues
+// @grant       GM_addValueChangeListener
 // @grant       GM_openInTab
 // @grant       GM.getValue
 // @grant       GM.setValue
@@ -502,6 +503,8 @@ const instanceVars = {
     gameStateHistory: createInstanceVariable('gameStateHistory')
 };
 
+const valueChangeListenerKeys = new Set();
+
 function exposeViaMessages() {
     const handlers = {
         USERSCRIPT_getValue: (args, messageId) => {
@@ -522,6 +525,20 @@ function exposeViaMessages() {
         USERSCRIPT_listValues: (args, messageId) => {
             const value = GM_listValues();
             window.postMessage({ messageId, value }, '*');
+        },
+        USERSCRIPT_addValueChangeListener: (args) => {
+            const [key] = args;
+
+            if(typeof GM_addValueChangeListener !== 'function' || typeof key !== 'string') return;
+            if(valueChangeListenerKeys.has(key)) return;
+
+            valueChangeListenerKeys.add(key);
+
+            try {
+                GM_addValueChangeListener(key, () => {
+                    window.postMessage({ type: 'USERSCRIPT_valueChanged', key }, '*');
+                });
+            } catch(e) { valueChangeListenerKeys.delete(key); }
         },
         USERSCRIPT_getInfo: (args, messageId) => {
             const value = typeof GM_info !== 'undefined' ? JSON.parse(JSON.stringify(GM_info)) : {};
@@ -562,6 +579,13 @@ function exposeViaUnsafe() {
         'setValue': (val, data) => GM_setValue(val, data),
         'deleteValue': val => GM_deleteValue(val),
         'listValues': val => GM_listValues(val),
+        'addValueChangeListener': typeof GM_addValueChangeListener === 'function'
+            ? (key, callback) => {
+                try {
+                    GM_addValueChangeListener(key, () => { try { callback(key); } catch(e) {} });
+                } catch(e) {}
+            }
+            : undefined,
         'instanceVars': instanceVars,
         'getInfo': () => GM_info
     };
