@@ -136,7 +136,7 @@ function startCommLink() {
     const MainCommLink = new CommLinkHandler('mum', {
         'singlePacketResponseWaitTime': 1500,
         'maxSendAttempts': 3,
-        'statusCheckInterval': 1,
+        'statusCheckInterval': 20,
         'silentMode': true,
         'functions': {
             'getValue': USERSCRIPT.getValue,

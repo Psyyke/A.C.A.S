@@ -67,20 +67,35 @@ class CommLinkHandler {
             'listValues'
         );
         
+        // A storage call that never answers must not hang a polling loop forever.
+        this.storageTimeoutMs = configObj?.storageTimeoutMs || 3000;
+
+        const withTimeout = (promiseLike) => {
+            let timer;
+
+            const timeout = new Promise((_, reject) => {
+                timer = setTimeout(() => reject(new Error('CommLink storage call timed out')), this.storageTimeoutMs);
+            });
+
+            return Promise.race([Promise.resolve(promiseLike), timeout]).finally(() => clearTimeout(timer));
+        };
+
         this.storage = {
             getValue: async (key) => {
-                return await getValueMethod(key);
+                return await withTimeout(getValueMethod(key));
             },
             setValue: (key, value) => {
-                return setValueMethod(key, value);
+                return withTimeout(setValueMethod(key, value));
             },
             deleteValue: (key) => {
-                return deleteValueMethod(key);
+                return withTimeout(deleteValueMethod(key));
             },
             listValues: async () => {
-                return await listValuesMethod();
+                return await withTimeout(listValuesMethod());
             }
         };
+
+        this.lastStaleCleanup = Date.now();
 
         if(typeof GM_info !== 'undefined') {
             const grants = (GM_info?.script?.grant) || [];
@@ -91,11 +106,11 @@ class CommLinkHandler {
                 alert(`[CommLink] The following userscript grants are missing: ${missingGrants.join(', ')}. CommLink might not work.`);
         }
 
-        this.removeOldPackets();
+        this.removeOldPackets().catch(() => {});
     }
 
-    async removeOldPackets() {
-        const packets = await this.getStoredPackets();
+    async removeOldPackets(packets) {
+        packets = packets || await this.getStoredPackets();
 
         packets.filter(packet => Date.now() - packet?.date > 2e4)
             .forEach(packet => this.removePacketByID(packet.id));
@@ -111,7 +126,8 @@ class CommLinkHandler {
 
                     await new Promise((resolve) => setTimeout(resolve, interval));
                 } catch (e) {
-                    continue;
+                    // Back off, otherwise a failing callback becomes a hot loop.
+                    await new Promise((resolve) => setTimeout(resolve, Math.max(interval, 50)));
                 }
             }
         };
@@ -137,8 +153,15 @@ class CommLinkHandler {
         
         for(const key of keys) {
             if(key.includes(this.commlinkValueIndicator)) {
-                const value = await this.storage.getValue(key);
-                storedPackets.push(value);
+                let value;
+
+                try {
+                    value = await this.storage.getValue(key);
+                } catch(e) {
+                    continue;
+                }
+
+                if(value && typeof value === 'object') storedPackets.push(value);
             }
         }
         
@@ -146,19 +169,23 @@ class CommLinkHandler {
     }
     
     addPacket(packet) {
-        this.storage.setValue(this.getCommKey(packet.id), packet);
+        try { Promise.resolve(this.storage.setValue(this.getCommKey(packet.id), packet)).catch(() => {}); } catch(e) {}
     }
 
     removePacketByID(packetID) {
-        this.storage.deleteValue(this.getCommKey(packetID));
+        try { Promise.resolve(this.storage.deleteValue(this.getCommKey(packetID))).catch(() => {}); } catch(e) {}
     }
 
     async findPacketByID(packetID) {
         return await this.storage.getValue(this.getCommKey(packetID));
     }
 
-    editPacket(newPacket) {
-        this.storage.setValue(this.getCommKey(newPacket.id), newPacket);
+    async editPacket(newPacket) {
+        // The sender may have given up and deleted the packet already. Writing
+        // the result then would re-create it as a packet nobody ever removes.
+        if(!await this.findPacketByID(newPacket.id)) return;
+
+        try { await this.storage.setValue(this.getCommKey(newPacket.id), newPacket); } catch(e) {}
     }
 
     send(platform, cmd, d) {
@@ -182,7 +209,13 @@ class CommLinkHandler {
                 this.addPacket(packet);
 
                 for(;;) {
-                    const poolPacket = await this.findPacketByID(packetID);
+                    let poolPacket;
+
+                    try {
+                        poolPacket = await this.findPacketByID(packetID);
+                    } catch(e) {
+                        poolPacket = null; // storage unavailable: treat as no reply
+                    }
                     const packetResult = poolPacket?.result;
 
                     // false, 0 and an empty string are replies too, not missing acknowledgements.
@@ -234,6 +267,11 @@ class CommLinkHandler {
     async receivePackets() {
         const packets = await this.getStoredPackets();
 
+        if(Date.now() - this.lastStaleCleanup > 1e4) {
+            this.lastStaleCleanup = Date.now();
+            this.removeOldPackets(packets).catch(() => {});
+        }
+
         for(const packet of packets) {
             for(const listener of this.listeners) {
                 if(packet.sender === listener.sender && !packet.hasOwnProperty('result')) {
@@ -241,7 +279,7 @@ class CommLinkHandler {
                         const result = await listener.commandHandler(packet);
                         packet.result = result;
 
-                        this.editPacket(packet);
+                        await this.editPacket(packet);
                         
                         if(!this.silentMode) {
                             if(packet.result == null)
