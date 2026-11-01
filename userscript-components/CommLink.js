@@ -5,6 +5,9 @@
  - GitHub: https://github.com/AugmentedWeb/CommLink
  */
 
+// How long after the last real (non keep-alive) packet the 1 ms fast polling stays on
+const COMMLINK_FAST_POLL_WINDOW_MS = 5000;
+
 class CommLinkHandler {
     constructor(commlinkID, configObj) {
         this.commlinkID = commlinkID;
@@ -105,7 +108,7 @@ class CommLinkHandler {
         this.pendingWake = false;
         this.wake = null;
         this.lastActivity = 0;
-        this.burstMs = configObj?.burstMs || 1e4;
+        this.burstMs = configObj?.burstMs || COMMLINK_FAST_POLL_WINDOW_MS;
         this.legacyIdleIntervalMs = configObj?.legacyIdleIntervalMs || 20;
         this.bellFallbackIntervalMs = configObj?.bellFallbackIntervalMs || 250;
         this.receiverRunning = false;

@@ -77,7 +77,7 @@
 // @grant       unsafeWindow
 // @run-at      document-start
 // @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
-// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=3
+// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=4
 // @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
 // @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
