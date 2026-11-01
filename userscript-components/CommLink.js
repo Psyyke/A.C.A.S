@@ -6,7 +6,13 @@
  */
 
 // How long after the last real (non keep-alive) packet the 1 ms fast polling stays on
-const COMMLINK_FAST_POLL_WINDOW_MS = 5000;
+const COMMLINK_FAST_POLL_WINDOW_MS = 500;
+// Idle poll interval when a peer that cannot ring the bell (older userscript) may exist
+const COMMLINK_LEGACY_IDLE_POLL_MS = 10;
+// Idle safety-net poll when every peer rings the bell
+const COMMLINK_BELL_IDLE_POLL_MS = 250;
+// How long one packet that arrived without a bell keeps the legacy idle poll active
+const COMMLINK_LEGACY_PEER_MEMORY_MS = 60000;
 
 class CommLinkHandler {
     constructor(commlinkID, configObj) {
@@ -109,8 +115,10 @@ class CommLinkHandler {
         this.wake = null;
         this.lastActivity = 0;
         this.burstMs = configObj?.burstMs || COMMLINK_FAST_POLL_WINDOW_MS;
-        this.legacyIdleIntervalMs = configObj?.legacyIdleIntervalMs || 20;
-        this.bellFallbackIntervalMs = configObj?.bellFallbackIntervalMs || 250;
+        this.legacyIdleIntervalMs = configObj?.legacyIdleIntervalMs || COMMLINK_LEGACY_IDLE_POLL_MS;
+        this.bellFallbackIntervalMs = configObj?.bellFallbackIntervalMs || COMMLINK_BELL_IDLE_POLL_MS;
+        this.lastBellAt = 0;
+        this.legacyPeerSeenAt = 0;
         this.receiverRunning = false;
         // Keep-alive traffic must not keep the fast 1 ms polling on forever
         this.keepAliveCommands = configObj?.keepAliveCommands || ['createInstance', 'ping'];
@@ -167,6 +175,7 @@ class CommLinkHandler {
 
     onBell() {
         this.bellConfirmed = true;
+        this.lastBellAt = Date.now();
         this.pendingWake = true;
 
         if(this.wake) this.wake();
@@ -184,7 +193,9 @@ class CommLinkHandler {
         if(Date.now() - this.lastActivity < this.burstMs) return this.statusCheckInterval;
 
         // A peer that rings the bell is answered instantly; the timer is only a safety net.
-        if(this.bellConfirmed) return this.bellFallbackIntervalMs;
+        // unless a packet recently showed up without any bell (an older peer is present)
+        if(this.bellConfirmed && Date.now() - this.legacyPeerSeenAt > COMMLINK_LEGACY_PEER_MEMORY_MS)
+            return this.bellFallbackIntervalMs;
 
         return Math.max(this.legacyIdleIntervalMs, this.statusCheckInterval);
     }
@@ -201,7 +212,15 @@ class CommLinkHandler {
                 try {
                     this.pendingWake = false;
 
-                    if(await this.receivePackets()) this.lastActivity = Date.now();
+                    const wasIdle = Date.now() - this.lastActivity >= this.burstMs;
+
+                    if(await this.receivePackets()) {
+                        // Found by the idle timer with no bell shortly before: its sender cannot ring
+                        if(wasIdle && !this.pendingWake && Date.now() - this.lastBellAt > 100)
+                            this.legacyPeerSeenAt = Date.now();
+
+                        this.lastActivity = Date.now();
+                    }
 
                     delay = this.getPollDelay();
                 } catch(e) {
