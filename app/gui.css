@@ -3883,6 +3883,7 @@ p[data-translation-ffs-instructions] {
 }
 video {
 	border-radius: 5px;
+	max-width: 100%;
 }
 .disable-elo:not(disabled) {
     opacity: 0.25;

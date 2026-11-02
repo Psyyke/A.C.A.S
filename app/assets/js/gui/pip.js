@@ -568,6 +568,9 @@ export async function startPictureInPicture() {
         canvas = document.createElement('canvas');
         video = document.createElement('video');
         video.muted = true;
+        video.playsInline = true;
+        // Browsers without the PiP API (e.g. Firefox mobile) rely on the native video controls.
+        video.controls = !(document.pictureInPictureEnabled && video.requestPictureInPicture);
         video.addEventListener('enterpictureinpicture', stopMediaSession);
         video.addEventListener('leavepictureinpicture', initMediaSession);
         floatingPanelVideoElem.replaceChildren(video);
