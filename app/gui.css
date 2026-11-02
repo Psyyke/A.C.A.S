@@ -477,13 +477,19 @@ cg-container {
 /* Settings are full width here, so the instance fills its container edge to edge */
 @media (max-width: 800px) {
 	#acas-instance-container {
-		padding-inline: 0;
+		padding: var(--acas-header-height) 0 var(--settings-header-height);
+		grid-gap: 0;
 	}
 	.acas-instance {
 		width: 100% !important;
 		max-width: none;
 		border-radius: 0;
 		border-inline-width: 0;
+	}
+	.acas-instance .instance-header,
+	.acas-instance .instance-feedback-container,
+	.acas-instance .instance-opening-container:has(+ .instance-feedback-container:empty) {
+		border-radius: 0;
 	}
 }
 .chessboard-components {
