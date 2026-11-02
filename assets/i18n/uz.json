@@ -232,6 +232,7 @@
         "engineWord": "dvijok", "enginesWord": "dvijoklar", "variantNotSupported": "Variant qo‘llab-quvvatlanmaydi", "showFenBtn": "FEN ni ko‘rsatish", "hideFenBtn": "FEN ni yashirish",
         "instanceVariant": "Seans shaxmat varianti", "instanceDomain": "Seans domeni", "instanceFen": "Seans FEN yozuvi", "openInstanceSettingsBtn": "Seans sozlamalarini ochish", "losingConnection": "Ulanish uzilmoqda", "revisitReconnect": "Qayta ulanish uchun sahifaga qayting", "winning": "Ustunlik", "losing": "Noqulay vaziyat",
         "excessiveTabChangeWarning": "Ogohlantirish: varaqlarni juda ko‘p almashtirish aniqlandi. Davom etsangiz, hisobingiz bloklanishi mumkin.\n\nVaraqlar o‘rtasida o‘tmaslik uchun quyidagilardan birini bajaring:\n- Ikki oynani yonma-yon oching\n- Yurishlarni sahifada ko‘rsating (buni aniqlash oson)\n- Ovozli aytishni (TTS) yoqing\n- «Suzuvchi panel»ni yoqing",
+        "otherUserscriptManagerWarning": "Eng yaxshi tajriba uchun Tampermonkey’dan foydalanish qat’iy tavsiya etiladi. Boshqa variantlar ishlashi mumkin, lekin kafolat yo‘q.",
         "instanceConnectionTermination": "Ulanish yo‘qolgani uchun seans tugatildi.\n\nKutilmagan holatmi? A.C.A.S ni qayta faollashtirish uchun varaqqa qayting.",
         "calculationDepth": "Chuqurlik", "thankYouTranslator": "Tarjimonlarga rahmat", "serverOpen": "Serverga ulandi!",
         "serverClose": "Tashqi dvijok serveriga ulanib bo‘lmadi!\n\nServer o‘rnatilgani va ishlayotganini tekshiring. Qayta ulanishga urinilmoqda...",

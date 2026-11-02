@@ -326,6 +326,7 @@
         "winning": "Qalib gəlirsiniz",
         "losing": "Məğlub olursunuz",
         "excessiveTabChangeWarning": "Xəbərdarlıq: Artıq tab dəyişməsi aşkar edildi. Davamlı dəyişmə qadağan olunmağa səbəb ola bilər.\n\nTablar arasında dəyişmək ehtiyacını aradan qaldırmaq üçün aşağıdakilərdən birini edin,\n- İki ayrı pəncərə yaradın\n- Hərəkətləri səhifədə göstərin (bu asanlıqla aşkar edilir)\n- TTS (Text to Speech) aktiv edin\n- Üzən panel parametrini aktiv edin",
+        "otherUserscriptManagerWarning": "Ən yaxşı təcrübə üçün Tampermonkey-dən istifadə etmək tövsiyə olunur. Digər variantlar işləyə bilər, lakin zəmanət yoxdur.",
         "instanceConnectionTermination": "İnstansiya bağlantı itirilməsi səbəbindən dayandırıldı.\n\nGözlənilməz? A.C.A.S-ı yenidən aktivləşdirmək üçün tabı ziyarət edin.",
         "calculationDepth": "Dərinlik",
         "thankYouTranslator": "Tərcüməçilərə təşəkkür edirik",

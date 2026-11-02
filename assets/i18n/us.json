@@ -386,6 +386,7 @@
         "winning": "Winning",
         "losing": "Losing",
         "excessiveTabChangeWarning": "Warning: Excessive tab switching detected. Continued switching may result in a ban.\n\nTo avoid needing to switch between tabs, do one of the following,\n- Make two separate windows side by side\n- Display moves on the page (This is easily detectable)\n- Enable TTS (Text to Speech)\n- Enable the Floating Panel setting",
+        "otherUserscriptManagerWarning": "Tampermonkey is highly recommended for the best experience. Other options might work, but there are no guarantees.",
         "instanceConnectionTermination": "Terminated instance due to lost connection.\n\nUnexpected? Visit the tab to reactivate A.C.A.S.",
         "calculationDepth": "Depth",
         "thankYouTranslator": "Thanks to the translators",

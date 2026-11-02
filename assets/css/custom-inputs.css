@@ -928,6 +928,15 @@ textarea:hover,
     transform: translateY(3px) !important;
     margin-top: 3px !important;
 }
+/* Pressed buttons move/shrink away from the pointer; this keeps the original hit area so edge/corner clicks still fire */
+:is(.acas-fancy-button, .open-floaty-btn, .instance-settings-btn, .control-panel-btn, #tos-continue-button, #see-supported-sites-btn, .get-deal-btn, .install-notification-btn):active {
+    contain: layout;
+}
+:is(.acas-fancy-button, .open-floaty-btn, .instance-settings-btn, .control-panel-btn, #tos-continue-button, #see-supported-sites-btn, .get-deal-btn, .install-notification-btn):active::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+}
 /* Floaty */
 .open-floaty-btn {
     width: 43px;
@@ -1112,6 +1121,12 @@ dialog .input-subtitle {
     background-color: rgb(255 255 255 / 3%);
     flex-shrink: 0;
     opacity: 0.5;
+}
+.tab-item, .tab-item p {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 .tab-item:hover {
 	cursor: pointer;

@@ -384,6 +384,12 @@ main {
     border: 2px solid black;
     transform: translateY(3px);
 }
+/* Keep the original hit area while pressed so edge/corner clicks still fire */
+.fancy-btn:active::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+}
 header {
     background-color: #ffffff;
     color: #213a43;

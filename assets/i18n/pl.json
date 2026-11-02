@@ -325,6 +325,7 @@
         "winning": "Wygrywasz",
         "losing": "Przegrywasz",
         "excessiveTabChangeWarning": "Ostrzeżenie: Wykryto nadmierną zmianę zakładek. Kontynuowanie może skutkować zakazem.\n\nAby uniknąć konieczności zmiany zakładek, zrób jedno z poniższych,\n- Otwórz dwie osobne okna obok siebie\n- Wyświetlaj ruchy na stronie (Łatwe do wykrycia)\n- Włącz TTS (Tekst na mowę)\n- Włącz ustawienie pływającego panelu",
+        "otherUserscriptManagerWarning": "Dla najlepszych wrażeń zdecydowanie zalecamy Tampermonkey. Inne opcje mogą działać, ale bez gwarancji.",
         "instanceConnectionTermination": "Instancja zakończona z powodu utraty połączenia.\n\nNieoczekiwane? Odwiedź zakładkę, aby ponownie aktywować A.C.A.S.",
         "calculationDepth": "Głębokość obliczeń",
         "thankYouTranslator": "Dziękujemy tłumaczom",

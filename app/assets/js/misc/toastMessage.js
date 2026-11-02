@@ -1,5 +1,5 @@
 const toast = {
-    'create': (type, icon, content, duration) => {
+    'create': (type, icon, content, duration, note) => {
         const intervalRate = 100;
         // "instance" toasts are intentionally persistent; everything else defaults to 5s
         // so a missing duration doesn't leave the toast on screen forever (NaN comparison).
@@ -57,6 +57,13 @@ const toast = {
         const contentElem = document.createElement('div');
         contentElem.classList.add('acas-toast-content');
         contentElem.innerText = content;
+
+        if(note) {
+            const noteElem = document.createElement('small');
+            noteElem.style = 'opacity: 0.8;';
+            noteElem.innerText = `\n${note}`;
+            contentElem.appendChild(noteElem);
+        }
 
         toastElem.appendChild(toastTopContainer);
         toastElem.appendChild(toastBottomContainer);
@@ -127,7 +134,7 @@ const toast = {
     },
     'success': (content, duration) => toast.create('success', '👍', content, duration),
     'message': (content, duration) => toast.create('message', '🗿', content, duration),
-    'warning': (content, duration) => toast.create('warning', '😐', content, duration),
+    'warning': (content, duration, note) => toast.create('warning', '😐', content, duration, note),
     'error': (content, duration) => toast.create('error', '💀', content, duration),
     'instance': (content, duration) => toast.create('instance', '🕛', content, duration)
 };

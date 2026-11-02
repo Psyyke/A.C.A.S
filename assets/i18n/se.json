@@ -318,6 +318,7 @@
         "winning": "Vinnande",
         "losing": "Förlorande",
         "excessiveTabChangeWarning": "Varning: Överdriven flikväxling upptäckt. Fortsatt växling kan leda till ett ban.\n\nFör att undvika att behöva växla mellan flikar, gör något av följande,\n- Gör två separata fönster bredvid varandra\n- Visa drag på sidan (Detta är lätt att upptäcka)\n- Aktivera TTS (Text till tal)\n- Aktivera inställningen för flytande panel",
+        "otherUserscriptManagerWarning": "Tampermonkey rekommenderas starkt för bästa upplevelse. Andra alternativ kanske fungerar, men utan garantier.",
         "instanceConnectionTermination": "Instans avbruten på grund av förlorad anslutning.\n\nOväntat? Besök fliken för att återaktivera A.C.A.S.",
         "calculationDepth": "Djup",
         "thankYouTranslator": "Tack till översättarna",

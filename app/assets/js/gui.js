@@ -271,6 +271,20 @@ async function updateUserscriptInfoText() {
             toast.warning(TRANS_OBJ?.oldUserscriptWarning ?? 'You are using an outdated or incompatible version of A.C.A.S. Please update the userscript.', 10000);
         }
         
+        const managerName = GM_info?.scriptHandler;
+        const managerWarningKey = 'acasOtherUserscriptManagerWarned';
+
+        if(managerName && !/tampermonkey/i.test(managerName)) {
+            try {
+                if(!localStorage.getItem(managerWarningKey)) {
+                    localStorage.setItem(managerWarningKey, 'true');
+                    toast.warning(`${TRANS_OBJ?.otherUserscriptManagerWarning ?? 'Tampermonkey is highly recommended for the best experience. Other options might work, but there are no guarantees.'} (${managerName})`, 15000);
+                }
+            } catch(error) {
+                console.error('Userscript manager warning state could not be saved.', error);
+            }
+        }
+
         userscriptInfoElem.innerText = ['System Information', platformData, userscriptManagerData, userscriptData, Date.now()].join(' | ');
     } else {
         userscriptInfoElem?.remove();

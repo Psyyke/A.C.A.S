@@ -322,6 +322,7 @@
         "winning": "Câștigând",
         "losing": "Pierzând",
         "excessiveTabChangeWarning": "Atenție: schimbi prea des filele. Dacă o faci în continuare, riști să primești ban.\n\nCa să nu mai fie nevoie să schimbi filele, poți:\n- Deschide două ferestre separate, una lângă alta\n- Afișa mutările pe pagină (acest lucru este ușor de detectat)\n- Activa TTS (citirea textului cu voce)\n- Activa panoul plutitor",
+        "otherUserscriptManagerWarning": "Tampermonkey este foarte recomandat pentru cea mai bună experiență. Alte opțiuni ar putea funcționa, dar fără garanții.",
         "instanceConnectionTermination": "Instanța a fost terminată din cauza pierderii conexiunii.\n\nNeașteptat? Vizitează tab-ul pentru a reactiva A.C.A.S.",
         "calculationDepth": "Adâncime",
         "thankYouTranslator": "Mulțumim traducătorilor",

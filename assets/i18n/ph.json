@@ -318,6 +318,7 @@
         "winning": "Panalo",
         "losing": "Talo",
         "excessiveTabChangeWarning": "Babala: Napansin ang labis na pagbabago ng tab. Ang patuloy na pagbabago ay maaaring humantong sa pagbabawal.\n\nUpang maiwasan ang pangangailangan na lumipat sa pagitan ng mga tab, gawin ang isa sa mga sumusunod,\n- Lumikha ng dalawang hiwalay na bintana na magkatabi\n- Ipakita ang mga galaw sa pahina (madaling matutukoy ito)\n- I-enable ang TTS (Text to Speech)\n- I-enable ang setting ng floating panel",
+        "otherUserscriptManagerWarning": "Lubos na inirerekomenda ang Tampermonkey para sa pinakamagandang karanasan. Maaaring gumana ang ibang opsyon, ngunit walang garantiya.",
         "instanceConnectionTermination": "Ang instance ay tinapos dahil sa pagkawala ng koneksyon.\n\nHindi inaasahan? Bisitahin ang tab upang muling i-activate ang A.C.A.S.",
         "calculationDepth": "Lalim",
         "thankYouTranslator": "Salamat sa mga tagasalin",

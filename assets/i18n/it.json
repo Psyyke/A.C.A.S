@@ -329,6 +329,7 @@
         "winning": "In vantaggio",
         "losing": "In svantaggio",
         "excessiveTabChangeWarning": "Attenzione: rilevato un cambio eccessivo di schede. Il continuo cambio potrebbe portare a un ban.\n\nPer evitare di dover cambiare scheda frequentemente, fai una delle seguenti azioni,\n- Usa due finestre separate affiancate\n- Mostra le mosse sulla pagina (Questo è facilmente rilevabile)\n- Abilita TTS (Text to Speech)\n- Abilita l'impostazione del pannello fluttuante",
+        "otherUserscriptManagerWarning": "Per la migliore esperienza si consiglia vivamente Tampermonkey. Altre opzioni potrebbero funzionare, ma senza garanzie.",
         "instanceConnectionTermination": "Istanza chiusa perché la connessione è stata persa.\n\nNon te l'aspettavi? Torna alla scheda della partita per riattivare A.C.A.S.",
         "calculationDepth": "Profondità",
         "thankYouTranslator": "Grazie ai traduttori",

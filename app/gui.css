@@ -474,6 +474,18 @@ cg-container {
 	padding: calc(var(--acas-header-height) + 10px) 10px calc(var(--settings-header-height) + 10px);
 	grid-gap: 10px;
 }
+/* Settings are full width here, so the instance fills its container edge to edge */
+@media (max-width: 800px) {
+	#acas-instance-container {
+		padding-inline: 0;
+	}
+	.acas-instance {
+		width: 100% !important;
+		max-width: none;
+		border-radius: 0;
+		border-inline-width: 0;
+	}
+}
 .chessboard-components {
 	position: relative;
 	height: fit-content;
@@ -3608,6 +3620,23 @@ input[disabled] {
         height: 35px;
         font-size: 18px;
     }
+    #dynamic-settings-floaty .floaty-header.has-variable-control {
+        gap: 8px;
+    }
+    #dynamic-settings-floaty .floaty-header.has-variable-control .dynamic-variable-control {
+        box-sizing: border-box;
+        flex: 1 1 auto;
+        height: 44px;
+        border-radius: 5px !important;
+    }
+    #dynamic-settings-floaty .floaty-header.has-variable-control #dynamic-variable-compact {
+        height: 100%;
+        min-height: 0;
+    }
+    #dynamic-settings-floaty .floaty-header.has-variable-control .floaty-close-btn {
+        width: 44px;
+        height: 44px;
+    }
     #dynamic-settings-floaty .dynamic-settings-body {
         flex: 1 1 auto;
         min-height: 0;
@@ -3754,23 +3783,7 @@ input[disabled] {
 }
 @media (max-width: 700px) and (max-height: 500px) and (orientation: landscape), (pointer: coarse) and (max-width: 1100px) and (max-height: 500px) and (orientation: landscape) {
     #dynamic-settings-floaty:not(.is-graph-fullscreen) .floaty-header {
-        display: contents;
-    }
-    #dynamic-settings-floaty:not(.is-graph-fullscreen) .floaty-close-btn {
-        position: fixed;
-        top: 2px;
-        right: max(2px, env(safe-area-inset-right));
-        z-index: 2;
-        display: flex;
-    }
-    #dynamic-settings-floaty .floaty-buttons {
-        display: contents;
-    }
-    #dynamic-settings-floaty .floaty-header .title {
-        display: none;
-    }
-    #dynamic-settings-floaty .dynamic-variable-control {
-        margin-right: 44px;
+        padding-block: 4px;
     }
     #dynamic-settings-floaty #dynamic-add-heading {
         display: none;

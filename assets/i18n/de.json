@@ -340,6 +340,7 @@
         "winning": "Gewinnend",
         "losing": "Verlierend",
         "excessiveTabChangeWarning": "Warnung: Zu häufiges Wechseln zwischen Tabs erkannt. Weiteres Wechseln kann zu einer Sperrung führen.\n\nUm dies zu vermeiden, tue eines der folgenden,\n- Öffne zwei Fenster nebeneinander\n- Zeige Züge auf der Seite an (dies ist leicht erkennbar)\n- Aktiviere TTS (Text-to-Speech)\n- Aktiviere die Einstellung für schwebendes Panel",
+        "otherUserscriptManagerWarning": "Für die beste Erfahrung wird Tampermonkey dringend empfohlen. Andere Optionen funktionieren eventuell, aber ohne Garantie.",
         "instanceConnectionTermination": "Instanz aufgrund verlorener Verbindung beendet.\n\nUnerwartet? Besuche den Tab, um A.C.A.S. zu reaktivieren.",
         "calculationDepth": "Tiefe",
         "thankYouTranslator": "Danke an die Übersetzer",

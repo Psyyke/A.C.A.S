@@ -324,6 +324,7 @@
         "winning": "Võitmine",
         "losing": "Kaotamine",
         "excessiveTabChangeWarning": "Hoiatus: Ülemäärane vahekaartide vahetus tuvastatud. Jätkuv vahetus võib põhjustada keelu.\n\nKuna te ei pea vahetama vahekaartide vahel, tehke üks järgmistest,\n- Looge kaks eraldi akent kõrvuti\n- Kuvage käigud lehel (see on kergesti tuvastatav)\n- Aktiveerige TTS (Text to Speech)\n- Aktiveerige hõljupaneeli seade",
+        "otherUserscriptManagerWarning": "Parima kogemuse jaoks soovitame tungivalt Tampermonkeyt. Muud valikud võivad toimida, kuid garantiid pole.",
         "instanceConnectionTermination": "Instants lõpetati ühenduse kaotamise tõttu.\n\nOotamatu? Külastage vahekaarti, et aktiveerida A.C.A.S uuesti.",
         "calculationDepth": "Sügavus",
         "thankYouTranslator": "Aitäh tõlkijatele",
