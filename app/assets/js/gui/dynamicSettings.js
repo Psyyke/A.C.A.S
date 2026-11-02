@@ -648,7 +648,27 @@ function updateAddSettingTitle() {
         : text('addForProfile', 'Add {setting} for {profile}', { setting: settingLabel(key), profile: GET_HUMAN_READABLE_PROFILE_NAME(activeProfile) });
 }
 
+// On phones the variable dropdown takes the place of the dialog title, beside the save button.
+function placeVariableControl() {
+    const container = ui['dynamic-variable-control'];
+    const header = dialog.querySelector('.floaty-header');
+    const inHeader = window.matchMedia('(max-width: 700px), (pointer: coarse) and (max-width: 1100px)').matches;
+    const title = header.querySelector('.title');
+
+    if(inHeader && container.parentElement !== header) {
+        header.insertBefore(container, header.querySelector('.floaty-buttons'));
+    } else if(!inHeader && container.parentElement === header) {
+        container.parentElement.nextElementSibling.prepend(container);
+    }
+
+    title.hidden = inHeader;
+    header.classList.toggle('has-variable-control', inHeader);
+
+    return inHeader;
+}
+
 function updateVariableLayout() {
+    const inHeader = placeVariableControl();
     const container = ui['dynamic-variable-control'];
     if(!container.clientWidth) return;
     const tabs = ui['dynamic-variable-select'];
@@ -661,7 +681,7 @@ function updateVariableLayout() {
     tabs.hidden = false;
     const width = [...tabs.querySelectorAll('[role="tab"]')].reduce((sum, tab) => sum + tab.getBoundingClientRect().width, 0);
     const mobile = window.matchMedia('(max-width: 700px), (pointer: coarse) and (max-width: 1100px)').matches;
-    const collapsed = shouldCollapseVariableTabs(mobile, width, container.clientWidth);
+    const collapsed = inHeader || shouldCollapseVariableTabs(mobile, width, container.clientWidth);
     tabs.hidden = collapsed;
     compact.hidden = !collapsed;
     tabs.classList.remove('is-measuring');

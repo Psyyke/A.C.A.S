@@ -330,6 +330,7 @@
         "winning": "Vyhrává",
         "losing": "Prohrává",
         "excessiveTabChangeWarning": "Varování: Bylo detekováno nadměrné přepínání mezi kartami. Pokračující přepínání může vést k zákazu.\n\nAby se předešlo potřebě přepínat mezi kartami, udělejte jednu z následujících věcí,\n- Udělejte dvě samostatné okna vedle sebe\n- Zobrazte tahy na stránce (to je snadno detekovatelné)\n- Aktivujte TTS (Text-to-Speech)\n- Aktivujte nastavení plovoucího panelu",
+        "otherUserscriptManagerWarning": "Pro nejlepší zážitek vřele doporučujeme Tampermonkey. Jiné možnosti mohou fungovat, ale bez záruky.",
         "instanceConnectionTermination": "Instance byla ukončena kvůli ztrátě připojení.\n\nNečekané? Vrať se na kartu s partií a A.C.A.S se znovu aktivuje.",
         "calculationDepth": "Hloubka",
         "thankYouTranslator": "Děkujeme překladatelům",

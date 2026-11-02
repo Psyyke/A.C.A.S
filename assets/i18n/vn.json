@@ -319,6 +319,7 @@
         "winning": "Đang thắng",
         "losing": "Đang thua",
         "excessiveTabChangeWarning": "Cảnh báo: Phát hiện chuyển tab quá nhiều. Việc liên tục chuyển tab có thể dẫn đến bị cấm tài khoản.\n\nĐể tránh phải chuyển tab, hãy thử một trong các cách sau:\n- Mở hai cửa sổ riêng biệt cạnh nhau\n- Hiển thị nước đi ngay trên trang (cách này dễ bị phát hiện)\n- Bật TTS (đọc nước đi thành tiếng)\n- Bật tùy chọn Bảng Nổi",
+        "otherUserscriptManagerWarning": "Rất khuyến khích dùng Tampermonkey để có trải nghiệm tốt nhất. Các lựa chọn khác có thể hoạt động, nhưng không có gì đảm bảo.",
         "instanceConnectionTermination": "Đã kết thúc phiên do mất kết nối.\n\nKhông như mong đợi? Hãy quay lại tab để kích hoạt lại A.C.A.S.",
         "calculationDepth": "Độ sâu",
         "thankYouTranslator": "Cảm ơn các dịch giả",

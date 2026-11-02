@@ -356,8 +356,14 @@ function composePanels() {
     context.font = '600 16px "Rubik", "IBM Plex Sans", sans-serif';
     context.fillStyle = 'rgba(255, 255, 255, 0.3)';
     context.textAlign = 'right';
-    context.fillText(idle ? '' : activeInstance?.domain || '',
-        panelWidth - 12, pipHeaderHeight / 2, panelWidth - 150);
+    const domainText = idle ? '' : activeInstance?.domain || '';
+    const domainWidth = Math.min(context.measureText(domainText).width, panelWidth - 150);
+    context.fillText(domainText, panelWidth - 12, pipHeaderHeight / 2, panelWidth - 150);
+
+    if(!idle && Number.isFinite(activeInstance?.latencyMs)) {
+        context.fillText(`${Math.round(activeInstance.latencyMs)} ms`,
+            panelWidth - 12 - domainWidth - 12, pipHeaderHeight / 2);
+    }
     context.restore();
 
     // One gentle, full-width divider for both live and waiting-screen headers.

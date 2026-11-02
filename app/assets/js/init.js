@@ -155,6 +155,11 @@ function startCommLink() {
                 case 'createInstance':
                     const data = packet.data;
 
+                    // The userscript stamps each keep-alive; the delay until it arrives is the connection latency.
+                    const latencyMs = Date.now() - packet.date;
+                    const knownInstance = window.AcasInstances.find(x => x.id === data.instanceID);
+                    if(knownInstance && Number.isFinite(latencyMs)) knownInstance.instance.latencyMs = Math.max(0, latencyMs);
+
                     createInstance(data.domain, data.instanceID, data.chessVariant);
     
                     return true;

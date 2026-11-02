@@ -316,6 +316,7 @@
         "winning": "Kazanan",
         "losing": "Kaybeden",
         "excessiveTabChangeWarning": "Uyarı: Aşırı sekme değişikliği tespit edildi. Sürekli sekme değiştirme, yasaklanmaya neden olabilir.\n\nSekmeler arasında geçiş yapmanız gerektiğinde, şunlardan birini yapın,\n- İki ayrı pencereyi yan yana açın\n- Hamleleri sayfada görüntüleyin (Bu kolayca tespit edilir)\n- TTS (Metinden Sese) etkinleştirin\n- Yüzen Panel ayarını etkinleştir",
+        "otherUserscriptManagerWarning": "En iyi deneyim için Tampermonkey kullanmanı şiddetle öneririz. Diğer seçenekler çalışabilir, ancak garanti yok.",
         "instanceConnectionTermination": "Bağlantı kesildiği için oyun oturumu durduruldu.\n\nBeklemiyor muydun? A.C.A.S'i yeniden etkinleştirmek için oyun sekmesine dön.",
         "calculationDepth": "Derinlik",
         "thankYouTranslator": "Çevirmenlere teşekkür ederiz",

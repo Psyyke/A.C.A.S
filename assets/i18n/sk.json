@@ -325,6 +325,7 @@
         "winning": "Víťazstvo",
         "losing": "Prehra",
         "excessiveTabChangeWarning": "Upozornenie: Zistená nadmerná zmena kariet. Neustála zmena môže viesť k zákazu.\n\nAby ste sa vyhli potrebe meniť medzi kartami, urobte jednu z nasledujúcich vecí,\n- Vytvorte dve samostatné okná vedľa seba\n- Zobrazte ťahy na stránke (to je ľahko zistiteľné)\n- Aktivujte TTS (Text to Speech)\n- Aktivujte nastavenie plávajúceho panela",
+        "otherUserscriptManagerWarning": "Pre najlepší zážitok dôrazne odporúčame Tampermonkey. Iné možnosti môžu fungovať, ale bez záruky.",
         "instanceConnectionTermination": "Inštancia bola ukončená z dôvodu straty pripojenia.\n\nNeočekávané? Navštívte kartu, aby ste znova aktivovali A.C.A.S.",
         "calculationDepth": "Hĺbka",
         "thankYouTranslator": "Ďakujeme prekladateľom",

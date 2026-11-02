@@ -329,6 +329,7 @@
         "winning": "Winnend",
         "losing": "Verliezend",
         "excessiveTabChangeWarning": "Waarschuwing: Overmatig tabbladwisselen gedetecteerd. Vervolg dit kan leiden tot een ban.\n\nOm niet steeds tussen tabs te schakelen, doe een van de volgende,\n- Maak twee afzonderlijke vensters naast elkaar\n- Toon zetten op de pagina (Dit wordt gemakkelijk gedetecteerd)\n- Zet TTS (Text-to-Speech) in\n- Schakel de zwevende paneel instelling in",
+        "otherUserscriptManagerWarning": "Tampermonkey wordt sterk aanbevolen voor de beste ervaring. Andere opties werken misschien, maar zonder garantie.",
         "instanceConnectionTermination": "Instantie beëindigd wegens verlies van verbinding.\n\nOnverwacht? Bezoek het tabblad om A.C.A.S opnieuw te activeren.",
         "calculationDepth": "Diepte",
         "thankYouTranslator": "Dank aan de vertalers",

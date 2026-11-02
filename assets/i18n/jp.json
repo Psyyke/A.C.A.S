@@ -324,6 +324,7 @@
         "winning": "勝っています",
         "losing": "負けています",
         "excessiveTabChangeWarning": "警告: 過度なタブ切り替えが検出されました。継続的な切り替えは禁止される可能性があります。\n\nタブ切り替えを避けるために、以下のいずれかを実行してください、\n- 2つのウィンドウを並べて表示\n- ページに手を表示 (簡単に検出できます)\n- TTS（テキスト読み上げ）を有効にする\n- フローティングパネル設定を有効にする",
+        "otherUserscriptManagerWarning": "最高の体験のため、Tampermonkey の使用を強くおすすめします。他の選択肢でも動作する可能性はありますが、保証はありません。",
         "instanceConnectionTermination": "接続が失われたため、インスタンスは終了されました。\n\n予期しない場合は、タブを訪れてA.C.A.Sを再有効化してください。",
         "calculationDepth": "深度",
         "thankYouTranslator": "翻訳者に感謝します",

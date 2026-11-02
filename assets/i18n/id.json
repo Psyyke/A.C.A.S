@@ -325,6 +325,7 @@
         "winning": "Menang",
         "losing": "Kalah",
         "excessiveTabChangeWarning": "Peringatan: Perubahan tab berlebihan terdeteksi. Terus berpindah tab dapat menyebabkan larangan.\n\nUntuk menghindari perlu beralih tab, lakukan salah satu dari berikut,\n- Buat dua jendela terpisah berdampingan\n- Tampilkan gerakan di halaman (Ini mudah terdeteksi)\n- Aktifkan TTS (Text to Speech)\n- Aktifkan pengaturan panel mengambang",
+        "otherUserscriptManagerWarning": "Tampermonkey sangat direkomendasikan untuk pengalaman terbaik. Opsi lain mungkin berfungsi, tetapi tanpa jaminan.",
         "instanceConnectionTermination": "Instance dihentikan karena kehilangan koneksi.\n\nTidak terduga? Kunjungi tab untuk mengaktifkan kembali A.C.A.S.",
         "calculationDepth": "Kedalaman",
         "thankYouTranslator": "Terima kasih kepada penerjemah",

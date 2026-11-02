@@ -324,6 +324,7 @@
         "winning": "Vencendo",
         "losing": "Perdendo",
         "excessiveTabChangeWarning": "Aviso: Detecção de mudança excessiva de abas. Trocas contínuas podem resultar em banimento.\n\nPara evitar a necessidade de trocar entre as abas, faça uma das seguintes opções,\n- Abra duas janelas separadas lado a lado\n- Exiba os movimentos na página (Isso é facilmente detectável)\n- Habilite o TTS (Texto para Fala)\n- Ative a configuração do Painel Flutuante",
+        "otherUserscriptManagerWarning": "O Tampermonkey é altamente recomendado para a melhor experiência. Outras opções podem funcionar, mas sem garantias.",
         "instanceConnectionTermination": "Instância terminada devido à perda de conexão.\n\nInesperado? Visite a aba para reativar o A.C.A.S.",
         "calculationDepth": "Profundidade",
         "thankYouTranslator": "Obrigado aos tradutores",

@@ -325,6 +325,7 @@
         "winning": "승리 중",
         "losing": "패배 중",
         "excessiveTabChangeWarning": "경고: 과도한 탭 전환이 감지되었습니다. 계속 전환하면 금지될 수 있습니다.\n\n탭을 전환할 필요가 없도록 하려면 다음 중 하나를 하세요,\n- 두 개의 별도 창을 나란히 열기\n- 페이지에 이동 표시하기 (이것은 쉽게 감지됩니다)\n- TTS(음성으로 텍스트 읽기) 활성화하기\n- 플로팅 패널 설정 활성화하기",
+        "otherUserscriptManagerWarning": "최상의 경험을 위해 Tampermonkey 사용을 강력히 권장합니다. 다른 옵션도 작동할 수 있지만 보장되지는 않습니다.",
         "instanceConnectionTermination": "연결 끊어짐으로 인해 인스턴스가 종료되었습니다.\n\n예상치 못한 상황인가요? 탭을 방문하여 A.C.A.S를 재활성화하세요.",
         "calculationDepth": "깊이",
         "thankYouTranslator": "번역자에게 감사드립니다",

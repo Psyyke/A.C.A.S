@@ -325,6 +325,7 @@
         "winning": "占优",
         "losing": "处于劣势",
         "excessiveTabChangeWarning": "警告：检测到频繁切换标签。继续切换可能会导致封禁。\n\n为了避免频繁切换标签，请采取以下措施之一，\n- 将两个窗口并排显示\n- 在页面上显示走法（这很容易被检测到）\n- 启用 TTS（文本转语音）\n- 启用浮动面板设置",
+        "otherUserscriptManagerWarning": "为获得最佳体验，强烈推荐使用 Tampermonkey。其他选项也许可用，但不作任何保证。",
         "instanceConnectionTermination": "由于连接丢失，实例已终止。\n\n是否意外？请访问该标签重新激活 A.C.A.S。",
         "calculationDepth": "深度",
         "thankYouTranslator": "感谢翻译人员",

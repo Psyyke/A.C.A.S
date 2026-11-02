@@ -325,6 +325,7 @@
         "winning": "Nyerő",
         "losing": "Vesztes",
         "excessiveTabChangeWarning": "Figyelmeztetés: Túlzott lapváltás észlelve. A folytatás tilalmat eredményezhet.\n\nA lapok közötti váltás elkerüléséhez tedd az alábbiakat,\n- Készíts két külön ablakot egymás mellett\n- Mutasd a lépéseket az oldalon (ez könnyen észlelhető)\n- Engedélyezd a TTS-t (Text to Speech)\n- Engedélyezd a lebegő panel beállítást",
+        "otherUserscriptManagerWarning": "A legjobb élményhez a Tampermonkey használata erősen ajánlott. Más lehetőségek is működhetnek, de garancia nincs.",
         "instanceConnectionTermination": "Az instanciát megszüntették a kapcsolat elvesztése miatt.\n\nVáratlan? Látogass el a fülre, hogy újraaktiváld az A.C.A.S-t.",
         "calculationDepth": "Mélység",
         "thankYouTranslator": "Köszönjük a fordítóknak",

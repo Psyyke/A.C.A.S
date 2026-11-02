@@ -352,6 +352,7 @@
         "winning": "Gagnant",
         "losing": "Perdant",
         "excessiveTabChangeWarning": "Avertissement : Changement excessif d'onglets détecté. Un changement continu peut entraîner une interdiction.\n\nPour éviter d'avoir à passer d'un onglet à l'autre, faites l'une des choses suivantes,\n- Ouvrez deux fenêtres séparées côte à côte\n- Affichez les coups sur la page (C'est facilement détectable)\n- Activez le TTS (Texte à voix)\n- Activez le paramètre du panneau flottant",
+        "otherUserscriptManagerWarning": "Tampermonkey est vivement recommandé pour une expérience optimale. D'autres options peuvent fonctionner, mais sans garantie.",
         "instanceConnectionTermination": "Instance terminée en raison d'une perte de connexion.",
         "calculationDepth": "Profondeur",
         "thankYouTranslator": "Merci aux traducteurs !",

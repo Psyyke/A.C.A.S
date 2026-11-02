@@ -356,6 +356,7 @@
         "winning": "Voittamassa",
         "losing": "Häviämässä",
         "excessiveTabChangeWarning": "Varoitus: Liiallista välilehtien vaihtoa havaittu. Jatkuva vaihto saattaa johtaa banniin.\n\nVältä välilehtien vaihtamista seuraavilla tavoilla:\n- Tee kaksi erillistä ikkunaa vierekkäin\n- Näytä siirrot sivulla (Tämä on helposti havaittavissa)\n- Ota TTS (Tekstistä puheeksi) käyttöön\n- Ota kelluvan paneelin asetus käyttöön",
+        "otherUserscriptManagerWarning": "Tampermonkeyta suositellaan vahvasti parhaan kokemuksen takaamiseksi. Muutkin vaihtoehdot voivat toimia, mutta takeita ei ole.",
         "instanceConnectionTermination": "Instanssi päättyi yhteyden katkeamisen vuoksi.\n\nTuliko tämä yllätyksenä? Siirry takaisin shakkivälilehdelle aktivoidaksesi A.C.A.S:in uudelleen.",
         "calculationDepth": "Syvyys",
         "thankYouTranslator": "Kiitos kääntäjille",
