@@ -4,6 +4,7 @@ import { incrementUserUsageStat } from '../gui/stats.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { Chess } from '../../engines/libraries/chessjs/chess.js';
 import { buildSearchCommand } from './searchCommand.js';
+import { buildPositionCommand } from './positionCommand.js';
 
 function getTerminalOutcome(fen, playerColor) {
     if(!['w', 'b'].includes(playerColor)) return null;
@@ -213,7 +214,11 @@ export default async function calculateBestMoves(currentFen, config = {}) {
                 }
             }
 
-            if(await this.sendMsgToEngine(`position fen ${reversedFen || profileFen}`, profileName, false,
+            const positionFen = reversedFen || profileFen;
+            const positionCommand = profileVariables.useExternalChessEngine
+                ? buildPositionCommand(positionFen, await GET_STATE_HISTORY(this.instanceID), variant)
+                : `position fen ${positionFen}`;
+            if(await this.sendMsgToEngine(positionCommand, profileName, false,
                 () => isCurrentCalculation() && !calculation.stopRequested) === false) {
                 abandonCalculation(!isCurrentCalculation() || calculation.stopRequested);
                 return;
