@@ -76,15 +76,17 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
-// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=5
-// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
-// @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
-// @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
-// @version     2.5.5
+// @version     2.5.6
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
+// @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
+// @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=7
+// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
+// @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
+// @require     https://update.greasyfork.org/scripts/604137/1988721/DynamicSettingsjs.js
+// @require     https://update.greasyfork.org/scripts/604162/1988934/BoardChangeParserjs.js
+// @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
 // ==/UserScript==
 
 /*
@@ -92,7 +94,7 @@
     d8b         d888    \          d8b          8888
    /Y88b        8888              /Y88b         `Y88b
   /  Y88b       8888             /  Y88b         `Y88b
- /____Y88b   d88b Y88   / d88b /____Y88b  d88b    8888
+ /____Y88b   d88b Y88   / d88b  /____Y88b  d88b    8888
 /      Y88b  Y88P "88Y-~   Y88P/      Y88b Y88P \__88P'
 Advanced Chess Assistance System (A.C.A.S) v2 | Q3 2023
 
@@ -108,282 +110,6 @@ DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*\
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 //////////////////////////////////////////////////////////////////
 DANGER ZONE - DO NOT PROCEED IF YOU DON'T KNOW WHAT YOU'RE DOING*/
-
-const DynamicSettingsCore = (() => {
-    const variables = Object.freeze({
-        __proto__: null,
-        pieceCount: Object.freeze({
-            label: 'Piece Count',
-            min: 0,
-            max: 32,
-            getValue: safeMethod(context => context?.pieceCount, () => null)
-        }),
-        moveNumber: Object.freeze({ label: 'Move Number', min: 1, max: 1000,
-            getValue: safeMethod(context => context?.moveNumber, () => null) }),
-        evaluation: Object.freeze({ label: 'Evaluation (your advantage, cp)', min: -10000, max: 10000,
-            getValue: safeMethod(context => context?.evaluation, () => null) }),
-
-        opponentMoveTime: Object.freeze({
-            label: 'Opponent Move Time (ms)',
-            hint: 'Time between observing your move and the opponent reply, not the site clock. Use a linear X = Y curve to match Max Movetime. Waits for a complete observed opponent turn.',
-            min: 1,
-            max: 100000,
-            getValue: safeMethod(context => context?.opponentMoveTime, () => null)
-        }),
-
-        materialBalance: Object.freeze({
-            label: 'Material Balance (cp)',
-            hint: 'Your material minus the opponent material: pawn 100, knight 320, bishop 330, rook 500, queen 900. Increase search effort when behind or reduce assistance when ahead. Standard pieces only.',
-            min: -10000,
-            max: 10000,
-            getValue: safeMethod(context => context?.materialBalance, () => null)
-        })
-    });
-
-    // Accept data, not objects with custom coercion or values such as Symbols.
-    function finiteNumber(value, fallback = null) {
-        const type = typeof value;
-        if(type !== 'number' && type !== 'string' && type !== 'boolean') return fallback;
-        if(type === 'string' && !value.trim()) return fallback;
-        const number = Number(value);
-        return Number.isFinite(number) ? number : fallback;
-    }
-
-    function contextKey(instanceID) {
-        return typeof instanceID === 'string' || typeof instanceID === 'number' && Number.isFinite(instanceID)
-            ? String(instanceID) : null;
-    }
-
-    function baseFallback(baseValue) {
-        return typeof baseValue === 'number' && Number.isFinite(baseValue) ? Math.round(baseValue) : baseValue;
-    }
-
-    // One boundary protects every public method, including hostile getters/proxies.
-    // Fallbacks only inspect primitive types or create fresh, safe return values.
-    function safeMethod(method, fallback) {
-        return (...args) => {
-            try { return method(...args); }
-            catch(e) { return fallback(...args); }
-        };
-    }
-
-    function getVariableValue(variable, context) {
-        if(typeof variable !== 'string' || !Object.hasOwn(variables, variable)) return null;
-        const definition = variables[variable];
-        const value = finiteNumber(definition.getValue(context));
-        if(value === null) return null;
-        return variable === 'pieceCount' ? Math.max(definition.min, Math.min(definition.max, Math.round(value))) : Math.round(value);
-    }
-
-    function formatVariableValue(variable, value) {
-        if(variable !== 'evaluation') {
-            return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? String(value) : '';
-        }
-        value = finiteNumber(value);
-        if(value === null) return '';
-        return value === 0 ? 'Equal (0 cp)' : `${value > 0 ? 'Winning' : 'Losing'} (${value > 0 ? '+' : ''}${value} cp)`;
-    }
-
-    function normalizePoints(points) {
-        if(!Array.isArray(points)) return [];
-        const byX = new Map();
-        points.forEach(point => {
-            if(!point || typeof point !== 'object') return;
-            const x = finiteNumber(point.x);
-            const y = finiteNumber(point.y);
-            if(x !== null && y !== null) byX.set(Math.round(x), Math.round(y));
-        });
-        return [...byX].map(([x, y]) => ({ x, y })).sort((a, b) => a.x - b.x);
-    }
-
-    function normalizeCurve(curve, baseValue) {
-        if(!curve || typeof curve !== 'object' || Array.isArray(curve)) return { points: [] };
-        const boolean = typeof baseValue === 'boolean' || curve.boolean === true;
-        const normalized = { ...curve, points: normalizePoints(curve.points) };
-        if(curve.variable === 'pieceCount') {
-            normalized.points = normalizePoints(normalized.points.map(point => ({ ...point,
-                x: Math.max(variables.pieceCount.min, Math.min(variables.pieceCount.max, point.x)) })));
-        }
-        if(boolean) Object.assign(normalized, { boolean: true, interpolation: 'step', minY: 0, maxY: 1 });
-        if(Array.isArray(curve.values)) {
-            normalized.values = [...curve.values];
-            Object.assign(normalized, { interpolation: 'step', minY: 0, maxY: Math.max(0, curve.values.length - 1) });
-        }
-        const minY = Math.ceil(finiteNumber(normalized.minY, -Infinity));
-        const maxY = Math.floor(finiteNumber(normalized.maxY, Infinity));
-        if(minY > maxY) return { ...normalized, points: [] };
-        normalized.points.forEach(point => {
-            point.y = Math.max(minY, Math.min(maxY, point.y));
-        });
-        return normalized;
-    }
-
-    function evaluateCurve(curve, variableValue) {
-        if(!curve || typeof curve !== 'object' || Array.isArray(curve) || !curve.enabled) return null;
-        const x = finiteNumber(variableValue);
-        if(x === null) return null;
-        curve = normalizeCurve(curve);
-        const points = curve.points;
-        if(!points.length) return null;
-        const last = points[points.length - 1];
-        if(curve.outsideRange === 'default' && (x < points[0].x || x > last.x)) return null;
-        if(x <= points[0].x) return points[0].y;
-        if(x >= last.x) return last.y;
-
-        const rightIndex = points.findIndex(point => point.x >= x);
-        const left = points[rightIndex - 1];
-        const right = points[rightIndex];
-        if(!left || !right) return null;
-        // A step changes at the point itself, not just after its X coordinate.
-        if(x === right.x) return right.y;
-        const width = right.x - left.x;
-        if(width <= 0 || curve.interpolation === 'step') return left.y;
-
-        const t = (x - left.x) / width;
-        if(curve.interpolation === 'smooth') {
-            const slopes = points.slice(0, -1).map((point, index) =>
-                (points[index + 1].y - point.y) / (points[index + 1].x - point.x)
-            );
-            const tangent = index => {
-                if(index === 0 || index === points.length - 1) return 0;
-                const before = slopes[index - 1];
-                const after = slopes[index];
-                if(before === 0 || after === 0 || Math.sign(before) !== Math.sign(after)) return 0;
-                const beforeWidth = points[index].x - points[index - 1].x;
-                const afterWidth = points[index + 1].x - points[index].x;
-                const w1 = 2 * afterWidth + beforeWidth;
-                const w2 = afterWidth + 2 * beforeWidth;
-                return (w1 + w2) / (w1 / before + w2 / after);
-            };
-            const m0 = tangent(rightIndex - 1) * width;
-            const m1 = tangent(rightIndex) * width;
-            const t2 = t * t;
-            const t3 = t2 * t;
-            return finiteNumber((2 * t3 - 3 * t2 + 1) * left.y
-                + (t3 - 2 * t2 + t) * m0
-                + (-2 * t3 + 3 * t2) * right.y
-                + (t3 - t2) * m1);
-        }
-
-        return finiteNumber(left.y + (right.y - left.y) * t);
-    }
-
-    function coerceSettingValue(value, baseValue, curve) {
-        if(Array.isArray(curve.values)) {
-            const choice = curve.values[Math.round(value)];
-            return typeof choice === typeof baseValue && (typeof choice === 'string' || typeof choice === 'boolean'
-                || typeof choice === 'number' && Number.isFinite(choice)) ? choice : baseValue;
-        }
-        if(typeof baseValue === 'boolean') return Number(value) >= 0.5;
-        if(typeof baseValue === 'number') {
-            const numericValue = finiteNumber(value);
-            if(numericValue === null) return baseValue;
-            const bounded = Math.max(
-                finiteNumber(curve.minY, -Infinity),
-                Math.min(finiteNumber(curve.maxY, Infinity), numericValue)
-            );
-            const rounded = Math.round(bounded);
-            return Number.isFinite(rounded) ? rounded : baseValue;
-        }
-        return baseValue;
-    }
-
-    function resolveValue(baseValue, curve, context) {
-        // Ordinary settings without a graph keep their existing value/type semantics.
-        if(!curve || typeof curve !== 'object' || Array.isArray(curve)) return baseValue;
-        const fallback = baseFallback(baseValue);
-        if(baseValue === undefined || !curve.enabled) return fallback;
-        if(curve.resetAtStart && (finiteNumber(context?.gameStart, 0) !== 0 || finiteNumber(context?.moveNumber) === 1)) return fallback;
-        curve = normalizeCurve(curve, baseValue);
-        const variableValue = getVariableValue(curve.variable, context);
-        const result = evaluateCurve(curve, variableValue);
-        if(result === null) return fallback;
-        return coerceSettingValue(result, fallback, curve);
-    }
-
-    function getContextFromFen(fen, playerColor) {
-        if(typeof fen !== 'string' || !fen.trim()) return {};
-        const fields = fen.trim().split(/\s+/);
-        // Count on-board fairy pieces too, without counting pieces held in hand.
-        // Promotion markers (+ and ~) and multi-digit empty runs are not pieces.
-        const board = fields[0].split('[')[0];
-        const pieces = board.match(/[a-z]/gi) ?? [];
-        const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
-        const ranks = fields[0].split('/');
-        const standardBoard = /^[rnbqkpRNBQKP1-8/]+$/.test(fields[0]) && ranks.length === 8
-            && ranks.every(rank => [...rank].reduce((width, square) => width + (Number(square) || 1), 0) === 8);
-
-        // Unknown pieces and variant promotion/pocket syntax have no reliable
-        // standard material value. Leave this variable unavailable, not zero.
-        const materialBalance = standardBoard && ['w', 'b'].includes(playerColor) ? pieces.reduce((total, piece) => {
-            const value = pieceValues[piece.toLowerCase()];
-
-            return total + (piece === piece.toUpperCase() ? value : -value);
-        }, 0) * (playerColor === 'b' ? -1 : 1) : null;
-
-        return {
-            pieceCount: pieces.length,
-            moveNumber: Math.max(1, Math.round(finiteNumber(fields[5], 1))),
-            materialBalance,
-            gameStart: 0
-        };
-    }
-
-    const contexts = new Map();
-    const defaultContext = Object.create(null);
-
-    function setContext(instanceID, context) {
-        if(!context || typeof context !== 'object' || Array.isArray(context)) return;
-        const instanceKey = contextKey(instanceID);
-        if(instanceID != null && instanceKey === null) return;
-        // Validate the entire update before committing it, so a getter failure
-        // cannot leave a previously valid instance context partially changed.
-        const target = Object.assign(Object.create(null), instanceID == null ? defaultContext : contexts.get(instanceKey));
-        Object.entries(context ?? {}).forEach(([key, value]) => {
-            if(!Object.hasOwn(variables, key) && key !== 'gameStart') return;
-            if(value === undefined) return;
-            const number = finiteNumber(value);
-            if(number === null) {
-                delete target[key];
-                return;
-            }
-            target[key] = number;
-        });
-        if(instanceID != null) contexts.set(instanceKey, target);
-        else {
-            Object.keys(defaultContext).forEach(key => delete defaultContext[key]);
-            Object.assign(defaultContext, target);
-        }
-    }
-
-    function getContext(instanceID) {
-        return { ...defaultContext, ...(instanceID == null ? {} : contexts.get(contextKey(instanceID))) };
-    }
-
-    function removeContext(instanceID) {
-        const instanceKey = contextKey(instanceID);
-        if(instanceKey !== null) contexts.delete(instanceKey);
-    }
-
-    function getContexts() {
-        return [...contexts].map(([instanceID, context]) => ({ instanceID, context: { ...defaultContext, ...context } }));
-    }
-
-    return Object.freeze({
-        variables,
-        getVariableValue: safeMethod(getVariableValue, () => null),
-        formatVariableValue: safeMethod(formatVariableValue, () => ''),
-        normalizePoints: safeMethod(normalizePoints, () => []),
-        normalizeCurve: safeMethod(normalizeCurve, () => ({ points: [] })),
-        evaluateCurve: safeMethod(evaluateCurve, () => null),
-        resolveValue: safeMethod(resolveValue, baseFallback),
-        getContextFromFen: safeMethod(getContextFromFen, () => ({})),
-        setContext: safeMethod(setContext, () => undefined),
-        getContext: safeMethod(getContext, () => ({})),
-        getContexts: safeMethod(getContexts, () => []),
-        removeContext: safeMethod(removeContext, () => undefined)
-    });
-})();
 
 (async () => { try { await LOAD_LEGACY_GM_SUPPORT();
 /*
@@ -467,40 +193,8 @@ if(!isBackendUrlUpToDate) {
     GM_setValue(currentBackendUrlKey, getCurrentBackendURL(true));
 }
 
-function createInstanceVariable(dbValue) {
-    return {
-        set: (instanceID, value) => GM_setValue(dbValues[dbValue](instanceID), { value, 'date': Date.now() }),
-        get: instanceID => {
-            const data = GM_getValue(dbValues[dbValue](instanceID));
-
-            if(data?.date) {
-                data.date = Date.now();
-
-                GM_setValue(dbValues[dbValue](instanceID), data);
-            }
-
-            return data?.value;
-        }
-    }
-}
-
-const tempValueIndicator = '-temp-value-';
 const dbValues = {
-    AcasConfig: 'AcasConfig',
-    playerColor: instanceID => 'playerColor' + tempValueIndicator + instanceID,
-    boardOrientation: instanceID => 'boardOrientation' + tempValueIndicator + instanceID,
-    turn: instanceID => 'turn' + tempValueIndicator + instanceID,
-    fen: instanceID => 'fen' + tempValueIndicator + instanceID,
-    gameStateHistory: instanceID => 'gameStateHistory' + tempValueIndicator + instanceID,
-};
-// Add them to /js/misc/userscriptBridge.js as well if you decide to add more variables here
-// Also make sure dbValues (above) have these instanceVars
-const instanceVars = {
-    playerColor: createInstanceVariable('playerColor'),
-    boardOrientation: createInstanceVariable('boardOrientation'),
-    turn: createInstanceVariable('turn'),
-    fen: createInstanceVariable('fen'),
-    gameStateHistory: createInstanceVariable('gameStateHistory')
+    AcasConfig: 'AcasConfig'
 };
 
 const valueChangeListenerKeys = new Set();
@@ -543,20 +237,6 @@ function exposeViaMessages() {
         USERSCRIPT_getInfo: (args, messageId) => {
             const value = typeof GM_info !== 'undefined' ? JSON.parse(JSON.stringify(GM_info)) : {};
             window.postMessage({ messageId, value }, '*');
-        },
-        USERSCRIPT_instanceVars: (args, messageId) => {
-            const [instanceId, key, value] = args;
-
-            if (!instanceVars.hasOwnProperty(key)) {
-                window.postMessage({ messageId, value: false }, '*');
-                return;
-            }
-
-            const result = (value !== undefined)
-                ? instanceVars[key].set(instanceId, value)
-                : instanceVars[key].get(instanceId);
-
-            window.postMessage({ messageId, value: result }, '*');
         }
     };
 
@@ -586,7 +266,6 @@ function exposeViaUnsafe() {
                 } catch(e) {}
             }
             : undefined,
-        'instanceVars': instanceVars,
         'getInfo': () => GM_info
     };
 
@@ -718,10 +397,67 @@ const defaultPosBasicFens = [
     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
 ];
 
+// The board state only lives in this page's memory. It reaches the GUI inside the updateBoardFen and
+// newMatchStarted packets, and the GUI asks for it (getBoardState) when it creates the instance.
+// Userscript manager storage is not used for it: every GM write is copied to every tab running the script.
+const boardState = { playerColor: null, boardOrientation: null, turn: null, fen: null };
+let boardStateRevision = 0;
+let storedStateHistory = []; // [newest, ..., initial]
+
+function setBoardState(changes) {
+    Object.assign(boardState, changes);
+    boardStateRevision++;
+}
+
 const gameStateHistory = {
-    set: (val) => instanceVars.gameStateHistory.set(commLinkInstanceID, val || []),
-    get: () => instanceVars.gameStateHistory.get(commLinkInstanceID) || []
+    set: val => {
+        storedStateHistory = structuredClone(val || []);
+        boardStateRevision++;
+    },
+    get: () => storedStateHistory.slice()
 };
+
+// The board state is sent as positional arrays to keep packets small. The GUI decodes them with the
+// same field lists (DECODE_BOARD_STATE in app/assets/js/globals.js). Only ever append new fields to
+// the end of both lists; older decoders ignore extra values and missing trailing values decode as null.
+// Bump the version only if the meaning of an existing field changes.
+const BOARD_STATE_FORMAT_VERSION = 1;
+const BOARD_STATE_FIELDS = ['version', 'revision', 'playerColor', 'boardOrientation', 'turn', 'fen', 'history'];
+const BOARD_STATE_HISTORY_FIELDS = ['fen', 'from', 'to', 'promotion', 'opponentMoveTime', 'basic', 'historyIncomplete'];
+
+function encodeBoardStateFields(fields, obj) {
+    const values = fields.map(field => obj[field] ?? null);
+
+    while(values.length && values.at(-1) === null) values.pop();
+
+    return values;
+}
+
+function getBoardState() {
+    // [initial, ..., newest], the order the GUI keeps it in
+    const history = storedStateHistory.map(state => {
+        const changes = state.boardChanges;
+        const fen = state.fen?.full;
+
+        return encodeBoardStateFields(BOARD_STATE_HISTORY_FIELDS, {
+            fen,
+            from: changes?.from,
+            to: changes?.to,
+            promotion: changes?.isPromotion ? changes.promotionPiece : null,
+            opponentMoveTime: state.opponentMoveTime,
+            // Only sent when it can't be derived from the full FEN
+            basic: state.fen?.basic && state.fen.basic !== fen?.split(' ')[0] ? state.fen.basic : null,
+            historyIncomplete: state.historyIncomplete ? true : null
+        });
+    }).reverse();
+
+    return encodeBoardStateFields(BOARD_STATE_FIELDS, {
+        version: BOARD_STATE_FORMAT_VERSION,
+        revision: boardStateRevision,
+        ...boardState,
+        history
+    });
+}
 
 let BoardDrawer = null;
 let chessBoardElem = null;
@@ -744,6 +480,9 @@ let lastRejectedFen = '';
 let gameState = getGameStateObjTemplate();
 
 let backendTabOpenedOnceAlready = false;
+// A new board element re-runs start(); the previous loops must not keep running alongside the new ones
+let keepAliveLoop = null;
+let backendReadyLoop = null;
 let matchFirstSuggestionGiven = false;
 let isUserMouseDown = false;
 let modListeners = [];
@@ -864,12 +603,13 @@ const CommLink = new CommLinkHandler(`frontend_${commLinkInstanceID}`, {
 
 // manually register a command so that the variables are dynamic
 CommLink.commands['createInstance'] = async () => {
-    return await CommLink.send('mum', 'createInstance', {
+    const created = await CommLink.send('mum', 'createInstance', {
         'domain': domain,
         'instanceID': commLinkInstanceID,
         'chessVariant': getChessVariant(),
         'playerColor': getPlayerColor()
     });
+    return created;
 }
 
 CommLink.registerSendCommand('ping', { commlinkID: 'mum', data: 'ping' });
@@ -890,6 +630,8 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 return `pong (took ${Date.now() - packet.date}ms)`;
             case 'getFen':
                 return getFen();
+            case 'getBoardState':
+                return getBoardState();
             case 'updateDynamicContext':
                 if(!packet.data || typeof packet.data !== 'object' || Array.isArray(packet.data)) return false;
                 if(packet.data.fen && packet.data.fen !== gameState?.fen?.full) return false;
@@ -930,6 +672,16 @@ function runUserscriptTask(callback) {
     catch(error) { }
 }
 
+// Chessground sets this class even when coordinates are hidden, unlike the coords element.
+function getChessgroundOrientation() {
+    const wrap = getBoardElem()?.closest('.cg-wrap');
+
+    if(wrap?.classList.contains('orientation-black')) return 'b';
+    if(wrap?.classList.contains('orientation-white')) return 'w';
+
+    return null;
+}
+
 function getChessgroundCoordsFromPiece(pieceElem) {
     const key = pieceElem?.cgKey;
 
@@ -953,9 +705,8 @@ function getChessgroundCoordsFromPiece(pieceElem) {
         Math.abs(y - rank * squareHeight) > 1
     ) return;
 
-    return lastBoardOrientation === 'w'
-        ? [file, (lastBoardFiles || 8) - 1 - rank]
-        : [(lastBoardRanks || 8) - 1 - file, rank];
+    return BoardCoordinates.fromDom([file, rank],
+        [lastBoardRanks || 8, lastBoardFiles || 8], lastBoardOrientation);
 }
 
 function createInputListener(listenerType, targetValue, callback) {
@@ -1026,8 +777,14 @@ function createInputListener(listenerType, targetValue, callback) {
     });
 }
 
+function announceToPage(name, value) {
+    if(!runningOnDevPage) return;
+
+    (typeof unsafeWindow === 'object' ? unsafeWindow : window).postMessage({ name, value });
+}
+
 function maybeAnnounceMarkingsToPage() {
-    if(!runningOnDevPage || typeof unsafeWindow === 'undefined') return;
+    if(!runningOnDevPage) return;
 
     const markings = activeVisuals
         .map(({ marking }) => marking)
@@ -1047,22 +804,22 @@ function maybeAnnounceMarkingsToPage() {
         selectedMarking = [marking.from, marking.to];
     }
 
-    unsafeWindow.postMessage({
-        name: 'bestMoveArr',
-        value: selectedMarking
-    });
+    announceToPage('bestMoveArr', selectedMarking);
 }
 
 async function makeMove(profile, fenMoveArr, isLegit) {
     // Drop suggestions are display-only: AutomaticMove expects two board squares.
     if(!Array.isArray(fenMoveArr) || fenMoveArr.length !== 2
         || !fenMoveArr.every(square => /^[a-z]\d+$/.test(square))) return;
+    const moveDomCoords = fenCoordArrToDomCoord(fenMoveArr);
+    if(moveDomCoords.length !== 2 || !moveDomCoords.every(coord => coord.every(Number.isFinite))) return;
+
     const move = new AutomaticMove({
         profile,
         fenMoveArr,
         isLegit,
         pieceAmount: getPieceAmount(),
-        moveDomCoords: fenCoordArrToDomCoord(fenMoveArr),
+        moveDomCoords,
         isPromotion: isPawnPromotion(fenMoveArr),
         legitModeType: getConfigValue(configKeys.legitModeType, profile),
         debugModeActivated: debugModeActivated,
@@ -1088,7 +845,8 @@ function handleAutoMove(markings) {
     const filteredMarkings = markings.filter(marking =>
         marking?.category === 'move' &&
         !marking.isOpponent &&
-        !marking.isFuture
+        !marking.isFuture &&
+        !marking.suppressAutoMove
     );
 
     if(!filteredMarkings.length) {
@@ -1295,14 +1053,12 @@ function extractElemTransformData(elem) {
 }
 
 function getElemCoordinatesFromTransform(elem, config) {
-    const onlyFlipX = config?.onlyFlipX;
-    const onlyFlipY = config?.onlyFlipY;
-
     lastBoardSize = getElementSize(chessBoardElem);
 
-    getBoardDimensions(); // getBoardDimensions() keeps lastBoardRanks/lastBoardFiles in sync.
+    const dimensions = getBoardDimensions();
 
-    const boardOrientation = getBoardOrientation();
+    // World Chess transforms remain white-relative even when its board is rotated.
+    const boardOrientation = config?.onlyFlipY ? 'w' : getBoardOrientation();
 
     let [x, y] = extractElemTransformData(elem);
 
@@ -1313,15 +1069,7 @@ function getElemCoordinatesFromTransform(elem, config) {
     const normalizedX = Math.round(x / squareWidth);
     const normalizedY = Math.round(y / squareHeight);
 
-    if(onlyFlipY || boardOrientation === 'w') {
-        const flippedY = lastBoardFiles - normalizedY - 1;
-
-        return [normalizedX, flippedY];
-    } else {
-        const flippedX = lastBoardRanks - normalizedX - 1;
-
-        return [flippedX, normalizedY];
-    }
+    return BoardCoordinates.fromDom([normalizedX, normalizedY], dimensions, boardOrientation);
 }
 
 function getElemCoordinatesFromLeftBottomPercentages(elem) {
@@ -1329,20 +1077,16 @@ function getElemCoordinatesFromLeftBottomPercentages(elem) {
 
     const boardOrientation = getBoardOrientation();
 
-    const leftPercentage = parseFloat(elem.style.left?.replace('%', ''));
-    const bottomPercentage = parseFloat(elem.style.bottom?.replace('%', ''));
+    const leftPercentage = parseFloat(elem?.style?.left);
+    const bottomPercentage = parseFloat(elem?.style?.bottom);
 
     const x = Math.max(Math.round(leftPercentage / (100 / lastBoardRanks)), 0);
     const y = Math.max(Math.round(bottomPercentage / (100 / lastBoardFiles)), 0);
 
-    if (boardOrientation === 'w') {
-        return [x, y];
-    } else {
-        const flippedX = lastBoardRanks - (x + 1);
-        const flippedY = lastBoardFiles - (y + 1);
+    const dimensions = [lastBoardRanks, lastBoardFiles];
+    const domIndex = BoardCoordinates.toMatrix([x, y], dimensions);
 
-        return [flippedX, flippedY];
-    }
+    return BoardCoordinates.fromDom(domIndex, dimensions, boardOrientation);
 }
 
 function getElemCoordinatesFromLeftTopPixels(elem) {
@@ -1352,23 +1096,15 @@ function getElemCoordinatesFromLeftTopPixels(elem) {
 
     if(!lastBoardRanks || !lastBoardFiles) getBoardDimensions();
 
-    const leftPixels = parseFloat(elem.style.left?.replace('px', ''));
-    const topPixels = parseFloat(elem.style.top?.replace('px', ''));
+    const leftPixels = parseFloat(elem?.style?.left);
+    const topPixels = parseFloat(elem?.style?.top);
 
     const x = Math.max(Math.round(leftPixels / pieceSize.width), 0);
     const y = Math.max(Math.round(topPixels / pieceSize.height), 0);
 
     const boardOrientation = getBoardOrientation();
 
-    if (boardOrientation === 'w') {
-        const flippedY = lastBoardFiles - (y + 1);
-
-        return [x, flippedY];
-    } else {
-        const flippedX = lastBoardRanks - (x + 1);
-
-        return [flippedX, y];
-    }
+    return BoardCoordinates.fromDom([x, y], [lastBoardRanks, lastBoardFiles], boardOrientation);
 }
 
 function updateChesscomVariantPlayerColorsTable() {
@@ -1419,65 +1155,81 @@ function getBoardDimensionsFromSize() {
     }
 }
 
-function chessCoordinatesToIndex(coord) {
-    const x = coord.charCodeAt(0) - 97;
-    let y = null;
+// Logical squares: [file, rank], a1 = [0, 0], independent of orientation.
+// Matrices: board[row][column], white's top-left first (FEN order).
+// DOM indices: [column, row], the displayed top-left first.
+// Dimensions are [width, height]; legacy lastBoardRanks/Files mean width/height.
+const BoardCoordinates = Object.freeze({
+    invalid(value) {
+        if(debugModeActivated) console.warn('Invalid board coordinates:', value);
+        // Keep the pair shape for callers that destructure; never use a real square as fallback.
+        return [NaN, NaN];
+    },
 
-    const lastHalf = coord.slice(1);
+    isIndex(coord, dimensions = [69, 69]) {
+        return Array.isArray(coord) && coord.length === 2
+            && Array.isArray(dimensions) && dimensions.length === 2
+            && [0, 1].every(axis => Number.isInteger(dimensions[axis])
+                && dimensions[axis] > 0 && dimensions[axis] <= 69
+                && Number.isInteger(coord[axis]) && coord[axis] >= 0 && coord[axis] < dimensions[axis]);
+    },
 
-    if(lastHalf === ':') {
-        y = 9;
-    } else {
-        y = Number(coord.slice(1)) - 1;
+    fromChess(coord) {
+        if(typeof coord !== 'string' || !/^(?:[1-9]\d*|:)$/.test(coord.slice(1)))
+            return BoardCoordinates.invalid(coord);
+
+        const index = [coord.charCodeAt(0) - 97, coord.slice(1) === ':' ? 9 : Number(coord.slice(1)) - 1];
+        return BoardCoordinates.isIndex(index) ? index : BoardCoordinates.invalid(coord);
+    },
+
+    toChess(coord) {
+        if(!BoardCoordinates.isIndex(coord)) {
+            BoardCoordinates.invalid(coord);
+            return null;
+        }
+
+        return `${String.fromCharCode(97 + coord[0])}${coord[1] + 1}`;
+    },
+
+    toMatrix(coord, dimensions = []) {
+        if(!BoardCoordinates.isIndex(coord, dimensions)) return BoardCoordinates.invalid(coord);
+        return [coord[0], dimensions[1] - 1 - coord[1]];
+    },
+
+    fromMatrix(coord, dimensions) {
+        return BoardCoordinates.toMatrix(coord, dimensions);
+    },
+
+    toDom(coord, dimensions = [], orientation) {
+        if(!BoardCoordinates.isIndex(coord, dimensions)) return BoardCoordinates.invalid(coord);
+        return orientation === 'w'
+            ? BoardCoordinates.toMatrix(coord, dimensions)
+            : [dimensions[0] - 1 - coord[0], coord[1]];
+    },
+
+    fromDom(coord, dimensions, orientation) {
+        // Both orientation transforms are their own inverse.
+        return BoardCoordinates.toDom(coord, dimensions, orientation);
     }
+});
 
-    return [x, y];
+function chessCoordinatesToIndex(coord) {
+    return BoardCoordinates.fromChess(coord);
 }
 
-/* Need to make the board matricies more cohesive, right now it's really confusing flipping them
-    * differently for each function. I just can't be bothered right now so please don't make fun of it.
-    * Thanks, Haka
-    * */
-
 function chessCoordinatesToMatrixIndex(coord) {
-    const [boardRanks, boardFiles] = getBoardDimensions();
-    const indexArr = chessCoordinatesToIndex(coord);
-
-    let x, y;
-
-    y = boardFiles - (indexArr[1] + 1);
-    x = indexArr[0];
-
-    return [x, y];
+    const dimensions = getBoardDimensions();
+    return BoardCoordinates.toMatrix(chessCoordinatesToIndex(coord), dimensions);
 }
 
 function chessCoordinatesToDomIndex(coord) {
-    const [boardRanks, boardFiles] = getBoardDimensions();
-    const indexArr = chessCoordinatesToIndex(coord);
-    const boardOrientation = getBoardOrientation();
-
-    let x, y;
-
-    if(boardOrientation === 'w') {
-        x = indexArr[0];
-        y = boardFiles - (indexArr[1] + 1);
-    } else {
-        x = boardRanks - (indexArr[0] + 1);
-        y = indexArr[1];
-    }
-
-    return [x, y];
+    const dimensions = getBoardDimensions();
+    return BoardCoordinates.toDom(chessCoordinatesToIndex(coord), dimensions, getBoardOrientation());
 }
 
 function indexToChessCoordinates(coord) {
-    const [boardRanks, boardFiles] = getBoardDimensions();
-
-    const [x, y] = coord;
-    const file = String.fromCharCode('a'.charCodeAt(0) + x);
-
-    const rank = boardFiles - y;
-
-    return `${file}${rank}`;
+    const dimensions = getBoardDimensions();
+    return BoardCoordinates.toChess(BoardCoordinates.fromMatrix(coord, dimensions));
 }
 
 function isPawnPromotion(bestMove) {
@@ -1512,7 +1264,7 @@ function isPawnOnPromotionSquareFen(fenStr) {
 function fenCoordArrToDomCoord(fenCoordArr) {
     // fenCoordArr e.g. ["e6", "e5"]
 
-    const boardClientRect = chessBoardElem.getBoundingClientRect();
+    const boardClientRect = chessBoardElem?.getBoundingClientRect?.();
 
     const pieceElem = getPieceElem();
     const pieceDimensions = getElementSize(pieceElem);
@@ -1521,7 +1273,14 @@ function fenCoordArrToDomCoord(fenCoordArr) {
 
     lastPieceSize = pieceDimensions;
 
-    const [boardRanks, boardFiles] = getBoardDimensions();
+    if(!Array.isArray(fenCoordArr) || !Number.isFinite(boardClientRect?.x)
+        || !Number.isFinite(boardClientRect?.y) || !Number.isFinite(pieceWidth)
+        || !Number.isFinite(pieceHeight) || pieceWidth <= 0 || pieceHeight <= 0) {
+        BoardCoordinates.invalid(fenCoordArr);
+        return [];
+    }
+
+    getBoardDimensions();
 
     // Array to hold the center coordinates of each square
     const centerCoordinates = fenCoordArr.map(coord => {
@@ -1726,9 +1485,9 @@ function addMovesOnDemandListeners() {
 function getRandomOwnPieceDomCoord(fenCoord, boardMatrix) {
     let [x, y] = chessCoordinatesToMatrixIndex(fenCoord);
 
-    const pieceAtFenCoord = boardMatrix[y][x];
+    const pieceAtFenCoord = boardMatrix?.[y]?.[x];
 
-    if(pieceAtFenCoord === 1) {
+    if(typeof pieceAtFenCoord !== 'string' || !pieceAtFenCoord) {
         return null;
     }
 
@@ -1746,7 +1505,7 @@ function getRandomOwnPieceDomCoord(fenCoord, boardMatrix) {
             const currentPiece = boardMatrix[row][col];
 
             // Skip if no piece is found or if the piece is of the wrong color
-            if(currentPiece === 1 || (isWhitePiece && currentPiece === currentPiece.toLowerCase()) || (!isWhitePiece && currentPiece === currentPiece.toUpperCase())) {
+            if(typeof currentPiece !== 'string' || !currentPiece || (isWhitePiece && currentPiece === currentPiece.toLowerCase()) || (!isWhitePiece && currentPiece === currentPiece.toUpperCase())) {
                 continue;
             }
 
@@ -2026,7 +1785,8 @@ function getBoardMatrix() {
                 if(!Number.isInteger(xIdx) || !Number.isInteger(yIdx)
                     || xIdx < 0 || xIdx >= boardRanks || yIdx < 0 || yIdx >= boardFiles) return;
 
-                board[boardFiles - (yIdx + 1)][xIdx] = pieceFenCode;
+                const [column, row] = BoardCoordinates.toMatrix(pieceCoordsArr, [boardRanks, boardFiles]);
+                board[row][column] = pieceFenCode;
             } catch(e) {
                 if(debugModeActivated) console.error(e);
             }
@@ -2039,12 +1799,11 @@ function getBoardMatrix() {
 }
 
 function getBoardPiece(fenCoord, boardMatrix) {
-    const [boardRanks, boardFiles] = getBoardDimensions();
-    const indexArr = chessCoordinatesToIndex(fenCoord);
+    const [column, row] = chessCoordinatesToMatrixIndex(fenCoord);
 
     const matrix = boardMatrix ?? getBoardMatrix();
 
-    return matrix?.[boardFiles - (indexArr[1] + 1)]?.[indexArr[0]];
+    return matrix?.[row]?.[column];
 }
 
 function getBasicFen(boardMatrix) {
@@ -2111,781 +1870,13 @@ function resetStoredMatchVariables() {
     forceUpdateGameState();
 }
 
-function fenToBoard(basicFen) {
-    const board = [];
-
-    for(const row of basicFen.split(' ')[0].replace(/\[[^\]]*\]$/, '').split('/')) {
-        const boardRow = [];
-
-        for(const token of row.match(/\d+|\+?[a-zA-Z]~?|\*/g) || []) {
-            if(!/^\d+$/.test(token)) {
-                boardRow.push(token);
-            } else {
-                boardRow.push(...Array(Number(token)).fill(''));
-            }
-        }
-
-        board.push(boardRow);
-    }
-
-    return board;
-}
-
-function boardToFen(board) {
-    return board.map(row => {
-        let fenRow = '';
-        let emptyCount = 0;
-
-        for(const piece of row) {
-            if(piece === '') {
-                emptyCount++;
-                continue;
-            }
-
-            if(emptyCount) {
-                fenRow += emptyCount;
-                emptyCount = 0;
-            }
-
-            fenRow += piece;
-        }
-
-        if(emptyCount) {
-            fenRow += emptyCount;
-        }
-
-        return fenRow;
-    }).join('/');
-}
-
-function getBoardChanges(lastBasicFen, newBasicFen, turn) {
-    const changes = getBoardChangesObjTemplate();
-
-    if(!lastBasicFen || !newBasicFen) {
-        return changes;
-    }
-
-    const lastBoard = fenToBoard(lastBasicFen);
-    const newBoard = fenToBoard(newBasicFen);
-
-    const rows = newBoard.length;
-    const cols = newBoard[0]?.length ?? 0;
-
-    for(let i = 0; i < rows; i++) {
-        for(let j = 0; j < cols; j++) {
-            const before = lastBoard[i]?.[j] ?? '';
-            const after = newBoard[i]?.[j] ?? '';
-
-            if(before === after) continue;
-
-            changes.changedSquaresAmount++;
-
-            const square =
-                `${String.fromCharCode(97 + j)}${rows - i}`;
-
-            if(before !== '') {
-                changes.movedPieces.push(before);
-
-                changes.removed.push({
-                    square,
-                    piece: before,
-                    row: i,
-                    col: j
-                });
-            }
-
-            if(after !== '') {
-                changes.added.push({
-                    square,
-                    piece: after,
-                    row: i,
-                    col: j
-                });
-            }
-        }
-    }
-
-    changes.pieceAmountChange =
-        changes.added.length - changes.removed.length;
-
-    // The orthodox missed-move reconstruction cannot reconstruct reserves/drops.
-    if(turn && changes.changedSquaresAmount !== 2 && !newBasicFen.includes('[')) {
-        changes.missedFen = getMissedFen(
-            lastBoard,
-            newBoard,
-            changes,
-            turn
-        );
-    }
-
-    /*
-        Castling:
-        two pieces disappear and two pieces appear.
-    */
-    if(
-        changes.removed.length === 2 &&
-        changes.added.length === 2
-    ) {
-        const kingFrom = changes.removed.find(({ piece }) =>
-            piece.toLowerCase() === 'k'
-        );
-
-        const kingTo = changes.added.find(({ piece }) =>
-            piece.toLowerCase() === 'k'
-        );
-
-        if(kingFrom && kingTo) {
-            changes.from = kingFrom.square;
-            changes.to = kingTo.square;
-            changes.movedPiece = kingFrom.piece;
-        }
-    }
-
-    /*
-        Normal move, capture, en passant, or promotion:
-        exactly one piece appears.
-    */
-    if(!changes.to && changes.added.length === 1) {
-        const destination = changes.added[0];
-
-        changes.to = destination.square;
-        if(changes.removed.length === 0) {
-            changes.from = `${destination.piece.replace(/[+~]/g, '').toUpperCase()}@`;
-            changes.movedPiece = destination.piece;
-        }
-
-        const source = changes.removed.find(({ piece, square }) =>
-            piece.replace(/[+~]/g, '') === destination.piece.replace(/[+~]/g, '') &&
-            square !== changes.to
-        );
-
-        if(source) {
-            changes.from = source.square;
-            changes.movedPiece = source.piece;
-        }
-
-        /*
-            Promotion:
-            a pawn disappears and a non-pawn appears.
-        */
-        if(
-            !changes.from &&
-            destination.piece.toLowerCase() !== 'p'
-        ) {
-            const pawnSource = changes.removed.find(({ piece }) =>
-                piece.toLowerCase() === 'p'
-            );
-
-            if(pawnSource) {
-                changes.from = pawnSource.square;
-                changes.movedPiece = pawnSource.piece;
-                changes.isPromotion = true;
-                changes.promotionPiece = destination.piece;
-            }
-        }
-    }
-
-    /*
-        Normal capture:
-        captured piece disappears from the destination square.
-    */
-    if(changes.to) {
-        const capture = changes.removed.find(({ square }) =>
-            square === changes.to
-        );
-
-        if(capture) {
-            changes.capturedPiece = capture.piece;
-            changes.capturedSquare = capture.square;
-        }
-    }
-
-    /*
-        En passant.
-    */
-    if (
-        changes.movedPiece?.toLowerCase() === 'p' &&
-        changes.removed.length === 2 &&
-        changes.added.length === 1 &&
-        !changes.capturedPiece
-    ) {
-        const capturedPawn = changes.removed.find(({ piece, square }) =>
-            piece.toLowerCase() === 'p' &&
-            square !== changes.from
-        );
-
-        if (capturedPawn) {
-            changes.capturedPiece = capturedPawn.piece;
-            changes.capturedSquare = capturedPawn.square;
-            changes.isEnPassant = true;
-        }
-    }
-
-    if(changes.movedPiece) {
-        changes.movedPieceColor =
-            changes.movedPiece === changes.movedPiece.toUpperCase()
-                ? 'w'
-                : 'b';
-    }
-
-    return changes;
-}
-
-// This function is enourmously large, I know. It's still in development.
-function getMissedFen(lastBoard, newBoard, changes, turn) {
-    const opponent = turn === 'w' ? 'b' : 'w';
-
-    const turnRemoved = changes.removed.filter(({ piece }) =>
-        getFenPieceColor(piece) === turn
-    );
-
-    const turnAdded = changes.added.filter(({ piece }) =>
-        getFenPieceColor(piece) === turn
-    );
-
-    const opponentChanged = [
-        ...changes.removed,
-        ...changes.added
-    ].some(({ piece }) =>
-        getFenPieceColor(piece) === opponent
-    );
-
-    if(!turnRemoved.length || !opponentChanged) {
-        return null;
-    }
-
-    /*
-        ---------------------------------------------------------
-        Same-square recapture
-        ---------------------------------------------------------
-
-        One of the opponent's removed pieces is the piece that
-        was captured by the turn piece. It must be on the same
-        square where the opponent's remaining piece ends up.
-
-        The other opponent removal is the source of the
-        recapturing piece.
-    */
-    if(
-        turnRemoved.length === 1 &&
-        turnAdded.length === 0
-    ) {
-        const opponentRemoved = changes.removed.filter(({ piece }) =>
-            getFenPieceColor(piece) === opponent
-        );
-
-        const opponentAdded = changes.added.filter(({ piece }) =>
-            getFenPieceColor(piece) === opponent
-        );
-
-        if(
-            opponentRemoved.length === 2 &&
-            opponentAdded.length === 1
-        ) {
-            const firstMover = turnRemoved[0];
-            const opponentTo = opponentAdded[0];
-
-            /*
-                The captured opponent piece must have been on
-                the destination square.
-            */
-            const captured = opponentRemoved.find(({ row, col }) =>
-                row === opponentTo.row &&
-                col === opponentTo.col
-            );
-
-            /*
-                The other removed opponent piece is the piece
-                that made the recapture.
-            */
-            const opponentFrom = opponentRemoved.find(({ row, col }) =>
-                row !== opponentTo.row ||
-                col !== opponentTo.col
-            );
-
-            if(captured && opponentFrom) {
-                /*
-                    The opponent must actually move its piece from
-                    opponentFrom to opponentTo. This also prevents
-                    accidentally treating two unrelated removals
-                    as a recapture.
-                */
-                if(opponentFrom.piece === opponentTo.piece) {
-                    const board = lastBoard.map(row => [...row]);
-
-                    board[firstMover.row][firstMover.col] = '';
-                    board[opponentTo.row][opponentTo.col] =
-                        firstMover.piece;
-
-                    let valid = true;
-                    let opponentChanges = 0;
-                    const checked = new Set();
-
-                    for(const change of [
-                        ...changes.removed,
-                        ...changes.added
-                    ]) {
-                        const key = `${change.row}:${change.col}`;
-
-                        if(checked.has(key)) {
-                            continue;
-                        }
-
-                        checked.add(key);
-
-                        const candidatePiece =
-                            board[change.row]?.[change.col] ?? '';
-
-                        const actualPiece =
-                            newBoard[change.row]?.[change.col] ?? '';
-
-                        if(candidatePiece === actualPiece) {
-                            continue;
-                        }
-
-                        const candidateColor = candidatePiece
-                            ? getFenPieceColor(candidatePiece)
-                            : null;
-
-                        const actualColor = actualPiece
-                            ? getFenPieceColor(actualPiece)
-                            : null;
-
-                        /*
-                            Opponent captures the turn piece on the
-                            destination square.
-                        */
-                        if(
-                            candidateColor === turn &&
-                            actualColor === opponent
-                        ) {
-                            opponentChanges++;
-                            continue;
-                        }
-
-                        /*
-                            Opponent's original piece disappears
-                            from its source square.
-                        */
-                        if(
-                            candidateColor === opponent &&
-                            !actualPiece
-                        ) {
-                            opponentChanges++;
-                            continue;
-                        }
-
-                        /*
-                            Generic opponent removal case.
-                        */
-                        if(
-                            !candidatePiece &&
-                            actualColor === opponent
-                        ) {
-                            opponentChanges++;
-                            continue;
-                        }
-
-                        valid = false;
-                        break;
-                    }
-
-                    if(valid && opponentChanges) {
-                        return boardToFen(board);
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-        ---------------------------------------------------------
-        Normal move / capture
-        ---------------------------------------------------------
-    */
-    for(const from of turnRemoved) {
-        for(const to of turnAdded) {
-            if(from.piece !== to.piece) {
-                continue;
-            }
-
-            if(from.row === to.row && from.col === to.col) {
-                continue;
-            }
-
-            const board = lastBoard.map(row => [...row]);
-
-            board[from.row][from.col] = '';
-            board[to.row][to.col] = from.piece;
-
-            let valid = true;
-            let opponentChanges = 0;
-            const checked = new Set();
-
-            for(const change of [
-                ...changes.removed,
-                ...changes.added
-            ]) {
-                const key = `${change.row}:${change.col}`;
-
-                if(checked.has(key)) {
-                    continue;
-                }
-
-                checked.add(key);
-
-                const candidatePiece =
-                    board[change.row]?.[change.col] ?? '';
-
-                const actualPiece =
-                    newBoard[change.row]?.[change.col] ?? '';
-
-                if(candidatePiece === actualPiece) {
-                    continue;
-                }
-
-                const candidateColor = candidatePiece
-                    ? getFenPieceColor(candidatePiece)
-                    : null;
-
-                const actualColor = actualPiece
-                    ? getFenPieceColor(actualPiece)
-                    : null;
-
-                /*
-                    Remaining difference must belong to opponent.
-                */
-                if(
-                    candidateColor === turn &&
-                    actualColor === opponent
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                if(
-                    candidateColor === opponent &&
-                    !actualPiece
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                if(
-                    !candidatePiece &&
-                    actualColor === opponent
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                valid = false;
-                break;
-            }
-
-            if(valid && opponentChanges) {
-                return boardToFen(board);
-            }
-        }
-    }
-
-    /*
-        ---------------------------------------------------------
-        Promotion
-        ---------------------------------------------------------
-    */
-    for(const from of turnRemoved) {
-        if(from.piece.toLowerCase() !== 'p') {
-            continue;
-        }
-
-        for(const to of turnAdded) {
-            if(to.piece.toLowerCase() === 'p') {
-                continue;
-            }
-
-            const board = lastBoard.map(row => [...row]);
-
-            board[from.row][from.col] = '';
-            board[to.row][to.col] = to.piece;
-
-            let valid = true;
-            let opponentChanges = 0;
-            const checked = new Set();
-
-            for(const change of [
-                ...changes.removed,
-                ...changes.added
-            ]) {
-                const key = `${change.row}:${change.col}`;
-
-                if(checked.has(key)) {
-                    continue;
-                }
-
-                checked.add(key);
-
-                const candidatePiece =
-                    board[change.row]?.[change.col] ?? '';
-
-                const actualPiece =
-                    newBoard[change.row]?.[change.col] ?? '';
-
-                if(candidatePiece === actualPiece) {
-                    continue;
-                }
-
-                const candidateColor = candidatePiece
-                    ? getFenPieceColor(candidatePiece)
-                    : null;
-
-                const actualColor = actualPiece
-                    ? getFenPieceColor(actualPiece)
-                    : null;
-
-                if(
-                    candidateColor === turn &&
-                    actualColor === opponent
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                if(
-                    candidateColor === opponent &&
-                    !actualPiece
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                if(
-                    !candidatePiece &&
-                    actualColor === opponent
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                valid = false;
-                break;
-            }
-
-            if(valid && opponentChanges) {
-                return boardToFen(board);
-            }
-        }
-    }
-
-    /*
-        ---------------------------------------------------------
-        En passant
-        ---------------------------------------------------------
-    */
-    if(
-        turnRemoved.length === 1 &&
-        turnAdded.length === 0 &&
-        turnRemoved[0].piece.toLowerCase() === 'p'
-    ) {
-        const from = turnRemoved[0];
-
-        const direction = turn === 'w' ? -1 : 1;
-        const startRow = turn === 'w' ? 6 : 1;
-
-        if(from.row === startRow) {
-            const toRow = from.row + direction * 2;
-            const middleRow = from.row + direction;
-
-            /*
-                The intermediate square must be empty in the
-                current position because the pawn was captured.
-            */
-            if(
-                lastBoard[middleRow][from.col] === '' &&
-                newBoard[toRow][from.col] === ''
-            ) {
-                const board = lastBoard.map(row => [...row]);
-
-                board[from.row][from.col] = '';
-                board[toRow][from.col] = from.piece;
-
-                let valid = true;
-                let opponentChanges = 0;
-                const checked = new Set();
-
-                for(const change of [
-                    ...changes.removed,
-                    ...changes.added
-                ]) {
-                    const key = `${change.row}:${change.col}`;
-
-                    if(checked.has(key)) {
-                        continue;
-                    }
-
-                    checked.add(key);
-
-                    const candidatePiece =
-                        board[change.row]?.[change.col] ?? '';
-
-                    const actualPiece =
-                        newBoard[change.row]?.[change.col] ?? '';
-
-                    if(candidatePiece === actualPiece) {
-                        continue;
-                    }
-
-                    const candidateColor = candidatePiece
-                        ? getFenPieceColor(candidatePiece)
-                        : null;
-
-                    const actualColor = actualPiece
-                        ? getFenPieceColor(actualPiece)
-                        : null;
-
-                    if(
-                        candidateColor === turn &&
-                        actualColor === opponent
-                    ) {
-                        opponentChanges++;
-                        continue;
-                    }
-
-                    if(
-                        candidateColor === opponent &&
-                        !actualPiece
-                    ) {
-                        opponentChanges++;
-                        continue;
-                    }
-
-                    if(
-                        !candidatePiece &&
-                        actualColor === opponent
-                    ) {
-                        opponentChanges++;
-                        continue;
-                    }
-
-                    valid = false;
-                    break;
-                }
-
-                if(valid && opponentChanges) {
-                    return boardToFen(board);
-                }
-            }
-        }
-    }
-
-    /*
-        ---------------------------------------------------------
-        Castling
-        ---------------------------------------------------------
-    */
-    if(
-        turnRemoved.length === 2 &&
-        turnAdded.length === 2
-    ) {
-        const kingFrom = turnRemoved.find(({ piece }) =>
-            piece.toLowerCase() === 'k'
-        );
-
-        const rookFrom = turnRemoved.find(({ piece }) =>
-            piece.toLowerCase() === 'r'
-        );
-
-        const kingTo = turnAdded.find(({ piece }) =>
-            piece.toLowerCase() === 'k'
-        );
-
-        const rookTo = turnAdded.find(({ piece }) =>
-            piece.toLowerCase() === 'r'
-        );
-
-        if(
-            kingFrom &&
-            rookFrom &&
-            kingTo &&
-            rookTo
-        ) {
-            const board = lastBoard.map(row => [...row]);
-
-            board[kingFrom.row][kingFrom.col] = '';
-            board[rookFrom.row][rookFrom.col] = '';
-
-            board[kingTo.row][kingTo.col] = kingFrom.piece;
-            board[rookTo.row][rookTo.col] = rookFrom.piece;
-
-            let valid = true;
-            let opponentChanges = 0;
-            const checked = new Set();
-
-            for(const change of [
-                ...changes.removed,
-                ...changes.added
-            ]) {
-                const key = `${change.row}:${change.col}`;
-
-                if(checked.has(key)) {
-                    continue;
-                }
-
-                checked.add(key);
-
-                const candidatePiece =
-                    board[change.row]?.[change.col] ?? '';
-
-                const actualPiece =
-                    newBoard[change.row]?.[change.col] ?? '';
-
-                if(candidatePiece === actualPiece) {
-                    continue;
-                }
-
-                const candidateColor = candidatePiece
-                    ? getFenPieceColor(candidatePiece)
-                    : null;
-
-                const actualColor = actualPiece
-                    ? getFenPieceColor(actualPiece)
-                    : null;
-
-                if(
-                    candidateColor === turn &&
-                    actualColor === opponent
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                if(
-                    candidateColor === opponent &&
-                    !actualPiece
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                if(
-                    !candidatePiece &&
-                    actualColor === opponent
-                ) {
-                    opponentChanges++;
-                    continue;
-                }
-
-                valid = false;
-                break;
-            }
-
-            if(valid && opponentChanges) {
-                return boardToFen(board);
-            }
-        }
-    }
-
-    return null;
+const boardChangeParser = new BoardChangeParser({
+    getBoardChangesObjTemplate,
+    getFenPieceColor
+});
+
+function getBoardChanges(lastBasicFen, newBasicFen, turn, context) {
+    return boardChangeParser.getBoardChanges(lastBasicFen, newBasicFen, turn, context);
 }
 
 // Which castling rights can still exist, judged from piece placement alone
@@ -2929,6 +1920,8 @@ function seedLostCastlingRights(basicFen) {
 // This is called by observeNewMoves()
 // Note: gameStateHistory.get()[0].fen.full / gameStateHistory.get()[0].fen.basic is the last FEN, from the previous board position.
 async function determineBoardPositionValidity() {
+    const observedBoardElem = chessBoardElem;
+    if(!observedBoardElem?.isConnected || getBoardElem() !== observedBoardElem) return;
     const pieceAmount = getPieceAmount(); // this depends on the current DOM, not from FEN.
 
     // A new board just appeared and is still loading, most likely a new match!
@@ -2940,10 +1933,25 @@ async function determineBoardPositionValidity() {
 
     // A flip changes coordinate mapping, even when the actual position is unchanged.
     await checkBoardOrientationChange();
+    if(chessBoardElem !== observedBoardElem || !observedBoardElem.isConnected || getBoardElem() !== observedBoardElem) return;
 
     const history = gameStateHistory.get();
     const currentBasicFen = getFen(true);
     const lastTurn = history[0]?.turn;
+
+    const observedPly = getSiteData('ply');
+    const observedTurn = getSiteData('turn');
+    const reconciled = removeTakeback(history, { basicFen: currentBasicFen, ply: observedPly, turn: observedTurn });
+    if(reconciled !== history) {
+        Object.assign(gameState, reconciled[0]);
+        gameState.lostCastlingRights = ['K', 'Q', 'k', 'q']
+            .filter(right => !reconciled[0].castlingRights?.includes(right));
+        gameStateHistory.set(reconciled);
+        lastAllowedFen = currentBasicFen;
+        lastRejectedFen = '';
+        await processBoardPosition();
+        return;
+    }
 
     // Promotion positions are not valid to process or store.
     if(isPawnOnPromotionSquareFen(currentBasicFen)) {
@@ -2954,7 +1962,14 @@ async function determineBoardPositionValidity() {
     // Do not continue if FEN did not change!
     if(currentBasicFen === lastAllowedFen || lastRejectedFen === currentBasicFen) return;
 
-    const boardChanges = getBoardChanges(lastAllowedFen, currentBasicFen, lastTurn);
+    const boardChanges = getBoardChanges(lastAllowedFen, currentBasicFen, lastTurn, {
+        castlingRights: history[0]?.castlingRights,
+        enPassantTarget: history[0]?.movedPiece ? history[0].enPassantTarget : undefined,
+        lastMoveSquares: getSiteData('lastMoveSquares'),
+        conservative: domain === 'lichess.org',
+        variant: getSiteData('chessVariant'),
+        currentTurn: getSiteData('turn')
+    });
 
     // Board and reserve counts can settle in separate DOM updates. A reserve-only
     // correction replaces the current snapshot, not another ply/history entry.
@@ -3008,6 +2023,7 @@ async function determineBoardPositionValidity() {
     // IMPORTANT: lastAllowedFen must remain the previous FEN while processing
     // so that we get this path (lastAllowedFen → missedFen → currentBasicFen)
     // (Keep this declaration at the bottom of this function, will ya'?)
+    if(chessBoardElem !== observedBoardElem || !observedBoardElem.isConnected || getBoardElem() !== observedBoardElem) return;
     lastAllowedFen = currentBasicFen;
     lastRejectedFen = '';
 }
@@ -3015,22 +2031,21 @@ async function determineBoardPositionValidity() {
 async function restartInstanceWithCurrentFen() {
     try {
         await determineBoardPositionValidity();
-        await instanceVars.fen.set(commLinkInstanceID, gameState.fen.full);
-        if(gameState.turn) await instanceVars.turn.set(commLinkInstanceID, gameState.turn);
+        setBoardState({ fen: gameState.fen.full, ...(gameState.turn && { turn: gameState.turn }) });
         await CommLink.commands.forceInstanceRestart();
     } catch(error) { }
 }
 
 function forceUpdateGameState() {
     const currentBasicFen = getFen(true);
+    if(gameStateHistory.get()[0]?.fen?.basic === currentBasicFen) return;
     const boardChanges = getBoardChanges(currentBasicFen, currentBasicFen);
 
     updateGameState(currentBasicFen, boardChanges);
 }
 
-function removeTakeback(history) {
-    // Todo
-    return history;
+function removeTakeback(history, observation) {
+    return boardChangeParser.reconcileHistory(history, observation).history;
 }
 
 function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) {
@@ -3045,7 +2060,8 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
         && stateHistory.some(state => state.fen?.basic === basicFenToProcess);
 
     const movedPieceColor = boardChanges?.movedPieceColor;
-    const turn = forcedTurn || (movedPieceColor === 'w' ? 'b' : movedPieceColor === 'b' ? 'w' :
+    const historyGap = ['ambiguous', 'unresolved'].includes(boardChanges.recovery?.status);
+    const turn = forcedTurn || (historyGap && getSiteData('turn')) || (movedPieceColor === 'w' ? 'b' : movedPieceColor === 'b' ? 'w' :
         getSiteData('turn') || stateHistory[0]?.turn || 'w');
 
     const isStandardChessBoard =
@@ -3174,10 +2190,10 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
     // Only time a reply if the beginning of the opponent's turn was observed.
     // Refreshes preserve the timestamp; takebacks and skipped positions are not samples.
     const turnStartedByMove = positionChanged
-        ? Boolean(!forceFen && movedPieceColor && (!previousState || previousState.turn === movedPieceColor)
+        ? Boolean(!historyGap && !forceFen && movedPieceColor && (!previousState || previousState.turn === movedPieceColor)
             && !isTakeback && !boardChanges.missedFen && boardChanges.changedSquaresAmount <= 4)
         : previousState?.turnStartedByMove ?? false;
-    const completeOpponentTurn = positionChanged && !forceFen && !isTakeback && previousState?.turnStartedByMove
+    const completeOpponentTurn = positionChanged && !historyGap && !forceFen && !isTakeback && previousState?.turnStartedByMove
         && previousState.turn === movedPieceColor && movedPieceColor !== getPlayerColor()
         && ['w', 'b'].includes(movedPieceColor) && !boardChanges.missedFen
         && boardChanges.changedSquaresAmount <= 4;
@@ -3186,6 +2202,8 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
         ? moveTime : previousState?.opponentMoveTime ?? null;
 
     const stateObj = {
+        observedPly: forceFen && previousState && isTurnForced ? undefined : getSiteData('ply'),
+        historyIncomplete: Boolean(previousState?.historyIncomplete || historyGap),
         observedAt,
         turnStartedByMove,
         opponentMoveTime,
@@ -3207,7 +2225,7 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
     const currentFullFen = getFen(
         false,
         turn,
-        forceFen ? basicFenToProcess : false,
+        basicFenToProcess,
         stateObj
     );
 
@@ -3231,6 +2249,8 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
 }
 
 async function processBoardPosition() {
+    const observedBoardElem = chessBoardElem;
+    if(!observedBoardElem?.isConnected || getBoardElem() !== observedBoardElem) return;
     clearVisuals({ noMetricsRemoval: true });
 
     const stateHistory = gameStateHistory.get();
@@ -3240,6 +2260,7 @@ async function processBoardPosition() {
     updateUserscriptDynamicContext({ gameStart: 0, opponentMoveTime: latestState?.opponentMoveTime ?? null }, gameState?.fen?.full);
 
     await checkBoardOrientationChange();
+    if(chessBoardElem !== observedBoardElem || !observedBoardElem.isConnected || getBoardElem() !== observedBoardElem) return;
 
     lastMoveRequestTime = Date.now();
     modLastEnteredSquare.squareFen = null;
@@ -3250,8 +2271,15 @@ async function processBoardPosition() {
     if(!modListeners.length)
         addMovesOnDemandListeners();
 
-    const isNewMatch = squareChangeAmount > 6 ||
-        (defaultPosBasicFens.includes(gameState.fen.basic.replace(/\[[^\]]*\]$/, '')) && squareChangeAmount > 1);
+    const knownHistoryGap = ['ambiguous', 'unresolved'].includes(latestState?.boardChanges?.recovery?.status)
+        && latestState.boardChanges.pieceAmountChange <= 0;
+    const observedPly = latestState?.observedPly, previousObservedPly = stateHistory[1]?.observedPly;
+    const verifiedForwardObservation = Number.isSafeInteger(observedPly) && observedPly >= 0 &&
+        Number.isSafeInteger(previousObservedPly) && previousObservedPly >= 0 && observedPly > previousObservedPly;
+    const knownContinuation = ['single', 'unique-within-two-plies'].includes(latestState?.boardChanges?.recovery?.status);
+    const isNewMatch = !verifiedForwardObservation && ((squareChangeAmount > 6 && !knownHistoryGap) ||
+        (!knownContinuation && defaultPosBasicFens.includes(gameState.fen.basic.replace(/\[[^\]]*\]$/, '')) &&
+            squareChangeAmount > 1));
 
     if(isNewMatch) {
         resetStoredMatchVariables();
@@ -3261,12 +2289,10 @@ async function processBoardPosition() {
     }
 
     // Publish the same state after any reset; never derive the turn from orientation.
-    instanceVars.fen.set(commLinkInstanceID, gameState.fen.full);
-    if(gameState.turn) instanceVars.turn.set(commLinkInstanceID, gameState.turn);
-    if(isNewMatch) await CommLink.commands.newMatchStarted();
+    setBoardState({ fen: gameState.fen.full, ...(gameState.turn && { turn: gameState.turn }) });
+    if(isNewMatch) await CommLink.commands.newMatchStarted(getBoardState());
 
-    // The GUI loads the current board state from instanceVars.gameStateHistory
-    await CommLink.commands.updateBoardFen();
+    await CommLink.commands.updateBoardFen(getBoardState());
 }
 
 // This also updates the turn instanceVariable that the GUI uses to determine the turn!
@@ -3281,10 +2307,22 @@ function observeNewMoves() {
         try { await determineBoardPositionValidity(); }
         finally { checking = false; }
     });
+
+    // A board can settle on its real orientation shortly after it was first read, without any move happening.
+    const checkOrientation = () => runUserscriptTask(async () => {
+        if(checking || !lastBoardOrientation || getBoardOrientation() === lastBoardOrientation) return;
+        checking = true;
+        try {
+            await checkBoardOrientationChange();
+            await CommLink.commands.updateBoardFen(getBoardState());
+        } finally { checking = false; }
+    });
+
     dumbBoardObservingInterval = setInterval(() => {
         if(isUserMouseDown) return;
 
         checkPosition();
+        checkOrientation();
     }, 250);
 
     boardObserver = new MutationObserver(mutationArr => {
@@ -3309,8 +2347,8 @@ async function checkBoardOrientationChange(forceUpdate = false) {
     const playerColor = getPlayerColor();
 
     // Identity can become available after the board, without an orientation change.
-    if(instanceVars.playerColor.get(commLinkInstanceID) !== playerColor)
-        instanceVars.playerColor.set(commLinkInstanceID, playerColor);
+    if(boardState.playerColor !== playerColor)
+        setBoardState({ playerColor });
 
     const boardOrientationChanged = lastBoardOrientation !== boardOrientation;
     const boardOrientationDiffers = BoardDrawer && BoardDrawer?.orientation !== boardOrientation;
@@ -3318,7 +2356,7 @@ async function checkBoardOrientationChange(forceUpdate = false) {
     if(forceUpdate || boardOrientationChanged || boardOrientationDiffers) {
         lastBoardOrientation = boardOrientation;
 
-        instanceVars.boardOrientation.set(commLinkInstanceID, boardOrientation);
+        setBoardState({ boardOrientation });
 
         if(BoardDrawer) BoardDrawer.setOrientation(boardOrientation);
 
@@ -3513,6 +2551,45 @@ addSupportedChessSite('chess.com', {
 });
 
 addSupportedChessSite('lichess.org', {
+    'ply': obj => {
+        const round = getBoardElem()?.closest('.round__app');
+        if(!round) return null;
+
+        const activeMoves = round.querySelectorAll('.a1t');
+        const moveNumber = element => {
+            const text = element?.textContent?.trim() || '';
+            if(!/^[1-9]\d*\.?$/.test(text)) return null;
+            const number = Number(text.replace(/\.$/, ''));
+            return Number.isSafeInteger(number * 2) ? number : null;
+        };
+        if(activeMoves.length === 1) {
+            const previous = activeMoves[0].previousElementSibling;
+            const whiteNumber = moveNumber(previous);
+            if(whiteNumber !== null) return whiteNumber * 2 - 1;
+            const blackNumber = moveNumber(previous?.previousElementSibling);
+            if(blackNumber !== null) return blackNumber * 2;
+        }
+        if(activeMoves.length) return null;
+
+        // The starting position has no active move. Only explicit replay
+        // controls can identify its absolute ply, including custom starts.
+        const buttons = [...round.querySelectorAll('button.repeatable[data-ply]')];
+        if(buttons.length !== 4 || buttons.some(button => button.parentElement !== buttons[0].parentElement)) return null;
+        // Lichess shows this start-of-game message only while game.turns is zero.
+        if(buttons.every(button => button.disabled && button.getAttribute('data-ply') === '-') &&
+            buttons[0].parentElement.parentElement?.querySelector(':scope > .message')) return 0;
+        if(!buttons[0].disabled || !buttons[1].disabled || buttons[2].disabled) return null;
+        const next = buttons[2].getAttribute('data-ply');
+        if(!/^[1-9]\d*$/.test(next || '')) return null;
+        const ply = Number(next) - 1;
+        return Number.isSafeInteger(ply) ? ply : null;
+    },
+    'lastMoveSquares': obj => {
+        const squares = [...(getBoardElem()?.querySelectorAll('square.last-move') || [])]
+            .map(element => getChessgroundCoordsFromPiece(element))
+            .map(coords => BoardCoordinates.isIndex(coords, [8, 8]) ? BoardCoordinates.toChess(coords) : null);
+        return squares.length === 2 && squares.every(Boolean) && squares[0] !== squares[1] ? squares : null;
+    },
     'pocket': getChessgroundPocket,
     'boardElem': obj => {
         return document.querySelector('.main-board cg-board')
@@ -3572,13 +2649,8 @@ addSupportedChessSite('lichess.org', {
         const round = getBoardElem()?.closest('.round__app');
         if(!round) return null;
 
-        // Prefer the selected move when replaying. Lichess changes its custom tag
-        // names, so use the active marker and numeric move-number sibling instead.
-        const activeMove = round.querySelector('.a1t');
-        const previous = activeMove?.previousElementSibling;
-        const isMoveNumber = elem => /^\d+\.?$/.test(elem?.textContent?.trim() || '');
-        if(isMoveNumber(previous)) return 'b';
-        if(previous && isMoveNumber(previous.previousElementSibling)) return 'w';
+        const ply = getSiteData('ply');
+        if(Number.isSafeInteger(ply)) return ply % 2 ? 'b' : 'w';
 
         // Live games also expose the active side on the clock, including reloads.
         const clocks = round.querySelectorAll('.rclock.running');
@@ -3759,6 +2831,9 @@ addSupportedChessSite('chess.org', {
     },
 
     'boardOrientation': obj => {
+        const cgOrientation = getChessgroundOrientation();
+        if(cgOrientation) return cgOrientation;
+
         const filesElem = document.querySelector('coords.files');
 
         return filesElem?.classList?.contains('black') ? 'b' : 'w';
@@ -4050,6 +3125,9 @@ addSupportedChessSite('chess.net', {
     },
 
     'boardOrientation': obj => {
+        const cgOrientation = getChessgroundOrientation();
+        if(cgOrientation) return cgOrientation;
+
         const filesElem = document.querySelector('coords.files');
 
         return filesElem?.classList?.contains('black') ? 'b' : 'w';
@@ -4101,6 +3179,9 @@ addSupportedChessSite('freechess.club', {
     },
 
     'boardOrientation': obj => {
+        const cgOrientation = getChessgroundOrientation();
+        if(cgOrientation) return cgOrientation;
+
         const filesElem = document.querySelector('coords.files');
 
         return filesElem?.classList?.contains('black') ? 'b' : 'w';
@@ -4285,6 +3366,11 @@ addSupportedChessSite([
     backendConfig?.hosts?.prod || 'psyyke.github.io',
     backendConfig?.hosts?.dev || 'localhost'
 ], {
+    'turn': obj => {
+        const turn = getBoardElem()?.closest('.cg-wrap')?.dataset.turn;
+        return turn === 'w' || turn === 'b' ? turn : null;
+    },
+
     'boardElem': obj => {
         return document.querySelector('cg-board');
     },
@@ -4298,6 +3384,11 @@ addSupportedChessSite([
     },
 
     'boardOrientation': obj => {
+        // Chessground sets this class even when coordinates are hidden.
+        const cgWrapElem = document.querySelector('cg-board')?.closest('.cg-wrap');
+        if(cgWrapElem?.classList.contains('orientation-black')) return 'b';
+        if(cgWrapElem?.classList.contains('orientation-white')) return 'w';
+
         const filesElem = document.querySelector('coords.side');
 
         return filesElem?.classList?.contains('black') ? 'b' : 'w';
@@ -4370,19 +3461,23 @@ function refreshSettings() {
     }, () => false);
 }
 
-async function start() {
+async function start(boardElem = chessBoardElem) {
+    if(!boardElem?.isConnected || boardElem !== chessBoardElem) return false;
     const pathname = window.location.pathname;
     const boardOrientation = getBoardOrientation();
 
     // Seed identity, coordinate mapping and turn before the backend reads them.
     lastBoardOrientation = boardOrientation;
-    instanceVars.boardOrientation.set(commLinkInstanceID, boardOrientation);
-    instanceVars.playerColor.set(commLinkInstanceID, getPlayerColor());
-    const initialFen = getFen();
-    instanceVars.fen.set(commLinkInstanceID, initialFen);
-    instanceVars.turn.set(commLinkInstanceID, initialFen.split(' ')[1]);
+    if(!gameStateHistory.get().length) {
+        forceUpdateGameState();
+        lastAllowedFen = gameState.fen.basic;
+        lastRejectedFen = '';
+    }
+    const initialFen = gameState.fen.full || getFen();
+    setBoardState({ boardOrientation, playerColor: getPlayerColor(), fen: initialFen, turn: initialFen.split(' ')[1] });
 
-    await CommLink.commands.createInstance(commLinkInstanceID);
+    const created = await CommLink.commands.createInstance(commLinkInstanceID);
+    if(!created || !boardElem.isConnected || boardElem !== chessBoardElem) return false;
 
     if(isBoardDrawerNeeded()) {
         if(BoardDrawer) BoardDrawer?.terminate();
@@ -4411,11 +3506,15 @@ async function start() {
     }
 
     await checkBoardOrientationChange(true);
+    if(!boardElem.isConnected || boardElem !== chessBoardElem) return false;
 
     refreshSettings();
     observeNewMoves();
 
-    CommLink.setIntervalAsync(async () => {
+    keepAliveLoop?.stop();
+    keepAliveLoop = CommLink.setIntervalAsync(async () => {
+        if(!boardElem.isConnected || boardElem !== chessBoardElem) return;
+
         try {
             refreshSettings();
             await CommLink.commands.createInstance(commLinkInstanceID);
@@ -4433,6 +3532,8 @@ async function start() {
         await getGmConfigValue('instanceRestartTriggerCode'),
         restartInstanceWithCurrentFen
     );
+
+    return true;
 }
 
 function applyAssistanceConcealment(isConcealed = false) {
@@ -4448,14 +3549,18 @@ function toggleConcealAssistance() {
 }
 
 function startWhenBackendReady() {
-    const interval = CommLink.setIntervalAsync(async () => {
+    const startedAt = Date.now();
+    const boardElem = chessBoardElem;
+    const BACKEND_WAIT_MS = 5000; // Slow devices need time to detect an already open GUI.
+
+    backendReadyLoop?.stop();
+    const interval = backendReadyLoop = CommLink.setIntervalAsync(async () => {
         try {
             if(await isAcasBackendReady()) {
-                if(!chessBoardElem?.isConnected) return;
-                await start();
+                if(backendReadyLoop !== interval || !boardElem?.isConnected || boardElem !== chessBoardElem) return;
 
-                interval.stop();
-            } else if(!backendTabOpenedOnceAlready) {
+                if(await start(boardElem)) interval.stop();
+            } else if(!backendTabOpenedOnceAlready && Date.now() - startedAt >= BACKEND_WAIT_MS) {
                 backendTabOpenedOnceAlready = true;
 
                 const config = GM_getValue(dbValues.AcasConfig);
@@ -4476,8 +3581,15 @@ function initializeIfSiteReady() {
     const boardElemChanged = chessBoardElem != boardElem;
 
     if((bothElemsExist || isChessComImageBoard) && boardElemChanged) {
+        boardObserver?.disconnect();
+        if(dumbBoardObservingInterval) clearInterval(dumbBoardObservingInterval);
+        keepAliveLoop?.stop();
+        backendReadyLoop?.stop();
         chessBoardElem = boardElem;
-
+        lastAllowedFen = gameState.fen.basic || lastAllowedFen;
+        lastRejectedFen = '';
+        lastBoardMatrix = null;
+        isUserMouseDown = false;
         chessBoardElem.addEventListener('mousedown', () => { isUserMouseDown = true; });
         chessBoardElem.addEventListener('mouseup', () => { isUserMouseDown = false; });
         chessBoardElem.addEventListener('touchstart', () => { isUserMouseDown = true; });
@@ -4546,7 +3658,7 @@ setInterval(refreshSettings, 2500);
 //////////////////////////////////////////////////////////////////
 
 Thank you for reading through this userscript! Please visit GitHub
-Contributions are absolutely welcome >> github.com/Psyyke/A.C.A.S!
+Contributions are absolutely welcome >>> github.com/Psyyke/A.C.A.S
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////

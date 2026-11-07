@@ -119,7 +119,9 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = [], isDi
                 const hintRenderKeys = [...hintSettingKeys, 'movesOnDemand', 'moveAsFilledSquares',
                     'arrowOpacity', 'primaryArrowColorHex', 'secondaryArrowColorHex', 'opponentArrowColorHex',
                     'showOpponentMoveGuess', 'showOpponentMoveGuessConstantly', 'displayMovesOnExternalSite',
-                    'bookMoveOpacity', 'bookMoveColorHex', 'moveSuggestionAmount'];
+                    'bookMoveOpacity', 'bookMoveColorHex', 'moveSuggestionAmount',
+                    'mistakeArrowColorHex', 'blunderArrowColorHex', 'missArrowColorHex',
+                    'onlyShowWarningMoves', 'markMistakeMoves', 'markBlunderMoves', 'markMissMoves'];
                 const didChangeHints = changed.some(key => hintRenderKeys.includes(key));
                 if(didChangeHints && this.currentFen && this.refreshHints)
                     await this.refreshHints(name);

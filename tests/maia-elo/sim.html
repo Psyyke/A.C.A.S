@@ -1,0 +1,132 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Maia Elo calibration simulator</title>
+<pre id="log">starting…</pre>
+<script type="module">
+// Maia 3 plays games at known Elos on a pool of engines (one worker each). Every move is
+// stored with its log-probability at each grid Elo, and games are POSTed to the server.
+// A failing game is dropped and replaced, so one bad game never stalls the run.
+// Params: elos=800,1200 games=6 (per Elo) plies=80 engines=4 temp=1 tries=3
+import MaiaEngine from '../../app/assets/engines/Maia3/maiaEngine.js';
+import { Chess } from '../../app/assets/engines/libraries/chessjs/chess.js';
+import { maiaEloGrid as grid, moveLogLikelihoods } from '../../app/assets/engines/Maia3/likelihood.js';
+
+const params = new URLSearchParams(location.search);
+const targets = (params.get('elos') || '800,1200,1600,2000,2400').split(',').map(Number);
+const gamesPerElo = Number(params.get('games') || 8);
+const plies = Number(params.get('plies') || 80);
+const engineCount = Number(params.get('engines') || 4);
+const temperature = Number(params.get('temp') || 1);
+const maxTries = Number(params.get('tries') || 3);
+const skip = Number(params.get('skip') || 4);
+const sfDepth = Number(params.get('sf') || 0);
+const log = text => { document.getElementById('log').textContent = text; };
+
+// Minimal UCI wrapper: returns the side-to-move score in centipawns (mate clamped to +-4000).
+class Stockfish {
+    constructor() {
+        this.worker = new Worker('../../app/assets/engines/stockfish-18-lite-single/stockfish-18-lite-single.js');
+        this.listener = null;
+        this.worker.onmessage = event => this.listener?.(String(event.data));
+    }
+    command(text, until) {
+        return new Promise(resolve => {
+            let score = 0;
+            this.listener = line => {
+                const match = line.match(/score (cp|mate) (-?\d+)/);
+                if(match) score = match[1] === 'cp' ? Number(match[2]) : Math.sign(Number(match[2])) * 4000;
+                if(line.startsWith(until)) { this.listener = null; resolve(score); }
+            };
+            this.worker.postMessage(text);
+        });
+    }
+    async init() {
+        await this.command('uci', 'uciok');
+        await this.command('isready', 'readyok');
+    }
+    async evaluate(fen) {
+        this.worker.postMessage(`position fen ${fen}`);
+        return Math.max(-4000, Math.min(4000, await this.command(`go depth ${sfDepth}`, 'bestmove')));
+    }
+}
+const winChance = cp => 100 / (1 + Math.exp(-0.00368208 * cp));
+
+const stats = { saved: 0, failed: 0, moves: 0, started: performance.now() };
+window.stats = stats;
+
+const sample = policy => {
+    const entries = Object.entries(policy).map(([move, p]) => [move, Math.pow(p, 1 / temperature)]);
+    let r = Math.random() * entries.reduce((sum, [, p]) => sum + p, 0);
+    for(const [move, p] of entries) if((r -= p) <= 0) return move;
+    return entries.at(-1)[0];
+};
+
+async function playGame(engine, elo, stockfish) {
+    const chess = new Chess();
+    const moves = [];
+    let bestCp = null;
+    for(let ply = 0; ply < plies && !chess.game_over(); ply++) {
+        const fen = chess.fen();
+        const fullmove = Number(fen.split(' ')[5]);
+        // Opening moves are never scored, so only the player's own Elo is needed there.
+        const scored = fullmove > skip;
+        if(stockfish && scored && bestCp === null) bestCp = await stockfish.evaluate(fen);
+        const elos = scored ? [elo, ...grid] : [elo];
+        const { result } = await engine.evaluateBatch(elos.map(() => fen), elos, elos);
+        const move = sample(result[0].policy);
+        if(!chess.move({ from: move.slice(0, 2), to: move.slice(2, 4), promotion: move[4] })) {
+            throw new Error(`illegal move ${move} in ${fen}`);
+        }
+        let loss = null;
+        if(stockfish && scored) {
+            const nextCp = chess.game_over() ? 0 : await stockfish.evaluate(chess.fen());
+            loss = Math.max(0, winChance(bestCp) - winChance(-nextCp));
+            bestCp = nextCp;
+        }
+        moves.push({
+            ply, fullmove, fen, move, loss,
+            logProbs: scored ? moveLogLikelihoods(result.slice(1), move) : null
+        });
+    }
+    return moves;
+}
+
+const queue = targets.flatMap(elo => Array.from({ length: gamesPerElo }, () => ({ elo, tries: 0 })));
+const total = queue.length;
+
+async function worker() {
+    let engine = new MaiaEngine({});
+    await engine.init();
+    let stockfish = null;
+    const startStockfish = async () => {
+        if(!sfDepth) return;
+        stockfish?.worker.terminate();
+        stockfish = new Stockfish();
+        await stockfish.init();
+    };
+    await startStockfish();
+    for(let job = queue.shift(); job; job = queue.shift()) {
+        try {
+            const moves = await playGame(engine, job.elo, stockfish);
+            await fetch('/save', { method: 'POST', body: JSON.stringify({ elo: job.elo, moves }) });
+            stats.saved++;
+            stats.moves += moves.length;
+        } catch(error) {
+            stats.failed++;
+            console.warn('game failed:', error?.message || error);
+            if(++job.tries < maxTries) queue.push(job);
+            // A broken engine is replaced with a fresh one instead of poisoning later games.
+            engine = new MaiaEngine({});
+            await engine.init().catch(() => {});
+            await startStockfish().catch(() => {});
+        }
+        const seconds = (performance.now() - stats.started) / 1000;
+        log(`${stats.saved}/${total} games, ${stats.failed} failed, ${(stats.moves / seconds).toFixed(1)} plies/s`);
+    }
+}
+
+await Promise.all(Array.from({ length: engineCount }, worker));
+stats.seconds = (performance.now() - stats.started) / 1000;
+window.done = true;
+log(`done: ${stats.saved}/${total} games, ${stats.failed} failures, ${(stats.moves / stats.seconds).toFixed(1)} plies/s`);
+</script>

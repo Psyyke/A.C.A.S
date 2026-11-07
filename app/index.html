@@ -167,7 +167,7 @@
 		<meta name="robots" content="max-image-preview:large">
 		<link rel="canonical" href="https://psyyke.github.io/A.C.A.S/app/">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<script src="coi-serviceworker.js?v=2"></script>
+		<script src="coi-serviceworker.js?v=3"></script>
 		<link rel="manifest" href="manifest.json" />
 		<link rel="modulepreload" href="./assets/js/init.js">
 		<link rel="modulepreload" href="./assets/js/instanceManager.js">
@@ -280,7 +280,6 @@
 					<div id="acas-logo-secondary">Chess Assistance</div>
 				</div>
 			</a>
-			<a id="update-your-userscript-notification" class="hidden" href="https://greasyfork.org/en/scripts/459137">UPDATE YOUR USERSCRIPT, NEW FEATURES MIGHT NOT WORK ON YOUR VERSION</a>
 			<div id="acas-is-free-reminder">
 				<span>(´｡• ◡ •｡`) 🤍 <span id="acas-is-free-reminder-text">Help by giving feedback!</span> ⤵</span>
 				<div class="acas-social-actions">
@@ -316,6 +315,7 @@
 				<div id="no-instances-title">Waiting for instances...</div>
 				<div id="no-instances-subtitle">Heya, how you doin'? Hopefully splendid. Aaanyhow... let's crack on with the games already! Open up a chess game site and let's make some moves together! I'm here for you buddy.</div>
 				<div id="see-supported-sites-btn" class="acas-fancy-button">See all supported sites</div>
+				<a id="update-your-userscript-notification" class="hidden" href="https://greasyfork.org/en/scripts/459137" target="_blank">You are using an outdated or incompatible version of A.C.A.S. Please update the userscript.</a>
 				<div id="no-instances-sites" class="hidden">
 					<div class="battletested-sites">
 						<div class="sites-header">
@@ -431,6 +431,7 @@
 												<div class="activity-log-filter-controls">
 													<label class="activity-log-filter-label"><span>Show</span>
 														<select id="activity-log-filter" aria-label="Filter activity by type">
+															<button><selectedcontent></selectedcontent></button>
 															<option value="all">All activity</option>
 															<option value="engine-input">Engine input</option>
 															<option value="engine-output">Engine output</option>
@@ -495,17 +496,17 @@
 											<button id="dynamic-tab-moveNumber" class="tab-item" type="button" role="tab" data-variable="moveNumber" aria-selected="false" aria-controls="dynamic-graph-panel" tabindex="-1"><span>Move Number</span></button>
 											<button id="dynamic-tab-evaluation" class="tab-item" type="button" role="tab" data-variable="evaluation" title="Your advantage: negative means losing, zero means equal, positive means winning. Uses the latest completed primary evaluation." aria-selected="false" aria-controls="dynamic-graph-panel" tabindex="-1"><span>Evaluation</span></button>
 										</div>
-										<select id="dynamic-variable-compact" aria-label="Graph variable" aria-controls="dynamic-graph-panel" hidden><option value="pieceCount">Piece Count</option><option value="moveNumber">Move Number</option><option value="evaluation">Evaluation</option></select>
+										<select id="dynamic-variable-compact" aria-label="Graph variable" aria-controls="dynamic-graph-panel" hidden><button><selectedcontent></selectedcontent></button><option value="pieceCount">Piece Count</option><option value="moveNumber">Move Number</option><option value="evaluation">Evaluation</option></select>
 									</div>
 									<div id="dynamic-graph-panel" class="dynamic-graph-panel" role="tabpanel" aria-labelledby="dynamic-tab-pieceCount">
 										<div class="dynamic-settings-toolbar dynamic-graph-toolbar">
-											<label class="dynamic-setting-picker"><select id="dynamic-add-setting" aria-label="Setting to view and edit" aria-controls="dynamic-graph-panel"></select></label>
+											<label class="dynamic-setting-picker"><select id="dynamic-add-setting" aria-label="Setting to view and edit" aria-controls="dynamic-graph-panel"><button><selectedcontent></selectedcontent></button></select></label>
 											<button id="dynamic-add-line" type="button">＋ Line</button>
 											<button id="dynamic-delete-line" type="button" disabled>Remove line</button>
 											<span class="dynamic-toolbar-separator" aria-hidden="true"></span>
 											<button id="dynamic-add-point" type="button">＋ Point</button>
 											<button id="dynamic-delete-point" type="button" disabled>Delete point</button>
-											<label class="dynamic-axis-control"><span class="dynamic-field-label">Curve</span><select id="dynamic-interpolation" aria-label="Selected line curve interpolation" aria-describedby="dynamic-interpolation-status" disabled><option value="" disabled>Select line</option><option value="step">Step</option><option value="linear">Linear</option><option value="smooth">Smooth</option></select><svg id="dynamic-interpolation-lock" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" hidden><path d="M6 8V5a4 4 0 0 1 8 0v3M4 8h12v9H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span id="dynamic-interpolation-status" class="dynamic-sr-only">Select a line to edit its curve.</span></label>
+											<label class="dynamic-axis-control"><span class="dynamic-field-label">Curve</span><select id="dynamic-interpolation" aria-label="Selected line curve interpolation" aria-describedby="dynamic-interpolation-status" disabled><button><selectedcontent></selectedcontent></button><option value="" disabled>Select line</option><option value="step">Step</option><option value="linear">Linear</option><option value="smooth">Smooth</option></select><svg id="dynamic-interpolation-lock" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" hidden><path d="M6 8V5a4 4 0 0 1 8 0v3M4 8h12v9H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span id="dynamic-interpolation-status" class="dynamic-sr-only">Select a line to edit its curve.</span></label>
 											<button id="dynamic-zoom-out" type="button" aria-label="Zoom out">−</button>
 											<button id="dynamic-zoom-in" type="button" aria-label="Zoom in">＋</button>
 											<button id="dynamic-fit-graph" type="button" aria-label="Fit graph" title="Fit both axes with space around the line"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M3 19h18M5 17c5 0 3-10 8-10s3 5 6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -583,7 +584,7 @@
 																Stockfish 18 Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(108MB)</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-18-lite-single">
-																Stockfish 18 Lite Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(7MB)</span> <span class="stable-engine-tag list-tag">Stable</span>
+																Stockfish 18 Lite Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(7MB)</span> <span class="list-tag" data-translation-default-tag>Default</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item" data-value="stockfish-17-single">
 																Stockfish 17 Single <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span> <span class="engine-size-tag list-tag">(66MB)</span>
@@ -598,7 +599,7 @@
 																Fairy Stockfish 14 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(2MB)</span> <span class="variants-engine-tag list-tag">Variants</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item" data-value="maia3">
-															    Maia 3 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(44MB)</span> <span class="list-tag" data-translation-default-tag>Default</span> <span class="realistic-engine-tag list-tag">Realistic</span>
+															    Maia 3 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(44MB)</span> 															    <span class="realistic-engine-tag list-tag">Realistic</span>
 																</div>
 																<div class="dropdown-item" data-value="maia2">
 																Maia 2 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(91MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="stable-engine-tag list-tag">Stable</span>
@@ -671,6 +672,21 @@
 												</div>
 												<div id="basic-advanced-settings-panel" class="setting-panel">
 													<div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
+													<div class="dropdown-input custom-input"><div><div class="input-title">Search mode</div>
+														<div class="input-subtitle">Choose search limit</div></div>
+														<div class="dropdown-input-container">
+															<input type="text" additional-type="dropdown" data-key="advancedSearchMode" data-default-value="standard" placeholder="standard"><div class="dropdown-icon"></div>
+															<div class="dropdown-list-container">
+																<div class="dropdown-item" data-value="standard" data-translation-search-standard>Depth / nodes</div>
+																<div class="dropdown-item" data-value="movetime" data-translation-search-movetime>Engine movetime</div>
+																<div class="dropdown-item" data-value="infinite" data-translation-search-infinite>Infinite</div>
+															</div>
+														</div>
+													</div>
+													<div class="textfield-input custom-input"><div><div class="input-title">Engine movetime (ms)</div>
+														<div class="input-subtitle">Time per move</div></div>
+														<input type="textfield" data-key="advancedSearchMovetime" data-default-value="5000" data-between="1-100000" placeholder="5000">
+													</div>
 													<div class="textfield-input custom-input"><div><div class="input-title">Depth (1 - 500)</div>
 														<div class="input-subtitle">How deep will the engine calculate</div></div>
 														<input type="textfield" data-key="advancedEloDepth" data-default-value="1" data-between="1-500" placeholder="1">
@@ -781,7 +797,7 @@
                                                     <div class="setting-panel-title" data-translation-adelo-regular>Regular settings</div>
                                                     <div class="range-input custom-input">
                                                         <div><label class="input-title" for="pip-quality">PiP Quality</label>
-                                                            <div class="input-subtitle" id="pip-quality-description">Lower resolution might be faster. Default: 70%.</div></div>
+                                                            <div class="input-subtitle" id="pip-quality-description">Lower resolution might be faster. Default: 70%</div></div>
                                                         <div class="range-control">
                                                             <input id="pip-quality" type="range" min="1" max="100" step="1" value="70" data-range-unit="%" data-key="pipQuality" data-default-value="70" aria-describedby="pip-quality-description">
                                                             <output for="pip-quality">70 %</output>
@@ -866,6 +882,27 @@
 														<div class="input-subtitle">Display 🩸 on pieces that you should attack</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="renderPieceEnemyCapture" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Diagonal Vision</div>
+														<div class="input-subtitle">Show far-reaching diagonals</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderPieceLongRange" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">File & Rank Vision</div>
+														<div class="input-subtitle">Show far-reaching files and ranks</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderPieceLongRangeStraight" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+													</div>
+													<div class="checkbox-input custom-input"><div><div class="input-title">Knight Vision</div>
+														<div class="input-subtitle">Show squares knights see</div></div><div class="checkbox-container">
+														<input type="checkbox" data-render-setting="true" data-key="renderKnightVision" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+													</div>
+													<div id="vision-side-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Vision Overlay Side</div>
+														<div class="input-subtitle">Whose pieces to show</div></div><div class="dropdown-input-container">
+														<input type="text" additional-type="dropdown" data-render-setting="true" data-key="renderVisionSide" data-default-value="both" placeholder="Both"><div class="dropdown-icon"></div>
+														<div class="dropdown-list-container">
+															<div class="dropdown-item" data-value="both">Both</div>
+															<div class="dropdown-item" data-value="own">Own pieces</div>
+															<div class="dropdown-item" data-value="enemy">Enemy pieces</div>
+														</div>
+													</div></div>
                                                     <div class="checkbox-input custom-input"><div><div class="input-title">Show Piece Contributions</div>
                                                         <div class="input-subtitle">See how much each piece is contributing to the position</div></div><div class="checkbox-container">
                                                         <input type="checkbox" data-render-setting="true" data-key="enableEveryPieceEvals" data-default-value="false"><div class="checkbox-fill">✔</div></div>
@@ -915,6 +952,11 @@
                                                             <div class="input-subtitle">Stop the animation when the opponent moves</div></div><div class="checkbox-container">
                                                             <input type="checkbox" data-key="learningPvAnimationStopOnEnemyMove" data-default-value="true" disabled><div class="checkbox-fill">✔</div></div>
                                                         </div>
+                                                    </div>
+
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Estimated Elo & Accuracy</div>
+                                                        <div class="input-subtitle">Show approximate rating and accuracy</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="feedbackEloEstimate" data-default-value="false"><div class="checkbox-fill">✔</div></div>
                                                     </div>
                                                 </div>
 
@@ -992,6 +1034,18 @@
 														<div class="input-subtitle">Other moves' color</div></div>
 														<input type="color" data-key="secondaryArrowColorHex" data-default-value="#1E90FF">
 													</div>
+													<div class="color-input custom-input"><div><div class="input-title">Mistake Color</div>
+														<div class="input-subtitle">Worse move color</div></div>
+														<input type="color" data-key="mistakeArrowColorHex" data-default-value="#FF8C00">
+													</div>
+													<div class="color-input custom-input"><div><div class="input-title">Blunder Color</div>
+														<div class="input-subtitle">Very bad move color</div></div>
+														<input type="color" data-key="blunderArrowColorHex" data-default-value="#FF0000">
+													</div>
+													<div class="color-input custom-input"><div><div class="input-title">Miss Color</div>
+														<div class="input-subtitle">Missed mate move color</div></div>
+														<input type="color" data-key="missArrowColorHex" data-default-value="#9B30FF">
+													</div>
 													<div class="color-input custom-input"><div><div class="input-title">Opponent Arrow Color</div>
 														<div class="input-subtitle">Opponent move color</div></div>
 														<input type="color" data-key="opponentArrowColorHex" data-default-value="#DC143C">
@@ -1017,7 +1071,7 @@
 							</div>
                             <div class="checkbox-input custom-input"><div><div class="input-title">Only Own Turn</div>
 								<div class="input-subtitle">Only get move suggestions on your own turn</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+								<input type="checkbox" data-key="onlyCalculateOwnTurn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
 							</div>
                             <div class="input-combination-box">
                                 <div class="checkbox-input custom-input"><div><div class="input-title">Always My Turn</div>
@@ -1046,6 +1100,42 @@
                                     <div class="dropdown-item" data-value="captures-piece" data-translation-hint-captures-piece>Captures only, piece only</div>
                                     <div class="dropdown-item" data-value="movement-piece" data-translation-hint-movement-piece>Non-captures only, piece only</div>
                                 </div></div>
+                            </div>
+                            <div class="floaty-input custom-input">
+                                <div><div class="input-title" data-translation-warning-moves>Warning moves</div>
+                                    <div class="input-subtitle" data-translation-warning-moves-hint>Choose which bad moves are marked</div></div>
+                                <div class="floaty-wrapper">
+                                    <button class="open-floaty-btn acas-fancy-button" type="button" aria-haspopup="dialog" aria-controls="warning-moves-floaty">⚙️</button>
+                                    <dialog id="warning-moves-floaty" aria-labelledby="warning-moves-title">
+                                        <div class="floaty-container">
+                                            <section class="floaty-header">
+                                                <div class="title">
+                                                    <h1 id="warning-moves-title" data-translation-warning-moves>Warning moves</h1>
+                                                    <p data-translation-warning-moves-hint>Choose which bad moves are marked</p>
+                                                </div>
+                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div>
+                                            </section>
+                                            <section class="floaty-body">
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Only warning moves</div>
+                                                    <div class="input-subtitle">Hide all other moves</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="onlyShowWarningMoves" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Mistakes</div>
+                                                    <div class="input-subtitle">Mark mistakes</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="markMistakeMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Blunders</div>
+                                                    <div class="input-subtitle">Mark blunders</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="markBlunderMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Misses</div>
+                                                    <div class="input-subtitle">Mark missed mates</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="markMissMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </dialog>
+                                </div>
                             </div>
                             <div class="floaty-input custom-input">
                                 <div><div class="input-title" data-translation-learning-hints>Filter shown pieces</div>
@@ -1252,6 +1342,81 @@
                     <div class="checkbox-input custom-input"><div><div class="input-title">Ghost Script</div>
                         <div class="input-subtitle">Disable all detectable external functionality (e.g. move arrows) to avoid detection</div></div><div class="checkbox-container">
                         <input type="checkbox" data-key="isUserscriptGhost" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                    </div>
+                    <div class="checkbox-input custom-input">
+                        <div>
+                            <div class="input-title" data-translation-suggestion-mix>Suggestion mix</div>
+                            <div class="input-subtitle" data-translation-suggestion-mix-hint>Mix profiles into one arrow</div>
+                        </div>
+                        <div class="floaty-wrapper">
+                            <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="suggestion-mix-floaty" aria-haspopup="dialog" aria-labelledby="suggestion-mix-title">⚙️</button>
+                            <dialog id="suggestion-mix-floaty" aria-labelledby="suggestion-mix-title">
+                                <div class="floaty-container">
+                                    <section class="floaty-header">
+                                        <div class="title">
+                                            <h1 id="suggestion-mix-title" data-translation-suggestion-mix>Suggestion mix</h1>
+                                            <p data-translation-suggestion-mix-hint>Mix profiles into one arrow</p>
+                                        </div>
+                                        <div class="floaty-buttons">
+                                            <button class="floaty-close-btn acas-fancy-button" type="button">💾</button>
+                                        </div>
+                                    </section>
+                                    <section class="floaty-body suggestion-mix-controls">
+                                        <input class="hidden" type="text" data-key="suggestionMixWeights" data-no-profile="true" data-dynamic-value-type="text" data-default-value='{"best":90,"alternative":10,"secondary":0,"mistake":0,"blunder":0,"miss":0,"other":0}'>
+                                        <div class="checkbox-input custom-input">
+                                            <div class="input-title" data-translation-mix-prefer-book>Prefer book moves</div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" data-key="suggestionMixPreferBook" data-no-profile="true" data-default-value="false">
+                                                <div class="checkbox-fill">✔</div>
+                                            </div>
+                                        </div>
+                                        <div class="checkbox-input custom-input">
+                                            <span class="input-title" id="mix-detailed-title" data-translation-mix-detailed>Choose alternative types</span>
+                                            <span class="checkbox-container">
+                                                <input id="suggestion-mix-detailed" type="checkbox" aria-labelledby="mix-detailed-title">
+                                                <span class="checkbox-fill">✔</span>
+                                            </span>
+                                        </div>
+                                        <hr class="suggestion-mix-divider">
+                                        <div class="textfield-input custom-input">
+                                            <span class="input-title" id="mix-best-title"><span data-translation-mix-best>Best</span> (%)</span>
+                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="best" aria-labelledby="mix-best-title">
+                                        </div>
+                                        <div class="textfield-input custom-input">
+                                            <span class="input-title" id="mix-alternative-title"><span data-translation-mix-alternative>Any alternative</span> (%)</span>
+                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="alternative" aria-labelledby="mix-alternative-title">
+                                        </div>
+                                        <div id="suggestion-mix-categories">
+                                            <div class="textfield-input custom-input">
+                                                <span class="input-title" id="mix-secondary-title"><span data-translation-mix-secondary>Safe secondary</span> (%)</span>
+                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="secondary" aria-labelledby="mix-secondary-title">
+                                            </div>
+                                            <div class="textfield-input custom-input">
+                                                <span class="input-title" id="mix-mistake-title"><span data-translation-mix-mistake>Mistake</span> (%)</span>
+                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="mistake" aria-labelledby="mix-mistake-title">
+                                            </div>
+                                            <div class="textfield-input custom-input">
+                                                <span class="input-title" id="mix-blunder-title"><span data-translation-mix-blunder>Blunder</span> (%)</span>
+                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="blunder" aria-labelledby="mix-blunder-title">
+                                            </div>
+                                            <div class="textfield-input custom-input">
+                                                <span class="input-title" id="mix-miss-title"><span data-translation-mix-miss>Missed opportunity</span> (%)</span>
+                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="miss" aria-labelledby="mix-miss-title">
+                                            </div>
+                                            <div class="textfield-input custom-input">
+                                                <span class="input-title" id="mix-other-title"><span data-translation-mix-other>Other moves</span> (%)</span>
+                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="other" aria-labelledby="mix-other-title">
+                                            </div>
+                                        </div>
+                                        <a target="_blank" href="../usage/#suggestion-mix" data-translation-learn-more-here>Learn more about these features here.</a>
+                                    </section>
+                                </div>
+                            </dialog>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" data-key="suggestionMix" data-no-profile="true" data-default-value="false">
+                            <div class="checkbox-fill">✔</div>
+                        </div>
                     </div>
                     <div id="restart-keybind-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Restart Trigger</div>
                         <div class="input-subtitle">Restarts all instances, useful if they crash</div></div><div class="dropdown-input-container">

@@ -1,3 +1,5 @@
+const activeToasts = new Map();
+
 const toast = {
     'create': (type, icon, content, duration, note) => {
         const intervalRate = 100;
@@ -9,7 +11,18 @@ const toast = {
         let fadeTime = 500;
         let elapsedTime = 0;
         let isHovered = false;
+        let isFading = false;
         let loadingSpinnerInterval;
+
+        // Identical toasts merge into one with a counter instead of stacking up.
+        // Persistent instance toasts only close once every merged instance has released it.
+        const isInstanceToast = type === 'instance';
+        const toastKey = JSON.stringify([type, icon, content, note]);
+        const existing = activeToasts.get(toastKey);
+        if(existing && !existing.isFading() && document.body.contains(existing.elem)) {
+            existing.bump();
+            return { 'close': existing.close };
+        }
 
         if(!toastContainer) {
             toastContainer = document.createElement('div');
@@ -25,6 +38,7 @@ const toast = {
         `;
 
         function triggerFadeOut() {
+            isFading = true;
             toastElem.style.animation = `fadeout ${fadeTime / 1000}s forwards`;
             setTimeout(() => toastElem.remove(), fadeTime);
         }
@@ -85,6 +99,7 @@ const toast = {
             if(!document.body.contains(toastElem)) {
                 clearInterval(customTimeout);
                 clearInterval(loadingSpinnerInterval);
+                if(toastKey && activeToasts.get(toastKey)?.elem === toastElem) activeToasts.delete(toastKey);
                 return;
             }
 
@@ -129,6 +144,40 @@ const toast = {
         }
 
         toastContainer.prepend(toastElem);
+
+        if(toastKey) {
+            let count = 1;
+            let countElem;
+            const showCount = () => {
+                if(count < 2) return countElem?.remove(), countElem = null;
+                if(!countElem) {
+                    countElem = document.createElement('div');
+                    countElem.classList.add('acas-toast-count');
+                    toastTopContainer.appendChild(countElem);
+                }
+                countElem.innerText = `×${count}`;
+            };
+            const release = () => {
+                if(--count > 0) return showCount();
+                triggerFadeOut();
+            };
+            const close = isInstanceToast ? release : triggerFadeOut;
+
+            activeToasts.set(toastKey, {
+                elem: toastElem,
+                close,
+                isFading: () => isFading,
+                bump: () => {
+                    count++;
+                    showCount();
+                    if(isInstanceToast) return;
+                    elapsedTime = 0;
+                    progressBarElem.style.width = '0%';
+                }
+            });
+
+            return { close };
+        }
 
         return { 'close': triggerFadeOut };
     },

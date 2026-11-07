@@ -67,6 +67,46 @@ portSettingsForm.addEventListener('submit', async event => {
     }
 });
 
+function updateAlwaysOnTopButton(enabled) {
+    alwaysOnTopToggle.setAttribute('aria-pressed', String(enabled));
+    const label = enabled ? 'Stop keeping window always on top' : 'Keep window always on top';
+    alwaysOnTopToggle.title = label;
+    alwaysOnTopToggle.setAttribute('aria-label', label);
+    alwaysOnTopToggle.querySelector('i').className = `bi ${enabled ? 'bi-pin-angle-fill' : 'bi-pin-angle'}`;
+}
+
+(async () => {
+    try {
+        updateAlwaysOnTopButton(await window.electronAPI.getAlwaysOnTop());
+        alwaysOnTopToggle.disabled = false;
+    } catch(error) {
+        console.error('Failed to load always-on-top state:', error);
+        toast.error('Could not load the window pin setting.', 5000);
+    }
+})();
+
+alwaysOnTopToggle.addEventListener('click', async () => {
+    alwaysOnTopToggle.disabled = true;
+    try {
+        const enabled = alwaysOnTopToggle.getAttribute('aria-pressed') !== 'true';
+        updateAlwaysOnTopButton(await window.electronAPI.setAlwaysOnTop(enabled));
+    } catch(error) {
+        console.error('Failed to change always-on-top state:', error);
+        toast.error('Could not change the window pin setting.', 5000);
+    } finally {
+        alwaysOnTopToggle.disabled = false;
+    }
+});
+
+logOnlyToggle.addEventListener('click', () => {
+    const logOnly = document.body.classList.toggle('logs-only');
+    logOnlyToggle.setAttribute('aria-pressed', String(logOnly));
+    const label = logOnly ? 'Show console controls' : 'Show logs only';
+    logOnlyToggle.title = label;
+    logOnlyToggle.setAttribute('aria-label', label);
+    logOnlyToggle.querySelector('i').className = `bi ${logOnly ? 'bi-sliders' : 'bi-eye-slash-fill'}`;
+});
+
 panelsToggle.addEventListener('click', () => {
     const isExpanded = panelsToggle.getAttribute('aria-expanded') === 'true';
     document.body.classList.toggle('panels-collapsed', isExpanded);
@@ -160,8 +200,9 @@ function refreshEngineCards(aliveEngineProcesses) {
             row.className = 'engine-process-row';
             const context = document.createElement('span');
             context.className = 'engine-process-context';
-            context.textContent = `${identifierObj.profileName} · ${identifierObj.instanceId}`;
-            context.title = `Profile: ${identifierObj.profileName}\nInstance: ${identifierObj.instanceId}`;
+            const display = getEngineDisplayContext(identifierObj);
+            context.textContent = display.context;
+            context.title = display.label;
             row.append(context, createKillEngineButton(identifierObj));
             processList.appendChild(row);
         });
@@ -337,32 +378,44 @@ async function renderEngineGrid(engines) {
     await window.serverAPI.sendEnginesList();
 }
 
+function updateServerStatusIcon(state) {
+    const statuses = {
+        offline: ['bi-wifi-off', 'Offline'],
+        listening: ['server-connection-loading', 'Waiting for the web GUI to connect'],
+        connected: ['bi-check-circle-fill', 'Web GUI connected'],
+        warning: ['bi-exclamation-triangle-fill', 'Unauthorized connection blocked']
+    };
+    const [icon, description] = statuses[state];
+    statusDot.className = `bi ${icon}`;
+    const label = `${description}. Local server port ${portDisplay.textContent} - click to change`;
+    portSettingsBtn.title = label;
+    portSettingsBtn.setAttribute('aria-label', label);
+}
+
 window.serverAPI.onListening(({ address, family, port }) => {
 	portDisplay.textContent = String(port);
 	portSettingsBtn.title = `Local server port ${port} - click to change`;
-	statusDot.style.background = '#2ecc71';
-	statusDot.style.boxShadow = '0 0 8px #2ecc71';
+	updateServerStatusIcon('listening');
 });
 
 window.serverAPI.onClientChange(({ isConnected, origin }) => {
 	if(isConnected) {
 		toast.success(`Remote client connected: ${origin}`, 1000);
-		statusDot.style.background = '#3498db';
-		statusDot.style.boxShadow = '0 0 10px #3498db';
+		updateServerStatusIcon('connected');
         serverConnectionStatus = true;
 	} else {
 		toast.message(`Remote client disconnected!`, 1000);
-		statusDot.style.background = '#2ecc71';
+		updateServerStatusIcon('listening');
         serverConnectionStatus = false;
 	}
 });
 
 window.serverAPI.onUnauthorized(({ origin }) => {
 	toast.warning(`SECURITY ALERT: Blocked unauthorized origin: ${origin}`);
-	statusDot.style.background = '#ff5252';
+	updateServerStatusIcon('warning');
 
 	setTimeout(() => {
-		statusDot.style.background = serverConnectionStatus ? '#3498db' : '#2ecc71';
+		updateServerStatusIcon(serverConnectionStatus ? 'connected' : 'listening');
 	}, 3000);
 });
 

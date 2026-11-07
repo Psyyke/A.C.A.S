@@ -67,16 +67,26 @@
     <main>
         <header>
             <div><a href="../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
-            <div>
+            <div class="header-nav">
                 <a href="../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
                 <a href="../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
-                <a href="../troubleshoot/" aria-label="Fixing A.C.A.S" class="fancy-btn"><i class="bi bi-tools"></i>Troubleshoot</a>
-                <a href="../faq/" aria-label="Frequently Asked Questions" class="fancy-btn"><i class="bi bi-chat-square-quote"></i>FAQ</a>
+                <a href="../tools/" aria-label="Chess tools" class="fancy-btn"><i class="bi bi-speedometer2"></i>Tools</a>
+                <a href="../troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-tools"></i>Help</a>
                 <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
                 <a href="../contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
                 <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
         </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="../install/"><i class="bi bi-download"></i>Install</a>
+            <a href="../usage/"><i class="bi bi-journals"></i>Usage</a>
+            <a href="../tools/"><i class="bi bi-speedometer2"></i>Tools</a>
+            <a href="../troubleshoot/"><i class="bi bi-tools"></i>Help</a>
+            <a href="../blog/" aria-current="page"><i class="bi bi-pen"></i>Blog</a>
+            <a href="../contributing/"><i class="bi bi-heart"></i>Contribute</a>
+            <a href="https://github.com/psyyke/A.C.A.S" target="_blank"><i class="bi bi-github"></i>GitHub</a>
+        </div></div></nav>
         <div class="content">
             <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wN.svg">
             <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
@@ -91,9 +101,9 @@
                 <section>
                     <h2 id="basics">History of A.C.A.S</h2>
 
-                    <p>I (<a href="https://github.com/Hakorr">Haka</a>) gave birth to <a href="https://greasyfork.org/en/scripts/459137-1-chess-assistant-a-c-a-s-advanced-chess-assistance-system?version=1143684" target="_blank">A.C.A.S v1.0</a> on Jan 30, 2023. It was the first of its kind userscript on GreasyFork. There had always been extensions and external programs that did the same thing, but nothing was as easy to use as A.C.A.S. The goal was to be very easy to use with clean UI. Here's a screenshot of the v1.0,</p>
+                    <p>I (<a href="https://github.com/Hakorr">Haka</a>) made <a href="https://greasyfork.org/en/scripts/459137-1-chess-assistant-a-c-a-s-advanced-chess-assistance-system?version=1143684" target="_blank">A.C.A.S v1.0</a> on Jan 30, 2023. It was the first of its kind userscript on GreasyFork. There had always been extensions and external programs that did the same thing, but nothing was as easy to use as A.C.A.S. The goal was to be very easy to use with clean UI. Here's a screenshot of the v1.0,</p>
                     <img src="../assets/images/oldacas.png" height="300" alt="A.C.A.S v1.0"></img>
-                    <p>I had already developed userscripts for two years at that point, but hadn't played chess; literally <b>zero</b>, nada, experience. How do chess engines work? What's UCI or a FEN? Most importantly, how does one even play chess in the first place? Had to learn a lot and there were times when people asked for features I didn't even know were a thing in chess. "<i>En passant? Sorry, I don't speak that language.</i>"</p>
+                    <p>I had already developed userscripts for two years at that point, but hadn't played chess. Had to learn a lot and there were times when people asked for features I didn't even know were a thing in chess. <i>En passant? Uhh, can you speak English?</i></p>
                     
                     <p>The first version of A.C.A.S took a lot of Googling even though it was made in a weekend. It felt like there wasn't much easy to understand information about communicating with chess engines, so the engine was a black box to me. Credit where it's due, I relied heavily on <a href="https://op12no2.github.io/lozza-ui/" target="_blank">Lozza.js</a>, because it had a web GUI with the engine already running. It was written in JS, so I could see how it works behind the scenes. I learned a lot from it, and imitated a lot of what it was doing at the start. I'm lucky to have open source projects from smart people to learn from!
                     
@@ -116,6 +126,8 @@
                     <img src="../assets/images/installchart.png" alt="A.C.A.S installs plotted to time"></img>
 
                     <p>50 000 installs in 3 years means 45 people installed A.C.A.S every day during its existence. While some might've installed it multiple times, that's still a lot of people. I created a Discord server a while back and it got to 1000 members quite quickly. I decided to delete it though.  All in all I really like the project, and I'm proud of it. Hopefully people will use it for good.</p>
+
+                    <p>In all honesty I'm not a huuuge chess nerd, I just really enjoy making the GUI for A.C.A.S so I keep developing it. I really don't have any credentials to teach people how to play chess, so that's why those features are also lacking!</p>
 
                     <h2 id="how-it-works">How does A.C.A.S work?</h2>
 
@@ -335,7 +347,7 @@ addSupportedChessSite('lichess.org', {
                     </ol>
 
                     <hr>
-                    <p><em>The <a href="../faq/">FAQ</a> page might have more answers if this wasn't enough for you.</em></p>
+                    <p><em>The <a href="../troubleshoot/#faq">common questions on the Help page</a> might have more answers if this wasn't enough for you.</em></p>
                 </section>
             </article>
             <!-- PAGE CONTENT ENDS -->

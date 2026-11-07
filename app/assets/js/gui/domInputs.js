@@ -81,7 +81,7 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
         if(elem.dataset?.between) {
             [min, max] = PARSE_MINMAX_FROM_STR(elem.dataset.between);
 
-            elem.style.width = `${(String(max).length + 0.6) * 10}px`;
+            elem.style.width = `${Math.max(String(min).length, String(max).length)}ch`;
         } else {
             elem.style.width = `${(String(defaultVal).length + 0.45) * 25}px`;
         }

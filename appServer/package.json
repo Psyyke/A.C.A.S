@@ -1,6 +1,6 @@
 {
 	"name": "acas-local-server",
-	"version": "1.1.2",
+	"version": "1.1.3",
 	"description": "A local chess server for the A.C.A.S GUI",
 	"main": "backend/main.js",
 	"scripts": {
@@ -12,8 +12,11 @@
 	"author": "Haka",
 	"license": "GPL-3.0",
 	"type": "module",
+	"engines": {
+		"node": ">=22.12.0"
+	},
 	"devDependencies": {
-		"electron": "^41.0.3",
+		"electron": "^45.2.3",
 		"electron-builder": "^26.8.1"
 	},
 	"dependencies": {

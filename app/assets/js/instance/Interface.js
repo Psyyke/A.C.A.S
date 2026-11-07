@@ -7,6 +7,16 @@ import { annotateOpponentMove } from './annotate.js';
 import { getHintSettings, filterHintMoves } from '../misc/learningHints.js';
 import { getVariantPgn } from '../misc/moveNotation.js';
 import { variantConfig, getAmazonsShot } from '../misc/variantPosition.js';
+import MoveEvaluator from '../MoveEvaluator.js';
+import { getMoveWarning as classifyMoveWarning, moveSelection } from '../misc/moveSelection.js';
+
+const moveEvaluator = new MoveEvaluator(false);
+const WARNING_TYPES = ['mistake', 'blunder', 'miss'];
+
+function getMoveWarning(best, move) {
+    return classifyMoveWarning(best, move, (bestScore, moveScore) =>
+        moveEvaluator.compare(bestScore, moveScore, false));
+}
 
 function getHintSquareShape(square, color, opacity, isDestination = false) {
     const isBoardSquare = /^[a-z]\d+$/.test(square);
@@ -76,6 +86,7 @@ function getArrowStyle(type, fill, opacity) {
 export default class Interface {
     constructor(instance) {
         this.AcasInstance = instance;
+        this.getMoveWarning = getMoveWarning;
     }
 
     getBookMoveVisualSettings(move, index, movesForProfile, color, opacity, detail = 'full') {
@@ -249,6 +260,8 @@ export default class Interface {
             const hints = await getHintSettings(this.AcasInstance, profileName);
             const candidates = (bookMoves || []).filter(move => move?.profile === profileName);
             const movesForProfile = filterHintMoves(candidates, hints, fen).filter((move, index, moves) => {
+                const mix = this.AcasInstance.suggestionMix;
+                if(!learning && mix?.enabled && mix.preferBook && move.hintDetail === 'full') return false;
                 const squareKey = move.hintDetail === 'piece' ? 'from' : 'to';
                 return move.hintDetail === 'full' || moves.findIndex(other => other[squareKey] === move[squareKey]) === index;
             });
@@ -313,6 +326,7 @@ export default class Interface {
     }
 
     async markMoves(moveObjArr, profile, hints, isCurrent = () => true, silent = false) {
+        const positionFen = this.AcasInstance.currentFen;
         const totalRanks = moveObjArr.filter(move => !move.isFuture).length;
         const BoardDrawer = this.AcasInstance.BoardDrawer;
         const cfgKeys = this.AcasInstance.configKeys;
@@ -325,7 +339,8 @@ export default class Interface {
             secondaryArrowColorHex,
             opponentArrowColorHex,
             moveAsFilledSquares,
-            displayMovesExternally
+            displayMovesExternally,
+            selectionEngine
         ] = await Promise.all([
             this.AcasInstance.getConfigValue(cfgKeys.arrowOpacity, profile).then(v => v/100),
             this.AcasInstance.getConfigValue(cfgKeys.showOpponentMoveGuess, profile),
@@ -334,14 +349,39 @@ export default class Interface {
             this.AcasInstance.getConfigValue(cfgKeys.secondaryArrowColorHex, profile),
             this.AcasInstance.getConfigValue(cfgKeys.opponentArrowColorHex, profile),
             this.AcasInstance.getConfigValue(cfgKeys.moveAsFilledSquares, profile),
-            this.AcasInstance.getConfigValue(cfgKeys.displayMovesOnExternalSite, profile)
+            this.AcasInstance.getConfigValue(cfgKeys.displayMovesOnExternalSite, profile),
+            this.AcasInstance.getEngineName(profile)
         ]);
+
+        const warningColors = {}, enabledWarnings = new Set();
+        const warningSettings = await Promise.all([
+            ...WARNING_TYPES.map(type => this.AcasInstance.getConfigValue(cfgKeys[`${type}ArrowColorHex`], profile)),
+            ...WARNING_TYPES.map(type => this.AcasInstance.getConfigValue(cfgKeys[`mark${type[0].toUpperCase()}${type.slice(1)}Moves`], profile)),
+            this.AcasInstance.getConfigValue(cfgKeys.onlyShowWarningMoves, profile)
+        ]);
+        WARNING_TYPES.forEach((type, i) => {
+            warningColors[type] = warningSettings[i];
+            if(warningSettings[i + WARNING_TYPES.length]) enabledWarnings.add(type);
+        });
+        const onlyShowWarningMoves = warningSettings[WARNING_TYPES.length * 2];
 
         hints ??= await getHintSettings(this.AcasInstance, profile);
         if(!isCurrent()) return;
         this.removeMarkings(profile, 'Make room for new move markings');
 
         const markedSquares = [[], []]; // [primary, secondary]
+
+        const bestMove = moveObjArr.find(move => !move.isFuture);
+        const hiddenMoves = new Set();
+        // The engine searches every move in warning-only mode, but only the worst few are shown.
+        const warningLimit = this.AcasInstance.pV[profile]?.suggestionAmount ?? Infinity;
+        const warningOf = move => {
+            const detected = !move.isFuture && !move.playerHidden && move !== bestMove ? getMoveWarning(bestMove, move) : null;
+            return enabledWarnings.has(detected) ? detected : null;
+        };
+        // Mildest first: the most tempting bad moves matter more than obvious ones, and get the largest arrow.
+        const keptWarnings = onlyShowWarningMoves
+            ? moveObjArr.filter(warningOf).slice(0, Math.max(0, warningLimit)) : [];
 
         const shapeCtx = {
             totalRanks, arrowOpacity, primaryArrowColorHex, secondaryArrowColorHex,
@@ -377,10 +417,29 @@ export default class Interface {
         moveObjArr.forEach((mObj, idx) => {
             const shouldHideFuture = (hints.detail !== 'full' || moveAsFilledSquares) && mObj.isFuture;
             if(shouldHideFuture) return;
+            if(mObj.isFuture && hiddenMoves.has(mObj.parentMove?.uci)) return;
+
+            const isCandidate = !mObj.isFuture && !mObj.playerHidden;
+            const warning = warningOf(mObj);
+            const warningRank = keptWarnings.indexOf(mObj);
+            if(isCandidate && !mObj.suggestionMix && onlyShowWarningMoves && warningRank === -1) {
+                hiddenMoves.add(mObj.playerUci);
+                return;
+            }
 
             // Threat-only candidates must not demote the first visible own move.
-            const shapeIndex = mObj.playerHidden ? idx : visibleMoveIndex++;
-            const shapes = this.getMoveShapes(mObj, shapeIndex, shapeCtx);
+            // Warning-only mode keeps ranks so a warning move never takes the primary color.
+            // Warning-only mode sizes arrows by badness instead of engine rank.
+            const shapeIndex = onlyShowWarningMoves && warningRank !== -1 ? warningRank
+                : mObj.playerHidden || onlyShowWarningMoves ? idx : visibleMoveIndex++;
+            const shapes = this.getMoveShapes(mObj, mObj.suggestionMix ? 0 : shapeIndex, mObj.suggestionMix ? {
+                ...shapeCtx, totalRanks: 1, moveAsFilledSquares: false, showOpponentMoveGuess: false
+            } : !warning ? shapeCtx : {
+                ...shapeCtx,
+                primaryArrowColorHex: warningColors[warning],
+                secondaryArrowColorHex: warningColors[warning],
+                ...(onlyShowWarningMoves ? { totalRanks: keptWarnings.length } : {})
+            });
             pipMoveShapes.push(...shapes.map(shape => ({ ...shape, pipAlwaysVisible: showOpponentMoveGuessConstantly })));
             if(!shapes.length) return;
 
@@ -416,8 +475,14 @@ export default class Interface {
 
             if(displayMovesExternally) {
                 const entries = this.buildMoveSiteEntries(mObj, shapes, profile);
+                const detectedWarning = isCandidate && mObj !== bestMove ? getMoveWarning(bestMove, mObj) : null;
+                entries.forEach(entry => {
+                    entry.data.positionFen = positionFen;
+                    entry.data.selection = moveSelection(bestMove, mObj, idx, profile,
+                        detectedWarning, isCandidate, selectionEngine);
+                });
                 // A presentation-only redraw must not trigger the site's Auto Move again.
-                if(silent) entries.forEach(entry => { entry.data.isFuture = true; });
+                if(silent) entries.forEach(entry => { entry.data.suppressAutoMove = true; });
                 siteMoveShapes.push(...entries);
             }
         });
@@ -425,12 +490,17 @@ export default class Interface {
         const variables = this.AcasInstance.pV[profile];
         if(displayMovesExternally || variables.hintsExternal) {
             const entries = FORMAT_MOVE_OBJ_TO_EXTERNAL_SITE(siteMoveShapes);
-            this.AcasInstance.CommLink.commands.renderVisualsToSite(entries.length ? entries : [{ profileID: profile, category: 'move', isFuture: true }]);
+            this.AcasInstance.CommLink.commands.renderVisualsToSite(entries.length ? entries : [{ profileID: profile, category: 'move', isFuture: true, positionFen }]);
         }
         variables.hintsExternal = Boolean(displayMovesExternally);
 
         this.AcasInstance.pV[profile].activeSquareListeners = squareListeners;
         this.AcasInstance.pV[profile].pipMoveShapes = pipMoveShapes;
+        variables.pipWarningMoves = onlyShowWarningMoves
+            ? moveObjArr.filter(move => move.suggestionMix || keptWarnings.includes(move)) : [];
+        if(moveObjArr.some(move => move.suggestionMix)) {
+            this.AcasInstance.suggestionMix?.markDelivered(profile, positionFen);
+        }
     }
 
     removeMarkingFromProfile(p) {
@@ -591,6 +661,12 @@ export default class Interface {
         if(!element || !opening || instance.instanceClosed) return;
         const request = this.pgnRequest = (this.pgnRequest || 0) + 1;
         const history = instance.gameStateHistory;
+        if(history.some(state => state.historyIncomplete)) {
+            element.innerText = 'PGN unavailable: moves were missed and the game history is incomplete.';
+            opening.innerText = '';
+            updatePipOpening(instance);
+            return;
+        }
         const context = this.getPgnConfig();
 
         if(context.variant === 'chess' && !context.useChess960) {
@@ -628,13 +704,9 @@ export default class Interface {
     async updateBoardFen(calculateMovesConfig) {
         const request = (this.boardUpdateRequest || 0) + 1;
         this.boardUpdateRequest = request;
-        const [userscriptGameStateHistory, playerColor] = await Promise.all([
-            GET_STATE_HISTORY(this.AcasInstance.instanceID),
-            this.AcasInstance.getPlayerColor()
-        ]);
+        const { history: boardStateHistory, playerColor } = this.AcasInstance.boardState;
 
-        if(this.boardUpdateRequest !== request || this.AcasInstance.instanceClosed) return;
-        const currentStateObj = userscriptGameStateHistory[0];
+        const currentStateObj = boardStateHistory.at(-1);
         const fen = currentStateObj?.fen?.full;
         const basicFen = currentStateObj?.fen?.basic;
 
@@ -650,14 +722,13 @@ export default class Interface {
             if(this.boardUpdateRequest !== request || this.AcasInstance.instanceClosed) return;
         }
 
-        // The userscript keeps gameStateHistory as [newest, ..., initial], newest index 0.
-        // The GUI has it reversed, so [initial, ..., newest], oldest index 0.
-        // We update the entire history so that reloading GUI doesn't clear history.
+        // Both histories are [initial, ..., newest]. The whole history is replaced so that
+        // reloading the GUI doesn't clear it; analysis and feedback only exist on the GUI side.
         const recorded = new Map(this.AcasInstance.gameStateHistory.map(state => [state.fen?.full, state]));
-        this.AcasInstance.gameStateHistory = userscriptGameStateHistory
-            .slice()
-            .reverse().map(state => ({ ...state, analysis: recorded.get(state.fen?.full)?.analysis,
-                feedback: recorded.get(state.fen?.full)?.feedback }));
+        this.AcasInstance.gameStateHistory = boardStateHistory
+            .map(state => ({ ...state, analysis: recorded.get(state.fen?.full)?.analysis,
+                feedback: recorded.get(state.fen?.full)?.feedback,
+                feedbackLoss: recorded.get(state.fen?.full)?.feedbackLoss }));
 
         const instanceElem = this?.AcasInstance?.instanceElem;
         const instanceFenElem = instanceElem?.querySelector('.instance-fen');
@@ -675,6 +746,11 @@ export default class Interface {
         resetPipHints(this.AcasInstance);
 
         if(fen) {
+            if(this.AcasInstance.currentFen !== fen) {
+                Object.values(this.AcasInstance.pV).forEach(variables => {
+                    delete variables.spokenSuggestions;
+                });
+            }
             this.AcasInstance.currentFen = fen;
             // Cancel stale calculations and board markings immediately.
             // Keep the latest feedback text visible while the next rating is calculated.
@@ -682,7 +758,7 @@ export default class Interface {
             setDynamicSettingsContext(this.AcasInstance.instanceID, fen, {
                 ...currentStateObj,
                 opponentMoveTime: currentStateObj.opponentMoveTime ?? null,
-                playerColor
+                playerColor: playerColor || 'w'
             });
             await this.AcasInstance.syncDynamicSettings();
             if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen || this.AcasInstance.instanceClosed) return;

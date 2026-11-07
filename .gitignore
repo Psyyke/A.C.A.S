@@ -1,1 +1,4 @@
 **/desktop.ini
+node_modules/
+acas.user.test.js
+temp/

@@ -107,16 +107,32 @@ p[data-translation-experimental-warning] {
 	#setting-container {
 		flex-direction: column !important;
 	}
-	#acas-is-free-reminder {
-		font-size: 12px !important;
-	}
 	.setting-panel {
 		max-width: none !important;
+		min-width: 0;
 	}
     #main-setting-panel {
-        max-width: unset !important;
-        width: unset !important;
+        box-sizing: border-box;
+        max-width: 100% !important;
+        min-width: 0;
+        width: 100% !important;
     }
+	#settings-panels,
+	#setting-container {
+		max-width: 100%;
+		min-width: 0;
+	}
+	#main-setting-panel :is(input:not([data-between]), select, textarea, .wide-text-input) {
+		box-sizing: border-box;
+		max-width: 100%;
+    }
+	#main-setting-panel .textfield-input input:not([type="url"]):not([data-between]) {
+		box-sizing: content-box;
+		flex-shrink: 0;
+		min-width: 7ch;
+		max-width: 40vw;
+		field-sizing: content;
+	}
 	#instance-size-change-container {
 		display: none !important;
 	}
@@ -147,15 +163,6 @@ p[data-translation-experimental-warning] {
     }
 }
 @media (max-width: 550px) {
-	#acas-is-free-reminder span {
-		display: none !important;
-	}
-	#acas-is-free-reminder .greasyfork-button {
-		display: none !important;
-	}
-	#acas-is-free-reminder .github-button {
-		display: none !important;
-	}
 	#acas-is-free-reminder .affiliate-button {
 		display: block !important;
 	}
@@ -410,7 +417,7 @@ cg-container {
 }
 #acas-version-tag {
 	font-size: 15px;
-    font-weight: 200;
+    font-weight: 400;
     font-family: "IBM Plex Sans";
     margin-left: 3px;
 }
@@ -440,7 +447,8 @@ cg-container {
 	width: 550px;
 	/* this is overwritten by acas-backend-gui.js */
 	max-width: 90vw;
-	height: fit-content;
+	height: auto;
+	align-self: stretch;
 	position: relative;
 	flex-direction: column;
 	border-radius: 10px;
@@ -474,24 +482,6 @@ cg-container {
 	padding: calc(var(--acas-header-height) + 10px) 10px calc(var(--settings-header-height) + 10px);
 	grid-gap: 10px;
 }
-/* Settings are full width here, so the instance fills its container edge to edge */
-@media (max-width: 800px) {
-	#acas-instance-container {
-		padding: var(--acas-header-height) 0 var(--settings-header-height);
-		grid-gap: 0;
-	}
-	.acas-instance {
-		width: 100% !important;
-		max-width: none;
-		border-radius: 0;
-		border-inline-width: 0;
-	}
-	.acas-instance .instance-header,
-	.acas-instance .instance-feedback-container,
-	.acas-instance .instance-opening-container:has(+ .instance-feedback-container:empty) {
-		border-radius: 0;
-	}
-}
 .chessboard-components {
 	position: relative;
 	height: fit-content;
@@ -505,7 +495,9 @@ cg-container {
     display: flex;
     align-items: center;
     flex-direction: column;
-    min-height: 5px;
+    /* Reserve two lines so short and long opening names give equal heights; spare row height goes here too. */
+    flex: 1 0 auto;
+    min-height: calc(2 * 1.25em + 14px);
     justify-content: center;
     font-size: 15px;
     font-weight: 400;
@@ -516,6 +508,7 @@ cg-container {
 .instance-opening-container span {
     padding: 7px;
     text-align: center;
+    font-weight: 500;
 }
 .instance-opening-container:has(+ .instance-feedback-container:empty) {
     border-radius: 0 0 6px 6px;
@@ -524,6 +517,9 @@ cg-container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+}
+#polyglot-book-input > :first-child {
+    flex: 0 0 auto !important;
 }
 .assistance-concealment-active {
     opacity: 0.8 !important;
@@ -583,7 +579,7 @@ cg-container {
 }
 .instance-information * {
     font-size: 12px;
-    font-weight: 200;
+    font-weight: 400;
     color: rgb(255 255 255 / 50%);
     word-break: break-word;
 }
@@ -635,6 +631,10 @@ cg-container {
     border-top: 1px solid rgb(255 255 255 / 8%);
     border-bottom: 1px solid rgb(255 255 255 / 8%);
 }
+.instance-feedback-totals:last-child {
+    margin-bottom: 0;
+    border-bottom: 0;
+}
 .instance-feedback-count-line {
     min-height: 1.5em;
 }
@@ -645,6 +645,12 @@ cg-container {
     text-align: right;
     font-weight: 500;
 }
+.instance-feedback-stats {
+    margin-left: 14px;
+    opacity: 0.6;
+    white-space: pre;
+    font-variant-numeric: tabular-nums;
+}
 
 .instance-feedback-score {
     white-space: nowrap;
@@ -654,7 +660,8 @@ cg-container {
 }
 #feedback-floaty:has(input[data-key="learningMode"]:checked) .move-feedback-settings,
 #feedback-floaty:not(:has(input[data-key="learningMode"]:checked)) .move-feedback-settings > .custom-input[aria-disabled="true"],
-#feedback-floaty .feedback-display-settings .custom-input[aria-disabled="true"] {
+#feedback-floaty .feedback-display-settings .custom-input[aria-disabled="true"],
+#suggestion-mix-floaty .custom-input[aria-disabled="true"] {
     filter: blur(2px);
     opacity: 0.5;
     pointer-events: none;
@@ -688,15 +695,15 @@ cg-container {
 	font-stretch: semi-expanded;
 	text-transform: capitalize;
 	font-size: 17px;
-    font-weight: 400;
+    font-weight: 500;
 }
 .variant-not-supported-text {
 	color: rgb(255 255 255 / 50%);
 	font-size: 0.8em;
 }
 .instance-domain {
-	font-size: 15px;
-	font-weight: 400;
+	font-size: 14px;
+	font-weight: 500;
 	color: rgb(255 255 255 / 70%);
 }
 .instance-settings-btn {
@@ -1130,9 +1137,17 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     color: rgb(255 255 255 / 90%);
     text-shadow: 0px 2px 0px rgb(0 0 0 / 50%);
     font-family: "Mona Sans", "IBM Plex Sans", Inter, sans-serif;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+@media (max-width: 360px) {
+    #no-instances-title {
+        font-size: 20px;
+    }
 }
 #no-instances-subtitle {
     margin: 20px;
+    max-width: 550px;
     font-weight: 400;
     font-size: 20px;
     color: rgb(255 255 255 / 85%);
@@ -1175,7 +1190,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 }
 .connection-warning-subtitle {
 	font-size: 15px;
-	font-weight: 400;
+	font-weight: 500;
 	color: rgb(195 195 195 / 70%);
 }
 .highlight-indicator {
@@ -1277,12 +1292,39 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #acas-settings-container:not(.is-active) #settings-header {
     background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 30%, transparent);
 }
+@media (pointer: coarse) {
+    #acas-settings-container:not(.is-active) #settings-header {
+        background-color: color-mix(in srgb, var(--background-texture-base, #5f8895) 15%, transparent);
+    }
+}
 #settings-control-panel {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
+	row-gap: 5px;
+	min-width: 0;
 }
 #settings-control-panel>*:not(:last-child) {
 	margin-right: 5px;
+}
+@media (max-width: 360px) {
+	#settings-control-panel .control-panel-btn {
+		width: 34px;
+		height: 34px;
+		font-size: 22px;
+	}
+	#settings-control-panel .open-floaty-btn {
+		box-sizing: content-box;
+		padding: 0;
+		margin: 0;
+		width: 34px;
+		height: 34px;
+		font-size: 22px;
+		line-height: 1;
+	}
+	#settings-control-panel>*:not(:last-child) {
+		margin-right: 3px;
+	}
 }
 #settings-control-panel > .dynamic-settings-editor {
     display: contents;
@@ -1444,6 +1486,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 }
 #settings-navbar-instance:hover .dropdown-content {
 	display: block !important;
+	animation: dropdown-hover-delay 0s linear 250ms backwards;
 }
 #settings-navbar .dropdown-item-title {
 	font-size: 15px;
@@ -1477,6 +1520,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	color: white;
 	font-weight: 600;
 	text-align: left;
+	text-shadow: 0px 1px 0px rgb(0 0 0 / 50%);
 }
 #no-instances-sites .sites-subtitle {
 	font-size: 16px;
@@ -1507,6 +1551,15 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	margin-bottom: 30px;
 	border: 2px solid rgb(255 255 255 / 15%);
     font-weight: 500;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+@media (max-width: 280px) {
+	#see-supported-sites-btn {
+		font-size: 13px;
+		padding: 8px;
+	}
 }
 #see-supported-sites-btn:hover {
 	background-color: rgb(255 255 255 / 20%);
@@ -1573,6 +1626,41 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	flex-direction: row;
 	grid-gap: 5px;
 }
+@media (max-width: 600px) {
+	#acas-is-free-reminder {
+		font-size: 10px;
+	}
+}
+@media (max-width: 430px) {
+	#acas-is-free-reminder {
+		font-size: 8px;
+	}
+}
+@media (max-width: 360px) {
+	#acas-is-free-reminder span {
+		display: none !important;
+	}
+}
+@media (max-width: 380px) {
+	#acas-is-free-reminder .greasyfork-button {
+		display: none !important;
+	}
+}
+@media (max-width: 328px) {
+	#acas-is-free-reminder .github-button {
+		display: none !important;
+	}
+}
+@media (max-width: 180px) {
+	#acas-is-free-reminder .acas-social-actions {
+		display: none !important;
+	}
+}
+@media (max-width: 272px) {
+	#acas-is-free-reminder .acas-social-actions .header-social-button {
+		display: none !important;
+	}
+}
 .header-social-button {
 	display: flex;
 	width: fit-content;
@@ -1586,6 +1674,9 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	cursor: pointer;
 	text-decoration: none;
 	text-align: center;
+}
+.acas-social-actions .header-social-button:hover {
+    transform: none;
 }
 .github-button {
     border-radius: var(--settings-input-border-radius);
@@ -1692,10 +1783,17 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	color: rgb(255 130 130) !important;
 }
 #update-your-userscript-notification {
-	color: #ff7858;
-    display: flex;
-    align-items: center;
-    font-size: 10px;
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    max-width: 440px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ff7858;
+    text-shadow: 0px 1px 0px rgb(0 0 0 / 50%);
+}
+#update-your-userscript-notification:hover {
+    color: #ff9c85;
 }
 .input-combination-box {
 	display: flex;
@@ -2151,7 +2249,35 @@ input[disabled] {
     flex-direction: column;
     align-items: stretch;
 }
-#dynamic-setting-panel .textfield-input input {
+#suggestion-mix-floaty .textfield-input input[type="number"][data-mix-category] {
+    box-sizing: content-box;
+    width: 3ch;
+    min-width: 0;
+    field-sizing: fixed;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+#suggestion-mix-floaty input::-webkit-inner-spin-button,
+#suggestion-mix-floaty input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#suggestion-mix-floaty .suggestion-mix-divider {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-top: 1px dashed rgb(255 255 255 / 24%);
+}
+
+#suggestion-mix-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#dynamic-setting-panel .textfield-input input:not([data-between]) {
     min-width: 40px !important;
 	width: 125px;
 }
@@ -2166,6 +2292,10 @@ input[disabled] {
     align-items: baseline !important;
 	margin-left: 10px;
     margin-bottom: 10px;
+}
+.custom-input.dynamic-param-input > :first-child:has(> .input-title),
+.custom-input.dynamic-param-input > .dynamic-setting-copy {
+    flex: 0 0 auto !important;
 }
 .dynamic-param-input input {
 	background-color: rgb(0 0 0 / 10%) !important;
@@ -2947,20 +3077,49 @@ input[disabled] {
         padding-right: 10px;
         display: flex;
         align-items: center;
+        overflow: hidden;
+    }
+    /* Author-provided button so the selected text can shrink and be clipped before the arrow. */
+    :is(#log-floaty, #dynamic-settings-floaty) :is(#activity-log-filter, #dynamic-add-setting, #dynamic-interpolation, #dynamic-variable-compact) > button:first-child {
+        appearance: none;
+        flex: 1 1 0;
+        min-width: 0;
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: inherit;
+        overflow: hidden;
+    }
+    :is(#log-floaty, #dynamic-settings-floaty) :is(#activity-log-filter, #dynamic-add-setting, #dynamic-interpolation, #dynamic-variable-compact) > button:first-child selectedcontent {
+        display: block;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     :is(#activity-log-filter, #dynamic-add-setting, #dynamic-interpolation, #dynamic-variable-compact)::picker(select) {
         appearance: base-select;
         max-height: 300px;
         min-width: anchor-size(width);
         overflow-y: auto;
-        color: rgb(255 255 255 / 70%);
-        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-        border: 0;
-        border-bottom: 4px solid rgb(255 255 255 / 32%);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        background: rgb(133 133 133 / 40%);
+        overscroll-behavior: contain;
+        color: rgb(255 255 255 / 95%);
+        border: 1px solid rgb(255 255 255 / 28%);
+        border-top: 0;
+        border-bottom: 4px solid rgb(255 255 255 / 44%);
         border-radius: 0 5px 5px 5px;
+        backdrop-filter: blur(20px) saturate(1.4) brightness(1.12);
+        -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(1.12);
+        background: linear-gradient(135deg, rgb(255 255 255 / 7%), rgb(255 255 255 / 3%) 65%), rgb(222 237 255 / 14%);
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%), 0 8px 24px rgb(0 0 0 / 18%);
         padding: 5px;
     }
     :is(#activity-log-filter, #dynamic-add-setting, #dynamic-interpolation, #dynamic-variable-compact)::picker-icon {
@@ -3090,7 +3249,19 @@ input[disabled] {
 #dynamic-settings-floaty .dynamic-axis-label {
     fill: rgb(255 255 255 / 75%);
     font: 12px "Rubik", "IBM Plex Sans", sans-serif;
-    font-weight: 500;
+    font-weight: 700;
+}
+#dynamic-settings-floaty .dynamic-axis-label-marquee {
+    animation: dynamic-axis-marquee 4s ease-in-out infinite alternate;
+}
+@keyframes dynamic-axis-marquee {
+    0%, 15% { transform: translateX(0); }
+    85%, 100% { transform: translateX(calc(var(--marquee-shift, 0px) * -1)); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #dynamic-settings-floaty .dynamic-axis-label-marquee {
+        animation: none;
+    }
 }
 #dynamic-settings-floaty .dynamic-curve-line {
     fill: none;
@@ -3190,7 +3361,7 @@ input[disabled] {
     border: 0;
     background: transparent;
     color: rgb(255 255 255 / 82%);
-    font: 500 var(--dynamic-control-font-size) "Rubik", "IBM Plex Sans", sans-serif;
+    font: 500 12px "Rubik", "IBM Plex Sans", sans-serif;
     text-align: left;
     cursor: pointer;
 }
@@ -3218,14 +3389,13 @@ input[disabled] {
     opacity: 0.5;
 }
 #dynamic-settings-floaty .dynamic-line-row.is-selected {
-    border-color: rgb(255 255 255 / 26%);
-    background: rgb(255 255 255 / 7%);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%);
+    border-color: rgb(255 255 255 / 16%);
+    background: rgb(255 255 255 / 3%);
     opacity: 1;
 }
 #dynamic-settings-floaty .dynamic-line-row.is-selected .dynamic-line-name {
     color: white;
-    font-weight: 700;
+    font-weight: 600;
 }
 #dynamic-settings-floaty .dynamic-line-row > .dynamic-line-value {
     color: var(--line-color);
@@ -3235,6 +3405,7 @@ input[disabled] {
     padding: 8px;
     font-size: 12px;
     color: rgb(255 255 255 / 60%);
+    font-weight: 500;
 }
 #dynamic-settings-floaty .dynamic-line-row > span {
     flex: 0 0 auto;
@@ -3377,6 +3548,24 @@ input[disabled] {
     justify-content: center;
     min-width: 34px;
 }
+#dynamic-settings-floaty #dynamic-fit-graph svg {
+    width: 18px;
+    height: 18px;
+}
+#dynamic-settings-floaty #dynamic-fullscreen-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+#dynamic-settings-floaty :is(#dynamic-zoom-in, #dynamic-zoom-out) {
+    font-size: 20px;
+    line-height: 1;
+}
+#dynamic-settings-floaty #dynamic-fit-graph svg path {
+    stroke-width: 2.4;
+}
+#dynamic-settings-floaty #dynamic-fullscreen-toggle svg path {
+    stroke-width: 2.2;
+}
 #dynamic-settings-floaty #dynamic-fullscreen-toggle[aria-pressed="true"] {
     background: rgb(255 255 255 / 14%);
     border-color: rgb(255 255 255 / 45%);
@@ -3506,11 +3695,61 @@ input[disabled] {
 }
 @media (max-width: 700px), (pointer: coarse) and (max-width: 1100px) {
     #dynamic-settings-floaty #dynamic-point-text {
-        height: 44px;
+        height: 36px;
     }
     #dynamic-settings-floaty #dynamic-apply-text {
-        min-height: 44px;
+        min-height: 36px;
     }
+}
+/* Unified graph toolbar controls, matching #dynamic-variable-compact (side and top borders thin, thicker bottom). */
+#dynamic-settings-floaty .dynamic-graph-toolbar > button,
+#dynamic-settings-floaty .dynamic-graph-toolbar :is(#dynamic-add-setting, #dynamic-interpolation, #dynamic-point-choice),
+#dynamic-settings-floaty .dynamic-graph-toolbar .dynamic-point-inspector :is(input, button) {
+    box-sizing: border-box;
+    border: 2px solid rgb(255 255 255 / 10%);
+    border-bottom-width: 4px;
+    border-radius: 4px;
+    background-color: var(--settings-input-main-bg-color);
+    color: white;
+    font: 500 var(--dynamic-control-font-size) "Rubik", "IBM Plex Sans", sans-serif;
+}
+#dynamic-settings-floaty .dynamic-graph-toolbar :is(#dynamic-add-setting, #dynamic-interpolation) {
+    min-height: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#dynamic-settings-floaty .dynamic-graph-toolbar .dynamic-axis-control {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    min-width: 150px;
+}
+#dynamic-settings-floaty .dynamic-graph-toolbar .dynamic-field-label {
+    flex: 0 0 auto;
+}
+#dynamic-settings-floaty .dynamic-graph-toolbar #dynamic-interpolation {
+    flex: 1 1 auto;
+    min-width: 100px;
+}
+/* The lock icon replaces the dropdown arrow while the select is disabled. */
+#dynamic-settings-floaty .dynamic-graph-toolbar .dynamic-axis-control.is-locked #dynamic-interpolation {
+    padding-right: 28px;
+    background-image: none;
+}
+#dynamic-settings-floaty .dynamic-graph-toolbar .dynamic-axis-control.is-locked #dynamic-interpolation::picker-icon {
+    display: none;
+}
+#dynamic-settings-floaty .dynamic-graph-toolbar > button:not(:disabled),
+#dynamic-settings-floaty .dynamic-graph-toolbar #dynamic-add-line:not(:disabled) {
+    border-color: rgb(255 255 255 / 10%);
+    background-color: var(--settings-input-main-bg-color);
+    color: white;
+}
+#dynamic-settings-floaty .dynamic-graph-toolbar :is(select, input, button):disabled {
+    opacity: 0.4;
+    border-style: solid;
+    border-color: rgb(255 255 255 / 10%);
 }
 #log-floaty #activity-log-filter:not(:disabled):is(:hover, :focus-visible),
 #log-floaty #activity-log-toggle:not(:disabled):is(:hover, :focus-visible),
@@ -3584,7 +3823,7 @@ input[disabled] {
         padding-bottom: max(0px, env(safe-area-inset-bottom));
     }
     #dynamic-settings-floaty {
-        --dynamic-control-font-size: 16px;
+        --dynamic-control-font-size: 13px;
         box-sizing: border-box;
         position: fixed;
         inset: 0;
@@ -3632,7 +3871,7 @@ input[disabled] {
     #dynamic-settings-floaty .floaty-header.has-variable-control .dynamic-variable-control {
         box-sizing: border-box;
         flex: 1 1 auto;
-        height: 44px;
+        height: 36px;
         border-radius: 5px !important;
     }
     #dynamic-settings-floaty .floaty-header.has-variable-control #dynamic-variable-compact {
@@ -3640,8 +3879,8 @@ input[disabled] {
         min-height: 0;
     }
     #dynamic-settings-floaty .floaty-header.has-variable-control .floaty-close-btn {
-        width: 44px;
-        height: 44px;
+        width: 36px;
+        height: 36px;
     }
     #dynamic-settings-floaty .dynamic-settings-body {
         flex: 1 1 auto;
@@ -3695,13 +3934,13 @@ input[disabled] {
         gap: 2px;
     }
     #dynamic-settings-floaty .dynamic-graph-toolbar .dynamic-field-label {
-        font-size: 15px;
+        font-size: 13px;
         padding-right: 5px;
     }
     #dynamic-settings-floaty .dynamic-graph-toolbar #dynamic-add-line {
         padding: 4px 16px;
         font-size: var(--dynamic-control-font-size);
-        min-height: 44px;
+        min-height: 36px;
     }
     #dynamic-settings-floaty .dynamic-settings-toolbar {
         padding: 6px 8px;
@@ -3709,25 +3948,37 @@ input[disabled] {
     }
     #dynamic-settings-floaty .dynamic-settings-toolbar > button,
     #dynamic-settings-floaty .dynamic-settings-toolbar select {
-        min-height: 44px;
-        height: 44px;
-    }
-    #dynamic-settings-floaty .dynamic-settings-toolbar select {
-        font-size: var(--dynamic-control-font-size);
-        padding: 4px 16px 4px 5px;
+        min-height: 36px;
+        height: 36px;
     }
     #dynamic-settings-floaty .dynamic-graph-toolbar {
         flex-wrap: nowrap;
         overflow-x: auto;
+        overflow-y: hidden;
         overscroll-behavior-x: contain;
         scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
+    }
+    #dynamic-settings-floaty .dynamic-graph-toolbar:is(:hover, :focus-within),
+    #dynamic-settings-floaty .dynamic-lines-list:is(:hover, :focus-within) {
+        scrollbar-color: var(--scrollbar-thumb-hover-background) var(--scrollbar-track-background);
+    }
+    @supports selector(::-webkit-scrollbar) {
+        #dynamic-settings-floaty .dynamic-graph-toolbar,
+        #dynamic-settings-floaty .dynamic-graph-toolbar:is(:hover, :focus-within),
+        #dynamic-settings-floaty .dynamic-lines-list,
+        #dynamic-settings-floaty .dynamic-lines-list:is(:hover, :focus-within) {
+            /* Use the shared rounded scrollbar and thumb hover styles. */
+            scrollbar-width: auto;
+            scrollbar-color: auto;
+        }
     }
     #dynamic-settings-floaty .dynamic-graph-toolbar > button {
         flex: 0 0 auto;
-        min-width: 44px;
+        min-width: 36px;
         padding: 4px 6px;
         white-space: nowrap;
-        padding: 0 20px;
+        padding: 0 12px;
     }
     #dynamic-settings-floaty .dynamic-lines-list {
         flex-wrap: nowrap;
@@ -3740,22 +3991,22 @@ input[disabled] {
         scrollbar-width: thin;
     }
     #dynamic-settings-floaty .dynamic-line-row {
-        min-height: 44px;
+        min-height: 36px;
         max-width: 90%;
     }
     #dynamic-settings-floaty .dynamic-line-select {
-        min-height: 44px;
+        min-height: 36px;
         max-width: 230px;
         padding: 6px 4px;
-        font-size: var(--dynamic-control-font-size);
+        font-size: 13px;
         display: flex;
         align-items: center;
     }
     #dynamic-settings-floaty .dynamic-line-value {
-        font-size: 14px;
+        font-size: 12px;
     }
     #dynamic-settings-floaty .dynamic-line-visibility {
-        flex-basis: 44px;
+        flex-basis: 36px;
     }
     #dynamic-settings-floaty .dynamic-point-inspector {
         flex: 0 0 auto;
@@ -3772,7 +4023,7 @@ input[disabled] {
     #dynamic-settings-floaty .dynamic-point-inspector input {
         width: 90px;
         min-width: 0;
-        height: 44px;
+        height: 36px;
         font-size: var(--dynamic-control-font-size);
     }
     #dynamic-settings-floaty .dynamic-settings-toolbar > .dynamic-axis-control {
@@ -3782,9 +4033,20 @@ input[disabled] {
         padding-right: 24px;
     }
     #dynamic-settings-floaty .dynamic-variable-tabs > button {
-        min-height: 44px;
+        min-height: 36px;
         padding: 8px 16px;
         font-size: var(--dynamic-control-font-size);
+    }
+    #dynamic-settings-floaty #dynamic-fit-graph svg {
+        width: 15px;
+        height: 15px;
+    }
+    #dynamic-settings-floaty #dynamic-fullscreen-toggle svg {
+        width: 15px;
+        height: 15px;
+    }
+    #dynamic-settings-floaty :is(#dynamic-zoom-in, #dynamic-zoom-out) {
+        font-size: 17px;
     }
 }
 @media (max-width: 700px) and (max-height: 500px) and (orientation: landscape), (pointer: coarse) and (max-width: 1100px) and (max-height: 500px) and (orientation: landscape) {
@@ -4040,12 +4302,72 @@ dialog > .floaty-container::before,
     background-size: clamp(100px, 8vw, 130px)  clamp(100px, 8vw, 130px), 100% 100% !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
+    #no-instances-container {
+        border-bottom-width: 4px;
+    }
+    body {
+        --acas-header-height: 65px;
+    }
+    #acas-header {
+        padding: 13px 20px;
+        align-items: center;
+        gap: 5px;
+    }
+    #acas-is-free-reminder {
+        grid-gap: 0;
+    }
+    #acas-is-free-reminder > span {
+        display: none;
+    }
+    #acas-logo {
+        font-size: 25px;
+    }
+    #acas-logo-img {
+        width: 120px;
+        max-height: 80px;
+        margin-top: -8px;
+    }
+    #acas-version-tag {
+        font-size: 12px;
+    }
+    #acas-logo-secondary {
+        font-size: 12px;
+    }
+    #acas-logo-secondary.has-whisper-font {
+        font-size: 18px;
+        margin-top: -8px;
+    }
     #no-instances-container,
-    #acas-header::before,
     #acas-settings-container::before,
     dialog > .floaty-container::before,
     #footer {
         background-size: 80px 80px, 100% 100% !important;
+        border-radius: 4px;
+        border-top-color: rgb(0 0 0 / 10%);
+        border-left: 0;
+        border-right: 0;
+        width: 100%;
+        border-radius: 0;
     }
+    #acas-instance-container {
+		padding: var(--acas-header-height) 0 var(--settings-header-height);
+		grid-gap: 0;
+	}
+	.acas-instance {
+		width: 100% !important;
+		max-width: none;
+		border-radius: 0;
+		border-inline-width: 0;
+        border-top: 2px solid rgb(0 0 0 / 40%);
+	}
+	#acas-header,
+	#acas-header::before {
+		border-radius: 0;
+	}
+	.acas-instance .instance-header,
+	.acas-instance .instance-feedback-container,
+	.acas-instance .instance-opening-container:has(+ .instance-feedback-container:empty) {
+		border-radius: 0;
+	}
 }

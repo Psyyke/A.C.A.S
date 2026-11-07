@@ -8,10 +8,10 @@ const LOG_TIME_STORAGE_KEY = 'acas-server-log-compact-time';
 const DEFAULT_LOG_FONT_SIZE = 14;
 const MIN_LOG_FONT_SIZE = 10;
 const MAX_LOG_FONT_SIZE = 24;
-const logSecondsFormatter = new Intl.DateTimeFormat(undefined, { second: '2-digit' });
+const LOG_TIME_MODES = ['full', 'compact', 'seconds', 'none'];
 let logFontSize = DEFAULT_LOG_FONT_SIZE;
 let wrapLogLines = true;
-let compactLogTimestamps = false;
+let logTimeMode = 'full';
 
 try {
     const storedSize = Number(localStorage.getItem(LOG_FONT_STORAGE_KEY));
@@ -25,7 +25,9 @@ try {
 } catch { /* Line wrapping still works when storage is unavailable. */ }
 
 try {
-    compactLogTimestamps = localStorage.getItem(LOG_TIME_STORAGE_KEY) === 'true';
+    const storedMode = localStorage.getItem(LOG_TIME_STORAGE_KEY);
+    if(storedMode === 'true') logTimeMode = 'compact';
+    else if(LOG_TIME_MODES.includes(storedMode)) logTimeMode = storedMode;
 } catch { /* Timestamp toggling still works when storage is unavailable. */ }
 
 document.documentElement.style.setProperty('--log-font-size', `${logFontSize}px`);
@@ -72,10 +74,12 @@ function updateLogWrapControl(logDiv, wrapBtn) {
     wrapBtn.querySelector('i').className = `bi ${wrapLogLines ? 'bi-arrow-return-left' : 'bi-arrow-right'}`;
 }
 
-function formatLogTimestamp(timestamp, compact = compactLogTimestamps) {
+function formatLogTimestamp(timestamp, mode = logTimeMode) {
     const date = new Date(timestamp);
-    if(compact) {
-        const seconds = logSecondsFormatter.formatToParts(date).find(part => part.type === 'second')?.value;
+    if(mode === 'none') return '';
+    if(mode === 'seconds') return String(date.getSeconds()).padStart(2, '0');
+    if(mode === 'compact') {
+        const seconds = String(date.getSeconds()).padStart(2, '0');
         return `${seconds}.${String(date.getMilliseconds()).padStart(3, '0')}`;
     }
     return date.toLocaleTimeString([], {
@@ -92,16 +96,21 @@ function filterConsoleEntries(logDiv, filterInput) {
 }
 
 function updateLogTimeControl(logDiv, timeBtn) {
-    logDiv.classList.toggle('compact-time', compactLogTimestamps);
-    timeBtn.setAttribute('aria-pressed', String(compactLogTimestamps));
-    const label = compactLogTimestamps ? 'Show full timestamps' : 'Show seconds and milliseconds only';
+    logDiv.dataset.timeMode = logTimeMode;
+    timeBtn.dataset.timeMode = logTimeMode;
+    const labels = {
+        full: 'Full time', compact: 'Seconds and milliseconds', seconds: 'Seconds only', none: 'No timestamps'
+    };
+    const nextMode = LOG_TIME_MODES[(LOG_TIME_MODES.indexOf(logTimeMode) + 1) % LOG_TIME_MODES.length];
+    const label = `Timestamp: ${labels[logTimeMode]}. Click for ${labels[nextMode].toLowerCase()}.`;
     timeBtn.setAttribute('aria-label', label);
     timeBtn.title = label;
 }
 
-function setLogTimeMode(compact) {
-    if(compactLogTimestamps === compact) return;
-    compactLogTimestamps = compact;
+function setLogTimeMode(mode) {
+    if(!LOG_TIME_MODES.includes(mode)) throw new Error(`Unknown timestamp mode: ${mode}`);
+    if(logTimeMode === mode) return;
+    logTimeMode = mode;
     CONSOLE_OBJS.forEach(({ logDiv, filterInput, timeBtn }) => {
         const atBottom = logDiv.scrollHeight - logDiv.clientHeight <= logDiv.scrollTop + 60;
         const ratio = logDiv.scrollTop / Math.max(1, logDiv.scrollHeight - logDiv.clientHeight);
@@ -112,26 +121,35 @@ function setLogTimeMode(compact) {
         filterConsoleEntries(logDiv, filterInput);
         logDiv.scrollTop = atBottom ? logDiv.scrollHeight : ratio * (logDiv.scrollHeight - logDiv.clientHeight);
     });
-    try { localStorage.setItem(LOG_TIME_STORAGE_KEY, String(compactLogTimestamps)); } catch { /* Optional preference. */ }
+    try { localStorage.setItem(LOG_TIME_STORAGE_KEY, logTimeMode); } catch { /* Optional preference. */ }
+}
+
+function getEngineDisplayContext(identifierObj) {
+    const engine = savedEngines.find(engine => engine.engineId === identifierObj.engineId);
+    const name = engine?.title || engine?.name || 'Unknown engine';
+    const site = identifierObj.siteDomain || 'Unknown site';
+    const context = `${site} · ${identifierObj.profileName}`;
+    return { name, site, context, label: `${name} · ${context}` };
 }
 
 function createKillEngineButton(identifierObj) {
+    const { label } = getEngineDisplayContext(identifierObj);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'kill-engine-btn acas-fancy-button';
     button.innerHTML = '<i class="bi bi-stop-fill" aria-hidden="true"></i> Kill';
-    button.title = `Kill only this process (profile: ${identifierObj.profileName}, instance: ${identifierObj.instanceId}). The web GUI can launch it again on a new analysis.`;
-    button.setAttribute('aria-label', `Kill engine for profile ${identifierObj.profileName}, instance ${identifierObj.instanceId}`);
+    button.title = `Kill ${label}. The web GUI can launch it again on a new analysis.`;
+    button.setAttribute('aria-label', `Kill ${label}`);
     button.onclick = async event => {
         event.stopPropagation();
         button.disabled = true;
         try {
             const result = await window.engineAPI.killEngine(identifierObj);
-            if(typeof result === 'string') toast.error(result, 5000);
-            else if(result === false) toast.message('This engine process is no longer running.', 2000);
+            if(typeof result === 'string') toast.error(`${label}: ${result}`, 5000);
+            else if(result === false) toast.message(`${label} is no longer running.`, 2000);
         } catch(error) {
             console.error('Failed to kill engine:', error);
-            toast.error('Could not kill this engine process.', 5000);
+            toast.error(`Could not kill ${label}.`, 5000);
         } finally {
             if(button.isConnected) button.disabled = false;
         }
@@ -158,7 +176,7 @@ async function log(text, type = 'info', identifierObj) {
     const time = div.querySelector('.timestamp');
     time.dataset.timestamp = String(timestamp);
     time.textContent = formatLogTimestamp(timestamp);
-    time.title = formatLogTimestamp(timestamp, false);
+    time.title = formatLogTimestamp(timestamp, 'full');
     div.querySelector('.msg-body').textContent = text;
 
     const currentFilter = filterInput.value.toLowerCase();
@@ -179,7 +197,7 @@ async function log(text, type = 'info', identifierObj) {
 }
 
 function addConsoleView(identifierObj) {
-    const { engineId, profileName, instanceId, identifierKey } = identifierObj;
+    const { identifierKey } = identifierObj;
     if(CONSOLE_OBJS.has(identifierKey)) return;
 
     let isPaused = false;
@@ -199,7 +217,7 @@ function addConsoleView(identifierObj) {
             <input type="text" class="logFilter" placeholder="Filter (depth, pv, ...)" />
             <button class="acas-fancy-button clearBtn" title="Clear console">Clear</button>
             <button class="pauseBtn acas-fancy-button">Pause</button>
-            <button class="timeBtn acas-fancy-button" type="button" aria-pressed="false">
+            <button class="timeBtn acas-fancy-button" type="button">
                 <i class="bi bi-clock" aria-hidden="true"></i>
             </button>
             <button class="wrapBtn acas-fancy-button" type="button" aria-pressed="false">
@@ -213,10 +231,10 @@ function addConsoleView(identifierObj) {
         </div>`;
 
     const engineNameElem = consoleSection.querySelector('.console-engine-name');
-    const engineInfo = savedEngines.find(e => e.engineId === engineId);
-    engineNameElem.textContent = engineInfo?.title || engineInfo?.name || 'Unknown engine';
-    engineNameElem.title = `Engine ID: ${engineId}`;
-    consoleSection.querySelector('.console-engine-context').textContent = `Profile: ${profileName} · Instance: ${instanceId}`;
+    const { name, context, label } = getEngineDisplayContext(identifierObj);
+    engineNameElem.textContent = name;
+    engineNameElem.title = label;
+    consoleSection.querySelector('.console-engine-context').textContent = context;
     consoleSection.querySelector('.console-title-row').appendChild(createKillEngineButton(identifierObj));
 
     const logDiv = consoleSection.querySelector('.log');
@@ -225,7 +243,7 @@ function addConsoleView(identifierObj) {
     const pauseBtn = consoleSection.querySelector('.pauseBtn');
     const clearBtn = consoleSection.querySelector('.clearBtn');
     const timeBtn = consoleSection.querySelector('.timeBtn');
-    timeBtn.onclick = () => setLogTimeMode(!compactLogTimestamps);
+    timeBtn.onclick = () => setLogTimeMode(LOG_TIME_MODES[(LOG_TIME_MODES.indexOf(logTimeMode) + 1) % LOG_TIME_MODES.length]);
     updateLogTimeControl(logDiv, timeBtn);
     const wrapBtn = consoleSection.querySelector('.wrapBtn');
     wrapBtn.onclick = () => setLogWrapMode(!wrapLogLines);

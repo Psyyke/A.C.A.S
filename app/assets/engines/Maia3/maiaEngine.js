@@ -215,6 +215,11 @@ class MaiaEngine {
 	async clearStorage() {
 		return await this.maia.clearStorage();
 	}
+
+	dispose(reason) {
+		this.ready = false;
+		this.maia.dispose(reason);
+	}
 }
 
 export default MaiaEngine;

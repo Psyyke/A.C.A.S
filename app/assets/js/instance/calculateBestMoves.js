@@ -3,6 +3,8 @@ import { updatePipData, updatePipHints } from '../gui/pip.js';
 import { incrementUserUsageStat } from '../gui/stats.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { Chess } from '../../engines/libraries/chessjs/chess.js';
+import { enginePosition } from './enginePosition.js';
+import { searchCommand } from './searchCommand.js';
 
 function getTerminalOutcome(fen, playerColor) {
     if(!['w', 'b'].includes(playerColor)) return null;
@@ -35,6 +37,11 @@ export default async function calculateBestMoves(currentFen, config = {}) {
     setDynamicSettingsContext(this.instanceID, currentFen, { playerColor });
     await this.syncDynamicSettings();
     const profiles = await GET_PROFILES(this.instanceID);
+    await this.suggestionMix?.configure();
+    if(this.instanceClosed || (this.currentFen && this.currentFen !== currentFen)) return;
+    const mixState = this.suggestionMix?.begin(currentFen);
+    this.CommLink.expectProfiles?.(currentFen, profiles.filter(profile =>
+        profile.config.engineEnabled && !profile.config.learningMode && !profile.config.movesOnDemand));
     let { skipValidityChecks, specificMovesObj, specificProfileName } = config;
 
     const shouldCalculate = p => p.config.engineEnabled
@@ -134,11 +141,34 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             return;
 
         const engineName = await this.getEngineName(profileName);
-        const movetime = await this.getConfigValue(this.configKeys.maxMovetime, profileName);
+        const searchMode = profileVariables.usingAdvancedMode
+            ? await this.getConfigValue(this.configKeys.advancedSearchMode, profileName) : 'standard';
+        const movetime = searchMode === 'movetime' ? 0
+            : await this.getConfigValue(this.configKeys.maxMovetime, profileName);
+        const engineMovetime = searchMode === 'movetime'
+            ? (await this.getConfigValue(this.configKeys.advancedSearchMovetime, profileName)) ?? 5000 : null;
         // Parallel FEN updates can pass the earlier busy check while awaiting settings.
         if(!isCurrentCalculation() || !profileVariables.engineSettingsReady) return;
         if(this.isEngineCalculating(profileName)) {
             queueLatestCalculation();
+            return;
+        }
+
+        let search;
+        try {
+            search = searchCommand({
+                advanced: profileVariables.usingAdvancedMode, mode: searchMode, movetime: engineMovetime,
+                depth: profileVariables.searchDepth, nodes: profileVariables.engineNodes,
+                specificMoves: specificMovesObj?.moves ? ' searchmoves ' + specificMovesObj.moves.join(' ') : ''
+            });
+        } catch(error) {
+            console.error('[Engine] Invalid search settings:', error);
+            setProfileBubbleStatus('warning', profileName, error.message);
+            const failed = { fen: currentFen, finished: true };
+            this.CommLink.analysisStarted?.(profileName, failed);
+            this.suggestionMix?.started(profileName, failed);
+            await this.suggestionMix?.failed(profileName, failed);
+            this.CommLink.analysisFailed?.(profileName, failed, error.message);
             return;
         }
 
@@ -148,11 +178,12 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         const calculation = { fen: currentFen, startedAt: Date.now(), finished: false, goSent: false };
         profileVariables.pendingCalculations = profileVariables.pendingCalculations.filter(x => !x.finished);
         profileVariables.pendingCalculations.push(calculation);
+        this.CommLink.analysisStarted?.(profileName, calculation);
+        this.suggestionMix?.started(profileName, calculation);
 
         if(!learning) this.Interface.removeMarkings(profileName, 'Calculating best moves');
 
         let reversedFen = null;
-        let specificMoves = '';
 
         if(!learning && alwaysMyTurn && profileFen.split(' ')[1] !== playerColor) profileFen = REVERSE_FEN_TURN(profileFen);
         if(!learning && alwaysMyTurn && reverseSide && !specificMovesObj) reversedFen = REVERSE_FEN_TURN(profileFen);
@@ -164,26 +195,17 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         calculation.annotationEligible = calculation.analyzedFen === currentFen && !specificMovesObj?.moves?.length;
         calculation.chessVariant = variant;
         calculation.useChess960 = profileVariables.useChess960;
-
-        if(specificMovesObj?.moves)
-            specificMoves = ' searchmoves ' + specificMovesObj.moves.join(' ');
-
-        // Cap otherwise unlimited searches: the app needs a final bestmove.
-        // Fusion accepts the same limits and searchmoves as the other UCI engines.
-        const depth = profileVariables.searchDepth || 100;
-        const nodes = profileVariables.engineNodes;
-        let searchCommandStr;
-
-        if(nodes > 0) {
-            searchCommandStr = `go nodes ${nodes}${specificMoves}`;
-            updatePipData({ goalNodes: nodes, goalDepth: null }, this, profileName);
-        } else {
-            searchCommandStr = `go depth ${depth}${specificMoves}`;
-            updatePipData({ goalDepth: depth, goalNodes: null }, this, profileName);
-        }
+        calculation.searchMode = searchMode;
+        calculation.engineMovetime = search.engineMovetime;
+        const searchCommandStr = search.command;
+        updatePipData({ goalNodes: search.goalNodes, goalDepth: search.goalDepth }, this, profileName);
 
         const abandonCalculation = (retryLatest = true) => {
             calculation.finished = true;
+            this.suggestionMix?.failed(profileName, calculation).catch(console.error);
+            if(!retryLatest) {
+                this.CommLink.analysisFailed?.(profileName, calculation, 'engine search could not start');
+            }
             if(this.pV[profileName] !== profileVariables) return;
             clearTimeout(profileVariables.currentStopTimeout);
             const request = profileVariables.pendingCalculationRequest;
@@ -217,7 +239,16 @@ export default async function calculateBestMoves(currentFen, config = {}) {
                 }
             }
 
-            if(await this.sendMsgToEngine(`position fen ${reversedFen || profileFen}`, profileName, false,
+            let positionCommand = `position fen ${calculation.analyzedFen}`;
+            if(variant === 'chess' && !profileVariables.useChess960 && calculation.analyzedFen === currentFen) {
+                try {
+                    positionCommand = enginePosition(currentFen, this.gameStateHistory,
+                        profileVariables.useExternalChessEngine ? 262144 : Infinity);
+                } catch(error) {
+                    console.warn('[Engine] Repetition history unavailable; analyzing current FEN only:', error);
+                }
+            }
+            if(await this.sendMsgToEngine(positionCommand, profileName, false,
                 () => isCurrentCalculation() && !calculation.stopRequested) === false) {
                 abandonCalculation(!isCurrentCalculation() || calculation.stopRequested);
                 return;
@@ -245,7 +276,9 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         incrementUserUsageStat('engineCalculations');
         if(!isCurrentCalculation() || calculation.finished || calculation.stopRequested) return;
 
-        updatePipData({ startTime: Date.now(), movetime, depth: 0, nodes: 0, calculationTimeElapsed: 0, calculationFinished: false }, this, profileName);
+        const displayMovetime = search.engineMovetime && movetime > 0
+            ? Math.min(search.engineMovetime, movetime) : search.engineMovetime || movetime;
+        updatePipData({ startTime: Date.now(), movetime: displayMovetime, depth: 0, nodes: 0, calculationTimeElapsed: 0, calculationFinished: false }, this, profileName);
 
         const statusText = `Calculating best moves with UCI command: ${searchCommandStr}\n`
             + `Max movetime: ${movetime || 'None'}`;
@@ -265,5 +298,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
                 
             }, movetime + 1);
         }
-    }));
+    })).finally(async () => {
+        if(mixState) await this.suggestionMix.end(mixState);
+    });
 }

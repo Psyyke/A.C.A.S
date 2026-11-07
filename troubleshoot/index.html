@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Troubleshoot / A.C.A.S</title>
+    <title>Help / A.C.A.S</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
-    <meta name="description" content="Get help with A.C.A.S">
+    <meta name="description" content="Common questions, troubleshooting and external server help for A.C.A.S.">
     <meta name="keywords" content="acas troubleshooting, chess assistant not working, fix chess userscript, frozen tab, no move suggestions">
-    <meta property="og:title" content="Troubleshoot / A.C.A.S">
-    <meta property="og:description" content="Get help with A.C.A.S">
+    <meta property="og:title" content="Help / A.C.A.S">
+    <meta property="og:description" content="Common questions, troubleshooting and external server help for A.C.A.S.">
     <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/troubleshoot/">
     <meta property="og:site_name" content="A.C.A.S">
     <meta property="og:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
@@ -16,8 +16,8 @@
     <meta property="og:image:height" content="907">
     <meta property="og:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Troubleshoot / A.C.A.S">
-    <meta name="twitter:description" content="Get help with A.C.A.S">
+    <meta name="twitter:title" content="Help / A.C.A.S">
+    <meta name="twitter:description" content="Common questions, troubleshooting and external server help for A.C.A.S.">
     <meta name="twitter:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
     <meta name="twitter:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
     <meta name="robots" content="max-image-preview:large">
@@ -44,16 +44,26 @@
     <main>
         <header>
             <div><a href="../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
-            <div>
+            <div class="header-nav">
                 <a href="../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
                 <a href="../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
-                <a href="../troubleshoot/" aria-label="Fixing A.C.A.S" class="fancy-btn"><i class="bi bi-tools"></i>Troubleshoot</a>
-                <a href="../faq/" aria-label="Frequently Asked Questions" class="fancy-btn"><i class="bi bi-chat-square-quote"></i>FAQ</a>
+                <a href="../tools/" aria-label="Chess tools" class="fancy-btn"><i class="bi bi-speedometer2"></i>Tools</a>
+                <a href="../troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-tools"></i>Help</a>
                 <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
                 <a href="../contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
                 <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
         </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="../install/"><i class="bi bi-download"></i>Install</a>
+            <a href="../usage/"><i class="bi bi-journals"></i>Usage</a>
+            <a href="../tools/"><i class="bi bi-speedometer2"></i>Tools</a>
+            <a href="../troubleshoot/" aria-current="page"><i class="bi bi-tools"></i>Help</a>
+            <a href="../blog/"><i class="bi bi-pen"></i>Blog</a>
+            <a href="../contributing/"><i class="bi bi-heart"></i>Contribute</a>
+            <a href="https://github.com/psyyke/A.C.A.S" target="_blank"><i class="bi bi-github"></i>GitHub</a>
+        </div></div></nav>
         <div class="content">
             <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/wN.svg">
             <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../assets/images/pieces/staunty/bK.svg">
@@ -63,40 +73,15 @@
             <!-- PAGE CONTENT -->
             <article class="markdown-section-sub markdown-section" id="main">
             <section>
-                <h1 id="troubleshoot-🛠️">Troubleshoot 🛠️</h1><p class="tip">Browsers freeze code execution on inactive pages, you need to visit the GUI tab from time to time, <strong>keep it at least partly visible on a separate window</strong> or <strong>use the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting</strong>. This prevents A.C.A.S from freezing and not giving any move suggestions.</p>
+                <h1 id="help-🛠️">Help 🛠️</h1><p><a href="#not-working">Something not working?</a> / <a href="#faq">Common questions</a> / <a href="#external-server">External server</a></p><p class="tip">Browsers freeze code execution on inactive pages, you need to visit the GUI tab from time to time, <strong>keep it at least partly visible on a separate window</strong> or <strong>use the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting</strong>. This prevents A.C.A.S from freezing and not giving any move suggestions.</p>
             </section>
-            <section>
-            <h2>External Server</h2>
 
-            <p>Make sure your browser allows this website to use the "Local network" and "Apps on device" permissions.</p>
-
-            <ol>
-                <li><strong>Google Chrome / Edge</strong>
-                    <ul>
-                        <li>Click the lock/config icon in the address bar → <a href="chrome://settings/content/siteDetails?site=https%3A%2F%2Fpsyyke.github.io" target="_blank"><strong>Site settings</strong></a>.</li>
-                        <li>Enable <strong>Local network access</strong> and <strong>Installable / Apps on device</strong> permissions.</li>
-                    </ul>
-                </li>
-                <li><strong>Mozilla Firefox</strong>
-                    <ul>
-                        <li>Click the shield or lock icon → <strong>Permissions</strong>.</li>
-                        <li>Allow <strong>Local network</strong> and <strong>Device access</strong>.</li>
-                    </ul>
-                </li>
-                <li><strong>Safari (macOS / iOS)</strong>
-                    <ul>
-                        <li>Open <strong>Settings → Safari → Advanced → Experimental Features</strong> (macOS) or <strong>Settings → Safari</strong> (iOS).</li>
-                        <li>Ensure <strong>Local network access</strong> is enabled.</li>
-                    </ul>
-                </li>
-            </ol>  
-            </section>
             <section>
-                <h2 id="not-working">Not Working</h2>
+                <h2 id="not-working">Something not working?</h2>
                 <p>Before <a href="https://github.com/Psyyke/A.C.A.S/issues" target="_blank" rel="noopener">making an issue</a>, please read these.</p>
                 <ul>
                     <li><p>Make sure the <a target="_about" href="../app">GUI</a> is active. Do not close the tab.</p></li>
-                    <li><p>Not seeing any moves displayed on the chess site? Are you sure you have enabled the <a target="_about" href="../app?shl=displayMovesOnExternalSite">Display Moves On External Site</a> setting? After enabling that setting, please refresh the chess site to see changes.</p></li>
+                    <li><p>Not seeing any moves displayed on the chess site? Make sure <a target="_about" href="../app?shl=displayMovesOnExternalSite">Display Moves On External Site</a> is enabled, then refresh the chess site. If assistance appears and then disappears, check the <a href="../usage/#⚙️-concealment">concealment settings</a>, which can temporarily hide arrows and feedback.</p></li>
                     <li><p>Are you trying to play variants on Chess.com? If so, it's not currently supported very well since I had to rush the project, sorry! Other sites with variants might also be buggy, you can make an issue about that if you want.</p></li>
                     <li><p>Make sure you did <strong>NOT</strong> set "<em>Piece Animations</em>" to "<em>Arcade</em>" on <strong>Chess.com</strong> board settings! Set the "<em>Piece Animations</em>" to "<em>None</em>" so that A.C.A.S can parse the board correctly. Thanks!</p></li>
                     <li>
@@ -122,9 +107,126 @@
                     </ul>
                 </blockquote>
             </section>
+                <section id="faq" itemscope itemtype="https://schema.org/FAQPage">
+                    <h2 id="common-questions">Common questions</h2>
+                    <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h2 id="is-this-a-chess-cheat" itemprop="name">Is A.C.A.S a chess cheat?</h2>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p itemprop="text">
+                                <b>Do NOT abuse A.C.A.S, use it to actually learn.</b> While we support the most popular chess websites like Chess.com and Lichess.org, A.C.A.S is not intended to be used against other players without their consent. It is not ethical to use it to cheat, and you risk getting banned. The intended use is for self-improvement, analysis, or playing by yourself. There's many ways you can use A.C.A.S to learn.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h2 id="how-to-play-more-legit" itemprop="name">How do I play more legitimately with A.C.A.S?</h2>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p itemprop="text">
+                                To play legitimately, vary your move times, avoid perfect accuracy, allow position swings, be mindful of "blurs" (switching browser tabs), balance speed and accuracy, limit fast moves in long games, match your rating, avoid showing extreme consistency, and... ugh, so many things.
+                            </p>
+                            <p>
+                               AI detection systems track these types of behavioral patterns to spot unfair play, so it's best to play honestly. Sooner or later <b>you will get banned</b> for following engine moves directly. Don't be that guy.
+                                For learning purposes, you can disable the <a target="_about" href="../app?shl=displayMovesOnExternalSite">Moves On External Site</a> setting to only see advice when you choose, allowing you to improve your skills naturally.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h2 id="why-is-it-not-working" itemprop="name">Why is A.C.A.S not working for me?</h2>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p itemprop="text">
+                                If A.C.A.S is not working, the supported site may have changed or become unsupported. Please report issues so we can make updates. It's also possible that edge cases (<i>such as unusual devices or rare Linux distributions</i>) may cause problems. Our goal is for A.C.A.S to work on most devices, so inform us if you encounter persistent issues. Before reporting or giving negative reviews, please read the <a href="#not-working">help</a> page.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h2 id="does-this-have-an-automove-setting" itemprop="name">Does A.C.A.S have an automove setting?</h2>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p itemprop="text">
+                                Yes, A.C.A.S offers an automove setting (a bot that can play for you) which is currently only supported on Chess.com. This setting is hidden by default to prevent misuse, as most people would use automove in online matches, which is against Terms of Service. Automove exists mainly for debugging and quality control. For developer instructions, see the <a href="../development">development</a> page.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h2 id="why-did-i-get-banned-wasn39t-this-impossible-to-detect" itemprop="name">Why did I get banned?</h2>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p itemprop="text">
+                                Chess engines play differently than humans, making it easy for detection systems to catch statistical anomalies. For example, <b>chess.com bans around 16,000 players for fair play abuse each month</b>. They're quite good at detecting engines. As the saying goes, <b>you're not him</b>, so don't think you can get away with abusing A.C.A.S.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h2 id="why-is-en-passant-missing" itemprop="name">Why isn't an en passant move suggested?</h2>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p itemprop="text">
+                                En passant is legal only on the move immediately after an opponent advances a pawn by two squares. If A.C.A.S starts tracking a game mid-position or reconnects after a refresh, it may not have enough move history to reconstruct that temporary right. Keep A.C.A.S connected from the start of the game; if it misses the relevant move history, the engine cannot suggest an en passant move that the tracked position does not mark as legal.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h2 id="chess-engine-terms-explained" itemprop="name">What do common chess engine terms mean?</h2>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <dl>
+                                <dt><strong>Move</strong></dt>
+                                <dd>A "move" in a chess engine refers to each time a piece is moved from one square to another.</dd>
+
+                                <dt><strong>Half-Move (Ply)</strong></dt>
+                                <dd>A single action by one player. A complete turn has two plies: one for White and one for Black.</dd>
+
+                                <dt><strong>Depth</strong></dt>
+                                <dd>The number of plies (half-moves) the engine analyzes ahead. A higher depth leads to stronger moves but takes more time.</dd>
+
+                                <dt><strong>Evaluation (Eval)</strong></dt>
+                                <dd>A numerical value indicating who is ahead in a position. Positive means White is better; negative means Black is better. A.C.A.S shows this visually with a bar next to the board.</dd>
+
+                                <dt><strong>Nodes</strong></dt>
+                                <dd>The number of positions the engine has checked. More nodes means deeper and more accurate calculations.</dd>
+
+                                <dt><strong>NNUE (Neural Network)</strong></dt>
+                                <dd>A neural network-based evaluation, letting engines make more human-like and accurate assessments of a position.</dd>
+
+                                <dt><strong>Movetime</strong></dt>
+                                <dd>The time given for the engine to think before making a move. More time generally gives stronger moves.</dd>
+
+                                <dt><strong>Chess Elo (Rating)</strong></dt>
+                                <dd>A numerical measurement of a player’s or engine’s playing strength. Beginners: under 1000; club players: 1600–2200; grandmasters: above 2500; top engines: above 3500.</dd>
+
+                                <dt><strong>FEN</strong></dt>
+                                <dd>Forsyth–Edwards Notation: describes the exact position of all pieces on the chess board using a standard string. Example starting position: <code>rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR</code></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </section>
             <section>
-                <hr>
-                <em>Perhaps you still need help? Head over to the <a href="../faq/">FAQ</a> page!</em>
+            <h2 id="external-server">External Server</h2>
+
+            <p>Make sure your browser allows this website to use the "Local network" and "Apps on device" permissions.</p>
+
+            <ol>
+                <li><strong>Google Chrome / Edge</strong>
+                    <ul>
+                        <li>Click the lock/config icon in the address bar → <a href="chrome://settings/content/siteDetails?site=https%3A%2F%2Fpsyyke.github.io" target="_blank"><strong>Site settings</strong></a>.</li>
+                        <li>Enable <strong>Local network access</strong> and <strong>Installable / Apps on device</strong> permissions.</li>
+                    </ul>
+                </li>
+                <li><strong>Mozilla Firefox</strong>
+                    <ul>
+                        <li>Click the shield or lock icon → <strong>Permissions</strong>.</li>
+                        <li>Allow <strong>Local network</strong> and <strong>Device access</strong>.</li>
+                    </ul>
+                </li>
+                <li><strong>Safari (macOS / iOS)</strong>
+                    <ul>
+                        <li>Open <strong>Settings → Safari → Advanced → Experimental Features</strong> (macOS) or <strong>Settings → Safari</strong> (iOS).</li>
+                        <li>Ensure <strong>Local network access</strong> is enabled.</li>
+                    </ul>
+                </li>
+            </ol>
+            <p>If the local server shows <strong>OFFLINE</strong> or cannot start because its port is in use, close any duplicate A.C.A.S server window. If the port is still busy, click the port display in the server window to choose another port, then enter that same port in the A.C.A.S GUI's external engine settings. Changing the port restarts the server and stops running engines.</p>
             </section>
             </article>
             <!-- PAGE CONTENT ENDS -->

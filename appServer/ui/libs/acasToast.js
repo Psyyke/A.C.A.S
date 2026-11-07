@@ -1,3 +1,5 @@
+const activeToasts = new Map();
+
 const toast = {
     'create': (type, icon, content, duration) => {
         const intervalRate = 100;
@@ -6,7 +8,16 @@ const toast = {
         let fadeTime = 500;
         let elapsedTime = 0;
         let isHovered = false;
+        let isFading = false;
         let loadingSpinnerInterval;
+
+        // Identical toasts merge into one with a counter instead of stacking up.
+        const toastKey = type === 'instance' ? null : JSON.stringify([type, icon, content]);
+        const existing = toastKey && activeToasts.get(toastKey);
+        if(existing && !existing.isFading() && document.body.contains(existing.elem)) {
+            existing.bump();
+            return { 'close': existing.close };
+        }
 
         if(!toastContainer) {
             toastContainer = document.createElement('div');
@@ -22,6 +33,7 @@ const toast = {
         `;
 
         function triggerFadeOut() {
+            isFading = true;
             toastElem.style.animation = `fadeout ${fadeTime / 1000}s forwards`;
             setTimeout(() => toastElem.remove(), fadeTime);
         }
@@ -73,10 +85,32 @@ const toast = {
 
         toastContainer.prepend(toastElem);
 
+        if(toastKey) {
+            let count = 1;
+            let countElem;
+            activeToasts.set(toastKey, {
+                elem: toastElem,
+                close: triggerFadeOut,
+                isFading: () => isFading,
+                bump: () => {
+                    count++;
+                    if(!countElem) {
+                        countElem = document.createElement('div');
+                        countElem.classList.add('acas-toast-count');
+                        toastTopContainer.appendChild(countElem);
+                    }
+                    countElem.innerText = `×${count}`;
+                    elapsedTime = 0;
+                    progressBarElem.style.width = '0%';
+                }
+            });
+        }
+
         const customTimeout = setInterval(() => {
             if(!document.body.contains(toastElem)) {
                 clearInterval(customTimeout);
                 clearInterval(loadingSpinnerInterval);
+                if(toastKey && activeToasts.get(toastKey)?.elem === toastElem) activeToasts.delete(toastKey);
                 return;
             }
 

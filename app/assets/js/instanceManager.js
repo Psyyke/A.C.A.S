@@ -8,17 +8,18 @@ window.AcasInstances = [];
 let initToasts = [];
 let instanceLock = Promise.resolve();
 
-export function createInstance(domain, instanceID, chessVariant) {
-    instanceLock = instanceLock.then(() =>
-        _createInstanceSafe(domain, instanceID, chessVariant)
+export function createInstance(domain, instanceID, chessVariant, transport = null) {
+    const creation = instanceLock.then(() =>
+        _createInstanceSafe(domain, instanceID, chessVariant, transport)
     ).catch(err => {
         console.error('createInstance chain error:', err);
     });
 
-    return instanceLock;
+    instanceLock = creation.then(() => {});
+    return creation;
 }
 
-async function _createInstanceSafe(domain, instanceID, chessVariant) {
+async function _createInstanceSafe(domain, instanceID, chessVariant, transport) {
     try {
         chessVariant = FORMAT_VARIANT(chessVariant);
 
@@ -48,14 +49,15 @@ async function _createInstanceSafe(domain, instanceID, chessVariant) {
 
         if(instanceExists) {
             prelongInstanceLife(domain, instanceID, chessVariant);
-            return;
+            return instanceExists.instance;
         }
 
         const instance = new AcasInstance(
             domain,
             instanceID,
             chessVariant,
-            instanceLoaded
+            instanceLoaded,
+            transport
         );
 
         window.AcasInstances.push({
@@ -73,6 +75,7 @@ async function _createInstanceSafe(domain, instanceID, chessVariant) {
         console.log(
             `New engine instance created! (DOMAIN: ${domain}, ID: ${instanceID})`
         );
+        return instance;
 
     } catch (err) {
         console.error('Error during instance creation:', err);
@@ -144,7 +147,8 @@ setInterval(() => {
             if(instanceAgeMs > 10000) {
                 const warningMsg = TRANS_OBJ?.instanceConnectionTermination ?? 'Terminated instance due to lost connection.\n\nUnexpected? Visit the tab to reactivate A.C.A.S.';
                 const mainMsg = warningMsg.split('\n\n')[0];
-                toast.warning(`${mainMsg} (${instanceObj.domain})`, 5000);
+                // Toasts also spend 500ms fading in and 500ms fading out.
+                toast.warning(`${mainMsg} (${instanceObj.domain})`, 500);
 
                 instanceObj.instance.close();
             } else {

@@ -67,21 +67,31 @@
     <script defer="" type="text/javascript" src="assets/libraries/klaro/klaro.js"></script>
     <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
 </head>
-<body>
+<body class="page-home">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <main>
         <header>
             <div><a href="" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
-            <div>
+            <div class="header-nav">
                 <a href="install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
                 <a href="usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
-                <a href="troubleshoot/" aria-label="Fixing A.C.A.S" class="fancy-btn"><i class="bi bi-tools"></i>Troubleshoot</a>
-                <a href="faq/" aria-label="Frequently Asked Questions" class="fancy-btn"><i class="bi bi-chat-square-quote"></i>FAQ</a>
+                <a href="tools/" aria-label="Chess tools" class="fancy-btn"><i class="bi bi-speedometer2"></i>Tools</a>
+                <a href="troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-tools"></i>Help</a>
                 <a href="blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
                 <a href="contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
                 <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
         </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="install/"><i class="bi bi-download"></i>Install</a>
+            <a href="usage/"><i class="bi bi-journals"></i>Usage</a>
+            <a href="tools/"><i class="bi bi-speedometer2"></i>Tools</a>
+            <a href="troubleshoot/"><i class="bi bi-tools"></i>Help</a>
+            <a href="blog/"><i class="bi bi-pen"></i>Blog</a>
+            <a href="contributing/"><i class="bi bi-heart"></i>Contribute</a>
+            <a href="https://github.com/psyyke/A.C.A.S" target="_blank"><i class="bi bi-github"></i>GitHub</a>
+        </div></div></nav>
         <div class="content">
             <style>
             @keyframes floatyAnimation {
@@ -96,14 +106,14 @@
 
             .floaty0 { --floaty-rotate: 7deg; animation-delay: 0.5s; transform: rotate(7deg); }
 
-            .floaty2 { --floaty-rotate: 4deg; animation-delay: 0s; left: -100px; width: 240px; top: 100px; transform: rotate(4deg); }
+            .floaty2 { --floaty-rotate: 4deg; animation-delay: 0s; left: -100px; width: 240px; top: 100px; transform: rotate(4deg); z-index: 31; }
             .floaty3 { --floaty-rotate: 30deg; animation-delay: 0.5s; left: -135px; width: 170px; top: 0; filter: blur(0.7px); opacity: 0.95; transform: rotate(30deg); z-index: 0; }
             .floaty6 { --floaty-rotate: -10deg; animation-delay: 1s; left: -80px; width: 130px; top: -120px; transform: rotate(-10deg); opacity: 0.85; filter: blur(1.2px); z-index: -1; }
             .floaty7 { --floaty-rotate: 25deg; animation-delay: 1.5s; left: 70px; width: 80px; top: -180px; transform: rotate(25deg); opacity: 0.7; filter: blur(1.8px); z-index: -1; }
             .floaty8 { --floaty-rotate: -35deg; animation-delay: 2s; left: 190px; width: 50px; top: -180px; transform: rotate(-35deg); opacity: 0.4; filter: blur(2.5px); z-index: -1; }
             .floaty9 { --floaty-rotate: 15deg; animation-delay: 2.5s; left: 270px; width: 30px; top: -175px; transform: rotate(15deg); opacity: 0.2; filter: blur(3px); z-index: -1; }
 
-            .floaty5 { --floaty-rotate: 15deg; animation-delay: 0s; right: -120px; width: 300px; top: 1100px; transform: rotate(15deg); }
+            .floaty5 { --floaty-rotate: 15deg; animation-delay: 0s; right: -120px; width: 300px; top: 1100px; transform: rotate(15deg); z-index: 31; }
             .floaty1 { --floaty-rotate: -10deg; animation-delay: 0.5s; right: -150px; width: 200px; top: 960px; opacity: 0.95; filter: blur(1.5px); transform: rotate(-10deg); z-index: -1; }
             .floaty4 { --floaty-rotate: 35deg; animation-delay: 1.2s; right: -90px; width: 120px; top: 840px; filter: blur(2px); opacity: 0.5; transform: rotate(35deg); z-index: -1; }
             .floaty10 { --floaty-rotate: -40deg; animation-delay: 2s; right: -25px; width: 60px; top: 790px; filter: blur(4px) brightness(0.8); opacity: 0.5; transform: rotate(-40deg); z-index: -1; }
@@ -122,18 +132,19 @@
              <!-- PAGE CONTENT -->
             <article class="markdown-section" id="main">
                 <section class="main-first-section">
-                    <h1 class="large-intro"><span>Chess</span> Assistance</h1>
-                    <div class="large-intro-mobile">A.C.A.S</div>
+                    <div class="large-intro-tagline" aria-hidden="true">la crème de la crème</div>
+                    <h1 class="large-intro" data-text="Chess Assistance"><span>Chess</span> Assistance</h1>
+                    <div class="large-intro-mobile" data-text="A.C.A.S">A.C.A.S</div>
                     <h2 class="large-intro-desc">Open source & free, for you~💖</h2>
                     <img class="mock-img" src="assets/images/mock.webp" alt="A mockup image of the A.C.A.S software.">
                 </section>
                 <section class="stats-container bordered">
                     <img style="left: -50px;width: 90px;top: -30px;transform: rotate(12deg);" class="floaty-piece" src="assets/images/pieces/staunty/wP.svg"/>
                     <div>
-                        <div><h2>50 000+</h2><span>Installs</span></div>
+                        <div><h2>70 000+</h2><span>Installs</span></div>
                         <div><h2>2000</h2><span>Daily Users</span></div>
                         <div><h2>&gt;80%</h2><span>Positive Reviews</span></div>
-                        <div><h2>100+</h2><span>Stars</span></div>
+                        <div><h2>169+</h2><span>Stars</span></div>
                     </div>
                     <img style="right: -42px;width: 90px;bottom: -20px;transform: rotate(6deg);" class="floaty-piece floaty0" src="assets/images/pieces/staunty/bB.svg"/>
                 </section>
@@ -153,10 +164,10 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="bordered tweaking"><a href="app/">▶️ Open A.C.A.S</a></th>
-                                <th class="bordered fancy-btn"><a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener">⬇️ Install (GreasyFork)</a></th>
-                                <th class="bordered fancy-btn"><a href="acas.user.js">⬇️ Download (Direct)</a></th>
-                                <th class="bordered fancy-btn"><a href="https://github.com/Psyyke/A.C.A.S/issues" target="_blank" rel="noopener">💬 Discuss With Community</a></th>
+                                <th class="bordered tweaking"><a href="app/"><i class="bi bi-play-fill"></i>Open A.C.A.S</a></th>
+                                <th class="bordered fancy-btn"><a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener"><i class="bi bi-download"></i>Install (GreasyFork)</a></th>
+                                <th class="bordered fancy-btn"><a href="acas.user.js"><i class="bi bi-file-earmark-arrow-down"></i>Download (Direct)</a></th>
+                                <th class="bordered fancy-btn"><a href="https://github.com/Psyyke/A.C.A.S/issues" target="_blank" rel="noopener"><i class="bi bi-chat-dots"></i>Discuss With Community</a></th>
                             </tr>
                         </thead>
                     </table>
@@ -190,7 +201,7 @@
                 </section>
                 <img src="assets/images/full.png" alt="A.C.A.S full showcase" style="width:100%;display:block;max-width: 100%;border-radius:0;min-height:700px;object-fit: cover;" loading="lazy">
                 <section>
-                    <p class="install-suggestion">Ready to begin? <a href="install/" class="install-button fancy-btn">Let's get it!</a></p>
+                    <p class="install-suggestion">Bon appétit ! <a href="install/" class="install-button">Let's get it</a></p>
                 </section>
             </article>
             <!-- PAGE CONTENT ENDS -->

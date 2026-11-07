@@ -1,8 +1,8 @@
 import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exportSettingsBtn, resetSettingsBtn,
     noInstancesSitesElem, seeSupportedSitesBtn, ttsNameDropdownElem, userscriptInfoElem, updateYourUserscriptElem,
     decreaseInstanceSizeBtn, increaseInstanceSizeBtn, addNewProfileBtn, beggingFloaty, profileListContainerElem,
-    settingsContainerElem, settingsHeaderElem, settingsPanelsElem, settingContainerElem, renderingDialogElem,
-    engineDialogElem, webhookMessageTemplateInput, webhookTemplateHighlightElem, themeColorInput,
+    settingsContainerElem, settingsHeaderElem, settingsPanelsElem, settingContainerElem,
+    webhookMessageTemplateInput, webhookTemplateHighlightElem, themeColorInput,
     backgroundTextureInput, customBackgroundBlurInput, getActivityLogElements } from './gui/elementDeclarations.js';
 import { importSettings, exportSettings, resetSettings, migrateFeedbackSettings, migratePipSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
@@ -21,6 +21,7 @@ import { initializeAppearanceTranslations } from './gui/appearanceTranslations.j
 import { initializePolyglotBookLoader } from './gui/openingBook.js';
 import { migrateHintSettings } from './misc/learningHints.js';
 import { initializeHintPieceFilters } from './gui/hintPieceFilters.js';
+import { initializeSuggestionMix } from './gui/suggestionMix.js';
 
 export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
@@ -97,15 +98,15 @@ export function highlightSettingElem(targetElem, cb) {
     if(!targetElem) return;
 
     const subtleElems = [settingsHeaderElem, settingsPanelsElem, settingContainerElem].filter(x => x);
-    const targetInput = targetElem.querySelector('input');
 
-    if(targetInput?.dataset?.renderSetting) {
-        if(renderingDialogElem) renderingDialogElem.showModal();
+    // Settings inside a floaty are hidden until its dialog is open, outermost first.
+    const closedDialogs = [];
+    for(let dialog = targetElem.closest('dialog'); dialog; dialog = dialog.parentElement?.closest('dialog')) {
+        if(!dialog.open) closedDialogs.unshift(dialog);
     }
 
-    if(targetInput?.dataset?.engineSetting) {
-        if(engineDialogElem) engineDialogElem.showModal();
-    }
+    closedDialogs.forEach(dialog => dialog.showModal());
+    if(closedDialogs.length) document.body.style.overflow = 'hidden';
 
     targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
@@ -267,8 +268,10 @@ async function updateUserscriptInfoText() {
         document.title = `A.C.A.S (Using ${userscriptData})`;
     
         if(GM_info?.script?.version && IS_BELOW_VERSION(GM_info?.script?.version, USERSCRIPT_MIN_VERSION)) {
+            const warningText = TRANS_OBJ?.oldUserscriptWarning ?? 'You are using an outdated or incompatible version of A.C.A.S. Please update the userscript.';
+            updateYourUserscriptElem.textContent = warningText;
             updateYourUserscriptElem.classList.remove('hidden');
-            toast.warning(TRANS_OBJ?.oldUserscriptWarning ?? 'You are using an outdated or incompatible version of A.C.A.S. Please update the userscript.', 10000);
+            toast.warning(warningText, Infinity);
         }
         
         const managerName = GM_info?.scriptHandler;
@@ -278,7 +281,7 @@ async function updateUserscriptInfoText() {
             try {
                 if(!localStorage.getItem(managerWarningKey)) {
                     localStorage.setItem(managerWarningKey, 'true');
-                    toast.warning(`${TRANS_OBJ?.otherUserscriptManagerWarning ?? 'Tampermonkey is highly recommended for the best experience. Other options might work, but there are no guarantees.'} (${managerName})`, 15000);
+                    toast.warning(`${TRANS_OBJ?.otherUserscriptManagerWarning ?? 'Tampermonkey is highly recommended for the best experience. Other options might work, but there are no guarantees.'} (${managerName})`, 30000);
                 }
             } catch(error) {
                 console.error('Userscript manager warning state could not be saved.', error);
@@ -376,6 +379,7 @@ export async function initGUI() {
     initializeActivityLog();
     initializeDynamicSettings();
     initializeInputElems();
+    initializeSuggestionMix();
     initializeAppearanceTranslations();
 
     const customBackgroundReady = initializeCustomBackground();

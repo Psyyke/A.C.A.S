@@ -83,13 +83,36 @@ function profileRenderers(instance) {
     return renderers.get(instance) || new Map();
 }
 
+function visibleInstancePanels(instance) {
+    const panels = [...profileRenderers(instance).values()];
+    const mixing = instance?.suggestionMix?.enabled;
+    const suggestions = panels.filter(panel => !instance.isLearningProfile(panel.profile));
+    const learning = panels.filter(panel => instance.isLearningProfile(panel.profile));
+    const layout = {};
+    if(mixing) {
+        for(const panel of suggestions) {
+            for(const [key, height] of Object.entries(panel.renderer.layout)) {
+                layout[key] = Math.max(layout[key] || 0, height);
+            }
+        }
+    }
+    panels.forEach(panel => panel.renderer.setReservedLayout(
+        mixing && !instance.isLearningProfile(panel.profile) ? layout : {}));
+    if(!mixing || !suggestions.length) return panels;
+
+    const profile = instance.suggestionMix.selection?.profile;
+    const panel = suggestions.find(panel => panel.profile === profile) || suggestions[0];
+    const name = FULL_TRANS_OBJ?.domTranslations?.['[data-translation-suggestion-mix]'] || 'Suggestion mix';
+    return [{ ...panel, name }, ...learning];
+}
+
 function visibleRenderers() {
-    if(profileRenderers(activeInstance).size) return [...profileRenderers(activeInstance).values()];
+    if(profileRenderers(activeInstance).size) return visibleInstancePanels(activeInstance);
 
     const next = liveInstances().find(instance => profileRenderers(instance).size);
     if(next) {
         activeInstance = next;
-        return [...profileRenderers(next).values()];
+        return visibleInstancePanels(next);
     }
 
     return !liveInstances().length && idleEnabled && idleRenderer ? [idleRenderer] : [];
@@ -114,7 +137,8 @@ function panelGroups(panels) {
         const group = board && !board.animated ? groups.find(group => {
             const first = group[0];
             const other = first.renderer.board;
-            return first.settings.pipSharedBoard && other && !other.animated
+            return activeInstance?.isLearningProfile(first.profile) === activeInstance?.isLearningProfile(panel.profile)
+                && first.settings.pipSharedBoard && other && !other.animated
                 && board.fen === other.fen && board.orientation === other.orientation
                 && Math.abs(board.aspectRatio - other.aspectRatio) < 0.001;
         }) : null;
@@ -573,6 +597,7 @@ export async function startPictureInPicture() {
         video.controls = !(document.pictureInPictureEnabled && video.requestPictureInPicture);
         video.addEventListener('enterpictureinpicture', stopMediaSession);
         video.addEventListener('leavepictureinpicture', initMediaSession);
+        floatingFloaty.addEventListener('close', initMediaSession);
         floatingPanelVideoElem.replaceChildren(video);
     }
 

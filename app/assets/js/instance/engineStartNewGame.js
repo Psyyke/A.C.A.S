@@ -9,6 +9,7 @@ async function startWithBasicOptions(variant, engineName, profile, isCurrentStar
     const profileVariables = this.pV[profile];
     const elo = await this.getConfigValue(this.configKeys.engineElo, profile);
     const multiPV = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profile);
+    profileVariables.onlyShowWarningMoves = Boolean(await this.getConfigValue(this.configKeys.onlyShowWarningMoves, profile));
 
     if(!isCurrentStart()) return;
 
@@ -95,8 +96,10 @@ async function applyStartupCurves(variant, engineName, profile, isAdvancedElo, i
     if(!isCurrentStart()) return;
 
     if(isAdvancedElo) {
-        if(curves.moveSuggestionAmount?.enabled)
+        if(curves.moveSuggestionAmount?.enabled) {
+            profileVariables.onlyShowWarningMoves = Boolean(await this.getConfigValue(this.configKeys.onlyShowWarningMoves, profile));
             this.setEngineMultiPV(resolvedProfile.config.moveSuggestionAmount, profile, true);
+        }
         if(shouldSetVariant)
             await this.setEngineVariant(variant, profile, true);
         if(!isCurrentStart()) return;

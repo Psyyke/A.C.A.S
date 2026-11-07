@@ -63,6 +63,7 @@
     font-size: 15px;
     font-stretch: semi-expanded;
     font-weight: 800;
+    -webkit-text-stroke: 0.5px currentColor;
     color: transparent;
 }
 .acas-toast-icon {
@@ -79,6 +80,22 @@
     text-align: left;
     font-size: 17px;
     word-break: break-word;
+}
+.acas-toast-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1px 8px 2px;
+    border-radius: 0 0 0 8px;
+    background: #ececec;
+    color: #444;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+.acas-toast-top-container:has(.acas-toast-count) {
+    padding-right: 46px;
 }
 .acas-toast:hover .acas-toast-close-btn {
     color: white;

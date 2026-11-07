@@ -11,8 +11,8 @@ export default class MoveEvaluator extends FairyAnalysis {
             'Good Move', 'Excellent', 'Best Move', 'Weak Move'
         ];
         this.resultEmojis = [
-            '🙂', '😕', '😟', '😨', '💀',
-            '😊', '😁', '🤩', '🤨'
+            '⚪', '❔', '❓', '⭕', '💀',
+            '👍', '💎', '🤖', '😬'
         ];
         this.ratingBands = [
             { limit: 0.75, maxCpLoss: 10, category: 6, reason: 'Nearly matches the best move.' },
@@ -78,7 +78,7 @@ export default class MoveEvaluator extends FairyAnalysis {
         const avoidsMate = runnerUp && runnerUp.mate !== null && runnerUp.mate <= 0 && (best.mate === null || best.mate > 0);
         const keepsMate = best.mate > 0 && runnerUp && !(runnerUp.mate > 0);
         const critical = best.move === played.move && Boolean(runnerUp) && (avoidsMate || keepsMate || alternativeLoss >= 10);
-        let category, reason;
+        let category, reason, beatsEngine = false;
         if(forced) {
             category = 0;
             reason = 'Only legal move.';
@@ -88,6 +88,7 @@ export default class MoveEvaluator extends FairyAnalysis {
                 : critical ? 'Only move that avoids a major concession.' : 'Engine’s top choice.';
         } else if(this.meetsBestEvaluation(best, played)) {
             category = 7;
+            beatsEngine = true;
             reason = 'Matches or exceeds the best recorded evaluation.';
         } else if(played.mate !== null && played.mate <= 0 && (best.mate === null || best.mate > 0)) {
             category = loss >= 35 ? 4 : best.cp !== null && best.cp < -700 ? 2 : 3;
@@ -110,7 +111,7 @@ export default class MoveEvaluator extends FairyAnalysis {
             if(category === 4 && (cpLoss === null || cpLoss < 300 || loss < 35)) { category = 3; reason = 'Serious loss.'; }
         }
         return { category, label: forced ? 'Forced Move' : this.resultLabels[category], emoji: this.resultEmojis[category],
-            cp: cpLoss === null ? null : -cpLoss, ...metrics, alternativeLoss, critical,
+            cp: cpLoss === null ? null : -cpLoss, ...metrics, alternativeLoss, critical, beatsEngine,
             best, played, bestMove: best.move, depth: Math.min(best.depth, played.depth), forced, reason };
     }
 
@@ -121,6 +122,11 @@ export default class MoveEvaluator extends FairyAnalysis {
 
         const moves = transition.moves;
         const move = transition.selected.uci;
+        // A warm transposition table changes fixed-depth results, so every review
+        // starts clean. Otherwise the answer depends on which moves were searched before.
+        this.uci('ucinewgame');
+        await this.query(['isready']);
+        if(job.cancelled) return null;
         const baseline = await this.search(job, job.depth, moves, Math.min(2, moves.length));
 
         if(job.cancelled) return null;

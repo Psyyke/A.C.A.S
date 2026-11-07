@@ -16,6 +16,13 @@ class Maia {
 		this.pendingDownload = null;
 		this.downloadPromise = null;
 		this.nextRequestId = 0;
+		this.ready = false;
+		this.initialization = new Promise((resolve, reject) => {
+			this.resolveInitialization = resolve;
+			this.rejectInitialization = reject;
+		});
+		// The cache check starts in the constructor, before callers may await it.
+		this.initialization.catch(() => {});
 
 		this.initialize(options.model, options.modelVersion);
 	}
@@ -30,10 +37,14 @@ class Maia {
 				case 'status':
 					this.options.setStatus(msg.status);
 					if(msg.status === 'ready') {
+						this.ready = true;
+						this.resolveInitialization();
 						this.options.setProgress(100);
 						if(this.pendingDownload) this.pendingDownload.resolve();
 						this.pendingDownload = null;
 						this.downloadPromise = null;
+					} else if(msg.status === 'no-cache') {
+						this.resolveInitialization();
 					}
 					break;
 
@@ -49,11 +60,7 @@ class Maia {
 							this.pendingInferences.delete(msg.id);
 						}
 					}else{
-						this.options.setError(msg.message);
-						this.options.setStatus('error');
-						if(this.pendingDownload) this.pendingDownload.reject(new Error(msg.message));
-						this.pendingDownload = null;
-						this.downloadPromise = null;
+						this.fail(new Error(msg.message));
 					}
 					break;
 				}
@@ -75,18 +82,17 @@ class Maia {
 		this.worker.onerror = (err) => {
 			console.error('Maia worker error:', err);
 			const error = new Error(err.message || 'Worker crashed');
-			this.options.setError(error.message);
-			this.options.setStatus('error');
-			if(this.pendingDownload) this.pendingDownload.reject(error);
-			this.pendingDownload = null;
-			this.downloadPromise = null;
+			this.fail(error);
 		};
+		this.worker.onmessageerror = () => this.fail(new Error('Could not read Maia worker response'));
 
 		this.worker.postMessage({ type: 'init', modelUrl, modelVersion });
 	}
 
 	async downloadModel() {
+		await this.initialization;
 		if(!this.worker) throw new Error('Worker not initialized');
+		if(this.ready) return;
 		if(this.downloadPromise) return this.downloadPromise;
 
 		this.options.setProgress(0);
@@ -97,6 +103,26 @@ class Maia {
 		});
 
 		return this.downloadPromise;
+	}
+
+	fail(error) {
+		this.options.setError(error.message);
+		this.options.setStatus('error');
+		this.dispose(error);
+	}
+
+	dispose(error = new DOMException('Maia stopped', 'AbortError')) {
+		this.worker?.terminate();
+		this.worker = null;
+		this.ready = false;
+		this.rejectInitialization(error);
+		this.pendingDownload?.reject(error);
+		this.pendingDownload = null;
+		this.downloadPromise = null;
+		this.pendingInferences.forEach(pending => pending.reject(error));
+		this.pendingInferences.clear();
+		this.storage.db?.close();
+		this.storage.db = null;
 	}
 
 	async getStorageInfo() {

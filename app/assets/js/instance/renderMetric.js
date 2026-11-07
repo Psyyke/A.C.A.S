@@ -36,6 +36,12 @@ export default async function renderMetric(fen, profile, externalOnly = false) {
     const renderSquareAsDots        = await this.getConfigValue(this.configKeys.renderSquareAsDots, profile);
     const renderPiecePlayerCapture  = await this.getConfigValue(this.configKeys.renderPiecePlayerCapture, profile);
     const renderPieceEnemyCapture   = await this.getConfigValue(this.configKeys.renderPieceEnemyCapture, profile);
+    const renderPieceLongRange      = await this.getConfigValue(this.configKeys.renderPieceLongRange, profile);
+    const renderPieceLongRangeStraight = await this.getConfigValue(this.configKeys.renderPieceLongRangeStraight, profile);
+    const renderKnightVision          = await this.getConfigValue(this.configKeys.renderKnightVision, profile);
+    const renderVisionSide          = await this.getConfigValue(this.configKeys.renderVisionSide, profile) || 'both';
+    const showOwnVision             = renderVisionSide !== 'enemy';
+    const showEnemyVision           = renderVisionSide !== 'own';
     const renderOnExternalSite      = await this.getConfigValue(this.configKeys.renderOnExternalSite, profile);
     const enableEveryPieceEvals     = await this.getConfigValue(this.configKeys.enableEveryPieceEvals, profile);
     if(this.pV[profile] !== profileVariables || this.instanceClosed || !isCurrentPosition()) return;
@@ -68,6 +74,9 @@ export default async function renderMetric(fen, profile, externalOnly = false) {
         renderSquareSafe ||
         renderPiecePlayerCapture ||
         renderPieceEnemyCapture ||
+        renderPieceLongRange ||
+        renderPieceLongRangeStraight ||
+        renderKnightVision ||
         enableEveryPieceEvals
     )) {
         publishMetrics();
@@ -83,7 +92,8 @@ export default async function renderMetric(fen, profile, externalOnly = false) {
     const addedMetrics = [];
 
     const hasAttackMetrics = renderSquarePlayer || renderSquareEnemy || renderSquareContested
-        || renderSquareSafe || renderPiecePlayerCapture || renderPieceEnemyCapture;
+        || renderSquareSafe || renderPiecePlayerCapture || renderPieceEnemyCapture
+        || renderPieceLongRange || renderPieceLongRangeStraight || renderKnightVision;
     const BoardAnal = hasAttackMetrics ? new BoardAnalyzer(fen, {
         orientation: playerColor,
         chessVariant: profileVariables.chessVariant || this.activeVariant,
@@ -223,7 +233,90 @@ export default async function renderMetric(fen, profile, externalOnly = false) {
         );
     }
 
+    // Faint line along each diagonal a piece controls for at least this many squares
+    const LONG_RANGE_MIN_LENGTH = 3;
+
+    const DIAGONALS = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+    const STRAIGHTS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+    function renderLongRange(piece, color, directions, dotted, widthScale = 1) {
+        const [y, x] = piece.position;
+        const seen = new Set(piece.paths.map(p => p.join(',')));
+
+        for(const [dy, dx] of directions) {
+            let length = 0;
+            while(seen.has(`${y + dy * (length + 1)},${x + dx * (length + 1)}`)) length++;
+
+            if(length < LONG_RANGE_MIN_LENGTH) continue;
+
+            // The arrow polygon is collapsed to a hairline (no head); a thick round-joined
+            // stroke then draws it as a line with rounded ends.
+            const shapeType = 'arrow';
+            const shapeSquare = [
+                BoardAnal.indexToFen(piece.position),
+                BoardAnal.indexToFen([y + dy * length, x + dx * length])
+            ];
+            const strokeWidth = 6 * widthScale * ((BoardDrawer.singleSquareSize || 100) / 100);
+            // Zero-length dashes with round caps render as evenly spaced dots.
+            const dash = dotted ? `stroke-dasharray: 0 ${strokeWidth * 2.2};` : '';
+            const shapeConfig = {
+                lineWidth: 0.01, arrowheadWidth: 0.01, arrowheadHeight: 0.01, startOffset: 0.01,
+                style: `fill: ${color}; stroke: ${color}; stroke-width: ${strokeWidth}; ${dash} stroke-linejoin: round; stroke-linecap: round; opacity: ${dotted ? 0.45 : 0.3}; pointer-events: none;`
+            };
+
+            const arrow = externalOnly ? null : BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+
+            addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(arrow, {
+                shapeType, shapeSquare, shapeConfig
+            }, profile, 'metric'));
+        }
+    }
+
     const analResult = BoardAnal?.analyze();
+
+    // Enemy lines are thinner and drawn after ours, so a shared line shows both sides.
+    if(analResult && renderPieceLongRange) {
+        if(showOwnVision) analResult.player.forEach(piece => renderLongRange(piece, 'lime', DIAGONALS, false, 1.6));
+        if(showEnemyVision) analResult.enemy.forEach(piece => renderLongRange(piece, 'red', DIAGONALS, false, 0.7));
+    }
+
+    if(analResult && renderPieceLongRangeStraight) {
+        if(showOwnVision) analResult.player.forEach(piece => renderLongRange(piece, 'lime', STRAIGHTS, true, 1.6));
+        if(showEnemyVision) analResult.enemy.forEach(piece => renderLongRange(piece, 'red', STRAIGHTS, true, 0.7));
+    }
+
+    if(analResult && renderKnightVision) {
+        // Outline-only dashed circle: a rectangle with fully rounded corners, shrunk to sit
+        // inside the square so it layers with square fills and other markers.
+        // The enemy circle is smaller so both stay visible when each side sees a square.
+        const outlineKnightSquares = (pieces, color, shrink) => {
+            const squares = new Map();
+
+            pieces.filter(piece => /^[nN]$/.test(piece.piece))
+                .forEach(piece => piece.paths.forEach(path => squares.set(path.join(','), path)));
+
+            const size = BoardDrawer.singleSquareSize || 100;
+            const strokeWidth = (size * 0.07) / shrink;
+            const dash = `${size * 0.2 / shrink * 0.6} ${size * 0.13 / shrink * 0.6}`;
+
+            squares.forEach(pos => {
+                const shapeType = 'rectangle';
+                const shapeSquare = BoardAnal.indexToFen(pos);
+                const shapeConfig = {
+                    style: `fill: none; stroke: ${color}; stroke-width: ${strokeWidth}; stroke-dasharray: ${dash}; stroke-linecap: round; rx: 50%; ry: 50%; transform-box: fill-box; transform-origin: center; transform: scale(${shrink}); opacity: 0.85; pointer-events: none;`
+                };
+
+                const rect = externalOnly ? null : BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+
+                addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(rect, {
+                    shapeType, shapeSquare, shapeConfig
+                }, profile, 'metric'));
+            });
+        };
+
+        if(showOwnVision) outlineKnightSquares(analResult.player, 'lime', 0.7);
+        if(showEnemyVision) outlineKnightSquares(analResult.enemy, 'red', 0.42);
+    }
 
     if(analResult && renderPiecePlayerCapture) {
         analResult.player.forEach(piece =>

@@ -49,7 +49,7 @@ const ACTIVE_INPUT_LISTENERS = [];
 
 const POLY_OPENING_BOOKS = new Map();
 
-const USERSCRIPT_MIN_VERSION = '2.5.4';
+const USERSCRIPT_MIN_VERSION = '2.5.6';
 
 let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js
@@ -149,8 +149,12 @@ function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
 
                 Object.keys(iObj.instance.pV).forEach(profileName => {
                     const pending = iObj.instance.pV[profileName]?.pendingMoveDisplay;
-                    if(Array.isArray(pending)) iObj.instance.displayMoves(...pending);
+                    if(Array.isArray(pending) && (!iObj.instance.suggestionMix?.enabled
+                        || iObj.instance.isLearningProfile(profileName))) {
+                        iObj.instance.displayMoves(...pending);
+                    }
                 });
+                if(iObj.instance.suggestionMix?.enabled) await iObj.instance.suggestionMix.render();
             }
 
             iObj.instance.CommLink.commands.applyAssistanceConcealment(isConcealed);
@@ -291,8 +295,20 @@ function GEOGEBRA_DOT_COMMANDS(data) {
     return { wCmd, bCmd };
 }
 
+// Keeps each move's latest result across depth iterations, ordered by rank.
+function GET_LATEST_RANKED_MOVES(moves) {
+    const latest = new Map();
+
+    for(let i = moves.length - 1; i >= 0; i--) {
+        const key = moves[i].playerUci + '|' + moves[i].profile;
+        if(!latest.has(key)) latest.set(key, moves[i]);
+    }
+
+    return [...latest.values()].sort((a, b) => a.ranking - b.ranking);
+}
+
 function GET_UNIQUE_MOVES(moves) {
-    const seen = new Set();
+    const seen = new Map();
     const cleaned = new Array(moves.length);
     let write = 0;
     let removedCount = 0;
@@ -300,16 +316,15 @@ function GET_UNIQUE_MOVES(moves) {
     for(let i = 0; i < moves.length; i++) {
             const m = moves[i];
 
-            const key =
-                (m.playerUci || m.player.join(',') + (m.playerPromotion || '')) + '|' +
-                (m.opponentUci || m.opponent.join(',') + (m.opponentPromotion || '')) + '|' +
-                m.profile;
+            const key = (m.playerUci || m.player.join(',') + (m.playerPromotion || '')) + '|' + m.profile;
 
             if(!seen.has(key)) {
-                seen.add(key);
+                seen.set(key, write);
                 cleaned[write++] = m;
             } else {
                 removedCount++;
+                const index = seen.get(key);
+                if(m.ranking <= cleaned[index].ranking) cleaned[index] = m;
             }
     }
   
@@ -322,6 +337,7 @@ const CREATE_MOVE_OBJ = ({
     playerMove = null,
     opponentMove = null,
     cp = 0,
+    mate = null,
     profile = null,
     ranking = 99
 }) => ({
@@ -332,6 +348,7 @@ const CREATE_MOVE_OBJ = ({
     playerUci: playerMove?.uci ?? null,
     opponentUci: opponentMove?.uci ?? null,
     cp,
+    mate,
     profile,
     ranking
 });
@@ -595,6 +612,7 @@ function GET_BOARD_DIMENSIONS_FROM_FEN(fenStr) {
 }
 
 function GET_PGN_FROM_STATE_HISTORY(gameStateHistory) {
+    if(gameStateHistory.some(state => state?.historyIncomplete)) return null;
     const chess = new Chess();
 
     for(const state of gameStateHistory) {
@@ -615,14 +633,39 @@ function GET_PGN_FROM_STATE_HISTORY(gameStateHistory) {
     return chess.pgn();
 }
 
-async function GET_STATE_HISTORY(id) {
-    const getter = USERSCRIPT?.instanceVars?.gameStateHistory?.get;
+// The userscript sends the board state as positional arrays (getBoardState in acas.user.js).
+// These lists must match the userscript's; new fields are only ever appended to the end.
+const BOARD_STATE_FIELDS = ['version', 'revision', 'playerColor', 'boardOrientation', 'turn', 'fen', 'history'];
+const BOARD_STATE_HISTORY_FIELDS = ['fen', 'from', 'to', 'promotion', 'opponentMoveTime', 'basic', 'historyIncomplete'];
 
-    if(typeof getter !== 'function') {
-        return [];
-    }
+function DECODE_BOARD_STATE_FIELDS(fields, values) {
+    return Object.fromEntries(fields.map((field, i) => [field, values[i] ?? null]));
+}
 
-    return await getter(id) || [];
+// Returns null for anything that isn't a board state, otherwise the state with the history
+// expanded to the game state shape the GUI uses, [initial, ..., newest].
+function DECODE_BOARD_STATE(values) {
+    if(!Array.isArray(values)) return null;
+
+    const state = DECODE_BOARD_STATE_FIELDS(BOARD_STATE_FIELDS, values);
+
+    state.history = (Array.isArray(state.history) ? state.history : [])
+        .filter(Array.isArray)
+        .map(entry => DECODE_BOARD_STATE_FIELDS(BOARD_STATE_HISTORY_FIELDS, entry))
+        .filter(entry => typeof entry.fen === 'string')
+        .map(entry => ({
+            fen: { full: entry.fen, basic: entry.basic ?? entry.fen.split(' ')[0] },
+            boardChanges: {
+                from: entry.from,
+                to: entry.to,
+                isPromotion: Boolean(entry.promotion),
+                promotionPiece: entry.promotion
+            },
+            historyIncomplete: Boolean(entry.historyIncomplete),
+            opponentMoveTime: entry.opponentMoveTime
+        }));
+
+    return state;
 }
 
 function GENERATE_HISTORY_STR(gameStateHistory) {

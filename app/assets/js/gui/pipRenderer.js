@@ -1,6 +1,6 @@
 import { setMediaMetadata } from './media.js';
 import { formatMoveNotationAsync } from '../misc/moveNotation.js';
-import { feedbackCountLines } from '../misc/feedbackText.js';
+import { feedbackCountLines, feedbackStatLines } from '../misc/feedbackText.js';
 import { captureBoardLayers } from './boardCapture.js';
 
 const pipFontSizes = { large: 64, mlarge: 35, medium: 26, feedback: 16, small: 18, esmall: 17 };
@@ -169,6 +169,7 @@ let pipStatusParts = [];
 let pipTerminalMessageHeight = 0;
 let pipBoardAnimation = null;
 let pipBoardCapture = null;
+let reservedLayout = {};
 
 let pipContextQueue = [];
 let pipProcessingBestMove = false;
@@ -186,19 +187,32 @@ function getPipResolutionScale() {
 
 function getPipOpeningHeight() {
     // Reserve the row even without an opening so learning-mode PiP stays steady.
-    return pipData.learningMode ? pipOpeningHeight + pipOpeningBottomPadding : 0;
+    return Math.max(getLayout().opening, reservedLayout.opening || 0);
+}
+
+function getLayout() {
+    const variables = instance?.pV[pipProfile];
+    const config = { ...settings, ...variables };
+    const learning = Boolean(config.learningMode ?? pipData.learningMode);
+    const counts = learning ? 1 : (config.feedbackMoveCounts
+        ? Number(Boolean(config.enableEnemyFeedback)) + Number(Boolean(config.enableMoveRatings)) : 0);
+    const statCount = config.feedbackEloEstimate ? 1 : 0;
+    const totalCount = Math.max(counts + statCount, pipData.feedbackCounts?.length || 0);
+    const feedback = learning || (config.feedbackInPip
+        && (config.enableMoveRatings || config.enableEnemyFeedback)) || pipData.feedbackInPip;
+
+    return {
+        content: pipIdleLayoutHeight ?? (headerHeight + (isPipBoardVisible()
+            ? getPipBoardHeight(getPipTextWidth(), pipBoardAspectRatio)
+            : learning ? 0 : pipTextContentHeight)),
+        opening: learning ? pipOpeningHeight + pipOpeningBottomPadding : 0,
+        feedback: feedback ? pipFeedbackHeight : 0,
+        totals: totalCount ? totalCount * pipFeedbackTotalsLineHeight + 2 * pipFeedbackTotalsPadding : 0
+    };
 }
 
 function getPipContentHeight() {
-    if(pipIdleLayoutHeight !== null) return pipIdleLayoutHeight;
-    if(pipData.learningMode && !isPipBoardVisible()) return headerHeight;
-
-    const contentHeight = isPipBoardVisible()
-        ? getPipBoardHeight(getPipTextWidth(), pipBoardAspectRatio)
-        // Moves and terminal messages share a height so PiP never resizes at game end.
-        : pipTextContentHeight;
-
-    return headerHeight + contentHeight;
+    return Math.max(getLayout().content, reservedLayout.content || 0);
 }
 
 function isPipBoardVisible() {
@@ -219,8 +233,12 @@ function getPipTextWidth() {
 }
 
 function getPipTotalsHeight() {
-    const count = pipData.feedbackCounts?.length || 0;
-    return count ? count * pipFeedbackTotalsLineHeight + 2 * pipFeedbackTotalsPadding : 0;
+    return Math.max(getLayout().totals, reservedLayout.totals || 0);
+}
+
+// The rating text area exists only with feedback; counts and stats can stand alone.
+function getPipFeedbackHeight() {
+    return Math.max(getLayout().feedback, reservedLayout.feedback || 0);
 }
 
 function resizePipCanvas() {
@@ -229,7 +247,7 @@ function resizePipCanvas() {
     // The saved idle height already includes the entire live layout.
     const height = pipIdleLayoutHeight ?? (getPipContentHeight()
         + getPipOpeningHeight()
-        + (pipData.learningMode || pipData.feedbackInPip ? pipFeedbackHeight + getPipTotalsHeight() : 0));
+        + getPipFeedbackHeight() + getPipTotalsHeight());
     const scale = getPipResolutionScale();
     const pixelWidth = Math.max(1, Math.round(pipLayoutWidth * scale));
     const pixelHeight = Math.max(1, Math.round(height * scale));
@@ -351,9 +369,22 @@ function updatePipFeedback(instance) {
     updatePipOpening(instance);
     updatePipEvaluation(instance);
 
+    const profiles = instance.suggestionMix?.enabled && !instance.isLearningProfile(pipProfile)
+        ? Object.keys(instance.pV).filter(profile => instance.pV[profile].pip !== false
+            && !instance.isLearningProfile(profile))
+        : [pipProfile];
+    const sourceFor = enabled => profiles.find(profile => {
+        const variables = instance.pV[profile];
+        return variables && enabled(variables);
+    }) || pipProfile;
+    const feedbackProfile = sourceFor(v => v.learningMode
+        || v.feedbackInPip && (v.enableMoveRatings || v.enableEnemyFeedback));
+    const countProfile = sourceFor(v => v.learningMode || v.feedbackMoveCounts
+        && (v.enableMoveRatings || v.enableEnemyFeedback));
+    const statProfile = sourceFor(v => v.feedbackEloEstimate);
     const rows = Array.from(instance.instanceElem?.querySelector('.instance-feedback-container')?.children || []);
     const visibleRows = rows.filter(row => {
-        if(row.dataset.profileId !== pipProfile) return false;
+        if(row.dataset.profileId !== feedbackProfile) return false;
         const variables = instance.pV[row.dataset.profileId];
         return variables && (variables.learningMode || variables.feedbackInPip
             && (variables.enableMoveRatings || variables.enableEnemyFeedback));
@@ -362,9 +393,15 @@ function updatePipFeedback(instance) {
     const feedbackText = visibleRows.map(row => row.dataset.feedbackText ?? row.textContent).join('\n');
     const profile = pipProfile;
     const variables = instance.pV[profile];
-    const feedbackCounts = variables?.learningMode || variables?.feedbackMoveCounts
-        ? feedbackCountLines(instance, profile).filter((_, index) => variables.learningMode
-            || (index === 0 ? variables.enableEnemyFeedback : variables.enableMoveRatings))
+    const countVariables = instance.pV[countProfile];
+    const countEnabled = (_, index) => countVariables.learningMode
+        || (index === 0 ? countVariables.enableEnemyFeedback : countVariables.enableMoveRatings);
+    const feedbackCounts = countVariables?.learningMode || countVariables?.feedbackMoveCounts
+        ? feedbackCountLines(instance, countProfile).filter(countEnabled) : [];
+    // Elo and accuracy share one line below the counts: opponent left, you right.
+    const statLines = feedbackStatLines(instance, statProfile);
+    const feedbackStats = instance.pV[statProfile]?.feedbackEloEstimate
+        ? [instance.pV[statProfile].learningMode ? statLines[0] : statLines]
         : [];
 
     const stopOnEnemyMove = variables?.learningPvAnimationStopOnEnemyMove !== false;
@@ -380,7 +417,7 @@ function updatePipFeedback(instance) {
             && (variables.enableMoveRatings || variables.enableEnemyFeedback)),
         feedbackText: instance.instanceClosed ? '' : feedbackText,
         feedbackWaitingForMove: visibleRows.some(row => row.dataset.waitingForMove === 'true'),
-        feedbackCounts,
+        feedbackCounts: [...feedbackCounts, ...feedbackStats],
         // Apply the stop setting to refreshes too, so later updates cannot
         // restart an animation that should stay stopped after the reply.
         feedbackPositions: !instance.instanceClosed && (!stopOnEnemyMove || instance.currentFen === instance.learningReviewPostFen)
@@ -818,7 +855,7 @@ async function refreshPipView() {
     const thirdMoveX = pipTextPadding + alternativeWidth + pipTextColumnGap;
     const openingHeight = getPipOpeningHeight();
     const contentHeight = getPipContentHeight();
-    const waitingForFeedback = pipData.learningMode && pipData.feedbackWaitingForMove;
+    const waitingForFeedback = pipData.feedbackWaitingForMove;
     const secondaryMoveY = contentHeight - 40;
     const showTerminalMessage = !pipData.learningMode && !isBoard && Boolean(pipData.terminalOutcome) && !CONCEAL_ASSISTANCE_ACTIVE;
 
@@ -950,7 +987,8 @@ async function refreshPipView() {
         }
     }
 
-    if((pipData.learningMode || pipData.feedbackInPip)) {
+    const feedbackHeight = getPipFeedbackHeight();
+    if(feedbackHeight || getPipTotalsHeight()) {
         const totalsTop = contentHeight + openingHeight;
         const totalsHeight = getPipTotalsHeight();
         const top = totalsTop + totalsHeight;
@@ -960,9 +998,9 @@ async function refreshPipView() {
             .slice(0, 2);
 
         ctxQueue.push(['fillStyle', pipContentBackground]);
-        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, totalsHeight + pipFeedbackHeight]]);
+        ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, totalsHeight + feedbackHeight]]);
 
-        if(!pipData.learningMode) {
+        if(!pipData.learningMode && feedbackHeight) {
             ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.16)']);
             ctxQueue.push(['fillRect', [0, totalsTop, headerWidth, 1]]);
         }
@@ -972,19 +1010,21 @@ async function refreshPipView() {
             if(openingHeight) {
                 ctxQueue.push(['fillRect', [pipTextPadding, totalsTop, pipMaxTextWidth, 1]]);
             }
-            ctxQueue.push(['fillRect', [pipTextPadding, top, pipMaxTextWidth, 1]]);
+            if(feedbackHeight) {
+                ctxQueue.push(['fillRect', [pipTextPadding, top, pipMaxTextWidth, 1]]);
+            }
         }
 
         ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.72)']);
 
         const lineHeight = 26;
-        const textTop = top + (pipFeedbackHeight - 2 * lineHeight) / 2;
+        const textTop = top + (feedbackHeight - 2 * lineHeight) / 2;
 
         // Keep the reserved layout, but center the initial prompt across all
         // footer rows instead of leaving blank opening/counts sections above it.
         if(waitingForFeedback && !CONCEAL_ASSISTANCE_ACTIVE) {
             ctxQueue.push(['text', [pipData.feedbackText, pipTextPadding, contentHeight,
-                pipMaxTextWidth, openingHeight + totalsHeight + pipFeedbackHeight,
+                pipMaxTextWidth, openingHeight + totalsHeight + feedbackHeight,
                 `600 ${pipFontSizes.feedback}px ${pipTextFontFamily}`, 'center']]);
         }
 
@@ -1001,7 +1041,7 @@ async function refreshPipView() {
                 ctxQueue.push(['text', [
                     score ? line.replace(score[0], '').trim() : line,
                     pipTextPadding,
-                    score ? rowTop : top + (pipFeedbackHeight - lineHeight) / 2,
+                    score ? rowTop : top + (feedbackHeight - lineHeight) / 2,
                     score ? moveWidth : pipMaxTextWidth,
                     lineHeight,
                     font,
@@ -1024,19 +1064,23 @@ async function refreshPipView() {
 
         if(totalsHeight && !waitingForFeedback) {
             const countsTop = totalsTop
-                + (totalsHeight - pipData.feedbackCounts.length * pipFeedbackTotalsLineHeight) / 2;
+                + (totalsHeight - (pipData.feedbackCounts?.length || 0) * pipFeedbackTotalsLineHeight) / 2;
             ctxQueue.push(['fillStyle', 'rgba(255, 255, 255, 0.85)']);
 
             if(!CONCEAL_ASSISTANCE_ACTIVE) {
-                pipData.feedbackCounts.forEach((line, index) => ctxQueue.push(['text', [
-                    line,
-                    pipTextPadding,
-                    countsTop + index * pipFeedbackTotalsLineHeight,
-                    pipMaxTextWidth,
-                    pipFeedbackTotalsLineHeight,
-                    `900 ${pipFontSizes.feedback}px "Mona Sans", sans-serif`,
-                    'center'
-                ]]));
+                (pipData.feedbackCounts || []).forEach((line, index) => {
+                    const top = countsTop + index * pipFeedbackTotalsLineHeight;
+                    const font = `900 ${pipFontSizes.feedback}px "Mona Sans", sans-serif`;
+                    if(!Array.isArray(line)) {
+                        ctxQueue.push(['text', [line, pipTextPadding, top, pipMaxTextWidth,
+                            pipFeedbackTotalsLineHeight, font, 'center']]);
+                        return;
+                    }
+                    line.forEach((side, sideIndex) => side && ctxQueue.push(['text', [
+                        side, pipTextPadding, top, pipMaxTextWidth, pipFeedbackTotalsLineHeight,
+                        font, sideIndex === 0 ? 'left' : 'right'
+                    ]]));
+                });
             }
         }
     }
@@ -1081,6 +1125,7 @@ return {
     get canvas() { return pipCanvas; },
     get ready() { return pipReady; },
     get height() { return pipLayoutHeight; },
+    get layout() { return getLayout(); },
     get terminalMessageHeight() { return pipTerminalMessageHeight; },
     get statusText() { return pipStatusText; },
     get statusParts() { return [...pipStatusParts]; },
@@ -1107,6 +1152,14 @@ return {
     updateOpening: updatePipOpening,
     updateEvaluation: updatePipEvaluation,
     resetHints: resetPipHints,
+
+    setReservedLayout(layout) {
+        if(['content', 'opening', 'feedback', 'totals'].every(key => reservedLayout[key] === layout[key])) return;
+        reservedLayout = layout;
+        pipReady = false;
+        pipRefreshRevision++;
+        scheduleRefresh();
+    },
 
     setIdleHeight(height) {
         if(instance || !Number.isFinite(height) || height <= 0 || height === pipIdleLayoutHeight) return;

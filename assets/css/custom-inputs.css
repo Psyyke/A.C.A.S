@@ -1,3 +1,5 @@
+@import url("./checkbox.css");
+
 :root {
     --settings-input-main-bg-color: rgb(255 255 255 / 12%);
     --settings-input-border-width: 0 0 4px 0;
@@ -27,9 +29,22 @@ input:focus,
     flex: 1 1 0 !important;
     min-width: 0 !important;
 }
+/* When the row gets too thin, the title/subtitle wrap above the control. */
+.custom-input:has(> :first-child > .input-title, > .input-title, > .dynamic-setting-copy, > .dynamic-setting-title-row) {
+    flex-wrap: wrap;
+}
+.custom-input > .dynamic-setting-copy,
+.custom-input > .dynamic-setting-title-row,
+.custom-input > .input-title,
+.custom-input > :first-child:has(> .input-title) {
+    flex: 1 1 6rem !important;
+    min-width: 0;
+}
 .dynamic-setting-title-row {
     --dynamic-setting-shortcut-size: 32px;
     position: relative;
+    display: flex;
+    flex: 1 1 auto;
     display: flex;
     flex: 1 1 auto;
     min-width: 0;
@@ -185,6 +200,13 @@ input:focus,
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
 }
+.textfield-input input[data-between] {
+    box-sizing: content-box;
+    min-width: 0;
+    flex-shrink: 0;
+    field-sizing: fixed;
+    font-variant-numeric: tabular-nums;
+}
 .textfield-input input[type="url"] {
     width: 95%;
     max-width: 100%;
@@ -194,9 +216,11 @@ input:focus,
     display: flex;
     flex-direction: column;
 }
-.textfield-input:has(input[type="url"]) > div:first-child,
-.textfield-input:has(textarea) > div:first-child {
+.custom-input.textfield-input:has(input[type="url"]) > :first-child:has(> .input-title),
+.custom-input.textfield-input:has(textarea) > :first-child:has(> .input-title) {
     align-self: flex-start;
+    /* In a column the shared 6rem flex-basis becomes a height, spacing the title from the field. */
+    flex: 0 0 auto !important;
 }
 /* Textarea base style: future textareas inherit the settings appearance. */
 textarea {
@@ -240,7 +264,8 @@ textarea:focus,
 input:hover,
 textarea:hover,
 .checkbox-container:hover,
-.acas-fancy-button:hover {
+.acas-fancy-button:hover,
+.language-dropdown-input .dropdown-input-container:hover {
     border-color: rgb(255 255 255 / 55%);
     outline: 2px solid rgb(255 255 255 / 35%) !important;
     outline-offset: 0;
@@ -311,54 +336,6 @@ textarea:hover,
     font: 600 12px "IBM Plex Sans", monospace;
     white-space: nowrap;
 }
-/* Checkbox */
-.checkbox-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--settings-input-border-radius);
-    background-color: var(--settings-input-main-bg-color);
-    cursor: pointer;
-    color: transparent;
-    border-width: var(--settings-input-border-width);
-    border-style: var(--settings-input-border-style);
-    border-color: var(--settings-input-border-color);
-    font-family: "Mona Sans";
-}
-.checkbox-container input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-}
-.checkbox-container input[type="checkbox"]:disabled {
-    cursor: not-allowed;
-}
-.checkbox-fill {
-    width: inherit;
-    height: inherit;
-    border-radius: inherit;
-    background-color: rgb(0 0 0 / 10%);
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-    font-size: 25px;
-    color: rgb(255 255 255 / 80%);
-    font-weight: 900;
-    opacity: 0.02;
-    pointer-events: none;
-}
-.checkbox-container input[type="checkbox"]:checked + .checkbox-fill {
-    opacity: 1;
-}
-.checkbox-container:hover .checkbox-fill {
-    opacity: 0.1;
-}
 /* Color */
 .color-input input {
     width: 40px;
@@ -396,6 +373,9 @@ textarea:hover,
     align-items: stretch;
     gap: 8px;
     min-width: 0;
+}
+.custom-input.range-input > :first-child {
+    flex: 0 1 auto !important;
 }
 .range-control {
     display: flex;
@@ -516,7 +496,12 @@ textarea:hover,
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    flex-wrap: wrap;
     gap: 10px;
+}
+.file-input > :first-child:has(> .input-title) {
+    flex: 1 1 6rem;
+    min-width: 0;
 }
 .file-input .book-upload-row {
     display: flex;
@@ -760,6 +745,17 @@ textarea:hover,
 }
 .dropdown-input-container:hover:not(:has(input:disabled)) .dropdown-list-container {
     display: block;
+    animation: dropdown-hover-delay 0s linear 250ms backwards;
+}
+.dropdown-input-special .dropdown-list-container {
+    animation: none;
+}
+/* Keeps the list hidden and click-through until the pointer has hovered for 250ms. */
+@keyframes dropdown-hover-delay {
+    from {
+        visibility: hidden;
+        pointer-events: none;
+    }
 }
 .dropdown-input-special .dropdown-input-container {
     flex-direction: column;
@@ -843,6 +839,9 @@ textarea:hover,
     border-width: var(--settings-input-border-width);
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
+}
+.language-dropdown-input .dropdown-input-container:hover {
+    background-color: #ffffff28;
 }
 .language-dropdown-input .dropdown-icon {
     width: 20px;
