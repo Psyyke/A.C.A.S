@@ -199,6 +199,9 @@ button.small {
 .live-stats-row { gap: 16px; }
 .live-history { max-height: 240px; overflow: auto; }
 .live-speed { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: rgb(255 255 255 / 75%); font-size: 13px; }
+.live-mode { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; }
+.live-match-mode { padding: 8px; border: 2px solid rgb(255 255 255 / 25%); border-bottom-width: 4px; border-radius: 5px; background: #303033; color: #e6e6e6; font-size: 13px; }
+.live-match-mode:focus-visible { outline: 2px solid #bfe1ff; outline-offset: 2px; }
 .live-move-time {
     width: 110px;
     padding: 8px;
@@ -227,6 +230,7 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
     .acas-fancy-button { min-height: 44px; }
     .live-status .acas-fancy-button, .live-turn { height: 44px; }
     .live-move-time { min-height: 44px; font-size: 16px; }
+    .live-match-mode { min-height: 44px; font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .acas-fancy-button { transition: none; }

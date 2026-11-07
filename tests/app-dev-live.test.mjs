@@ -265,14 +265,20 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
             assert.equal((await state(page)).games.at(-1).status, 'failed');
             await page.locator('.live-new').click();
             assert.equal((await state(page)).active.moveTimeMs, 60000);
+            await page.locator('.live-match-mode').selectOption('chesscom');
+            await page.locator('.live-auto').uncheck();
+            await input.fill('1200');
+            await input.dispatchEvent('change');
             await page.reload();
             await page.waitForFunction(() => typeof window.ChessgroundX === 'function');
             await page.evaluate(async () => {
                 const { init } = await import('/app/dev/test-modules/live.js');
                 window.live = await init(document.querySelector('#left-content'), { test: { playerColor: 'white' } });
             });
-            assert.equal(await page.locator('.live-move-time').inputValue(), '60000');
-            assert.equal((await state(page)).active.moveTimeMs, 60000);
+            assert.equal(await page.locator('.live-move-time').inputValue(), '1200');
+            assert.equal((await state(page)).active.moveTimeMs, 1200);
+            assert.equal(await page.locator('.live-match-mode').inputValue(), 'chesscom');
+            assert.equal(await page.locator('.live-auto').isChecked(), false);
             await page.close();
         });
 
@@ -660,13 +666,24 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
                 assert.equal(new URL(page.url()).searchParams.has('liveResume'), false);
                 assert.equal(await page.evaluate(() => Object.keys(sessionStorage).filter(key => key.startsWith('acas-dev-live-resume-')).length), 0);
                 await page.locator('.live-pause').click();
+                assert.equal(await page.locator('.live-match-mode').inputValue(), 'lichess');
                 const pausedIdentity = await page.evaluate(() => window.documentIdentity);
+                await page.evaluate(() => { window.previousBoardHolder = document.querySelector('.live-board'); });
+                await page.locator('.live-match-mode').selectOption('chesscom');
+                await page.locator('.live-new').click();
+                assert.equal(await page.evaluate(() => window.documentIdentity), pausedIdentity);
+                assert.equal(await page.evaluate(() => window.previousBoardHolder === document.querySelector('.live-board')), true);
+                assert.equal((await state(page)).active.matchMode, 'chesscom');
+                assert.equal(await page.locator('.live-pause').textContent(), 'Resume');
+                await page.locator('.live-match-mode').selectOption('lichess');
                 await page.locator('.live-new').click();
                 await page.waitForFunction(identity => window.documentIdentity !== identity, pausedIdentity);
                 await page.waitForSelector('.live-panel');
                 assert.equal(await page.locator('.live-pause').textContent(), 'Resume');
                 assert.equal((await state(page)).active.moves.length, 0);
                 assert.equal(await page.locator('.live-status-message').textContent(), 'Paused');
+                assert.equal((await state(page)).active.matchMode, 'lichess');
+                assert.equal(await page.locator('.live-match-mode').inputValue(), 'lichess');
                 await page.reload();
                 await page.waitForFunction(() => typeof window.ChessgroundX === 'function');
                 assert.equal((await state(page)).games.length, 0);

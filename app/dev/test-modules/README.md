@@ -41,8 +41,12 @@ Stockfish move, so changing speed mid-game does not lose that detail.
 A.C.A.S suggestions still arrive through the existing page bridge, so no userscript
 changes are needed. You can also play the A.C.A.S side manually. Promotions on that
 side default to a queen. Each new game swaps sides, including automatic restarts.
-Each new game navigates to a fresh dev page, giving the unchanged userscript a
+The Match mode selector defaults to Lichess.org. In this mode each new game
+navigates to a fresh dev page, giving the unchanged userscript a
 new instance ID and exercising normal GUI creation and old-instance disconnect.
+Chess.com mode resets the existing board in the same page, keeping the userscript
+instance ID. Both modes swap sides and retain statistics. Changing mode applies
+to the next match, and JSON records include each game's `matchMode`.
 This simulates sequential game churn, not hundreds of simultaneous games.
 Run records carry over through a one-use session checkpoint only for these
 automatic navigations. An ordinary refresh still clears statistics.
@@ -64,7 +68,8 @@ Failure records include the side, reason, position and waiting time.
 They never count as a win, draw or completed game.
 
 Stats stay in memory for this page and survive test switches, but reset on refresh.
-Only the Stockfish speed preference is saved in local storage.
+Stockfish speed, match mode and the completed-game restart preference are saved
+in local storage. Saving any one keeps the other preferences intact.
 The panel shows completed games, wins by side, draws, interrupted games, plies,
 average move times and average completed-game duration. The last 20 games appear
 in the panel. Export JSON includes every game from this page session, its PGN, colors, result,

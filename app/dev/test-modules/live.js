@@ -62,6 +62,14 @@ export async function init(container, { test, signal }) {
                     <div class="live-status-message" role="status">Playing</div>
                 </div>
                 <div class="live-storage-error" role="alert"></div>
+                <div class="live-mode">
+                    <span id="live-mode-label">Match mode</span>
+                    <select class="live-match-mode" aria-labelledby="live-mode-label" aria-describedby="live-mode-help">
+                        <option value="lichess">Lichess.org</option>
+                        <option value="chesscom">Chess.com</option>
+                    </select>
+                </div>
+                <p id="live-mode-help">Lichess.org reloads the page. Chess.com keeps the board. Applies to the next match.</p>
                 <div class="live-controls">
                     <div class="checkbox-container live-checkbox">
                         <input class="live-auto" type="checkbox" aria-labelledby="live-auto-label">
@@ -89,6 +97,13 @@ export async function init(container, { test, signal }) {
     const autoInput = container.querySelector('.live-auto');
     const moveTimeInput = container.querySelector('.live-move-time');
     const settingsError = container.querySelector('.live-settings-error');
+    const modeInput = container.querySelector('.live-match-mode');
+    let reloadEachMatch = test.reloadEachMatch !== false;
+    modeInput.value = reloadEachMatch ? 'lichess' : 'chesscom';
+    modeInput.addEventListener('change', () => {
+        reloadEachMatch = modeInput.value === 'lichess';
+        saveSettings();
+    });
     autoInput.checked = Boolean(test.autoRestartOnEnd);
 
     const saved = liveStatistics;
@@ -102,16 +117,39 @@ export async function init(container, { test, signal }) {
                 || preference < 1 || preference > MAX_MOVE_TIME_MS)
                 throw new Error('Invalid saved Stockfish speed');
             moveTimeMs = preference;
+            if (parsed.settings?.reloadEachMatch !== undefined) {
+                if (typeof parsed.settings.reloadEachMatch !== 'boolean')
+                    throw new Error('Invalid saved match mode');
+                reloadEachMatch = parsed.settings.reloadEachMatch;
+            }
+            if (parsed.settings?.autoRestartOnEnd !== undefined) {
+                if (typeof parsed.settings.autoRestartOnEnd !== 'boolean')
+                    throw new Error('Invalid saved restart preference');
+                autoInput.checked = parsed.settings.autoRestartOnEnd;
+            }
             if (parsed.games || parsed.runs || parsed.active) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({ settings: { moveTimeMs } }));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ settings: {
+                    moveTimeMs, reloadEachMatch, autoRestartOnEnd: autoInput.checked
+                } }));
             }
         }
     } catch (error) {
-        console.error('Unable to load Stockfish speed:', error);
-        storageError.textContent = 'Saved speed could not be loaded. Using 500 ms. Statistics reset on refresh.';
+        console.error('Unable to load live settings:', error);
+        storageError.textContent = 'Saved settings could not be loaded completely. Statistics reset on refresh.';
     }
-    saved.settings = { moveTimeMs };
+    saved.settings = { moveTimeMs, reloadEachMatch, autoRestartOnEnd: autoInput.checked };
+    modeInput.value = reloadEachMatch ? 'lichess' : 'chesscom';
     moveTimeInput.value = moveTimeMs;
+    function saveSettings() {
+        saved.settings = { moveTimeMs, reloadEachMatch, autoRestartOnEnd: autoInput.checked };
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ settings: saved.settings }));
+            storageError.textContent = '';
+        } catch (error) {
+            console.error('Unable to save live settings:', error);
+            storageError.textContent = 'Settings could not be saved. They still apply until refresh.';
+        }
+    }
     if (saved.active) {
         saved.active.status = 'interrupted';
         saved.active.endedAt = new Date().toISOString();
@@ -354,6 +392,7 @@ export async function init(container, { test, signal }) {
         const now = new Date().toISOString();
         saved.active = {
             startedAt: now, playerColor, engine: ENGINE_NAME, moveTimeMs,
+            matchMode: reloadEachMatch ? 'lichess' : 'chesscom',
             startFen: game.fen(), status: 'playing', moves: [], pgn: game.pgn(),
             durationMs: 0, acasTimeoutMs: ACAS_TIMEOUT_MS
         };
@@ -471,7 +510,7 @@ export async function init(container, { test, signal }) {
         acasTimer = null;
         const reload = Boolean(pending) || failed || !worker || !ready;
         closeRecord('abandoned', 'New game requested');
-        if (test.reloadEachMatch !== false) {
+        if (reloadEachMatch) {
             const token = crypto.randomUUID();
             const key = `acas-dev-live-resume-${token}`;
             try {
@@ -482,7 +521,7 @@ export async function init(container, { test, signal }) {
                     test: {
                         ...test, playerColor: playerColor === 'white' ? 'black' : 'white',
                         randomizeStartingPlayer: false, autoRestartOnEnd: autoInput.checked,
-                        failureStreak, paused
+                        failureStreak, paused, reloadEachMatch
                     }
                 }));
             } catch (error) {
@@ -539,6 +578,7 @@ export async function init(container, { test, signal }) {
         }
     });
     autoInput.addEventListener('change', () => {
+        saveSettings();
         if (autoInput.checked) scheduleRestart();
         else if (!failed) {
             clearTimeout(restartTimer);
@@ -557,14 +597,7 @@ export async function init(container, { test, signal }) {
         moveTimeInput.setCustomValidity('');
         settingsError.textContent = '';
         moveTimeMs = value;
-        saved.settings = { moveTimeMs };
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ settings: saved.settings }));
-            storageError.textContent = '';
-        } catch (error) {
-            console.error('Unable to save Stockfish speed:', error);
-            storageError.textContent = 'Speed could not be saved. It still applies until refresh.';
-        }
+        saveSettings();
     });
     container.querySelector('.live-new').addEventListener('click', newGame);
     container.querySelector('.live-export').addEventListener('click', () => {
