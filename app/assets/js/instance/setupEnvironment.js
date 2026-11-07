@@ -6,8 +6,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
     const selectedVariant = FORMAT_VARIANT(profileVariables?.chessVariant);
     const isCurrentSetup = () => !this.instanceClosed
         && (!selectedProfile || this.pV[selectedProfile] === profileVariables);
-    const currentFen = await USERSCRIPT.instanceVars.fen.get(this.instanceID);
-    const fen = currentFen || startpos;
+    const fen = this.boardState.fen || startpos;
 
     if(!isCurrentSetup()) return;
 
@@ -71,10 +70,8 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
         if(!isCurrentSetup()) return;
 
         let orientation = await this.getPlayerColor();
-        try {
-            const boardOrientation = await USERSCRIPT.instanceVars.boardOrientation?.get(this.instanceID);
-            if(boardOrientation === 'w' || boardOrientation === 'b') orientation = boardOrientation;
-        } catch(e) { /* Older userscripts do not expose boardOrientation. */ }
+        const boardOrientation = this.boardState.boardOrientation;
+        if(boardOrientation === 'w' || boardOrientation === 'b') orientation = boardOrientation;
 
         if(!isCurrentSetup()) return;
 
@@ -319,4 +316,6 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
     } finally {
         this.environmentSetupPending = false;
     }
+
+    if(isCurrentSetup() && this.instanceReady) await this.processEarlyPackets();
 }

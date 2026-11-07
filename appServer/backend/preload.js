@@ -38,5 +38,7 @@ contextBridge.exposeInMainWorld('toastAPI', {
 
 contextBridge.exposeInMainWorld('electronAPI', {
 	getVersion: () => ipcRenderer.invoke('getAppVersion'),
+	getAlwaysOnTop: () => ipcRenderer.invoke('getAlwaysOnTop'),
+	setAlwaysOnTop: enabled => ipcRenderer.invoke('setAlwaysOnTop', enabled),
 	openExternal: (url) => ipcRenderer.invoke('openExternal', url)
 });

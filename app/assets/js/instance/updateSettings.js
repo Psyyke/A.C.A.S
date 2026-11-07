@@ -1,6 +1,7 @@
 import { updatePipData, updatePipFeedback, pipSettingKeys } from '../gui/pip.js';
 import { clearFeedback } from './renderFeedback.js';
 import { isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
+import { suggestionMixKeys } from './suggestionMix.js';
 
 export default async function updateSettings(updateObj) {
     const settingKey = updateObj?.data?.key,
@@ -8,6 +9,19 @@ export default async function updateSettings(updateObj) {
     const profileName = updateObj.data.profile?.name || settingValue;
     const isDirectlyCausedByUser = updateObj.data.isDirectlyCausedByUser;
     const isDynamicUciSetting = settingKey.startsWith('DYNAMIC_');
+
+    if(suggestionMixKeys.includes(settingKey)) {
+        await this.suggestionMix.configure();
+        this.suggestionMix.selection = null;
+        await Promise.all(Object.keys(this.pV).map(profile =>
+            this.getAndDisplayBookMoves(this.currentFen, profile)));
+        if(this.suggestionMix.enabled) {
+            await this.suggestionMix.render(true);
+        } else {
+            await Promise.all(Object.keys(this.pV).map(profile => this.refreshHints(profile)));
+        }
+        return;
+    }
 
     if(pipSettingKeys.includes(settingKey)) {
         if(this.pV[profileName]) this.pV[profileName][settingKey] = settingValue;
@@ -86,7 +100,8 @@ export default async function updateSettings(updateObj) {
         .find(key => findSetting(key));
     const didUpdateLc0Weight = findSetting(this.configKeys.lc0Weight);
     const didUpdateChessFont = findSetting(this.configKeys.chessFont);
-    const didUpdateMultiPV = findSetting(this.configKeys.moveSuggestionAmount);
+    const didUpdateMultiPV = findSetting(this.configKeys.moveSuggestionAmount)
+        || findSetting(this.configKeys.onlyShowWarningMoves);
     const didUpdate960Mode = findSetting(this.configKeys.useChess960);
     const didUpdateChessEngine = findSetting(this.configKeys.chessEngine);
     const didUpdateEngineEnabled = findSetting(this.configKeys.engineEnabled);
@@ -116,15 +131,16 @@ export default async function updateSettings(updateObj) {
     };
     const feedbackKeys = [this.configKeys.enableMoveRatings, this.configKeys.enableEnemyFeedback,
         this.configKeys.feedbackEngineDepth, this.configKeys.feedbackOnExternalSite, this.configKeys.reverseSide,
-        this.configKeys.chessVariant, this.configKeys.useChess960, this.configKeys.feedbackEmojis];
+        this.configKeys.chessVariant, this.configKeys.useChess960, this.configKeys.feedbackEmojis,
+        this.configKeys.feedbackEloEstimate];
     if(feedbackKeys.includes(settingKey) && this.pV[profileName]) {
         const variables = this.pV[profileName];
-        if(['enableMoveRatings', 'enableEnemyFeedback'].includes(settingKey)) variables[settingKey] = Boolean(settingValue);
+        if(['enableMoveRatings', 'enableEnemyFeedback', 'feedbackEloEstimate'].includes(settingKey)) variables[settingKey] = Boolean(settingValue);
 
         // Invalidate callbacks immediately, even when the board hasn't moved.
         this.pV[profileName].feedbackRequest = (this.pV[profileName].feedbackRequest || 0) + 1;
         this.MoveEval?.cancelStaleRequests();
-        const keepMessage = (this.isLearningProfile(profileName) || variables.enableMoveRatings || variables.enableEnemyFeedback)
+        const keepMessage = (this.isLearningProfile(profileName) || variables.enableMoveRatings ||         variables.enableEnemyFeedback || variables.feedbackEloEstimate)
             && ![this.configKeys.reverseSide, this.configKeys.chessVariant, this.configKeys.useChess960].includes(settingKey);
         clearFeedback.call(this, profileName, true, Boolean(keepMessage));
         updatePipFeedback(this);
@@ -223,6 +239,16 @@ export default async function updateSettings(updateObj) {
         return { appliedValue: this.pV[profileName].searchDepth };
     }
 
+    if([this.configKeys.advancedSearchMode, this.configKeys.advancedSearchMovetime].includes(settingKey)) {
+        const variables = this.pV[profileName];
+        if(!variables?.usingAdvancedMode) return false;
+        if(isDirectlyCausedByUser && this.currentFen && variables.engineSettingsReady) {
+            this.engineStopCalculating(profileName, 'Search settings changed');
+            this.calculateBestMoves(this.currentFen, { specificProfileName: profileName, skipValidityChecks: true }).catch(console.error);
+        }
+        return { appliedValue: settingValue };
+    }
+
     if(didUpdateSearchNodes) {
         if(this.pV[profileName]) this.pV[profileName].engineNodes = this.pV[profileName].usingAdvancedMode || await this.getEngineName(profileName) === 'lc0'
             ? await this.getConfigValue(this.configKeys.engineNodes, profileName) : 0;
@@ -239,9 +265,15 @@ export default async function updateSettings(updateObj) {
 
     if(didUpdateMultiPV && this.pV[profileName]) {
         const amount = await this.getConfigValue(this.configKeys.moveSuggestionAmount, profileName);
+        this.pV[profileName].onlyShowWarningMoves = Boolean(await this.getConfigValue(this.configKeys.onlyShowWarningMoves, profileName));
         this.setEngineMultiPV(amount, profileName, updateObj.data.isDynamicChange);
-        return { appliedValue: this.pV[profileName].multiPV ?? amount };
+        return { appliedValue: this.pV[profileName].suggestionAmount ?? amount };
     }
 
-    if(settingKey === this.configKeys.openingBookName) await this.loadOpeningBook();
+    if(settingKey === this.configKeys.openingBookName) {
+        await this.loadOpeningBook();
+        if(this.suggestionMix.enabled && this.suggestionMix.preferBook) {
+            await this.suggestionMix.render(true);
+        }
+    }
 }

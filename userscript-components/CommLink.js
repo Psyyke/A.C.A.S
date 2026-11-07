@@ -1,5 +1,5 @@
 /* CommLink.js
- - Version: 1.1.0
+ - Version: 1.1.1
  - Author: Haka
  - Description: A userscript library for cross-window communication via the userscript storage
  - GitHub: https://github.com/AugmentedWeb/CommLink
@@ -7,6 +7,8 @@
 
 // How long after the last real (non keep-alive) packet the 1 ms fast polling stays on
 const COMMLINK_FAST_POLL_WINDOW_MS = 500;
+// A packet this old was abandoned by its sender; it is deleted and must not be handled
+const COMMLINK_PACKET_EXPIRY_MS = 2e4;
 // Idle poll interval when a peer that cannot ring the bell (older userscript) may exist
 const COMMLINK_LEGACY_IDLE_POLL_MS = 10;
 // Idle safety-net poll when every peer rings the bell
@@ -169,7 +171,7 @@ class CommLinkHandler {
     async removeOldPackets(packets) {
         packets = packets || await this.getStoredPackets();
 
-        packets.filter(packet => Date.now() - packet?.date > 2e4)
+        packets.filter(packet => Date.now() - packet?.date > COMMLINK_PACKET_EXPIRY_MS)
             .forEach(packet => this.removePacketByID(packet.id));
     }
 
@@ -399,6 +401,9 @@ class CommLinkHandler {
         let handledAmount = 0;
 
         for(const packet of packets) {
+            // e.g. a throttled background tab resuming: the reply could no longer be delivered anyway
+            if(Date.now() - packet?.date > COMMLINK_PACKET_EXPIRY_MS) continue;
+
             for(const listener of this.listeners) {
                 if(packet.sender === listener.sender && !packet.hasOwnProperty('result')) {
                     try {
@@ -406,7 +411,9 @@ class CommLinkHandler {
                         packet.result = result === undefined ? null : result;
                         if(!this.keepAliveCommands.includes(packet.command)) handledAmount++;
 
-                        await this.editPacket(packet);
+                        // The sender only reads the result; writing the data back would store it a second time
+                        const { data, ...reply } = packet;
+                        await this.editPacket(reply);
                         
                         if(!this.silentMode) {
                             if(packet.result == null)

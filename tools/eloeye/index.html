@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>EloEye / A.C.A.S</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="description" content="Find out how strong your A.C.A.S setup is. It plays Maia 3 and works out an Elo from the results. Free, runs in your browser.">
+    <meta name="keywords" content="engine elo, stockfish elo, chess engine rating, estimate engine elo, maia 3, chess tools">
+    <meta property="og:title" content="EloEye / A.C.A.S">
+    <meta property="og:description" content="Find out how strong your A.C.A.S setup is. It plays Maia 3 and works out an Elo from the results. Free, runs in your browser.">
+    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/tools/eloeye/">
+    <meta property="og:site_name" content="A.C.A.S">
+    <meta property="og:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1903">
+    <meta property="og:image:height" content="907">
+    <meta property="og:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="EloEye / A.C.A.S">
+    <meta name="twitter:description" content="Find out how strong your A.C.A.S setup is. It plays Maia 3 and works out an Elo from the results. Free, runs in your browser.">
+    <meta name="twitter:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta name="twitter:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
+    <meta name="robots" content="max-image-preview:large">
+    <link rel="preload" href="../../assets/fonts/Mona-Sans.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="../../assets/fonts/Rubik.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="../../assets/fonts/IBMPlexSans.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    <link rel="stylesheet" type="text/css" href="../../assets/css/home.css">
+    <link rel="stylesheet" href="../../assets/css/checkbox.css">
+    <link rel="stylesheet" type="text/css" href="../tools.css?v=eloeye-mona-20261106">
+    <link rel="stylesheet" href="../../assets/css/chessground.base.css">
+    <link rel="stylesheet" href="../../assets/css/chessground.brown.css">
+    <link rel="stylesheet" href="../../assets/css/theme-staunty.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+    <link rel="icon" type="image/x-icon" href="../../favicon.ico">
+    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/tools/eloeye/">
+    <meta property="og:type" content="website">
+    <script type="text/javascript" src="../../assets/js/tag-manager.js"></script>
+    <script src="../../assets/libraries/bodymovin/lottie.js" type="text/javascript"></script>
+    <script async="" type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-5499BQ4B"></script>
+    <script defer="" type="text/javascript" src="../../assets/libraries/klaro/config.js"></script>
+    <script defer="" type="text/javascript" src="../../assets/libraries/klaro/klaro.js"></script>
+    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+</head>
+<body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <main>
+        <header>
+            <div><a href="../../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
+            <div class="header-nav">
+                <a href="../../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
+                <a href="../../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
+                <a href="../../tools/" aria-label="Chess tools" aria-current="page" class="fancy-btn"><i class="bi bi-speedometer2"></i>Tools</a>
+                <a href="../../troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-tools"></i>Help</a>
+                <a href="../../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
+                <a href="../../contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
+                <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
+            </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+        </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="../../install/"><i class="bi bi-download"></i>Install</a>
+            <a href="../../usage/"><i class="bi bi-journals"></i>Usage</a>
+            <a href="../../tools/" aria-current="page"><i class="bi bi-speedometer2"></i>Tools</a>
+            <a href="../../troubleshoot/"><i class="bi bi-tools"></i>Help</a>
+            <a href="../../blog/"><i class="bi bi-pen"></i>Blog</a>
+            <a href="../../contributing/"><i class="bi bi-heart"></i>Contribute</a>
+            <a href="https://github.com/psyyke/A.C.A.S" target="_blank"><i class="bi bi-github"></i>GitHub</a>
+        </div></div></nav>
+        <div class="content">
+            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/wN.svg" alt="">
+            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/bK.svg" alt="">
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../../assets/images/pieces/staunty/wQ.svg" alt="">
+            <!-- PAGE CONTENT -->
+            <article class="markdown-section-sub markdown-section elo-page" id="main">
+                <section class="elo-heading">
+                    <div class="elo-heading-main">
+                        <h1 id="eloeye"><div>Elo<span>Eye</span></div> <svg width="36" height="36" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15c3-8 17-8 22 0-5 7-17 7-22 0Z"/><path d="m5 11-2-2m6 0L8 6m14 5 2-2"/><ellipse cx="14" cy="14.5" rx="4.5" ry="5.5" fill="currentColor" stroke="none"/><ellipse cx="12.5" cy="12.5" rx="1.5" ry="2" fill="white" stroke="none"/><circle cx="16" cy="16.5" r="0.9" fill="white" stroke="none"/></svg></h1>
+                        <ul id="connection" class="tool-connection" aria-label="GUI connection" aria-live="polite">
+                            <li id="conn-gui" data-state="wait"><i class="bi bi-circle"></i><span>GUI not active</span></li>
+                        </ul>
+                    </div>
+                    <div id="checkpoint" class="elo-checkpoint" hidden>
+                        <button id="discard-checkpoint" type="button" class="tool-button">Discard saved run</button>
+                        <p id="checkpoint-status" role="status"></p>
+                    </div>
+                </section>
+                <section class="elo-tool-section" aria-label="EloEye tool">
+                    <div id="elo-tool" class="elo-tool">
+                        <form id="elo-form" class="tool-form" novalidate>
+                            <label class="tool-field">
+                                <span>Moves from</span>
+                                <select id="mode" name="mode">
+                                    <option value="auto" selected>Config (it shows full moves)</option>
+                                    <option value="manual">Me (my config only gives hints)</option>
+                                </select>
+                            </label>
+                            <label class="tool-field" id="boards-field">
+                                <span>Boards</span>
+                                <select id="boards" name="boards">
+                                    <option value="1">1</option>
+                                    <option value="2" selected>2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </label>
+                            <details id="personality" class="elo-tool-wide">
+                                <summary>Suggestion mix <span id="mix-summary">90% best, 10% alternatives</span></summary>
+                                <div class="elo-suggestion-mix">
+                                    <label class="tool-field"><span>Best</span><input id="mix-best" type="number" min="0" max="100" step="0.1" value="90"></label>
+                                    <label class="tool-field" id="alternative-field"><span>Any alternative</span><input id="mix-alternative" type="number" min="0" max="100" step="0.1" value="10"></label>
+                                </div>
+                                <label class="elo-mix-toggle"><span class="checkbox-container"><input id="mix-detailed" type="checkbox"><span class="checkbox-fill" aria-hidden="true">&#10004;</span></span> Choose alternative types</label>
+                                <div id="mix-categories" class="elo-suggestion-mix" hidden>
+                                    <label class="tool-field"><span>Safe secondary</span><input id="mix-secondary" type="number" min="0" max="100" step="0.1" value="0"></label>
+                                    <label class="tool-field"><span>Mistake</span><input id="mix-mistake" type="number" min="0" max="100" step="0.1" value="0"></label>
+                                    <label class="tool-field"><span>Blunder</span><input id="mix-blunder" type="number" min="0" max="100" step="0.1" value="0"></label>
+                                    <label class="tool-field"><span>Missed opportunity</span><input id="mix-miss" type="number" min="0" max="100" step="0.1" value="0"></label>
+                                    <label class="tool-field"><span>Other / unclassified</span><input id="mix-other" type="number" min="0" max="100" step="0.1" value="0"></label>
+                                </div>
+                            </details>
+                            <div class="elo-tool-wide"><label class="elo-mix-toggle"><span class="checkbox-container"><input id="multiple-workers" type="checkbox"><span class="checkbox-fill" aria-hidden="true">&#10004;</span></span> Use one Maia worker per board</label></div>
+                            <div class="tool-actions elo-actions">
+                                <button id="start" type="submit" form="elo-form" class="install-button">Start</button>
+                                <button id="stop" type="button" class="tool-button" hidden>Stop</button>
+                            </div>
+                            <p id="run-plan" class="elo-run-plan elo-tool-wide" role="status" hidden></p>
+                            <p id="settings-warning" class="tool-record elo-tool-wide" role="status" hidden>Settings could not be saved in this browser.</p>
+                            <p id="checkpoint-warning" class="tool-error elo-tool-wide" role="status" hidden></p>
+                            <p id="form-error" class="tool-error elo-tool-wide" role="alert" hidden></p>
+                            <p id="mix-warning" class="tool-error elo-tool-wide" role="status" hidden></p>
+                        </form>
+
+                        <div id="run" class="tool-run elo-tool-wide" hidden>
+                            <div class="elo-live-summary">
+                                <div id="live-estimate" class="tool-result elo-live-estimate">
+                                    <div id="live-range" hidden>
+                                        <span id="estimate-label" class="tool-result-label">Estimated range so far</span>
+                                        <p id="rating" class="tool-rating" hidden></p>
+                                        <p id="precision" class="tool-rating"></p>
+                                    </div>
+                                    <div class="elo-estimate-status">
+                                        <p id="match-status" class="elo-match-status" aria-live="polite"></p>
+                                        <p id="status" class="tool-status elo-time-status" aria-live="polite"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="hidden-warning" class="tool-error" role="alert" hidden>This tab is hidden, so your browser is slowing it down. Bring it back into view, or put it next to the A.C.A.S window, to avoid lost connections.</p>
+                        </div>
+                        <div id="boards-grid" class="tool-boards elo-tool-wide" role="group" aria-label="Match boards">
+                            <section class="tool-board" aria-label="Match 1">
+                                <div class="tool-board-heading">Match<strong>01</strong></div>
+                                <div class="tool-board-surface"><div class="tool-board-empty" hidden>Empty</div></div>
+                            </section>
+                            <section class="tool-board" aria-label="Match 2">
+                                <div class="tool-board-heading">Match<strong>02</strong></div>
+                                <div class="tool-board-surface"><div class="tool-board-empty" hidden>Empty</div></div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+                <section class="elo-guide" aria-labelledby="guide-title">
+                    <h2 id="guide-title">How to use</h2>
+                    <p>Test your configured GUI profile against Maia 3, or play yourself. The result is an estimate against Maia, not an official human Elo rating.</p>
+                    <div class="elo-guide-layout">
+                        <ol class="tool-steps">
+                            <li>Open the <a target="_blank" href="../../app/">A.C.A.S GUI</a> and turn on the profiles you want to test. Use the same website address for both pages.</li>
+                            <li>Choose <strong>Config</strong> to play full move suggestions automatically, or <strong>Me</strong> to play yourself with hints.</li>
+                            <li>Keep both pages <strong>visible side by side</strong> and wait for the GUI active tick. The GUI needs the userscript, but EloEye itself does not.</li>
+                            <li>Choose your board count and press <strong>Start</strong>. Fewer boards are easier on your device. The first run downloads about 45 MB. Resuming finishes the saved group before switching to your new board count.</li>
+                            <li>Leave both windows open until your result appears. If interrupted, return and resume with the same A.C.A.S setup.</li>
+                        </ol>
+                        <div class="elo-guide-art">
+                            <div id="lottie-animation" aria-hidden="true"></div>
+                            <p class="tool-note">Keep both windows visible until your result appears.</p>
+                        </div>
+                    </div>
+                </section>
+                <section class="elo-guide" aria-labelledby="mix-guide-title">
+                    <h2 id="mix-guide-title">How to use the suggestion mix</h2>
+                    <p>Change one percentage and the others adjust for you. A few examples:</p>
+                    <ul>
+                        <li><strong>90% best, 10% alternatives:</strong> about 9 out of 10 picks use a top suggestion. The rest use another shown move, including possible mistakes or blunders.</li>
+                        <li><strong>80% best, 20% mistakes:</strong> turn on <strong>Choose alternative types</strong> to set this. No mistakes shown? Best gets every pick.</li>
+                        <li><strong>100% mistakes, but none shown:</strong> EloEye uses another shown move and warns you. It never invents moves. A 0% type is skipped unless nothing matches.</li>
+                    </ul>
+                    <p><strong>Safe secondary</strong> is a non-top move rated close to best, with no warning. <strong>Other / unclassified</strong> means we cannot call it safe. Engine labels are not guarantees.</p>
+                    <p>Profiles share one pool after they finish. Duplicate moves count once. Target-square-only hints do not block full moves. If labels disagree, the weaker one wins. Use time-limited searches and keep the same setup when resuming.</p>
+                </section>
+                <section class="elo-guide" aria-labelledby="accuracy-guide-title">
+                    <h2 id="accuracy-guide-title">How many games?</h2>
+                    <p>More games usually narrow the estimate. For example, 1500 &plusmn;100 means roughly 1400 to 1600. Here is a rough idea of how many games that takes, not a guarantee.</p>
+                    <div class="elo-accuracy-table">
+                        <table>
+                            <thead><tr><th scope="col">Elo range</th><th scope="col">About this many games</th></tr></thead>
+                            <tbody>
+                                <tr><th scope="row">&plusmn;200</th><td>40</td></tr>
+                                <tr><th scope="row">&plusmn;150</th><td>70</td></tr>
+                                <tr><th scope="row">&plusmn;100</th><td>160 to 180</td></tr>
+                                <tr><th scope="row">&plusmn;75</th><td>300</td></tr>
+                                <tr><th scope="row">&plusmn;50</th><td>650</td></tr>
+                                <tr><th scope="row">&plusmn;25</th><td>About 2600 (over the game limit)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p>EloEye aims for &plusmn;25 and stops at 1000 games, even if the range is still wider. Maia opponents use 10-point rating steps, and the result shows whole Elo points. Extra digits do not mean extra certainty. These counts come from simulated results against similarly strong opponents. Real runs vary. More boards save time, not games. This compares your setup with Maia, not an official human Elo rating.</p>
+                    <p><strong>One Maia worker per board</strong> can help boards run faster on some devices, but uses much more memory. It loads up to ten copies of Maia instead of sharing one. Leave it off if your device slows down. This changes performance, not the opponent or scoring.</p>
+                </section>
+            </article>
+            <!-- PAGE CONTENT ENDS -->
+        </div>
+        <footer>
+            <img style="right: -70px;bottom: -35px;width: 200px;" class="floaty-piece floaty-footer" src="../../assets/images/pieces/staunty/wR.svg" alt=""/>
+            <section><a href="../../tos">Terms of Service</a><a href="../../privacy">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>
+        </footer>
+    </main>
+    <script async="" src="../../assets/js/site-additional-content.js"></script>
+    <script type="module" src="elo.js?v=10boards"></script>
+</body>
+</html>

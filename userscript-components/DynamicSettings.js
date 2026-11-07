@@ -1,3 +1,9 @@
+/* DynamicSettings.js
+ - Version: 1.0
+ - License: GPL-3.0
+ - Description: Shared A.C.A.S dynamic settings core, for GUI and userscript scope.
+*/
+
 const DynamicSettingsCore = (() => {
     const variables = Object.freeze({
         __proto__: null,

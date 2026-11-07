@@ -16,4 +16,6 @@ const addEngineBtn = document.getElementById('addEngineBtn');
 const engineFilePicker = document.getElementById('filePicker');
 const engineSummary = document.getElementById('engineSummary');
 const panelsToggle = document.getElementById('panelsToggle');
+const logOnlyToggle = document.getElementById('logOnlyToggle');
+const alwaysOnTopToggle = document.getElementById('alwaysOnTopToggle');
 const serverVersionTagElem = document.getElementById('acas-version-tag');

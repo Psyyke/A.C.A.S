@@ -233,7 +233,7 @@ export function disconnectAcasFromServer() {
 }
 
 export function sendUciToExternalEngine(command, engineId, profileName, instanceId, isCurrent = () => true,
-    { resumeEngineOptions = false, optionsInitialized = false } = {}) {
+    { resumeEngineOptions = false, optionsInitialized = false, siteDomain } = {}) {
     if(typeof engineId !== 'string' || !engineId.trim()) return Promise.resolve(false);
 
     const key = JSON.stringify([engineId, profileName, instanceId]);
@@ -262,7 +262,7 @@ export function sendUciToExternalEngine(command, engineId, profileName, instance
             // Fresh starts use the GUI profile; replacements restore only the
             // options actually sent to this engine/profile/instance in this session.
             'msg': {
-                command, engineId, profileName, instanceId, launchParams,
+                command, engineId, profileName, instanceId, launchParams, siteDomain,
                 clientManagesOptions: true, resumeEngineOptions, optionsInitialized
             }
         }, isCurrent);

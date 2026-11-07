@@ -6,10 +6,53 @@ This file basically just lists the LICENSE and the dependencies A.C.A.S might us
 
 ## Developing / Building
 
-1. `npm install`
-2. Run the `dev.bat`
+Node.js 22.12 or newer is required for the current Electron and build dependencies.
 
-You can build the server the using `build.bat`. The files will be created to `/dist/` folder.
+From the `appServer` directory, on Windows, macOS, or Linux:
+
+1. `npm ci`
+2. `npm start`
+
+Run `npm run build` on the target operating system to package it. Output is
+written to `dist/`. The batch files are Windows-only shortcuts.
+
+### Platform status
+
+The Electron application targets Windows, macOS, and desktop Linux, not every
+operating system. Windows native startup and WebSocket communication are tested
+locally. macOS and Linux still require native runtime and packaging validation;
+do not treat source-level checks as certification.
+
+Use an engine binary built for your OS and CPU. Unix engines often have no file
+extension; select the executable itself, not a macOS `.app` bundle. Windows
+`.bat`/`.cmd` wrappers are not supported. On Unix, the server adds owner execute
+permission when needed; OS quarantine, signing, or missing-library errors may
+still need to be resolved separately. Always on Top depends on the window manager
+(particularly on Linux/Wayland).
+
+On macOS, closing the last window leaves the app and server running; reopening
+from the Dock restores the window. Quit the app to stop its engines and server.
+
+With the root development test dependencies installed, run
+`node --test tests/server-platform.test.mjs` from the repository root on each OS
+to check native Electron startup, WebSocket replies, and window pinning using an
+isolated temporary configuration.
+
+In the engine console, the clock button cycles through full timestamps,
+seconds and milliseconds, two-digit seconds, and hidden timestamps. The choice
+applies to all consoles and is remembered when the server restarts.
+
+The pin button beside the collapse button toggles Always on Top for the current
+window. Pinning keeps the Calculation Server above other normal windows until
+you unpin it or close the app.
+
+The log-only button beside the pin hides console titles, controls, and command
+inputs. Click it again to restore them. It also applies to newly opened consoles.
+
+Running processes and lifecycle notifications show the engine name, site domain,
+and profile instead of internal instance IDs. Older web clients without site
+metadata show "Unknown site"; update the web GUI and relaunch the engine to show
+the domain.
 
 ## Warning
 

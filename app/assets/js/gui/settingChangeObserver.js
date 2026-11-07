@@ -15,6 +15,29 @@ import { maiaLearningWarning } from '../misc/feedbackText.js';
 
 const processedElems = [];
 
+function updateSearchModeControls() {
+    const enabled = advancedEloEnableInput.checked;
+    const mode = document.querySelector('input[data-key="advancedSearchMode"]')?.value || 'standard';
+    const states = {
+        advancedSearchMode: !enabled,
+        advancedSearchMovetime: !enabled || mode !== 'movetime',
+        advancedEloDepth: !enabled || mode !== 'standard',
+        engineNodes: !enabled || mode !== 'standard',
+        maxMovetime: enabled && mode === 'movetime'
+    };
+    for(const [key, disabled] of Object.entries(states)) {
+        const scope = key === 'engineNodes' ? basicAdvancedSettingsPanel : document;
+        const input = scope.querySelector(`input[data-key="${key}"]`);
+        const setting = input?.closest('.custom-input');
+        if(!setting) continue;
+        input.disabled = disabled;
+        setting.inert = disabled;
+        setting.classList.remove('blurred');
+        input.classList.toggle('blurred', disabled);
+        setting.setAttribute('aria-disabled', String(disabled));
+    }
+}
+
 function setAdvancedEloCheckboxChecked(isChecked) {
     const isUsingExternalEngine = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
 
@@ -276,7 +299,11 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             }
 
             processIncompatibleSettings(value);
+            updateSearchModeControls();
 
+            break;
+        case 'advancedSearchMode':
+            updateSearchModeControls();
             break;
         case 'engineEnabled':
             if(!value) setProfileBubbleStatus('disabled', SETTING_FILTER_OBJ?.profileID, 'User disabled engine.');

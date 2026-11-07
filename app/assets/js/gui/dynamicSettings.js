@@ -366,8 +366,10 @@ function render() {
     const widestTick = Math.max(1, ...yTicks.map(value => tickLabel(value).length));
     // Do not move the coordinate origin underneath an active drag/pinch.
     // Match the label truncation padding so four-digit values fit without an ellipsis.
-    if(!pointers.size) plot.left = clamp(widestTick * (compact ? 6 : 7) + 12, compact ? 28 : 32,
-        axisDefinition?.categorical ? Math.min(compact ? 135 : 210, graph.getBoundingClientRect().width * 0.36) : compact ? 66 : 78);
+    const tickCharWidth = 7;
+    const tickGutter = compact ? 10 : 12;
+    if(!pointers.size) plot.left = clamp(widestTick * tickCharWidth + tickGutter, compact ? 24 : 32,
+        axisDefinition?.categorical ? Math.min(compact ? 96 : 210, graph.getBoundingClientRect().width * 0.36) : compact ? 60 : 78);
     const width = plot.right - plot.left;
     const xToPixel = x => plot.left + (x - domain.min) / (domain.max - domain.min || 1) * width;
     const yToPixel = (y, range) => plot.bottom - (y - range.min) / (range.max - range.min) * height;
@@ -394,9 +396,23 @@ function render() {
         lastTickY = y;
         graph.appendChild(createSvg('line', { x1: plot.left, y1: y, x2: plot.right, y2: y, class: 'dynamic-grid-line' }));
         const fullLabel = tickLabel(value);
-        const maxLength = Math.max(3, Math.floor((plot.left - 12) / (compact ? 6 : 7)));
-        const label = createSvg('text', { x: plot.left - 6, y: y + 4, class: 'dynamic-axis-label', 'text-anchor': 'end' },
-            fullLabel.length > maxLength ? `${fullLabel.slice(0, maxLength - 1)}…` : fullLabel);
+        const labelGap = compact ? 4 : 6;
+        const maxLength = Math.max(3, Math.floor((plot.left - tickGutter) / tickCharWidth));
+        if(fullLabel.length > maxLength) {
+            // Clip to the gutter and slide the full text back and forth with a CSS animation.
+            const available = Math.max(8, plot.left - labelGap - 2);
+            const clipBox = createSvg('svg', { x: 2, y: y - 9, width: available, height: 18 });
+            const label = createSvg('text', { x: 0, y: 13, class: 'dynamic-axis-label dynamic-axis-label-marquee', 'text-anchor': 'start' }, fullLabel);
+            label.appendChild(createSvg('title', {}, fullLabel));
+            clipBox.appendChild(label);
+            graph.appendChild(clipBox);
+            const textWidth = label.getComputedTextLength?.() || fullLabel.length * (tickCharWidth + 1.5);
+            label.style.setProperty('--marquee-shift', `${Math.max(0, Math.ceil(textWidth - available + 2))}px`);
+            // Re-renders replace the element, so keep the animation phase continuous across them.
+            label.style.animationDelay = `-${((performance.now() / 1000) % 8).toFixed(3)}s`;
+            return;
+        }
+        const label = createSvg('text', { x: plot.left - labelGap, y: y + 4, class: 'dynamic-axis-label', 'text-anchor': 'end' }, fullLabel);
         label.appendChild(createSvg('title', {}, fullLabel));
         graph.appendChild(label);
     });
@@ -838,7 +854,8 @@ function settingLabel(key) {
 function fillAddSettingOptions() {
     const keys = getSettingKeys();
     const priorAddSetting = settingChosen ? ui['dynamic-add-setting'].value : '';
-    ui['dynamic-add-setting'].replaceChildren();
+    const addSettingButton = ui['dynamic-add-setting'].querySelector(':scope > button');
+    ui['dynamic-add-setting'].replaceChildren(...(addSettingButton ? [addSettingButton] : []));
     keys.forEach(key => {
         const dynamicExternalSetting = /^DYNAMIC_([A-F\d]{32,})_(.+)$/i.exec(key);
         const engineName = dynamicExternalSetting
@@ -982,7 +999,7 @@ function resizeGraph() {
     const rect = graph.getBoundingClientRect();
     if(!rect.width || !rect.height) return;
     graph.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
-    plot.right = rect.width - 12;
+    plot.right = rect.width - (rect.width < 600 ? 6 : 12);
     plot.top = 28;
     plot.bottom = Math.max(plot.top + 20, rect.height - 52);
     render();
@@ -1336,6 +1353,19 @@ function initialize() {
         viewport = fitGraphViewport();
         render();
     };
+    const graphToolbar = ui['dynamic-fit-graph'].closest('.dynamic-graph-toolbar');
+    graphToolbar?.addEventListener('wheel', event => {
+        if(graphToolbar.scrollWidth <= graphToolbar.clientWidth || event.ctrlKey) return;
+        if(event.target.closest('option, select')) return;
+        if(event.target.closest('select, input, textarea')?.matches(':focus')) return;
+
+        const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+        if(!delta) return;
+
+        const before = graphToolbar.scrollLeft;
+        graphToolbar.scrollLeft += delta * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? graphToolbar.clientWidth : 1);
+        if(graphToolbar.scrollLeft !== before) event.preventDefault();
+    }, { passive: false });
     graph.addEventListener('wheel', event => {
         event.preventDefault();
         const position = eventPosition(event);

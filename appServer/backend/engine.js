@@ -21,6 +21,11 @@ export let savedEngines = store.get(chessEnginesStorageKey, []);
 let aliveEngineProcesses = [];
 let savedEngineOptions = localStoredEngineOptions || {};
 
+function getEngineDisplayLabel(identifierObj) {
+    const engine = savedEngines.find(engine => engine.engineId === identifierObj.engineId);
+    return `${engine?.title || engine?.name || 'Unknown engine'} · ${identifierObj.siteDomain || 'Unknown site'} · ${identifierObj.profileName}`;
+}
+
 function sendToRenderer(channel, payload) {
     // mainWindow may be gone during shutdown; sending to a destroyed window throws.
     if(!mainWindow || mainWindow.isDestroyed()) return;
@@ -30,6 +35,7 @@ function sendToRenderer(channel, payload) {
 
 export function renderEngineGrid() {
     sendToRenderer('renderEngineGrid', { savedEngines });
+    aliveEngineProcesses.forEach(engine => addConsoleView(engine.identifierObj));
     refreshEngineCards(aliveEngineProcesses);
 }
 
@@ -106,7 +112,7 @@ function killSpecificEngine(identifierObj, code, showToast = true) {
         // return that used to sit here also skipped the cleanup below, so quitting on
         // Windows/Linux left aliveEngineProcesses fully populated.
         if(showToast)
-            toast('message', `Killed specific engine! (${code || 'Manually/Externally'})`, 4000);
+            toast('message', `Stopped ${getEngineDisplayLabel(engineObjToKill.identifierObj)} (${code || 'Manually/Externally'})`, 4000);
 
         removeAliveEngineObj(identifierObj);
         refreshEngineCards(aliveEngineProcesses);
@@ -323,7 +329,12 @@ async function startEngineProcess(enginePath, identifierObj) {
         if(existingEngine) killSpecificEngine(identifierObj, 'Relaunch');
 
         if(process.platform !== 'win32') {
-            try { fs.chmodSync(enginePath, 0o755); } catch (e) {}
+            try {
+                fs.accessSync(enginePath, fs.constants.X_OK);
+            } catch(error) {
+                if(error.code !== 'EACCES') throw error;
+                fs.chmodSync(enginePath, fs.statSync(enginePath).mode | 0o100);
+            }
         }
 
         return await new Promise((resolve, reject) => {
@@ -376,7 +387,7 @@ async function startEngineProcess(enginePath, identifierObj) {
                         resumedEngineOptions
                     });
 
-                    toast('message', `Launched: ${path.basename(enginePath)}`, 1500);
+                    toast('message', `Launched: ${getEngineDisplayLabel(identifierObj)}`, 1500);
                     refreshEngineCards(aliveEngineProcesses);
                     resolve(engineProcess);
                 });
@@ -429,7 +440,7 @@ async function startEngineProcess(enginePath, identifierObj) {
                     settled = true;
 
                     clearTimeout(launchTimeout);
-                    toast('error', `Engine error: ${err.message}`, 10000);
+                    toast('error', `${getEngineDisplayLabel(identifierObj)}: ${err.message}`, 10000);
                     reject(err);
                 });
 
@@ -455,11 +466,11 @@ async function startEngineProcess(enginePath, identifierObj) {
                         recoverable: true, exitCode: code, signal
                     });
 
-                    toast('warning', `Engine ID ${engineId} closed. ${code ? '('+code+')' : ''}`, 3000);
+                    toast('warning', `${getEngineDisplayLabel(identifierObj)} closed. ${reason}`, 3000);
                 });
 
             } catch (err) {
-                toast('error', `Fatal error: ${err.message}`, 10000);
+                toast('error', `${getEngineDisplayLabel(identifierObj)}: ${err.message}`, 10000);
                 reject(err);
             }
         });
@@ -472,6 +483,7 @@ async function startEngineProcess(enginePath, identifierObj) {
 export async function addEngine(fileInfo, title = fileInfo?.name) {
     if(!fileInfo?.path) return 'Missing file path';
     if(!fs.existsSync(fileInfo.path)) return `Engine file not found: ${fileInfo.path}`;
+    if(!fs.statSync(fileInfo.path).isFile()) return 'Select the UCI executable file, not a folder or application bundle.';
 
     const isDuplicate = savedEngines.some(engine => engine.path === fileInfo.path);
     if(isDuplicate) return `Engine already exists: ${fileInfo.name}`;

@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
 import Store from 'electron-store';
 import CommandQueue from './commandQueue.js';
+import { parseClientMessage, validateUciCommand } from './uciCommand.js';
 
 import { findAliveEngineObj, updateAliveEngineObjFen, killAllBy,
     sendToProcess, startEngine, savedEngines, markEngineOptionsInitialized } from './engine.js';
@@ -80,7 +81,7 @@ function reportCommandFailure(command, error) {
 
 async function handleClientUciCommand(cmdObj) {
     const {
-        engineId, profileName, instanceId, command, launchParams,
+        engineId, profileName, instanceId, command, launchParams, siteDomain,
         clientManagesOptions, resumeEngineOptions, optionsInitialized
     } = cmdObj;
 
@@ -92,12 +93,10 @@ async function handleClientUciCommand(cmdObj) {
         throw new Error('Instance ID must be a string');
     if(typeof profileName !== 'string' || !profileName.trim())
         throw new Error('Profile name must be a nonempty string');
-    if(typeof command !== 'string')
-        throw new Error('Command must be a string');
-    if(/[\n\r&;|]/.test(command))
-        throw new Error('Command contains forbidden control characters');
-    if(command.length > 512)
-        throw new Error('Command too long');
+    if(siteDomain != null && (typeof siteDomain !== 'string' || siteDomain.length > 253
+        || !/^[a-z0-9.-]+$/i.test(siteDomain)))
+        throw new Error('Site domain must be a hostname');
+    validateUciCommand(command);
 
     // savedEngineObj = e.g. { "title": "custom", "name": "lc0.exe", "path": "...", "engineId": "<sha256 hex>" }
     // Different from aliveEngineObj!
@@ -105,12 +104,13 @@ async function handleClientUciCommand(cmdObj) {
 
     if(!savedEngineObj) {
         console.warn(`[server] Unknown engineId received from client: "${engineId}"`);
-        toast('warning', `Web command ignored, such engine does not exist!\n(EngineID: "${engineId}")`, 1000);
+        toast('warning', `Engine is no longer in the library. Select an available engine in the web GUI (${profileName}${siteDomain ? ` on ${siteDomain}` : ''}).`, 3000);
         return;
     }
 
     const identifierObj = {
         engineId, profileName, instanceId, launchParams,
+        siteDomain: siteDomain?.toLowerCase(),
         identifierKey: getIdentifierKey({ engineId, profileName, instanceId }),
         savedOptionsIdentifierKey: `${profileName}_${engineId}`,
         clientManagesOptions: clientManagesOptions === true,
@@ -129,7 +129,7 @@ async function handleClientUciCommand(cmdObj) {
         const process = await startEngine(savedEngineObj.path, identifierObj); // includes logic to avoid spamming
 
         if(!process) {
-            toast('error', `Something went wrong while starting the engine ID ${engineId}!`, 10000);
+            toast('error', `Could not start ${savedEngineObj.title || savedEngineObj.name}${siteDomain ? ` on ${siteDomain}` : ''} (${profileName}).`, 10000);
             return;
         }
     }
@@ -162,7 +162,7 @@ async function onCommandReceived(remoteCommand) {
 
             case 'closeEnginesByIdentifier': {
                 const { identifier, type: field } = msg;
-                killAllBy(field, identifier, `All engines with ${field} "${identifier}" were closed by client`);
+                killAllBy(field, identifier, 'Closed by web GUI');
                 break;
             }
 
@@ -194,6 +194,7 @@ export function startLocalWSS() {
     // would sit on OFFLINE forever, so just re-announce instead of binding twice
     if(wssRef) {
         emitListeningState(wssRef);
+        if(clients.size > 0) wssRef.onClientChange?.(true);
 
         return wssRef;
     }
@@ -203,7 +204,7 @@ export function startLocalWSS() {
     });
     const port = getServerPort();
 
-    const wss = new WebSocketServer({ noServer: true, maxPayload: 16384, perMessageDeflate: false });
+    const wss = new WebSocketServer({ noServer: true, maxPayload: 524288, perMessageDeflate: false });
     wss.httpServer = server;
 
     server.on('upgrade', (request, socket, head) => {
@@ -231,8 +232,7 @@ export function startLocalWSS() {
         ws.on('message', (msg) => {
             const command = msg.toString();
             try {
-                if(command.length > 4096) throw new Error('Command payload too long');
-                const parsed = JSON.parse(command);
+                const parsed = parseClientMessage(command);
                 if(parsed?.type === 'uci') {
                     const key = getIdentifierKey(parsed.msg);
                     commandQueue.run(key, () => onCommandReceived(parsed))

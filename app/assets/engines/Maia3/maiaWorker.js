@@ -38,43 +38,52 @@ function openDB() {
 
 async function getCachedModel(modelUrl, modelVersion) {
 	const db = await openDB();
-	const tx = db.transaction([STORE_NAME], 'readonly');
-	const store = tx.objectStore(STORE_NAME);
+	try {
+		const tx = db.transaction([STORE_NAME], 'readonly');
+		const store = tx.objectStore(STORE_NAME);
 
-	const data = await new Promise((resolve, reject) => {
-		const req = store.get(MODEL_KEY);
-		req.onsuccess = () => resolve(req.result || null);
-		req.onerror = () => reject(req.error);
-	});
+		const data = await new Promise((resolve, reject) => {
+			const req = store.get(MODEL_KEY);
+			req.onsuccess = () => resolve(req.result || null);
+			req.onerror = () => reject(req.error);
+		});
 
-	if(!data) return null;
+		if(!data) return null;
 
-	if(!isCompatibleModelCache(data, modelUrl, modelVersion)) {
-		const rwTx = db.transaction([STORE_NAME], 'readwrite');
-		rwTx.objectStore(STORE_NAME).delete(MODEL_KEY);
-		return null;
+		if(!isCompatibleModelCache(data, modelUrl, modelVersion)) {
+			const rwTx = db.transaction([STORE_NAME], 'readwrite');
+			rwTx.objectStore(STORE_NAME).delete(MODEL_KEY);
+			return null;
+		}
+
+		return await data.data.arrayBuffer();
+	} finally {
+		db.close();
 	}
-
-	return await data.data.arrayBuffer();
 }
 
 async function storeModel(modelUrl, modelVersion, buffer) {
 	const db = await openDB();
-	const tx = db.transaction([STORE_NAME], 'readwrite');
-	const store = tx.objectStore(STORE_NAME);
+	try {
+		const tx = db.transaction([STORE_NAME], 'readwrite');
+		const store = tx.objectStore(STORE_NAME);
 
-	await new Promise((resolve, reject) => {
-		const req = store.put({
-			id: MODEL_KEY,
-			url: modelUrl,
-			version: modelVersion,
-			data: new Blob([buffer]),
-			timestamp: Date.now(),
-			size: buffer.byteLength
+		await new Promise((resolve, reject) => {
+			store.put({
+				id: MODEL_KEY,
+				url: modelUrl,
+				version: modelVersion,
+				data: new Blob([buffer]),
+				timestamp: Date.now(),
+				size: buffer.byteLength
+			});
+			tx.oncomplete = () => resolve();
+			tx.onabort = () => reject(tx.error || new Error('Maia model cache transaction aborted'));
+			tx.onerror = () => reject(tx.error || new Error('Could not cache Maia model'));
 		});
-		req.onsuccess = () => resolve();
-		req.onerror = () => reject(req.error);
-	});
+	} finally {
+		db.close();
+	}
 }
 
 let session = null;
@@ -82,16 +91,9 @@ let modelUrl = null;
 let modelVersion = null;
 
 async function initSession(buffer) {
+	ort.env.wasm.numThreads = 1;
 	session = await ort.InferenceSession.create(buffer, {
-		executionProviders: ['webgpu', 'wasm'],
-		webgpu: {
-			devicePreference: 'high-performance',
-			pipelineHint: 'fastest'
-		},
-		wasm: {
-			threads: navigator.hardwareConcurrency || 4,
-			simd: true
-		}
+		executionProviders: ['wasm']
 	});
 }
 
@@ -155,6 +157,7 @@ self.onmessage = async (e) => {
 						buffer.set(chunk, position);
 						position += chunk.length;
 					}
+					chunks.length = 0;
 				}else{
 					buffer = new Uint8Array(await response.arrayBuffer());
 				}
@@ -185,20 +188,26 @@ self.onmessage = async (e) => {
 					elo_oppo: new ort.Tensor('float32', new Float32Array(eloOppos), [batchSize])
 				};
 
-				const result = await session.run(feeds);
+				let result;
+				try {
+					result = await session.run(feeds);
 
-				const logitsMove = new Float32Array(result.logits_move.data);
-				const logitsValue = new Float32Array(result.logits_value.data);
+					const logitsMove = new Float32Array(result.logits_move.data);
+					const logitsValue = new Float32Array(result.logits_value.data);
 
-				postMessage(
-					{
-						type: 'inference-result',
-						id,
-						logitsMove: logitsMove.buffer,
-						logitsValue: logitsValue.buffer
-					},
-					[logitsMove.buffer, logitsValue.buffer]
-				);
+					postMessage(
+						{
+							type: 'inference-result',
+							id,
+							logitsMove: logitsMove.buffer,
+							logitsValue: logitsValue.buffer
+						},
+						[logitsMove.buffer, logitsValue.buffer]
+					);
+				} finally {
+					Object.values(feeds).forEach(tensor => tensor.dispose());
+					if(result) Object.values(result).forEach(tensor => tensor.dispose());
+				}
 				break;
 			}
 		}

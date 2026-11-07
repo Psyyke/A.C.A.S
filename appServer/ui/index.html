@@ -21,7 +21,7 @@
     <a id="acas-logo" class="external" href="https://psyyke.github.io/A.C.A.S/" target="_blank">
         <img id="acas-logo-img" src="./images/logo.png">
         <div id="acas-logo-text-container">
-            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.2</div></div>
+            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.3</div></div>
             <div id="acas-logo-secondary">Calculation Server</div>
         </div>
     </a>
@@ -30,6 +30,9 @@
         <div class="acas-social-actions">
             <a class="header-social-button github-button acas-fancy-button external" href="https://github.com/Psyyke/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
                 <i class="bi bi-github"></i>
+            </a>
+            <a class="header-social-button acas-fancy-button external" href="https://psyyke.github.io/A.C.A.S/usage/" target="_blank" title="A.C.A.S usage guide" aria-label="A.C.A.S usage guide">
+                <i class="bi bi-file-earmark-text-fill usage-guide-icon" aria-hidden="true"></i>
             </a>
             <a class="header-social-button affiliate-button acas-fancy-button external" href="https://psyyke.github.io/A.C.A.S/contributing/" target="_blank" title="Support A.C.A.S development">
                 <i class="bi bi-heart-fill"></i>
@@ -53,7 +56,7 @@
     </div>
     <button id="portSettingsBtn" class="server-info acas-fancy-button" type="button"
         title="Configure the local server port" aria-label="Configure the local server port">
-        <div id="statusDot"></div>
+        <i id="statusDot" class="bi bi-wifi-off" aria-hidden="true"></i>
         <span id="portDisplay">OFFLINE</span>
     </button>
 </header>
@@ -64,6 +67,14 @@
 </div>
 <div class="engine-grid" id="engineGrid" aria-label="Saved chess engines"></div>
 <div id="console-toolbar">
+    <button id="logOnlyToggle" class="acas-fancy-button" type="button" aria-pressed="false"
+        aria-controls="consoles-container" aria-label="Show logs only" title="Show logs only">
+        <i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
+    </button>
+    <button id="alwaysOnTopToggle" class="acas-fancy-button" type="button" aria-pressed="false"
+        aria-label="Keep window always on top" title="Keep window always on top" disabled>
+        <i class="bi bi-pin-angle" aria-hidden="true"></i>
+    </button>
     <button id="panelsToggle" class="acas-fancy-button" type="button" aria-expanded="true"
         aria-controls="acas-header server-controls engine-library-heading engineGrid"
         aria-label="Collapse panels" title="Collapse panels">

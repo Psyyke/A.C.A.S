@@ -3,6 +3,7 @@ import { installNotificationElem, autoMoveCheckbox, hiddenSettingPanel, tosCheck
     tosContinueBtnElem, tosContainerElem, settingsControlPanelElem, seeSupportedSitesBtn } from './gui/elementDeclarations.js';
 import { highlightSettingElem, initGUI } from './gui.js';
 import { initializeActivityLogging } from './misc/activityLog.js';
+import { startEloEyeSessions } from './eloeyeSessions.js';
 
 initializeActivityLogging();
 
@@ -56,46 +57,30 @@ async function initializeDatabase() {
 
     await MIGRATE_OUTDATED_PROFILE_KEYS(); // migrates old profile keys to new format if necessary
 
-    const gmStorageKeys = await USERSCRIPT.listValues();
-    const tempValueKeys = gmStorageKeys.filter(key => key.includes(tempValueIndicator));
+    // Older userscripts stored the board state as temp values, it now travels inside CommLink packets
+    const legacyTempValueKeys = (await USERSCRIPT.listValues() || []).filter(key => key.includes(tempValueIndicator));
+
+    legacyTempValueKeys.forEach(key => USERSCRIPT.deleteValue(key));
+}
+
+const instanceLastSeen = new Map();
+const guiStartTime = Date.now();
+
+// Per instance setting overrides (config.instance) are kept while the instance's tab lives.
+// Background tabs can be throttled for minutes, so an instance only counts as gone after 10 minutes without keep-alives.
+async function removeStaleInstanceConfigs() {
+    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const config = await USERSCRIPT.getValue(gmConfigKey);
-    
-    const configInstances = config?.instance;
-    
-    // removes instance config values from instance IDs that aren't active anymore
-    if(configInstances) {
-        const configInstanceKeys = Object.keys(configInstances);
+    const maxIdleMs = 10 * 6e4;
 
-        configInstanceKeys.forEach(instanceIdKey => {
-            const isConfigInstanceRelevant = tempValueKeys.find(key => key.includes(instanceIdKey))
-                ? true : false;
+    const staleIDs = Object.keys(config?.instance || {})
+        .filter(id => Date.now() - (instanceLastSeen.get(id) ?? guiStartTime) > maxIdleMs);
 
-            if(!isConfigInstanceRelevant) {
-                delete config.instance[instanceIdKey];
+    if(!staleIDs.length) return;
 
-                USERSCRIPT.setValue(gmConfigKey, config);
-            }
-        });
-    }
-    
-    const expiredKeys = await Promise.all(
-        tempValueKeys.map(async key => {
-            const configValue = await USERSCRIPT.getValue(key);
+    staleIDs.forEach(id => delete config.instance[id]);
 
-            // Treat malformed/missing entries as expired so they get cleaned up,
-            // and avoid crashing initializeDatabase() on a TypeError.
-            if(!configValue || typeof configValue.date !== 'number') return key;
-
-            const isExpired = Date.now() - configValue.date > 6e4 * 60;
-
-            return isExpired ? key : null;
-        })
-    );
-    
-    // removes temp values with no usage for over 60 minutes
-    expiredKeys
-        .filter(key => key !== null)
-        .forEach(key => USERSCRIPT.deleteValue(key));
+    USERSCRIPT.setValue(gmConfigKey, config);
 }
 
 function processUrlParams() {
@@ -147,6 +132,8 @@ function startCommLink() {
         }
     });
 
+    setInterval(() => removeStaleInstanceConfigs().catch(() => {}), 6e4);
+
     MainCommLink.registerListener('mum', packet => {
         try {
             switch(packet.command) {
@@ -159,6 +146,9 @@ function startCommLink() {
                     const latencyMs = Date.now() - packet.date;
                     const knownInstance = window.AcasInstances.find(x => x.id === data.instanceID);
                     if(knownInstance && Number.isFinite(latencyMs)) knownInstance.instance.latencyMs = Math.max(0, latencyMs);
+                    // Identity can be detected later without a board change, keep-alives carry it
+                    if(knownInstance && data.playerColor) knownInstance.instance.boardState.playerColor = data.playerColor;
+                    instanceLastSeen.set(String(data.instanceID), Date.now());
 
                     createInstance(data.domain, data.instanceID, data.chessVariant);
     
@@ -220,6 +210,7 @@ async function attemptStarting() {
         await initGUI();
         processUrlParams();
         startCommLink();
+        startEloEyeSessions();
 
         window.ACAS_LOADING?.setStage(95);
         window.ACAS_LOADING?.markReady('startup');

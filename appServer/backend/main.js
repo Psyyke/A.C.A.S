@@ -2,7 +2,6 @@ import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { fileURLToPath } from 'url';
 import Store from 'electron-store';
 import path from 'path';
-import os from 'os';
 
 import { killAllEngines, killEngine, clearCache, addEngine, getSavedEngines, renderEngineGrid,
 	removeEngine, renameEngine, sendManualUciToEngine } from './engine.js';
@@ -43,16 +42,6 @@ app.commandLine.appendSwitch('disable-raf-throttling');
 app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
-function getExecutableExtensions() {
-    const platform = os.platform();
-
-    if(platform === 'win32') return ['exe', 'bat', 'cmd'];
-    if(platform === 'darwin') return ['app', 'command'];
-    if(platform === 'linux') return ['sh', 'bin', 'run'];
-
-    return [];
-}
-
 function createWindow() {
 	const win = new BrowserWindow({
 		title: `Advanced Chess Assistance Server v${app.getVersion()} (Beta)`,
@@ -80,17 +69,17 @@ function createWindow() {
 			event.preventDefault();
 	});
 
-	win.loadFile('./ui/index.html');
+	win.loadFile(path.join(__dirname, '..', 'ui', 'index.html'));
 
 	return win;
 }
 
-function createAndTrackWindow({ startServer = false } = {}) {
+function createAndTrackWindow() {
 	mainWindow = createWindow();
 	mainWindow.setMenu(null);
 
 	mainWindow.webContents.once('did-finish-load', () => {
-		if(startServer) startLocalWSS();
+		startLocalWSS();
 
 		renderEngineGrid();
 	});
@@ -99,7 +88,7 @@ function createAndTrackWindow({ startServer = false } = {}) {
 }
 
 app.whenReady().then(() => {
-	createAndTrackWindow({ 'startServer': true });
+	createAndTrackWindow();
 
 	handleTrustedIpc('killAllEngines',
 		async (event) => killAllEngines());
@@ -124,6 +113,18 @@ app.whenReady().then(() => {
 			throw new Error('Only HTTPS external links are allowed.');
 
 		await shell.openExternal(url.href);
+	});
+	handleTrustedIpc('getAlwaysOnTop', event => {
+		const win = BrowserWindow.fromWebContents(event.sender);
+		if(!win || win.isDestroyed()) throw new Error('App window is unavailable.');
+		return win.isAlwaysOnTop();
+	});
+	handleTrustedIpc('setAlwaysOnTop', (event, enabled) => {
+		if(typeof enabled !== 'boolean') throw new Error('Always on top must be a boolean.');
+		const win = BrowserWindow.fromWebContents(event.sender);
+		if(!win || win.isDestroyed()) throw new Error('App window is unavailable.');
+		win.setAlwaysOnTop(enabled);
+		return win.isAlwaysOnTop();
 	});
 	handleTrustedIpc('getServerPort', () => getServerPort());
 	handleTrustedIpc('setServerPort', async (_event, port) => {
@@ -171,10 +172,11 @@ app.whenReady().then(() => {
 	handleTrustedIpc('pickFile', async () => {
 		const result = await dialog.showOpenDialog(mainWindow, {
 			properties: ['openFile'],
-			filters: [{
-				name: 'Executables',
-				extensions: getExecutableExtensions()
-			}]
+			// Unix engines commonly have no extension. Pick the actual UCI executable,
+			// not an application bundle or a Windows batch file.
+			filters: process.platform === 'win32'
+				? [{ name: 'Executables', extensions: ['exe'] }, { name: 'All files', extensions: ['*'] }]
+				: [{ name: 'Engine binaries', extensions: ['*'] }]
 		});
 
 		if(!result.canceled) return result.filePaths[0];

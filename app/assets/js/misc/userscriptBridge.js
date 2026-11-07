@@ -31,19 +31,6 @@
         });
     }
 
-    function createInstanceVar(key) {
-        const iVarsMessageType = 'USERSCRIPT_instanceVars';
-
-        return {
-            set: (instanceId, newValue) => {
-                return messageUserscript(iVarsMessageType, [instanceId, key, newValue]);
-            },
-            get: async (instanceId) => {
-                return messageUserscript(iVarsMessageType, [instanceId, key]);
-            }
-        };
-    }
-
     // Do not continue if userscript has declared the object itself.
     // This happens when unsafeWindow is supported by the manager.
     // It allows for direct access which is faster.
@@ -53,13 +40,6 @@
             getValue: (key) => messageUserscript('USERSCRIPT_getValue', [key]),
             getInfo: () => messageUserscript('USERSCRIPT_getInfo'),
             listValues: () => messageUserscript('USERSCRIPT_listValues'),
-            instanceVars: {
-                playerColor: createInstanceVar('playerColor'),
-                boardOrientation: createInstanceVar('boardOrientation'),
-                turn: createInstanceVar('turn'),
-                fen: createInstanceVar('fen'),
-                gameStateHistory: createInstanceVar('gameStateHistory')
-            },
             // Calls back when a stored value changes. Older userscripts ignore the request
             // and never answer, which CommLink handles by keeping its polling.
             addValueChangeListener: (key, callback) => {

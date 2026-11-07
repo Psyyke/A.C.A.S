@@ -85,12 +85,19 @@ export default async function engineMessageProcessor(msg, profile) {
                 playerMove,
                 opponentMove: parseVariantMove(line[1]),
                 cp: data.cp ?? (isFusionEngine ? null : undefined),
+                mate: data.mate,
                 profile,
                 ranking: Number(data.multipv) || 1
             });
 
             Object.assign(parsedMove, movePosition, { playerUci: playerMove.uci });
             recordEngineAnalysis.call(this, data, oldestUnfinishedCalcRequestObj, profile, parsedMove);
+
+            // Streaming redraws consume pastMoveObjects; retain each final rank for EloEye's completion barrier.
+            if(data.pv && isMessageForCurrentFen) {
+                oldestUnfinishedCalcRequestObj.eloeyeMoves ??= new Map();
+                oldestUnfinishedCalcRequestObj.eloeyeMoves.set(parsedMove.ranking, parsedMove);
+            }
 
             if(data.pv && isFusionEngine && oldestUnfinishedCalcRequestObj) {
                 // Fusion publishes a complete ranked set starting at MultiPV 1.
@@ -261,7 +268,8 @@ export default async function engineMessageProcessor(msg, profile) {
         if(moves?.length === 1) // if no opponent move guesses yet
             moves = [...moves, null];
 
-        const isMovetimeLimited = await this.getConfigValue(this.configKeys.maxMovetime, profile) ? true : false;
+        const isMovetimeLimited = Boolean(oldestUnfinishedCalcRequestObj?.engineMovetime)
+            || Boolean(await this.getConfigValue(this.configKeys.maxMovetime, profile));
         const onlyShowTopMoves = await this.getConfigValue(this.configKeys.onlyShowTopMoves, profile);
         const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
         const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
@@ -274,10 +282,11 @@ export default async function engineMessageProcessor(msg, profile) {
         const markingLimit = this.pV[profile].multiPV;
         const isDelayActive = moveDisplayDelay && moveDisplayDelay > 0;
 
-        const [topMoveObjects, removedDuplicateMoveAmount]
-            = GET_UNIQUE_MOVES(isFusionEngine
-                ? fusionMoves.slice(0, markingLimit)
-                : this.pV[profile].pastMoveObjects?.slice(markingLimit * -1));
+        const reportedMoves = isFusionEngine
+            ? fusionMoves.slice(0, markingLimit)
+            : [...oldestUnfinishedCalcRequestObj.eloeyeMoves.values()]
+                .sort((a, b) => a.ranking - b.ranking).slice(0, markingLimit);
+        const [topMoveObjects] = GET_UNIQUE_MOVES(reportedMoves);
         const ownFutureMove = moves?.[2];
 
         if(ownFutureMove) {
@@ -316,15 +325,21 @@ export default async function engineMessageProcessor(msg, profile) {
         if(await this.getEngineName(profile) === 'lc0' || this.pV[profile].engineNodes > 0) {
             isSearchInfinite = this.pV[profile].engineNodes > 9e6 ? true : false;
         }
+        if(oldestUnfinishedCalcRequestObj?.searchMode === 'infinite') isSearchInfinite = true;
+        else if(oldestUnfinishedCalcRequestObj?.searchMode === 'movetime') isSearchInfinite = false;
 
         if(isFusionEngine && (this.pV[profile] !== profileObj || this.currentFen !== oldestUnfinishedCalcRequestObj.fen
             || fusionMoves !== oldestUnfinishedCalcRequestObj.fusionMoves)) return;
 
         if(
             markingLimit !== 0
-            && topMoveObjects.length === (markingLimit - removedDuplicateMoveAmount)
+            && !oldestUnfinishedCalcRequestObj.finished
+            && (reportedMoves.length >= markingLimit || profileObj.pastMoveObjects.length >= markingLimit)
             && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited)) // handle infinite search, cannot only show top moves when search is infinite
+            && !this.pV[profile].onlyShowWarningMoves // all lines are needed first, so wait for the final result
             && (!isDelayActive || (calculationTimeElapsed > moveDisplayDelay)) // handle visual delay, do not show move if time elapsed is too low
+            && (!this.CommLink.analysisFinished || (!oldestUnfinishedCalcRequestObj.finished
+                && this.currentFen === oldestUnfinishedCalcRequestObj.fen && this.pV[profile] === profileObj))
         ) {
             this.displayMoves(topMoveObjects, profile);
         }
@@ -338,11 +353,13 @@ export default async function engineMessageProcessor(msg, profile) {
         const bestmove = String(data.bestmove ?? '').trim();
 
         if(!bestmove || ['0000', '0', '(none)', 'none'].includes(bestmove)) {
+            await this.suggestionMix?.failed(profile, oldestUnfinishedCalcRequestObj);
             if(oldestUnfinishedCalcRequestObj.fusionFailure) {
                 this.Interface.removeMarkings(profile, 'Fusion human policy unavailable for allowed legal moves');
                 updatePipHints(this, profile, { moveObjects: [] });
                 setProfileBubbleStatus(oldestUnfinishedCalcRequestObj.stopRequested ? 'idle' : 'warning', profile,
                     oldestUnfinishedCalcRequestObj.fusionFailure);
+                this.CommLink.analysisFailed?.(profile, oldestUnfinishedCalcRequestObj, oldestUnfinishedCalcRequestObj.fusionFailure);
                 return;
             }
             const terminal = oldestUnfinishedCalcRequestObj.annotationScore || oldestUnfinishedCalcRequestObj.primaryScore;
@@ -365,6 +382,7 @@ export default async function engineMessageProcessor(msg, profile) {
             }
 
             setProfileBubbleStatus('idle', profile, 'Idle, engine returned no legal move.');
+            this.CommLink.analysisFailed?.(profile, oldestUnfinishedCalcRequestObj, 'engine returned no legal move');
 
             return;
         }
@@ -432,7 +450,8 @@ export default async function engineMessageProcessor(msg, profile) {
             }).catch(console.error);
         }
 
-        if(isMessageForCurrentFen && (isFusionEngine || profileObj.activeGuiMoveMarkings.length === 0)) {
+        let displayScheduled = false;
+        if(isMessageForCurrentFen) {
             const markingLimit = profileObj.multiPV;
             const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
 
@@ -442,6 +461,9 @@ export default async function engineMessageProcessor(msg, profile) {
 
             let topMoveObjects = isFusionEngine
                 ? oldestUnfinishedCalcRequestObj.fusionMoves?.slice(0, markingLimit) ?? []
+                : profileObj.onlyShowWarningMoves ? GET_LATEST_RANKED_MOVES(profileObj.pastMoveObjects ?? [])
+                : oldestUnfinishedCalcRequestObj.eloeyeMoves?.size
+                ? [...oldestUnfinishedCalcRequestObj.eloeyeMoves.values()].sort((a, b) => a.ranking - b.ranking).slice(0, markingLimit)
                 : profileObj.pastMoveObjects?.slice(markingLimit * -1);
 
             if(topMoveObjects?.length === 0) {
@@ -451,9 +473,15 @@ export default async function engineMessageProcessor(msg, profile) {
                 topMoveObjects = GET_UNIQUE_MOVES(topMoveObjects)?.[0];
             }
 
+            if(parsedMove && topMoveObjects[0]?.playerUci !== parsedMove.playerUci) {
+                const index = topMoveObjects.findIndex(move => move.playerUci === parsedMove.playerUci);
+                const primary = index >= 0 ? topMoveObjects.splice(index, 1)[0] : parsedMove;
+                topMoveObjects = [primary, ...topMoveObjects.filter(move => move.ranking !== 1)].slice(0, markingLimit);
+            }
+
             // Replace stale secondary/future arrows without repeating speech or
             // Auto Move when this primary suggestion is already displayed.
-            const silent = isFusionEngine && profileObj.activeGuiMoveMarkings.length > 0
+            const silent = profileObj.activeGuiMoveMarkings.length > 0
                 && profileObj.hintCandidates?.fen === fen
                 && profileObj.hintCandidates.moves[0]?.playerUci === topMoveObjects[0]?.playerUci;
             const engineName = await this.getEngineName(profile);
@@ -469,14 +497,23 @@ export default async function engineMessageProcessor(msg, profile) {
             }
 
             if(isDelayActive && markingLimit !== 0) {
+                displayScheduled = true;
                 const timeElapsed = oldestUnfinishedCalcRequestObj?.startedAt
                     ? Date.now() - oldestUnfinishedCalcRequestObj.startedAt : calculationTimeElapsed;
                 const remainingDelay = Math.max(0, moveDisplayDelay - timeElapsed);
 
-                setTimeout(() => {
+                setTimeout(async () => {
                     if(!this.instanceClosed && this.pV[profile] === profileObj
                         && fen === this.currentFen && !this.isEngineCalculating(profile)) {
-                        this.displayMoves(topMoveObjects, profile, false, silent).catch(console.error);
+                        try {
+                            await this.displayMoves(topMoveObjects, profile, false, silent);
+                            await this.suggestionMix?.finished(profile, oldestUnfinishedCalcRequestObj);
+                            this.CommLink.analysisFinished?.(profile, oldestUnfinishedCalcRequestObj);
+                        } catch(error) {
+                            console.error(error);
+                            await this.suggestionMix?.failed(profile, oldestUnfinishedCalcRequestObj);
+                            this.CommLink.analysisFailed?.(profile, oldestUnfinishedCalcRequestObj, error.message);
+                        }
                     }
                 }, remainingDelay);
             } else {
@@ -490,6 +527,10 @@ export default async function engineMessageProcessor(msg, profile) {
         if(shouldUpdateDynamicContext && !this.instanceClosed
             && this.pV[profile] === profileObj && this.currentFen === fen) {
             await this.syncDynamicSettings();
+        }
+        if(!displayScheduled) {
+            await this.suggestionMix?.finished(profile, oldestUnfinishedCalcRequestObj);
+            this.CommLink.analysisFinished?.(profile, oldestUnfinishedCalcRequestObj);
         }
     }
 

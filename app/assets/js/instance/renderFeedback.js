@@ -1,5 +1,5 @@
 import MoveEvaluator from '../MoveEvaluator.js';
-import { feedbackText as text, feedbackDisplay, feedbackQualityText, feedbackCountLines, maiaLearningWarning } from '../misc/feedbackText.js';
+import { feedbackText as text, feedbackDisplay, feedbackQualityText, feedbackCountLines, feedbackStatLines, padStatText, maiaLearningWarning } from '../misc/feedbackText.js';
 import { updatePipFeedback } from '../gui/pip.js';
 import { getHintSettings, filterHintMoves, presentHintMove } from '../misc/learningHints.js';
 import { formatMoveNotationAsync, formatPvNotationAsync, getMoveSan, replayPvAsync, resolveVariantMove } from '../misc/moveNotation.js';
@@ -214,6 +214,7 @@ export async function renderLearningFeedback(specificProfile) {
         variables.lastFeedbackFen = postFen;
         const { summary, description, emoji } = feedbackDisplay(result);
         (after.feedback ??= {})[profile] = emoji;
+        (after.feedbackLoss ??= {})[profile] = result.isBook ? null : result.winningChanceLoss;
         setFeedbackMessage.call(this, profile, summary, description);
         queueLearningFeedbackSpeech.call(this, profile, postFen);
         const score = result.played;
@@ -226,10 +227,21 @@ export async function renderLearningFeedback(specificProfile) {
 }
 
 function setFeedbackMessage(profileID, message, description = '', { waitingForMove = false } = {}) {
+    message ??= '';
+    description ??= '';
     const container = this.instanceElem?.querySelector('.instance-feedback-container');
     if(!container) return;
     let row = Array.from(container.children).find(elem => elem.dataset.profileId === profileID);
-    if(!message) {
+    const variables = this.pV?.[profileID];
+    if(!variables || this.instanceClosed) return;
+    this.onMaiaEloUpdate ??= id => refreshFeedbackRow.call(this, id);
+    const learning = variables.learningMode;
+    const counts = feedbackCountLines(this, profileID), countTitles = feedbackCountLines(this, profileID, true);
+    const stats = feedbackStatLines(this, profileID), statTitles = feedbackStatLines(this, profileID, true);
+    // Index 0 is the opponent, 1 is you; Elo can be shown without any counts.
+    const sideEnabled = index => learning || (index === 0 ? variables.enableEnemyFeedback : variables.enableMoveRatings);
+    const sides = (learning ? [0] : [0, 1]).filter(index => (sideEnabled(index) && counts[index] !== undefined) || stats[index]);
+    if(!message && !sides.length) {
         row?.remove();
         updatePipFeedback(this);
         return;
@@ -241,17 +253,14 @@ function setFeedbackMessage(profileID, message, description = '', { waitingForMo
         row.setAttribute('role', 'status');
         container.appendChild(row);
     }
-    const variables = this.pV[profileID];
-    const isCountEnabled = (_, index) => variables.learningMode
-        || (index === 0 ? variables.enableEnemyFeedback : variables.enableMoveRatings);
-    const allCountLines = feedbackCountLines(this, profileID);
-    const countLines = allCountLines.filter(isCountEnabled);
-    const countTitles = feedbackCountLines(this, profileID, true).filter(isCountEnabled);
-    const countLabels = allCountLines.length === 2
-        ? [text('opponent', 'Opponent'), text('yours', 'Yours')].filter(isCountEnabled) : [];
-    const counts = JSON.stringify([countLabels, countLines, countTitles]);
+    const countLabels = sides.map(index => index === 0 && !learning ? text('opponent', 'Opponent') : text('yours', 'Yours'));
+    const countLines = sides.map(index => sideEnabled(index) ? counts[index] || '' : '');
+    const countTitleLines = sides.map(index => sideEnabled(index) ? countTitles[index] : '');
+    const statLines = sides.map(index => stats[index] || '');
+    const statTitleLines = sides.map(index => statTitles[index] || '');
+    const countsKey = JSON.stringify([countLabels, countLines, countTitleLines, statLines, statTitleLines]);
     row.dataset.waitingForMove = String(waitingForMove);
-    if(row.dataset.feedbackText === String(message) && row.dataset.feedbackCounts === counts
+    if(row.dataset.feedbackText === String(message) && row.dataset.feedbackCounts === countsKey
         && row.title === (description || message)) {
         row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));
         updatePipFeedback(this);
@@ -260,7 +269,7 @@ function setFeedbackMessage(profileID, message, description = '', { waitingForMo
 
     // Preserve the original line breaks and score placement for PiP.
     row.dataset.feedbackText = `${message}`;
-    row.dataset.feedbackCounts = counts;
+    row.dataset.feedbackCounts = countsKey;
     row.replaceChildren();
 
     if(countLines.length) {
@@ -272,13 +281,20 @@ function setFeedbackMessage(profileID, message, description = '', { waitingForMo
             const values = document.createElement('span');
             values.className = 'instance-feedback-counts';
             values.textContent = line;
-            values.title = countTitles[index];
+            values.title = countTitleLines[index];
 
             if(countLabels.length) {
                 countLine.classList.add('has-label');
                 const label = document.createElement('span');
                 label.textContent = countLabels[index];
                 countLine.appendChild(label);
+            }
+            if(statLines[index]) {
+                const statElem = document.createElement('span');
+                statElem.className = 'instance-feedback-stats';
+                statElem.textContent = padStatText(statLines[index]);
+                statElem.title = statTitleLines[index];
+                values.appendChild(statElem);
             }
             countLine.appendChild(values);
             totals.appendChild(countLine);
@@ -289,7 +305,7 @@ function setFeedbackMessage(profileID, message, description = '', { waitingForMo
     const feedback = document.createElement('div');
     feedback.className = 'instance-feedback-message';
 
-    String(message).split('\n').filter(Boolean).forEach(line => {
+    String(message || '').split('\n').filter(Boolean).forEach(line => {
         const score = line.match(/\s*\(([+-]?\d+(?:\.\d+)?|-?M\d+)\)/);
         const lineElem = document.createElement('div');
         lineElem.className = 'instance-feedback-line';
@@ -305,8 +321,8 @@ function setFeedbackMessage(profileID, message, description = '', { waitingForMo
         }
         feedback.appendChild(lineElem);
     });
-    row.appendChild(feedback);
-    row.title = description || message;
+    if(message) row.appendChild(feedback);
+    row.title = description || message || '';
     row.classList.toggle('hidden', this.learningMode && !this.isLearningProfile(profileID));
     updatePipFeedback(this);
 }
@@ -364,7 +380,8 @@ export function prepareFeedbackPosition(currentFen) {
     if(this.feedbackPositionFen === currentFen) return;
     this.feedbackPositionFen = currentFen;
     this.feedbackGeneration = (this.feedbackGeneration || 0) + 1;
-    this.MoveEval?.cancelPending();
+    // Only drop work for superseded positions; history backfill jobs stay queued.
+    this.MoveEval?.cancelStaleRequests();
     this.BoardPiecesEval?.cancelStaleRequests();
     Object.keys(this.pV).forEach(profileID => {
         const variables = this.pV[profileID];
@@ -373,6 +390,87 @@ export function prepareFeedbackPosition(currentFen) {
         this.pV[profileID].activePieceEvalDisplays?.forEach(marking => marking.elem?.remove());
         this.pV[profileID].activePieceEvalDisplays = [];
     });
+}
+
+const maxBackfillTries = 2;
+
+// Redraws the totals row, keeping the last shown rating if there is one.
+function refreshFeedbackRow(profileID) {
+    if(this.instanceClosed || !this.pV?.[profileID]) return;
+    const last = this.pV[profileID]?.lastFeedbackResult;
+    const { summary, description } = last ? feedbackDisplay(last) : {};
+    setFeedbackMessage.call(this, profileID, summary || '', description);
+}
+
+// Rates moves the live path skipped (fast play, joining mid-game) one at a time,
+// oldest first, so bursts never pile up work and every seen move is eventually counted.
+async function backfillFeedback(profileID) {
+    const variables = this.pV[profileID];
+    if(!variables || variables.feedbackBackfilling) return;
+    variables.feedbackBackfilling = true;
+    const tries = variables.feedbackBackfillTries ??= new Map();
+    const isCurrent = () => !this.instanceClosed && this.pV[profileID] === variables
+        && !this.isLearningProfile(profileID);
+
+    try {
+        while(isCurrent()) {
+            const [rateOwn, rateEnemy, depth, playerColor, useChess960, eloOn] = await Promise.all([
+                this.getConfigValue(this.configKeys.enableMoveRatings, profileID),
+                this.getConfigValue(this.configKeys.enableEnemyFeedback, profileID),
+                this.getConfigValue(this.configKeys.feedbackEngineDepth, profileID),
+                this.getPlayerColor(profileID),
+                this.getConfigValue(this.configKeys.useChess960, profileID),
+                this.getConfigValue(this.configKeys.feedbackEloEstimate, profileID)
+            ]);
+            if(!isCurrent()) return;
+
+            let previous = null, pending = null;
+            for(const state of this.gameStateHistory || []) {
+                const fen = state.fen?.full;
+                if(!fen) continue;
+                if(previous && previous.fen.full.split(' ')[0] !== fen.split(' ')[0]) {
+                    const movedColor = previous.fen.full.split(' ')[1];
+                    // The live path owns the newest position until it settles.
+                    const busy = fen === this.currentFen && !variables.feedbackSettled;
+                    if(!state.feedback?.[profileID] && !busy
+                        && (eloOn || (movedColor === playerColor ? rateOwn : rateEnemy))
+                        && (tries.get(`${previous.fen.full}|${fen}`) || 0) < maxBackfillTries) {
+                        pending = [previous.fen.full, fen];
+                        break;
+                    }
+                }
+                if(!previous || previous.fen.full.split(' ')[0] !== fen.split(' ')[0]) previous = state;
+            }
+            if(!pending) return;
+
+            const [fen, postFen] = pending;
+            const key = pending.join('|');
+            tries.set(key, (tries.get(key) || 0) + 1);
+            try {
+                if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
+                const config = { chessVariant: variables.chessVariant || this.activeVariant,
+                    useChess960: useChess960 || variables.useChess960, isCurrent };
+                const transition = await this.MoveEval.resolveMove(fen, postFen, [], config);
+                if(!isCurrent()) return;
+                const result = transition && await this.MoveEval.eval(
+                    [transition.selected.from, transition.selected.to, transition.selected.promotion || ''],
+                    { ...config, fen, postFen, depth: depth || 15, transition });
+                if(!isCurrent()) return;
+                const state = this.gameStateHistory.findLast(item => item.fen?.full === postFen);
+                if(!result || !Number.isInteger(result.category) || !state) continue;
+
+                const isBook = isBookMove.call(this, profileID, fen, result.move);
+                (state.feedback ??= {})[profileID] = feedbackDisplay({ ...result, isBook }).emoji;
+                // Book and forced moves say nothing about playing strength.
+                (state.feedbackLoss ??= {})[profileID] = isBook || result.forced ? null : result.winningChanceLoss;
+                refreshFeedbackRow.call(this, profileID);
+            } catch(error) {
+                console.warn('[Feedback] Backfill failed:', error);
+            }
+        }
+    } finally {
+        variables.feedbackBackfilling = false;
+    }
 }
 
 export default async function renderFeedback(gameStateObj, specificProfileName) {
@@ -410,23 +508,27 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
         if(!variables) return;
         const request = (variables.feedbackRequest || 0) + 1;
         variables.feedbackRequest = request;
+        variables.feedbackSettled = false;
         this.MoveEval?.cancelStaleRequests();
         const isCurrentRequest = () => isCurrentPosition() && !this.isLearningProfile(profileID) && this.pV[profileID] === variables
             && variables.feedbackRequest === request;
 
         try {
-            const [enablePlayerFeedback, enableEnemyFeedback, feedbackEngineDepth, playerColor, useChess960] = await Promise.all([
+            const [enablePlayerFeedback, enableEnemyFeedback, feedbackEngineDepth, playerColor, useChess960, eloEnabled] = await Promise.all([
                 this.getConfigValue(this.configKeys.enableMoveRatings, profileID),
                 this.getConfigValue(this.configKeys.enableEnemyFeedback, profileID),
                 this.getConfigValue(this.configKeys.feedbackEngineDepth, profileID),
                 this.getPlayerColor(profileID),
-                this.getConfigValue(this.configKeys.useChess960, profileID)
+                this.getConfigValue(this.configKeys.useChess960, profileID),
+                this.getConfigValue(this.configKeys.feedbackEloEstimate, profileID)
             ]);
             if(!isCurrentRequest()) return;
 
             Object.assign(variables, {
                 enableMoveRatings: Boolean(enablePlayerFeedback),
                 enableEnemyFeedback: Boolean(enableEnemyFeedback),
+                feedbackEloEstimate: Boolean(eloEnabled),
+                feedbackEngineDepth: feedbackEngineDepth || 15,
                 feedbackPlayerColor: playerColor
             });
 
@@ -434,8 +536,10 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             // rewrite the opponent's turn: the pre-move FEN already has it right.
             const movedColor = previousFen?.split(' ')[1];
             const isPlayerMove = movedColor === playerColor;
-            const enabled = movedColor ? isPlayerMove ? enablePlayerFeedback : enableEnemyFeedback
+            const rated = movedColor ? isPlayerMove ? enablePlayerFeedback : enableEnemyFeedback
                 : enablePlayerFeedback || enableEnemyFeedback;
+            // Elo alone still evaluates every move, but shows no per-move rating.
+            const enabled = rated || eloEnabled;
             const variant = variables.chessVariant || this.activeVariant;
             if(!enabled) {
                 clearFeedback.call(this, profileID, true, Boolean(enablePlayerFeedback || enableEnemyFeedback));
@@ -479,16 +583,28 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
                 this.getPlayerColor(profileID)
             ]);
             if(!isCurrentRequest()) return;
-            if(!(movedColor === latestPlayerColor ? playerEnabled : enemyEnabled)) {
+            const latestRated = movedColor === latestPlayerColor ? playerEnabled : enemyEnabled;
+            if(!latestRated && !variables.feedbackEloEstimate) {
                 clearFeedback.call(this, profileID, true, Boolean(playerEnabled || enemyEnabled));
                 return;
             }
 
             if(!Number.isInteger(result.category)) return;
+            const isBookMoveResult = isBookMove.call(this, profileID, previousFen, result.move);
+            const ratedState = this.gameStateHistory.findLast(item => item.fen?.full === currentFen);
+            if(!latestRated) {
+                // Elo only: record the move for the estimate and refresh the totals.
+                if(ratedState) {
+                    (ratedState.feedback ??= {})[profileID] = feedbackDisplay({ ...result, isBook: isBookMoveResult }).emoji;
+                    (ratedState.feedbackLoss ??= {})[profileID] = isBookMoveResult || result.forced ? null : result.winningChanceLoss;
+                }
+                refreshFeedbackRow.call(this, profileID);
+                return;
+            }
             const showEmoji = await this.getConfigValue(this.configKeys.feedbackEmojis, profileID) !== false;
             if(!isCurrentRequest()) return;
-            const isBook = isBookMove.call(this, profileID, previousFen, result.move);
-            const emoji = isBook ? '📖' : result.emoji || '😐';
+            const isBook = isBookMoveResult;
+            const emoji = isBook ? '📖' : result.emoji || '⚪';
             const notationConfig = {
                 fen: previousFen, chessVariant: variant, useChess960: useChess960 || variables.useChess960
             };
@@ -501,7 +617,11 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
                 bestContinuation, playedContinuation };
             const { summary, description, emoji: ratingEmoji } = feedbackDisplay(feedbackResult);
             const state = this.gameStateHistory.findLast(item => item.fen?.full === currentFen);
-            if(state) (state.feedback ??= {})[profileID] = ratingEmoji;
+            if(state) {
+                (state.feedback ??= {})[profileID] = ratingEmoji;
+                // Book and forced moves say nothing about playing strength.
+                (state.feedbackLoss ??= {})[profileID] = isBook || result.forced ? null : result.winningChanceLoss;
+            }
             clearFeedback.call(this, profileID, !feedbackOnExternalSite, true);
             variables.lastFeedbackFen = currentFen;
             variables.lastFeedbackResult = feedbackResult;
@@ -534,4 +654,11 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             console.warn('[Feedback] Could not display rating:', profileID, error);
         }
     }));
+
+    if(!isCurrentPosition()) return;
+    for(const { name } of targets) {
+        if(!this.pV[name]) continue;
+        this.pV[name].feedbackSettled = true;
+        backfillFeedback.call(this, name).catch(console.error);
+    }
 }

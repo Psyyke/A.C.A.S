@@ -1,10 +1,16 @@
-import { silenceAudioElem } from './elementDeclarations.js';
+import { silenceAudioElem, floatingFloaty } from './elementDeclarations.js';
 
 const audioInteractionEvents = ['click', 'keydown', 'touchstart'];
+const mediaSessionActions = ['play', 'pause', 'stop', 'previoustrack', 'nexttrack', 'seekbackward', 'seekforward', 'seekto'];
 
 let mediaSessionEnabled = false;
 let mediaPlaybackVersion = 0;
 let latestMediaMetadata = null;
+
+// While the floating panel is visible (real PiP or the modal fallback), the silent track must not hold the media keys.
+function isFloatingPanelVisible() {
+    return Boolean(document.pictureInPictureElement || floatingFloaty?.open);
+}
 
 function removeAudioInteractionListeners() {
     audioInteractionEvents.forEach(event => window.removeEventListener(event, startAudio));
@@ -13,7 +19,7 @@ function removeAudioInteractionListeners() {
 export function setMediaMetadata(metadata) {
     latestMediaMetadata = metadata;
 
-    if(mediaSessionEnabled && !document.pictureInPictureElement && 'mediaSession' in navigator) {
+    if(mediaSessionEnabled && !isFloatingPanelVisible() && 'mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             album: 'Chess',
             artwork: [{ src: '../assets/images/logo.png', sizes: '192x192', type: 'image/png' }],
@@ -33,13 +39,16 @@ export function stopMediaSession() {
     if('mediaSession' in navigator) {
         navigator.mediaSession.metadata = null;
         navigator.mediaSession.playbackState = 'none';
+        mediaSessionActions.forEach(action => {
+            try { navigator.mediaSession.setActionHandler(action, null); } catch { /* Action unsupported in this browser. */ }
+        });
     }
 }
 
 async function startAudio(event) {
     const audio = silenceAudioElem;
 
-    if(!mediaSessionEnabled || document.pictureInPictureElement || !audio) return;
+    if(!mediaSessionEnabled || isFloatingPanelVisible() || !audio) return;
 
     const version = ++mediaPlaybackVersion;
 
@@ -49,7 +58,7 @@ async function startAudio(event) {
         if(version !== mediaPlaybackVersion) return;
 
         // PiP may have opened while the play request was pending.
-        if(!mediaSessionEnabled || document.pictureInPictureElement) {
+        if(!mediaSessionEnabled || isFloatingPanelVisible()) {
             stopMediaSession();
             return;
         }
@@ -66,7 +75,7 @@ async function startAudio(event) {
 }
 
 export function initMediaSession() {
-    if(document.pictureInPictureElement) {
+    if(isFloatingPanelVisible()) {
         stopMediaSession();
         return;
     }

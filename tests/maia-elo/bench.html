@@ -1,0 +1,20 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Maia inference benchmark</title>
+<script type="module">
+import MaiaEngine from '../../app/assets/engines/Maia3/maiaEngine.js';
+
+const fen = 'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4';
+const engine = new MaiaEngine({});
+await engine.init();
+const result = { crossOriginIsolated, cores: navigator.hardwareConcurrency, ms: {} };
+for(const size of [1, 4, 11, 21, 42]) {
+    const elos = Array.from({ length: size }, (_, index) => 600 + (index % 21) * 100);
+    await engine.evaluateBatch(elos.map(() => fen), elos, elos);
+    const start = performance.now();
+    const runs = 5;
+    for(let run = 0; run < runs; run++) await engine.evaluateBatch(elos.map(() => fen), elos, elos);
+    result.ms[size] = Math.round((performance.now() - start) / runs);
+}
+window.benchResult = result;
+</script>
