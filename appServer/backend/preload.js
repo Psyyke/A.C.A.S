@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, shell } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('engineAPI', {
 	killAllEngines: () => ipcRenderer.invoke('killAllEngines'),
@@ -40,5 +40,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	getVersion: () => ipcRenderer.invoke('getAppVersion'),
 	getAlwaysOnTop: () => ipcRenderer.invoke('getAlwaysOnTop'),
 	setAlwaysOnTop: enabled => ipcRenderer.invoke('setAlwaysOnTop', enabled),
-	openExternal: (url) => shell.openExternal(url)
+	openExternal: (url) => ipcRenderer.invoke('openExternal', url)
 });
