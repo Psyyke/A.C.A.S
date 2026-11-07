@@ -389,11 +389,12 @@ main {
     border: 2px solid black;
     transform: translateY(3px);
 }
-/* Keep the original hit area while pressed so edge/corner clicks still fire */
+/* Keep the pressed decoration from intercepting nested links. */
 .fancy-btn:active::after {
     content: '';
     position: absolute;
     inset: -12px;
+    pointer-events: none;
 }
 header {
     background-color: #ffffff;
@@ -698,6 +699,11 @@ th a {
     font-weight: 900;
     font-stretch: ultra-expanded;
     font-size: 16px;
+}
+.page-home th {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .page-home th a {
     font-family: "Mona Sans", "Rubik", "IBM Plex Sans", sans-serif;
