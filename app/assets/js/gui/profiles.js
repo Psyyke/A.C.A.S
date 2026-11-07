@@ -56,6 +56,7 @@ function initializeProfileSorting() {
         const item = event.target.closest('.profile-tab');
         if(drag || !event.isPrimary || event.button !== 0 || !item
             || event.target.closest('.profile-removal-button')) return;
+        if(event.pointerType === 'touch' && !event.target.closest('.profile-drag-handle')) return;
 
         drag = { item, pointerId: event.pointerId, x: event.clientX, y: event.clientY,
             startX: event.clientX, startY: event.clientY, active: false, original: profileTabItems() };
@@ -217,8 +218,13 @@ function addProfileTabItem(tabsElem, profileName, isDefault) {
     const textElem = document.createElement('p');
           textElem.innerText = GET_HUMAN_READABLE_PROFILE_NAME(profileName);
 
+    const dragHandle = document.createElement('span');
+          dragHandle.classList.add('profile-drag-handle');
+          dragHandle.title = 'Drag to reorder profile';
+
     itemElem.appendChild(statusBubble);
     itemElem.appendChild(textElem);
+    itemElem.appendChild(dragHandle);
 
     if(!isDefault) {
         const removalButton = document.createElement('div');

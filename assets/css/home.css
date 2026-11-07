@@ -593,6 +593,9 @@ header a {
     border-radius: 5px;
     padding: 10px;
 }
+.contributing-goal {
+    background-color: #fff;
+}
 .stats-container {
     padding: 30px;
     display: flex;
@@ -698,7 +701,7 @@ th a {
 }
 .page-home th a {
     font-family: "Mona Sans", "Rubik", "IBM Plex Sans", sans-serif;
-    font-stretch: normal;
+    font-stretch: extra-expanded;
     font-size: 18px;
     font-weight: 800;
 }
