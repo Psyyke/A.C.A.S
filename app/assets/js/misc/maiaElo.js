@@ -46,8 +46,9 @@ function settle(id, logProbs) {
     if(!job) return;
     inFlight = null;
     logProbCache.set(job.key, logProbs);
-    waiting.get(job.key)?.forEach(callback => callback());
+    const listenerKeys = waiting.get(job.key);
     waiting.delete(job.key);
+    if(listenerKeys) notifyListeners(listenerKeys);
     pump();
 }
 
@@ -90,27 +91,46 @@ export function findMove(fenBefore, fenAfter) {
     return found;
 }
 
-// Queues unseen moves; onUpdate runs (coalesced) as results arrive.
-function requestLogProbs(entries, onUpdate) {
-    let timer = null;
-    const notify = () => {
-        clearTimeout(timer);
-        timer = setTimeout(onUpdate, 250);
-    };
+// Listeners are keyed so repeated renders replace rather than stack callbacks.
+// Stacked closures used to fan out on every result and grow without bound.
+const listeners = new Map();
+const dirtyListeners = new Set();
+let flushTimer = null;
+
+function notifyListeners(listenerKeys) {
+    listenerKeys.forEach(listenerKey => dirtyListeners.add(listenerKey));
+    if(flushTimer !== null) return;
+    flushTimer = setTimeout(() => {
+        flushTimer = null;
+        const keys = [...dirtyListeners];
+        dirtyListeners.clear();
+        keys.forEach(listenerKey => {
+            const callback = listeners.get(listenerKey);
+            listeners.delete(listenerKey);
+            callback?.();
+        });
+    }, 250);
+}
+
+// Queues unseen moves; onUpdate runs once (coalesced) as results arrive.
+function requestLogProbs(entries, onUpdate, listenerKey = onUpdate) {
+    let pending = false;
     for(const { fen, move } of entries) {
         const key = `${ratingPositionKey(fen)}|${move}`;
         if(logProbCache.has(key)) continue;
-        if(waiting.has(key)) { waiting.get(key).push(notify); continue; }
-        waiting.set(key, [notify]);
+        pending = true;
+        if(waiting.has(key)) { waiting.get(key).add(listenerKey); continue; }
+        waiting.set(key, new Set([listenerKey]));
         queue.push({ id: ++nextId, key, fen, move });
     }
+    if(pending && onUpdate) listeners.set(listenerKey, onUpdate);
     pump();
 }
 
-export function estimateMaiaElo(allEntries, onUpdate) {
+export function estimateMaiaElo(allEntries, onUpdate, listenerKey) {
     const entries = allEntries.filter(({ fen }) => isRatingPosition(fen));
     if(entries.length < minMaiaMoves) return null;
-    requestLogProbs(entries, onUpdate);
+    requestLogProbs(entries, onUpdate, listenerKey ?? onUpdate);
 
     const totals = new Float64Array(maiaEloGrid.length);
     let counted = 0;

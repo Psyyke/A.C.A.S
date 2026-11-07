@@ -102,7 +102,7 @@ export function feedbackStatLines(instance, profile, includeNames = false) {
     const refresh = () => instance.onMaiaEloUpdate?.(profile);
 
     const statText = (sideLosses, sideMoves) => {
-        const maia = estimateMaiaElo(sideMoves, refresh);
+        const maia = estimateMaiaElo(sideMoves, refresh, `${instance.instanceID}|${profile}`);
         const elo = maia?.elo ?? estimateElo(sideLosses, variables.feedbackEngineDepth);
         const accuracy = estimateAccuracy(sideLosses);
         if(includeNames) {
