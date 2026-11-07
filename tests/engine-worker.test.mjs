@@ -5,6 +5,11 @@ import loadEngineWorker, { getEngineWorkerConfig } from '../app/assets/js/instan
 function harness(t, engineName = 'maia2', callbacks = {}) {
     const workers = [], intervals = new Map();
     const originalWorker = globalThis.Worker;
+    const originalLocalStorage = globalThis.localStorage;
+    globalThis.localStorage = {
+        getItem: () => '123456789',
+        setItem: () => {}
+    };
     globalThis.Worker = class {
         messages = [];
         terminated = false;
@@ -16,6 +21,8 @@ function harness(t, engineName = 'maia2', callbacks = {}) {
     t.after(() => {
         if(originalWorker === undefined) delete globalThis.Worker;
         else globalThis.Worker = originalWorker;
+        if(originalLocalStorage === undefined) delete globalThis.localStorage;
+        else globalThis.localStorage = originalLocalStorage;
     });
     t.mock.method(globalThis, 'setInterval', callback => {
         const id = Symbol();
@@ -59,7 +66,8 @@ const workers = [
 for(const [name, path, module, readiness, commandMethod, poll] of workers) {
     test(`${name} retains its worker protocol`, t => {
         const h = harness(t, name);
-        assert.equal(h.worker.url, `../app/assets/engines/${path}.js`);
+        const identity = name === 'acas-fusion' ? '?identitySeed=123456789' : '';
+        assert.equal(h.worker.url, `../app/assets/engines/${path}.js${identity}`);
         assert.deepEqual(h.worker.options, module ? { type: 'module' } : undefined);
         assert.equal(h.intervals.size, poll ? 1 : 0);
         if(poll) {

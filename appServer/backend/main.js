@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { fileURLToPath } from 'url';
 import Store from 'electron-store';
 import path from 'path';
@@ -15,6 +15,28 @@ const __dirname = path.dirname(__filename);
 
 const store = new Store();
 let portRestartPending = false;
+
+function handleTrustedIpc(channel, handler) {
+	ipcMain.handle(channel, (event, ...args) => {
+		if(!mainWindow || event.sender !== mainWindow.webContents
+			|| event.senderFrame !== event.sender.mainFrame) {
+			throw new Error(`Rejected IPC request from an untrusted frame: ${channel}`);
+		}
+
+		let senderPath;
+		try {
+			senderPath = fileURLToPath(event.senderFrame.url);
+		} catch {
+			throw new Error(`Rejected IPC request from a non-local page: ${channel}`);
+		}
+
+		const trustedPage = path.resolve(__dirname, '..', 'ui', 'index.html');
+		if(path.resolve(senderPath) !== trustedPage)
+			throw new Error(`Rejected IPC request from a non-app page: ${channel}`);
+
+		return handler(event, ...args);
+	});
+}
 
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.commandLine.appendSwitch('disable-raf-throttling');
@@ -44,6 +66,19 @@ function createWindow() {
 			sandbox: false
 		}
 	});
+	win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+	win.webContents.on('will-navigate', (event, targetUrl) => {
+		let targetPath;
+		try {
+			targetPath = fileURLToPath(targetUrl);
+		} catch {
+			event.preventDefault();
+			return;
+		}
+
+		if(path.resolve(targetPath) !== path.resolve(__dirname, '..', 'ui', 'index.html'))
+			event.preventDefault();
+	});
 
 	win.loadFile('./ui/index.html');
 
@@ -66,15 +101,32 @@ function createAndTrackWindow({ startServer = false } = {}) {
 app.whenReady().then(() => {
 	createAndTrackWindow({ 'startServer': true });
 
-	ipcMain.handle('killAllEngines',
+	handleTrustedIpc('killAllEngines',
 		async (event) => killAllEngines());
 
-	ipcMain.handle('killEngine',
+	handleTrustedIpc('killEngine',
 		async (event, identifierObj) => killEngine(identifierObj));
 
-	ipcMain.handle('getAppVersion', () => app.getVersion());
-	ipcMain.handle('getServerPort', () => getServerPort());
-	ipcMain.handle('setServerPort', async (_event, port) => {
+	handleTrustedIpc('getAppVersion', () => app.getVersion());
+	handleTrustedIpc('openExternal', async (_event, rawUrl) => {
+
+		if(typeof rawUrl !== 'string')
+			throw new Error('Invalid external URL.');
+
+		let url;
+		try {
+			url = new URL(rawUrl);
+		} catch {
+			throw new Error('Invalid external URL.');
+		}
+
+		if(url.protocol !== 'https:' || url.username || url.password)
+			throw new Error('Only HTTPS external links are allowed.');
+
+		await shell.openExternal(url.href);
+	});
+	handleTrustedIpc('getServerPort', () => getServerPort());
+	handleTrustedIpc('setServerPort', async (_event, port) => {
 		if(portRestartPending) return 'The server port is already being updated.';
 		portRestartPending = true;
 		try {
@@ -95,28 +147,28 @@ app.whenReady().then(() => {
 		}
 	});
 
-    ipcMain.handle('clearCache',
+    handleTrustedIpc('clearCache',
 		async (event) => clearCache());
 
-	ipcMain.handle('getSavedEngines',
+	handleTrustedIpc('getSavedEngines',
 		async (event) => getSavedEngines());
 
-	ipcMain.handle('sendEnginesList',
+	handleTrustedIpc('sendEnginesList',
 		async (event) => sendEnginesList());
 
-	ipcMain.handle('sendManualUciToEngine',
+	handleTrustedIpc('sendManualUciToEngine',
 		async (event, cmd, identifierObj) => sendManualUciToEngine(cmd, identifierObj));
 
-	ipcMain.handle('addEngine',
+	handleTrustedIpc('addEngine',
 		async (event, fileInfo, title) => addEngine(fileInfo, title));
 
-	ipcMain.handle('removeEngine',
+	handleTrustedIpc('removeEngine',
 		async (event, enginePath) => removeEngine(enginePath));
 
-	ipcMain.handle('renameEngine',
+	handleTrustedIpc('renameEngine',
 		async (event, enginePath, title) => renameEngine(enginePath, title));
 	
-	ipcMain.handle('pickFile', async () => {
+	handleTrustedIpc('pickFile', async () => {
 		const result = await dialog.showOpenDialog(mainWindow, {
 			properties: ['openFile'],
 			filters: [{
