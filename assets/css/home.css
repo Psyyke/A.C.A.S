@@ -1583,6 +1583,7 @@ ul {
     .install-suggestion {
         flex-direction: column;
         min-height: 140px;
+        justify-content: center;
     }
 }
 #hindsight-is-overrated {
