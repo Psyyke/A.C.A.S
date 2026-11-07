@@ -76,9 +76,10 @@ b {
     border-bottom: 1px solid grey;
 }
 .warning {
-    border: 2px solid red;
+    border: 2px solid #c30000;
     padding: 5px 20px;
     border-radius: 5px;
+    background: #fffbfb;
 }
 .warning a {
     color: red;

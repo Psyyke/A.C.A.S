@@ -8,26 +8,32 @@ import * as cg from './types.js';
 type MouchBind = (e: cg.MouchEvent) => void;
 type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
 
-export function bindBoard(s: State, onResize: () => void): void {
+export function bindBoard(s: State, onResize: () => void): cg.Unbind {
   const boardEl = s.dom.elements.board;
+  const unbinds: cg.Unbind[] = [];
 
-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(onResize);
+    observer.observe(s.dom.elements.wrap);
+    unbinds.push(() => observer.disconnect());
+  }
 
-  if (s.viewOnly) return;
+  if (s.viewOnly) return () => unbinds.forEach(f => f());
 
   // Cannot be passive, because we prevent touch scrolling and dragging of
   // selected elements.
   const onStart = startDragOrDraw(s);
-  boardEl.addEventListener('touchstart', onStart as EventListener, {
+  unbinds.push(unbindable(boardEl, 'touchstart', onStart as EventListener, {
     passive: false,
-  });
-  boardEl.addEventListener('mousedown', onStart as EventListener, {
+  }));
+  unbinds.push(unbindable(boardEl, 'mousedown', onStart as EventListener, {
     passive: false,
-  });
+  }));
 
   if (s.disableContextMenu || s.drawable.enabled) {
-    boardEl.addEventListener('contextmenu', e => e.preventDefault());
+    unbinds.push(unbindable(boardEl, 'contextmenu', e => e.preventDefault()));
   }
+  return () => unbinds.forEach(f => f());
 }
 
 // returns the unbind function

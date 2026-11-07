@@ -1,6 +1,8 @@
 // Scripted takeback test
 // Exports: async function init(container, { test }) -> returns { destroy() }
-export async function init(container, { test } = {}) {
+import { createLifecycle } from './lifecycle.js';
+
+export async function init(container, { test, signal } = {}) {
     // Ensure chess.js is available
     let Chess;
     try {
@@ -10,6 +12,7 @@ export async function init(container, { test } = {}) {
         container.textContent = 'Failed to load chess.js';
         throw e;
     }
+    if (signal?.aborted) return;
 
     const startFen = (test && test.startFen) ? (test.startFen.indexOf(' ') === -1 ? test.startFen + ' w - - 0 1' : test.startFen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -29,16 +32,9 @@ export async function init(container, { test } = {}) {
 
     const replay = new Chess(startFen);
 
-    let cancelled = false;
-    const timers = new Set();
-    function wait(ms) {
-        return new Promise(resolve => {
-            const t = setTimeout(() => { timers.delete(t); resolve(); }, ms);
-            timers.add(t);
-        });
-    }
+    const lifecycle = createLifecycle(signal);
 
-    const delay = test && test.initialDelay != null ? test.initialDelay : 1000;
+    const delay = test?.stepDelay ?? 1000;
 
     async function run() {
         info.textContent = 'Starting takeback demo';
@@ -59,7 +55,7 @@ export async function init(container, { test } = {}) {
         ];
 
         for (const a of actions) {
-            if (cancelled) return;
+            if (lifecycle.cancelled) return;
 
             if (a.type === 'move') {
                 const applied = replay.move(a.san, { sloppy: true });
@@ -78,17 +74,19 @@ export async function init(container, { test } = {}) {
 
             console.log('Action:', a.text || a.type, 'FEN:', replay.fen());
 
-            await wait(typeof a.delay === 'number' ? a.delay : delay);
+            if (!await lifecycle.wait(a.delay ?? (a.type === 'undo' ? test?.takebackHold ?? delay : delay))) return;
         }
     }
 
-    run();
+    run().catch(error => {
+        console.error('Takeback demo error:', error);
+        info.textContent = 'Error in takeback demo';
+    });
 
     return {
         destroy() {
-            cancelled = true;
-            for (const t of Array.from(timers)) clearTimeout(t);
-            try { if (cg && typeof cg.destroy === 'function') cg.destroy(); } catch (e) { /* ignore */ }
+            lifecycle.cancel();
+            cg.destroy();
             boardHolder.remove();
             info.remove();
         }

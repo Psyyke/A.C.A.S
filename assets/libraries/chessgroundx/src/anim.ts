@@ -93,6 +93,7 @@ function computePlan(prevPieces: cg.Pieces, current: State): AnimPlan {
 }
 
 function step(state: State, now: DOMHighResTimeStamp): void {
+  if (state.dom.destroyed) return;
   const cur = state.animation.current;
   if (cur === undefined) {
     // animation was canceled :(

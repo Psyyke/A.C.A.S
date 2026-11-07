@@ -1,5 +1,33 @@
 # Regression tests
 
+## Dev live matches
+
+`node --test tests/app-dev-live.test.mjs` uses Chromium to check turn ownership,
+engine readiness and timeouts, pause timing, single automatic restarts, result
+counting, promotions, repetition history, refresh-scoped stats and JSON export.
+It also exercises rapid test switching and plays real moves with the bundled
+Stockfish 18 single lite, including manual board moves from both orientations.
+Watchdog checks cover the exact 2-minute A.C.A.S timeout, pause exclusion,
+automatic failure recovery and capped opponent retry delays. A simulated hour
+checks repeated unattended stalls, diagnostics and worker cleanup. It is a
+deterministic lifecycle test, not a real hour-long A.C.A.S memory benchmark.
+Speed controls cover saved settings, validation, in-flight searches, requested
+per-move timing and longer search deadlines. Button checks cover shared app
+styling, keyboard focus and independent Loop controls without nested buttons.
+GUI heap checks use real same-origin browser tabs and the production reporter.
+They cover multiple tab IDs, unavailable counters, JSON export, closed-tab
+timeouts and cleanup. Counter values are mocked, not used to diagnose memory leaks.
+
+`node --test tests/app-dev-memory.test.mjs` checks actual Chromium heap and DOM
+counters after forced garbage collection. It warms up with 200 cycles, then
+creates and destroys 500 more boards and cancellable edge scenarios, including
+4,200 board flips and interrupted drawing, dragging and animations in total.
+Observers must disconnect, registered listener balances must stay unchanged,
+DOM counters must stay bounded and the final heap samples must plateau.
+Another check reloads 12 failed live matches to verify capped backoff, constant
+browser history length and consumed checkpoints. These checks do not run the
+userscript or prove that the entire browser can run forever.
+
 `node --test tests/server-platform.test.mjs` verifies Calculation Server platform
 branches and runs native Electron startup, WebSocket, engine launch/kill, and
 pin/unpin checks with temporary isolated settings. It requires the dependencies

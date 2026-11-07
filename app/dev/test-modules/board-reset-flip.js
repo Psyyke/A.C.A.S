@@ -1,6 +1,8 @@
 // Board Reset & Flip Demo
 // Shows an endgame, performs some moves, removes the board, recreates a fresh board with the default start FEN flipped and plays the first move
-export async function init(container, { test } = {}) {
+import { createLifecycle } from './lifecycle.js';
+
+export async function init(container, { test, signal } = {}) {
     let Chess;
     try {
         const mod = await import('../../assets/engines/libraries/chessjs/chess.js');
@@ -9,6 +11,7 @@ export async function init(container, { test } = {}) {
         container.textContent = 'Failed to load chess.js';
         throw e;
     }
+    if (signal?.aborted) return;
 
     const info = document.createElement('div');
     info.className = 'test-info';
@@ -24,14 +27,8 @@ export async function init(container, { test } = {}) {
         movable: { free: false }
     });
 
-    let cancelled = false;
-    const timers = new Set();
-    function wait(ms) {
-        return new Promise(resolve => {
-            const t = setTimeout(() => { timers.delete(t); resolve(); }, ms);
-            timers.add(t);
-        });
-    }
+    const lifecycle = createLifecycle(signal);
+    let boardDestroyed = false;
 
     function applySanWithFallback(replay, san) {
         const r = replay.move(san);
@@ -62,7 +59,7 @@ export async function init(container, { test } = {}) {
             const firstMove = (test && test.firstMove) ? test.firstMove : 'e4';
 
             // Phase 1: endgame short play
-            let initialFen = (typeof cg.getFen === 'function') ? cg.getFen() : undefined;
+            let initialFen = test?.startFen || '8/8/1k6/8/8/8/1P2K3/8 w - - 0 1';
             // Chess.js expects a full FEN (with side to move and other fields). If we only have a placement
             // (Chessground returns placement-only), append sensible defaults so the engine can apply SAN moves.
             if (initialFen && initialFen.indexOf(' ') === -1) {
@@ -73,23 +70,24 @@ export async function init(container, { test } = {}) {
             // a small sequence to simulate endgame stage
             const seq = (test && test.moves && Array.isArray(test.moves)) ? test.moves : ['Kd3', 'Kc5', 'b4+', 'Kxb4'];
             for (const san of seq) {
-                if (cancelled) return;
+                if (lifecycle.cancelled) return;
                 applySanWithFallback(replay, san);
                 cg.set({ fen: replay.fen() });
                 info.textContent = `Endgame: ${san}`;
-                await wait(sd);
+                if (!await lifecycle.wait(sd)) return;
             }
 
             // Remove the board
-            if (cancelled) return;
+            if (lifecycle.cancelled) return;
             info.textContent = 'Removing board...';
-            try { if (cg && typeof cg.destroy === 'function') cg.destroy(); } catch (e) { /* ignore */ }
+            cg.destroy();
+            boardDestroyed = true;
             boardHolder.remove();
 
-            await wait(resetDelay);
+            if (!await lifecycle.wait(resetDelay)) return;
 
             // Create a new board (default start) optionally flipped
-            if (cancelled) return;
+            if (lifecycle.cancelled) return;
             info.textContent = 'Creating new board (start position)';
             boardHolder = document.createElement('div');
             container.appendChild(boardHolder);
@@ -99,11 +97,12 @@ export async function init(container, { test } = {}) {
                 animation: { enabled: true, duration: 250 },
                 movable: { free: false }
             });
+            boardDestroyed = false;
 
-            await wait(newBoardDelay);
+            if (!await lifecycle.wait(newBoardDelay)) return;
 
             // Make the first move on the new board
-            if (cancelled) return;
+            if (lifecycle.cancelled) return;
             const newReplay = new Chess();
             const mv = applySanWithFallback(newReplay, firstMove);
             if (mv) {
@@ -113,7 +112,7 @@ export async function init(container, { test } = {}) {
                 info.textContent = `Failed to play first move: ${firstMove}`;
             }
 
-            await wait(sd);
+            if (!await lifecycle.wait(sd)) return;
             info.textContent = 'Board Reset & Flip Demo finished';
 
         } catch (e) {
@@ -126,10 +125,12 @@ export async function init(container, { test } = {}) {
 
     return {
         destroy() {
-            cancelled = true;
-            for (const t of Array.from(timers)) clearTimeout(t);
-            try { if (cg && typeof cg.destroy === 'function') cg.destroy(); } catch (e) { /* ignore */ }
-            try { boardHolder.remove(); } catch (e) { /* ignore */ }
+            lifecycle.cancel();
+            if (!boardDestroyed) {
+                cg.destroy();
+                boardDestroyed = true;
+            }
+            boardHolder.remove();
             info.remove();
         }
     };

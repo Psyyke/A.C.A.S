@@ -13,9 +13,12 @@ export function Chessground(element, config, pocketTop, pocketBottom) {
     configure(maybeState, config || {});
     function redrawAll() {
         const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
+        prevUnbind === null || prevUnbind === void 0 ? void 0 : prevUnbind();
         // compute bounds from existing board element if possible
         // this allows non-square boards from CSS to be handled (for 3D)
         const elements = renderWrap(element, maybeState), bounds = util.memo(() => elements.board.getBoundingClientRect()), redrawNow = (skipSvg) => {
+            if (state.dom.destroyed || state.dom.elements !== elements)
+                return;
             render(state);
             renderPockets(state);
             if (elements.autoPieces)
@@ -23,6 +26,8 @@ export function Chessground(element, config, pocketTop, pocketBottom) {
             if (!skipSvg && elements.svg)
                 svg.renderSvg(state, elements.svg, elements.customSvg);
         }, onResize = () => {
+            if (state.dom.destroyed || state.dom.elements !== elements)
+                return;
             updateBounds(state);
             renderResized(state);
             if (elements.autoPieces)
@@ -34,34 +39,44 @@ export function Chessground(element, config, pocketTop, pocketBottom) {
             pocketBottom = elements.pocketBottom;
         renderPocketsInitial(maybeState, elements, pocketTop, pocketBottom);
         const state = maybeState;
+        const redraw = debounceRedraw(redrawNow);
         state.dom = {
             elements,
             bounds,
-            redraw: debounceRedraw(redrawNow),
+            redraw: redraw.schedule,
             redrawNow,
-            unbind: prevUnbind,
         };
         state.drawable.prevSvgHash = '';
         updateBounds(state);
         redrawNow(false);
-        events.bindBoard(state, onResize);
-        if (!prevUnbind)
-            state.dom.unbind = events.bindDocument(state, onResize);
+        const unbindBoard = events.bindBoard(state, onResize);
+        const unbindDocument = events.bindDocument(state, onResize);
+        state.dom.unbind = () => {
+            redraw.cancel();
+            unbindBoard();
+            unbindDocument();
+        };
         state.events.insert && state.events.insert(elements);
         return state;
     }
     return start(redrawAll(), redrawAll);
 }
 function debounceRedraw(redrawNow) {
-    let redrawing = false;
-    return () => {
-        if (redrawing)
-            return;
-        redrawing = true;
-        requestAnimationFrame(() => {
-            redrawNow();
-            redrawing = false;
-        });
+    let frame;
+    return {
+        schedule() {
+            if (frame !== undefined)
+                return;
+            frame = requestAnimationFrame(() => {
+                frame = undefined;
+                redrawNow();
+            });
+        },
+        cancel() {
+            if (frame !== undefined)
+                cancelAnimationFrame(frame);
+            frame = undefined;
+        },
     };
 }
 //# sourceMappingURL=chessground.js.map

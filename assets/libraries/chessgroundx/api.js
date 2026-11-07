@@ -100,9 +100,15 @@ export function start(state, redrawAll) {
             dragNewPiece(state, piece, fromPocket, event, undefined, force);
         },
         destroy() {
+            if (state.dom.destroyed)
+                return;
+            state.dom.destroyed = true;
+            state.animation.current = undefined;
+            state.drawable.current = undefined;
+            dragCancel(state);
             board.stop(state);
             state.dom.unbind && state.dom.unbind();
-            state.dom.destroyed = true;
+            state.dom.unbind = undefined;
         },
     };
 }

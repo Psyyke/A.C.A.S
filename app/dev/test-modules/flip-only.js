@@ -1,6 +1,9 @@
 // Flip Only Demo
 // Loads a given FEN (or start position), waits for a short delay then flips the board orientation
-export async function init(container, { test } = {}) {
+import { createLifecycle } from './lifecycle.js';
+
+export async function init(container, { test, signal } = {}) {
+    if (signal?.aborted) return;
     const info = document.createElement('div');
     info.className = 'test-info';
     container.appendChild(info);
@@ -18,21 +21,13 @@ export async function init(container, { test } = {}) {
         movable: { free: false }
     });
 
-    let cancelled = false;
-    const timers = new Set();
-    function wait(ms) {
-        return new Promise(resolve => {
-            const t = setTimeout(() => { timers.delete(t); resolve(); }, ms);
-            timers.add(t);
-        });
-    }
+    const lifecycle = createLifecycle(signal);
 
     async function run() {
         try {
             const flipDelay = (test && test.flipDelay != null) ? test.flipDelay : 200;
             info.textContent = `Loaded: ${startFen} - flipping in ${flipDelay}ms`;
-            await wait(flipDelay);
-            if (cancelled) return;
+            if (!await lifecycle.wait(flipDelay)) return;
             if (typeof cg.toggleOrientation === 'function') {
                 cg.toggleOrientation();
             } else {
@@ -50,9 +45,8 @@ export async function init(container, { test } = {}) {
 
     return {
         destroy() {
-            cancelled = true;
-            for (const t of Array.from(timers)) clearTimeout(t);
-            try { if (cg && typeof cg.destroy === 'function') cg.destroy(); } catch (e) {}
+            lifecycle.cancel();
+            cg.destroy();
             boardHolder.remove();
             info.remove();
         }

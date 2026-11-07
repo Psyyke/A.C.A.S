@@ -1,7 +1,7 @@
 [
     {
-    "title": "Play against Maia 2",
-    "description": "Maia is set to play at approximately 2000 Elo.",
+    "title": "Play against Stockfish 18",
+    "description": "Live matches and stress testing.",
     "script": "test-modules/live.js",
     "type": "live",
     "playerColor": "white",
@@ -26,7 +26,13 @@
     "title": "Delayed Promotion",
     "description": "The promotion is delayed for 400ms.",
     "startFen": "4k3/8/8/2P5/8/8/8/3K4 w - - 0 1",
-    "moves": "1. c6 Ke7 2. c7 Ke6 3. c8=Q# {Promotion test}",
+    "moves": "1. c6 Ke7 2. c7 Kf6 3. c8=Q {Promotion without check}",
+    "automatic": true,
+    "scenarios": [
+      {},
+      { "startFen": "7k/P7/8/8/8/6K1/8/8 w - - 0 1", "moves": "1. a8=Q+ Kh7" },
+      { "startFen": "7k/8/8/8/8/7K/1p6/R7 b - - 0 1", "playerColor": "black", "moves": "1... bxa1=Q" }
+    ],
     "delayRange": [10, 500],
     "promoDelay": 400,
     "loopDelay": 3000
@@ -35,7 +41,13 @@
     "title": "Extremely Fast Promotion",
     "description": "The promotion is delayed for 5ms.",
     "startFen": "4k3/8/8/2P5/8/8/8/3K4 w - - 0 1",
-    "moves": "1. c6 Ke7 2. c7 Ke6 3. c8=Q# {Promotion test}",
+    "moves": "1. c6 Ke7 2. c7 Ke6 3. c8=Q Kd5 {Promotion, then a quiet king move}",
+    "automatic": true,
+    "scenarios": [
+      {},
+      { "startFen": "8/P7/7k/8/8/6K1/7p/8 w - - 0 1", "moves": "1. a8=R" },
+      { "startFen": "7k/8/8/8/8/7K/1p6/R7 b - - 0 1", "playerColor": "black", "moves": "1... bxa1=R" }
+    ],
     "delayRange": [10, 500],
     "promoDelay": 5,
     "loopDelay": 3000
@@ -44,16 +56,59 @@
     "title": "Instant Promotion",
     "description": "The promotion is instant.",
     "startFen": "4k3/8/8/2P5/8/8/8/3K4 w - - 0 1",
-    "moves": "1. c6 Ke7 2. c7 Ke6 3. c8=Q# {Promotion test}",
+    "moves": "1. c6 Ke7 2. c7 Kf6 3. c8=Q {Promotion without check}",
+    "automatic": true,
+    "scenarios": [
+      {},
+      { "startFen": "8/P7/7k/8/8/6K1/7p/8 w - - 0 1", "moves": "1. a8=B" },
+      { "startFen": "7k/8/8/8/8/7K/1p6/R7 b - - 0 1", "playerColor": "black", "moves": "1... bxa1=Q" }
+    ],
     "delayRange": [10, 500],
     "promoDelay": 0,
     "loopDelay": 3000
+  },
+  {
+    "title": "Knight Underpromotion",
+    "description": "Promotes to a knight instead of a queen.",
+    "startFen": "8/P7/7k/8/8/6K1/7p/8 w - - 0 1",
+    "moves": "1. a8=N",
+    "automatic": true,
+    "scenarios": [
+      {},
+      { "startFen": "7k/6p1/8/8/8/7K/1p6/R7 b - - 0 1", "playerColor": "black", "moves": "1... bxa1=N" },
+      { "startFen": "1r5k/P7/8/8/8/6K1/7p/8 w - - 0 1", "moves": "1. axb8=N" }
+    ],
+    "delayRange": [500, 1000],
+    "promoDelay": 400,
+    "loopDelay": 2000
+  },
+  {
+    "title": "Black Capture Promotion",
+    "description": "Black captures and promotes on a flipped board.",
+    "startFen": "7k/8/8/8/8/7K/1p6/R7 b - - 0 1",
+    "playerColor": "black",
+    "moves": "1... bxa1=Q",
+    "automatic": true,
+    "scenarios": [
+      {},
+      { "moves": "1... bxa1=R" },
+      { "startFen": "7k/6p1/8/8/8/7K/1p6/R7 b - - 0 1", "moves": "1... bxa1=B" }
+    ],
+    "delayRange": [500, 1000],
+    "promoDelay": 400,
+    "loopDelay": 2000
   },
   {
     "title": "Castling Test",
     "description": "White castles kingside; Black castles queenside.",
     "startFen": "r3k2r/pppq1ppp/2n5/3p4/3P4/2NQ1N2/PPP2PPP/R3K2R w KQkq - 0 1",
     "moves": "1. a3 a6 2. O-O Qe6 3. Qe3 O-O-O 4. Qxe6 fxe6",
+    "automatic": true,
+    "scenarios": [
+      {},
+      { "startFen": "r3k2r/ppp2ppp/8/8/8/8/PPP2PPP/R3K2R w KQkq - 0 1", "moves": "1. O-O O-O" },
+      { "startFen": "r3k2r/ppp2ppp/8/8/8/8/PPP2PPP/R3K2R w KQkq - 0 1", "moves": "1. O-O-O O-O-O", "playerColor": "black" }
+    ],
     "delayRange": [200, 800]
   },
   {
@@ -62,12 +117,24 @@
     "startFen": "2r3k1/6b1/8/7b/4BP1p/4BK2/6PP/3R4 w",
     "playerColor": "black",
     "moves": "1. g4 hxg3+ 2. Kg2",
+    "automatic": true,
+    "scenarios": [
+      {},
+      { "startFen": "7k/8/8/3pP3/8/8/8/K7 w - d6 0 1", "moves": "1. exd6" },
+      { "startFen": "7k/8/8/8/3Pp3/8/8/K7 b - d3 0 1", "moves": "1... exd3", "playerColor": "black" }
+    ],
     "delayRange": [500, 2000]
   },
   {
     "title": "Takeback Test",
     "description": "Plays, takes it back. Plays again.",
     "script": "test-modules/takeback.js",
+    "automatic": true,
+    "scenarios": [
+      { "script": "test-modules/short-edge.js", "actions": [{ "moves": ["e4", "e5"] }, { "undo": 1, "moves": ["c5"] }] },
+      { "script": "test-modules/short-edge.js", "actions": [{ "moves": ["d4", "d5", "Nf3"] }, { "undo": 1, "moves": ["c4"] }] },
+      { "script": "test-modules/short-edge.js", "actions": [{ "moves": ["e4", "e5", "Nf3", "Nc6"] }, { "undo": 2, "moves": ["Bc4", "Nf6"] }] }
+    ],
     "delayRange": [400, 900],
     "stepDelay": 800,
     "takebackHold": 1000
@@ -76,6 +143,12 @@
     "title": "Buggy Vanishing Move (Edge Case)",
     "description": "Piece disappears from its origin, then reappears on the destination.",
     "script": "test-modules/vanish-move.js",
+    "automatic": true,
+    "scenarios": [
+      { "script": "test-modules/short-edge.js", "actions": [{ "vanish": "e4", "delayMs": 5 }] },
+      { "script": "test-modules/short-edge.js", "actions": [{ "moves": ["e4", "d5"] }, { "vanish": "exd5", "delayMs": 150 }] },
+      { "script": "test-modules/short-edge.js", "playerColor": "black", "actions": [{ "moves": ["e4", "e5", "Nf3"] }, { "vanish": "Nc6", "delayMs": 350 }] }
+    ],
     "delayRange": [300, 900],
     "stepDelay": 700,
     "vanishDelay": 350
@@ -84,6 +157,12 @@
     "title": "Board Reset & Flip Demo",
     "description": "Plays endgame moves, removes the board, recreates default start position flipped, and plays first move.",
     "script": "test-modules/board-reset-flip.js",
+    "automatic": true,
+    "scenarios": [
+      { "script": "test-modules/short-edge.js", "startFen": "start", "actions": [{ "moves": ["e4", "e5"] }, { "reset": true, "orientation": "black", "moves": ["d4"] }] },
+      { "script": "test-modules/short-edge.js", "startFen": "start", "actions": [{ "moves": ["d4", "d5"] }, { "reset": true, "moves": ["Nf3", "d5"] }] },
+      { "script": "test-modules/short-edge.js", "startFen": "start", "actions": [{ "moves": ["c4", "e5"] }, { "reset": true, "orientation": "black", "moves": ["e4", "c5"] }] }
+    ],
     "delayRange": [400, 1000],
     "resetDelay": 1000,
     "newBoardDelay": 700,
@@ -95,6 +174,12 @@
     "title": "Quick Board Flip (Edge Case)",
     "description": "Loads a position, waits a short delay, then flips board orientation.",
     "script": "test-modules/flip-only.js",
+    "automatic": true,
+    "scenarios": [
+      { "script": "test-modules/short-edge.js", "startFen": "start", "actions": [{ "flip": true }, { "moves": ["e4"] }] },
+      { "script": "test-modules/short-edge.js", "startFen": "start", "playerColor": "black", "actions": [{ "moves": ["d4"] }, { "flip": true, "moves": ["d5"] }] },
+      { "script": "test-modules/short-edge.js", "startFen": "start", "actions": [{ "moves": ["Nf3"] }, { "flip": true }, { "flip": true, "moves": ["d5"] }] }
+    ],
     "delayRange": [100, 400],
     "flipDelay": 200,
     "startFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
@@ -103,6 +188,12 @@
     "title": "Premoves Demo",
     "description": "Queues premoves for White and Black and executes them in batches so multiple pieces appear to move together.",
     "script": "test-modules/premoves.js",
+    "automatic": true,
+    "scenarios": [
+      { "script": "test-modules/short-edge.js", "actions": [{ "moves": ["e4", "e5", "Nf3", "Nc6"] }] },
+      { "script": "test-modules/short-edge.js", "actions": [{ "moves": ["d4", "d5", "c4", "e6"] }] },
+      { "script": "test-modules/short-edge.js", "playerColor": "black", "actions": [{ "moves": ["Nf3", "d5", "g3", "Nf6", "Bg2", "e6"] }] }
+    ],
     "playerColor": "white",
     "initialDelay": 900,
     "whitePremoves": ["e4", "Nf3", "c4"],

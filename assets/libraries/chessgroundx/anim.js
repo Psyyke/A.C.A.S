@@ -51,6 +51,8 @@ function computePlan(prevPieces, current) {
     };
 }
 function step(state, now) {
+    if (state.dom.destroyed)
+        return;
     const cur = state.animation.current;
     if (cur === undefined) {
         // animation was canceled :(

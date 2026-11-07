@@ -21,8 +21,12 @@
     <link rel="stylesheet" type="text/css" href="../../assets/css/bg-textures.css"/>
     <link rel="icon" type="image/x-icon" href="../../favicon.ico"/>
 </head>
-<body class="staunty"><div class="top-note">A.C.A.S TESTING FACILITY (DEV)</div>
-    <a href="../" target="_blank" class="back-to-acas-link" rel="noopener">Back</a>
+<body class="staunty">
+    <header class="top-note">
+        <a href="../" target="_blank" class="back-to-acas-link acas-fancy-button" rel="noopener">Back</a>
+        <span>A.C.A.S TESTING FACILITY (DEV)</span>
+    </header>
+    <div id="heap-subheader" class="heap-subheader" aria-label="Page memory usage"></div>
     <div id="tests-root" class="tests-root">
         <div id="left-panel" class="panel" role="main">
             <div id="left-content" class="left-content">
@@ -35,10 +39,26 @@
         <div id="right-panel" class="panel" role="complementary">
             <div id="controls">
                 <h3>Stress Tests</h3>
+                <div class="live-controls">
+                    <button id="run-short-tests" class="small acas-fancy-button">Run short tests</button>
+                    <button id="stop-short-tests" class="small acas-fancy-button" disabled>Stop</button>
+                </div>
+                <p class="test-desc">3 scenarios per category. A.C.A.S has 3 seconds to reply.</p>
+                <div id="short-test-score" role="status"></div>
                 <ul id="test-list"></ul>
             </div>
         </div>
     </div>
 
+    <footer class="dev-footer">
+        <nav aria-label="Footer">
+            <a href="https://github.com/Psyyke/A.C.A.S" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system" target="_blank" rel="noopener">GreasyFork</a>
+            <a href="https://github.com/Hakorr" target="_blank" rel="noopener">Author</a>
+            <a href="../../tos" target="_blank" rel="noopener">ToS</a>
+            <a href="../../privacy" target="_blank" rel="noopener">Privacy</a>
+            <a href="../../#/" target="_blank" rel="noopener">Documentation</a>
+        </nav>
+    </footer>
     <script type="module" src="index.js"></script>
 </body>

@@ -1,6 +1,8 @@
 // Vanish Move demo
 // Shows a move where the piece first disappears from its source square, then appears on the destination square
-export async function init(container, { test } = {}) {
+import { createLifecycle } from './lifecycle.js';
+
+export async function init(container, { test, signal } = {}) {
     let Chess;
     try {
         const mod = await import('../../assets/engines/libraries/chessjs/chess.js');
@@ -9,6 +11,7 @@ export async function init(container, { test } = {}) {
         container.textContent = 'Failed to load chess.js';
         throw e;
     }
+    if (signal?.aborted) return;
 
     const info = document.createElement('div');
     info.className = 'test-info';
@@ -24,14 +27,7 @@ export async function init(container, { test } = {}) {
         movable: { free: false }
     });
 
-    let cancelled = false;
-    const timers = new Set();
-    function wait(ms) {
-        return new Promise(resolve => {
-            const t = setTimeout(() => { timers.delete(t); resolve(); }, ms);
-            timers.add(t);
-        });
-    }
+    const lifecycle = createLifecycle(signal);
 
     function applySanWithFallback(replay, san) {
         let r = replay.move(san);
@@ -105,9 +101,9 @@ export async function init(container, { test } = {}) {
             // show some moves before
             info.textContent = 'Before move: Nf3, d5';
             if (applySanWithFallback(replay, 'Nf3')) cg.set({ fen: replay.fen() });
-            await wait(sd);
+            if (!await lifecycle.wait(sd)) return;
             if (applySanWithFallback(replay, 'd5')) cg.set({ fen: replay.fen() });
-            await wait(sd);
+            if (!await lifecycle.wait(sd)) return;
 
             // the vanish-appear move: default 'e4' unless provided
             const san = (test && test.move) ? test.move : 'e4';
@@ -123,16 +119,16 @@ export async function init(container, { test } = {}) {
             const vanishFen = setSquareInFen(preFen, moveObj.from, null);
             cg.set({ fen: vanishFen });
             info.textContent = `Vanish: ${moveObj.san} (piece disappears)`;
-            await wait(vanishDelay);
+            if (!await lifecycle.wait(vanishDelay)) return;
 
             // now show the real post-move position
             cg.set({ fen: postFen });
             info.textContent = `Arrive: ${moveObj.san} (piece reappears)`;
-            await wait(sd);
+            if (!await lifecycle.wait(sd)) return;
 
             // show one move after
             if (applySanWithFallback(replay, 'e5')) cg.set({ fen: replay.fen() });
-            await wait(sd);
+            if (!await lifecycle.wait(sd)) return;
             // Knight capture: vanish knight first, then show capture
             {
                 const preCaptureFen = replay.fen();
@@ -144,12 +140,12 @@ export async function init(container, { test } = {}) {
                         const vanishFen = setSquareInFen(preCaptureFen, moveObj.from, null);
                         cg.set({ fen: vanishFen });
                         info.textContent = `Vanish capture: ${moveObj.san} (knight disappears before capturing)`;
-                        await wait(test && test.vanishDelay != null ? test.vanishDelay : 350);
+                        if (!await lifecycle.wait(vanishDelay)) return;
                     }
                     cg.set({ fen: postCaptureFen });
                 }
             }
-            await wait(sd);
+            if (!await lifecycle.wait(sd)) return;
 
             info.textContent = 'Vanish demo finished';
         } catch (e) {
@@ -162,9 +158,8 @@ export async function init(container, { test } = {}) {
 
     return {
         destroy() {
-            cancelled = true;
-            for (const t of Array.from(timers)) clearTimeout(t);
-            try { if (cg && typeof cg.destroy === 'function') cg.destroy(); } catch (e) { /* ignore */ }
+            lifecycle.cancel();
+            cg.destroy();
             boardHolder.remove();
             info.remove();
         }

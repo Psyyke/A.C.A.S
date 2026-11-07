@@ -4,22 +4,27 @@ import * as pocket from './pocket.js';
 import { isRightButton } from './util.js';
 export function bindBoard(s, onResize) {
     const boardEl = s.dom.elements.board;
-    if ('ResizeObserver' in window)
-        new ResizeObserver(onResize).observe(s.dom.elements.wrap);
+    const unbinds = [];
+    if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(onResize);
+        observer.observe(s.dom.elements.wrap);
+        unbinds.push(() => observer.disconnect());
+    }
     if (s.viewOnly)
-        return;
+        return () => unbinds.forEach(f => f());
     // Cannot be passive, because we prevent touch scrolling and dragging of
     // selected elements.
     const onStart = startDragOrDraw(s);
-    boardEl.addEventListener('touchstart', onStart, {
+    unbinds.push(unbindable(boardEl, 'touchstart', onStart, {
         passive: false,
-    });
-    boardEl.addEventListener('mousedown', onStart, {
+    }));
+    unbinds.push(unbindable(boardEl, 'mousedown', onStart, {
         passive: false,
-    });
+    }));
     if (s.disableContextMenu || s.drawable.enabled) {
-        boardEl.addEventListener('contextmenu', e => e.preventDefault());
+        unbinds.push(unbindable(boardEl, 'contextmenu', e => e.preventDefault()));
     }
+    return () => unbinds.forEach(f => f());
 }
 // returns the unbind function
 export function bindDocument(s, onResize) {

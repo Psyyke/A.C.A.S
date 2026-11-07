@@ -1,7 +1,7 @@
 // Free Board Demo
 // Loads a given FEN (or start position) and presents a board where the user
 // can move any piece freely (both colors, no automation).
-export async function init(container, { test } = {}) {
+export async function init(container, { test, signal } = {}) {
     const info = document.createElement('div');
     info.className = 'test-info';
     container.appendChild(info);
@@ -18,6 +18,7 @@ export async function init(container, { test } = {}) {
     }
 
     await ensureChessLib();
+    if (signal?.aborted) return;
 
     const startFen = (test && test.startFen) ? test.startFen : 'start';
     const orientation = (test && String(test.playerColor).toLowerCase() === 'black') ? 'black' : 'white';
@@ -26,14 +27,14 @@ export async function init(container, { test } = {}) {
         fen: startFen,
         orientation,
         animation: { enabled: true, duration: 220 },
-        movable: { free: true }
+        movable: { free: true, color: 'both' }
     });
 
     info.textContent = `Free board loaded: ${startFen}`;
 
     return {
         destroy() {
-            try { if (cg && typeof cg.destroy === 'function') cg.destroy(); } catch (e) {}
+            cg.destroy();
             boardHolder.remove();
             info.remove();
         }

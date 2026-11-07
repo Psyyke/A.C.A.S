@@ -1,4 +1,8 @@
 /* Tests page loader + split-resizer. Dynamically loads tests (module or PGN string) */
+import { createLifecycle } from './test-modules/lifecycle.js';
+import { startHeapMonitor } from './heapMonitor.js';
+
+startHeapMonitor();
 
 const DEFAULT_FULL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const LEFT_MIN_PERCENT = 15;
@@ -14,6 +18,11 @@ const testListEl = document.getElementById('test-list');
 let tests = [];
 let current = null; // { destroy: fn }
 let activeIndex = -1;
+let loadController = null;
+let batchController = null;
+const runButton = document.getElementById('run-short-tests');
+const stopButton = document.getElementById('stop-short-tests');
+const scoreEl = document.getElementById('short-test-score');
 
 function setSplit(percent) {
     percent = Math.max(LEFT_MIN_PERCENT, Math.min(100 - RIGHT_MIN_PERCENT, percent));
@@ -75,6 +84,8 @@ async function loadTestsJson() {
 }
 
 function clearLeft() {
+    loadController?.abort();
+    loadController = null;
     // call destroy if present
     if (current && typeof current.destroy === 'function') {
         try { current.destroy(); } catch (e) { console.error('Error destroying test:', e); }
@@ -99,13 +110,15 @@ function showPlaceholder(text) {
     leftContent.appendChild(p);
 }
 
-async function loadTest(index) {
+async function loadTest(index, onComplete = null, scenario = null) {
     if (!tests || !tests[index]) return;
+    clearLeft();
     activeIndex = index;
     renderList();
-
-    clearLeft();
-    const test = tests[index];
+    const controller = new AbortController();
+    loadController = controller;
+    const { signal } = controller;
+    const test = onComplete ? { ...tests[index], ...scenario, loop: false } : tests[index];
     const container = document.createElement('div');
     container.className = 'test-root';
     leftContent.appendChild(container);
@@ -114,9 +127,14 @@ async function loadTest(index) {
     if (test.script) {
         try {
             const mod = await import('./' + test.script);
+            if (signal.aborted) return;
             const initFn = mod.init || mod.default || null;
             if (typeof initFn === 'function') {
-                const instance = await initFn(container, { test });
+                const instance = await initFn(container, { test, signal, onComplete });
+                if (signal.aborted) {
+                    instance?.destroy?.();
+                    return;
+                }
                 current = instance || { destroy: () => { container.remove(); } };
                 return;
             } else {
@@ -124,6 +142,7 @@ async function loadTest(index) {
                 return;
             }
         } catch (e) {
+            if (signal.aborted) return;
             console.error('Failed to load test script:', e);
             showPlaceholder('Failed to load test: ' + (e && e.message ? e.message : String(e)));
             return;
@@ -134,9 +153,11 @@ async function loadTest(index) {
     try {
         await ensureChessgroundReady();
     } catch (e) {
+        if (signal.aborted) return;
         showPlaceholder('Chessground not available');
         return;
     }
+    if (signal.aborted) return;
 
     // Ensure local chess.js is available and return its constructor
     async function ensureChessLib() {
@@ -203,13 +224,6 @@ async function loadTest(index) {
     const DEFAULT_FULL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     const startFen = normalizeFen(test.startFen || DEFAULT_FULL_FEN);
 
-    const cg = window.ChessgroundX(boardHolder, {
-        fen: startFen,
-        orientation,
-        animation: { enabled: true, duration: 200 },
-        movable: { free: true }
-    });
-    
     if (typeof test.moves !== 'string') {
         showPlaceholder('Test moves must be a PGN string');
         console.error('Invalid test.moves type; expected string (PGN)');
@@ -220,17 +234,26 @@ async function loadTest(index) {
     try {
         Chess = await ensureChessLib();
     } catch (e) {
+        if (signal.aborted) return;
         console.error(e);
         showPlaceholder('Failed to load PGN parser');
         return;
     }
+    if (signal.aborted) return;
+
+    const cg = window.ChessgroundX(boardHolder, {
+        fen: startFen,
+        orientation,
+        animation: { enabled: true, duration: 200 },
+        movable: { free: true }
+    });
 
     const parsed = parsePgnMoves(test.moves);
     const replay = new Chess(startFen); // initialize chess.js with the test start FEN
 
     // helper to set one square's piece in a FEN string
     function setPieceAtSquare(fen, square, pieceChar) {
-        const [board, rest] = fen.split(' ', 2);
+        const [board, ...rest] = fen.split(' ');
         const rows = board.split('/');
         const file = square.charCodeAt(0) - 97; // a->0
         const rank = 8 - Number(square[1]); // '8'->0
@@ -254,7 +277,7 @@ async function loadTest(index) {
         }
         if (empty) out += String(empty);
         rows[rank] = out;
-        return rows.join('/') + (rest ? (' ' + rest) : '');
+        return [rows.join('/'), ...rest].join(' ');
     }
 
     const moves = [];
@@ -293,21 +316,25 @@ async function loadTest(index) {
     }
 
     if (!moves.length) {
+        cg.destroy();
         showPlaceholder('No valid moves found in PGN');
         return;
     }
 
     info.innerHTML = '<strong>' + (test.title || 'Untitled Test') + '</strong>' + (test.description ? (' - ' + test.description) : '');
 
-    let cancelled = false;
+    const lifecycle = createLifecycle(signal);
     const myIndex = index;
     (async () => {
-        while (!cancelled) {
-            for (let j = 0; j < moves.length && !cancelled; j++) {
+        while (!lifecycle.cancelled) {
+            cg.set({ fen: startFen });
+            for (let j = 0; j < moves.length && !lifecycle.cancelled; j++) {
                 const m = moves[j] || {};
                 const fen = m.fen ? normalizeFen(m.fen) : '';
+                if (onComplete && j === moves.length - 1) onComplete({ fen: replay.fen(), cg });
                 if (fen) cg.set({ fen });
                 if (m.annotation) info.innerHTML = '<strong>' + (test.title || 'Untitled Test') + '</strong> - ' + (m.annotation || '');
+                if (onComplete && j === moves.length - 1) break;
 
                 // delay: m.delay overrides, otherwise random from test.delayRange [min,max], default 800
                 const DEFAULT_DELAY = 800;
@@ -321,9 +348,10 @@ async function loadTest(index) {
                     delay = Math.floor(Math.random() * (hi - lo + 1)) + lo;
                 }
 
-                await new Promise(r => setTimeout(r, delay));
+                if (onComplete && m.delay == null) delay = Math.min(delay, 100);
+                if (!await lifecycle.wait(delay)) return;
             }
-            if (cancelled) break;
+            if (lifecycle.cancelled) break;
             if (!test.loop) {
                 info.innerHTML = '<strong>Finished:</strong> ' + (test.title || 'Untitled Test');
                 break;
@@ -340,19 +368,23 @@ async function loadTest(index) {
                     loopDelay = Math.floor(Math.random() * (hi - lo + 1)) + lo;
                 }
 
-                if (loopDelay) await new Promise(r => setTimeout(r, loopDelay));
+                cg.set({ fen: startFen });
+                if (!await lifecycle.wait(loopDelay)) return;
             }
         }
-        if (!cancelled) {
+        if (!lifecycle.cancelled) {
             // test finished naturally; clear active highlight
             activeIndex = -1;
             renderList();
         }
-    })();
+    })().catch(error => {
+        console.error('PGN replay failed:', error);
+        info.textContent = 'PGN replay failed: ' + error.message;
+    });
 
     current = {
         destroy() {
-            cancelled = true;
+            lifecycle.cancel();
             try { if (cg && typeof cg.destroy === 'function') cg.destroy(); } catch (e) { console.error(e); }
             boardHolder.remove();
             info.remove();
@@ -368,10 +400,14 @@ function renderList() {
     testListEl.innerHTML = '';
     tests.forEach((t, i) => {
         const li = document.createElement('li');
+        li.className = 'test-list-row';
         const btn = document.createElement('button');
-        btn.className = 'test-btn';
-        if (i === activeIndex) btn.style.outline = '1px solid #888';
-        btn.addEventListener('click', () => loadTest(i));
+        btn.className = 'test-btn acas-fancy-button';
+        btn.setAttribute('aria-pressed', String(i === activeIndex));
+        btn.addEventListener('click', () => {
+            batchController?.abort();
+            loadTest(i);
+        });
 
         const left = document.createElement('div');
         const title = document.createElement('div'); title.className = 'test-title'; title.textContent = t.title || 'Untitled';
@@ -384,22 +420,20 @@ function renderList() {
 
         const actions = document.createElement('div'); actions.className = 'test-actions';
 
-        if(!t.hideLoopBtn) {
-            const loopBtn = document.createElement('button'); loopBtn.className = 'small loop-toggle'; loopBtn.textContent = 'Loop';
-            if (t.loop) loopBtn.style.outline = '2px solid lime';
+        if(!t.hideLoopBtn && !t.script) {
+            const loopBtn = document.createElement('button'); loopBtn.className = 'small acas-fancy-button loop-toggle'; loopBtn.textContent = 'Loop';
             loopBtn.setAttribute('aria-pressed', t.loop ? 'true' : 'false');
             loopBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 t.loop = !t.loop;
                 loopBtn.setAttribute('aria-pressed', t.loop ? 'true' : 'false');
-                loopBtn.style.outline = t.loop ? '2px solid lime' : '';
             });
             actions.appendChild(loopBtn);
         }
 
         btn.appendChild(left);
-        btn.appendChild(actions);
         li.appendChild(btn);
+        if (actions.childElementCount) li.appendChild(actions);
         testListEl.appendChild(li);
     });
 }
@@ -409,6 +443,15 @@ async function init() {
     try {
         await loadTestsJson();
         renderList();
+        if (new URL(location.href).searchParams.has('liveResume')) {
+            const { resumeLiveRun } = await import('./test-modules/live.js');
+            if (resumeLiveRun()) {
+                const liveIndex = tests.findIndex(test => test.type === 'live');
+                if (liveIndex === -1) throw new Error('Live test is unavailable');
+                await loadTest(liveIndex);
+                return;
+            }
+        }
         // do not auto-start first test; user must click to start
         if (tests.length) showPlaceholder('Select a test to run');
         else showPlaceholder('No tests');
@@ -418,4 +461,114 @@ async function init() {
     }
 }
 
+window.addEventListener('pagehide', () => {
+    batchController?.abort();
+    clearLeft();
+});
+
 init();
+
+stopButton.addEventListener('click', () => {
+    batchController?.abort();
+    clearLeft();
+});
+
+runButton.addEventListener('click', async () => {
+    const controller = new AbortController();
+    batchController = controller;
+    const { signal } = controller;
+    runButton.disabled = true;
+    stopButton.disabled = false;
+    scoreEl.classList.add('is-running');
+    const results = [];
+    const selected = tests.flatMap((test, index) => test.automatic
+        ? (test.scenarios || [{}]).map((scenario, variant) => ({
+            test: { ...test, title: `${test.title} ${variant + 1}` }, index, scenario
+        })) : []);
+    try {
+        for (const { test, index, scenario } of selected) {
+            if (signal.aborted) break;
+            scoreEl.textContent = `${results.length + 1}/${selected.length} - ${test.title}`;
+            const final = await new Promise((resolve, reject) => {
+                const finish = value => {
+                    clearTimeout(timer);
+                    signal.removeEventListener('abort', cancel);
+                    resolve(value);
+                };
+                const cancel = () => finish(null);
+                const timer = setTimeout(() => finish(null), 30000);
+                signal.addEventListener('abort', cancel, { once: true });
+                loadTest(index, finish, scenario).catch(error => {
+                    clearTimeout(timer);
+                    signal.removeEventListener('abort', cancel);
+                    reject(error);
+                });
+            });
+            if (signal.aborted) break;
+            let outcome = 'Test timed out';
+            let responseMs = null;
+            if (final?.error) {
+                outcome = 'Scenario error';
+            } else if (final) {
+                const game = new window.Chess(final.fen);
+                if (game.in_check() || game.game_over()) {
+                    outcome = 'Skipped';
+                } else {
+                    const legal = game.moves({ verbose: true });
+                    const started = performance.now();
+                    outcome = await new Promise(resolve => {
+                        const finish = value => {
+                            clearTimeout(timer);
+                            clearInterval(countdown);
+                            window.removeEventListener('message', onMessage);
+                            signal.removeEventListener('abort', cancel);
+                            resolve(value);
+                        };
+                        const cancel = () => finish('Cancelled');
+                        const onMessage = event => {
+                            if (event.source !== window || event.data?.name !== 'bestMoveArr') return;
+                            const squares = event.data.value;
+                            if (Array.isArray(squares) && squares.length === 2
+                                && legal.some(move => move.from === squares[0] && move.to === squares[1])) {
+                                responseMs = performance.now() - started;
+                                finish('Pass');
+                            }
+                        };
+                        const showWaiting = () => {
+                            const remaining = Math.max(0, Math.ceil((3000 - (performance.now() - started)) / 1000));
+                            scoreEl.textContent = `${results.length + 1}/${selected.length} - ${test.title} - Waiting ${remaining}s`;
+                        };
+                        const timer = setTimeout(() => finish('No reply'), 3000);
+                        const countdown = setInterval(showWaiting, 250);
+                        showWaiting();
+                        window.addEventListener('message', onMessage);
+                        signal.addEventListener('abort', cancel, { once: true });
+                        final.cg.set({ orientation: game.turn() === 'w' ? 'white' : 'black' });
+                    });
+                }
+            }
+            if (signal.aborted) break;
+            results.push({ title: test.title, outcome, responseMs });
+            scoreEl.replaceChildren();
+            const eligible = results.filter(result => !result.outcome.startsWith('Skipped'));
+            const summary = document.createElement('p');
+            summary.textContent = `Score: ${eligible.filter(result => result.outcome === 'Pass').length}/${eligible.length}`;
+            scoreEl.appendChild(summary);
+            for (const result of results) {
+                const row = document.createElement('div');
+                row.className = 'test-desc';
+                row.textContent = `${result.title}: ${result.outcome}${result.responseMs !== null ? ` (${Math.round(result.responseMs)} ms)` : ''}`;
+                scoreEl.appendChild(row);
+            }
+        }
+        if (signal.aborted) scoreEl.append(' - Stopped');
+    } catch (error) {
+        console.error('Short stress run failed:', error);
+        scoreEl.textContent = 'Short stress run failed: ' + error.message;
+    } finally {
+        if (batchController === controller) batchController = null;
+        runButton.disabled = false;
+        stopButton.disabled = true;
+        scoreEl.classList.remove('is-running');
+    }
+});
