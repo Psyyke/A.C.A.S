@@ -3,6 +3,7 @@ import { updatePipData, updatePipHints } from '../gui/pip.js';
 import { incrementUserUsageStat } from '../gui/stats.js';
 import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { Chess } from '../../engines/libraries/chessjs/chess.js';
+import { buildSearchCommand } from './searchCommand.js';
 
 function getTerminalOutcome(fen, playerColor) {
     if(!['w', 'b'].includes(playerColor)) return null;
@@ -172,15 +173,10 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         // Fusion accepts the same limits and searchmoves as the other UCI engines.
         const depth = profileVariables.searchDepth || 100;
         const nodes = profileVariables.engineNodes;
-        let searchCommandStr;
-
-        if(nodes > 0) {
-            searchCommandStr = `go nodes ${nodes}${specificMoves}`;
-            updatePipData({ goalNodes: nodes, goalDepth: null }, this, profileName);
-        } else {
-            searchCommandStr = `go depth ${depth}${specificMoves}`;
-            updatePipData({ goalDepth: depth, goalNodes: null }, this, profileName);
-        }
+        const { command: searchCommandStr, goalDepth, goalNodes } = buildSearchCommand({
+            nodes, depth, movetime, externalEngine: profileVariables.useExternalChessEngine, specificMoves
+        });
+        updatePipData({ goalDepth, goalNodes }, this, profileName);
 
         const abandonCalculation = (retryLatest = true) => {
             calculation.finished = true;
