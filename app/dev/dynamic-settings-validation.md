@@ -2,6 +2,10 @@
 
 ## Runtime behavior
 
+- Live board variable values appear as dashed vertical lines with instance details
+  on hover. The value overlay stays visible without extra dots above the lines.
+- Touch-sized graph shortcuts sit beside the whole setting description, so the
+  title and subtitle stay together even when they wrap.
 - Effective settings, synchronization queues, engine workers, UCI readiness and option
   metadata are scoped to the actual instance, not the GUI settings filter.
 - Board updates synchronize before rendering/analysis. Graph edits synchronize and

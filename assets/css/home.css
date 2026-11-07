@@ -1549,7 +1549,15 @@ ul {
         height: 48px;
     }
     .acas-logo-main {
+        position: relative;
         align-items: center;
+        padding-right: 30px;
+    }
+    .acas-logo-main span {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        line-height: 1;
     }
     .nav-burger {
         width: 52px;

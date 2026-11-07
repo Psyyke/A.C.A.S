@@ -451,7 +451,7 @@
 													</label>
 												</div>
 											</details>
-											<button id="activity-log-time-toggle" type="button" aria-label="Show milliseconds" title="Show milliseconds" aria-pressed="false">
+											<button id="activity-log-time-toggle" type="button" data-time-mode="full" aria-label="Timestamp: Full time. Click for Seconds and milliseconds." title="Timestamp: Full time. Click for Seconds and milliseconds.">
 												<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
 													<circle cx="12" cy="12" r="8.5"></circle>
 													<path d="M12 7v5l3 2M8 2.8l1.2 1.5m6.8-1.5-1.2 1.5M12 1.8v2"></path>
@@ -971,21 +971,21 @@
 														<input type="checkbox" data-render-setting="true" data-key="enableEnemyFeedback" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
                                                     <div class="settings-divider-line"></div>
-                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Feedback On External Site</div>
+                                                    <div class="checkbox-input custom-input feedback-output-setting"><div><div class="input-title">Feedback On External Site</div>
                                                         <div class="input-subtitle">Show move ratings on the external board</div></div><div class="checkbox-container">
                                                         <input type="checkbox" data-key="feedbackOnExternalSite" data-default-value="false"><div class="checkbox-fill">✔</div></div>
                                                     </div>
-                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Feedback Emojis</div>
-                                                        <div class="input-subtitle">Show rating emojis beside your moves</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="feedbackEmojis" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Feedback In Floating Panel</div>
+                                                    <div class="checkbox-input custom-input feedback-output-setting"><div><div class="input-title">Feedback In Floating Panel</div>
                                                         <div class="input-subtitle">Show compact feedback in the floating panel</div></div><div class="checkbox-container">
                                                         <input type="checkbox" data-key="feedbackInPip" data-default-value="false"><div class="checkbox-fill">✔</div></div>
                                                     </div>
-                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Move Counts In Floating Panel</div>
+                                                    <div class="checkbox-input custom-input feedback-output-setting"><div><div class="input-title">Move Counts In Floating Panel</div>
                                                         <div class="input-subtitle">Show move rating counts outside learning mode</div></div><div class="checkbox-container">
                                                         <input type="checkbox" data-key="feedbackMoveCounts" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input feedback-output-setting"><div><div class="input-title">Feedback Emojis</div>
+                                                        <div class="input-subtitle">Show rating emojis beside your moves</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="feedbackEmojis" data-default-value="true"><div class="checkbox-fill">✔</div></div>
                                                     </div>
 
 													<div class="textfield-input custom-input"><div><div class="input-title">Search Depth</div>

@@ -7,13 +7,14 @@ import { featureText } from '../misc/featureTranslations.js';
 import { getActivityLogElements } from './elementDeclarations.js';
 
 const PANEL_STORAGE_KEY = 'acas.activity-log.panel';
-const PRECISE_TIME_STORAGE_KEY = 'acas.activity-log.precise-time';
+const TIME_STORAGE_KEY = 'acas.activity-log.precise-time';
+const TIME_MODES = ['full', 'compact', 'seconds', 'none'];
 const FILTER_STORAGE_KEY = 'acas.activity-log.filters';
 const reportStorageError = console.error.bind(console);
 
 let initialized = false;
 let panelStorageErrorReported = false;
-let preciseTimestamps = false;
+let timeMode = 'full';
 
 const text = (key, fallback, values) => featureText('activityLog', key, fallback, values);
 
@@ -33,16 +34,19 @@ const engineLabelForEntry = entry => entry.engineId
         ? externalEngineTag(entry.engine) || text('externalEngine', 'External engine')
         : entry.engine || '';
 
-const formatLogTime = (timestamp, type, precise) => {
+const formatLogTime = (timestamp, type) => {
     const date = new Date(timestamp);
-
-    if(!precise) return type === 'session-start' ? date.toLocaleString() : date.toLocaleTimeString();
-
-    const seconds = new Intl.DateTimeFormat(undefined, { second: '2-digit' })
-        .formatToParts(date)
-        .find(part => part.type === 'second')?.value;
-
-    return `${seconds}.${String(date.getMilliseconds()).padStart(3, '0')}`;
+    if(timeMode === 'none') return '';
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    if(timeMode === 'seconds') return seconds;
+    if(timeMode === 'compact') return `${seconds}.${String(date.getMilliseconds()).padStart(3, '0')}`;
+    const options = {
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        fractionalSecondDigits: 3, hour12: false
+    };
+    return type === 'session-start'
+        ? date.toLocaleString([], { ...options, year: 'numeric', month: 'numeric', day: 'numeric' })
+        : date.toLocaleTimeString([], options);
 };
 
 export function formatLogForClipboard(entries) {
@@ -130,7 +134,7 @@ export function createLogRow(entry, previousEntry) {
     const date = new Date(entry.timestamp);
     time.dateTime = date.toISOString();
     time.dataset.timestamp = String(entry.timestamp);
-    time.textContent = formatLogTime(entry.timestamp, entry.type, preciseTimestamps);
+    time.textContent = formatLogTime(entry.timestamp, entry.type);
     time.title = date.toLocaleString();
     const engine = document.createElement('span');
     engine.className = 'activity-log-engine';
@@ -202,32 +206,44 @@ export function initializeActivityLog() {
     }
 
     try {
-        preciseTimestamps = localStorage.getItem(PRECISE_TIME_STORAGE_KEY) === 'true';
+        const storedMode = localStorage.getItem(TIME_STORAGE_KEY);
+        if(storedMode === 'true') timeMode = 'compact';
+        else if(TIME_MODES.includes(storedMode)) timeMode = storedMode;
     } catch(error) {
         console.error('Activity log time format could not be restored.', error);
     }
 
     const updateTimeDisplay = () => {
-        timeToggle.setAttribute('aria-pressed', String(preciseTimestamps));
-        const label = text(
-            preciseTimestamps ? 'hideMilliseconds' : 'showMilliseconds',
-            preciseTimestamps ? 'Show full timestamps' : 'Show seconds and milliseconds only'
-        );
+        list.dataset.timeMode = timeMode;
+        timeToggle.dataset.timeMode = timeMode;
+        const labels = {
+            full: text('fullTime', 'Full time'),
+            compact: text('compactTime', 'Seconds and milliseconds'),
+            seconds: text('secondsTime', 'Seconds only'),
+            none: text('noTime', 'No timestamps')
+        };
+        const nextMode = TIME_MODES[(TIME_MODES.indexOf(timeMode) + 1) % TIME_MODES.length];
+        const label = text('timeMode', 'Timestamp: {current}. Click for {next}.', {
+            current: labels[timeMode], next: labels[nextMode]
+        });
         timeToggle.setAttribute('aria-label', label);
         timeToggle.title = label;
         list.querySelectorAll('.activity-log-date').forEach(time => {
             const row = time.closest('.activity-log-entry');
-            time.textContent = formatLogTime(Number(time.dataset.timestamp), row.dataset.type, preciseTimestamps);
+            time.textContent = formatLogTime(Number(time.dataset.timestamp), row.dataset.type);
         });
     };
     timeToggle.onclick = () => {
-        preciseTimestamps = !preciseTimestamps;
+        const atBottom = list.scrollHeight - list.clientHeight <= list.scrollTop + 40;
+        const ratio = list.scrollTop / Math.max(1, list.scrollHeight - list.clientHeight);
+        timeMode = TIME_MODES[(TIME_MODES.indexOf(timeMode) + 1) % TIME_MODES.length];
         try {
-            localStorage.setItem(PRECISE_TIME_STORAGE_KEY, String(preciseTimestamps));
+            localStorage.setItem(TIME_STORAGE_KEY, timeMode);
         } catch(error) {
             console.error('Activity log time format could not be saved.', error);
         }
         updateTimeDisplay();
+        list.scrollTop = atBottom ? list.scrollHeight : ratio * (list.scrollHeight - list.clientHeight);
     };
     updateTimeDisplay();
 

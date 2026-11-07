@@ -25,9 +25,17 @@ input:focus,
     margin-bottom: 2.5px;
     overflow-wrap: anywhere;
 }
+.dynamic-setting-copy,
+.dynamic-setting-title-row {
+    --dynamic-setting-shortcut-size: 32px;
+}
 .dynamic-setting-copy {
+    position: relative;
     flex: 1 1 0 !important;
     min-width: 0 !important;
+    min-height: var(--dynamic-setting-shortcut-size);
+    padding-right: calc(var(--dynamic-setting-shortcut-size) + 6px);
+    box-sizing: border-box;
 }
 /* When the row gets too thin, the title/subtitle wrap above the control. */
 .custom-input:has(> :first-child > .input-title, > .input-title, > .dynamic-setting-copy, > .dynamic-setting-title-row) {
@@ -41,10 +49,7 @@ input:focus,
     min-width: 0;
 }
 .dynamic-setting-title-row {
-    --dynamic-setting-shortcut-size: 32px;
     position: relative;
-    display: flex;
-    flex: 1 1 auto;
     display: flex;
     flex: 1 1 auto;
     min-width: 0;
@@ -53,6 +58,11 @@ input:focus,
     align-items: center;
     column-gap: 6px;
     box-sizing: border-box;
+}
+.dynamic-setting-copy > .dynamic-setting-title-row {
+    position: static;
+    min-height: 0;
+    padding-right: 0;
 }
 .dynamic-setting-title-row .input-title {
     flex: 1 1 auto;
@@ -155,6 +165,7 @@ input:focus,
     visibility: visible;
 }
 @media (hover: none), (pointer: coarse) {
+    .dynamic-setting-copy,
     .dynamic-setting-title-row {
         --dynamic-setting-shortcut-size: 44px;
     }

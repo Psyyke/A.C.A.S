@@ -495,7 +495,6 @@ function render() {
         marker.appendChild(createSvg('title', {}, title));
         marker.appendChild(createSvg('line', { x1: x, y1: plot.top, x2: x, y2: plot.bottom,
             class: 'dynamic-current-line', 'stroke-dasharray': `${3 + index % 4} ${4 + index % 3}` }));
-        marker.appendChild(createSvg('circle', { cx: x, cy: plot.top + 7 + index * 14, r: 5, class: 'dynamic-current-marker' }));
         layer.appendChild(marker);
     });
 

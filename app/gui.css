@@ -142,6 +142,11 @@ p[data-translation-experimental-warning] {
 	#settings-header {
 		justify-content: center !important;
 	}
+    #engine-floaty {
+        box-sizing: border-box;
+        width: calc(100% - 20px);
+        max-width: calc(100% - 20px) !important;
+    }
 }
 @media (pointer: coarse) {
     .external-engine-setting-panel {
@@ -2249,6 +2254,14 @@ input[disabled] {
 	min-width: 50%;
     max-width: 90%;
 }
+#feedback-floaty .move-feedback-settings > .feedback-output-setting {
+    margin-bottom: 6px;
+    padding-bottom: 12px;
+    border-bottom: 0;
+}
+#feedback-floaty .move-feedback-settings > .feedback-output-setting:has(input[data-key="feedbackEmojis"]) {
+    margin-bottom: 20px;
+}
 #begging-floaty {
     max-width: 350px;
 }
@@ -2580,10 +2593,10 @@ input[disabled] {
     stroke-linejoin: round;
     stroke-width: 1.7;
 }
-#log-floaty #activity-log-time-toggle[aria-pressed="true"] {
-    color: white;
-    background: rgb(255 255 255 / 14%);
-}
+#log-floaty #activity-log-time-toggle[data-time-mode="full"] { color: #ddd; border-color: #aaa; }
+#log-floaty #activity-log-time-toggle[data-time-mode="compact"] { color: #7bb0ff; border-color: #7bb0ff; }
+#log-floaty #activity-log-time-toggle[data-time-mode="seconds"] { color: #aed581; border-color: #aed581; }
+#log-floaty #activity-log-time-toggle[data-time-mode="none"] { color: #d0d0d0; border-color: rgb(255 255 255 / 25%); background: rgb(255 255 255 / 6%); }
 #log-floaty #activity-log-time-toggle:hover,
 #log-floaty #activity-log-time-toggle:focus-visible {
     border-color: rgb(255 255 255 / 55%);
@@ -2852,6 +2865,15 @@ input[disabled] {
     white-space: nowrap;
     text-transform: none;
 }
+#log-floaty #activity-log-entries[data-time-mode="none"] .activity-log-date {
+    display: none;
+}
+#log-floaty #activity-log-entries[data-time-mode="none"] .activity-log-summary {
+    grid-template-columns: max-content minmax(0, 1fr) 14px;
+}
+#log-floaty #activity-log-entries[data-time-mode="none"] .activity-log-engine { grid-column: 1; }
+#log-floaty #activity-log-entries[data-time-mode="none"] .activity-log-message { grid-column: 2; }
+#log-floaty #activity-log-entries[data-time-mode="none"] .activity-log-disclosure { grid-column: 3; }
 #log-floaty .activity-log-engine {
     grid-column: 2;
     max-width: 120px;
@@ -3341,13 +3363,6 @@ input[disabled] {
     opacity: 0.72;
     vector-effect: non-scaling-stroke;
     pointer-events: stroke;
-}
-#dynamic-settings-floaty .dynamic-current-marker {
-    fill: #fff;
-    stroke: rgb(0 0 0 / 65%);
-    stroke-width: 2;
-    vector-effect: non-scaling-stroke;
-    pointer-events: all;
 }
 #dynamic-settings-floaty #dynamic-settings-graph.is-panning {
     cursor: grabbing;
