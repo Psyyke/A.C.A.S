@@ -1,5 +1,48 @@
 # Regression tests
 
+## Fast shared move updates
+
+For the investigation history, current safeguards and future failure triage,
+see [Fast-play suggestion reliability](../app/dev/fast-play-investigation.md).
+
+`node --test tests/board-observer.test.mjs tests/board-update-race.test.mjs tests/engine-suggestions.test.mjs tests/search-modes.test.mjs`
+checks the shared userscript observer and GUI calculation path. Move notifications
+during a publish drain immediately, while duplicates do not create extra history
+or cancel a valid GUI update. Own-turn filtering uses the requested FEN, and late
+engine info cannot overwrite newer suggestions. A 20 ms Max Movetime setting
+also retains delivery when the engine sends only a final `bestmove`.
+Fast DOM updates can briefly show incomplete moves. Accepting that partial
+position can leave the correct pieces paired with the wrong turn, so own-turn
+filtering skips analysis.
+The shared detector validates orthodox endpoints regardless of changed-square
+count, rather than listing individual disappearance or duplication patterns.
+This includes castling followed by a reply, which can change five or six squares.
+Unresolved endpoints wait for another observation. Already reconstructed two-ply
+moves, larger gaps with site-provided turn metadata, board-repopulation resets
+and variant positions keep their existing handling.
+Tests cover the failed Ne5/Bxg2, Rc1/Bxc1 and Rxd1/Kxd1 sequences, en passant,
+and 72 staged arrival/removal frames across moves, captures, promotions and castling.
+A legal-looking intermediate frame can still be indistinguishable from a real
+move, so this is not a guarantee against every possible DOM timing issue.
+A verified opening move
+also restores the turn when it finishes before match initialization.
+These deterministic race checks do not replace an unattended run with the real
+userscript, site DOM and engines.
+
+`node --test tests/app-dev-fast-pipeline.test.mjs` runs the production userscript
+and GUI in two Chromium tabs with a userscript-storage shim and real Stockfish
+workers. It requires the userscript libraries, which the existing harness caches
+after downloading them. It plays at least 500 plies each against 1 ms and 5 ms opponents with
+A.C.A.S Max Movetime at 20 ms, across board-reuse matches and both colors.
+It fails if moves stop for 8 seconds. The shared detector also checks a captured
+piece vanishing during another move and initialization after the opening move.
+The 1 ms run also replays the failed Rxd1/Kxd1 and castling/Kb1/bxa2 games through the real board,
+injects partial capture frames, requires a legal black suggestion at its endpoint,
+and verifies play continues after a board-reuse restart. It checks that live
+diagnostics report the rejected partial position, accepted position and GUI state.
+The harness routes an existing dev-page opening-data path to the app's data file
+so an unrelated missing-resource error does not affect the check.
+
 ## Dev live matches
 
 `node --test tests/app-dev-live.test.mjs` uses Chromium to check turn ownership,
@@ -11,6 +54,13 @@ Watchdog checks cover the exact 2-minute A.C.A.S timeout, pause exclusion,
 automatic failure recovery and capped opponent retry delays. A simulated hour
 checks repeated unattended stalls, diagnostics and worker cleanup. It is a
 deterministic lifecycle test, not a real hour-long A.C.A.S memory benchmark.
+Failed games capture a bounded diagnostic snapshot before automatic restart.
+It contains the userscript's observed, accepted and rejected FENs, turn, recent
+history and parser validation result, plus responding GUI tabs' current FEN,
+turn and pending engine searches. Missing responders are explicitly marked
+`no-reply`, so a crashed GUI is distinguishable from a reported search state.
+Exports wait for in-flight diagnostic capture and use compact JSON to save space.
+These snapshots do not include total browser memory or a full event trace.
 Speed controls cover saved settings, validation, in-flight searches, requested
 per-move timing and longer search deadlines. Button checks cover shared app
 styling, keyboard focus and independent Loop controls without nested buttons.

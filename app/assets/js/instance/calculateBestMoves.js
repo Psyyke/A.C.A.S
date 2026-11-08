@@ -115,7 +115,8 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         }
 
         const onlyCalculateOwnTurn = await this.getConfigValue(this.configKeys.onlyCalculateOwnTurn, profileName);
-        const isPlayerTurn = await this.isPlayerTurn(profileName);
+        // Turn and pieces must come from the same snapshot, not a newer incoming packet.
+        const isPlayerTurn = currentFen.split(' ')[1] === isAttackingPlayerColor;
         if(!isCurrentCalculation()) return;
 
         // Do not calculate on enemy turn if the user has enabled "only calculate own turn"

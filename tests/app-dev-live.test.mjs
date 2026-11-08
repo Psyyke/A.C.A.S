@@ -157,6 +157,7 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
             const chunks = [];
             for await (const chunk of stream) chunks.push(chunk);
             const exported = JSON.parse(Buffer.concat(chunks).toString());
+            assert.equal(Buffer.concat(chunks).toString().includes('\n'), false, 'JSON export is compact');
             assert.equal(exported.games.length, 2);
             assert.equal(exported.games[0].moves[0].uci, 'f7g7');
             assert.equal(exported.run.acasTimeoutMs, 120000);
@@ -329,6 +330,8 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
             await suggest(page, 'e2', 'e4');
             await page.clock.runFor(4999);
             assert.equal((await state(page)).active, null);
+            assert.equal((await state(page)).games[0].failure.diagnostics.userscriptStatus, 'no-reply');
+            assert.equal((await state(page)).games[0].failure.diagnostics.guiStatus, 'no-reply');
             await page.clock.runFor(1);
             await ready(page);
             assert.equal((await state(page)).active.playerColor, 'black');

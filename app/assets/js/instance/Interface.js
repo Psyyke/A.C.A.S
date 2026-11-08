@@ -702,8 +702,6 @@ export default class Interface {
     }
 
     async updateBoardFen(calculateMovesConfig) {
-        const request = (this.boardUpdateRequest || 0) + 1;
-        this.boardUpdateRequest = request;
         const { history: boardStateHistory, playerColor } = this.AcasInstance.boardState;
 
         const currentStateObj = boardStateHistory.at(-1);
@@ -714,6 +712,8 @@ export default class Interface {
         if(basicFen && basicFen === this.lastAcceptedBasicFen && fen === this.AcasInstance.currentFen
             && !calculateMovesConfig?.skipValidityChecks) return;
 
+        const request = (this.boardUpdateRequest || 0) + 1;
+        this.boardUpdateRequest = request;
         const previousFen = this.AcasInstance.currentFen;
         const dimensions = GET_BOARD_DIMENSIONS_FROM_FEN(fen);
         if(this.AcasInstance.boardDimensions.width !== dimensions[0]
@@ -791,7 +791,8 @@ export default class Interface {
         if(basicFen) this.lastAcceptedBasicFen = basicFen;
         annotateOpponentMove.call(this.AcasInstance, currentStateObj, previousFen).catch(error => console.warn('[Audio] Move annotation failed:', error));
         this.AcasInstance.renderFeedback(currentStateObj).catch(error => console.warn('[Feedback] Board refresh failed:', error));
-        this.AcasInstance.calculateBestMoves(fen, calculateMovesConfig);
+        this.AcasInstance.calculateBestMoves(fen, calculateMovesConfig).catch(error =>
+            console.error('[Engine] Board update calculation failed:', error));
 
         if(this.AcasInstance.debugLogsEnabled) {
             const origin = (typeof location !== 'undefined' && location.origin) ? location.origin : '';

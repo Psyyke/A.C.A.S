@@ -1,4 +1,5 @@
 import { subscribeHeapSamples } from '../heapMonitor.js';
+import { collectLiveDiagnostics } from '../../assets/js/misc/heapDiagnostics.js';
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const STORAGE_KEY = 'acas-dev-live-stockfish18-v1';
@@ -7,6 +8,7 @@ const DEFAULT_MOVE_TIME_MS = 500;
 const MAX_MOVE_TIME_MS = 60000;
 const ACAS_TIMEOUT_MS = 120000;
 export const liveStatistics = { version: 1, games: [], active: null, runs: [] };
+const pendingDiagnostics = new Set();
 let resumedTest = null;
 
 export function resumeLiveRun() {
@@ -309,6 +311,14 @@ export async function init(container, { test, signal }) {
                 side, message, waitedMs: turnElapsed + performance.now() - turnStarted,
                 fen: game.fen(), at: new Date().toISOString()
             };
+            const failure = saved.active.failure;
+            const capture = collectLiveDiagnostics().then(diagnostics => { failure.diagnostics = diagnostics; })
+                .catch(error => {
+                    console.error('Live failure diagnostics failed:', error);
+                    failure.diagnostics = { error: error.message };
+                });
+            pendingDiagnostics.add(capture);
+            capture.finally(() => pendingDiagnostics.delete(capture));
         }
         stopWorker();
         closeRecord('failed', message);
@@ -600,13 +610,14 @@ export async function init(container, { test, signal }) {
         saveSettings();
     });
     container.querySelector('.live-new').addEventListener('click', newGame);
-    container.querySelector('.live-export').addEventListener('click', () => {
+    container.querySelector('.live-export').addEventListener('click', async () => {
+        await Promise.all(pendingDiagnostics);
         const blob = new Blob([JSON.stringify({
             ...saved, run: { ...run, elapsedMs: performance.now() - runStarted },
             exportedAt: new Date().toISOString(),
             memoryScope: 'Optional Chromium JS heap samples from the dev page and responding same-origin A.C.A.S GUI tabs. Not total browser or worker memory, and not a leak diagnosis.',
             timing: 'Turn-to-move wall time, excluding pauses. A.C.A.S includes bridge and manual input delay. Game duration sums played move times.'
-        }, null, 2)], { type: 'application/json' });
+        })], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;

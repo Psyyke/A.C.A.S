@@ -17,6 +17,30 @@ export function startHeapReporter() {
     const channel = new BroadcastChannel(CHANNEL_NAME);
     channel.onmessage = event => {
         const message = event.data;
+        if(message?.type === 'live-diagnostics-request' && typeof message.requestId === 'string') {
+            channel.postMessage({
+                type: 'live-diagnostics', requestId: message.requestId, tabId,
+                instances: (window.AcasInstances || []).map(({ instance }) => ({
+                    instanceID: instance.instanceID, currentFen: instance.currentFen,
+                    turn: instance.boardState.turn, playerColor: instance.boardState.playerColor,
+                    history: instance.boardState.history.slice(-4),
+                    profiles: Object.fromEntries(Object.entries(instance.pV).map(([name, profile]) => [name, {
+                        engineSettingsReady: profile.engineSettingsReady,
+                        recoveringSearch: Boolean(profile.recoveringSearch),
+                        pendingCalculations: profile.pendingCalculations.map(calculation => ({
+                            fen: calculation.fen, analyzedFen: calculation.analyzedFen,
+                            finished: calculation.finished, stopRequested: Boolean(calculation.stopRequested),
+                            goSent: calculation.goSent, startedAt: calculation.startedAt,
+                            rawLine: calculation.rawLine
+                        })),
+                        pendingCalculationRequest: profile.pendingCalculationRequest,
+                        hintFen: profile.hintCandidates?.fen,
+                        hints: profile.hintCandidates?.moves?.map(move => move.playerUci)
+                    }]))
+                }))
+            });
+            return;
+        }
         if (message?.type !== 'request' || typeof message.requestId !== 'string') return;
         channel.postMessage({
             type: 'gui-heap', requestId: message.requestId, tabId, ...readHeap()
@@ -24,6 +48,45 @@ export function startHeapReporter() {
     };
     channel.onmessageerror = error => console.error('GUI heap request could not be read:', error);
     return () => channel.close();
+}
+
+export function collectLiveDiagnostics() {
+    return new Promise(resolve => {
+        const requestId = crypto.randomUUID();
+        const result = { at: new Date().toISOString(), userscript: null, gui: [], errors: [] };
+        let channel = null;
+        const onMessage = event => {
+            if(event.source === window && event.data?.name === 'acas-dev-diagnostics'
+                && event.data.value?.requestId === requestId) result.userscript = event.data.value;
+        };
+        window.addEventListener('message', onMessage);
+        try {
+            if(typeof BroadcastChannel === 'function') {
+                channel = new BroadcastChannel(CHANNEL_NAME);
+                channel.onmessage = event => {
+                    if(event.data?.type === 'live-diagnostics' && event.data.requestId === requestId) {
+                        result.gui.push(event.data);
+                    }
+                };
+                channel.onmessageerror = error => {
+                    console.error('Live GUI diagnostics could not be read:', error);
+                    result.errors.push('GUI diagnostics message could not be read');
+                };
+                channel.postMessage({ type: 'live-diagnostics-request', requestId });
+            } else result.errors.push('BroadcastChannel unavailable');
+            window.postMessage({ type: 'acas-dev-diagnostics-request', requestId }, window.location.origin);
+        } catch(error) {
+            console.error('Live diagnostics request failed:', error);
+            result.errors.push(error.message);
+        }
+        setTimeout(() => {
+            window.removeEventListener('message', onMessage);
+            channel?.close();
+            result.userscriptStatus = result.userscript ? 'received' : 'no-reply';
+            result.guiStatus = result.gui.length ? 'received' : 'no-reply';
+            resolve(result);
+        }, 1000);
+    });
 }
 
 export function createHeapCollector(onError) {

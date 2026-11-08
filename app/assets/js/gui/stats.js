@@ -1,19 +1,32 @@
 import { beggingFloaty, userStatElements } from './elementDeclarations.js';
 
 function showBeggingFloaty(minutes) {
+    if(window.AcasInstances?.some(({ instance }) => !instance.instanceClosed)) return false;
     const hoursText = beggingFloaty?.querySelector('b');
-    if(!hoursText) return;
+    if(!hoursText) return false;
 
     hoursText.innerText = Math.round(minutes / 60);
 
     beggingFloaty.showModal();
+    return true;
+}
+
+function showPendingUsageReminder() {
+    const minutes = Number(localStorage.getItem(USER_USAGE_PREFIX + 'pendingUsageReminder'));
+    if(minutes > 0 && showBeggingFloaty(minutes)) {
+        localStorage.removeItem(USER_USAGE_PREFIX + 'pendingUsageReminder');
+    }
 }
 
 function saveUserUsageStat(key, value) {
     localStorage.setItem(USER_USAGE_PREFIX + key, value);
 
     if(key === MINUTES_USED_STORAGE_KEY && (value % 1440 === 0)) {
-        showBeggingFloaty(value);
+        if(showBeggingFloaty(value)) {
+            localStorage.removeItem(USER_USAGE_PREFIX + 'pendingUsageReminder');
+        } else {
+            localStorage.setItem(USER_USAGE_PREFIX + 'pendingUsageReminder', value);
+        }
     }
 
     updateUserUsageStats(key, value);
@@ -59,6 +72,7 @@ function getAllUserUsageStats() {
 }
 
 export function updateUserUsageStats(key = null, value = null) {
+    if(key === null) showPendingUsageReminder();
     userStatElements.forEach(elem => {
         const elemKey = elem.dataset.key;
 

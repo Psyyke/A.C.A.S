@@ -161,3 +161,14 @@ test('a board change still sends stop to an external movetime search', async () 
     assert.equal(vars.pendingCalculations[0].stopRequested, true);
     clearTimeout(vars.currentStopTimeout);
 });
+
+test('own-turn filtering uses the requested FEN, not a newer packet turn during async settings reads', async () => {
+    const { instance, commands } = fixture({ onlyCalculateOwnTurn: true, maxMovetime: 20 });
+    const chess = new Chess();
+    instance.currentFen = chess.fen();
+    instance.gameStateHistory = [{ fen: { full: chess.fen() } }];
+    instance.isPlayerTurn = async () => false;
+    await instance.calculateBestMoves(instance.currentFen);
+    assert.equal(commands[1], 'go movetime 5000');
+    clearTimeout(instance.pV.default.currentMovetimeTimeout);
+});

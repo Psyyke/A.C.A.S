@@ -27,8 +27,8 @@ const harnessBody = `
         'removeTakeback'].map(name => declaration(name)).join('\n')}
     const parser = new BoardChangeParser({ getBoardChangesObjTemplate, getFenPieceColor });
     const boardChangeParser = parser;
-    const getBoardChanges = (before, after, turn) => parser.getBoardChanges(before, after, turn,
-        options.conservative ? { conservative: true, currentTurn: pageTurn } : {});
+    const getBoardChanges = (before, after, turn, context = {}) => parser.getBoardChanges(before, after, turn,
+        { conservative: Boolean(options.conservative), ...context, currentTurn: pageTurn });
     const basic = fen => fen.split(' ')[0];
     let snapshot = basic(initialFen), pageTurn = initialFen.split(' ')[1];
     let fenReads = 0, nextReadSnapshot = null;
@@ -127,6 +127,211 @@ const harnessBody = `
     };
 `;
 const makeHarness = new Function('initialFen', 'options = {}', harnessBody);
+const testUserscriptSource = readFileSync(new URL('../acas.user.test.js', import.meta.url), 'utf8');
+const makeTestObserverHarness = new Function('initialFen', 'options = {}',
+    harnessBody.replace(declaration('observeNewMoves'), declaration('observeNewMoves', testUserscriptSource)));
+
+test('initialization after the first move restores the opening turn and replayable history', () => {
+    const chess = new Chess();
+    chess.move('e4');
+    // A new match starts after its first move is already visible and without turn metadata.
+    const restarted = new Function('initialFen', 'options = {}',
+        harnessBody.replace('refresh: forceUpdateGameState,', `
+            refresh: () => { history = []; gameState = getGameStateObjTemplate(); pageTurn = null; forceUpdateGameState(); },`))(chess.fen());
+    restarted.refresh();
+    assert.equal(restarted.state().history[0].fen.full, chess.fen());
+    assert.equal(restarted.state().history[0].turn, 'b');
+    assert.equal(restarted.state().history.length, 2);
+});
+
+test('both userscripts share the transient endpoint and opening initialization fixes', () => {
+    assert.equal(declaration('forceUpdateGameState', testUserscriptSource), declaration('forceUpdateGameState'));
+    assert.equal(declaration('determineBoardPositionValidity', testUserscriptSource), declaration('determineBoardPositionValidity'));
+});
+
+test('a fast reply disappearing during our move is not accepted as a capture or a promotion', async () => {
+    const fen = 'r2k3r/1b4pp/pq1pRn2/2n5/8/3BBN2/1PP2PPP/3Q1RK1 w - - 1 20';
+    const harness = makeHarness(fen);
+    await harness.check('r2k3r/6pp/pq1pRn2/2n1N3/8/3BB3/1PP2PPP/3Q1RK1');
+    assert.equal(harness.state().history.length, 1, 'Partial Ne5 plus vanished black bishop is not a legal endpoint');
+    const chess = new Chess(fen);
+    chess.move('Ne5');
+    chess.move('Bxg2');
+    await harness.check(chess.fen());
+    assert.equal(harness.state().history.length, 3);
+    assert.equal(harness.state().history[0].fen.basic, basic(chess.fen()));
+    assert.equal(harness.state().history[0].turn, 'w');
+});
+
+test('en passant waits when the capturing pawn moves before the captured pawn disappears', async () => {
+    for(const fen of [
+        '4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1',
+        '4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1'
+    ]) {
+        const chess = new Chess(fen), harness = makeHarness(fen);
+        const move = chess.move(chess.turn() === 'w' ? 'exd6' : 'exd3');
+        const partial = new Chess(chess.fen());
+        partial.put({ type: 'p', color: move.color === 'w' ? 'b' : 'w' },
+            move.color === 'w' ? 'd5' : 'd4');
+        await harness.check(partial.fen());
+        assert.equal(harness.state().history.length, 1, 'Captured pawn still present: wait');
+        await harness.check(chess.fen());
+        assert.equal(harness.state().history.length, 2);
+        assert.equal(harness.state().history[0].turn, chess.turn());
+        assert.equal(harness.state().history[0].fen.basic, basic(chess.fen()));
+        assert.equal(harness.state().history[0].boardChanges.isEnPassant, true);
+    }
+});
+
+test('a pawn move with a disappearing reply is not mistaken for en passant', async () => {
+    const fen = '4k3/8/8/8/3p4/8/4P3/4K3 w - - 0 1';
+    const chess = new Chess(fen), harness = makeHarness(fen);
+    chess.move('e4');
+    const partial = new Chess(chess.fen());
+    partial.remove('d4');
+    await harness.check(partial.fen());
+    assert.equal(harness.state().history.length, 1);
+    chess.move('dxe3');
+    await harness.check(chess.fen());
+    assert.equal(harness.state().history.length, 3);
+    assert.equal(harness.state().history[0].fen.basic, basic(chess.fen()));
+    assert.equal(harness.state().history[0].turn, chess.turn());
+});
+
+test('game 308 fast Rc1 Bxc1 waits while the rook and replying bishop are absent', async () => {
+    const fen = '4k2r/2pq2pp/4p3/p7/3P4/4PQ2/Pr1b1PPP/RN3RK1 w k - 0 17';
+    const chess = new Chess(fen), harness = makeHarness(fen);
+    chess.move('Rc1');
+    const middle = chess.fen();
+    chess.move('Bxc1');
+    const partial = new Chess(fen);
+    partial.remove('f1');
+    partial.remove('d2');
+    await harness.check(partial.fen());
+    assert.equal(harness.state().history.length, 1, 'Two missing pieces are not a completed move');
+    await harness.check(chess.fen());
+    const history = harness.state().history;
+    assert.equal(history.length, 3);
+    assert.equal(history[1].fen.basic, basic(middle));
+    assert.equal(history[0].fen.basic, basic(chess.fen()));
+    assert.equal(history[0].turn, 'w');
+    assert.equal(history[0].boardChanges.isPromotion, false);
+});
+
+test('game 308 capture also settles when Rc1 was already observed', async () => {
+    const chess = new Chess('4k2r/2pq2pp/4p3/p7/3P4/4PQ2/Pr1b1PPP/RN3RK1 w k - 0 17');
+    const harness = makeHarness(chess.fen());
+    chess.move('Rc1');
+    await harness.check(chess.fen());
+    const partial = new Chess(chess.fen());
+    partial.remove('c1');
+    partial.remove('d2');
+    await harness.check(partial.fen());
+    assert.equal(harness.state().history.length, 2);
+    chess.move('Bxc1');
+    await harness.check(chess.fen());
+    const history = harness.state().history;
+    assert.equal(history.length, 3);
+    assert.equal(history[0].fen.basic, basic(chess.fen()));
+    assert.equal(history[0].turn, 'w');
+    assert.equal(history[0].boardChanges.from, 'd2');
+    assert.equal(history[0].boardChanges.to, 'c1');
+});
+
+test('game 162 Rxd1 Kxd1 ignores incomplete king-capture snapshots', async () => {
+    const fen = '3r2k1/1pB2ppp/p1n5/P7/1bn5/2R2NPb/1P2BP1P/3QK2R b K - 2 22';
+    const chess = new Chess(fen);
+    chess.move('Rxd1+');
+    const middle = chess.fen();
+    chess.move('Kxd1');
+    const failures = [];
+    for(const d8 of [null, { type: 'r', color: 'b' }]) {
+        for(const d1 of [null, ...['Q', 'r', 'K'].map(piece => ({
+            type: piece.toLowerCase(), color: piece === 'r' ? 'b' : 'w'
+        }))]) {
+            for(const e1 of [null, { type: 'k', color: 'w' }]) {
+                const partial = new Chess(fen);
+                for(const [square, piece] of [['d8', d8], ['d1', d1], ['e1', e1]]) {
+                    partial.remove(square);
+                    if(piece) partial.put(piece, square);
+                }
+                const position = basic(partial.fen());
+                if([fen, middle, chess.fen()].map(basic).includes(position)) continue;
+                const harness = makeHarness(fen);
+                await harness.check(position);
+                if(harness.state().history.length !== 1) failures.push(position);
+                await harness.check(chess.fen());
+                if(harness.state().history[0].turn !== 'b' ||
+                    harness.state().history[0].fen.basic !== basic(chess.fen())) failures.push(`endpoint: ${position}`);
+            }
+        }
+    }
+    assert.deepEqual(failures, []);
+});
+
+test('game 66 castling and fast pawn captures do not poison subsequent Kb1 tracking', async () => {
+    const fen = 'r2q1rk1/2p1bpp1/2Q2n1p/1BP5/p2pP3/1P3P2/PB3P1P/R3K2R w KQ - 0 17';
+    const chess = new Chess(fen);
+    chess.move('O-O-O');
+    const castled = chess.fen();
+    chess.move('axb3');
+    const captured = chess.fen();
+    chess.move('Kb1');
+    chess.move('bxa2+');
+    const partial = new Chess(castled);
+    partial.remove('a4');
+    const harness = makeHarness(fen);
+    await harness.check(partial.fen());
+    assert.equal(harness.state().history.length, 1);
+    await harness.check(captured);
+    assert.equal(harness.state().history[0].turn, 'w');
+    await harness.check(chess.fen());
+    assert.equal(harness.state().history[0].fen.basic, basic(chess.fen()));
+    assert.equal(harness.state().history[0].turn, 'w');
+});
+
+test('a reused board reset after its first opening move is not rejected as an unresolved gap', async () => {
+    const fen = '8/8/8/3K4/4N3/8/3Q4/3k4 b - - 10 73';
+    const harness = makeHarness(fen, { productionProcessing: true });
+    const chess = new Chess();
+    chess.move('e4');
+    await harness.check(chess.fen());
+    const state = harness.state();
+    assert.equal(state.resets.length, 1);
+    assert.equal(state.history[0].fen.full, chess.fen());
+    assert.equal(state.history[0].turn, 'b');
+    assert.equal(state.lastAllowedFen, basic(chess.fen()));
+    chess.move('e5');
+    await harness.check(chess.fen());
+    assert.equal(harness.state().history[0].turn, 'w');
+});
+
+test('en passant survives both pawns disappearing before the capturing pawn arrives', async () => {
+    for(const [fen, opening] of [
+        ['4k3/3p4/8/4P3/8/8/8/4K3 w - - 0 1', ['Ke2', 'd5']],
+        ['4k3/8/8/8/4p3/8/3P4/4K3 w - - 0 1', ['d4']]
+    ]) {
+        const chess = new Chess(fen), harness = makeHarness(fen);
+        for(const move of opening) {
+            chess.move(move);
+            await harness.check(chess.fen());
+        }
+        const initialLength = harness.state().history.length;
+        const middle = chess.fen();
+        const move = chess.move(chess.turn() === 'w' ? 'exd6' : 'exd3');
+        const partial = new Chess(chess.fen());
+        partial.remove(move.to);
+        await harness.check(partial.fen());
+        assert.equal(harness.state().history.length, initialLength, 'Both pawns absent: wait');
+        await harness.check(chess.fen());
+        const history = harness.state().history;
+        assert.equal(history.length, initialLength + 1);
+        assert.equal(history[1].fen.full, middle);
+        assert.equal(history[0].fen.full, chess.fen());
+        assert.equal(history[0].boardChanges.isEnPassant, true);
+        assert.doesNotThrow(() => enginePosition(chess.fen(), [...history].reverse()));
+    }
+});
 const makeTakebackHarness = new Function('initialFen', 'options = {}',
     // Exercise the staged production observer/state functions, not a copied undo path.
     harnessBody
@@ -317,23 +522,24 @@ test('Lichess mutation batches and the fallback poll process once and disconnect
     assert.equal(harness.state().history.length, 3);
 });
 
-test('mutations during an in-flight publish settle on the next poll without concurrent processing', async () => {
-    const chess = new Chess(), harness = makeHarness(chess.fen());
+for(const [name, create] of [['main', makeHarness], ['test', makeTestObserverHarness]]) {
+test(`${name} userscript mutations during an in-flight publish drain immediately without concurrent processing or a poll`, async () => {
+    const chess = new Chess(), harness = create(chess.fen());
     harness.start();
     const release = harness.holdProcessing();
-    chess.move('e4'); const first = basic(chess.fen());
+    chess.move('e4');
     harness.set(chess.fen()); harness.mutate();
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(harness.state().published.length, 1);
     chess.move('e5'); const second = basic(chess.fen());
     harness.set(chess.fen()); harness.mutate();
+    for(let i = 0; i < 100; i++) harness.mutate();
     release(); await harness.flush();
-    assert.equal(harness.state().lastAllowedFen, first);
-    harness.poll(); await harness.flush();
     assert.equal(harness.state().lastAllowedFen, second);
     assert.equal(harness.state().history.length, 3);
     assert.equal(harness.state().published.length, 2);
 });
+}
 
 test('polling pauses during dragging and empty board teardown does not create retry timers', async () => {
     const chess = new Chess(), harness = makeHarness(chess.fen());
@@ -564,13 +770,69 @@ test('forcing an unchanged refresh must not invent another move or reset the en-
     assert.deepEqual(current, previous);
 });
 
-test('current validation has narrow transient guards, not full orthodox legality validation', async () => {
+test('shared endpoint validation rejects a duplicate pawn and then accepts the settled move', async () => {
     const chess = new Chess(), harness = makeHarness(chess.fen());
     // Destination appears while the original source is still present.
     const duplicatePawn = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPPPPPP/RNBQKBNR';
     await harness.check(duplicatePawn);
-    assert.equal(harness.state().history[0].fen.basic, duplicatePawn);
-    assert.equal(harness.state().history[0].boardChanges.pieceAmountChange, 1);
+    assert.equal(harness.state().history.length, 1);
+    assert.equal(harness.state().history[0].fen.basic, basic(chess.fen()));
+    chess.move('e4');
+    await harness.check(chess.fen());
+    assert.equal(harness.state().history.length, 2);
+    assert.equal(harness.state().history[0].fen.full, chess.fen());
+});
+
+test('partial frames across normal moves, captures, promotions and castling only publish legal endpoints', async t => {
+    let frames = 0;
+    for(const [fen, san] of [
+        [new Chess().fen(), 'e4'], [new Chess().fen(), 'Nf3'],
+        ['4k3/8/8/3p4/4P3/8/8/4K3 w - - 0 1', 'exd5'],
+        ['4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1', 'exd6'],
+        ['4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1', 'exd3'],
+        ['4k3/P7/8/8/8/8/8/4K3 w - - 0 1', 'a8=Q+'],
+        ['1r2k3/P7/8/8/8/8/8/4K3 w - - 0 1', 'axb8=N'],
+        ['r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1', 'O-O'],
+        ['r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1', 'O-O-O']
+    ]) {
+        const chess = new Chess(fen), settled = new Chess(fen);
+        settled.move(san);
+        const expand = value => basic(value).split('/').flatMap(row =>
+            [...row].flatMap(piece => /\d/.test(piece) ? Array(Number(piece)).fill('') : [piece]));
+        const encode = cells => Array.from({ length: 8 }, (_, row) => cells.slice(row * 8, row * 8 + 8)
+            .map(piece => piece || '1').join('').replace(/1+/g, empty => String(empty.length))).join('/');
+        const before = expand(fen), after = expand(settled.fen());
+        const changed = before.map((piece, index) => piece !== after[index] ? index : -1).filter(index => index >= 0);
+        const legalEndpoints = new Set(chess.moves().map(move => {
+            const candidate = new Chess(fen);
+            candidate.move(move);
+            return basic(candidate.fen());
+        }));
+        const candidates = [before];
+        for(const index of changed) {
+            const previous = candidates.splice(0);
+            for(const cells of previous) {
+                for(const piece of new Set([before[index], after[index], ''])) {
+                    const next = [...cells];
+                    next[index] = piece;
+                    candidates.push(next);
+                }
+            }
+        }
+        for(const cells of candidates) {
+            const partial = encode(cells), harness = makeHarness(fen);
+            await harness.check(partial);
+            if(harness.state().history.length > 1) {
+                assert.ok(legalEndpoints.has(partial), `${san} accepted illegal frame ${partial}`);
+            } else {
+                await harness.check(settled.fen());
+                assert.equal(harness.state().history[0].fen.basic, basic(settled.fen()));
+                assert.equal(harness.state().history[0].turn, settled.turn());
+            }
+            frames++;
+        }
+    }
+    t.diagnostic(`${frames} independently staged piece-arrival/removal frames checked`);
 });
 
 test('mid-game initialization cannot recover historical FEN fields from placement alone', () => {

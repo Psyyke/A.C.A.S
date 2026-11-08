@@ -49,7 +49,7 @@ const ACTIVE_INPUT_LISTENERS = [];
 
 const POLY_OPENING_BOOKS = new Map();
 
-const USERSCRIPT_MIN_VERSION = '2.5.6';
+const USERSCRIPT_MIN_VERSION = '2.5.7';
 
 let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js

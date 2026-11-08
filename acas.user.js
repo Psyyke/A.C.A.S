@@ -76,7 +76,7 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.5.6
+// @version     2.5.7
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -781,6 +781,26 @@ function announceToPage(name, value) {
     if(!runningOnDevPage) return;
 
     (typeof unsafeWindow === 'object' ? unsafeWindow : window).postMessage({ name, value });
+}
+
+if(runningOnDevPage) {
+    window.addEventListener('message', event => {
+        if(event.source !== window || event.data?.type !== 'acas-dev-diagnostics-request'
+            || typeof event.data.requestId !== 'string') return;
+        const history = gameStateHistory.get();
+        const observedFen = chessBoardElem?.isConnected ? getFen(true) : null;
+        announceToPage('acas-dev-diagnostics', {
+            requestId: event.data.requestId, instanceID: commLinkInstanceID,
+            observedFen,
+            lastAllowedFen, lastRejectedFen, turn: gameState.turn,
+            validation: observedFen ? getBoardChanges(lastAllowedFen, observedFen, history[0]?.turn, {
+                conservative: true, variant: getSiteData('chessVariant'),
+                castlingRights: history[0]?.castlingRights,
+                enPassantTarget: history[0]?.movedPiece ? history[0].enPassantTarget : undefined
+            }) : null,
+            history: history.slice(0, 4), boardConnected: Boolean(chessBoardElem?.isConnected)
+        });
+    });
 }
 
 function maybeAnnounceMarkingsToPage() {
@@ -1971,6 +1991,23 @@ async function determineBoardPositionValidity() {
         currentTurn: getSiteData('turn')
     });
 
+    if(boardChanges.pieceAmountChange === -1 && boardChanges.changedSquaresAmount === 1) {
+        lastRejectedFen = currentBasicFen;
+        return;
+    }
+
+    // A two-ply endpoint can exceed four changed squares, especially after castling.
+    if(!boardChanges.missedFen) {
+        const verified = getBoardChanges(lastAllowedFen, currentBasicFen, lastTurn, {
+            conservative: true, variant: getSiteData('chessVariant'),
+            enPassantTarget: history[0]?.movedPiece ? history[0].enPassantTarget : undefined
+        });
+        const knownGapTurn = boardChanges.changedSquaresAmount > 4 && ['w', 'b'].includes(observedTurn);
+        const startingPosition = defaultPosBasicFens.includes(currentBasicFen)
+            || (boardChanges.changedSquaresAmount > 6 && boardChanges.pieceAmountChange > 0);
+        if(verified.recovery?.status === 'unresolved' && !knownGapTurn && !startingPosition) return;
+    }
+
     // Board and reserve counts can settle in separate DOM updates. A reserve-only
     // correction replaces the current snapshot, not another ply/history entry.
     if(!boardChanges.changedSquaresAmount && history.length && currentBasicFen.includes('[')) {
@@ -1992,14 +2029,6 @@ async function determineBoardPositionValidity() {
         (change = 1)  -> piece has spawned
         (change > 1)  -> multiple pieces have spawned (possibly a new game?)
     */
-
-    // Do not continue if a piece just disappeared, this is not possible legally!
-    // (This happens sometimes because the mutationObserver detects DOM changes so fast)
-    if(boardChanges.pieceAmountChange === -1 && boardChanges.changedSquaresAmount === 1) {
-        lastRejectedFen = currentBasicFen;
-
-        return;
-    }
 
     // When moves are done very quickly, two moves can happen at once on the DOM.
     // If that happens, we generate the missing move and its fen ourselves.
@@ -2039,6 +2068,18 @@ async function restartInstanceWithCurrentFen() {
 function forceUpdateGameState() {
     const currentBasicFen = getFen(true);
     if(gameStateHistory.get()[0]?.fen?.basic === currentBasicFen) return;
+    if(!gameStateHistory.get().length) {
+        const startFen = defaultPosBasicFens[0];
+        const firstMove = getBoardChanges(startFen, currentBasicFen, 'w', {
+            conservative: true, variant: getSiteData('chessVariant')
+        });
+        // The first move may finish before a new board or match is initialized.
+        if(firstMove.recovery?.status === 'single') {
+            updateGameState(startFen, getBoardChanges(startFen, startFen), true, 'w');
+            updateGameState(currentBasicFen, firstMove, true, 'b');
+            return;
+        }
+    }
     const boardChanges = getBoardChanges(currentBasicFen, currentBasicFen);
 
     updateGameState(currentBasicFen, boardChanges);
@@ -2301,10 +2342,19 @@ function observeNewMoves() {
     if(dumbBoardObservingInterval) clearInterval(dumbBoardObservingInterval);
 
     let checking = false;
+    let positionPending = false;
+    const observedBoardElem = chessBoardElem;
     const checkPosition = () => runUserscriptTask(async () => {
+        if(chessBoardElem !== observedBoardElem || !observedBoardElem.isConnected) return;
+        positionPending = true;
         if(checking) return;
         checking = true;
-        try { await determineBoardPositionValidity(); }
+        try {
+            do {
+                positionPending = false;
+                await determineBoardPositionValidity();
+            } while(positionPending && chessBoardElem === observedBoardElem && observedBoardElem.isConnected);
+        }
         finally { checking = false; }
     });
 
@@ -2315,7 +2365,10 @@ function observeNewMoves() {
         try {
             await checkBoardOrientationChange();
             await CommLink.commands.updateBoardFen(getBoardState());
-        } finally { checking = false; }
+        } finally {
+            checking = false;
+            if(positionPending) checkPosition();
+        }
     });
 
     dumbBoardObservingInterval = setInterval(() => {

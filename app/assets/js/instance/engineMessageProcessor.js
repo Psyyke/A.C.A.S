@@ -274,6 +274,8 @@ export default async function engineMessageProcessor(msg, profile) {
         const movesOnDemand = await this.getConfigValue(this.configKeys.movesOnDemand, profile);
         const moveDisplayDelay = await this.getConfigValue(this.configKeys.moveDisplayDelay, profile);
 
+        if(this.pV[profile] !== profileObj || this.instanceClosed
+            || this.currentFen !== oldestUnfinishedCalcRequestObj.fen || oldestUnfinishedCalcRequestObj.finished) return;
         // A newer Fusion set can arrive while settings are being read. Do not
         // restore an obsolete continuation or suggestion after that replacement.
         if(isFusionEngine && (this.pV[profile] !== profileObj || this.currentFen !== oldestUnfinishedCalcRequestObj.fen
@@ -328,6 +330,8 @@ export default async function engineMessageProcessor(msg, profile) {
         if(oldestUnfinishedCalcRequestObj?.searchMode === 'infinite') isSearchInfinite = true;
         else if(oldestUnfinishedCalcRequestObj?.searchMode === 'movetime') isSearchInfinite = false;
 
+        if(this.pV[profile] !== profileObj || this.instanceClosed
+            || this.currentFen !== oldestUnfinishedCalcRequestObj.fen || oldestUnfinishedCalcRequestObj.finished) return;
         if(isFusionEngine && (this.pV[profile] !== profileObj || this.currentFen !== oldestUnfinishedCalcRequestObj.fen
             || fusionMoves !== oldestUnfinishedCalcRequestObj.fusionMoves)) return;
 

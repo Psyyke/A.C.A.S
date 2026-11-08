@@ -103,3 +103,31 @@ test('bestmove without a matching PV replaces the stale primary', async () => {
     await engineMessageProcessor.call(instance, 'bestmove d2d4', 'main');
     assert.deepEqual(displays.at(-1).moves.map(move => move.playerUci), ['d2d4']);
 });
+
+test('an info line suspended on settings cannot publish suggestions for a newer position', async () => {
+    const { instance, profile, displays } = harness({ amount: 1 });
+    const original = instance.getConfigValue;
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    instance.getConfigValue = async key => {
+        if(key === 'maxMovetime') await gate;
+        return original(key);
+    };
+    const processing = engineMessageProcessor.call(instance, 'info depth 8 score cp 50 pv e2e4 e7e5 g1f3', 'main');
+    await Promise.resolve();
+    instance.currentFen = '8/8/8/8/8/8/8/8 b - - 0 1';
+    profile.pastMoveObjects = [];
+    release();
+    await processing;
+    assert.equal(displays.length, 0);
+    assert.deepEqual(profile.futureMoves, []);
+});
+
+test('a short search with only bestmove still delivers one suggestion', async () => {
+    const { instance, displays } = harness({ amount: 1, onlyTop: true });
+    const original = instance.getConfigValue;
+    instance.getConfigValue = async key => key === 'maxMovetime' ? 20 : original(key);
+    await engineMessageProcessor.call(instance, 'bestmove e2e4', 'main');
+    assert.equal(displays.length, 1);
+    assert.equal(displays[0].moves[0].playerUci, 'e2e4');
+});
