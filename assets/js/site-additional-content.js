@@ -58,6 +58,20 @@ function initMobileNav() {
 
 initMobileNav();
 
+async function initIntroTagline() {
+    const tagline = document.querySelector('.large-intro-tagline');
+    if (!tagline) return;
+    try {
+        const fonts = await document.fonts.load('48px "Whisper"', tagline.textContent);
+        if (!fonts.length) throw new Error('Whisper font is unavailable');
+        tagline.classList.add('font-ready');
+    } catch (error) {
+        console.error('Intro tagline font failed to load:', error);
+    }
+}
+
+initIntroTagline();
+
 function initStickyHeader() {
     const header = document.querySelector("main > header");
     if (!header) return;

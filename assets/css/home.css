@@ -466,11 +466,13 @@ header.is-stuck {
 }
 .large-intro-tagline {
     display: block;
+    visibility: hidden;
     margin-top: 0;
     margin-bottom: -30px;
     font-family: "Whisper", sans-serif;
     font-size: 48px;
     line-height: 1.15;
+    white-space: nowrap;
     text-align: center;
     -webkit-text-stroke: 0.5px #b07a10;
     background: linear-gradient(110deg, #b8801a 0%, #f6d365 20%, #fffbe0 38%, #e0a820 52%, #f6d365 72%, #b8801a 100%);
@@ -485,6 +487,9 @@ header.is-stuck {
         drop-shadow(0 1.5px 0 #7a4f00)
         drop-shadow(0 4px 4px rgb(33 58 67 / 30%));
     animation: goldShine 4s linear infinite;
+}
+.large-intro-tagline.font-ready {
+    visibility: visible;
 }
 @keyframes goldShine {
     to {

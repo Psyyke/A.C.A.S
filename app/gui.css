@@ -601,7 +601,7 @@ cg-container {
     flex-direction: column;
     overflow-y: auto;
     justify-content: safe center;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 400;
     color: rgb(255 255 255 / 70%);
     border-bottom: 4px;
@@ -611,7 +611,7 @@ cg-container {
 .instance-feedback {
     flex-shrink: 0;
     width: 100%;
-    font-size: 14px;
+    font-size: inherit;
     line-height: 1.5;
     white-space: pre-line;
     color: rgb(255 255 255 / 85%);
