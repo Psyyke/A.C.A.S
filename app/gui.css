@@ -3596,7 +3596,7 @@ input[disabled] {
     height: 18px;
 }
 #dynamic-settings-floaty :is(#dynamic-zoom-in, #dynamic-zoom-out) {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1;
 }
 #dynamic-settings-floaty #dynamic-fit-graph svg path {
