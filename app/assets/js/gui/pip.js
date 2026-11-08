@@ -102,7 +102,7 @@ function visibleInstancePanels(instance) {
 
     const profile = instance.suggestionMix.selection?.profile;
     const panel = suggestions.find(panel => panel.profile === profile) || suggestions[0];
-    const name = FULL_TRANS_OBJ?.domTranslations?.['[data-translation-suggestion-mix]'] || 'Suggestion mix';
+    const name = FULL_TRANS_OBJ?.domTranslations?.['[data-translation-suggestion-mix]'] || 'Funneling';
     return [{ ...panel, name }, ...learning];
 }
 

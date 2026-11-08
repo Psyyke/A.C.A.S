@@ -2288,7 +2288,7 @@ input[disabled] {
 }
 #suggestion-mix-floaty .textfield-input input[type="number"][data-mix-category] {
     box-sizing: content-box;
-    width: 3ch;
+    width: 4.2ch;
     min-width: 0;
     field-sizing: fixed;
     appearance: textfield;

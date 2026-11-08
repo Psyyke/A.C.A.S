@@ -17,7 +17,14 @@ filtering skips analysis.
 The shared detector validates orthodox endpoints regardless of changed-square
 count, rather than listing individual disappearance or duplication patterns.
 This includes castling followed by a reply, which can change five or six squares.
-Unresolved endpoints wait for another observation. Already reconstructed two-ply
+Larger unresolved endpoints affecting more than four squares recover immediately
+with a guessed turn when counts of every piece type and color are unchanged.
+Other unresolved endpoints wait for another observation. If the placement stays unchanged
+for two seconds, shared recovery resumes with a guessed turn and marks history
+incomplete, without needing page-provided metadata. Changing placements restart
+the wait. Promotion and single-piece disappearance frames remain rejected.
+The guessed turn is best effort, not a reconstruction of missing moves.
+Already reconstructed two-ply
 moves, larger gaps with site-provided turn metadata, board-repopulation resets
 and variant positions keep their existing handling.
 Tests cover the failed Ne5/Bxg2, Rc1/Bxc1 and Rxd1/Kxd1 sequences, en passant,
@@ -34,6 +41,8 @@ and GUI in two Chromium tabs with a userscript-storage shim and real Stockfish
 workers. It requires the userscript libraries, which the existing harness caches
 after downloading them. It plays at least 500 plies each against 1 ms and 5 ms opponents with
 A.C.A.S Max Movetime at 20 ms, across board-reuse matches and both colors.
+An additional 1 ms run covers fresh-document matches and verifies the page
+actually reloads between games.
 It fails if moves stop for 8 seconds. The shared detector also checks a captured
 piece vanishing during another move and initialization after the opening move.
 The 1 ms run also replays the failed Rxd1/Kxd1 and castling/Kb1/bxa2 games through the real board,
@@ -55,6 +64,8 @@ automatic failure recovery and capped opponent retry delays. A simulated hour
 checks repeated unattended stalls, diagnostics and worker cleanup. It is a
 deterministic lifecycle test, not a real hour-long A.C.A.S memory benchmark.
 Failed games capture a bounded diagnostic snapshot before automatic restart.
+Fresh-document restart checkpoints use IndexedDB and are deleted on resume.
+Coverage includes a 50 MB checkpoint surviving reload and being deleted on resume.
 It contains the userscript's observed, accepted and rejected FENs, turn, recent
 history and parser validation result, plus responding GUI tabs' current FEN,
 turn and pending engine searches. Missing responders are explicitly marked
@@ -141,7 +152,7 @@ The disconnection warning lifetime is checked against the real toast renderer:
 node --test tests/instance-disconnect-toast.test.mjs
 ```
 
-## App suggestion mix
+## App Funneling
 
 The app-wide mix reuses EloEye's percentage balancing and pooled move selection.
 Full suggestions wait for completed engine searches and become one primary arrow.
@@ -165,7 +176,7 @@ Chromium also checks PiP text in both notation modes, board captures with the
 selected arrow, and engine and preferred-book TTS through the real speech
 formatter with a mocked speech output. Settings redraws and concealment must not
 repeat the announcement. Popup ordering and language hover styling are covered too.
-The composed PiP stream shows one translated Suggestion mix section while mixing
+The composed PiP stream shows one translated Funneling section while mixing
 is enabled and restores separate profile sections when mixing is disabled.
 It reserves enabled sections across mixed profiles, including blank Elo/accuracy
 rows before results arrive, so profile switches and waiting states keep the same
@@ -853,7 +864,7 @@ The collapsed suggestion mix is visible only in Config mode. Its default is 90% 
 
 Selection chooses an available positive-weight category, then a distinct move uniformly within it. Empty categories redistribute their weight. If no enabled category has a legal shown move, selection uses a uniformly chosen fully revealed candidate and explicitly notifies the UI. The run/result warning persists through saved-game checkpoints as `suggestionFallback`. This fallback never invents moves, accepts illegal moves or combines partial hints. Missing metadata still fails explicitly. Target-square-only profiles finish normally but contribute no playable candidates and do not block other profiles' full moves.
 
-Usage explanations live below the tool in "How to use the suggestion mix".
+Usage explanations live below the tool in "How to use Funneling".
 The rounded accuracy table uses the current model-only 95% confidence sequence:
 balanced results at a 1600 reference cross half-widths 200/150/100/75/50 at
 36/64/152/280/634 games. Displayed counts round these for guidance; the current

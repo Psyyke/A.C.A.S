@@ -233,89 +233,155 @@ export default async function renderMetric(fen, profile, externalOnly = false) {
         );
     }
 
-    // Faint line along each diagonal a piece controls for at least this many squares
+    // Faint lines along slider paths, with contested segments alternating by square.
     const LONG_RANGE_MIN_LENGTH = 3;
 
     const DIAGONALS = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
     const STRAIGHTS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-    function renderLongRange(piece, color, directions, dotted, widthScale = 1) {
-        const [y, x] = piece.position;
-        const seen = new Set(piece.paths.map(p => p.join(',')));
+    function getRangeLinePosition(from, to) {
+        const [fromY, fromX] = from;
+        const [toY, toX] = to;
 
-        for(const [dy, dx] of directions) {
-            let length = 0;
-            while(seen.has(`${y + dy * (length + 1)},${x + dx * (length + 1)}`)) length++;
+        if(fromY === toY) return { line: `rank:${fromY}`, index: Math.min(fromX, toX) };
+        if(fromX === toX) return { line: `file:${fromX}`, index: Math.min(fromY, toY) };
+        if((toX - fromX) === (toY - fromY))
+            return { line: `diagonal:positive:${fromX - fromY}`, index: Math.min(fromY, toY) };
 
-            if(length < LONG_RANGE_MIN_LENGTH) continue;
+        return { line: `diagonal:negative:${fromX + fromY}`, index: Math.min(fromY, toY) };
+    }
 
-            // The arrow polygon is collapsed to a hairline (no head); a thick round-joined
-            // stroke then draws it as a line with rounded ends.
-            const shapeType = 'arrow';
-            const shapeSquare = [
-                BoardAnal.indexToFen(piece.position),
-                BoardAnal.indexToFen([y + dy * length, x + dx * length])
-            ];
-            const strokeWidth = 6 * widthScale * ((BoardDrawer.singleSquareSize || 100) / 100);
-            // Zero-length dashes with round caps render as evenly spaced dots.
-            const dash = dotted ? `stroke-dasharray: 0 ${strokeWidth * 2.2};` : '';
-            const shapeConfig = {
-                lineWidth: 0.01, arrowheadWidth: 0.01, arrowheadHeight: 0.01, startOffset: 0.01,
-                style: `fill: ${color}; stroke: ${color}; stroke-width: ${strokeWidth}; ${dash} stroke-linejoin: round; stroke-linecap: round; opacity: ${dotted ? 0.45 : 0.3}; pointer-events: none;`
+    function collectLongRangeEdges(pieces, side, directions, edges) {
+        pieces.forEach(piece => {
+            const [y, x] = piece.position;
+            const seen = new Set(piece.paths.map(pos => pos.join(',')));
+
+            for(const [dy, dx] of directions) {
+                let length = 0;
+                while(seen.has(`${y + dy * (length + 1)},${x + dx * (length + 1)}`)) length++;
+                if(length < LONG_RANGE_MIN_LENGTH) continue;
+
+                for(let step = 0; step < length; step++) {
+                    const first = [y + dy * step, x + dx * step];
+                    const second = [y + dy * (step + 1), x + dx * (step + 1)];
+                    const [from, to] = first[0] < second[0]
+                        || (first[0] === second[0] && first[1] < second[1])
+                        ? [first, second] : [second, first];
+                    const edgeKey = `${from.join(',')}|${to.join(',')}`;
+                    let edge = edges.get(edgeKey);
+
+                    if(!edge) {
+                        edge = { from, to, sides: new Set(), ...getRangeLinePosition(from, to) };
+                        edges.set(edgeKey, edge);
+                    }
+
+                    edge.sides.add(side);
+                }
+            }
+        });
+    }
+
+    function drawRangeLine(from, to, color, shared = false) {
+        const shapeType = 'arrow';
+        const shapeSquare = [BoardAnal.indexToFen(from), BoardAnal.indexToFen(to)];
+        const scale = (BoardDrawer.singleSquareSize || 100) / 100;
+        const shapeConfig = {
+            lineWidth: 0.01, arrowheadWidth: 0.01, arrowheadHeight: 0.01,
+            startOffset: shared ? 14 : 0.01,
+            style: `fill: ${color}; stroke: ${color}; stroke-width: ${6 * scale}; stroke-linejoin: round; stroke-linecap: round; opacity: ${shared ? 0.75 : 0.3}; pointer-events: none;`
+        };
+        const arrow = externalOnly ? null : BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
+
+        addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(arrow, {
+            shapeType, shapeSquare, shapeConfig
+        }, profile, 'metric'));
+    }
+
+    function renderLongRange(piecesBySide, directions) {
+        const edges = new Map();
+        collectLongRangeEdges(piecesBySide.player, 'lime', directions, edges);
+        collectLongRangeEdges(piecesBySide.enemy, 'red', directions, edges);
+
+        const soloLines = new Map();
+
+        edges.forEach(edge => {
+            if(edge.sides.size === 2) {
+                drawRangeLine(edge.from, edge.to, edge.index % 2 === 0 ? 'lime' : 'red', true);
+                return;
+            }
+
+            const color = edge.sides.has('lime') ? 'lime' : 'red';
+            const key = `${edge.line}|${color}`;
+            if(!soloLines.has(key)) soloLines.set(key, []);
+            soloLines.get(key).push(edge);
+        });
+
+        soloLines.forEach(lineEdges => {
+            lineEdges.sort((a, b) => a.index - b.index);
+            let run = [];
+
+            const drawRun = () => {
+                if(!run.length) return;
+                drawRangeLine(run[0].from, run[run.length - 1].to,
+                    run[0].sides.has('lime') ? 'lime' : 'red');
+                run = [];
             };
 
-            const arrow = externalOnly ? null : BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
-
-            addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(arrow, {
-                shapeType, shapeSquare, shapeConfig
-            }, profile, 'metric'));
-        }
+            lineEdges.forEach(edge => {
+                if(run.length && edge.index !== run[run.length - 1].index + 1) drawRun();
+                run.push(edge);
+            });
+            drawRun();
+        });
     }
 
     const analResult = BoardAnal?.analyze();
 
-    // Enemy lines are thinner and drawn after ours, so a shared line shows both sides.
     if(analResult && renderPieceLongRange) {
-        if(showOwnVision) analResult.player.forEach(piece => renderLongRange(piece, 'lime', DIAGONALS, false, 1.6));
-        if(showEnemyVision) analResult.enemy.forEach(piece => renderLongRange(piece, 'red', DIAGONALS, false, 0.7));
+        renderLongRange({
+            player: showOwnVision ? analResult.player : [],
+            enemy: showEnemyVision ? analResult.enemy : []
+        }, DIAGONALS);
     }
 
     if(analResult && renderPieceLongRangeStraight) {
-        if(showOwnVision) analResult.player.forEach(piece => renderLongRange(piece, 'lime', STRAIGHTS, true, 1.6));
-        if(showEnemyVision) analResult.enemy.forEach(piece => renderLongRange(piece, 'red', STRAIGHTS, true, 0.7));
+        renderLongRange({
+            player: showOwnVision ? analResult.player : [],
+            enemy: showEnemyVision ? analResult.enemy : []
+        }, STRAIGHTS);
     }
 
     if(analResult && renderKnightVision) {
-        // Outline-only dashed circle: a rectangle with fully rounded corners, shrunk to sit
-        // inside the square so it layers with square fills and other markers.
-        // The enemy circle is smaller so both stay visible when each side sees a square.
-        const outlineKnightSquares = (pieces, color, shrink) => {
-            const squares = new Map();
+        const renderKnightDirections = (pieces, color) => {
+            pieces.filter(piece => /^[nN]$/.test(piece.piece)).forEach(piece => {
+                piece.paths.forEach(target => {
+                    const shapeType = 'arrow';
+                    const shapeSquare = [
+                        BoardAnal.indexToFen(piece.position),
+                        BoardAnal.indexToFen(target)
+                    ];
+                    const scale = (BoardDrawer.singleSquareSize || 100) / 100;
+                    const arrowheadWidth = 26;
+                    const arrowheadHeight = arrowheadWidth * Math.sqrt(3) / 2;
+                    const arrowheadShaftLength = 4;
+                    const shapeConfig = {
+                        lineWidth: 13,
+                        arrowheadWidth,
+                        arrowheadHeight,
+                        startOffset: Math.sqrt(5) * 100 - arrowheadHeight - arrowheadShaftLength,
+                        style: `fill: ${color}; stroke: rgb(0 0 0 / 45%); stroke-width: ${3 * scale}; stroke-linejoin: round; stroke-linecap: round; opacity: 0.65; pointer-events: none;`
+                    };
+                    const arrow = externalOnly ? null : BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
 
-            pieces.filter(piece => /^[nN]$/.test(piece.piece))
-                .forEach(piece => piece.paths.forEach(path => squares.set(path.join(','), path)));
-
-            const size = BoardDrawer.singleSquareSize || 100;
-            const strokeWidth = (size * 0.07) / shrink;
-            const dash = `${size * 0.2 / shrink * 0.6} ${size * 0.13 / shrink * 0.6}`;
-
-            squares.forEach(pos => {
-                const shapeType = 'rectangle';
-                const shapeSquare = BoardAnal.indexToFen(pos);
-                const shapeConfig = {
-                    style: `fill: none; stroke: ${color}; stroke-width: ${strokeWidth}; stroke-dasharray: ${dash}; stroke-linecap: round; rx: 50%; ry: 50%; transform-box: fill-box; transform-origin: center; transform: scale(${shrink}); opacity: 0.85; pointer-events: none;`
-                };
-
-                const rect = externalOnly ? null : BoardDrawer.createShape(shapeType, shapeSquare, shapeConfig);
-
-                addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(rect, {
-                    shapeType, shapeSquare, shapeConfig
-                }, profile, 'metric'));
+                    addedMetrics.push(CREATE_BOARD_DRAWER_MOVE_OBJ(arrow, {
+                        shapeType, shapeSquare, shapeConfig
+                    }, profile, 'metric'));
+                });
             });
         };
 
-        if(showOwnVision) outlineKnightSquares(analResult.player, 'lime', 0.7);
-        if(showEnemyVision) outlineKnightSquares(analResult.enemy, 'red', 0.42);
+        if(showOwnVision) renderKnightDirections(analResult.player, 'lime');
+        if(showEnemyVision) renderKnightDirections(analResult.enemy, 'red');
     }
 
     if(analResult && renderPiecePlayerCapture) {

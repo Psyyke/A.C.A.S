@@ -1,5 +1,5 @@
 import { subscribeHeapSamples } from '../heapMonitor.js';
-import { collectLiveDiagnostics } from '../../assets/js/misc/heapDiagnostics.js';
+import { collectLiveDiagnostics, startDiagnosticsErrorCapture } from '../../assets/js/misc/heapDiagnostics.js';
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const STORAGE_KEY = 'acas-dev-live-stockfish18-v1';
@@ -11,17 +11,42 @@ export const liveStatistics = { version: 1, games: [], active: null, runs: [] };
 const pendingDiagnostics = new Set();
 let resumedTest = null;
 
-export function resumeLiveRun() {
+async function checkpointTransaction(callback) {
+    const db = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('acas-dev-live', 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('checkpoints');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+        request.onblocked = () => reject(new Error('Live checkpoint database is blocked by another tab'));
+    });
+    try {
+        return await new Promise((resolve, reject) => {
+            const transaction = db.transaction('checkpoints', 'readwrite');
+            let result;
+            transaction.oncomplete = () => resolve(result);
+            transaction.onabort = () => reject(transaction.error || new Error('Live checkpoint transaction aborted'));
+            transaction.onerror = () => reject(transaction.error);
+            const request = callback(transaction.objectStore('checkpoints'));
+            request.onsuccess = () => { result = request.result; };
+        });
+    } finally {
+        db.close();
+    }
+}
+
+export async function resumeLiveRun() {
     const url = new URL(location.href);
     const token = url.searchParams.get('liveResume');
     if (!token) return false;
     url.searchParams.delete('liveResume');
     history.replaceState(null, '', url);
     const key = `acas-dev-live-resume-${token}`;
-    const raw = sessionStorage.getItem(key);
-    sessionStorage.removeItem(key);
-    if (!raw) throw new Error('Live run checkpoint is missing');
-    const checkpoint = JSON.parse(raw);
+    const checkpoint = await checkpointTransaction(store => {
+        const request = store.get(key);
+        store.delete(key);
+        return request;
+    });
+    if (!checkpoint) throw new Error('Live run checkpoint is missing');
     if (checkpoint.stats?.version !== 1 || !Array.isArray(checkpoint.stats.games)
         || !Array.isArray(checkpoint.stats.runs) || !checkpoint.test)
         throw new Error('Invalid live run checkpoint');
@@ -31,6 +56,7 @@ export function resumeLiveRun() {
 }
 
 export async function init(container, { test, signal }) {
+    startDiagnosticsErrorCapture();
     if (resumedTest) {
         test = { ...test, ...resumedTest };
         resumedTest = null;
@@ -512,8 +538,9 @@ export async function init(container, { test, signal }) {
         applyMove(value.join(''), 'acas');
     }
 
-    function newGame() {
-        if (destroyed) return;
+    let savingCheckpoint = false;
+    async function newGame() {
+        if (destroyed || savingCheckpoint) return;
         clearTimeout(restartTimer);
         restartTimer = null;
         clearTimeout(acasTimer);
@@ -521,25 +548,32 @@ export async function init(container, { test, signal }) {
         const reload = Boolean(pending) || failed || !worker || !ready;
         closeRecord('abandoned', 'New game requested');
         if (reloadEachMatch) {
+            savingCheckpoint = true;
             const token = crypto.randomUUID();
             const key = `acas-dev-live-resume-${token}`;
             try {
+                await Promise.all(pendingDiagnostics);
                 run.endedAt = new Date().toISOString();
                 run.elapsedMs = performance.now() - runStarted;
-                sessionStorage.setItem(key, JSON.stringify({
+                await checkpointTransaction(store => store.put({
                     stats: saved,
                     test: {
                         ...test, playerColor: playerColor === 'white' ? 'black' : 'white',
                         randomizeStartingPlayer: false, autoRestartOnEnd: autoInput.checked,
                         failureStreak, paused, reloadEachMatch
                     }
-                }));
+                }, key));
             } catch (error) {
                 console.error('Live run checkpoint could not be saved:', error);
                 failed = true;
                 stopWorker();
                 status.textContent = 'Cannot save run checkpoint. Refresh to start a new run.';
                 syncBoard();
+                savingCheckpoint = false;
+                return;
+            }
+            if (destroyed) {
+                await checkpointTransaction(store => store.delete(key));
                 return;
             }
             const url = new URL(location.href);

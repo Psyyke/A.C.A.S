@@ -445,7 +445,7 @@ async function init() {
         renderList();
         if (new URL(location.href).searchParams.has('liveResume')) {
             const { resumeLiveRun } = await import('./test-modules/live.js');
-            if (resumeLiveRun()) {
+            if (await resumeLiveRun()) {
                 const liveIndex = tests.findIndex(test => test.type === 'live');
                 if (liveIndex === -1) throw new Error('Live test is unavailable');
                 await loadTest(liveIndex);

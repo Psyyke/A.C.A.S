@@ -1,5 +1,20 @@
 const CHANNEL_NAME = 'acas-dev-heap-v1';
 const RESPONSE_TIMEOUT_MS = 5000;
+const recentErrors = [];
+let errorCaptureStarted = false;
+
+export function startDiagnosticsErrorCapture() {
+    if(errorCaptureStarted) return;
+    errorCaptureStarted = true;
+    const record = (kind, error) => {
+        recentErrors.push({ at: new Date().toISOString(), kind,
+            message: String(error?.message || error),
+            stack: typeof error?.stack === 'string' ? error.stack : null });
+        if(recentErrors.length > 20) recentErrors.shift();
+    };
+    window.addEventListener('error', event => record('error', event.error || event.message));
+    window.addEventListener('unhandledrejection', event => record('unhandledrejection', event.reason));
+}
 
 export function readHeap() {
     const memory = performance.memory;
@@ -12,6 +27,7 @@ export function readHeap() {
 }
 
 export function startHeapReporter() {
+    startDiagnosticsErrorCapture();
     if (typeof BroadcastChannel !== 'function') return () => {};
     const tabId = crypto.randomUUID();
     const channel = new BroadcastChannel(CHANNEL_NAME);
@@ -20,6 +36,7 @@ export function startHeapReporter() {
         if(message?.type === 'live-diagnostics-request' && typeof message.requestId === 'string') {
             channel.postMessage({
                 type: 'live-diagnostics', requestId: message.requestId, tabId,
+                runtimeErrors: [...recentErrors],
                 instances: (window.AcasInstances || []).map(({ instance }) => ({
                     instanceID: instance.instanceID, currentFen: instance.currentFen,
                     turn: instance.boardState.turn, playerColor: instance.boardState.playerColor,
@@ -53,7 +70,8 @@ export function startHeapReporter() {
 export function collectLiveDiagnostics() {
     return new Promise(resolve => {
         const requestId = crypto.randomUUID();
-        const result = { at: new Date().toISOString(), userscript: null, gui: [], errors: [] };
+        const result = { at: new Date().toISOString(), userscript: null, gui: [], errors: [],
+            runtimeErrors: [...recentErrors] };
         let channel = null;
         const onMessage = event => {
             if(event.source === window && event.data?.name === 'acas-dev-diagnostics'

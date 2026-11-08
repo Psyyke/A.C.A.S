@@ -15,8 +15,9 @@ through fast moves and repeated match lifecycles.
 - A.C.A.S waiting for two active minutes without an accepted move counts as a
   failure. Paused time does not count.
 - Manual refresh clears run statistics. Export before refreshing.
-- Statistics retain all games and moves. Very long runs can eventually hit
-  sessionStorage limits when saving a fresh-document restart checkpoint.
+- Statistics retain all games and moves. Fresh-document restart checkpoints use
+  IndexedDB rather than sessionStorage to support larger runs, and are consumed
+  on resume. Browser disk quota limits still apply. Export before refreshing.
 
 The failures were especially frequent with a 5 ms opponent, and later stress
 runs used a 1 ms opponent. Actual move time includes scheduling and messaging,
@@ -66,7 +67,11 @@ See [the main userscript](../../acas.user.js),
    changed-square count, including castling plus a reply.
 3. An unresolved endpoint waits without overwriting the accepted state or
    caching that endpoint as rejected. The existing poll and new notifications
-   can retry it.
+   can retry it. Larger unresolved diffs affecting more than four squares recover
+   immediately when counts of every piece type and color are unchanged. Other
+   unresolved placements use the timed fallback. After the same placement has been observed unchanged
+   for two seconds, shared recovery can resume with a guessed turn and explicitly
+   incomplete history. Every observed placement change restarts that wait.
 4. Larger unresolved gaps with site-provided turn metadata and existing
    board-repopulation reset heuristics are allowed through. Variant and reserve
    boards retain their existing handling. This is not blanket orthodox
@@ -74,6 +79,19 @@ See [the main userscript](../../acas.user.js),
 5. Initialization can recognize a verified single move from the standard
    starting position and seed the start plus that move with the correct turn.
    It does not reconstruct arbitrary midgame history.
+
+The live stress board does not publish authoritative placement or turn metadata.
+A captured stall after `1. d4 Nf6 2. e3 e6 3. Nf3` left the accepted position at
+`1...Nf6`, beyond the parser's two-ply reconstruction limit. The regression
+replays that gap without turn metadata and requires a legal Black reply through
+the real GUI and engine after shared recovery.
+
+The fallback guesses the last mover from which color has more destination
+additions in the board diff. Ties retain the previous accepted turn. Neither
+heuristic proves the turn or reconstructs missing plies. A static invalid frame
+can also preserve material or outlast the wait, so this is a deliberate best-effort recovery tradeoff,
+not stronger validation. Promotion-chooser and single-piece disappearance
+rejections do not use this timed fallback.
 
 Earlier flags such as `unsettledPawnCapture` and `missingCapturePieces` were
 replaced by endpoint validation. Do not bring back a growing list of frame
@@ -106,6 +124,13 @@ Failed games now include `failure.diagnostics`:
 - Responding GUI tabs with instance FEN, turn, player color and recent history
 - Per-profile readiness, pending calculations, queued request and hint state
 - Explicit response status and collection errors
+- Recent dev-page and GUI runtime errors, plus userscript task errors on the dev page
+
+These errors are included in the exported failure snapshot before a fresh-document
+restart, so there is no need to preserve the console manually. Reload the GUI and
+update the installed userscript to enable the additional capture. A userscript
+snapshot error is reported alongside the available state rather than preventing
+the diagnostic reply entirely.
 
 Collection waits one second and starts at failure time, before the automatic
 restart. Export waits for pending collection and uses compact JSON.

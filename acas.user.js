@@ -76,7 +76,7 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.5.7
+// @version     2.5.8
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -157,6 +157,14 @@ function isRunningOnBackend(skipGM) {
 
 const runningOnBackend = isRunningOnBackend();
 const runningOnDevPage = runningOnBackend && isDevPage;
+const devTaskErrors = [];
+
+function recordDevTaskError(error) {
+    if(!runningOnDevPage) return;
+    devTaskErrors.push({ at: new Date().toISOString(), message: String(error?.message || error),
+        stack: typeof error?.stack === 'string' ? error.stack : null });
+    if(devTaskErrors.length > 20) devTaskErrors.shift();
+}
 
 const activeInputListeners = [];
 
@@ -459,6 +467,10 @@ function getBoardState() {
     });
 }
 
+const MAX_CONSECUTIVE_REJECTED_FENS = 5;
+const UNRESOLVED_POSITION_SETTLE_MS = 2000;
+let unresolvedPosition = null;
+
 let BoardDrawer = null;
 let chessBoardElem = null;
 let chesscomVariantPlayerColorsTable = null;
@@ -476,6 +488,7 @@ let lastBoardOrientation = null;
 let lastMoveRequestTime = 0;
 let lastAllowedFen = '';
 let lastRejectedFen = '';
+let rejectedFenStreak = new Set();
 
 let gameState = getGameStateObjTemplate();
 
@@ -668,8 +681,8 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 // Timer/event callers do not await their work. Handle both sync failures and
 // rejected promises locally, without installing page-wide error suppressors.
 function runUserscriptTask(callback) {
-    try { Promise.resolve(callback()).catch(() => {}); }
-    catch(error) { }
+    try { Promise.resolve(callback()).catch(recordDevTaskError); }
+    catch(error) { recordDevTaskError(error); }
 }
 
 // Chessground sets this class even when coordinates are hidden, unlike the coords element.
@@ -785,21 +798,31 @@ function announceToPage(name, value) {
 
 if(runningOnDevPage) {
     window.addEventListener('message', event => {
-        if(event.source !== window || event.data?.type !== 'acas-dev-diagnostics-request'
+        const pageWindow = typeof unsafeWindow === 'object' ? unsafeWindow : window;
+        if((event.source !== window && event.source !== pageWindow) || event.origin !== window.location.origin
+            || event.data?.type !== 'acas-dev-diagnostics-request'
             || typeof event.data.requestId !== 'string') return;
-        const history = gameStateHistory.get();
-        const observedFen = chessBoardElem?.isConnected ? getFen(true) : null;
-        announceToPage('acas-dev-diagnostics', {
+        const snapshot = {
             requestId: event.data.requestId, instanceID: commLinkInstanceID,
-            observedFen,
+            boardConnected: Boolean(chessBoardElem?.isConnected), taskErrors: [...devTaskErrors],
             lastAllowedFen, lastRejectedFen, turn: gameState.turn,
-            validation: observedFen ? getBoardChanges(lastAllowedFen, observedFen, history[0]?.turn, {
+            isUserMouseDown, lastMutationObservationDate, lastMoveRequestTime
+        };
+        try {
+            const history = gameStateHistory.get();
+            snapshot.history = history.slice(0, 4);
+            snapshot.observedFen = chessBoardElem?.isConnected ? getFen(true) : null;
+            snapshot.validation = snapshot.observedFen ? getBoardChanges(lastAllowedFen, snapshot.observedFen, history[0]?.turn, {
                 conservative: true, variant: getSiteData('chessVariant'),
                 castlingRights: history[0]?.castlingRights,
                 enPassantTarget: history[0]?.movedPiece ? history[0].enPassantTarget : undefined
-            }) : null,
-            history: history.slice(0, 4), boardConnected: Boolean(chessBoardElem?.isConnected)
-        });
+            }) : null;
+        } catch(error) {
+            recordDevTaskError(error);
+            snapshot.error = String(error?.message || error);
+            snapshot.taskErrors = [...devTaskErrors];
+        }
+        announceToPage('acas-dev-diagnostics', snapshot);
     });
 }
 
@@ -1937,6 +1960,22 @@ function seedLostCastlingRights(basicFen) {
     }
 }
 
+function markRejectedFen(fen, skipDuplicate = true) {
+    if(skipDuplicate) lastRejectedFen = fen;
+    rejectedFenStreak.add(fen);
+
+    if(rejectedFenStreak.size >= MAX_CONSECUTIVE_REJECTED_FENS) {
+        rejectedFenStreak.clear();
+        restartInstanceWithCurrentFen();
+    }
+}
+
+function clearRejectedFenStreak() {
+    lastRejectedFen = '';
+    rejectedFenStreak.clear();
+    unresolvedPosition = null;
+}
+
 // This is called by observeNewMoves()
 // Note: gameStateHistory.get()[0].fen.full / gameStateHistory.get()[0].fen.basic is the last FEN, from the previous board position.
 async function determineBoardPositionValidity() {
@@ -1947,6 +1986,7 @@ async function determineBoardPositionValidity() {
     // A new board just appeared and is still loading, most likely a new match!
     if(pieceAmount === 0) {
         gameStateHistory.set(); // reset
+        clearRejectedFenStreak();
 
         return; // The existing 250ms poll retries; do not spawn recursive retry chains.
     }
@@ -1957,7 +1997,10 @@ async function determineBoardPositionValidity() {
 
     const history = gameStateHistory.get();
     const currentBasicFen = getFen(true);
+    if(unresolvedPosition?.fen !== currentBasicFen)
+        unresolvedPosition = { fen: currentBasicFen, since: Date.now() };
     const lastTurn = history[0]?.turn;
+    let recoveryTurn = null;
 
     const observedPly = getSiteData('ply');
     const observedTurn = getSiteData('turn');
@@ -1968,14 +2011,14 @@ async function determineBoardPositionValidity() {
             .filter(right => !reconciled[0].castlingRights?.includes(right));
         gameStateHistory.set(reconciled);
         lastAllowedFen = currentBasicFen;
-        lastRejectedFen = '';
+        clearRejectedFenStreak();
         await processBoardPosition();
         return;
     }
 
     // Promotion positions are not valid to process or store.
     if(isPawnOnPromotionSquareFen(currentBasicFen)) {
-        lastRejectedFen = currentBasicFen;
+        markRejectedFen(currentBasicFen);
         return;
     }
 
@@ -1992,7 +2035,7 @@ async function determineBoardPositionValidity() {
     });
 
     if(boardChanges.pieceAmountChange === -1 && boardChanges.changedSquaresAmount === 1) {
-        lastRejectedFen = currentBasicFen;
+        markRejectedFen(currentBasicFen);
         return;
     }
 
@@ -2005,7 +2048,25 @@ async function determineBoardPositionValidity() {
         const knownGapTurn = boardChanges.changedSquaresAmount > 4 && ['w', 'b'].includes(observedTurn);
         const startingPosition = defaultPosBasicFens.includes(currentBasicFen)
             || (boardChanges.changedSquaresAmount > 6 && boardChanges.pieceAmountChange > 0);
-        if(verified.recovery?.status === 'unresolved' && !knownGapTurn && !startingPosition) return;
+        if(verified.recovery?.status === 'unresolved' && !knownGapTurn && !startingPosition) {
+            const preservesMaterial = boardChanges.changedSquaresAmount > 4
+                && boardChanges.pieceAmountChange === 0
+                && boardChanges.removed.every(({ piece }) =>
+                    boardChanges.removed.filter(change => change.piece === piece).length
+                        === boardChanges.added.filter(change => change.piece === piece).length);
+            if(!preservesMaterial && Date.now() - unresolvedPosition.since < UNRESOLVED_POSITION_SETTLE_MS) {
+                // Do not let a burst of partial frames force an immediate rebase.
+                rejectedFenStreak.add(currentBasicFen);
+                return;
+            }
+            const additions = { w: 0, b: 0 };
+            for(const change of boardChanges.added) additions[getFenPieceColor(change.piece)]++;
+            recoveryTurn = additions.w > additions.b ? 'b'
+                : additions.b > additions.w ? 'w' : lastTurn || 'w';
+            boardChanges.recovery = { ...verified.recovery, turnGuessed: true };
+        }
+        if(verified.recovery?.status === 'unresolved' && knownGapTurn && !startingPosition)
+            boardChanges.recovery = verified.recovery;
     }
 
     // Board and reserve counts can settle in separate DOM updates. A reserve-only
@@ -2017,7 +2078,7 @@ async function determineBoardPositionValidity() {
         Object.assign(gameState, updated);
         gameStateHistory.set([updated, ...history.slice(1)]);
         lastAllowedFen = currentBasicFen;
-        lastRejectedFen = '';
+        clearRejectedFenStreak();
         await processBoardPosition();
         return;
     }
@@ -2044,7 +2105,7 @@ async function determineBoardPositionValidity() {
 
         await processBoardPosition();
     } else {
-        updateGameState(currentBasicFen, boardChanges);
+        updateGameState(currentBasicFen, boardChanges, false, recoveryTurn);
 
         await processBoardPosition();
     }
@@ -2054,12 +2115,15 @@ async function determineBoardPositionValidity() {
     // (Keep this declaration at the bottom of this function, will ya'?)
     if(chessBoardElem !== observedBoardElem || !observedBoardElem.isConnected || getBoardElem() !== observedBoardElem) return;
     lastAllowedFen = currentBasicFen;
-    lastRejectedFen = '';
+    clearRejectedFenStreak();
 }
 
 async function restartInstanceWithCurrentFen() {
     try {
-        await determineBoardPositionValidity();
+        clearRejectedFenStreak();
+        forceUpdateGameState();
+        lastAllowedFen = gameState.fen.basic || getFen(true);
+        clearRejectedFenStreak();
         setBoardState({ fen: gameState.fen.full, ...(gameState.turn && { turn: gameState.turn }) });
         await CommLink.commands.forceInstanceRestart();
     } catch(error) { }
@@ -3524,7 +3588,7 @@ async function start(boardElem = chessBoardElem) {
     if(!gameStateHistory.get().length) {
         forceUpdateGameState();
         lastAllowedFen = gameState.fen.basic;
-        lastRejectedFen = '';
+        clearRejectedFenStreak();
     }
     const initialFen = gameState.fen.full || getFen();
     setBoardState({ boardOrientation, playerColor: getPlayerColor(), fen: initialFen, turn: initialFen.split(' ')[1] });
@@ -3640,7 +3704,7 @@ function initializeIfSiteReady() {
         backendReadyLoop?.stop();
         chessBoardElem = boardElem;
         lastAllowedFen = gameState.fen.basic || lastAllowedFen;
-        lastRejectedFen = '';
+        clearRejectedFenStreak();
         lastBoardMatrix = null;
         isUserMouseDown = false;
         chessBoardElem.addEventListener('mousedown', () => { isUserMouseDown = true; });

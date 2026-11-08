@@ -309,6 +309,12 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
         await t.test('A.C.A.S watchdog counts only active own-turn waiting and recovers exactly once', async () => {
             const page = await fixture({ autoRestartOnEnd: false });
             await ready(page);
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { message: 'dev error before stall' }));
+                window.dispatchEvent(new PromiseRejectionEvent('unhandledrejection', {
+                    promise: Promise.resolve(), reason: new Error('dev rejection before stall')
+                }));
+            });
             await page.clock.runFor(60000);
             await suggest(page, 'a1', 'a8');
             await page.locator('.live-pause').click();
@@ -332,6 +338,8 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
             assert.equal((await state(page)).active, null);
             assert.equal((await state(page)).games[0].failure.diagnostics.userscriptStatus, 'no-reply');
             assert.equal((await state(page)).games[0].failure.diagnostics.guiStatus, 'no-reply');
+            assert.deepEqual((await state(page)).games[0].failure.diagnostics.runtimeErrors.map(error => error.message),
+                ['dev error before stall', 'dev rejection before stall']);
             await page.clock.runFor(1);
             await ready(page);
             assert.equal((await state(page)).active.playerColor, 'black');
@@ -646,7 +654,13 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
             try {
                 await page.route('**/*', route => new URL(route.request().url()).origin === url
                     ? route.continue() : route.abort());
-                await page.addInitScript(() => { window.documentIdentity = crypto.randomUUID(); });
+                await page.addInitScript(() => {
+                    window.documentIdentity = crypto.randomUUID();
+                    window.Worker = class {
+                        postMessage() {}
+                        terminate() {}
+                    };
+                });
                 await page.goto(`${url}/app/dev/`);
                 await page.waitForFunction(() => typeof window.ChessgroundX === 'function');
                 await page.evaluate(async () => {
@@ -659,13 +673,36 @@ test('dev live match lifecycle, results, timings and real Stockfish', async t =>
                     } });
                 });
                 const firstIdentity = await page.evaluate(() => window.documentIdentity);
+                await page.evaluate(async () => {
+                    const { liveStatistics } = await import('/app/dev/test-modules/live.js');
+                    liveStatistics.checkpointPayload = 'x'.repeat(50 * 1024 * 1024);
+                });
                 await page.evaluate(() => window.dispatchEvent(new MessageEvent('message', {
                     source: window, data: { name: 'bestMoveArr', value: ['f7', 'g7'] }
                 })));
                 await page.waitForFunction(identity => window.documentIdentity !== identity, firstIdentity);
                 await page.waitForSelector('.live-panel');
+                await page.waitForFunction(async () =>
+                    (await import('/app/dev/test-modules/live.js')).liveStatistics.active !== null);
                 assert.equal((await state(page)).games[0].result, '1-0');
                 assert.equal((await state(page)).active.playerColor, 'black');
+                assert.equal(await page.evaluate(async () =>
+                    (await import('/app/dev/test-modules/live.js')).liveStatistics.checkpointPayload.length),
+                    50 * 1024 * 1024, 'A 50 MB checkpoint survives navigation');
+                assert.equal(await page.evaluate(() => new Promise((resolve, reject) => {
+                    const request = indexedDB.open('acas-dev-live', 1);
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        const db = request.result;
+                        const transaction = db.transaction('checkpoints', 'readonly');
+                        const count = transaction.objectStore('checkpoints').count();
+                        transaction.oncomplete = () => { resolve(count.result); db.close(); };
+                        transaction.onabort = () => { reject(transaction.error); db.close(); };
+                    };
+                })), 0, 'Resumed checkpoint is consumed');
+                await page.evaluate(async () => {
+                    delete (await import('/app/dev/test-modules/live.js')).liveStatistics.checkpointPayload;
+                });
                 assert.equal(new URL(page.url()).searchParams.has('liveResume'), false);
                 assert.equal(await page.evaluate(() => Object.keys(sessionStorage).filter(key => key.startsWith('acas-dev-live-resume-')).length), 0);
                 await page.locator('.live-pause').click();

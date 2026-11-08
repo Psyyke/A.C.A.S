@@ -162,7 +162,7 @@ export default class SuggestionMix {
         } : null;
 
         if(selection?.fallback && !repeated) {
-            toast.warning(TRANS_OBJ?.suggestionMixFallback ?? 'No match in the mix. Using another shown move.', 5000);
+            toast.warning(TRANS_OBJ?.suggestionMixFallback ?? 'No match in the mix. Using another shown move.', 1000);
         }
 
         // Clear other profiles before publishing the chosen move to Auto Move.

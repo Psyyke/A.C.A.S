@@ -24,7 +24,8 @@ const harnessBody = `
     ${['getBoardChangesObjTemplate', 'getFenPieceColor', 'getGameStateObjTemplate', 'getFen',
         'inferCastlingRightsFromFen', 'seedLostCastlingRights', 'updateGameState',
         'determineBoardPositionValidity', 'isPawnOnPromotionSquareFen', 'observeNewMoves',
-        'removeTakeback'].map(name => declaration(name)).join('\n')}
+        'removeTakeback', 'markRejectedFen', 'clearRejectedFenStreak',
+        'restartInstanceWithCurrentFen'].map(name => declaration(name)).join('\n')}
     const parser = new BoardChangeParser({ getBoardChangesObjTemplate, getFenPieceColor });
     const boardChangeParser = parser;
     const getBoardChanges = (before, after, turn, context = {}) => parser.getBoardChanges(before, after, turn,
@@ -32,7 +33,10 @@ const harnessBody = `
     const basic = fen => fen.split(' ')[0];
     let snapshot = basic(initialFen), pageTurn = initialFen.split(' ')[1];
     let fenReads = 0, nextReadSnapshot = null;
-    let lastAllowedFen = snapshot, lastRejectedFen = '', history = [];
+    let lastAllowedFen = snapshot, lastRejectedFen = '', rejectedFenStreak = new Set(), history = [];
+    const MAX_CONSECUTIVE_REJECTED_FENS = 5;
+    const UNRESOLVED_POSITION_SETTLE_MS = 2000;
+    let unresolvedPosition = null;
     let gameState = getGameStateObjTemplate();
     const gameStateHistory = { get: () => history, set: value => { history = value || []; } };
     const lastBoardRanks = 8, lastBoardFiles = 8;
@@ -54,9 +58,11 @@ const harnessBody = `
     const getBoardState = () => structuredClone(storedBoardState);
     const setBoardState = changes => Object.assign(storedBoardState, changes);
     const packets = [], resets = [];
+    let restartCount = 0;
     const CommLink = { commands: {
         updateBoardFen: async state => packets.push(structuredClone(state)),
-        newMatchStarted: async state => resets.push(structuredClone(state))
+        newMatchStarted: async state => resets.push(structuredClone(state)),
+        forceInstanceRestart: async () => { restartCount++; }
     } };
     const published = [], tasks = new Set(), errors = [];
     let processGate = null;
@@ -99,6 +105,7 @@ const harnessBody = `
     updateGameState(snapshot, getBoardChanges(snapshot, snapshot), true, pageTurn);
     return {
         async check(fen, turn = null) { snapshot = basic(fen); pageTurn = turn; await determineBoardPositionValidity(); },
+        async restart() { await restartInstanceWithCurrentFen(); },
         start: observeNewMoves,
         set(fen, turn = null) { snapshot = basic(fen); pageTurn = turn; },
         mutate(count = 3) { boardObserver.callback(Array.from({ length: count }, () => ({}))); },
@@ -123,7 +130,8 @@ const harnessBody = `
         changeOnNextFenRead(fen, skip = 0) { nextReadSnapshot = { fen, read: fenReads + skip + 1 }; },
         state() { return { history: structuredClone(history), published: structuredClone(published),
             packets: structuredClone(packets), resets: structuredClone(resets),
-            lastAllowedFen, lastRejectedFen, timers: timers.size, observers }; }
+            lastAllowedFen, lastRejectedFen, rejectedFenCount: rejectedFenStreak.size,
+            restartCount, timers: timers.size, observers }; }
     };
 `;
 const makeHarness = new Function('initialFen', 'options = {}', harnessBody);
@@ -493,6 +501,51 @@ test('promotion chooser and one-piece disappearance are retried only after the b
     assert.equal(lastRejectedFen, '');
 });
 
+test('restart rebases a rejected board position so later moves can be accepted', async () => {
+    const harness = makeHarness('4k3/P7/8/8/8/8/8/4K3 w - - 0 1');
+    const transient = '4k3/8/8/8/8/8/8/4K3';
+    await harness.check(transient, 'b');
+    assert.equal(harness.state().lastRejectedFen, transient);
+
+    await harness.restart();
+    assert.equal(harness.state().lastAllowedFen, transient);
+    assert.equal(harness.state().lastRejectedFen, '');
+    assert.equal(harness.state().history[0].fen.basic, transient);
+
+    const nextMove = '3k4/8/8/8/8/8/8/4K3';
+    await harness.check(nextMove, 'w');
+    assert.equal(harness.state().lastAllowedFen, nextMove);
+    assert.equal(harness.state().history[0].fen.basic, nextMove);
+});
+
+test('five distinct rejected positions trigger one automatic restart and rebase', async () => {
+    const opening = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+    const harness = makeHarness(`${opening} w - - 0 1`);
+    const pawnRanks = ['1PPPPPPP', 'P1PPPPPP', 'PP1PPPPP', 'PPP1PPPP', 'PPPP1PPP'];
+    const rejectedPositions = pawnRanks.map(rank =>
+        `rnbqkbnr/pppppppp/8/8/8/8/${rank}/RNBQKBNR`);
+
+    for(let i = 0; i < rejectedPositions.length - 1; i++) {
+        await harness.check(rejectedPositions[i], 'w');
+        assert.equal(harness.state().restartCount, 0);
+        assert.equal(harness.state().rejectedFenCount, i + 1);
+        await harness.check(rejectedPositions[i], 'w');
+        assert.equal(harness.state().rejectedFenCount, i + 1);
+    }
+
+    await harness.check(rejectedPositions.at(-1), 'w');
+    const afterFallback = harness.state();
+    assert.equal(afterFallback.restartCount, 1);
+    assert.equal(afterFallback.lastAllowedFen, rejectedPositions.at(-1));
+    assert.equal(afterFallback.lastRejectedFen, '');
+    assert.equal(afterFallback.rejectedFenCount, 0);
+
+    const nextMove = 'rnbqkbnr/pppppppp/8/8/8/5N2/PPPP1PPP/RNBQKB1R';
+    await harness.check(nextMove, 'b');
+    assert.equal(harness.state().lastAllowedFen, nextMove);
+    assert.equal(harness.state().history[0].fen.basic, nextMove);
+});
+
 test('reserve-only settling replaces a snapshot without inventing a ply', async () => {
     const harness = makeHarness('4k3/8/8/8/8/8/8/4K3[N] w - - 0 1');
     await harness.check('4k3/8/8/8/8/8/8/4K3[NN]', 'w');
@@ -636,7 +689,7 @@ test('finished games publish exact terminal FENs and export the original complet
 });
 
 test('three-to-five-ply observation bursts retain the live board, deduplicate repeats and resume tracking', async t => {
-    let bursts = 0, incompleteHistories = 0, newMatchClassifications = 0;
+    let bursts = 0;
     for(const span of [3, 4, 5]) {
         for(const offset of [0, 1]) {
             const chess = new Chess(), harness = makeHarness(chess.fen(), { productionProcessing: true });
@@ -652,26 +705,16 @@ test('three-to-five-ply observation bursts retain the live board, deduplicate re
             assert.equal(burst.history[0].turn, chess.turn());
             assert.equal(basic(burst.packets.at(-1).fen), basic(chess.fen()));
             assert.equal(burst.lastAllowedFen, basic(chess.fen()));
-            const shouldReset = burst.published.at(-1).boardChanges.changedSquaresAmount > 6;
-            assert.equal(burst.resets.length, Number(shouldReset));
-            if(shouldReset) newMatchClassifications++;
+            assert.equal(burst.resets.length, 0);
+            assert.equal(burst.history[0].historyIncomplete, true);
             for(let repeat = 0; repeat < 20; repeat++) await harness.check(chess.fen(), chess.turn());
             assert.deepEqual(harness.state().history, burst.history);
             assert.equal(harness.state().packets.length, burst.packets.length);
             // End placement can be tracked without knowing every hidden ply.
             // The engine-history validator must not certify that as an exact game.
             const chronological = [...burst.history].reverse();
-            if(!shouldReset) {
-                assert.throws(() => enginePosition(burst.history[0].fen.full, chronological),
-                    /Move history cannot be legally replayed/);
-                incompleteHistories++;
-            } else {
-                // Existing >6-square new-match heuristic discards the old
-                // history on a large legal burst; this is not exact recovery.
-                assert.equal(chronological.length, 1);
-                assert.equal(enginePosition(burst.history[0].fen.full, chronological),
-                    `position fen ${burst.history[0].fen.full}`);
-            }
+            assert.throws(() => enginePosition(burst.history[0].fen.full, chronological),
+                /unresolved observation gap/);
             assert.ok(chess.move(moves[offset + span]));
             await harness.check(chess.fen(), chess.turn());
             const resumed = harness.state();
@@ -682,7 +725,7 @@ test('three-to-five-ply observation bursts retain the live board, deduplicate re
             bursts++;
         }
     }
-    t.diagnostic(`${bursts} multi-missed bursts tracked live; ${incompleteHistories} incomplete histories rejected by replay validation; ${newMatchClassifications} bursts hit the existing >6-square new-match heuristic (known limitation)`);
+    t.diagnostic(`${bursts} multi-missed bursts tracked live with explicitly incomplete history and no false match resets`);
 });
 
 test('a changing DOM cannot replace the snapshot whose move metadata was just computed', async () => {
@@ -737,6 +780,85 @@ test('conservative single-move processing retains inferred turn when the page cl
     assert.equal(state.turn, 'b');
     assert.equal(state.historyIncomplete, false);
     assert.equal(state.fen.full, chess.fen());
+});
+
+test('reported live opening immediately recovers a three-ply gap without page metadata', async () => {
+    const chess = new Chess();
+    const harness = makeHarness(chess.fen(), { productionProcessing: true });
+    for(const san of ['d4', 'Nf6']) {
+        chess.move(san);
+        await harness.check(chess.fen());
+    }
+    for(const san of ['e3', 'e6', 'Nf3']) chess.move(san);
+    await harness.check(chess.fen());
+    const recovered = harness.state();
+    assert.equal(recovered.lastAllowedFen, basic(chess.fen()));
+    assert.equal(recovered.history[0].turn, 'b');
+    assert.equal(recovered.history[0].historyIncomplete, true);
+    assert.equal(recovered.history[0].boardChanges.recovery.turnGuessed, true);
+    assert.equal(recovered.resets.length, 0);
+    assert.equal(recovered.restartCount, 0);
+    assert.equal(recovered.rejectedFenCount, 0);
+    chess.move('d5');
+    await harness.check(chess.fen());
+    assert.equal(harness.state().lastAllowedFen, basic(chess.fen()));
+    assert.equal(harness.state().history[0].turn, 'w');
+});
+
+test('dev-board adapters do not supply a turn when the page has no turn metadata', () => {
+    for(const filename of ['../acas.user.js', '../acas.user.test.js']) {
+        const code = readFileSync(new URL(filename, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+        const start = code.indexOf('addSupportedChessSite([\n    backendConfig?.hosts?.prod');
+        const end = code.indexOf('\n/*ZONE CHANGE', start);
+        assert.ok(start >= 0 && end > start);
+        const dataset = {};
+        let adapter;
+        new Function('backendConfig', 'addSupportedChessSite', 'getBoardElem', 'getBasicFen', code.slice(start, end))(
+            { hosts: { prod: 'psyyke.github.io', dev: 'localhost' } },
+            (hosts, site) => { adapter = site; },
+            () => ({ closest: () => ({ dataset }) }),
+            () => '');
+        assert.equal(adapter.turn({}), null, filename);
+    }
+});
+
+test('unresolved fallback waits for an unchanged board and does not accept promotion or disappearance frames', async t => {
+    let now = Date.now();
+    t.mock.method(Date, 'now', () => now);
+    for(const conservative of [false, true]) {
+        const chess = new Chess();
+        const harness = makeHarness(chess.fen(), { conservative, productionProcessing: true });
+        for(const san of ['d4', 'Nf6']) {
+            chess.move(san);
+            await harness.check(chess.fen());
+        }
+        const accepted = harness.state().lastAllowedFen;
+        for(const san of ['e4', 'e5', 'dxe5']) chess.move(san);
+        const firstGap = chess.fen();
+        await harness.check(firstGap);
+        now += 1999;
+        chess.move('Ng8');
+        await harness.check(chess.fen());
+        now++;
+        await harness.check(chess.fen());
+        assert.equal(harness.state().lastAllowedFen, accepted);
+        now += 1999;
+        await harness.check(chess.fen());
+        assert.equal(harness.state().lastAllowedFen, basic(chess.fen()));
+        assert.equal(harness.state().history[0].boardChanges.recovery.turnGuessed, true);
+        assert.equal(harness.state().history[0].historyIncomplete, true);
+        assert.equal(harness.state().resets.length, 0);
+    }
+
+    const initial = '4k3/P7/8/8/8/8/8/4K3 w - - 0 1';
+    for(const frame of ['P3k3/8/8/8/8/8/8/4K3', '4k3/8/8/8/8/8/8/4K3']) {
+        const harness = makeHarness(initial);
+        await harness.check(frame);
+        now += 10000;
+        await harness.check(frame);
+        assert.equal(harness.state().lastAllowedFen, basic(initial));
+        assert.equal(harness.state().restartCount, 0);
+    }
 });
 
 test('conservative gap handling still recognizes a genuine reset to the standard start position', async () => {

@@ -875,6 +875,10 @@
 
 												<div class="setting-panel">
 													<div class="setting-panel-title" data-translation-pieces-text>Pieces</div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Show Piece Contributions</div>
+                                                        <div class="input-subtitle">See how much each piece is contributing to the position</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-render-setting="true" data-key="enableEveryPieceEvals" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Own Piece Capture</div>
 														<div class="input-subtitle">Display 💧 on pieces that are in danger of capture</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="renderPiecePlayerCapture" data-default-value="false"><div class="checkbox-fill">✔</div></div>
@@ -892,7 +896,7 @@
 														<input type="checkbox" data-render-setting="true" data-key="renderPieceLongRangeStraight" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
 													<div class="checkbox-input custom-input"><div><div class="input-title">Knight Vision</div>
-														<div class="input-subtitle">Show squares knights see</div></div><div class="checkbox-container">
+														<div class="input-subtitle">Show arrows toward squares knights see</div></div><div class="checkbox-container">
 														<input type="checkbox" data-render-setting="true" data-key="renderKnightVision" data-default-value="false"><div class="checkbox-fill">✔</div></div>
 													</div>
 													<div id="vision-side-dropdown" class="dropdown-input custom-input"><div><div class="input-title">Vision Overlay Side</div>
@@ -904,10 +908,6 @@
 															<div class="dropdown-item" data-value="enemy">Enemy pieces</div>
 														</div>
 													</div></div>
-                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Show Piece Contributions</div>
-                                                        <div class="input-subtitle">See how much each piece is contributing to the position</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-render-setting="true" data-key="enableEveryPieceEvals" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
 												</div>
 
                                                 <p data-translation-experimental-warning="">This feature is experimental, it might not work well!</p>
@@ -1346,7 +1346,7 @@
                     </div>
                     <div class="checkbox-input custom-input">
                         <div>
-                            <div class="input-title" data-translation-suggestion-mix>Suggestion mix</div>
+                            <div class="input-title" data-translation-suggestion-mix>Funneling</div>
                             <div class="input-subtitle" data-translation-suggestion-mix-hint>Mix profiles into one arrow</div>
                         </div>
                         <div class="floaty-wrapper">
@@ -1355,7 +1355,7 @@
                                 <div class="floaty-container">
                                     <section class="floaty-header">
                                         <div class="title">
-                                            <h1 id="suggestion-mix-title" data-translation-suggestion-mix>Suggestion mix</h1>
+                                            <h1 id="suggestion-mix-title" data-translation-suggestion-mix>Funneling</h1>
                                             <p data-translation-suggestion-mix-hint>Mix profiles into one arrow</p>
                                         </div>
                                         <div class="floaty-buttons">
@@ -1409,7 +1409,7 @@
                                                 <input type="number" min="0" max="100" step="0.1" data-mix-category="other" aria-labelledby="mix-other-title">
                                             </div>
                                         </div>
-                                        <a target="_blank" href="../usage/#suggestion-mix" data-translation-learn-more-here>Learn more about these features here.</a>
+                                        <a target="_blank" href="../usage/#funneling" data-translation-learn-more-here>Learn more about these features here.</a>
                                     </section>
                                 </div>
                             </dialog>

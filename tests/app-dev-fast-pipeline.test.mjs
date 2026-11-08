@@ -5,8 +5,12 @@ import { startServer } from './maia-elo/serve.mjs';
 import { buildUserscript } from './elo-tool/userscriptHarness.mjs';
 import { Chess } from '../app/assets/engines/libraries/chessjs/chess.js';
 
-for(const moveTimeMs of [1, 5]) {
-test(`real userscript and GUI keep delivering moves against a ${moveTimeMs}ms opponent`, { timeout: 120000 }, async () => {
+for(const { moveTimeMs, reloadEachMatch } of [
+    { moveTimeMs: 1, reloadEachMatch: false },
+    { moveTimeMs: 5, reloadEachMatch: false },
+    { moveTimeMs: 1, reloadEachMatch: true }
+]) {
+test(`real userscript and GUI keep delivering moves against a ${moveTimeMs}ms opponent${reloadEachMatch ? ' with fresh documents' : ''}`, { timeout: 120000 }, async () => {
     const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
     const browser = await chromium.launch();
     try {
@@ -19,7 +23,7 @@ test(`real userscript and GUI keep delivering moves against a ${moveTimeMs}ms op
             const response = await route.fetch({ url: `${url}${pathname}${request.search}` });
             await route.fulfill({ response });
         });
-        await context.addInitScript(moveTimeMs => {
+        await context.addInitScript(({ moveTimeMs, reloadEachMatch }) => {
             if(localStorage.getItem('gm:isTosAccepted')) return;
             localStorage.setItem('gm:isTosAccepted', 'true');
             localStorage.setItem('gm:AcasConfig', JSON.stringify({ global: {
@@ -32,13 +36,15 @@ test(`real userscript and GUI keep delivering moves against a ${moveTimeMs}ms op
                 } }
             } }));
             localStorage.setItem('acas-dev-live-stockfish18-v1', JSON.stringify({ settings: {
-                moveTimeMs, reloadEachMatch: false, autoRestartOnEnd: true
+                moveTimeMs, reloadEachMatch, autoRestartOnEnd: true
             } }));
-        }, moveTimeMs);
+        }, { moveTimeMs, reloadEachMatch });
         const userscript = await buildUserscript();
         await context.addInitScript(userscript);
         const gui = await context.newPage();
         const dev = await context.newPage();
+        let documentLoads = 0;
+        dev.on('load', () => { documentLoads++; });
         const errors = [];
         for(const page of [gui, dev]) {
             page.on('pageerror', error => errors.push(error.message));
@@ -70,7 +76,15 @@ test(`real userscript and GUI keep delivering moves against a ${moveTimeMs}ms op
                 const s = (await import('/A.C.A.S/app/dev/test-modules/live.js')).liveStatistics;
                 return { moves: s.games.reduce((sum, game) => sum + game.moves.length, 0) + (s.active?.moves.length || 0),
                     games: s.games.length, active: s.active };
+            }).catch(error => {
+                if(reloadEachMatch && /Execution context was destroyed|Cannot find context with specified id/.test(error.message))
+                    return null;
+                throw error;
             });
+            if(!stats) {
+                await dev.waitForLoadState('load');
+                continue;
+            }
             if(stats.moves !== previous) { previous = stats.moves; lastProgress = Date.now(); }
             if(previous >= 500) break;
             if(Date.now() - lastProgress > 8000) {
@@ -95,21 +109,43 @@ test(`real userscript and GUI keep delivering moves against a ${moveTimeMs}ms op
         });
         assert.equal(results.failed, 0);
         assert.deepEqual(results.colors.sort(), ['black', 'white']);
+        if(reloadEachMatch) {
+            assert.ok(results.games >= 2, 'Multiple matches complete across fresh documents');
+            assert.ok(documentLoads >= 3, 'The dev document reloads between matches');
+        }
         console.log(`Real pipeline completed ${previous} plies against ${moveTimeMs}ms Stockfish`);
-        if(moveTimeMs === 1) {
+        if(moveTimeMs === 1 && !reloadEachMatch) {
             const chess = new Chess();
             const replay = new Chess();
             assert.ok(replay.load_pgn('1. d4 d5 2. e3 e6 3. a4 Nf6 4. Be2 Be7 5. Nf3 c5 6. a5 cxd4 7. exd4 Qc7 8. Nc3 Nc6 9. Nb5 Qb8 10. g3 Ne4 11. Bf4 Nd6 12. c4 a6 13. Nc3 dxc4 14. d5 exd5 15. Nxd5 Be6 16. Nb6 O-O 17. Nxa8 Rd8 18. Nb6 Qc7 19. Nxc4 Bh3 20. Rc1 Nxc4 21. Bxc7 Bb4+ 22. Rc3 Rxd1+ 23. Kxd1'));
             const setPosition = async (fen, orientation = 'black') => {
-                await dev.evaluate(({ fen, orientation }) => window.pipelineBoard.set({
-                    fen, orientation, animation: { enabled: false }, movable: { dests: new Map() }
-                }), { fen, orientation });
+                await dev.evaluate(({ fen, orientation }) => {
+                    window.pipelineBoard.set({
+                        fen, orientation, animation: { enabled: false }, movable: { dests: new Map() }
+                    });
+                }, { fen, orientation });
             };
             const waitPosition = async fen => {
                 await gui.waitForFunction(fen => window.AcasInstances?.some(({ instance }) =>
                     instance.currentFen?.split(' ')[0] === fen.split(' ')[0]
                     && instance.currentFen?.split(' ')[1] === fen.split(' ')[1]), fen, { timeout: 8000 });
             };
+            const stalledOpening = new Chess();
+            await setPosition(stalledOpening.fen());
+            await waitPosition(stalledOpening.fen());
+            for(const san of ['d4', 'Nf6']) {
+                stalledOpening.move(san);
+                await setPosition(stalledOpening.fen());
+                await waitPosition(stalledOpening.fen());
+            }
+            await dev.evaluate(() => { window.pipelineSuggestions = []; });
+            for(const san of ['e3', 'e6', 'Nf3']) stalledOpening.move(san);
+            await setPosition(stalledOpening.fen());
+            await waitPosition(stalledOpening.fen());
+            await dev.waitForFunction(() => window.pipelineSuggestions.length > 0, null, { timeout: 8000 });
+            const recoveredSuggestions = await dev.evaluate(() => window.pipelineSuggestions);
+            assert.ok(recoveredSuggestions.some(move => stalledOpening.moves({ verbose: true }).some(legal =>
+                legal.from === move[0] && legal.to === move[1])), 'Reported three-ply opening gap delivers a legal black reply');
             await setPosition(chess.fen());
             await waitPosition(chess.fen());
             for(const move of replay.history().slice(0, -2)) {
