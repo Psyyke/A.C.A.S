@@ -14,7 +14,8 @@ const text = {
         const { wins, draws, losses } = tally(games);
         return `(${wins}/${draws}/${losses})`;
     },
-    failed: 'Too many games failed to finish. Check that A.C.A.S is working on this device and try again.',
+    failed: reason => 'Too many games failed to finish. Check that A.C.A.S is working on this device and try again.'
+        + (reason ? ` (Last error: ${reason})` : ''),
     stopped: 'Stopped. Resume to continue with your completed games.',
     setup: {
         'no-board': 'The EloEye board could not be initialized. Reload EloEye and try again.',
@@ -74,7 +75,7 @@ function playCompletionSound() {
 const urlFlags = new URLSearchParams(location.search);
 const matchLimit = () => urlFlags.has('dev') ? boardCount() * 2 : automaticRun.maxGames;
 const timing = urlFlags.has('fast')
-    ? { moveTimeoutMs: 3000, openingTimeoutMs: 3000, partialGraceMs: 1000, probeBoardMs: 3000, probeHintsMs: 3000, connectTimeoutMs: 2000 }
+    ? { moveTimeoutMs: 3000, openingTimeoutMs: 3000, partialGraceMs: 1000, probeBoardMs: 3000, probeHintsMs: 3000, connectTimeoutMs: 2000, retryDelayMs: 100 }
     : {};
 
 const heartbeatMaxAgeMs = 15000;
@@ -533,7 +534,7 @@ form.addEventListener('submit', async event => {
 
     let SetupErrorType;
     try {
-        const player = await import('./eloPlayer.js?v=10boards');
+        const player = await import('./eloPlayer.js?v=lanevoids');
         SetupErrorType = player.SetupError;
         const { mode, games } = await player.runMatch({
             mode: $('mode').value, ...(legacy || total !== automaticRun.maxGames ? { total } : {}),
@@ -550,7 +551,7 @@ form.addEventListener('submit', async event => {
         else if(SetupErrorType && caught instanceof SetupErrorType) showError(text.setup[caught.code]);
         else {
             console.error(caught);
-            showError(text.failed);
+            showError(text.failed(caught?.message));
         }
     } finally {
         controller = null;

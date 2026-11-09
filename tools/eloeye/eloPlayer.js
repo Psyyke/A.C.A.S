@@ -16,7 +16,8 @@ const maiaTimeoutMs = 20000;
 // collectMs: profiles can report separately, so wait briefly to see all their moves.
 // No presentation delay: position/hint messages provide the synchronization.
 export const defaultTimings = {
-    moveTimeoutMs: 60000, openingTimeoutMs: 45000, collectMs: 20, paceMs: 0, partialGraceMs: 4000, probeBoardMs: 10000, probeHintsMs: 25000, connectTimeoutMs: 20000
+    moveTimeoutMs: 60000, openingTimeoutMs: 45000, collectMs: 20, paceMs: 0, partialGraceMs: 4000, probeBoardMs: 10000, probeHintsMs: 25000, connectTimeoutMs: 20000,
+    retryDelayMs: 2000
 };
 let timings = { ...defaultTimings };
 const maxConsecutiveVoids = 3;
@@ -356,7 +357,8 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
         const voidBudget = Math.max(6, Math.ceil(total * 0.25));
 
         let voided = 0;
-        let consecutiveVoids = 0;
+        // Per board, so one hiccup that hits every board at once is not mistaken for a broken setup.
+        const consecutiveVoids = new Array(lanes).fill(0);
         let fatal = null;
         const pending = new Map();
         const samplers = new Map();
@@ -389,6 +391,7 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
 
                 let frame;
                 let completed = false;
+                let retryDelay = 0;
                 try {
                     frame = new BoardSession(mount(lane), { orientation: job.acasIsWhite ? 'w' : 'b' });
                     report();
@@ -413,7 +416,7 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                     job.score = score;
                     completed = true;
                     checkpoint();
-                    consecutiveVoids = 0;
+                    consecutiveVoids[lane] = 0;
                 } catch(error) {
                     if(abort.signal.aborted) return;
                     if(completed) {
@@ -425,8 +428,12 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                     voided++;
                     // A stalled board is restarted without counting toward the consecutive-failure stop;
                     // the overall void budget still ends a setup that never answers.
-                    if(error instanceof TimeoutError) consecutiveVoids = 0; else consecutiveVoids++;
-                    if(error instanceof SetupError || opponentEngine.error || consecutiveVoids >= maxConsecutiveVoids || voided > voidBudget) {
+                    if(error instanceof TimeoutError) consecutiveVoids[lane] = 0;
+                    else {
+                        consecutiveVoids[lane]++;
+                        retryDelay = timings.retryDelayMs * consecutiveVoids[lane];
+                    }
+                    if(error instanceof SetupError || opponentEngine.error || consecutiveVoids[lane] >= maxConsecutiveVoids || voided > voidBudget) {
                         fatal = error;
                         stopAll();
                         return;
@@ -438,6 +445,8 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                     await frame?.destroy();
                 }
                 report();
+                // Let a briefly busy GUI settle before this board tries again.
+                if(retryDelay) await sleep(retryDelay, abort.signal).catch(() => {});
             }
         }
 
