@@ -760,6 +760,20 @@ tr {
     gap: 10px;
     font-family: "Mona Sans";
 }
+@media (min-width: 769px) and (max-width: 890px) {
+    .page-home .markdown-section section > table tr {
+        flex-wrap: wrap;
+    }
+    .page-home .markdown-section section > table th {
+        box-sizing: border-box;
+        flex: 1 1 calc(50% - 5px);
+        min-width: 0;
+    }
+    .page-home .markdown-section section > table th a {
+        justify-content: center;
+        text-align: center;
+    }
+}
 article {
     display: flex;
     flex-direction: column;

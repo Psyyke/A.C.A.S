@@ -26,6 +26,21 @@
     font-stretch: 75% 125%;
 }
 
+html:root {
+    --scrollbar-width: 4px;
+    --scrollbar-track-background: rgb(0 0 0 / 40%);
+}
+@supports (-moz-appearance: none) {
+    html {
+        scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
+    }
+    html,
+    body,
+    body * {
+        scrollbar-width: thin;
+    }
+}
+
 .learning-hints .hint-piece-groups {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -443,7 +458,7 @@ cg-container {
 }
 #acas-logo-secondary.has-whisper-font {
     font-family: "Whisper", sans-serif;
-    font-size: 23px;
+    font-size: 22px;
     margin-top: -10px;
     -webkit-text-stroke: 0.2px currentColor;
 }
@@ -1135,7 +1150,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     );
 
     padding: 30px 10px 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     border-width: 2px 2px 6px;
     border-style: solid;
     border-color: rgba(255, 255, 255, 0.33);
@@ -1556,7 +1571,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	width: fit-content;
 	height: fit-content;
 	padding: 10px;
-	border-radius: 10px;
+	border-radius: 8px;
 	font-size: 16px;
 	text-decoration: none;
 	color: rgb(255 255 255);
@@ -1588,7 +1603,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 	height: fit-content;
 	padding: 10px;
 	background-color: rgb(255 255 255 / 10%);
-	border-radius: 10px;
+	border-radius: 8px;
 	font-size: 18px;
 	text-decoration: none;
 	color: white;
@@ -4389,7 +4404,7 @@ dialog > .floaty-container::before,
         margin-top: -4px;
     }
     #acas-logo-secondary.has-whisper-font {
-        font-size: 20px;
+        font-size: 19.5px;
         margin-top: -8px;
     }
     #no-instances-container,
@@ -4397,7 +4412,6 @@ dialog > .floaty-container::before,
     dialog > .floaty-container::before,
     #footer {
         background-size: 80px 80px, 100% 100% !important;
-        border-radius: 4px;
         border-top-color: rgb(0 0 0 / 35%);
         border-left: 0;
         border-right: 0;
