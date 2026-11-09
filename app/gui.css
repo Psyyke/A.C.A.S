@@ -3108,12 +3108,31 @@ input[disabled] {
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
     background-color: var(--settings-input-main-bg-color);
-    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%);
-    background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
-    background-size: 6px 6px;
-    background-repeat: no-repeat;
     color: rgb(255 255 255 / 75%);
     cursor: pointer;
+}
+/* Firefox ignores all popup styling, fonts included, when a select has a background-image, so the arrow lives on the wrapper. */
+@supports not (appearance: base-select) {
+    #log-floaty .activity-log-filter-label:has(> #activity-log-filter),
+    #dynamic-settings-floaty :is(.dynamic-setting-picker, .dynamic-axis-control):has(> :is(#dynamic-add-setting, #dynamic-interpolation)) {
+        position: relative;
+    }
+    #log-floaty .activity-log-filter-label:has(> #activity-log-filter)::after,
+    #dynamic-settings-floaty :is(.dynamic-setting-picker, .dynamic-axis-control):has(> :is(#dynamic-add-setting, #dynamic-interpolation))::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 13px;
+        width: 6px;
+        height: 6px;
+        border-left: 2px solid gray;
+        border-bottom: 2px solid gray;
+        transform: translateY(-70%) rotate(-45deg);
+        pointer-events: none;
+    }
+    #dynamic-settings-floaty .dynamic-axis-control.is-locked::after {
+        display: none;
+    }
 }
 #log-floaty #activity-log-filter option,
 #dynamic-settings-floaty #dynamic-add-setting option,

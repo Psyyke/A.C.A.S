@@ -14,7 +14,7 @@ const text = {
         const { wins, draws, losses } = tally(games);
         return `(${wins}/${draws}/${losses})`;
     },
-    failed: reason => 'Too many games failed to finish. Check that A.C.A.S is working on this device and try again.'
+    failed: reason => '100 games in a row failed to finish. Check that A.C.A.S is working on this device and try again.'
         + (reason ? ` (Last error: ${reason})` : ''),
     stopped: 'Stopped. Resume to continue with your completed games.',
     setup: {
@@ -534,7 +534,7 @@ form.addEventListener('submit', async event => {
 
     let SetupErrorType;
     try {
-        const player = await import('./eloPlayer.js?v=lanevoids');
+        const player = await import('./eloPlayer.js?v=failstreak');
         SetupErrorType = player.SetupError;
         const { mode, games } = await player.runMatch({
             mode: $('mode').value, ...(legacy || total !== automaticRun.maxGames ? { total } : {}),

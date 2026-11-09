@@ -20,7 +20,7 @@ export const defaultTimings = {
     retryDelayMs: 2000
 };
 let timings = { ...defaultTimings };
-const maxConsecutiveVoids = 3;
+const maxFailureStreak = 100;
 
 export class SetupError extends Error {
     // code: 'no-gui' | 'no-profile' | 'no-board' | 'unsafe-moves'
@@ -354,11 +354,10 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
             abort.signal.throwIfAborted();
         }
         const batchSize = batchSizeForBoards(lanes);
-        const voidBudget = Math.max(6, Math.ceil(total * 0.25));
 
         let voided = 0;
-        // Per board, so one hiccup that hits every board at once is not mistaken for a broken setup.
-        const consecutiveVoids = new Array(lanes).fill(0);
+        // Failed games are replayed. Only a long unbroken streak, with no game finishing anywhere, means a broken setup.
+        let failureStreak = 0;
         let fatal = null;
         const pending = new Map();
         const samplers = new Map();
@@ -416,7 +415,7 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                     job.score = score;
                     completed = true;
                     checkpoint();
-                    consecutiveVoids[lane] = 0;
+                    failureStreak = 0;
                 } catch(error) {
                     if(abort.signal.aborted) return;
                     if(completed) {
@@ -426,14 +425,10 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                     }
                     console.warn('game voided:', error);
                     voided++;
-                    // A stalled board is restarted without counting toward the consecutive-failure stop;
-                    // the overall void budget still ends a setup that never answers.
-                    if(error instanceof TimeoutError) consecutiveVoids[lane] = 0;
-                    else {
-                        consecutiveVoids[lane]++;
-                        retryDelay = timings.retryDelayMs * consecutiveVoids[lane];
-                    }
-                    if(error instanceof SetupError || opponentEngine.error || consecutiveVoids[lane] >= maxConsecutiveVoids || voided > voidBudget) {
+                    failureStreak++;
+                    // Timeouts already waited long enough, other failures get a short, growing pause.
+                    if(!(error instanceof TimeoutError)) retryDelay = timings.retryDelayMs * Math.min(failureStreak, 5);
+                    if(error instanceof SetupError || opponentEngine.error || failureStreak >= maxFailureStreak) {
                         fatal = error;
                         stopAll();
                         return;
