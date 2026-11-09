@@ -64,9 +64,21 @@ There might be more, please let us know if anything is missing, thank you!
 
 </details>
 
-<img width="1968" height="1651" alt="image (1)" src="https://github.com/user-attachments/assets/5e53c07f-687e-4157-8781-c10f7f9d9ee3" />
-<img width="1968" height="1033" alt="image (2)" src="https://github.com/user-attachments/assets/ea118d50-7c54-4b96-a526-c0605734cc79" />
-
+<table width="100%">
+  <tr>
+    <td valign="middle">
+      <img width="3448" height="1465" alt="clipboard-image-1794223615 (2) (1)" src="https://github.com/user-attachments/assets/e3ecd818-3f2f-4be3-9382-d72e5ac53b58" />
+    </td>
+    <td width="179" valign="middle">
+      <img
+        src="https://github.com/user-attachments/assets/c9d35e23-9ce3-4c3f-93a9-e38dbd357aa0"
+        alt="Mobile app preview"
+        width="179"
+        height="400"
+      />
+    </td>
+  </tr>
+</table>
 
 <img width="2381" height="1797" alt="image" src="https://github.com/user-attachments/assets/4172ec0f-0479-44b1-9b0c-76d594a6a60e" />
 
