@@ -652,8 +652,8 @@ header a {
     }
 }
 footer {
-    background-color: #213a43;
-    padding: 30px 0 0;
+    background-color: #102127;
+    padding: 100px 0 0;
     font-size: 30px;
     color: white;
     display: flex;
@@ -661,7 +661,6 @@ footer {
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;
-    padding-top: 100px;
 }
 footer::before {
     content: "";
@@ -671,6 +670,20 @@ footer::before {
     background-image: conic-gradient(#213a43 25%, #374e56 0 50%, #213a43 0 75%, #374e56 0);
     background-size: 120px 120px;
     background-position: left bottom;
+    pointer-events: none;
+}
+footer::after {
+    content: "";
+    position: absolute;
+    top: 100px;
+    left: 0;
+    right: 0;
+    height: 1000px;
+    background-image: conic-gradient(#213a43 25%, #374e56 0 50%, #213a43 0 75%, #374e56 0);
+    background-size: 120px 120px;
+    opacity: 0.25;
+    transform: perspective(500px) rotateX(78deg);
+    transform-origin: center top;
     pointer-events: none;
 }
 dt {
@@ -683,39 +696,21 @@ dd {
 }
 footer section {
     position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    background-color: #102127;
+    z-index: 1;
     width: 100%;
-    height: 100%;
-    padding: 50px;
+    box-sizing: border-box;
+    min-height: 70px;
+    padding: 18px 50px 25px;
     border-top: 3px solid #0b1a1f;
     font-size: 16px;
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
 }
-footer section::after {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: 1000px;
-    z-index: -1;
-    background-image: conic-gradient(#213a43 25%, #374e56 0 50%, #213a43 0 75%, #374e56 0);
-    background-size: 120px 120px;
-    opacity: 0.25;
-    transform: perspective(500px) rotateX(55deg);
-    transform-origin: center top;
-    pointer-events: none;
-}
 footer section::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 2;
+    inset: 0;
     background: linear-gradient(to bottom, transparent 40%, rgb(0 0 0 / 30%));
     pointer-events: none;
 }
@@ -1477,6 +1472,8 @@ ul {
 @media (max-width: 768px) {
     main {
         margin-top: 0px !important;
+        border-left: 0;
+        border-right: 0;
         border-radius: 0;
         background-image:
           linear-gradient(45deg, rgba(0, 0, 0, 0.055) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.055) 75%, rgba(0, 0, 0, 0.055)),
@@ -1493,6 +1490,8 @@ ul {
         display: flex;
         justify-content: center;
         align-items: center;
+        padding-top: 18px;
+        padding-bottom: 26px;
         font-size: 16px;
     }
     .markdown-section section:first-of-type {
