@@ -39,7 +39,8 @@ class SessionTransport {
     analysisFailed(profile, calculation, message) {
         if(this.closed || calculation.fen !== this.session.state[5]
             || this.profiles.get(profile)?.calculation !== calculation) return;
-        this.send('error', { message: `Profile "${profile}" could not finish: ${message}` });
+        this.send('error', { message: `Profile "${profile}" could not finish: ${message}`,
+            stopReason: calculation.stopReason });
     }
 
     publishAnalysis() {

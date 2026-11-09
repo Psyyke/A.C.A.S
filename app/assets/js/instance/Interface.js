@@ -711,6 +711,11 @@ export default class Interface {
         if(!fen) return;
         if(basicFen && basicFen === this.lastAcceptedBasicFen && fen === this.AcasInstance.currentFen
             && !calculateMovesConfig?.skipValidityChecks) return;
+        if(basicFen && basicFen === this.lastAcceptedBasicFen && fen === this.AcasInstance.currentFen
+            && calculateMovesConfig?.specificProfileName) {
+            await this.AcasInstance.calculateBestMoves(fen, calculateMovesConfig);
+            return;
+        }
 
         const request = (this.boardUpdateRequest || 0) + 1;
         this.boardUpdateRequest = request;

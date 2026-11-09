@@ -488,7 +488,7 @@
 }
 .elo-match-status {
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
     color: #4f6881;
     line-height: 1.5;
 }
@@ -516,6 +516,121 @@
 }
 .elo-live-estimate .tool-rating {
     font-size: clamp(26px, 5vw, 36px);
+}
+.elo-range-chart {
+    position: relative;
+    margin: 16px 0 12px;
+    color: #4f6881;
+}
+.elo-range-chart[hidden] {
+    display: none;
+}
+.elo-range-chart svg {
+    display: block;
+    touch-action: pan-y pinch-zoom;
+    width: 100%;
+    height: auto;
+    margin-top: 8px;
+    overflow: visible;
+    font: 600 12px "Mona Sans", sans-serif;
+    fill: #4f6881;
+}
+.elo-range-chart svg:focus {
+    outline: none;
+}
+.elo-chart-grid {
+    stroke: rgb(33 58 67 / 12%);
+}
+.elo-chart-current-label {
+    fill: #213a43;
+    font-weight: 900;
+}
+.elo-chart-area {
+    fill: rgb(95 136 149 / 20%);
+}
+.elo-chart-estimate {
+    fill: none;
+    stroke: #5f8895;
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+.elo-chart-projection {
+    stroke: #5f8895;
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+}
+.elo-chart-latest-range {
+    stroke: rgb(95 136 149 / 50%);
+    stroke-width: 2;
+}
+.elo-chart-point {
+    fill: #5f8895;
+}
+.elo-chart-selection {
+    stroke: #5f8895;
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    pointer-events: none;
+}
+.elo-chart-selected-point {
+    fill: #5f8895;
+    stroke: white;
+    stroke-width: 2;
+    pointer-events: none;
+}
+.elo-chart-readout {
+    position: absolute;
+    z-index: 1;
+    padding: 5px 8px;
+    border: 1px solid rgb(33 58 67 / 15%);
+    border-radius: 4px;
+    background: white;
+    color: #4f6881;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.elo-range-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 16px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.elo-range-chart-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.elo-range-chart-legend span[hidden] {
+    display: none;
+}
+.elo-range-chart-legend .elo-chart-keyboard {
+    display: none;
+    padding: 2px 6px;
+    border: 2px solid #5f8895;
+    border-radius: 4px;
+}
+.elo-range-chart svg:focus-visible ~ .elo-range-chart-legend .elo-chart-keyboard {
+    display: inline-flex;
+}
+.elo-range-chart-legend i {
+    display: inline-block;
+    width: 18px;
+}
+.elo-range-key {
+    height: 8px;
+    border-radius: 2px;
+    background: rgb(95 136 149 / 30%);
+}
+.elo-estimate-key {
+    border-top: 2px solid #5f8895;
+}
+.elo-projection-key {
+    border-top: 2px dashed #5f8895;
 }
 .tool-range,
 .tool-details {
@@ -845,6 +960,23 @@ main > .content > .markdown-section {
     }
 }
 @media (max-width: 560px) {
+    .elo-range-chart svg {
+        height: 80vh;
+        height: 80dvh;
+    }
+    .elo-chart-estimate,
+    .elo-chart-projection {
+        vector-effect: non-scaling-stroke;
+        stroke-width: 3px;
+    }
+    .elo-chart-latest-range {
+        vector-effect: non-scaling-stroke;
+        stroke-width: 2.5px;
+    }
+    .elo-chart-selection {
+        vector-effect: non-scaling-stroke;
+        stroke-width: 1.5px;
+    }
     .elo-tool .elo-actions > button {
         padding-left: 6px;
         padding-right: 6px;

@@ -5,7 +5,7 @@
 import MaiaEngine from '../../app/assets/engines/Maia3/maiaEngine.js';
 import { Chess } from '../../app/assets/engines/libraries/chessjs/chess.js';
 import { automaticRun, automaticStatus, planBatch, batchSizeForBoards, maxBoards } from './eloPolicy.js?v=10boards';
-import { BoardSession, TimeoutError, placementOf } from './boardSession.js';
+import { BoardSession, TimeoutError, placementOf } from './boardSession.js?v=diagnostics2';
 import { loadOpenings, openingCount } from './openings.js';
 import { selectHintMove, defaultSelectionWeights, validateSelectionWeights } from './hintSelection.js';
 import { maiaEloGrid, maiaTemperatures, moveLogLikelihoods } from '../../app/assets/engines/Maia3/likelihood.js';
@@ -21,6 +21,20 @@ export const defaultTimings = {
 };
 let timings = { ...defaultTimings };
 const maxFailureStreak = 100;
+
+function logGameFailure(message, error, context, frame) {
+    const details = {
+        ...context,
+        error: { name: error?.name, message: error?.message ?? String(error), code: error?.code,
+            stopReason: error?.stopReason, stack: error?.stack },
+        board: frame ? {
+            session: frame.id, revision: frame.revision, position: frame.position,
+            statuses: [...frame.statuses], profilesReady: frame.profilesReady,
+            analysis: frame.analysis, hints: frame.hints, concealed: frame.concealed
+        } : null
+    };
+    console.error(`[EloEye] ${message}\n${JSON.stringify(details, null, 2)}`, error);
+}
 
 export class SetupError extends Error {
     // code: 'no-gui' | 'no-profile' | 'no-board' | 'unsafe-moves'
@@ -214,16 +228,20 @@ async function humanMove(frame, chess, signal) {
 
 // Score from A.C.A.S's point of view: 1 win, 0.5 draw, 0 loss.
 export async function playGame({ opponentEngine, frame, opponent, acasIsWhite, manual, signal, openingFen, onMove, onFallback, onAdjudication = () => {},
-    selectionWeights = defaultSelectionWeights, chess = new Chess(openingFen) }) {
+    selectionWeights = defaultSelectionWeights, chess = new Chess(openingFen), diagnostic = {} }) {
     const acasColor = acasIsWhite ? 'w' : 'b';
     let lastMove = null;
     let materialSide = null, stablePositions = 0, adjudicatedWinner = null;
     const materialPositions = new Set();
 
+    diagnostic.stage = 'waiting for board';
     await frame.whenReady({ signal });
+    diagnostic.stage = 'setting opening position';
+    diagnostic.fen = chess.fen();
     frame.setPosition({ fen: chess.fen(), turn: chess.turn(),
         movable: manual && chess.turn() === acasColor,
         dests: manual && chess.turn() === acasColor ? destsOf(chess) : {} });
+    diagnostic.stage = 'waiting for A.C.A.S connection';
     await frame.waitFor(() => frame.statuses.has('connected'), { timeout: timings.connectTimeoutMs, signal, what: 'A.C.A.S connection' });
 
     while(!chess.game_over()) {
@@ -241,6 +259,11 @@ export async function playGame({ opponentEngine, frame, opponent, acasIsWhite, m
         }
 
         const acasToMove = chess.turn() === acasColor;
+        diagnostic.fen = chess.fen();
+        diagnostic.lastMove = lastMove;
+        diagnostic.moveSource = acasToMove ? (manual ? 'manual' : 'A.C.A.S') : 'Maia';
+        diagnostic.move = null;
+        diagnostic.stage = 'setting board position';
         frame.setPosition({
             fen: chess.fen(), turn: chess.turn(), lastMove,
             movable: manual && acasToMove, dests: manual && acasToMove ? destsOf(chess) : {}
@@ -248,19 +271,27 @@ export async function playGame({ opponentEngine, frame, opponent, acasIsWhite, m
 
         let move;
         if(!acasToMove) {
+            diagnostic.stage = 'waiting for Maia move';
             const uci = await opponentEngine.move(chess.fen(), opponent);
+            diagnostic.move = uci;
             move = { from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] };
             if(timings.paceMs > 0) await sleep(timings.paceMs, signal);
-        } else if(manual) move = await humanMove(frame, chess, signal);
+        } else if(manual) {
+            diagnostic.stage = 'waiting for manual move';
+            move = await humanMove(frame, chess, signal);
+        }
         else {
+            diagnostic.stage = 'waiting for A.C.A.S suggestion';
             move = await acasMove(frame, chess, signal, selectionWeights, onFallback);
             if(timings.paceMs > 0) await sleep(timings.paceMs, signal);
         }
 
+        diagnostic.move = move;
+        diagnostic.stage = 'applying move';
         const fen = chess.fen();
         const legalMoves = acasToMove && onMove ? chess.moves().length : 0;
         const played = chess.move(move);
-        if(!played) throw new Error(`illegal move ${move.from}${move.to}`);
+        if(!played) throw new Error(`Illegal ${diagnostic.moveSource} move ${move.from}${move.to}${move.promotion || ''} in ${fen}`);
 
         if(acasToMove && onMove) {
             onMove({ fen, move: played.from + played.to + (played.promotion ?? ''), legalMoves });
@@ -269,6 +300,9 @@ export async function playGame({ opponentEngine, frame, opponent, acasIsWhite, m
         lastMove = [move.from, move.to];
     }
 
+    diagnostic.stage = 'setting final position';
+    diagnostic.fen = chess.fen();
+    diagnostic.lastMove = lastMove;
     frame.setPosition({ fen: chess.fen(), turn: chess.turn(), lastMove });
     if(adjudicatedWinner) return adjudicatedWinner === acasColor ? 1 : 0;
     if(chess.in_checkmate()) return chess.turn() === acasColor ? 0 : 1;
@@ -306,6 +340,9 @@ export async function probeSetup({ mount, signal }) {
         }
         if(frame.hints.partial) return 'manual';
         throw new SetupError('no-profile');
+    } catch(error) {
+        if(!signal?.aborted) logGameFailure('Setup probe failed and the run will stop.', error, { stage: 'setup probe' }, frame);
+        throw error;
     } finally {
         await frame.destroy();
     }
@@ -372,23 +409,27 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
             ]),
             pending: [...pending.entries()].map(([lane, game]) => ({ lane, ...game })) });
         const checkpoint = () => onCheckpoint({ mode, games, batch });
-        const samplingFailed = error => {
-            if(abort.signal.aborted) return;
-            fatal = error;
-            stopAll();
-        };
         report();
 
         async function playJob(job, lane) {
             const opponentEngine = opponents[multipleWorkers ? lane : 0];
             while(job.score === undefined && !abort.signal.aborted) {
                 pending.set(lane, job);
+                const diagnostic = { lane: lane + 1, opponent: job.opponent, opening: job.opening,
+                    acasColor: job.acasIsWhite ? 'white' : 'black', mode, stage: 'creating board' };
+                let frame;
+                let sampledMove;
                 const sampler = games.length < automaticRun.minGames
-                    ? new MoveSampler(opponentEngine, () => { if(!abort.signal.aborted) report(); }, samplingFailed)
+                    ? new MoveSampler(opponentEngine, () => { if(!abort.signal.aborted) report(); }, error => {
+                        if(abort.signal.aborted) return;
+                        logGameFailure('Move evidence analysis failed and the run will stop.', error,
+                            { ...diagnostic, sampledMove }, frame);
+                        fatal = error;
+                        stopAll();
+                    })
                     : null;
                 if(sampler) samplers.set(lane, sampler);
 
-                let frame;
                 let completed = false;
                 let retryDelay = 0;
                 try {
@@ -397,7 +438,7 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                     const opening = openings[job.opening];
                     if(!opening) throw new Error('Invalid EloEye opening index');
                     const score = await playGame({
-                        opponentEngine, frame, manual, signal: abort.signal, ...job, openingFen: opening.fen, selectionWeights,
+                        opponentEngine, frame, manual, signal: abort.signal, ...job, openingFen: opening.fen, selectionWeights, diagnostic,
                         onAdjudication: () => { job.materialAdjudication = true; },
                         onFallback: () => {
                             if(!job.suggestionFallback) {
@@ -406,8 +447,12 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                             }
                             onFallback();
                         },
-                        onMove: sampler ? entry => sampler.observe(entry) : undefined
+                        onMove: sampler ? entry => {
+                            if(!sampler.pending) sampledMove = entry;
+                            sampler.observe(entry);
+                        } : undefined
                     });
+                    diagnostic.stage = 'finishing move evidence analysis';
                     const moveEvidence = sampler ? await sampler.finish() : undefined;
                     abort.signal.throwIfAborted();
                     samplers.delete(lane);
@@ -419,16 +464,23 @@ export async function runMatch({ mode = 'detect', total, boards = 2, multipleWor
                 } catch(error) {
                     if(abort.signal.aborted) return;
                     if(completed) {
+                        logGameFailure('A completed game could not be saved or reported. The run will stop.', error, diagnostic, frame);
                         fatal = error;
                         stopAll();
                         return;
                     }
-                    console.warn('game voided:', error);
                     voided++;
                     failureStreak++;
+                    const stopReason = error instanceof SetupError ? 'setup error'
+                        : opponentEngine.error ? 'Maia engine failure'
+                        : failureStreak >= maxFailureStreak ? `${maxFailureStreak} consecutive failures` : null;
+                    logGameFailure(stopReason
+                        ? `Game voided and run stopping: ${stopReason}.`
+                        : 'Game voided and will be retried.', error,
+                        { ...diagnostic, failureStreak, voided }, frame);
                     // Timeouts already waited long enough, other failures get a short, growing pause.
                     if(!(error instanceof TimeoutError)) retryDelay = timings.retryDelayMs * Math.min(failureStreak, 5);
-                    if(error instanceof SetupError || opponentEngine.error || failureStreak >= maxFailureStreak) {
+                    if(stopReason) {
                         fatal = error;
                         stopAll();
                         return;

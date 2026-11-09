@@ -90,6 +90,9 @@ export default class FusionEngine {
                 case 'stop':
                     this.stop();
                     break;
+                case 'acas_stop_waitmaia':
+                    this.stop(this.current, true);
+                    break;
                 case 'ponderhit':
                     if(this.current?.ponder) {
                         this.current.ponder = false;
@@ -176,7 +179,8 @@ export default class FusionEngine {
             if(!search.finished && !this.closed) {
                 if(!neural) throw this.neuralError || new Error('Maia 3 is unavailable');
                 return neural.evaluate(search.fen, options.UCI_Elo, options.Enemy_Elo,
-                    () => this.current === search && !search.finished && !search.stopped && !this.closed);
+                    () => this.current === search && !search.finished
+                        && (!search.stopped || search.waitForPolicy) && !this.closed);
             }
         }).then(result => {
             if(search.finished || this.closed) return;
@@ -201,7 +205,7 @@ export default class FusionEngine {
 
     async runStockfish(search) {
         await this.stockfish.ready;
-        if(search.finished || this.closed) return;
+        if(search.finished || search.stopped || this.closed) return;
 
         for(const name of ['Hash', 'Move Overhead', 'UCI_ShowWDL']) {
             if(this.stockfishOptions.get(name) !== search.options[name]) {
@@ -215,7 +219,7 @@ export default class FusionEngine {
             this.newGame = false;
         }
         await this.stockfish.synchronize();
-        if(search.finished || this.closed) return;
+        if(search.finished || search.stopped || this.closed) return;
 
         const drained = new Promise(resolve => search.resolveBackend = resolve);
         this.backendSearch = search;
@@ -264,7 +268,7 @@ export default class FusionEngine {
 
     finishWhenReady(search) {
         if(search.finished || !search.stockDone || (search.ponder && !search.stopped)) return;
-        if(search.neuralDone || search.stopped) {
+        if(search.neuralDone || (search.stopped && !search.waitForPolicy)) {
             this.finish(search);
         } else if(!search.neuralTimer) {
             const remaining = search.movetime === null ? Infinity
@@ -339,9 +343,17 @@ export default class FusionEngine {
         this.emit(`bestmove ${best?.move || '(none)'}${ponder}`);
     }
 
-    stop(search = this.current) {
-        if(!search || search.stopped) return;
+    stop(search = this.current, waitForPolicy = false) {
+        if(!search || search.finished) return;
+        if(search.stopped) {
+            if(!waitForPolicy && search.waitForPolicy) {
+                search.waitForPolicy = false;
+                if(search.stockDone) this.finish(search);
+            }
+            return;
+        }
         search.stopped = true;
+        search.waitForPolicy = waitForPolicy;
 
         if(this.backendSearch === search && !search.stockDone) {
             this.stockfish.send('stop');
@@ -350,8 +362,8 @@ export default class FusionEngine {
             }, 5000);
             return;
         }
-        // No live Stockfish search: only an existing Maia policy may yield a move.
-        this.finish(search);
+        search.stockDone = true;
+        this.finishWhenReady(search);
     }
 
     fail(error) {

@@ -726,19 +726,27 @@ export default class AcasInstance {
         const profileStopCalculating = p => {
             const profileVariables = this.pV[p];
             const calculation = profileVariables?.pendingCalculations.find(x => !x.finished);
-            if(!calculation || calculation.stopRequested || profileVariables.recoveringSearch) return;
+            const fusion = !profileVariables?.useExternalChessEngine && profileVariables?.requestedEngine === 'acas-fusion';
+
+            if(!calculation || profileVariables.recoveringSearch || (calculation.stopRequested
+                && !(fusion && calculation.stopReason === 'Max movetime!' && reason !== 'Max movetime!'))) return;
 
             calculation.stopRequested = true;
+            calculation.stopReason = reason;
             clearTimeout(profileVariables.currentMovetimeTimeout);
+
             // A search still sending its position/go will either cancel or stop after go is sent.
             if(profileVariables.useExternalChessEngine && calculation.goSent === false) return;
-            this.sendMsgToEngine('stop', p).catch(console.error);
+
+            const stopCommand = fusion && reason === 'Max movetime!' ? 'acas_stop_waitmaia' : 'stop';
+            this.sendMsgToEngine(stopCommand, p).catch(console.error);
 
             if(profileVariables.useExternalChessEngine) {
                 // UCI requires bestmove after stop, but some external engines never send it.
-                // Restart only this engine/profile/instance; don't attribute late output to a new search.
+                // Restart only this engine/profile/instance, don't attribute late output to a new search.
                 profileVariables.currentStopTimeout = setTimeout(() => {
                     if(this.instanceClosed || this.pV[p] !== profileVariables || calculation.finished) return;
+                    
                     this.recoverExternalEngineSearch(p, calculation).catch(console.error);
                 }, 5000);
             }

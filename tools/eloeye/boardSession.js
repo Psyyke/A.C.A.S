@@ -81,6 +81,7 @@ export class BoardSession {
             this.statuses.add('connected');
         } else if(message.type === 'error') {
             this.error = new Error(message.message);
+            if(typeof message.stopReason === 'string') this.error.stopReason = message.stopReason;
         } else if(message.type === 'markings') {
             if(!this.gui || message.revision !== this.revision || message.fen !== this.position.fen ||
                 !Array.isArray(message.entries)) return;

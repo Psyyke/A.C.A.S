@@ -1,8 +1,9 @@
 import { estimateRating, tally } from './eloMatch.js';
 import { automaticRun, automaticStatus, automaticEstimate, maxBoards } from './eloPolicy.js?v=10boards';
-import { settingsStorageKey, storageKey, checkpointStorageKey, parseCheckpoint, measurementProtocol } from './storage.js?v=10boards';
+import { settingsStorageKey, storageKey, checkpointStorageKey, parseCheckpoint, measurementProtocol } from './storage.js?v=rangechart';
 import { defaultSelectionWeights, moveCategories, validateSelectionWeights, rebalanceSelectionWeights } from './hintSelection.js';
 import { channelName } from './sessionProtocol.js';
+import { updateRangeHistory, chartGeometry, chartTicks } from './rangeChart.js?v=chart-trend';
 
 const text = {
     loading: percent => percent > 0 ? `Loading Maia 3… ${percent}%` : 'Loading Maia 3…',
@@ -135,7 +136,7 @@ function setRunning(running) {
     startButton.disabled = running;
     startButton.hidden = running;
     $('stop').hidden = !running;
-    run.hidden = !running && !resultVisible;
+    if(!running) run.hidden = !resultVisible;
     $('run-plan').hidden = !running;
 }
 
@@ -166,10 +167,13 @@ function checkpointDone() {
 
 function saveCheckpoint(mode, total, games, batch = []) {
     const legacy = savedRun?.version === 1;
+    const previousHistory = savedRun?.rangeHistory ?? [];
+    const rangeHistory = updateRangeHistory(previousHistory, games, !legacy);
     savedRun = {
         version: legacy ? 1 : 2, protocol: measurementProtocol, mode, total, boards: boardCount(),
         selectionWeights: savedRun?.selectionWeights ?? readSelectionWeights(),
         games: (legacy ? [...games, ...batch.filter(game => game.score !== undefined)] : games).map(game => ({ ...game })),
+        rangeHistory,
         ...(legacy ? {} : { batch: batch.map(game => ({ ...game })) })
     };
     try {
@@ -180,6 +184,7 @@ function saveCheckpoint(mode, total, games, batch = []) {
         $('checkpoint-warning').textContent = 'This run could not be saved to browser storage. Keep this page open. Crash recovery may be incomplete.';
         $('checkpoint-warning').hidden = false;
     }
+    if(rangeHistory !== previousHistory || (rangeHistory.length && $('range-chart').hidden)) renderRangeChart(rangeHistory);
     updateCheckpointUI();
 }
 
@@ -344,6 +349,189 @@ function updateBoardSlots() {
 
 const mount = lane => grid.children[lane].querySelector('.tool-board-surface');
 
+const chartSvg = $('range-chart-svg'), chartReadout = $('range-chart-readout');
+let chartSamples = [], chartSelection = -1, chartPinned = false;
+let chartSelectionLine, chartSelectionPoint, chartAxis, currentChartGeometry, currentChartPoints = [];
+
+function updateChartViewBox() {
+    const rect = chartSvg.getBoundingClientRect();
+    const height = matchMedia('(max-width: 560px)').matches && rect.width
+        ? Math.max(60, 440 * rect.height / rect.width) : 340;
+    const viewBox = `0 0 440 ${height}`;
+    if(chartSvg.getAttribute('viewBox') !== viewBox) chartSvg.setAttribute('viewBox', viewBox);
+    return height;
+}
+
+new ResizeObserver(entries => {
+    const width = entries[0].contentRect.width;
+    if(width > 0) {
+        chartSvg.style.fontSize = `${Math.min(16, 13 * 440 / width)}px`;
+        if(currentChartPoints.length) renderRangeChart(currentChartPoints, true);
+    }
+}).observe(chartSvg);
+
+function renderChartAxis(width) {
+    if(!chartAxis || !currentChartGeometry || width <= 0) return;
+    chartAxis.replaceChildren();
+    for(const tick of chartTicks(currentChartGeometry, width)) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        for(const [key, value] of Object.entries({ x1: currentChartGeometry.left, y1: tick.y, x2: currentChartGeometry.right, y2: tick.y, class: 'elo-chart-grid' }))
+            line.setAttribute(key, value);
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        for(const [key, value] of Object.entries({ x: currentChartGeometry.left - 6 * currentChartGeometry.marginScale, y: tick.y, 'text-anchor': 'end', 'dominant-baseline': 'middle' }))
+            label.setAttribute(key, value);
+        if(tick.current) label.setAttribute('class', 'elo-chart-current-label');
+        label.textContent = String(tick.label);
+        chartAxis.append(line, label);
+    }
+}
+
+function hideChartSelection() {
+    chartSelection = -1;
+    chartPinned = false;
+    chartReadout.hidden = true;
+    if(chartSelectionLine) chartSelectionLine.setAttribute('visibility', 'hidden');
+    if(chartSelectionPoint) chartSelectionPoint.setAttribute('visibility', 'hidden');
+}
+
+function selectChartPoint(index) {
+    if(!chartSamples.length) return;
+    chartSelection = Math.max(0, Math.min(index, chartSamples.length - 1));
+    const { x, y, point } = chartSamples[chartSelection];
+    chartSelectionLine.setAttribute('x1', x);
+    chartSelectionLine.setAttribute('x2', x);
+    chartSelectionLine.setAttribute('visibility', 'visible');
+    chartSelectionPoint.setAttribute('cx', x);
+    chartSelectionPoint.setAttribute('cy', y);
+    chartSelectionPoint.setAttribute('visibility', 'visible');
+    chartReadout.textContent = `${point.matches} matches: ${Math.round(point.rating)} Elo (${Math.floor(point.low)}–${Math.ceil(point.high)})`;
+    chartReadout.hidden = false;
+    const svgRect = chartSvg.getBoundingClientRect();
+    const chartRect = $('range-chart').getBoundingClientRect();
+    const screenX = new DOMPoint(x, y).matrixTransform(chartSvg.getScreenCTM()).x - chartRect.left;
+    const left = Math.max(0, Math.min(screenX - chartReadout.offsetWidth / 2, chartRect.width - chartReadout.offsetWidth));
+    chartReadout.style.left = `${left}px`;
+    chartReadout.style.top = `${svgRect.top - chartRect.top + 4}px`;
+}
+
+function selectChartAtPointer(event) {
+    const matrix = chartSvg.getScreenCTM();
+    if(!matrix || !chartSamples.length) return;
+    const x = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse()).x;
+    let nearest = 0;
+    for(let i = 1; i < chartSamples.length; i++) {
+        if(Math.abs(chartSamples[i].x - x) < Math.abs(chartSamples[nearest].x - x)) nearest = i;
+    }
+    selectChartPoint(nearest);
+}
+
+let chartTouch = null;
+
+chartSvg.addEventListener('pointermove', event => {
+    if(event.pointerType === 'mouse') {
+        selectChartAtPointer(event);
+        return;
+    }
+    if(!chartTouch || chartTouch.id !== event.pointerId) return;
+    const dx = Math.abs(event.clientX - chartTouch.x), dy = Math.abs(event.clientY - chartTouch.y);
+    if(chartTouch.direction === null && Math.max(dx, dy) >= 10)
+        chartTouch.direction = dx > dy ? 'horizontal' : 'vertical';
+    if(chartTouch.direction === 'horizontal') {
+        chartPinned = true;
+        selectChartAtPointer(event);
+    }
+});
+chartSvg.addEventListener('pointerdown', event => {
+    if(event.pointerType === 'touch') {
+        hideChartSelection();
+        chartTouch = event.isPrimary ? { id: event.pointerId, x: event.clientX, y: event.clientY, direction: null } : null;
+        if(chartTouch) chartSvg.setPointerCapture(event.pointerId);
+        return;
+    }
+    chartPinned = true;
+    selectChartAtPointer(event);
+});
+chartSvg.addEventListener('pointerup', event => {
+    if(!chartTouch || chartTouch.id !== event.pointerId) return;
+    const dx = Math.abs(event.clientX - chartTouch.x), dy = Math.abs(event.clientY - chartTouch.y);
+    if(chartTouch.direction === 'horizontal' || (chartTouch.direction === null && Math.max(dx, dy) < 10)) {
+        chartPinned = true;
+        selectChartAtPointer(event);
+    }
+    chartTouch = null;
+});
+chartSvg.addEventListener('pointercancel', () => {
+    chartTouch = null;
+    hideChartSelection();
+});
+chartSvg.addEventListener('lostpointercapture', () => {
+    chartTouch = null;
+});
+chartSvg.addEventListener('pointerleave', () => {
+    if(!chartPinned) hideChartSelection();
+});
+chartSvg.addEventListener('keydown', event => {
+    if(event.key === 'Escape') {
+        hideChartSelection();
+    } else if(['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+        event.preventDefault();
+        chartPinned = true;
+        if(event.key === 'Home') selectChartPoint(0);
+        else if(event.key === 'End') selectChartPoint(chartSamples.length - 1);
+        else selectChartPoint(chartSelection < 0 ? 0 : chartSelection + (event.key === 'ArrowLeft' ? -1 : 1));
+    }
+});
+document.addEventListener('pointerdown', event => {
+    if(!$('range-chart').contains(event.target)) hideChartSelection();
+});
+
+function renderRangeChart(points, preserveSelection = false) {
+    const chart = $('range-chart'), svg = $('range-chart-svg');
+    const selected = chartSelection, pinned = chartPinned;
+    currentChartPoints = points;
+    chart.hidden = !points.length;
+    const viewHeight = points.length ? updateChartViewBox() : 340;
+    const geometry = chartGeometry(points, savedRun && !checkpointDone() ? savedRun.total : null, svg.getBoundingClientRect().width, viewHeight);
+    currentChartGeometry = geometry;
+    chartAxis = null;
+    hideChartSelection();
+    chartSamples = geometry?.samples ?? [];
+    chart.hidden = !geometry;
+    svg.replaceChildren();
+    if(!geometry) return;
+
+    const node = (name, attributes, text) => {
+        const element = document.createElementNS('http://www.w3.org/2000/svg', name);
+        for(const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+        if(text !== undefined) element.textContent = text;
+        svg.append(element);
+    };
+    const { first, last, projectedLast, top, bottom, area, estimate, latest, projection } = geometry;
+    const point = points.at(-1);
+    svg.setAttribute('aria-label', `Range history from ${first} to ${last} matches. After ${last} matches, estimated Elo ${Math.round(point.rating)}, `
+        + `estimated range ${Math.floor(point.low)} to ${Math.ceil(point.high)}.`
+        + (projection ? ` Dashed line extrapolates the recent estimate trend to ${Math.round(projection.value)} Elo at ${projectedLast} matches. This is a rough projection, not a prediction of future results.` : ''));
+    $('range-chart-projection-key').hidden = !projection;
+    chartAxis = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    svg.append(chartAxis);
+    renderChartAxis(svg.getBoundingClientRect().width);
+    if(points.length > 1) {
+        node('polygon', { points: area, class: 'elo-chart-area' });
+        node('polyline', { points: estimate, class: 'elo-chart-estimate' });
+    }
+    node('line', { x1: latest.x, y1: latest.high, x2: latest.x, y2: latest.low, class: 'elo-chart-latest-range' });
+    if(projection) node('line', { x1: latest.x, y1: latest.rating, x2: projection.x, y2: projection.rating, class: 'elo-chart-projection' });
+    node('circle', { cx: latest.x, cy: latest.rating, r: 3.5, class: 'elo-chart-point' });
+    node('line', { y1: top, y2: bottom, class: 'elo-chart-selection', visibility: 'hidden' });
+    node('circle', { r: 4, class: 'elo-chart-selected-point', visibility: 'hidden' });
+    chartSelectionLine = svg.querySelector('.elo-chart-selection');
+    chartSelectionPoint = svg.querySelector('.elo-chart-selected-point');
+    if(preserveSelection && selected >= 0) {
+        chartPinned = pinned;
+        selectChartPoint(selected);
+    }
+}
+
 restoreSettings();
 restoreCheckpoint();
 updateMixUI();
@@ -455,6 +643,7 @@ function resetRun() {
         localStorage.removeItem(checkpointStorageKey);
         savedRun = null;
         resultVisible = false;
+        renderRangeChart([]);
         run.hidden = true;
         checkpointBroken = false;
         $('checkpoint-warning').hidden = true;
@@ -505,14 +694,17 @@ form.addEventListener('submit', async event => {
     $('estimate-label').textContent = 'Estimated range so far';
     $('rating').hidden = true;
     $('precision').className = 'tool-rating';
+    run.hidden = true;
     setRunning(true);
     if(!await guiPresent()) {
+        console.error('[EloEye] Run could not start: the A.C.A.S GUI did not respond to the presence check.');
         controller = null;
         setRunning(false);
         showError(text.setup['no-gui']);
         return;
     }
     if(controller.signal.aborted) {
+        console.info('[EloEye] Run stopped by the user while checking the A.C.A.S GUI.');
         controller = null;
         setRunning(false);
         updateCheckpointUI();
@@ -528,13 +720,14 @@ form.addEventListener('submit', async event => {
     $('live-range').hidden = false;
     $('precision').textContent = '0-4000';
     $('status').textContent = 'Preparing EloEye…';
+    run.hidden = false;
     playStart = 0;
     resumedGames = initialGames.length + initialBatch.filter(game => game.score !== undefined).length;
     saveCheckpoint($('mode').value, total, initialGames, initialBatch);
 
     let SetupErrorType;
     try {
-        const player = await import('./eloPlayer.js?v=failstreak');
+        const player = await import('./eloPlayer.js?v=diagnostics2');
         SetupErrorType = player.SetupError;
         const { mode, games } = await player.runMatch({
             mode: $('mode').value, ...(legacy || total !== automaticRun.maxGames ? { total } : {}),
@@ -547,11 +740,15 @@ form.addEventListener('submit', async event => {
         playCompletionSound();
     } catch(caught) {
         setRunning(false);
-        if(caught?.name === 'AbortError') showError(text.stopped);
-        else if(SetupErrorType && caught instanceof SetupErrorType) showError(text.setup[caught.code]);
-        else {
-            console.error(caught);
-            showError(text.failed(caught?.message));
+        if(caught?.name === 'AbortError') {
+            if(controller.signal.aborted) console.info('[EloEye] Run stopped by the user.', caught);
+            else console.error('[EloEye] Run stopped after an unexpected abort:', caught);
+            showError(text.stopped);
+        } else {
+            console.error('[EloEye] Run stopped due to an error:',
+                SetupErrorType && caught instanceof SetupErrorType ? text.setup[caught.code] : caught?.message, caught);
+            if(SetupErrorType && caught instanceof SetupErrorType) showError(text.setup[caught.code]);
+            else showError(text.failed(caught?.message));
         }
     } finally {
         controller = null;
@@ -577,6 +774,7 @@ function showResult(mode, games, automatic) {
         showError('Could not store the result. Your saved run is kept.');
     }
     resultVisible = true;
+    renderRangeChart(updateRangeHistory(savedRun?.rangeHistory ?? [], games, automatic));
     run.hidden = false;
     $('run-plan').hidden = true;
     $('live-range').hidden = false;

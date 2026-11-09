@@ -38,6 +38,9 @@ separate from the chosen human-style candidate's score, including forced mates.
 - An explicit stop can use an already available human policy, including the
   Maia-style fallback if no mixed candidate qualifies. Without a policy it
   returns no suggestion. Late results cannot finish a different search.
+- The app's Max movetime stops Stockfish at the configured limit, then waits up
+  to `Maia Wait` for the required policy. A new position or another explicit
+  stop cancels that wait immediately. Other UCI stop commands remain immediate.
 
 ## Advanced Elo: depth is not a rating
 

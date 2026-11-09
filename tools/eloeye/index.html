@@ -28,7 +28,7 @@
     <link rel="preconnect" href="https://pagead2.googlesyndication.com">
     <link rel="stylesheet" type="text/css" href="../../assets/css/home.css">
     <link rel="stylesheet" href="../../assets/css/checkbox.css">
-    <link rel="stylesheet" type="text/css" href="../tools.css?v=eloeye-mona-20261106">
+    <link rel="stylesheet" type="text/css" href="../tools.css?v=eloeye-touch-scroll">
     <link rel="stylesheet" href="../../assets/css/chessground.base.css">
     <link rel="stylesheet" href="../../assets/css/chessground.brown.css">
     <link rel="stylesheet" href="../../assets/css/theme-staunty.css">
@@ -146,10 +146,20 @@
                                         <span id="estimate-label" class="tool-result-label">Estimated range so far</span>
                                         <p id="rating" class="tool-rating" hidden></p>
                                         <p id="precision" class="tool-rating"></p>
+                                        <p id="match-status" class="elo-match-status" aria-live="polite"></p>
                                     </div>
                                     <div class="elo-estimate-status">
-                                        <p id="match-status" class="elo-match-status" aria-live="polite"></p>
                                         <p id="status" class="tool-status elo-time-status" aria-live="polite"></p>
+                                    </div>
+                                </div>
+                                <div id="range-chart" class="elo-range-chart" hidden>
+                                    <svg id="range-chart-svg" viewBox="0 0 440 340" role="img" tabindex="0" aria-describedby="range-chart-readout range-chart-keyboard"></svg>
+                                    <div id="range-chart-readout" class="elo-chart-readout" role="status" hidden></div>
+                                    <div class="elo-range-chart-legend">
+                                        <span><i class="elo-range-key"></i> Range</span>
+                                        <span><i class="elo-estimate-key"></i> Estimated Elo</span>
+                                        <span id="range-chart-projection-key" hidden><i class="elo-projection-key"></i> Rough projection</span>
+                                        <span id="range-chart-keyboard" class="elo-chart-keyboard">Use arrow keys to explore</span>
                                     </div>
                                 </div>
                             </div>
@@ -172,7 +182,7 @@
                     <p>Test your configured GUI profile against Maia 3, or play yourself. The result is an estimate against Maia, not an official human Elo rating.</p>
                     <div class="elo-guide-layout">
                         <ol class="tool-steps">
-                            <li>Open the <a target="_blank" href="../../app/">A.C.A.S GUI</a> and turn on the profiles you want to test. Use the same website address for both pages.</li>
+                            <li>Open the <a target="_blank" href="../../app/">A.C.A.S GUI</a> and turn on the profiles you want to test. Use the same domain for both pages.</li>
                             <li>Choose <strong>Config</strong> to play full move suggestions automatically, or <strong>Me</strong> to play yourself with hints.</li>
                             <li>Keep both pages <strong>visible side by side</strong> and wait for the GUI active tick. The GUI needs the userscript, but EloEye itself does not.</li>
                             <li>Choose your board count and press <strong>Start</strong>. Fewer boards are easier on your device. The first run downloads about 45 MB. Resuming finishes the saved group before switching to your new board count.</li>
@@ -223,6 +233,6 @@
         </footer>
     </main>
     <script async="" src="../../assets/js/site-additional-content.js"></script>
-    <script type="module" src="elo.js?v=failstreak"></script>
+    <script type="module" src="elo.js?v=chart-no-x-labels"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@
 import { validateSelectionWeights } from './hintSelection.js';
 import { openingCount } from './openings.js';
 import { maxBoards } from './eloPolicy.js?v=10boards';
+import { validRangeHistory } from './rangeChart.js';
 
 export const storageKey = 'acasEloResult';
 export const settingsStorageKey = 'acasEloSettings';
@@ -40,9 +41,12 @@ export function parseCheckpoint(raw) {
             || !data.batch.every(game => validGame(game, true))))) {
         throw new Error('Invalid or incompatible EloEye checkpoint');
     }
+    const rangeHistoryValid = data.rangeHistory === undefined || validRangeHistory(data.rangeHistory, data.games.length);
+    if(!rangeHistoryValid) console.warn('EloEye range history is invalid. The saved matches can still be resumed.');
     return {
         version: data.version, protocol: data.protocol, mode: data.mode, total: data.total, boards: data.boards,
         games: data.games.map(savedGame),
+        ...(data.rangeHistory === undefined || !rangeHistoryValid ? {} : { rangeHistory: data.rangeHistory.map(point => ({ ...point })) }),
         ...(data.selectionWeights === undefined ? {} : { selectionWeights: validateSelectionWeights(data.selectionWeights) }),
         ...(data.version === 2 ? { batch: data.batch.map(savedGame) } : {})
     };

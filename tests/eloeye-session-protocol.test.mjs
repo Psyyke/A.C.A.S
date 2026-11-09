@@ -144,6 +144,33 @@ test('GUI completion tracks every expected profile and ignores superseded search
     h.result();
 });
 
+test('GUI search failure carries the stop reason through to the EloEye board', async () => {
+    let transport;
+    const gui = harness(true, async (_, id, variant, adapter) => {
+        transport = adapter;
+        return { close() { adapter.kill(); } };
+    });
+    const boardHarness = harness(), board = boardHarness.result;
+    board.setPosition({ fen: startFen, turn: 'w' });
+    const sync = boardHarness.sent.at(-1);
+    boardHarness.receive({ ...sync, type: 'available', gui: 'id-1' });
+    gui.receive({ ...boardHarness.sent.at(-1), type: 'sync', gui: 'id-1' });
+    await flush();
+    transport.expectProfiles(startFen, [{ name: 'default' }]);
+    const calculation = { fen: startFen, stopReason: 'Max movetime!' };
+    transport.analysisStarted('default', calculation);
+    transport.analysisFailed('default', calculation, 'Search stopped before a Maia policy was available');
+    const message = gui.sent.at(-1);
+    assert.equal(message.stopReason, 'Max movetime!');
+    boardHarness.receive(message);
+    assert.match(board.error.message, /Maia policy/);
+    assert.equal(board.error.stopReason, 'Max movetime!');
+    const closing = board.destroy();
+    boardHarness.receive({ ...message, type: 'closed' });
+    await closing;
+    gui.result();
+});
+
 test('GUI loss clears stale hints, rediscovers a restarted GUI, and close rejects waiters without leaks', async () => {
     const h = harness(), board = h.result;
     board.setPosition({ fen: startFen, turn: 'w' });
