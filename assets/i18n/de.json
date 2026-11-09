@@ -56,7 +56,7 @@
         "#tos-title": "Willkommen, mein Freund!",
         ".tos-description": "Schön, dass du da bist! Dein Userscript ist installiert und A.C.A.S ist startklar.\n\nSchau dich in Ruhe um und probier die Funktionen aus. Ob du Unterstützung beim Schach suchst oder einfach Spaß haben möchtest: Los geht's!",
         "#tos-continue-button": "Starte A.C.A.S",
-        ".tos-link": "Ich habe die Nutzungsbedingungen gelesen und stimme ihnen zu.",
+        "#tos-agreement-label": "Ich stimme den [[terms|Nutzungsbedingungen]] und der [[privacy|Datenschutzerklärung]] zu.", ".tos-link": "Ich habe die Nutzungsbedingungen gelesen und stimme ihnen zu.",
         ".tos-footer-small": "Durch die Nutzung von A.C.A.S bestätigst du, dass du die Nutzungsbedingungen gelesen, verstanden und zugestimmt hast.",
         "#thanks-for-using-footer-text": "Danke, dass du A.C.A.S verwendest, ein handgefertigtes Projekt eines Solo-Entwicklers.",
         ".no-updates-disclaimer-text": "Frag nicht nach Updates für diese",

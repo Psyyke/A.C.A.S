@@ -56,7 +56,7 @@
         "#tos-title": "Chào mừng bạn!",
         ".tos-description": "Rất vui được gặp bạn! Userscript đã cài xong và A.C.A.S đã sẵn sàng.\n\nCứ thoải mái khám phá và thử các tính năng nhé. Muốn có người giúp chọn nước cờ hay chỉ muốn chơi cho vui? Mình cùng bắt đầu thôi!",
         "#tos-continue-button": "Khởi động A.C.A.S",
-        ".tos-link": "Tôi đã đọc và đồng ý với Điều khoản Dịch vụ.",
+        "#tos-agreement-label": "Tôi đồng ý với [[terms|Điều khoản dịch vụ]] và [[privacy|Chính sách quyền riêng tư]].", ".tos-link": "Tôi đã đọc và đồng ý với Điều khoản Dịch vụ.",
         ".tos-footer-small": "Bằng việc sử dụng A.C.A.S, bạn xác nhận đã đọc, hiểu và đồng ý tuân thủ Điều khoản Dịch vụ.",
         "#thanks-for-using-footer-text": "Cảm ơn bạn đã dùng A.C.A.S - dự án được một nhà phát triển tự tay xây dựng và chăm chút.",
         ".no-updates-disclaimer-text": "Đừng yêu cầu cập nhật cho những mục này",

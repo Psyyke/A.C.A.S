@@ -56,7 +56,7 @@
         "#tos-title": "Tere tulemast, sõber!",
         ".tos-description": "Tore, et oled siin! Kasutajaskript on paigaldatud ja A.C.A.S on valmis.\n\nVaata rahulikult ringi ja proovi funktsioone. Otsid sa abi males või lihtsalt veidi mängurõõmu, hakkame pihta!",
         "#tos-continue-button": "Käivita A.C.A.S",
-        ".tos-link": "Olen lugenud ja nõustun teenuse tingimustega.",
+        "#tos-agreement-label": "Nõustun [[terms|Teenusetingimuste]] ja [[privacy|Privaatsuspoliitikaga]].", ".tos-link": "Olen lugenud ja nõustun teenuse tingimustega.",
         ".tos-footer-small": "A.C.A.S-i kasutamisega kinnitate, et olete lugenud, mõistnud ja nõustunud TOS-iga.",
         "#thanks-for-using-footer-text": "Aitäh, et kasutad A.C.A.S-i! Seda projekti arendab üks inimene, hoole ja südamega.",
         ".no-updates-disclaimer-text": "Ärge küsige nende kohta uuendusi",

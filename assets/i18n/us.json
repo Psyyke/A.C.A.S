@@ -55,7 +55,7 @@
         "#tos-title": "Welcome, my friend!",
         ".tos-description": "Glad you're here! Your userscript is installed, and A.C.A.S is ready to go.\n\nTake a look around, try out the features, and make yourself at home. Whether you want a helping hand or just a bit of fun, let's get started!",
         "#tos-continue-button": "Kickstart A.C.A.S",
-        ".tos-link": "I have read and agree to the Terms of Service.",
+        "#tos-agreement-label": "I agree to the [[terms|Terms of Service]] and [[privacy|Privacy Policy]].", ".tos-link": "I have read and agree to the Terms of Service.",
         ".tos-footer-small": "By using A.C.A.S, you confirm that you have read, understood, and agree to abide by the TOS.",
         "#thanks-for-using-footer-text": "Thanks for using A.C.A.S, a handcrafted project made by a solo developer.",
         ".no-updates-disclaimer-text": "Do not ask for updates for these",

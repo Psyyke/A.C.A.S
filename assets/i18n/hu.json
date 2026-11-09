@@ -56,7 +56,7 @@
         "#tos-title": "Üdvözöllek, barátom!",
         ".tos-description": "Örülünk, hogy itt vagy! A felhasználói szkript telepítve van, az A.C.A.S pedig készen áll.\n\nNézz körül, és próbáld ki a funkciókat a saját tempódban. Akár sakkban szeretnél segítséget, akár csak egy kis kikapcsolódásra vágysz, vágjunk bele!",
         "#tos-continue-button": "Indítsd el az A.C.A.S-t",
-        ".tos-link": "Elolvastam és elfogadom a felhasználási feltételeket.",
+        "#tos-agreement-label": "Elfogadom a [[terms|Felhasználási feltételeket]] és az [[privacy|Adatvédelmi tájékoztatót]].", ".tos-link": "Elolvastam és elfogadom a felhasználási feltételeket.",
         ".tos-footer-small": "Az A.C.A.S használatával megerősíted, hogy elolvastad, megértetted és egyetértesz a TOS betartásával.",
         "#thanks-for-using-footer-text": "Köszönjük, hogy használod az A.C.A.S-t, egy kézműves projektet, amelyet egyetlen fejlesztő készített.",
         ".no-updates-disclaimer-text": "Ne kérj frissítéseket ezekre",

@@ -56,7 +56,7 @@
         "#tos-title": "Dobrodošao, prijatelju!",
         ".tos-description": "Drago nam je što si tu! Korisnička skripta je instalirana i A.C.A.S je spreman.\n\nRazgledaj i isprobaj funkcije bez žurbe. Bilo da ti treba pomoć oko šaha ili samo malo zabave, hajde da počnemo!",
         "#tos-continue-button": "Pokreni A.C.A.S",
-        ".tos-link": "Pročitao sam i slažem se sa Uslovima korišćenja.",
+        "#tos-agreement-label": "Saglasan/na sam sa [[terms|Uslovima korišćenja]] i [[privacy|Politikom privatnosti]].", ".tos-link": "Pročitao sam i slažem se sa Uslovima korišćenja.",
         ".tos-footer-small": "Korišćenjem A.C.A.S potvrđuješ da si pročitao, razumeo i slažeš se da poštuješ TOS.",
         "#thanks-for-using-footer-text": "Hvala što koristiš A.C.A.S, ručno izrađen projekat jednog programera.",
         ".no-updates-disclaimer-text": "Ne traži ažuriranja za ovo",

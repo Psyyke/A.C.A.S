@@ -175,12 +175,55 @@
 			.replaceAll('\n', '');
 	}
 
+	function renderTermsPrivacyAgreement(element, translation) {
+		const placeholders = {
+			terms: { href: '../tos' },
+			privacy: { href: '../privacy' }
+		};
+		const pattern = /\[\[(terms|privacy)\|([^\]]+)\]\]/g;
+		let lastIndex = 0;
+		let match;
+		const nodes = [];
+
+		while((match = pattern.exec(translation))) {
+			if(match.index > lastIndex) {
+				nodes.push(document.createTextNode(translation.slice(lastIndex, match.index)));
+			}
+
+			const link = document.createElement('a');
+			link.href = placeholders[match[1]].href;
+			link.target = '_about';
+			link.rel = 'noopener noreferrer';
+			link.className = 'tos-agreement-link';
+			link.textContent = match[2];
+			nodes.push(link);
+			lastIndex = pattern.lastIndex;
+		}
+
+		if(lastIndex < translation.length) {
+			nodes.push(document.createTextNode(translation.slice(lastIndex)));
+		}
+
+		element.replaceChildren(...nodes);
+	}
+
 	function updateTextContent() {
 		Object.keys(domTranslations).forEach(query => {
 			const elemArr = [...document.querySelectorAll(query)];
 
 			if(elemArr?.length) {
 				const translation = domTranslations[query];
+
+				if(query === '#tos-agreement-label') {
+					elemArr
+						.filter(element => element.dataset.translationValue !== translation)
+						.forEach(element => {
+							renderTermsPrivacyAgreement(element, translation);
+							element.dataset.translationValue = translation;
+							element.dir = FULL_TRANS_OBJ?.textDirection ?? 'auto';
+						});
+					return;
+				}
 
 				elemArr
 					.filter(x => comparisonFormat(x.innerText) !== comparisonFormat(translation))

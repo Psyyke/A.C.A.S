@@ -56,7 +56,7 @@
         "#tos-title": "어서 오세요!",
         ".tos-description": "함께하게 되어 반가워요! 사용자 스크립트가 설치되어 A.C.A.S를 바로 사용할 수 있어요.\n\n천천히 둘러보고 원하는 기능을 써 보세요. 체스에 도움이 필요할 때도, 가볍게 즐기고 싶을 때도 함께해요. 그럼 시작해 볼까요?",
         "#tos-continue-button": "A.C.A.S 시작하기",
-        ".tos-link": "서비스 약관을 읽고 동의합니다.",
+        "#tos-agreement-label": "[[terms|서비스 이용약관]] 및 [[privacy|개인정보 처리방침]]에 동의합니다.", ".tos-link": "서비스 약관을 읽고 동의합니다.",
         ".tos-footer-small": "A.C.A.S를 사용함으로써 서비스 약관을 읽고 이해했으며 이에 동의함을 확인합니다.",
         "#thanks-for-using-footer-text": "A.C.A.S를 사용해주셔서 감사합니다. 혼자서 만든 프로젝트입니다.",
         ".no-updates-disclaimer-text": "이들에 대한 업데이트 요청은 하지 마세요",

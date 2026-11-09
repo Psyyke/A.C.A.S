@@ -56,7 +56,7 @@
         "#tos-title": "Vítejte, můj příteli!",
         ".tos-description": "Vítej! Uživatelský skript je nainstalovaný a A.C.A.S může začít.\n\nV klidu si prohlédni a vyzkoušej všechny funkce. Ať už chceš poradit se šachem, nebo si jen trochu užít hru, jdeme na to!",
         "#tos-continue-button": "Spustit A.C.A.S",
-        ".tos-link": "Přečetl(a) jsem a souhlasím s podmínkami služby.",
+        "#tos-agreement-label": "Souhlasím s [[terms|Podmínkami služby]] a [[privacy|Zásadami ochrany osobních údajů]].", ".tos-link": "Přečetl(a) jsem a souhlasím s podmínkami služby.",
         ".tos-footer-small": "Používáním A.C.A.S potvrzujete, že jste si přečetli, porozuměli a souhlasíte s dodržováním TOS.",
         "#thanks-for-using-footer-text": "Děkujeme, že používáte A.C.A.S, ručně vyrobený projekt jednoho vývojáře.",
         ".no-updates-disclaimer-text": "Nežádejte o aktualizace pro tyto",

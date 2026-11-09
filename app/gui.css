@@ -1,3 +1,5 @@
+@import url("../assets/css/consent.css");
+
 @font-face {
 	font-family: "Mona Sans";
 	src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
@@ -941,7 +943,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     align-items: center;
 }
 @media (max-width: 600px) {
-	.tos-link {
+	.tos-checkbox-label a {
 		font-size: 14px;
 	}
 }
@@ -952,7 +954,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     .tos-description {
         font-size: 15px;
     }
-	.tos-link {
+	.tos-checkbox-label a {
 		font-size: 12px;
 	}
 }
@@ -974,12 +976,19 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     margin-top: 20px;
     font-weight: 300;
 }
-.tos-link {
-	display: inline-block;
-	color: white;
+.tos-checkbox-label a {
+	color: #b7efc2;
 	text-decoration: none;
-	background-color: #ffffff10;
-	border-bottom: 1px solid #447941;
+	border-bottom: 1px solid #5b9c68;
+	transition: color 0.15s ease, border-color 0.15s ease;
+}
+.tos-checkbox-label a:hover,
+.tos-checkbox-label a:focus-visible {
+	color: #fff;
+	border-color: #9de5ac;
+}
+.tos-agreement-link {
+	display: inline;
 }
 .tos-checkbox-container {
 	font-size: 20px;
@@ -990,7 +999,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     align-items: center !important;
     flex-wrap: nowrap !important;
     gap: 12px;
-    white-space: nowrap !important;
+    white-space: normal !important;
     padding-left: 5px;
 }
 .tos-checkbox-label input[type="checkbox"] {
@@ -1003,7 +1012,8 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 .tos-checkbox-label span {
     flex: 1 1 auto !important;
     min-width: 0;
-    white-space: nowrap !important;
+    line-height: 1.5;
+    white-space: normal !important;
 }
 #tos-continue-button {
 	display: inline-block;

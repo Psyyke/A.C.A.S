@@ -56,7 +56,7 @@
         "#tos-title": "Selamat datang!",
         ".tos-description": "Senang kamu ada di sini! Userscript sudah terpasang dan A.C.A.S siap dipakai.\n\nSilakan lihat-lihat dan coba fiturnya santai saja. Mau cari bantuan main catur atau sekadar seru-seruan? Yuk, mulai!",
         "#tos-continue-button": "Mulai A.C.A.S",
-        ".tos-link": "Saya telah membaca dan setuju dengan Syarat dan Ketentuan.",
+        "#tos-agreement-label": "Saya menyetujui [[terms|Ketentuan Layanan]] dan [[privacy|Kebijakan Privasi]].", ".tos-link": "Saya telah membaca dan setuju dengan Syarat dan Ketentuan.",
         ".tos-footer-small": "Dengan menggunakan A.C.A.S, Anda mengonfirmasi bahwa Anda telah membaca, memahami, dan setuju untuk mematuhi Syarat dan Ketentuan.",
         "#thanks-for-using-footer-text": "Terima kasih sudah memakai A.C.A.S, proyek yang dibuat dengan sepenuh hati oleh satu pengembang.",
         ".no-updates-disclaimer-text": "Jangan meminta pembaruan untuk ini",

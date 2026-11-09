@@ -56,7 +56,7 @@
         "#tos-title": "Witaj, mój przyjacielu!",
         ".tos-description": "Fajnie, że jesteś! Skrypt użytkownika jest zainstalowany, a A.C.A.S jest gotowy do działania.\n\nRozejrzyj się i spokojnie wypróbuj dostępne funkcje. Chcesz pomocy w szachach czy po prostu trochę pograć? No to zaczynamy!",
         "#tos-continue-button": "Rozpocznij A.C.A.S",
-        ".tos-link": "Przeczytałem i zgadzam się na Warunki korzystania z usług.",
+        "#tos-agreement-label": "Akceptuję [[terms|Warunki korzystania z usługi]] i [[privacy|Politykę prywatności]].", ".tos-link": "Przeczytałem i zgadzam się na Warunki korzystania z usług.",
         ".tos-footer-small": "Korzystając z A.C.A.S, potwierdzasz, że przeczytałeś, zrozumiałeś i zgadzasz się przestrzegać Warunków korzystania z usług.",
         "#thanks-for-using-footer-text": "Dzięki, że korzystasz z A.C.A.S! To projekt tworzony z pasją przez jednego dewelopera.",
         ".no-updates-disclaimer-text": "Nie pytaj o aktualizacje tych",

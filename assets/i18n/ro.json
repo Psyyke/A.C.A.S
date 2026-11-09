@@ -56,7 +56,7 @@
         "#tos-title": "Bine ai venit, prietene!",
         ".tos-description": "Ne bucurăm că ești aici! Scriptul de utilizator este instalat, iar A.C.A.S e gata de pornire.\n\nAruncă o privire și încearcă funcțiile în ritmul tău. Fie că vrei o mână de ajutor la șah sau doar puțină distracție, hai să începem!",
         "#tos-continue-button": "Pornește A.C.A.S",
-        ".tos-link": "Am citit și sunt de acord cu Termenii de Serviciu.",
+        "#tos-agreement-label": "Sunt de acord cu [[terms|Termenii și condițiile]] și [[privacy|Politica de confidențialitate]].", ".tos-link": "Am citit și sunt de acord cu Termenii de Serviciu.",
         ".tos-footer-small": "Folosind A.C.A.S, confirmi că ai citit, înțeles și ești de acord să respecți TOS.",
         "#thanks-for-using-footer-text": "Îți mulțumim că folosești A.C.A.S, un proiect realizat manual de un singur dezvoltator.",
         ".no-updates-disclaimer-text": "Nu cere actualizări pentru acestea",

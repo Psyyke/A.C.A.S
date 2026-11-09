@@ -377,13 +377,25 @@
         toggle.setAttribute("aria-expanded", String(open));
         if (open) input.focus();
     };
+    const footer = document.querySelector("main > footer");
+    if (footer) {
+        new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                if (finder.contains(document.activeElement)) {
+                    footer.querySelector("a")?.focus({ preventScroll: true });
+                }
+                setOpen(false);
+            }
+            finder.hidden = entry.isIntersecting;
+        }).observe(footer);
+    }
     toggle.addEventListener("click", () => setOpen(!finder.classList.contains("is-open")));
     document.addEventListener("pointerdown", e => {
         if (finder.classList.contains("is-open") && !finder.contains(e.target)) setOpen(false);
     });
     document.addEventListener("keydown", e => {
         const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
-        if (e.key === "/" && !typing && !e.ctrlKey && !e.metaKey) {
+        if (e.key === "/" && !finder.hidden && !typing && !e.ctrlKey && !e.metaKey) {
             e.preventDefault();
             setOpen(true);
         } else if (e.key === "Escape" && finder.classList.contains("is-open") && !input.value) {

@@ -56,7 +56,7 @@
         "#tos-title": "Xoş gəlmisiniz, dostum!",
         ".tos-description": "Xoş gəlmisiniz! İstifadəçi skripti quraşdırılıb, A.C.A.S isə işə hazırdır.\n\nFunksiyaları rahatca araşdırıb sınaya bilərsiniz. İstər şahmatda kömək axtarın, istər sadəcə əylənmək istəyin, başlayaq!",
         "#tos-continue-button": "A.C.A.S-ı başladın",
-        ".tos-link": "Mən Xidmət Şərtlərini oxudum və razıyam.",
+        "#tos-agreement-label": "[[terms|Xidmət Şərtləri]] və [[privacy|Məxfilik Siyasəti]] ilə razıyam.", ".tos-link": "Mən Xidmət Şərtlərini oxudum və razıyam.",
         ".tos-footer-small": "A.C.A.S-dan istifadə edərək, siz Xidmət Şərtlərini oxuduğunuzu, başa düşdüyünüzü və onlara riayət etməyə razı olduğunuzu təsdiqləyirsiniz.",
         "#thanks-for-using-footer-text": "A.C.A.S-dan istifadə etdiyiniz üçün təşəkkür edirik, bu bir tərtibatçı tərəfindən hazırlanmış əl işi layihəsidir.",
         ".no-updates-disclaimer-text": "Bunlar üçün yeniləmələr istəməyin",

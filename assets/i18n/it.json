@@ -56,7 +56,7 @@
         "#tos-title": "Benvenuto, amico mio!",
         ".tos-description": "Che bello averti qui! Lo script utente è installato e A.C.A.S è pronto a partire.\n\nDai un'occhiata e prova le funzioni con calma. Che tu voglia una mano con gli scacchi o solo un po' di divertimento, cominciamo!",
         "#tos-continue-button": "Avvia A.C.A.S",
-        ".tos-link": "Ho letto e accetto i Termini di Servizio.",
+        "#tos-agreement-label": "Accetto i [[terms|Termini di servizio]] e l’[[privacy|Informativa sulla privacy]].", ".tos-link": "Ho letto e accetto i Termini di Servizio.",
         ".tos-footer-small": "Usando A.C.A.S, confermi di aver letto, compreso e accettato di rispettare i TOS.",
         "#thanks-for-using-footer-text": "Grazie per usare A.C.A.S, un progetto curato con passione da un solo sviluppatore.",
         ".no-updates-disclaimer-text": "Non chiedere aggiornamenti per questi",

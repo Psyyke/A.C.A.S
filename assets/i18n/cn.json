@@ -56,7 +56,7 @@
         "#tos-title": "欢迎，朋友！",
         ".tos-description": "欢迎！用户脚本已经安装好了，A.C.A.S 随时可以开始。\n\n不妨四处看看，试试各项功能。想找个下棋帮手，或者只是想玩得开心一点？那就开始吧！",
         "#tos-continue-button": "启动 A.C.A.S",
-        ".tos-link": "我已阅读并同意服务条款。",
+        "#tos-agreement-label": "我同意[[terms|服务条款]]和[[privacy|隐私政策]]。", ".tos-link": "我已阅读并同意服务条款。",
         ".tos-footer-small": "通过使用 A.C.A.S，你确认你已经阅读、理解并同意遵守服务条款。",
         "#thanks-for-using-footer-text": "感谢使用 A.C.A.S，这是一个由独立开发者手工制作的项目。",
         ".no-updates-disclaimer-text": "请勿询问这些的更新",

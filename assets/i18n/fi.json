@@ -56,7 +56,7 @@
         "#tos-title": "Tervetuloa!",
         ".tos-description": "Kiva kun tulit! Käyttäjäskripti on asennettu ja A.C.A.S on valmiina käyttöön.\n\nTutustu rauhassa ominaisuuksiin ja kokeile, mitä niillä voi tehdä. Kaipasitpa apua shakkiin tai ihan vain hauskaa pelihetkeä, tästä se lähtee!",
         "#tos-continue-button": "Käynnistä A.C.A.S",
-        ".tos-link": "Olen lukenut ja hyväksyn käyttöehdot.",
+        "#tos-agreement-label": "Hyväksyn [[terms|Käyttöehdot]] ja [[privacy|Tietosuojakäytännön]].", ".tos-link": "Olen lukenut ja hyväksyn käyttöehdot.",
         ".tos-footer-small": "Käyttämällä A.C.A.S:ia vahvistat, että olet lukenut, ymmärtänyt ja suostut noudattamaan käyttöehtoja.",
         "#thanks-for-using-footer-text": "Kiitos, että käytät A.C.A.S:ia, käsityönä tehtyä projektia, jonka on luonut yksi kehittäjä.",
         ".no-updates-disclaimer-text": "Älä kysy päivityksiä näihin",

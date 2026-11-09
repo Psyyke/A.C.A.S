@@ -56,7 +56,7 @@
         "#tos-title": "Hoş geldin, dostum!",
         ".tos-description": "İyi ki geldin! Kullanıcı betiği kuruldu ve A.C.A.S kullanıma hazır.\n\nRahatça etrafa bak, özellikleri dene. İster satrançta yardım iste, ister biraz keyif yapmak için gelmiş ol: Hadi başlayalım!",
         "#tos-continue-button": "A.C.A.S'i Başlat",
-        ".tos-link": "Hizmet Şartları'nı okudum ve kabul ediyorum.",
+        "#tos-agreement-label": "[[terms|Hizmet Şartları]] ve [[privacy|Gizlilik Politikası]]’nı kabul ediyorum.", ".tos-link": "Hizmet Şartları'nı okudum ve kabul ediyorum.",
         ".tos-footer-small": "A.C.A.S'i kullanarak, Hizmet Şartları'nı okuduğunu, anladığını ve kabul ettiğini onaylarsın.",
         "#thanks-for-using-footer-text": "A.C.A.S'i kullandığın için teşekkürler! Bu proje tek bir geliştiricinin emeğiyle hazırlanıyor.",
         ".no-updates-disclaimer-text": "Bunlar için güncelleme istemeyin",

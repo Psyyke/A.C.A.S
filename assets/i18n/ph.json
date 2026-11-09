@@ -56,7 +56,7 @@
         "#tos-title": "Maligayang pagdating, kaibigan!",
         ".tos-description": "Buti nandito ka! Naka-install na ang userscript at ready nang gamitin ang A.C.A.S.\n\nTingin-tingin ka muna at subukan ang mga feature. Kailangan mo man ng tulong sa chess o gusto mo lang mag-enjoy, tara na!",
         "#tos-continue-button": "Simulan ang A.C.A.S",
-        ".tos-link": "Nabasa ko at sumasang-ayon ako sa Mga Tuntunin ng Serbisyo.",
+        "#tos-agreement-label": "Sumasang-ayon ako sa [[terms|Mga Tuntunin ng Serbisyo]] at [[privacy|Patakaran sa Privacy]].", ".tos-link": "Nabasa ko at sumasang-ayon ako sa Mga Tuntunin ng Serbisyo.",
         ".tos-footer-small": "Sa paggamit ng A.C.A.S, kinukumpirma mo na nabasa mo, naintindihan mo, at sumasang-ayon ka sa pagsunod sa TOS.",
         "#thanks-for-using-footer-text": "Salamat sa paggamit ng A.C.A.S, isang proyekto na ginawa ng isang developer.",
         ".no-updates-disclaimer-text": "Huwag humiling ng mga update para dito",

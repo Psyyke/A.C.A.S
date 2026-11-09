@@ -1,3 +1,5 @@
+@import url("../assets/css/consent.css");
+
 @font-face {
 	font-family: "Mona Sans";
 	src: url("../assets/fonts/Mona-Sans.woff2") format("woff2 supports variations"), url("../assets/fonts/Mona-Sans.woff2") format("woff2-variations");
@@ -33,6 +35,15 @@ body {
     display: flex;
     flex-direction: column;
     width: 600px;
+    max-width: calc(100% - 50px);
+}
+#wrapper a {
+    color: #256334;
+    text-underline-offset: 3px;
+}
+#wrapper a:hover,
+#wrapper a:focus-visible {
+    color: #172f36;
 }
 .big-title {
     font-size: 35px;
@@ -47,6 +58,7 @@ body {
     font-weight: 700;
     font-stretch: ultra-expanded;
     margin: 20px 0 0 0;
+    text-align: center;
 }
 .small-paragraph {
     font-size: 15px;
@@ -62,7 +74,7 @@ body {
     text-align: center;
 }
 .greyed {
-    color: #7c7c7c;
+    color: #686868;
 }
 .slim {
     font-weight: 300;

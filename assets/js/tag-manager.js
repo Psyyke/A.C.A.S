@@ -1,12 +1,11 @@
 const TAG_MANAGER_CODE = 'GTM-5499BQ4B';
 
-// Initialize the dataLayer
 window.dataLayer = window.dataLayer || [];
+window.adsbygoogle = window.adsbygoogle || [];
+window.adsbygoogle.requestNonPersonalizedAds = 1;
 
-// Define the gtag function
 function gtag(){dataLayer.push(arguments);}
 
-// Deny personalization by default
 gtag('consent', 'default', {
     'ad_storage': 'denied',
     'ad_user_data': 'denied',
@@ -15,12 +14,10 @@ gtag('consent', 'default', {
     'wait_for_update': 500
 });
 
-// Load the gtag.js library
 gtag("js", new Date());
 gtag('set', 'url_passthrough', true);
 gtag("config", TAG_MANAGER_CODE);
 
-// Load the GTM script
 (function(w,d,s,l,i){
     w[l]=w[l]||[];
     w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});

@@ -52,7 +52,7 @@
         "#tos-title": "Xush kelibsiz, do‘stim!",
         ".tos-description": "Kelganingizdan xursandmiz! Foydalanuvchi skriptingiz o‘rnatilgan, A.C.A.S esa ishga tayyor.\n\nImkoniyatlarni ko‘rib chiqing, sinab ko‘ring va o‘zingizni erkin his qiling. Yordam kerakmi yoki shunchaki o‘ynashni xohlaysizmi - boshlaymiz!",
         "#tos-continue-button": "A.C.A.S ni boshlash",
-        ".tos-link": "Foydalanish shartlarini o‘qidim va ularga roziman.",
+        "#tos-agreement-label": "[[terms|Foydalanish shartlari]] va [[privacy|Maxfiylik siyosati]]ga roziman.", ".tos-link": "Foydalanish shartlarini o‘qidim va ularga roziman.",
         ".tos-footer-small": "A.C.A.S dan foydalanish orqali shartlarni o‘qiganingizni, tushunganingizni va ularga rioya qilishga roziligingizni tasdiqlaysiz.",
         "#thanks-for-using-footer-text": "Yakka dasturchi yaratgan A.C.A.S loyihasidan foydalanganingiz uchun rahmat.",
         ".no-updates-disclaimer-text": "Bular uchun yangilanish so‘ramang",

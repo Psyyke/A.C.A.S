@@ -56,7 +56,7 @@
         "#tos-title": "Välkommen, min vän!",
         ".tos-description": "Kul att du är här! Användarskriptet är installerat och A.C.A.S är redo att köra.\n\nKika runt och prova funktionerna i lugn och ro. Vill du ha hjälp med schacket eller bara spela en stund? Då kör vi!",
         "#tos-continue-button": "Starta A.C.A.S",
-        ".tos-link": "Jag har läst och godkänner användarvillkoren.",
+        "#tos-agreement-label": "Jag godkänner [[terms|Användarvillkoren]] och [[privacy|Integritetspolicyn]].", ".tos-link": "Jag har läst och godkänner användarvillkoren.",
         ".tos-footer-small": "Genom att använda A.C.A.S bekräftar du att du har läst, förstått och godkänner att följa användarvillkoren.",
         "#thanks-for-using-footer-text": "Tack för att du använder A.C.A.S, ett handgjort projekt från en solo-utvecklare.",
         ".no-updates-disclaimer-text": "Fråga inte efter uppdateringar för dessa",

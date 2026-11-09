@@ -56,7 +56,7 @@
         "#tos-title": "Welkom, mijn vriend!",
         ".tos-description": "Leuk dat je er bent! Je userscript is geïnstalleerd en A.C.A.S staat klaar.\n\nKijk rustig rond en probeer de functies uit. Of je nu hulp bij het schaken zoekt of gewoon lekker wilt spelen: we gaan ervoor!",
         "#tos-continue-button": "Start A.C.A.S",
-        ".tos-link": "Ik heb de gebruiksvoorwaarden gelezen en ga akkoord.",
+        "#tos-agreement-label": "Ik ga akkoord met de [[terms|Servicevoorwaarden]] en het [[privacy|Privacybeleid]].", ".tos-link": "Ik heb de gebruiksvoorwaarden gelezen en ga akkoord.",
         ".tos-footer-small": "Door A.C.A.S te gebruiken, bevestig je dat je de gebruiksvoorwaarden hebt gelezen, begrepen en ermee akkoord gaat.",
         "#thanks-for-using-footer-text": "Dank je wel voor het gebruik van A.C.A.S, een handgemaakt project van een solo-ontwikkelaar.",
         ".no-updates-disclaimer-text": "Vraag niet om updates voor deze",

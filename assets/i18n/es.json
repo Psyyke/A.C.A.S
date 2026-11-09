@@ -56,7 +56,7 @@
         "#tos-title": "¡Bienvenido, mi amigo!",
         ".tos-description": "¡Qué bueno tenerte por aquí! El userscript ya está instalado y A.C.A.S está listo para empezar.\n\nEcha un vistazo y prueba las funciones a tu ritmo. Tanto si buscas una mano con el ajedrez como si solo quieres divertirte un rato, ¡vamos allá!",
         "#tos-continue-button": "Iniciar A.C.A.S",
-        ".tos-link": "He leído y acepto los Términos de Servicio.",
+        "#tos-agreement-label": "Acepto los [[terms|Términos del servicio]] y la [[privacy|Política de privacidad]].", ".tos-link": "He leído y acepto los Términos de Servicio.",
         ".tos-footer-small": "Al usar A.C.A.S, confirmas que has leído, comprendido y aceptas cumplir con los Términos de Servicio.",
         "#thanks-for-using-footer-text": "Gracias por usar A.C.A.S, un proyecto artesanal hecho por un desarrollador en solitario.",
         ".no-updates-disclaimer-text": "No pidas actualizaciones para estos",
