@@ -4339,7 +4339,7 @@ video {
         content: "ACAS";
         display: block;
         font-size: max(170px, 46vw);
-        letter-spacing: 0.015em;
+        letter-spacing: 15px;
     }
 }
 
@@ -4352,11 +4352,15 @@ dialog > .floaty-container::before,
 }
 
 @media (max-width: 700px) {
+    .user-stat h5,
+    .user-stat p {
+        font-size: 14px;
+    }
     #no-instances-container {
-        border-bottom-width: 4px;
+        border-bottom-width: 2px;
     }
     body {
-        --acas-header-height: 65px;
+        --acas-header-height: 75px;
     }
     #acas-header {
         padding: 13px 20px;
@@ -4370,21 +4374,22 @@ dialog > .floaty-container::before,
         display: none;
     }
     #acas-logo {
-        font-size: 25px;
+        font-size: 27px;
     }
     #acas-logo-img {
-        width: 120px;
-        max-height: 80px;
-        margin-top: -8px;
+        width: 150px;
+        max-height: 100px;
+        margin-top: -22px;
     }
     #acas-version-tag {
         font-size: 12px;
     }
     #acas-logo-secondary {
-        font-size: 12px;
+        font-size: 13px;
+        margin-top: -4px;
     }
     #acas-logo-secondary.has-whisper-font {
-        font-size: 18px;
+        font-size: 20px;
         margin-top: -8px;
     }
     #no-instances-container,
@@ -4393,7 +4398,7 @@ dialog > .floaty-container::before,
     #footer {
         background-size: 80px 80px, 100% 100% !important;
         border-radius: 4px;
-        border-top-color: rgb(0 0 0 / 10%);
+        border-top-color: rgb(0 0 0 / 35%);
         border-left: 0;
         border-right: 0;
         width: 100%;
@@ -4409,6 +4414,7 @@ dialog > .floaty-container::before,
 		border-radius: 0;
 		border-inline-width: 0;
         border-top: 2px solid rgb(0 0 0 / 40%);
+        border-bottom-width: 3px;
 	}
 	#acas-header,
 	#acas-header::before {
