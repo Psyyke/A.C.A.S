@@ -67,7 +67,7 @@ There might be more, please let us know if anything is missing, thank you!
 <table width="100%">
   <tr>
     <td valign="middle">
-      <img width="3004" height="1465" alt="clipboard-image-1794223615 (4) (1)" src="https://github.com/user-attachments/assets/fd7f17cf-69ba-4595-bd7c-2c03562ba7cd" />
+      <img width="2572" height="1465" alt="clipboard-image-1794223615 (5) (1)" src="https://github.com/user-attachments/assets/4947cc65-d4c6-4e77-ac90-d2d0c41ec666" />
     </td>
     <td width="179" valign="middle">
       <img
