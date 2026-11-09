@@ -128,6 +128,23 @@ test('incomplete-history markers survive real compact transport and suppress fic
     assert.equal(exportPgn(Chess, decoded.history), null);
 });
 
+test('PGN export starts from the first observed position, like the engine command does', () => {
+    const gui = readFileSync(new URL('../app/assets/js/globals.js', import.meta.url), 'utf8');
+    const start = gui.indexOf('function GET_PGN_FROM_STATE_HISTORY(');
+    const exportPgn = new Function('Chess', 'gameStateHistory',
+        `${gui.slice(start, gui.indexOf('\n}', start) + 2)}; return GET_PGN_FROM_STATE_HISTORY(gameStateHistory);`);
+    const joined = 'rn1qkbnr/pbpp2pp/1p2p3/5p2/2PPP3/5P2/PP4PP/RNBQKBNR w KQkq f6 0 5';
+    const { chess, history } = game(['Nc3', 'c5', 'd5', 'Bd6', 'Bd3', 'Ne7', 'Nge2', 'O-O', 'O-O', 'Bxh2+', 'Kxh2'], joined);
+    const pgn = exportPgn(Chess, [history[0], history[0], ...history.slice(1)]);
+    assert.match(pgn, /\[FEN "rn1qkbnr\/pbpp2pp/);
+    assert.match(pgn, /5\. Nc3 c5 6\. d5 Bd6 .* 9\. O-O Bxh2\+ 10\. Kxh2$/);
+    const loaded = new Chess();
+    assert.ok(loaded.load_pgn(pgn));
+    assert.equal(loaded.fen(), chess.fen());
+    assert.equal(exportPgn(Chess, game(['e4', 'e5']).history), '1. e4 e5');
+    assert.equal(exportPgn(Chess, [history[0], history[2]]), null);
+});
+
 test('the GUI explicitly reports unavailable PGN rather than presenting an incomplete game as complete', async () => {
     const source = readFileSync(new URL('../app/assets/js/instance/Interface.js', import.meta.url), 'utf8');
     const start = source.indexOf('    async updatePgn() {');

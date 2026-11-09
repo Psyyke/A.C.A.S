@@ -672,7 +672,7 @@ export default class Interface {
         if(context.variant === 'chess' && !context.useChess960) {
             const pgn = GET_PGN_FROM_STATE_HISTORY(history);
             const book = pgn ? FIND_OPENING_BY_PGN(pgn) : null;
-            element.innerText = pgn || '1. (...)';
+            element.innerText = pgn === null ? 'PGN unavailable: the recorded moves could not be replayed.' : pgn || '1. (...)';
             opening.innerText = book ? `${book.name} (${book.eco})` : '';
             updatePipOpening(instance);
             return;

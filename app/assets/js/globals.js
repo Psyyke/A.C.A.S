@@ -611,23 +611,31 @@ function GET_BOARD_DIMENSIONS_FROM_FEN(fenStr) {
     }
 }
 
+// Starts from the first recorded position, because A.C.A.S often joins a game after it has begun.
+// Returns null when the recorded moves cannot be legally replayed.
 function GET_PGN_FROM_STATE_HISTORY(gameStateHistory) {
     if(gameStateHistory.some(state => state?.historyIncomplete)) return null;
     const chess = new Chess();
+    const initialFen = gameStateHistory[0]?.fen?.full;
+    if(initialFen && !chess.load(initialFen)) return null;
+    const positionKey = fen => fen.split(' ').slice(0, 4).join(' ');
 
-    for(const state of gameStateHistory) {
+    for(const state of gameStateHistory.slice(1)) {
+        const nextFen = state?.fen?.full;
+        if(nextFen && positionKey(nextFen) === positionKey(chess.fen())) continue;
+
         const change = state.boardChanges;
-
-        if(!change?.from || !change?.to) continue;
+        if(!change?.from || !change?.to) return null;
         const promotionPiece = change.promotionPiece;
 
-        chess.move({
+        const move = chess.move({
             from: change.from,
             to: change.to,
             ...(promotionPiece && {
                 promotion: promotionPiece.toLowerCase()
             })
         });
+        if(!move || (nextFen && positionKey(nextFen) !== positionKey(chess.fen()))) return null;
     }
 
     return chess.pgn();
