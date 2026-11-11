@@ -982,3 +982,28 @@ test('a board detached during an awaited orientation check cannot append or publ
     assert.equal(packets.length, 0);
     assert.equal(published.length, 0);
 });
+
+test('markings from an older position are never drawn and are cleared once the board moves', () => {
+    const run = new Function(`
+        let boardFen = 'start', activeVisuals = [];
+        const BoardDrawer = { createShape: () => ({ removed: false, setAttribute() {}, remove() { this.removed = true; } }) };
+        const getFen = () => boardFen, gameState = {}, feedbackVisualRevisions = new Map(), getConfigValue = () => false;
+        const maybeAnnounceMarkingsToPage = () => {};
+        ${declaration('renderStuffToBoard')}
+        ${source.slice(source.indexOf('function clearVisuals('), source.indexOf('function displayImportantNotification('))}
+        const arrow = (positionFen, category = 'move') => ({ profileID: 'p', category, positionFen,
+            shapeType: 'arrow', shapeSquare: 'e2e4', shapeConfig: {} });
+        renderStuffToBoard([arrow('old w - - 0 1')]);
+        const staleDrawn = activeVisuals.length;
+        renderStuffToBoard([arrow('start w - - 0 1')]);
+        renderStuffToBoard([arrow(undefined, 'metric')]);
+        const drawn = activeVisuals.map(({ shape }) => shape);
+        clearVisuals({ noMetricsRemoval: true, staleForFen: 'start' });
+        const keptOnSameBoard = activeVisuals.length;
+        boardFen = 'next';
+        clearVisuals({ noMetricsRemoval: true, staleForFen: 'next' });
+        return { staleDrawn, keptOnSameBoard, left: activeVisuals.map(({ marking }) => marking.category),
+            removed: drawn.map(shape => shape.removed) };
+    `);
+    assert.deepEqual(run(), { staleDrawn: 0, keptOnSameBoard: 2, left: ['metric'], removed: [true, false] });
+});

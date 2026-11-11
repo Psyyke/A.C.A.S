@@ -76,7 +76,7 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.5.8
+// @version     2.5.9
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
@@ -945,6 +945,12 @@ function renderStuffToBoard(markings) {
         feedbackVisualRevisions.set(profileID, revision);
     }
 
+    // Suggestions computed for an older position can arrive after the board
+    // moved on. Drawing them would leave arrows that no board change clears.
+    const boardFen = getFen(true);
+    if(markings.some(marking => marking?.shapeType && marking.positionFen
+        && marking.positionFen.split(' ')[0] !== boardFen)) return;
+
     clearVisuals({
         profileID,
         category
@@ -1003,7 +1009,8 @@ function renderStuffToBoard(markings) {
         activeVisuals.push({
             marking,
             shape,
-            hoverListener
+            hoverListener,
+            boardFen
         });
     });
 
@@ -1013,9 +1020,14 @@ function renderStuffToBoard(markings) {
 function clearVisuals({
     noMetricsRemoval = false,
     profileID = null,
-    category = null
+    category = null,
+    staleForFen = null
 } = {}) {
-    const shouldRemove = marking => {
+    const shouldRemove = (marking, boardFen) => {
+        if(staleForFen && boardFen === staleForFen) {
+            return false;
+        }
+
         if(profileID && marking?.profileID !== profileID) {
             return false;
         }
@@ -1032,11 +1044,11 @@ function clearVisuals({
     };
 
     const removalArr = activeVisuals.filter(
-        item => shouldRemove(item.marking)
+        item => shouldRemove(item.marking, item.boardFen)
     );
 
     activeVisuals = activeVisuals.filter(
-        item => !shouldRemove(item.marking)
+        item => !shouldRemove(item.marking, item.boardFen)
     );
 
     removalArr.forEach(({ shape, hoverListener }) => {
@@ -1997,6 +2009,9 @@ async function determineBoardPositionValidity() {
 
     const history = gameStateHistory.get();
     const currentBasicFen = getFen(true);
+    // Rejected or still-settling positions return before processBoardPosition,
+    // so drop any markings drawn for a different position right away.
+    clearVisuals({ noMetricsRemoval: true, staleForFen: currentBasicFen });
     if(unresolvedPosition?.fen !== currentBasicFen)
         unresolvedPosition = { fen: currentBasicFen, since: Date.now() };
     const lastTurn = history[0]?.turn;
