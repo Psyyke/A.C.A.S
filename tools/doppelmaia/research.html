@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoppelMaia Research Notebook / A.C.A.S</title>
+    <meta name="description" content="What personal chess training can learn, how many games it needs, browser training times and the evidence behind DoppelMaia.">
+    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/tools/doppelmaia/research.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="DoppelMaia Research Notebook">
+    <meta property="og:description" content="The useful gains, the experiments that did not help and the practical limits of learning a chess style.">
+    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/tools/doppelmaia/research.html">
+    <link rel="stylesheet" href="../../assets/css/home.css">
+    <link rel="stylesheet" href="../tools.css">
+    <link rel="stylesheet" href="personalized-maia.css">
+    <link rel="stylesheet" href="../../assets/libraries/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="icon" href="../../favicon.ico">
+</head>
+<body>
+    <main>
+        <header>
+            <div><a href="../../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
+            <div class="header-nav">
+                <a href="../../install/" class="fancy-btn"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+                <a href="../../usage/" class="fancy-btn"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+                <a href="../../troubleshoot/" class="fancy-btn"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+                <a href="../../blog/" class="fancy-btn"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+                <a href="../" aria-current="page" class="fancy-btn"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+                <a href="https://github.com/Psyyke/A.C.A.S" class="fancy-btn" aria-label="View source on GitHub"><i class="bi bi-github"></i></a>
+            </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+        </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="../../usage/"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+            <a href="../../troubleshoot/"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+            <a href="../"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+        </div></div></nav>
+        <div class="content">
+            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/wN.svg" alt="">
+            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/bK.svg" alt="">
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../../assets/images/pieces/staunty/wQ.svg" alt="">
+            <article class="markdown-section-sub markdown-section elo-page maia-page maia-research" id="main">
+                <section class="elo-heading">
+                    <div class="elo-heading-main">
+                        <h1 class="doppelmaia-title"><span><strong>Doppel</strong><span>Maia</span></span></h1>
+                        <p class="maia-intro">Development notes on what we tested, what helped and what the results mean.</p>
+                        <p class="tool-note">Updated <time datetime="2026-11-10">10 November 2026</time></p>
+                        <a class="install-button" href="./">Open DoppelMaia</a>
+                    </div>
+                </section>
+                <nav class="maia-research-nav" aria-label="Research topics">
+                    <a href="#meaning">What the score means</a>
+                    <a href="#phases">Openings and endings</a>
+                    <a href="#time">Time and games</a>
+                    <a href="#experiments">What helped</a>
+                    <a href="#creative">Trying different ideas</a>
+                    <a href="#papers">Research papers</a>
+                    <a href="#implementation">How it works</a>
+                </nav>
+                <section class="elo-guide" id="meaning">
+                    <h2>Useful progress, not a person in a bottle</h2>
+                    <p>DoppelMaia learns patterns in the moves someone actually played. The encouraging bit is that it can learn familiar opening choices and improve predictions on new positions too. The less glamorous bit is that a move prediction score does not tell us how convincing an entire game will feel.</p>
+                    <p>During development, we tested imitation using games from six Lichess accounts without BOT titles. Training settings were chosen before examining the held out test games. Full training reached <strong>61.55% move agreement</strong> on 21,687 moves from boards absent from that account's training, validation and earlier development data. Previous personalized models reached 59.01% on those same moves. The gain was 2.54 percentage points, with a game based 95% interval from 2.05 to 3.00.</p>
+                    <p>All six accounts improved. They are active accounts with training Elo inputs from 1400 to 1700, not a random sample of all players. We used one training seed. The intervals describe game sampling within this group, not variation across every person or training run.</p>
+                    <p>These development samples keep standard chess games marked <code>Termination "Normal"</code>. Positions with only one legal move are left out.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Paired unseen move results" tabindex="0">
+                        <table><thead><tr><th scope="col">Same test moves</th><th scope="col">Agreement</th></tr></thead><tbody>
+                            <tr><th scope="row">Original starting model</th><td>53.55%</td></tr>
+                            <tr><th scope="row">Starting model with real history</th><td>55.98%</td></tr>
+                            <tr><th scope="row">Previous personalized models</th><td>59.01%</td></tr>
+                            <tr><th scope="row">Current personalized models</th><td>61.55%</td></tr>
+                            <tr><th scope="row">Another account's personalized model</th><td>53.23%</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>Personal training adds 5.57 points over the starting model when both receive real history. That is the useful comparison when asking whether training itself is worthwhile. The larger gain over the original wrapper includes fixing its missing history.</p>
+                    <p>This means the model's most likely legal move matched the recorded human move about six times in ten. It does not mean 61.55% of a personality was copied, or that six moves out of every ten will match in a new game. These are averages over individual positions, not complete game reenactments.</p>
+                    <p>There is room for both human variation and model mistakes here. Several moves can make sense. A player may change plans, run short of time or try a new opening. We did not measure feelings, and the results do not establish an unavoidable accuracy ceiling.</p>
+                    <p>There is visible choice variation in the training games too. Of 3,953 board groups repeated by the same account, 1,350 contain different recorded moves. This ignores move counters but keeps the board, turn, castling rights and en passant state. Different history or time pressure could still explain those choices, so this is not a ceiling calculation.</p>
+                    <p>Always choosing the most likely move also hides some of a person's variety. Sampling moves can better reflect a repertoire while lowering exact agreement. A higher match score and a more convincing practice partner are related goals, but they are not the same goal.</p>
+                    <p>The loss chart adds another view. Cross entropy measures how much probability the model gives the recorded move. It can improve even when the most likely move stays the same. Keep both loss and agreement in view.</p>
+                </section>
+                <section class="elo-guide" id="phases">
+                    <h2>The opening really is different</h2>
+                    <p>Your intuition about openings holds up, with an important distinction. Familiar opening boards are much easier than opening boards the personal model has never seen.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Agreement by game phase" tabindex="0">
+                        <table id="research-phase-results"><thead><tr><th scope="col">Test moves</th><th scope="col">Count</th><th scope="col">Agreement</th></tr></thead><tbody>
+                            <tr><th scope="row">Familiar opening boards</th><td>4,446</td><td>84.17%</td></tr>
+                            <tr><th scope="row">All opening boards</th><td>10,530</td><td>71.37%</td></tr>
+                            <tr><th scope="row">New opening boards</th><td>6,008</td><td>61.92%</td></tr>
+                            <tr><th scope="row">New middlegame boards</th><td>14,048</td><td>60.73%</td></tr>
+                            <tr><th scope="row">New sparse boards</th><td>1,631</td><td>67.26%</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>Opening means the first 12 full moves. Sparse boards have at most ten pieces after that, counting kings and pawns too. Everything else is in the middlegame group. The familiar and new opening rows are slices of the all opening row, not extra games to add together.</p>
+                    <p>Another 76 opening moves were absent from training but already appeared in validation or earlier development. They belong to the all opening row, but not the strictly new row.</p>
+                    <p>The sparse boards are easier in this sample, but not nearly automatic. King moves, waiting moves and different ways to convert an advantage still leave choices. Their 1,631 examples come from 205 source games, so they give less evidence than the middlegame sample. Every measured position has at least two legal moves.</p>
+                    <p>With real history already available, personal training adds 11.50 points on new opening boards, 3.49 on middlegames and 1.59 on sparse boards. The starting model already predicts much of the ending play. The biggest personal benefit here is learning which opening choices this particular player prefers.</p>
+                    <p>These breakdowns were calculated after the held out evaluation to help explain its results. They are not another untouched test or a way to tune the model on the answers. Novelty is checked within an account, not against all of Maia's original training data.</p>
+                </section>
+                <section class="elo-guide" id="time">
+                    <h2>Is the training worth the wait?</h2>
+                    <p>For a personal practice opponent, the tradeoff looks useful on a capable GPU. This is measured in minutes on our desktop, not days. That does not make every laptop a fast training machine.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Measured browser training time" tabindex="0">
+                        <table id="research-timing-results"><thead><tr><th scope="col">Measured browser run</th><th scope="col">Time</th></tr></thead><tbody>
+                            <tr><th scope="row">10,241 training positions and 512 validation positions</th><td>28 seconds of preparation and 211 seconds of training and evaluation</td></tr>
+                            <tr><th scope="row">38,637 training positions and 5,464 validation positions</th><td>20 minutes and 26 seconds through the verified model download</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>Both runs used an RTX 4070 Ti SUPER with 16 GB of VRAM, a Ryzen 7 7800X3D and Chrome WebGPU. They selected epoch one and stopped after epoch three. The smaller run made 1,923 real optimizer updates. Its preparation and training total is about four minutes, without every setup and download step. CUDA took about 54 seconds for its training and evaluation portion.</p>
+                    <p>The larger run made 7,245 updates with the current page settings and a raised position limit. Preparation took 111 seconds. Training and evaluation took 17 minutes and 25 seconds, compared with 3 minutes and 40 seconds on CUDA. Its total above includes loading the local tool page, preparing the model, training, checking the export and saving the download. It excludes importing game files and launching the browser.</p>
+                    <p>One earlier large browser attempt failed while another Chrome test also crashed. Concurrent native analysis had also run out of memory. Resource pressure is a likely explanation, not a proven diagnosis. The completed retry ran without those other heavy jobs. The failed attempt is kept in the research record, not counted as a successful run.</p>
+                    <p>There is no measured timing promise for integrated GPUs, phones or other browsers. A slower device may need hours, and an unsupported device cannot run full training at all. The fast adapter is an alternative, not the method behind the strongest imitation result. Keep the tab open and start with a smaller import if memory is tight.</p>
+                    <p>We scanned the Lichess archive to prepare development test data. Your browser does not repeat that work. Trying many settings and checking their exports also takes much longer than training one chosen profile from your own files.</p>
+                    <h3 id="games">How many games should I bring?</h3>
+                    <p>The six-account development evaluation described above used <strong>621 to 1,163 training games per account</strong>, plus separate validation games. Those supplied about 19,500 to 38,600 training positions per person. These are tested amounts, not a minimum everyone must meet.</p>
+                    <p>A separate development comparison used 24 CUDA training runs to check smaller game budgets. Each account used nested random sets of whole games. Every budget was judged on the same 17,129 validation positions across the six accounts, excluding boards from the entire training pool. The unchanged starting model matched 55.82% of those moves.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Development comparison of training game budgets" tabindex="0">
+                        <table id="research-budget-results"><thead><tr><th scope="col">Training games per account</th><th scope="col">Training positions</th><th scope="col">Validation agreement</th><th scope="col">Validation loss</th></tr></thead><tbody>
+                            <tr><th scope="row">20</th><td>530 to 797</td><td>58.42%</td><td>1.269</td></tr>
+                            <tr><th scope="row">100</th><td>2,521 to 3,584</td><td>59.58%</td><td>1.231</td></tr>
+                            <tr><th scope="row">500</th><td>12,715 to 17,936</td><td>60.72%</td><td>1.191</td></tr>
+                            <tr><th scope="row">621 to 1,163</th><td>19,518 to 38,637</td><td>61.25%</td><td>1.174</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>Even the 20 game training budget improved agreement for every account in this check. Hundreds of varied games gave more useful gains. Moving from 500 to all available games added another 0.53 percentage point overall, but not for everyone. Four accounts improved, one stayed level and one fell slightly.</p>
+                    <p>There is an important catch. We kept 28 to 209 additional validation games per account to make the comparison steady. So the first row does not prove that importing only 20 games is enough. The tool reserves checking games from your import too. These checkpoints were selected on validation, so this comparison does not replace the separate held out evaluation that reached 61.55%.</p>
+                    <p>This check used full history training with batch 32, rate 0.00001, base anchor 0.25, patience two and up to six epochs. Smaller budgets also received fewer updates. It measures the practical combination of more games and more work, not a pure data effect at equal compute.</p>
+                    <p>A few recurring opening games can reveal a preference. Learning how someone handles unfamiliar middlegames takes broader evidence. Repeating the same short line many times does not replace different situations, and one long game is not many independent examples of a person.</p>
+                    <p>Start with the games you have, from a reasonably consistent period and time control. Watch agreement and loss on separate games rather than trying to make training loss reach zero. The unchanged model can win if the supplied examples do not help.</p>
+                    <p>The page starts with a limit of 6,000 positions. Full training can use 50,000 across training and validation. Raise Position limit when you want a larger library included. The fast adapter and original Maia methods allow 10,000. Those limits describe positions, not matches.</p>
+                </section>
+                <section class="elo-guide" id="experiments">
+                    <h2>What helped and what did not</h2>
+                    <div class="maia-table-wrap maia-goals" role="region" aria-label="Experiments and lessons" tabindex="0">
+                        <table><thead><tr><th scope="col">What we tried</th><th scope="col">What happened</th></tr></thead><tbody>
+                            <tr><th scope="row">Real recent board history</th><td>Providing preceding boards rather than repeating the current board added 2.46 points with the same larger training set.</td></tr>
+                            <tr><th scope="row">Full transformer training</th><td>Development comparisons found it more useful for new board imitation than training a small adapter over frozen features. It is the default for imported games.</td></tr>
+                            <tr><th scope="row">More data by itself</th><td>With repeated board inputs, adding games moved agreement from 59.01% to 59.09% on the held out test. More games are not a cure when useful context is missing.</td></tr>
+                            <tr><th scope="row">More epochs</th><td>Training loss kept falling after validation stopped improving. Keeping the best validation checkpoint mattered more than finishing every epoch.</td></tr>
+                            <tr><th scope="row">Partial blocks and low rank updates</th><td>Six strategies across three development accounts did not beat full history training. That does not rule out a better population trained adapter.</td></tr>
+                            <tr><th scope="row">A larger 79M model</th><td>Two exploratory rates on one account did not beat the smaller contextual model. Different batch sizes make this a limited comparison, not a verdict on model scaling.</td></tr>
+                            <tr><th scope="row">Changing Elo</th><td>Raising the input by 200 gave 61.22% agreement. We did not establish stronger play or unchanged personality.</td></tr>
+                            <tr><th scope="row">Eighteen curated personalities</th><td>Preference directions and differences survived separate practice checks. Their evidence concerns soft habits, not copies of real people or measured playing ratings.</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>Six adaptation settings produced 18 development runs. The larger model added two exploratory runs. Comparing training data and input methods required another 24 models. Settings and checkpoints were chosen on validation before the held out test games were inspected.</p>
+                    <p>Some earlier development results included BOT accounts: nine of twenty in adapter tests and five of six in full model tests. Those averages do not describe human players alone. The six-account evaluation above checks source titles and actual move ownership, though the absence of a BOT title is not independent proof of a human identity.</p>
+                </section>
+                <section class="elo-guide" id="creative">
+                    <h2>Alternative training approaches</h2>
+                    <p>To compare alternatives during development, we ran seven training recipes on three accounts, using the same 10,240 training positions per account and the same 12,614 new validation boards. We also checked three ways of averaging weights for each account. That is 21 training runs and nine averaging checks, without looking at test answers.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Creative development screen" tabindex="0">
+                        <table id="research-creative-screen"><thead><tr><th scope="col">Development recipe</th><th scope="col">Agreement</th><th scope="col">Loss</th></tr></thead><tbody>
+                            <tr><th scope="row">Ordinary full history training</th><td>60.72%</td><td>1.1828</td></tr>
+                            <tr><th scope="row">Give shorter games more weight</th><td>60.90%</td><td>1.1820</td></tr>
+                            <tr><th scope="row">Begin with a small blend of other players</th><td>60.85%</td><td>1.1828</td></tr>
+                            <tr><th scope="row">Learn repeated board choices as a distribution</th><td>60.77%</td><td>1.1828</td></tr>
+                            <tr><th scope="row">Trust the starting model more in endings</th><td>60.76%</td><td>1.1841</td></tr>
+                            <tr><th scope="row">Balance the game phases</th><td>60.74%</td><td>1.1837</td></tr>
+                            <tr><th scope="row">Give surprising moves more weight</th><td>60.62%</td><td>1.1823</td></tr>
+                            <tr><th scope="row">Average two training checkpoints</th><td>60.74%</td><td>1.1830</td></tr>
+                            <tr><th scope="row">Average three training checkpoints</th><td>60.65%</td><td>1.1813</td></tr>
+                            <tr><th scope="row">Pull learned weights toward the starting model</th><td>60.30%</td><td>1.1963</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>I personally think mood, fatigue and time-pressure panic make human choices harder to predict. Stronger players may be more consistent, but nobody plays the same every day. Board information alone might never yield near-perfect move agreement for an average player, even when their habits are captured well. These tests did not measure emotions or establish that limit.</p>
+                    <p>No large jump appeared. Giving shorter games more influence improved agreement a little for all three accounts, about 0.18 percentage point overall. Averaging three checkpoints gave the lowest loss but did not give the highest agreement. A human move can receive more probability without becoming the model's first choice.</p>
+                    <p>The peer blend borrowed only from the other five accounts, never the target account. It is a small test of shared prior knowledge, not a reproduction of Maia4All's population training. These validation results use one seed. They do not establish an independently confirmed gain or a new accuracy ceiling.</p>
+                    <p>The ordinary recipe was checked against the existing CUDA trainer on six real updates, including a short final batch. Its selected parameters matched exactly. The new ideas change the training objective or the starting weights, not the board encoding or the meaning of a move match.</p>
+                    <h3>Following the promising bits further</h3>
+                    <p>We then used every training position from all six accounts. Ordinary training, game balancing and stronger equal game weighting produced 18 more fits. Another 18 averaging checks used the ordinary fits' checkpoints. All shared the same 17,129 new validation boards.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Full data development followup" tabindex="0">
+                        <table id="research-creative-followup"><thead><tr><th scope="col">Full data recipe</th><th scope="col">Agreement</th><th scope="col">Loss</th></tr></thead><tbody>
+                            <tr><th scope="row">Ordinary full history training</th><td>61.25%</td><td>1.1741</td></tr>
+                            <tr><th scope="row">Give shorter games more weight</th><td>61.15%</td><td>1.1737</td></tr>
+                            <tr><th scope="row">Give every game equal total weight</th><td>61.06%</td><td>1.1753</td></tr>
+                            <tr><th scope="row">Average two training checkpoints</th><td>61.08%</td><td>1.1715</td></tr>
+                            <tr><th scope="row">Average three training checkpoints</th><td>61.30%</td><td>1.1715</td></tr>
+                            <tr><th scope="row">Pull learned weights toward the starting model</th><td>60.47%</td><td>1.1958</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>The small game balancing gain did not hold up with more data. Stronger weighting moved further in the wrong direction. Averaging still helped loss a little, but that is not the same as predicting more moves correctly.</p>
+                    <p>There was no shortage of learning inside the network. In one ordinary run, training agreement climbed from 79.6% at the selected checkpoint to 95.7% later. New validation agreement slipped from 65.8% to 65.6% and loss became worse. More memorization was not the missing ingredient.</p>
+                    <h3>Rechecking the same held out games</h3>
+                    <p>We kept the earlier selected models eligible too. Validation chose an average of two checkpoints for Player07 and three for Player16 and Player19. The other three accounts kept their earlier models. Those choices were saved before test predictions were compared.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Matched comparison on the previously examined test" tabindex="0">
+                        <table id="research-creative-known"><thead><tr><th scope="col">Earlier test slice</th><th scope="col">Count</th><th scope="col">Earlier model</th><th scope="col">Selected candidate</th></tr></thead><tbody>
+                            <tr><th scope="row">Familiar opening boards</th><td>4,446</td><td>84.17%</td><td>84.55%</td></tr>
+                            <tr><th scope="row">New opening boards</th><td>6,008</td><td>61.92%</td><td>61.80%</td></tr>
+                            <tr><th scope="row">New middlegame boards</th><td>14,048</td><td>60.73%</td><td>60.68%</td></tr>
+                            <tr><th scope="row">New sparse boards</th><td>1,631</td><td>67.26%</td><td>67.38%</td></tr>
+                            <tr><th scope="row">All strictly new boards</th><td>21,687</td><td>61.55%</td><td>61.49%</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>The baseline reproduced exactly, with 13,348 matches. The candidate matched 13,336. These test games had already been examined, so this is a paired recheck, not independent confirmation on untouched games.</p>
+                    <h3>Checking separate later games</h3>
+                    <p>We also collected the fixed archive window after game 72 million through game 84 million. The same six accounts supplied 23,853 sampled moves from 1,019 games. No account was replaced. New boards here exclude every previously examined sample from that account, including the earlier test.</p>
+                    <div class="maia-table-wrap maia-evidence" role="region" aria-label="Matched comparison on untouched later games" tabindex="0">
+                        <table id="research-creative-fresh"><thead><tr><th scope="col">Later test slice</th><th scope="col">Count</th><th scope="col">Earlier model</th><th scope="col">Selected candidate</th></tr></thead><tbody>
+                            <tr><th scope="row">Familiar opening boards</th><td>4,023</td><td>82.85%</td><td>83.47%</td></tr>
+                            <tr><th scope="row">New opening boards</th><td>5,585</td><td>62.06%</td><td>61.92%</td></tr>
+                            <tr><th scope="row">New middlegame boards</th><td>12,762</td><td>60.29%</td><td>60.30%</td></tr>
+                            <tr><th scope="row">New sparse boards</th><td>1,312</td><td>69.66%</td><td>69.89%</td></tr>
+                            <tr><th scope="row">All strictly new boards</th><td>19,659</td><td>61.42%</td><td>61.40%</td></tr>
+                        </tbody></table>
+                    </div>
+                    <p>The candidate made three fewer correct predictions on those 19,659 new boards. The paired game based 95% interval runs from 0.15 percentage point lower to 0.13 higher. There is no reliable unseen move improvement here. Loss improved slightly from 1.16780 to 1.16684.</p>
+                    <p>Familiar openings did improve by 0.62 percentage point, with an interval from 0.25 to 1.02. That is interesting, but it does not solve the unfamiliar middlegame problem. We kept the ordinary browser trainer as the default rather than add memory use and extra checking for a result that missed the main goal.</p>
+                    <p>Familiar means the current board's piece input appeared in training, not merely that the position looks similar. There are also 157 later opening moves already seen outside training. They belong to neither opening row above. The three new phase rows add up to all strictly new boards. Familiar openings are a separate group.</p>
+                    <p>These are the same phase definitions as before. Intervals use 2,000 paired source game resamples within this fixed cohort. The phase intervals are descriptive, not corrected for comparing several slices. One training seed and six accounts still cannot describe every person.</p>
+                    <h3>What I take from this round</h3>
+                    <p>Real history added useful information. The alternative recipes mostly changed how the same evidence was weighted or smoothed. They made some probabilities a little better, but did not tell the model much more about which plausible move this person would choose on a new board. That is a reason to look for better information, not a proof that this accuracy is an unavoidable ceiling.</p>
+                    <p>The page remains a working way to learn opening habits and a useful part of someone's move preferences. It is not a near perfect copy of a person. The research recipes and their exported models are kept for inspection, but they are not extra promises or hidden settings in the tool.</p>
+                </section>
+                <section class="elo-guide" id="papers">
+                    <h2>What the papers add</h2>
+                    <h3>The original Maia paper</h3>
+                    <p><a href="https://arxiv.org/abs/2006.01855">Aligning Superhuman AI with Human Behavior</a> separates matching human decisions from playing strong chess. Its evaluation removes the first ten plies and moves made with less than 30 seconds remaining. That is a reminder that a headline score depends on which situations were allowed into the test.</p>
+                    <h3>Maia4All</h3>
+                    <p><a href="https://arxiv.org/abs/2507.21488">Learning to Imitate with Less</a> has a useful idea we have not reproduced. First train a shared model around many well observed prototype players. Then initialize a new player's small embedding from similar prototypes and refine it with their games. The prior knowledge is doing real work before the new user arrives.</p>
+                    <p>In its own filtered blitz test, the paper reports 51.46% for base Maia 2 and 53.22% for its prototype method with roughly 20 games. With roughly 500 games the prototype method reaches 53.65%. These are not directly comparable with our 61.55%, and they do not prove that our current full trainer needs only 20 games.</p>
+                    <p>We checked <a href="https://github.com/CSSLab/maia4all/tree/741efc342cbda63297f16860ea2fd761cdab2c32">the released repository source</a> on 10 November 2026. Every local source file matched that commit. The repository still describes itself as a work in progress. It contains enrichment and matching scripts, but no packaged release or trained prototype weights in that tree. It is not a ready browser model or a drop in Maia 3 conversion.</p>
+                    <p>There are unfinished connections too. The released matching class does not attach the prototype model that <a href="https://github.com/CSSLab/maia4all/blob/741efc342cbda63297f16860ea2fd761cdab2c32/code/5_matching.py#L610">its inference function</a> reads. That function also uses training mode with dropout. Those details need resolving or explaining before adopting the code. This is a source review, not a reproduction or a rejection of the paper's results.</p>
+                    <p>A weak frozen adapter result here does not disprove Maia4All. Our starting model was not enriched to represent individual prototypes. Adding a small layer after the fact is a different experiment.</p>
+                    <h3>Chessformer and Maia 3</h3>
+                    <p><a href="https://arxiv.org/abs/2605.19091">Chessformer</a> supports our history result. At its 5M scale, seven previous boards improved agreement from 54.0% to 55.4%. Thirty one previous boards did not add a clear gain. It also suggests that larger models help sophisticated strong play more than inconsistent lower rated play. That is a research interpretation, not a proven ceiling for an individual.</p>
+                    <p>The paper reports 56.6% for its 23M model and 57.1% for its 79M model on a different population test. That test excludes the first ten full moves and positions after a player falls below 30 seconds. Our development evaluations keep openings and do not apply that clock filter. Ranking these headline numbers against one another would be misleading.</p>
+                </section>
+                <section class="elo-guide" id="implementation">
+                    <h2>For whoever maintains this next</h2>
+                    <p>This is the short map of the working implementation. The older technical notes remain available, but you should not have to read every experiment to understand what is shipped.</p>
+                    <p>The 61.55% research result used batch 32, up to twelve epochs and patience three. It compared base anchors zero and 0.25 using validation. The page defaults below are smaller and do not automatically search both settings.</p>
+                    <div class="maia-table-wrap maia-goals" role="region" aria-label="Current implementation" tabindex="0">
+                        <table><thead><tr><th scope="col">Part</th><th scope="col">Current behavior</th></tr></thead><tbody>
+                            <tr><th scope="row">Imports</th><td>PGN, supported Chess.com JSON and Lichess JSON or NDJSON are detected from contents. Only the chosen player's moves train the model. Duplicate games count once.</td></tr>
+                            <tr><th scope="row">Public game files</th><td>The <a href="export-matches.html" download="export-matches.html">local game exporter</a> downloads ordinary PGN directly from Chess.com or Lichess. It has no startup requests and sends no A.C.A.S website origin or referrer. Providers still see ordinary connection details and the requested player.</td></tr>
+                            <tr><th scope="row">Full Maia 3</th><td>Eight blocks, width 512 and sixteen attention heads. There are 154 trainable tensors with 22,409,728 parameters. The six value head tensors stay fixed, but shared features still change value predictions.</td></tr>
+                            <tr><th scope="row">Board history</th><td>Input shape <code>[batch, 64, 96]</code>. Eight frames in oldest first order. Each frame is canonicalized for its own side to move. Missing earlier frames repeat the earliest observed frame.</td></tr>
+                            <tr><th scope="row">Old models</th><td>Legacy <code>[batch, 64, 12]</code> models retain their original behavior. A standalone FEN pads missing history rather than inventing moves.</td></tr>
+                            <tr><th scope="row">Browser training</th><td>Bundled TensorFlow.js WebGPU computes real gradients. AdamW, global gradient clipping and legal move masking match the native implementation. Full training has no silent CPU fallback.</td></tr>
+                            <tr><th scope="row">Default personal run</th><td>Rate 0.00001, batch 16, up to twelve epochs, patience two, base anchor 0.25 and seed 42. The import budget starts at 6,000 positions.</td></tr>
+                            <tr><th scope="row">Selection</th><td>Minimum validation cross entropy on boards absent from training. Epoch zero is eligible. Opening and synthetic personality objectives use their own stated checks.</td></tr>
+                            <tr><th scope="row">Export</th><td>Complete Float32 ONNX, about 91 MB. The app allows 128 MiB for a personal Maia 3 model and supplies observed history through legal UCI continuation.</td></tr>
+                            <tr><th scope="row">Other paths</th><td>The fast adapter retains frozen features and optional opening memory. Original Maia updates the final policy convolution and exports Lc0 weights. Neither is the full transformer method.</td></tr>
+                        </tbody></table>
+                    </div>
+                    <h3>Numerical checks that must stay meaningful</h3>
+                    <p>Browser and CUDA passed forward comparisons, all 154 gradient comparisons and four real updates. A separate 10,241 position training run selected the same checkpoint and validation agreement, with about 0.00098 difference in selected loss. This is numerical agreement, not bit identical optimization.</p>
+                    <p>The larger 38,637 position training run also selected epoch one in both implementations. Browser agreement on new validation boards was 65.61%, compared with 65.52% on CUDA. Selected loss differed by about 0.00024. The saved browser export passed its ONNX checks, with maximum policy logit error below 0.000025. These check implementation agreement and numerical accuracy, not performance on an additional untouched test set.</p>
+                    <p>The actual app replayed all 21,687 strict test moves with the six selected CUDA exports. Every top prediction matched native inference using those same weights. That checks export and inference separately from independent browser training.</p>
+                    <p>The later candidate comparison also passed through the actual app worker. All 19,659 new board predictions matched CUDA with the same exported weights. Extra probes covered both colors and three Elo inputs per model. The largest policy logit difference was about 0.000572. This verifies app inference, not independent browser training of the experimental averages.</p>
+                    <p>Keep <code>WEBGPU_MATMUL_PROGRAM_TYPE=3</code> and <code>WEBGPU_CPU_FORWARD=false</code>. Automatic SplitK previously produced incorrect transposed gradient products. Preserve the source rounded constants even with Float32 arithmetic. Changing these choices requires new forward, gradient and training checks.</p>
+                    <h3>Where the code lives</h3>
+                    <ul>
+                        <li><a href="data.js">Game preparation</a> and <a href="preparation.js">the import flow</a> handle parsing, whole game splits and the position budget.</li>
+                        <li><a href="maia3-transformer.js">The differentiable model</a> and <a href="transformer-training.js">the training loop</a> contain the browser method.</li>
+                        <li><a href="maia3-model.js">Model conversion</a> preserves learned weights while changing the history wrapper and exporting compatible graphs.</li>
+                        <li><a href="../../app/assets/engines/Maia3/tensor.js">Shared encoding</a>, <a href="../../app/assets/engines/Maia3/maiaEngine.js">engine history</a> and <a href="../../app/assets/engines/Maia3/maiaWorker.js">the actual app worker</a> keep inference aligned.</li>
+                        <li><a href="experiments/context_training.py">Native training</a> and <a href="experiments/context_evaluation.py">source checks and held out evaluation</a> reproduce the development comparison.</li>
+                        <li><a href="experiments/phase_review.py">Phase analysis</a> describes the already examined predictions without fitting new models to them.</li>
+                        <li><a href="experiments/game_budget_study.py">The game budget comparison</a> tests smaller training libraries on fixed development validation boards.</li>
+                        <li><a href="experiments/creative_study.py">The creative screen</a> tries different training recipes and checkpoint averages. <a href="experiments/creative_holdout.py">The later source collector</a> and <a href="experiments/creative_evaluate.py">frozen comparisons</a> keep subsequent confirmation separate from development.</li>
+                        <li><a href="experiments/creative_app_reference.py">Later candidate references</a> reuse the <a href="experiments/finetune_browser.mjs">actual app parity runner</a> rather than inventing a separate browser inference path.</li>
+                        <li><a href="personality.js">Personality objectives</a> and <a href="personality-evidence.json">curated evidence</a> retain the exact tested configurations. Picker descriptions are display text, not new model settings.</li>
+                    </ul>
+                    <h3>Reproduce without erasing the evidence</h3>
+                    <p>Use the pinned CUDA environment from the <a href="experiments/finetune_README.md#reproduction">native reproduction notes</a>. Set <code>$python</code> to its Python executable. Run commands from the repository root and keep large GPU jobs serial. Windows commit capacity can run out even when physical RAM appears available.</p>
+                    <pre><code>&amp; $python tools\doppelmaia\experiments\phase_review_test.py
+&amp; $python tools\doppelmaia\experiments\game_budget_test.py
+&amp; $python tools\doppelmaia\experiments\phase_review.py temp\doppelmaia-unseen-v4\data\human-dataset.json temp\doppelmaia-unseen-v4\evaluation-v2 temp\doppelmaia-research-20261110\phase-review.json
+&amp; $python tools\doppelmaia\experiments\game_budget_study.py temp\doppelmaia-unseen-v4\data\human-dataset.json temp\doppelmaia-game-budget-repeat
+$env:DOPPELMAIA_FULL_TEST = '1'
+$env:LC0_TEST_BROWSER = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+node --test --test-concurrency=1 tests\doppelmaia-history.test.mjs tests\doppelmaia-transformer.test.mjs</code></pre>
+                    <p>The local detailed review and downloadable selected models are under <code>temp\doppelmaia-unseen-v4\evaluation-v2</code>. The interpretation and timing work is under <code>temp\doppelmaia-research-20261110</code>. The latest screen, complete followup, later source games and frozen comparisons are under <code>temp\doppelmaia-creative-20261110</code>. These local research artifacts are not assumed to be installed on the public website.</p>
+                    <p>Preparing the six-account development dataset required scanning 72 million archive games. Training used 159,546 personal moves, not the whole archive. Source checks cover 206,262 examples from 7,097 original games. Training, validation and test have global chronological boundaries. Checkpoints, source snapshots, model hashes and raw predictions remain available.</p>
+                    <p>Do not edit the preserved experiment sources and continue into the same output folder. Use a new folder for changed data, code or settings. Preserve the BOT-account corrections, unsuccessful experiments and the distinction between validation findings and results on untouched test games.</p>
+                    <p><a href="README.md">Detailed technical archive</a> and <a href="experiments/finetune_README.md">native experiment notes</a> contain the longer history.</p>
+                </section>
+            </article>
+        </div>
+        <footer>
+            <div class="site-footer-knight" data-piece="queen" aria-hidden="true"></div>
+            <div class="site-footer-content">
+                <div class="site-footer-intro">
+                    <a class="site-footer-brand" href="../../">A.C.A.S</a>
+                    <p>Free, open-source chess assistance.</p>
+                </div>
+                <nav class="site-footer-links" aria-label="Footer">
+                    <div>
+                        <h2>Explore</h2>
+                        <a href="../../">Home</a>
+                        <a href="../../install/">Installation</a>
+                        <a href="../../usage/">Usage Guide</a>
+                        <a href="../../troubleshoot/">Help</a>
+                        <a href="../../blog/">Blog</a>
+                    </div>
+                    <div>
+                        <h2>Chess tools</h2>
+                        <a href="../../tools/">All tools</a>
+                        <a href="../../tools/eloeye/">EloEye</a>
+                        <a href="../../tools/doppelmaia/">DoppelMaia</a>
+                        <a href="../../tools/game-exporter/">Export Matches</a>
+                        <a href="../../tools/leela2onnx/">Leela to ONNX</a>
+                    </div>
+                    <div>
+                        <h2>Project</h2>
+                        <a href="../../contributing/">Contributing</a>
+                        <a href="../../development/">Development</a>
+                        <a href="https://github.com/Psyyke/A.C.A.S">GitHub</a>
+                        <a href="https://github.com/Hakorr">Contact</a>
+                        <a href="../../privacy/">Privacy Policy</a>
+                        <a href="../../tos/">Terms of Service</a>
+                    </div>
+                </nav>
+                <div class="site-footer-bottom"><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a></div>
+            </div>
+        </footer>
+    </main>
+    <script async src="../../assets/js/site-additional-content.js"></script>
+</body>
+</html>

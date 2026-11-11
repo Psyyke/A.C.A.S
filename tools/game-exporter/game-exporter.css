@@ -1,0 +1,43 @@
+.elo-page #game-exporter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    min-height: 46px;
+    font-weight: 800;
+}
+#game-exporter svg { flex-shrink: 0; }
+.elo-heading-main .exporter-intro { margin: 6px 0 24px; }
+.exporter-panel {
+    margin: 0 32px 28px !important;
+    padding: 24px;
+    border: 2px solid #213a43;
+    border-bottom-width: 5px;
+    border-radius: 5px;
+    background: white;
+}
+.exporter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+}
+.exporter-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    max-width: 100%;
+    padding: 12px 24px;
+    font-size: 16px;
+    line-height: 1.4;
+    text-align: center;
+}
+.exporter-actions .install-button { border-color: transparent; }
+.exporter-panel .tool-steps { margin-bottom: 0; }
+.exporter-panel .tool-steps > li:last-child { padding-bottom: 0; margin-bottom: 0; }
+@media (max-width: 600px) {
+    .exporter-panel { margin-left: 16px !important; margin-right: 16px !important; padding: 16px; }
+    .exporter-actions > * { width: 100%; }
+}

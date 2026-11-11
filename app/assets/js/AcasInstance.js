@@ -28,7 +28,7 @@ const configKeys = Object.freeze([
     'engineElo', 'engineEnemyElo', 'moveSuggestionAmount', 'arrowOpacity',
     'displayMovesOnExternalSite', 'showMoveGhost', 'showOpponentMoveGuess',
     'showOpponentMoveGuessConstantly', 'onlyShowTopMoves', 'maxMovetime',
-    'chessVariant', 'chessEngine', 'useExternalChessEngine', 'lc0Weight',
+    'chessVariant', 'chessEngine', 'useExternalChessEngine', 'lc0Weight', 'modernLc0Weight', 'maia3Model', 'maia3Provider',
     'engineNodes', 'chessFont', 'useChess960', 'alwaysMyTurn', 'openingBookName',
     'onlyCalculateOwnTurn', 'ttsVoiceEnabled', 'ttsVoiceName',
     'ttsVoiceSpeed', 'ttsTranslateAudio', 'ttsAnnounceEnemyMoves', 'ttsAnnounceEvaluation', 'chessEngineProfile', 'primaryArrowColorHex',
@@ -180,6 +180,9 @@ export default class AcasInstance {
                     : FORMAT_VARIANT(detectedVariant || 'chess');
                 instance.useChess960 = IS_VARIANT_960(detectedVariant) ? true : use960FromConfig;
                 instance.lc0WeightName = await t.getConfigValue(t.configKeys.lc0Weight, profileName);
+                instance.modernLc0Weight = await t.getConfigValue(t.configKeys.modernLc0Weight, profileName);
+                instance.maia3Model = await t.getConfigValue(t.configKeys.maia3Model, profileName);
+                instance.maia3Provider = await t.getConfigValue(t.configKeys.maia3Provider, profileName);
                 instance.useExternalChessEngine = await t.getConfigValue(t.configKeys.useExternalChessEngine, profileName);
                 instance.requestedEngine = await t.getConfigValue(t.configKeys.chessEngine, profileName);
                 instance.externalChessEngine = await t.getConfigValue(t.configKeys.externalChessEngine, profileName);
@@ -292,8 +295,9 @@ export default class AcasInstance {
         this.guiBroadcastChannel.onmessage = async e => {
             if(this.instanceClosed) return;
             const msg = e.data;
-            // A profile waiting for its first external engine cannot become ready until this save.
-            if(!this.instanceReady && !(msg.type === 'settingSave' && msg.data?.key === 'externalChessEngine')) return;
+            // These saves can supply the missing engine or weights needed for startup.
+            if(!this.instanceReady && !(msg.type === 'settingSave'
+                && ['externalChessEngine', 'modernLc0Weight', 'maia3Model', 'maia3Provider'].includes(msg.data?.key))) return;
 
             switch(msg.type) {
                 case 'settingSave': {
@@ -500,7 +504,24 @@ export default class AcasInstance {
                 maia3: [600, 2600]
             };
 
-            if(isFusionEngine && !isExternal) {
+            if(engineType === 'rodent-v' && !isExternal) {
+                const rodentElo = Math.max(800, Math.min(3000, elo));
+                const limited = elo !== 3200;
+                if(await this.sendMsgToEngine(`setoption name UCI_Elo value ${rodentElo}`, profile) === false
+                    || this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+                if(await this.sendMsgToEngine(`setoption name UCI_LimitStrength value ${limited}`, profile) === false
+                    || this.pV[profile] !== profileVariables || this.instanceClosed) return false;
+                appliedSettings.engineElo = limited ? rodentElo : 3200;
+                profileVariables.searchDepth = null;
+                updatePipData({ 'goalDepth': null }, this, profile);
+                const warningKey = limited && rodentElo !== elo ? String(elo) : null;
+                if(warningKey && (didUserUpdateSetting || profileVariables.rodentEloWarning !== warningKey))
+                    toast.warning('Rodent V supports 800-3000 Elo. Choose 3200 for unlimited strength.', 5000);
+                profileVariables.rodentEloWarning = warningKey;
+                if(didUserUpdateSetting && !warningKey)
+                    toast.message(limited ? `Rodent V ELO: ${rodentElo}` : 'Rodent V: unlimited strength', 3000);
+                return { appliedValue: appliedSettings.engineElo };
+            } else if(isFusionEngine && !isExternal) {
                 const ownElo = Math.max(600, Math.min(3200, elo));
                 const opponentElo = Math.max(600, Math.min(3200, Number(engineEnemyElo) || 1500));
                 if(await this.sendMsgToEngine(`setoption name Enemy_Elo value ${opponentElo}`, profile) === false
@@ -1443,6 +1464,7 @@ export default class AcasInstance {
             this.pendingEngineLoads?.forEach(entry => {
                 if(entry.profileName !== i) return;
                 clearInterval(entry.intervalId);
+                entry.abort?.abort();
                 entry.worker?.terminate?.();
                 this.pendingEngineLoads.delete(entry);
             });
@@ -1548,6 +1570,7 @@ export default class AcasInstance {
         // can't reach them and both the worker and its poller would outlive the instance
         this.pendingEngineLoads?.forEach(entry => {
             clearInterval(entry.intervalId);
+            entry.abort?.abort();
             entry.worker?.terminate?.();
         });
         this.pendingEngineLoads?.clear();

@@ -24,10 +24,10 @@ class Maia {
 		// The cache check starts in the constructor, before callers may await it.
 		this.initialization.catch(() => {});
 
-		this.initialize(options.model, options.modelVersion);
+		this.initialize(options.model, options.modelVersion, options.modelId, options.provider);
 	}
 
-	initialize(modelUrl, modelVersion) {
+	initialize(modelUrl, modelVersion, modelId, provider) {
 		this.worker = new Worker(new URL('./maiaWorker.js', import.meta.url), { type: 'module' });
 
 		this.worker.onmessage = (e) => {
@@ -35,6 +35,13 @@ class Maia {
 
 			switch(msg.type) {
 				case 'status':
+					if(msg.status === 'ready') {
+						if(![12, 96].includes(msg.tokenChannels)) {
+							this.fail(new Error('The Maia 3 worker did not report a supported board format.'));
+							break;
+						}
+						this.tokenChannels = msg.tokenChannels;
+					}
 					this.options.setStatus(msg.status);
 					if(msg.status === 'ready') {
 						this.ready = true;
@@ -86,7 +93,7 @@ class Maia {
 		};
 		this.worker.onmessageerror = () => this.fail(new Error('Could not read Maia worker response'));
 
-		this.worker.postMessage({ type: 'init', modelUrl, modelVersion });
+		this.worker.postMessage({ type: 'init', modelUrl, modelVersion, modelId, provider });
 	}
 
 	async downloadModel() {
@@ -155,8 +162,9 @@ class Maia {
 		});
 	}
 
-	async evaluateMaia3(board, eloSelf, eloOppo) {
-		let { boardTokens, legalMoves } = preprocessMaia3(board);
+	async evaluateMaia3(board, eloSelf, eloOppo, history) {
+		const { boardTokens, legalMoves } = preprocessMaia3(board,
+			this.tokenChannels === 96 ? history ?? [board] : undefined);
 
 		const { logitsMove, logitsValue } = await this.runInference(
 			boardTokens,
@@ -171,20 +179,23 @@ class Maia {
 		return processOutputsMaia3(board, policyTensor, valueTensor, legalMoves);
 	}
 
-	async batchEvaluateMaia3(boards, eloSelfs, eloOppos) {
+	async batchEvaluateMaia3(boards, eloSelfs, eloOppos, histories) {
 		const batchSize = boards.length;
+		if(histories !== undefined && (!Array.isArray(histories) || histories.length !== batchSize))
+			throw new Error('Maia 3 batch histories must match the analyzed boards.');
 		const boardInputs = [];
 		const legalMovesArr = [];
 
 		for(let i = 0; i < batchSize; i++) {
-			const { boardTokens, legalMoves } = preprocessMaia3(boards[i]);
+			const { boardTokens, legalMoves } = preprocessMaia3(boards[i],
+				this.tokenChannels === 96 ? histories?.[i] ?? [boards[i]] : undefined);
 			boardInputs.push(boardTokens);
 			legalMovesArr.push(legalMoves);
 		}
 
-		const combinedTokens = new Float32Array(batchSize * 64 * 12);
+		const combinedTokens = new Float32Array(batchSize * 64 * this.tokenChannels);
 		for(let i = 0; i < batchSize; i++)
-			combinedTokens.set(boardInputs[i], i * 64 * 12);
+			combinedTokens.set(boardInputs[i], i * 64 * this.tokenChannels);
 
 		const start = performance.now();
 

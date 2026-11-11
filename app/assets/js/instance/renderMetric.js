@@ -540,7 +540,7 @@ async function renderPieceEvals(fen, profile, externalOnly) {
 
             resolve(addedDisplays);
         }, { fen, chessVariant: profileVariables.chessVariant || this.activeVariant,
-            useChess960: profileVariables.useChess960, isCurrent: () => !isStale() })
+            useChess960: profileVariables.useChess960, variantText: profileVariables.variantText, isCurrent: () => !isStale() })
             .catch(error => {
                 console.warn('[PieceEvaluator] Could not render contributions:', error);
                 resolve([]);

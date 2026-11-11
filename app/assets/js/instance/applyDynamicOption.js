@@ -1,4 +1,5 @@
 import { getDynamicEngineDbKeyPrefix, getDynamicOption } from '../gui/dynamicEngineOptionState.js';
+import { isEngineTextFile } from './engineTextFiles.js';
 
 export default async function applyDynamicOption(userscriptDbKey, optionValue, profileName, isApplyCausedByHuman) {
     const profileVariables = this.pV[profileName];
@@ -14,6 +15,13 @@ export default async function applyDynamicOption(userscriptDbKey, optionValue, p
 
     const isCurrentProfile = this.pV[profileName] === profileVariables && !this.instanceClosed;
     const isKnownOption = name !== undefined && defaultValue !== undefined && userscriptDbKey.startsWith(dbPrefix);
+    if(isCurrentProfile && isKnownOption && isEngineTextFile(currentEngineId, name, profileVariables.useExternalChessEngine)) {
+        const loadedText = this.getEngineAcasObj(profileName)?.textFiles?.[name] ?? '';
+        if(typeof optionValue !== 'string' || loadedText !== optionValue)
+            throw new Error(`${name}: reload the engine to apply changed text-file contents.`);
+        (profileVariables.appliedSettings ??= {})[userscriptDbKey] = optionValue;
+        return true;
+    }
     const isInvalidText = typeof optionValue === 'string'
         && (/[<>\r\n\u0000]/.test(optionValue) || optionValue === 'value');
 
@@ -74,7 +82,10 @@ export default async function applyDynamicOption(userscriptDbKey, optionValue, p
             || matchesNumericDefault
         : VAR_TO_CORRECT_TYPE(optionValue) === VAR_TO_CORRECT_TYPE(defaultValue);
 
-    if(isDefaultValue && !isApplyCausedByHuman) {
+    // Rodent's selected personality changes its base values. A saved default
+    // is still an explicit override and must survive worker/profile reloads.
+    const restoresRodentOverride = currentEngineId === 'rodent-v' && !profileVariables.useExternalChessEngine;
+    if(isDefaultValue && !isApplyCausedByHuman && !restoresRodentOverride) {
         updateCache();
         return false;
     }

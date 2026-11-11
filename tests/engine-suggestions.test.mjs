@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parseVariantMove } from '../app/assets/js/misc/variantPosition.js';
+import { isLc0Engine, isUpstreamLc0 } from '../app/assets/js/instance/lc0Engines.js';
 
 const globals = readFileSync(new URL('../app/assets/js/globals.js', import.meta.url), 'utf8');
 const processorSource = readFileSync(new URL('../app/assets/js/instance/engineMessageProcessor.js', import.meta.url), 'utf8');
 const section = (start, end) => globals.slice(globals.indexOf(start), globals.indexOf(end, globals.indexOf(start)));
-const factory = new Function('parseVariantMove', `
+const factory = new Function('parseVariantMove', 'isLc0Engine', 'isUpstreamLc0', `
     ${section('function GET_LATEST_RANKED_MOVES(', 'const CREATE_MOVE_OBJ')}
     ${section('const CREATE_MOVE_OBJ', 'function ',).replace(/\s*$/, '')}
     ${section('function PARSE_UCI_RESPONSE(', 'function EXTRACT_VARIANT_NAMES(')}
@@ -18,7 +19,7 @@ const factory = new Function('parseVariantMove', `
     ${processorSource.replace(/^import .*;\r?\n/gm, '').replace('export default async function engineMessageProcessor', 'async function engineMessageProcessor')}
     return { engineMessageProcessor, GET_UNIQUE_MOVES, CREATE_MOVE_OBJ };
 `);
-const { engineMessageProcessor, GET_UNIQUE_MOVES, CREATE_MOVE_OBJ } = factory(parseVariantMove);
+const { engineMessageProcessor, GET_UNIQUE_MOVES, CREATE_MOVE_OBJ } = factory(parseVariantMove, isLc0Engine, isUpstreamLc0);
 
 function harness({ amount = 2, onlyTop = false, mix = false } = {}) {
     const fen = '8/8/8/8/8/8/8/8 w - - 0 1';
@@ -85,6 +86,20 @@ test('different MultiPV moves remain distinct and final bestmove is primary', as
     ]) await engineMessageProcessor.call(instance, line, 'main');
     assert.deepEqual(displays.at(-1).moves.map(move => move.playerUci), ['e2e4', 'd2d4']);
     assert.deepEqual(displays.at(-1).moves.map(move => move.opponentUci), ['c7c5', 'g8f6']);
+});
+
+test('Only Top Moves waits for Rodent default Elo searches to finish', async () => {
+    const { instance, profile, displays } = harness({ amount: 1, onlyTop: true });
+    profile.searchDepth = null;
+    profile.engineNodes = 0;
+    profile.pendingCalculations[0].isSearchInfinite = false;
+    instance.getEngineName = async () => 'rodent-v';
+    await engineMessageProcessor.call(instance, 'info depth 1 score cp 50 pv e2e4 e7e5', 'main');
+    await engineMessageProcessor.call(instance, 'info depth 2 score cp 60 pv d2d4 d7d5', 'main');
+    assert.equal(displays.length, 0);
+    await engineMessageProcessor.call(instance, 'bestmove d2d4', 'main');
+    assert.equal(displays.length, 1);
+    assert.equal(displays[0].moves[0].playerUci, 'd2d4');
 });
 
 test('successive different rank-one moves do not become secondary suggestions', async () => {

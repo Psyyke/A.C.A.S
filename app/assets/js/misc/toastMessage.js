@@ -1,7 +1,7 @@
 const activeToasts = new Map();
 
 const toast = {
-    'create': (type, icon, content, duration, note) => {
+    'create': (type, icon, content, duration, note, waitingNote) => {
         const intervalRate = 100;
         // "instance" toasts are intentionally persistent; everything else defaults to 5s
         // so a missing duration doesn't leave the toast on screen forever (NaN comparison).
@@ -17,7 +17,7 @@ const toast = {
         // Identical toasts merge into one with a counter instead of stacking up.
         // Persistent instance toasts only close once every merged instance has released it.
         const isInstanceToast = type === 'instance';
-        const toastKey = JSON.stringify([type, icon, content, note]);
+        const toastKey = JSON.stringify([type, icon, content, note, waitingNote]);
         const existing = activeToasts.get(toastKey);
         if(existing && !existing.isFading() && document.body.contains(existing.elem)) {
             existing.bump();
@@ -131,7 +131,7 @@ const toast = {
                 elapsed += 200;
 
                 if(elapsed === (200 * 40)) {
-                    const sMsg = TRANS_OBJ?.dependingOnNetworkSpeed ?? 'Depending on your network speed, it might take a while for the engine to load...';
+                    const sMsg = waitingNote ?? TRANS_OBJ?.dependingOnNetworkSpeed ?? 'Depending on your network speed, it might take a while for the engine to load...';
                     const small = document.createElement('small');
                           small.style = 'opacity: 0.8;';
                           small.innerText = `\n(${sMsg})`;
@@ -185,5 +185,5 @@ const toast = {
     'message': (content, duration) => toast.create('message', '🗿', content, duration),
     'warning': (content, duration, note) => toast.create('warning', '😐', content, duration, note),
     'error': (content, duration) => toast.create('error', '💀', content, duration),
-    'instance': (content, duration) => toast.create('instance', '🕛', content, duration)
+    'instance': (content, duration, waitingNote) => toast.create('instance', '🕛', content, duration, undefined, waitingNote)
 };

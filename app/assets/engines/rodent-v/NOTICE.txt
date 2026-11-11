@@ -1,0 +1,28 @@
+Rodent V browser port for A.C.A.S
+
+Upstream: https://github.com/nescitus/Rodent-V
+Revision: b55a1d142a4254dd091ede86845b2b9ac036653e
+Engine version: 1.2.03
+Authors: Naman Thanki and Pawel Koziol
+Based on Sungorus 1.4 by Pablo Vazquez
+License: GNU General Public License, version 3 (dist/LICENSE-Rodent.txt)
+
+The NNUE networks, personality text files and Polyglot books in dist/assets
+are copied unchanged from the pinned upstream tree.
+
+A.C.A.S browser modifications are supplied in browser.go, worker.js,
+personality.js, runtime-worker.js, ../text-files.js and build.mjs.
+They adapt input, resource access and search
+scheduling to workers, select scalar NNUE kernels, build both network widths,
+restore state across runtime changes, clear style-dependent caches, bound
+browser memory/thread options, accept inline personality contents and
+implement UCI root-move restrictions.
+
+Corresponding upstream source is supplied as dist/rodent-v-source.zip.
+The browser source and build instructions must accompany the distribution.
+A.C.A.S source location:
+https://github.com/Psyyke/A.C.A.S/tree/main/app/assets/engines/rodent-v
+
+Go's WebAssembly runtime and golang.org/x/sys are copyright The Go Authors
+and distributed under BSD-style licenses. Their license texts are included
+as dist/LICENSE-Go.txt and dist/LICENSE-x-sys.txt.

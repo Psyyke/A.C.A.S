@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>Export Matches / A.C.A.S</title>
+    <meta name="description" content="Download public Chess.com and Lichess games as PGN with a free local collector.">
+    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/tools/game-exporter/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Export Matches / A.C.A.S">
+    <meta property="og:description" content="Download public Chess.com and Lichess games as PGN with a free local collector.">
+    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/tools/game-exporter/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Export Matches / A.C.A.S">
+    <meta name="twitter:description" content="Download public Chess.com and Lichess games as PGN with a free local collector.">
+    <link rel="stylesheet" href="../../assets/css/home.css">
+    <link rel="stylesheet" href="../tools.css">
+    <link rel="stylesheet" href="game-exporter.css">
+    <link rel="stylesheet" href="../../assets/libraries/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="icon" href="../../favicon.ico">
+    <script src="../../assets/js/tag-manager.js"></script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-5499BQ4B"></script>
+    <script defer src="../../assets/libraries/klaro/config.js"></script>
+    <script defer src="../../assets/libraries/klaro/klaro.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7248123202489335" crossorigin="anonymous"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Export Matches","url":"https://psyyke.github.io/A.C.A.S/tools/game-exporter/","description":"Download a local HTML collector to export public Chess.com and Lichess games as PGN."},{"@type":"SoftwareApplication","name":"Export Matches local collector","applicationCategory":"UtilitiesApplication","operatingSystem":"Web browser","downloadUrl":"https://psyyke.github.io/A.C.A.S/tools/doppelmaia/export-matches.html","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"A.C.A.S","item":"https://psyyke.github.io/A.C.A.S/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://psyyke.github.io/A.C.A.S/tools/"},{"@type":"ListItem","position":3,"name":"Export Matches","item":"https://psyyke.github.io/A.C.A.S/tools/game-exporter/"}]}]}</script>
+</head>
+<body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5499BQ4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <main>
+        <header>
+            <div><a href="../../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
+            <div class="header-nav">
+                <a href="../../install/" class="fancy-btn"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+                <a href="../../usage/" class="fancy-btn"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+                <a href="../../troubleshoot/" class="fancy-btn"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+                <a href="../../blog/" class="fancy-btn"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+                <a href="../" aria-current="page" class="fancy-btn"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+                <a href="../../contributing/" class="fancy-btn" aria-label="Contribute"><i class="bi bi-heart"></i></a>
+                <a href="https://github.com/Psyyke/A.C.A.S" class="fancy-btn" aria-label="View source on GitHub" rel="noreferrer"><i class="bi bi-github"></i></a>
+            </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+        </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="../../usage/"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+            <a href="../../troubleshoot/"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+            <a href="../"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+            <a href="../../contributing/"><i class="bi bi-heart"></i>Contribute</a>
+        </div></div></nav>
+        <div class="content">
+            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/wN.svg" alt="">
+            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/bK.svg" alt="">
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../../assets/images/pieces/staunty/wQ.svg" alt="">
+            <article class="markdown-section-sub markdown-section elo-page" id="main">
+                <section class="elo-heading">
+                    <div class="elo-heading-main">
+                        <h1 id="game-exporter" class="page-heading"><span>Export Matches</span><i class="bi bi-download" aria-hidden="true"></i></h1>
+                        <p class="exporter-intro">Download public Chess.com or Lichess games into one PGN file.</p>
+                    </div>
+                </section>
+                <section class="exporter-panel" aria-label="Download the game collector">
+                    <div class="exporter-actions">
+                        <a id="download-collector" class="tool-button install-button" href="../doppelmaia/export-matches.html" download="export-matches.html" referrerpolicy="no-referrer">Download Tool (HTML)</a>
+                    </div>
+                    <ol class="tool-steps">
+                        <li>Open the downloaded HTML file in your browser.</li>
+                        <li>Choose a chess site and enter the player's username.</li>
+                        <li>Collect games and save the PGN.</li>
+                        <li>Import the PGN into <a href="../doppelmaia/">DoppelMaia</a>.</li>
+                    </ol>
+                </section>
+                <section class="elo-guide">
+                    <h2>Export chess games as PGN</h2>
+                    <p>Use a Chess.com or Lichess username to download public, completed standard chess games. Both rated and casual games are included. More options lets you choose UTC dates, a game limit and all categories or just bullet, blitz or rapid.</p>
+                    <p>Requests run one at a time and wait when the service asks for a break. You can stop early and save a clearly marked partial file. The status shows progress, skipped games and any errors.</p>
+                    <p>Import the PGN into <a href="../doppelmaia/">DoppelMaia to personalize Maia chess weights</a>, or use it with another chess analysis tool. DoppelMaia accepts up to 100 MiB across all files selected together. Choose fewer games or a shorter date range if your collection is too large.</p>
+                    <details><summary>Can I export any player's games?</summary><p>You can request games made available by the site's public API. Private or restricted games, ongoing games and nonstandard variants are not included. Availability depends on the provider.</p></details>
+                    <details><summary>What if my browser blocks collection?</summary><p>Open the downloaded file in a current desktop browser. Check the status message for the error. Do not disable browser security or supply account tokens.</p></details>
+                </section>
+            </article>
+        </div>
+        <footer>
+            <div class="site-footer-knight" data-piece="pawn" aria-hidden="true"></div>
+            <div class="site-footer-content">
+                <div class="site-footer-intro">
+                    <a class="site-footer-brand" href="../../">A.C.A.S</a>
+                    <p>Free, open-source chess assistance.</p>
+                </div>
+                <nav class="site-footer-links" aria-label="Footer">
+                    <div>
+                        <h2>Explore</h2>
+                        <a href="../../">Home</a>
+                        <a href="../../install/">Installation</a>
+                        <a href="../../usage/">Usage Guide</a>
+                        <a href="../../troubleshoot/">Help</a>
+                        <a href="../../blog/">Blog</a>
+                    </div>
+                    <div>
+                        <h2>Chess tools</h2>
+                        <a href="../../tools/">All tools</a>
+                        <a href="../../tools/eloeye/">EloEye</a>
+                        <a href="../../tools/doppelmaia/">DoppelMaia</a>
+                        <a href="../../tools/game-exporter/">Export Matches</a>
+                        <a href="../../tools/leela2onnx/">Leela to ONNX</a>
+                    </div>
+                    <div>
+                        <h2>Project</h2>
+                        <a href="../../contributing/">Contributing</a>
+                        <a href="../../development/">Development</a>
+                        <a href="https://github.com/Psyyke/A.C.A.S">GitHub</a>
+                        <a href="https://github.com/Hakorr">Contact</a>
+                        <a href="../../privacy/">Privacy Policy</a>
+                        <a href="../../tos/">Terms of Service</a>
+                    </div>
+                </nav>
+                <div class="site-footer-bottom"><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a></div>
+                <div class="site-footer-pieces" aria-hidden="true"></div>
+            </div>
+        </footer>
+    </main>
+    <script defer src="../../assets/js/site-additional-content.js"></script>
+</body>
+</html>

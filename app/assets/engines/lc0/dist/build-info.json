@@ -1,0 +1,7 @@
+{
+  "lc0Revision": "fd71a2d921b689c5f479d3227c3806c8e272d9c5",
+  "emscripten": "4.0.21",
+  "onnxruntimeWeb": "1.31.1",
+  "maximumMemory": "4GB",
+  "float16WeightStorage": true
+}

@@ -222,16 +222,20 @@ input:focus,
     width: 95%;
     max-width: 100%;
 }
-.textfield-input:has(input[type="url"]),
-.textfield-input:has(textarea) {
+.textfield-input:has(> input[type="url"]),
+.textfield-input:has(> textarea) {
     display: flex;
     flex-direction: column;
 }
-.custom-input.textfield-input:has(input[type="url"]) > :first-child:has(> .input-title),
-.custom-input.textfield-input:has(textarea) > :first-child:has(> .input-title) {
+.custom-input.textfield-input:has(> input[type="url"]) > :first-child:has(> .input-title),
+.custom-input.textfield-input:has(> textarea) > :first-child:has(> .input-title),
+.custom-input.textfield-input:has(> textarea) > .dynamic-setting-copy {
     align-self: flex-start;
     /* In a column the shared 6rem flex-basis becomes a height, spacing the title from the field. */
     flex: 0 0 auto !important;
+}
+.custom-input.textfield-input:has(> textarea) > .dynamic-setting-copy {
+    align-self: stretch;
 }
 /* Textarea base style: future textareas inherit the settings appearance. */
 textarea {
@@ -577,6 +581,12 @@ textarea:hover,
 .file-input .book-file-name:disabled {
     opacity: 0.4;
     cursor: default;
+}
+.file-input .book-file-name:not(:disabled):is(:hover, :focus-visible) {
+    border-color: rgb(255 255 255 / 55%);
+    outline: 2px solid rgb(255 255 255 / 35%) !important;
+    outline-offset: 0;
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 15%), 0 8px 24px rgb(0 0 0 / 18%);
 }
 .file-input .book-file-remove:not(:disabled):hover,
 .file-input .book-file-remove:focus-visible {
@@ -1058,7 +1068,7 @@ dialog .input-subtitle {
 }
 .floaty-container {
     background-color: rgb(0 0 0 / 6%);
-    padding: 6px 3px;
+    padding: 0 3px 6px;
 }
 .floaty-close-btn {
     width: fit-content;
@@ -1076,12 +1086,17 @@ dialog .input-subtitle {
     border-color: rgb(255 255 255 / 30%);
 }
 .floaty-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid rgb(255 255 255 / 10%);
     padding-bottom: 10px;
     background-color: rgb(0 0 0 / 10%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     padding: 10px;
     border-radius: 5px 5px 0 0;
     gap: 30px;

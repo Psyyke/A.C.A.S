@@ -13,7 +13,10 @@
  *   { type: 'inference-result', id, logitsMove, logitsValue }
  */
 
-import * as ort from '../libraries/onnxruntime-web/ort.wasm.bundle.min.js';
+import * as wasmOrt from '../libraries/onnxruntime-web/ort.wasm.bundle.min.js';
+import { getPersonalModel } from './personal-models.js';
+let ort = wasmOrt;
+let provider = 'wasm';
 
 const DB_NAME = 'MaiaModels';
 const STORE_NAME = 'models';
@@ -89,12 +92,19 @@ async function storeModel(modelUrl, modelVersion, buffer) {
 let session = null;
 let modelUrl = null;
 let modelVersion = null;
+let tokenChannels;
 
 async function initSession(buffer) {
 	ort.env.wasm.numThreads = 1;
 	session = await ort.InferenceSession.create(buffer, {
-		executionProviders: ['wasm']
+		executionProviders: [provider]
 	});
+	const input = session.inputMetadata.find(item => item.name === 'tokens');
+	tokenChannels = input?.shape?.[2];
+	if(!input?.isTensor || input.type !== 'float32' || input.shape.length !== 3 || input.shape[1] !== 64
+		|| ![12, 96].includes(tokenChannels) || !session.inputNames.includes('elo_self') || !session.inputNames.includes('elo_oppo')
+		|| !session.outputNames.includes('logits_move') || !session.outputNames.includes('logits_value'))
+		throw new Error('The ONNX file needs supported Maia 3 board inputs, Elo inputs and policy and value outputs.');
 }
 
 self.onmessage = async (e) => {
@@ -106,12 +116,24 @@ self.onmessage = async (e) => {
 				modelUrl = msg.modelUrl;
 				modelVersion = msg.modelVersion;
 				postMessage({ type: 'status', status: 'loading' });
+				if(msg.modelId) {
+					if(!['wasm', 'webgpu'].includes(msg.provider || 'wasm')) throw new Error('Invalid Maia 3 inference provider.');
+					provider = msg.provider || 'wasm';
+					ort = await import('../lc0/dist/ort.webgpu.bundle.min.mjs');
+					ort.env.wasm.wasmPaths = new URL('../lc0/dist/', import.meta.url).href;
+					const model = await getPersonalModel(msg.modelId);
+					await initSession(await model.file.arrayBuffer());
+					if(!session.inputNames.includes('tokens') || !session.outputNames.includes('logits_move')
+						|| !session.outputNames.includes('logits_value')) throw new Error('The uploaded ONNX file is not a compatible Maia 3 network.');
+					postMessage({ type: 'status', status: 'ready', tokenChannels });
+					break;
+				}
 
 				const buffer = await getCachedModel(modelUrl, modelVersion);
 
 				if(buffer) {
 					await initSession(buffer);
-					postMessage({ type: 'status', status: 'ready' });
+					postMessage({ type: 'status', status: 'ready', tokenChannels });
 				}else{
 					postMessage({ type: 'status', status: 'no-cache' });
 				}
@@ -166,7 +188,7 @@ self.onmessage = async (e) => {
 				await initSession(buffer.buffer);
 
 				postMessage({ type: 'progress', progress: 100 });
-				postMessage({ type: 'status', status: 'ready' });
+				postMessage({ type: 'status', status: 'ready', tokenChannels });
 				break;
 			}
 
@@ -181,9 +203,12 @@ self.onmessage = async (e) => {
 				}
 
 				const { id, tokens, eloSelfs, eloOppos, batchSize } = msg;
+				if(!Number.isInteger(batchSize) || batchSize < 1 || tokens.byteLength !== batchSize * 64 * tokenChannels * 4
+					|| eloSelfs.byteLength !== batchSize * 4 || eloOppos.byteLength !== batchSize * 4)
+					throw new Error('Maia 3 inference inputs do not match the loaded model.');
 
 				const feeds = {
-					tokens: new ort.Tensor('float32', new Float32Array(tokens), [batchSize, 64, 12]),
+					tokens: new ort.Tensor('float32', new Float32Array(tokens), [batchSize, 64, tokenChannels]),
 					elo_self: new ort.Tensor('float32', new Float32Array(eloSelfs), [batchSize]),
 					elo_oppo: new ort.Tensor('float32', new Float32Array(eloOppos), [batchSize])
 				};

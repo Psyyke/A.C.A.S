@@ -2,8 +2,10 @@ import { saveSetting, removeSetting } from './settings.js';
 import { runSettingChangeObserver } from './settingChangeObserver.js';
 import { doesDropdownItemExist } from './domDropdown.js';
 import { initializeRangeInput } from './rangeInputs.js';
+import { normalizeLc0Engine } from '../instance/lc0Engines.js';
 
 export function setInputValue(elem, val, min, max) {
+    if(elem.dataset.key === 'chessEngine') val = normalizeLc0Engine(val);
     const isCheckbox = elem.type === 'checkbox';
 
     // Migrate the display of legacy boolean values accidentally saved for UCI
@@ -45,11 +47,12 @@ export function setInputValue(elem, val, min, max) {
 
 export function getInputValue(elem) {
     let value = elem.value;
+    if(elem.dataset.key === 'chessEngine') value = normalizeLc0Engine(value);
 
     if(elem.type === 'checkbox') {
         value = elem.checked;
     } else if(elem.getAttribute('additional-type') === 'dropdown') {
-        value = doesDropdownItemExist(elem, elem.value) ? elem.value : elem.dataset.defaultValue;
+        value = doesDropdownItemExist(elem, value) ? value : elem.dataset.defaultValue;
     }
 
     return (value !== undefined && value !== null) ? value : elem.dataset.defaultValue;

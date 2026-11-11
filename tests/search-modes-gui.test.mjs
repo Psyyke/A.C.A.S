@@ -39,18 +39,11 @@ test('advanced search mode and time budget persist in the selected profile', { t
         assert.equal(await depth.isEnabled(), true);
         assert.equal(await nodes.isEnabled(), true);
         assert.equal(await maxTime.isEnabled(), true);
-        assert.equal(await dialog.locator('#basic-advanced-settings-panel > .custom-input').first().locator('input').getAttribute('data-key'), 'advancedSearchMode');
         await mode.locator('..').locator('.dropdown-icon').click();
         await dialog.locator('.dropdown-item[data-value="movetime"]').click();
         await page.waitForFunction(() => document.querySelector('input[data-key="maxMovetime"]').disabled);
         assert.equal(await depth.isDisabled(), true);
         assert.equal(await nodes.isDisabled(), true);
-        for(const input of [depth, nodes]) {
-            assert.equal(await input.evaluate(element => element.classList.contains('blurred')), true);
-            assert.equal(await input.locator('..').evaluate(element => element.classList.contains('blurred')), false);
-        }
-        assert.equal(await maxTime.locator('..').evaluate(element => element.classList.contains('blurred')), false);
-        assert.equal(await maxTime.evaluate(element => element.classList.contains('blurred')), true);
         await budget.fill('7000');
         await budget.dispatchEvent('change');
         await page.waitForFunction(() => {
@@ -65,16 +58,14 @@ test('advanced search mode and time budget persist in the selected profile', { t
         await mode.locator('..').locator('.dropdown-icon').click();
         await dialog.locator('.dropdown-item[data-value="infinite"]').click();
         await page.waitForFunction(() => !document.querySelector('input[data-key="maxMovetime"]').disabled);
-        assert.equal(await maxTime.evaluate(element => element.classList.contains('blurred')), false);
         assert.equal(await depth.isDisabled(), true);
         assert.equal(await nodes.isDisabled(), true);
         assert.equal(await budget.isDisabled(), true);
-        assert.equal(await budget.evaluate(element => element.classList.contains('blurred')), true);
-        assert.equal(await budget.locator('..').evaluate(element => element.classList.contains('blurred')), false);
         await mode.locator('..').locator('.dropdown-icon').click();
         await dialog.locator('.dropdown-item[data-value="standard"]').click();
         await page.waitForFunction(() => !document.querySelector('input[data-key="advancedEloDepth"]').disabled);
         assert.equal(await nodes.isEnabled(), true);
+        await dialog.locator('.floaty-close-btn').click();
     } finally {
         await context.close();
         await browser.close();

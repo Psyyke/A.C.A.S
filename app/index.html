@@ -146,7 +146,7 @@
 				};
 			})();
 		</script>
-		<link rel="stylesheet" type="text/css" href="gui.css"/>
+		<link rel="stylesheet" type="text/css" href="gui.css?v=weights-layout-3"/>
 		<meta name="description" content="Use A.C.A.S to analyze positions and review your moves while playing chess">
 		<meta name="keywords" content="chess gui, chess assistant dashboard, stockfish settings, lichess helper, chess.com helper, board overlays, chess variants, engine elo">
 		<meta property="og:title" content="Advanced Chess Assist">
@@ -606,7 +606,16 @@
 																Maia 2 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(91MB)</span> <span class="realistic-engine-tag list-tag">Realistic</span> <span class="stable-engine-tag list-tag">Stable</span>
 																</div>
 																<div class="dropdown-item requires-sab" data-value="lc0">
-															    Lc0<span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(900KB)</span> <span class="realistic-engine-tag list-tag">Realistic</span>
+															    CPU Lc0 v0.29.0 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(900KB)</span> <span class="realistic-engine-tag list-tag">Realistic</span>
+																</div>
+																<div class="dropdown-item requires-sab" data-value="lc0-v0.32.1-wasm">
+																CPU Lc0 v0.32.1 <span class="engine-type-tag list-tag">WASM</span> <span class="engine-size-tag list-tag">(2MB)</span>
+																</div>
+																<div class="dropdown-item requires-sab" data-value="lc0-v0.32.1-webgpu">
+																GPU Lc0 v0.32.1 <span class="engine-type-tag list-tag">WebGPU</span> <span class="engine-size-tag list-tag">(31MB)</span>
+																</div>
+																<div class="dropdown-item" data-value="rodent-v">
+																Rodent V <span class="engine-type-tag list-tag">WASM</span> <span class="engine-type-tag list-tag">NNUE</span>
 																</div>
 																<div class="dropdown-item" data-value="lozza-9">
 																Lozza 9 <span class="engine-type-tag list-tag">JS</span> <span class="engine-size-tag list-tag">(600KB)</span>
@@ -642,7 +651,7 @@
 														<div><div class="input-title" data-translation-server-port>Server port</div><div class="input-subtitle" data-translation-server-port-hint>Must match the port shown in the A.C.A.S server app</div></div>
 														<input id="external-engine-server-port" type="number" min="1" max="65535" step="1" value="2800">
 													</div>
-													<p data-translation-experimental-warning>This feature is experimental, it might not work well!</p>
+													<p class="floaty-note" data-translation-experimental-warning>This feature is experimental, it might not work well!</p>
 												</div>
 
 												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
@@ -699,7 +708,7 @@
 												</div>
 												<div id="dynamic-setting-panel" class="setting-panel">
 													<div id="dynamic-engine-settings">
-														<p id="des-no-result-text" class="hidden">Some settings are parsed dynamically from the engine's UCI output. Please open a chess board to start your engine and load the dynamic settings.</p>
+														<p id="des-no-result-text" class="hidden floaty-note">Some settings are parsed dynamically from the engine's UCI output. Please open a chess board to start your engine and load the dynamic settings.</p>
 													</div>
 												</div>
 
@@ -714,7 +723,7 @@
 								<div class="input-subtitle">For more human-like engine</div></div>
 								<input type="textfield" data-key="engineEnemyElo" data-default-value="1500" data-between="600-3200">
 							</div>
-							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Lc0 Weights</div>
+							<div id="lc0-weight-dropdown" class="hidden dropdown-input custom-input"><div><div class="input-title">Legacy Lc0 Weights</div>
 								<a href="../usage/" target="_blank"><div class="input-subtitle">Read more here</div></a></div><div class="dropdown-input-container">
 								<input type="text" additional-type="dropdown" data-key="lc0Weight" data-default-value="maia-1100.pb" placeholder="1100 elo"><div class="dropdown-icon"></div>
 								<div class="dropdown-list-container">
@@ -737,6 +746,67 @@
 									<div class="dropdown-item" data-value="TK6430.pb">Unknown elo (TK6430.pb) 7MB</div>
 								</div>
 							</div></div>
+							<div id="modern-lc0-weights" class="hidden custom-input">
+								<div><div class="input-title">Lc0 Weights</div><div class="input-subtitle">Maia 1500 or your own network</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button" type="button" aria-label="Lc0 weights">⚙️</button>
+									<dialog id="modern-lc0-weights-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header"><div class="title"><h1>Lc0 Weights</h1><p>Choose a network for this profile</p></div>
+												<div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div></section>
+											<section class="floaty-body">
+												<div class="custom-input file-input">
+													<input type="hidden" data-key="modernLc0Weight" data-default-value="">
+													<div><div class="input-title">Network</div><div class="input-subtitle" role="status" aria-live="polite">Maia 1500 (default, 1.7 MB)</div></div>
+													<div class="book-upload-row">
+													<input type="file" accept=".pb,.gz,.pb.gz" aria-label="Choose Lc0 weights" hidden>
+													<button class="book-file-name lc0-upload-weights" type="button">Upload weights</button>
+													<button class="book-file-remove lc0-remove-weights" type="button" title="Use default Maia 1500" aria-label="Use default Maia 1500">×</button>
+												</div></div>
+												<div class="lc0-weights-info">
+												<p>Weights stay in this browser. Large networks need plenty of memory.</p>
+												<a href="../tools/doppelmaia/" target="_blank" rel="noopener noreferrer">DoppelMaia training</a>
+												</div>
+											</section>
+										</div>
+									</dialog>
+								</div>
+							</div>
+							<div id="maia3-models" class="hidden custom-input">
+								<div><div class="input-title">Maia 3 Weights</div><div class="input-subtitle" role="status" aria-live="polite">Default Maia 3</div></div>
+								<div class="floaty-wrapper">
+									<button class="open-floaty-btn acas-fancy-button" type="button" aria-label="Maia 3 weights">⚙️</button>
+									<dialog id="maia3-weights-floaty">
+										<div class="floaty-container">
+											<section class="floaty-header"><div class="title"><h1>Maia 3 Weights</h1><p>Choose a network for this profile</p></div>
+												<div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div></section>
+											<section class="floaty-body">
+												<input type="hidden" data-key="maia3Provider" data-default-value="wasm">
+												<div class="custom-input file-input">
+													<input type="hidden" data-key="maia3Model" data-default-value="">
+													<div><div class="input-title">Network</div><div class="input-subtitle" data-network-status role="status" aria-live="polite">Default Maia 3</div></div>
+													<div class="book-upload-row">
+														<input type="file" accept=".onnx" aria-label="Upload personalized Maia 3 ONNX" hidden>
+														<button class="book-file-name maia3-upload-weights" type="button">Upload ONNX</button>
+														<button class="book-file-remove maia3-remove-weights" type="button" title="Use default Maia 3" aria-label="Use default Maia 3">×</button>
+													</div>
+												</div>
+												<div class="custom-input dropdown-input">
+													<div><div class="input-title">Runtime</div></div>
+													<div class="dropdown-input-container">
+														<input type="text" data-provider aria-label="Personalized Maia 3 runtime" value="wasm"><div class="dropdown-icon"></div>
+														<div class="dropdown-list-container"><div class="dropdown-item" data-value="wasm">WASM CPU</div><div class="dropdown-item" data-value="webgpu">WebGPU</div></div>
+													</div>
+												</div>
+												<div class="lc0-weights-info">
+													<p>Weights stay in this browser. Uploading replaces this profile's selected network.</p>
+													<a href="../tools/doppelmaia/" target="_blank" rel="noopener noreferrer">DoppelMaia training</a>
+												</div>
+											</section>
+										</div>
+									</dialog>
+								</div>
+							</div>
 							<div id="engine-nodes-input" class="hidden textfield-input custom-input"><div><div class="input-title">Search Nodes</div>
 								<div class="input-subtitle">More nodes means more thinking of the move by the engine</div></div>
 								<input type="textfield" data-key="engineNodes" data-default-value="1" data-between="1-99999999">
@@ -789,7 +859,7 @@
                                                 </div>
                                             </section>
                                             <section class="floaty-body">
-                                                <p data-translation-ffs-instructions>Keep the Floating Panel open, or A.C.A.S will not work. Disabling this feature automatically applies an audio trick that may keep A.C.A.S active without the panel in some browsers. If anything isn't working, try Chrome and keep A.C.A.S visible in split-screen.</p>
+                                                <p class="floaty-note" data-translation-ffs-instructions>Keep the Floating Panel open, or A.C.A.S will not work. Disabling this feature automatically applies an audio trick that may keep A.C.A.S active without the panel in some browsers. If anything isn't working, try Chrome and keep A.C.A.S visible in split-screen.</p>
                                                 <div class="setting-panel">
                                                     <div class="setting-panel-title" data-translation-ffs-videostream>Videostream</div>
                                                     <div id="floating-panel-video"></div>
@@ -910,7 +980,7 @@
 													</div></div>
 												</div>
 
-                                                <p data-translation-experimental-warning="">This feature is experimental, it might not work well!</p>
+                                                <p class="floaty-note" data-translation-experimental-warning="">This feature is experimental, it might not work well!</p>
 
 												<a target="_blank" href="../usage/" data-translation-learn-more-here>Learn more about these features here.</a>
 											</section>
@@ -934,7 +1004,7 @@
 												</div>
 											</section>
 											<section class="floaty-body">
-                                                <p data-translation-remember-perfection>Remember: Engine critiques are just comparisons to perfection.</p>
+                                                <p class="floaty-note" data-translation-remember-perfection>Remember: Engine critiques are just comparisons to perfection.</p>
 
                                                 <div class="setting-panel feedback-display-settings">
                                                     <div class="setting-panel-title" data-translation-feedback-display>Feedback display</div>
@@ -1524,8 +1594,11 @@
                         <div class="color-input custom-input"><div class="input-title">Theme Color</div>
                         <input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
                     </div>
-                    <div class="color-input custom-input"><div class="input-title">Board Color</div>
+                    <div class="color-input custom-input"><div class="input-title">Board Color 1</div>
                         <input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
+                    </div>
+                    <div class="color-input custom-input"><div class="input-title">Board Color 2</div>
+                        <input type="color" data-key="boardColorHex2" data-no-profile="true" data-default-value="#9e9384">
                     </div>
                 </div>
 			</div>

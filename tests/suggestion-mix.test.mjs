@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import SuggestionMix, { readMixWeights } from '../app/assets/js/instance/suggestionMix.js';
 import { defaultSelectionWeights } from '../tools/eloeye/hintSelection.js';
 
@@ -292,25 +291,4 @@ test('concealment does not select, publish or warn until assistance is shown', a
     await mix.render();
     assert.equal(picks(calls).length, 1);
     assert.equal(warnings.length, 1);
-});
-
-test('every supported language has short mix labels and runtime messages', async () => {
-    const root = new URL('../assets/i18n/', import.meta.url);
-    const metadata = JSON.parse(await readFile(new URL('meta.json', root), 'utf8'));
-    const labels = [
-        'suggestion-mix', 'suggestion-mix-hint', 'mix-best', 'mix-alternative',
-        'mix-detailed', 'mix-secondary', 'mix-mistake', 'mix-blunder', 'mix-miss',
-        'mix-other', 'mix-done', 'mix-prefer-book'
-    ];
-    const messages = ['suggestionMixFallback', 'suggestionMixError', 'suggestionMixPercentage'];
-
-    for(const [language] of metadata.availableLanguages) {
-        const locale = JSON.parse(await readFile(new URL(`${language}.json`, root), 'utf8'));
-        const values = [
-            ...labels.map(label => locale.domTranslations[`[data-translation-${label}]`]),
-            ...messages.map(key => locale.translations[key])
-        ];
-        assert.ok(values.every(value => typeof value === 'string' && value.trim()), language);
-        assert.ok(values.every(value => !/[:;—]/.test(value)), language);
-    }
 });

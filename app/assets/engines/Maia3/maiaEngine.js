@@ -1,5 +1,5 @@
 import Maia from './maia.js';
-import { parseGo } from './utils.js';
+import { parseGo, parsePosition } from './utils.js';
 import { Chess } from '../libraries/chessjs/chess.js';
 import { maiaValueToCp, scoreMaiaCandidates } from '../maiaEvaluation.js';
 
@@ -13,11 +13,14 @@ class MaiaEngine {
 		};
 
 		this.currentFen = 'startpos';
+		this.currentHistory = [new Chess().fen()];
 		this.listen = options.onMessage || ((msg) => console.log(msg));
 
 		this.maia = new Maia({
 			model: options.model || new URL('./model/maia3_simplified.onnx', import.meta.url).href,
 			modelVersion: options.modelVersion || '3',
+			modelId: options.modelId,
+			provider: options.provider,
 
 			setStatus: (status) => {
 				this.status = status;
@@ -57,6 +60,7 @@ class MaiaEngine {
 
 			case 'ucinewgame':
 				this.currentFen = 'startpos';
+				this.currentHistory = [new Chess().fen()];
 				break;
 
 			case 'setoption':
@@ -81,31 +85,12 @@ class MaiaEngine {
                 
 				break;
 
-			case 'position':
-				if(line.includes('startpos')) {
-					this.currentFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-				} else if(line.includes('fen')) {
-					const parts = line.split('fen ');
-					this.currentFen = parts[1].split(' moves')[0];
-				}
-
-				if(line.includes(' moves ')) {
-					const moveList = line.split(' moves ')[1].trim().split(/\s+/);
-					const board = new Chess(this.currentFen);
-
-					for(const move of moveList) {
-						if(!move) continue;
-
-						board.move({
-							from: move.slice(0, 2),
-							to: move.slice(2, 4),
-							promotion: move.length > 4 ? move[4] : undefined
-						});
-					}
-
-					this.currentFen = board.fen();
-				}
+			case 'position': {
+				const position = parsePosition(line);
+				this.currentFen = position.fen;
+				this.currentHistory = position.history;
 				break;
+			}
 
 			case 'go': {
 				if(!this.ready) await this.init();
@@ -117,8 +102,9 @@ class MaiaEngine {
 					: this.currentFen;
 
                 const options = { ...this.options };
+                const positionHistory = [...this.currentHistory];
                 const isPlayerBlack = fen.split(' ')[1] === 'b';
-				const result = await this.evaluate(fen, options.eloSelf, options.eloOppo);
+				const result = await this.evaluate(fen, options.eloSelf, options.eloOppo, positionHistory);
 
 				let moves = Object.keys(result.policy);
 
@@ -139,7 +125,8 @@ class MaiaEngine {
                     try {
                         const policy = Object.fromEntries(moves.map(move => [move, result.policy[move]]));
                         candidateScores = await scoreMaiaCandidates(fen, policy, options.multipv, async nextFen => {
-                            const reply = await this.evaluate(nextFen, options.eloOppo, options.eloSelf);
+                            const reply = await this.evaluate(nextFen, options.eloOppo, options.eloSelf,
+                                [nextFen, ...positionHistory].slice(0, 8));
                             return nextFen.split(' ')[1] === 'b' ? 1 - reply.value : reply.value;
                         }, Chess);
                     } catch(error) {
@@ -180,23 +167,24 @@ class MaiaEngine {
 		return this.maia.downloadModel();
 	}
 
-	async evaluate(fen, eloSelf = 1500, eloOpp = 1500) {
+	async evaluate(fen, eloSelf = 1500, eloOpp = 1500, history) {
 		if(!this.ready) {
 			await this.download();
 		}
-		return await this.maia.evaluateMaia3(fen, eloSelf, eloOpp);
+		return await this.maia.evaluateMaia3(fen, eloSelf, eloOpp,
+			history ?? (fen === this.currentFen ? this.currentHistory : [fen]));
 	}
 
-	async bestMove(fen, eloSelf = 1500, eloOpp = 1500) {
-		const result = await this.evaluate(fen, eloSelf, eloOpp);
+	async bestMove(fen, eloSelf = 1500, eloOpp = 1500, history) {
+		const result = await this.evaluate(fen, eloSelf, eloOpp, history);
 		return Object.keys(result.policy)[0];
 	}
 
-	async evaluateBatch(fens, eloSelfs, eloOpps) {
+	async evaluateBatch(fens, eloSelfs, eloOpps, histories) {
 		if(!this.ready) {
 			await this.download();
 		}
-		return await this.maia.batchEvaluateMaia3(fens, eloSelfs, eloOpps);
+		return await this.maia.batchEvaluateMaia3(fens, eloSelfs, eloOpps, histories);
 	}
 
 	getStatus() {

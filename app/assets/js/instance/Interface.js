@@ -651,7 +651,8 @@ export default class Interface {
         const context = variantConfig({ chessVariant: instance.activeVariant });
         const profile = Object.values(instance.pV).find(variables =>
             variantConfig(variables).variant === context.variant);
-        return { ...context, useChess960: context.useChess960 || Boolean(profile?.useChess960) };
+        return { ...context, ...(profile?.variantText ? { variantText: profile.variantText } : {}),
+            useChess960: context.useChess960 || Boolean(profile?.useChess960) };
     }
 
     async updatePgn() {

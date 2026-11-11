@@ -2,3 +2,5 @@
 node_modules/
 acas.user.test.js
 temp/
+__pycache__/
+*.pyc

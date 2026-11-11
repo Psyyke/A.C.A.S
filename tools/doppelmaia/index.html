@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize Maia Chess / A.C.A.S</title>
+    <meta name="description" content="Personalize Maia from your games or choose a chess personality in your browser with DoppelMaia.">
+    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/tools/doppelmaia/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DoppelMaia | Personalize Maia Chess Weights">
+    <meta property="og:description" content="Personalize Maia from your games or choose a chess personality, right in your browser.">
+    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/tools/doppelmaia/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="DoppelMaia | Personalize Maia Chess Weights">
+    <meta name="twitter:description" content="Personalize Maia from your games or choose a chess personality in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"DoppelMaia","url":"https://psyyke.github.io/A.C.A.S/tools/doppelmaia/","description":"Personalize Maia from a player's games or a chosen set of chess move preferences in the browser.","applicationCategory":"GameApplication","operatingSystem":"Web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+    <link rel="stylesheet" href="../../assets/css/home.css">
+    <link rel="stylesheet" href="../../assets/css/acas-toast.css">
+    <link rel="stylesheet" href="../tools.css">
+    <link rel="stylesheet" href="personalized-maia.css">
+    <link rel="stylesheet" href="../../assets/libraries/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="icon" href="../../favicon.ico">
+</head>
+<body data-toast-theme="light">
+    <main>
+        <header>
+            <div><a href="../../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
+            <div class="header-nav">
+                <a href="../../install/" class="fancy-btn"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+                <a href="../../usage/" class="fancy-btn"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+                <a href="../../troubleshoot/" class="fancy-btn"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+                <a href="../../blog/" class="fancy-btn"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+                <a href="../" aria-current="page" class="fancy-btn"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+                <a href="../../contributing/" class="fancy-btn" aria-label="Contribute"><i class="bi bi-heart"></i></a>
+                <a href="https://github.com/Psyyke/A.C.A.S" class="fancy-btn" aria-label="View source on GitHub"><i class="bi bi-github"></i></a>
+            </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+        </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="../../usage/"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+            <a href="../../troubleshoot/"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+            <a href="../"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+            <a href="../../contributing/"><i class="bi bi-heart"></i>Contribute</a>
+        </div></div></nav>
+        <div class="content">
+            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/wN.svg" alt="">
+            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/bK.svg" alt="">
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../../assets/images/pieces/staunty/wQ.svg" alt="">
+            <article class="markdown-section-sub markdown-section elo-page maia-page" id="main">
+                <section class="elo-heading">
+                    <div class="elo-heading-main">
+                        <h1 class="doppelmaia-title"><span><strong>Doppel</strong><span>Maia</span></span><svg class="doppelmaia-profiles" width="38" height="38" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="DoppelMaia half human, half mask"><path d="M9 5h8l-4 8 3 6-3 6 2 6L5 24 2 11Zm-3 8 2 5 5 1-2-4Z" fill="currentColor" fill-rule="evenodd" stroke="none"/><path d="M17 5c7 0 10 4 10 10v4c0 5-6 10-12 12M18 10q4-3 8 0m-8 5q3-2 5 0m-5 3 2 3h-2m0 4h3"/><circle cx="21" cy="15" r="1" fill="currentColor" stroke="none"/></svg></h1>
+                        <p class="maia-intro">Personalize Maia from your games or choose a chess personality. All processed locally in your browser.</p>
+                    </div>
+                    <div class="elo-checkpoint maia-saved-games">
+                        <button class="tool-button" id="reset-settings" type="button" disabled>Reset settings</button>
+                        <button class="tool-button" id="clear-data" type="button" disabled>Clear saved games</button>
+                        <p id="saved-data-status" role="status" aria-live="polite">Checking saved games...</p>
+                    </div>
+                </section>
+                <section class="maia-workbench" aria-label="DoppelMaia training workflow" aria-busy="true">
+                <div id="workbench-content" inert>
+                <section class="maia-step" id="dataset-step" aria-label="Personalization source">
+                    <div id="runtime-loading" role="status" aria-live="polite">Preparing browser runtime...</div>
+                    <div class="maia-import-row">
+                    <label class="tool-field maia-source-field">What would you like to personalize
+                        <select id="training-source">
+                            <option value="games" selected>Learn from my games</option>
+                            <option value="personality">Choose a personality</option>
+                        </select>
+                    </label>
+                            <form id="data-form">
+                                <div class="tool-field">
+                                    <div class="maia-import-label">
+                                        <label for="games">Import games to learn from</label>
+                                        <span class="maia-import-help">
+                                            <button type="button" aria-label="Game import help" aria-describedby="import-help-text"><i class="bi bi-info-circle" aria-hidden="true"></i></button>
+                                            <span id="import-help" role="group" aria-label="Game import help">
+                                                <span id="import-help-text">Use PGN, Chess.com JSON or Lichess JSON and NDJSON with moves. Saved reusable data works here too. Only standard chess is supported, not profiles or archive URL lists. Check the browser console for skipped games.</span>
+                                                <span class="maia-export-hint">Don't have your games yet? Export a player's public Chess.com or Lichess games.</span>
+                                                <a class="tool-button" href="../game-exporter/" target="_blank" rel="noopener noreferrer">Get matches</a>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="tool-file-picker">
+                                        <span class="tool-file-control"><input id="games" type="file" accept=".pgn,.json,.jsonl,.ndjson,.txt" multiple required aria-describedby="games-file-name import-help-text"><span class="tool-button" aria-hidden="true">Choose files</span></span>
+                                        <span id="games-file-name" role="status" aria-live="polite">No files selected</span>
+                                    </div>
+                                </div>
+                            </form>
+                        <label class="tool-field" id="personality-preset-field" hidden>Personality preset
+                            <select id="personality-preset"><option value="">Loading presets</option></select>
+                        </label>
+                    </div>
+                    <div id="prepare">
+                        <div id="elo-filter">
+                            <div class="maia-fields">
+                                <label class="tool-field">Target Elo <input id="filter-elo" type="number" min="1" max="4000" step="1" value="1500" disabled></label>
+                                <label class="tool-field">Elo range ± <input id="filter-elo-range" type="number" min="0" max="4000" step="1" value="100" disabled></label>
+                            </div>
+                            <p role="status"><span id="elo-warning">Import games to see their rating range.</span><span id="elo-filter-status"></span></p>
+                        </div>
+                        <div id="preparation-controls">
+                            <div id="data-settings" hidden>
+                                <label class="tool-field">Your player <select id="player"></select></label>
+                            </div>
+                                <details class="maia-advanced" id="data-advanced">
+                                    <summary>Advanced import options</summary>
+                                    <div class="maia-fields" id="data-options">
+                                        <label class="tool-field">Position limit <input id="positions" type="number" min="20" max="50000" value="6000" step="1"></label>
+                                        <label class="tool-field">Skip opening plies <input id="skip-plies" type="number" min="0" max="100" value="0" step="1"></label>
+                                        <label class="tool-field">Validation games <select id="validation"><option value="0.2">20%</option><option value="0.3">30%</option></select></label>
+                                    </div>
+                                    <p class="tool-note">Reusable data saves the checked positions so you can import them again later.</p>
+                                    <div class="maia-actions"><a class="tool-button" id="download-data" hidden>Download reusable data</a></div>
+                                </details>
+                        </div>
+                        <div id="import-example" hidden><p>Try a PGN file with player names and moves like this.</p><pre>[White "YourName"]
+[Black "OtherPlayer"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 *</pre><p>For training, include at least two different games for your player with moves beyond the opening.</p></div>
+                    </div>
+                    <section id="personality-controls" aria-label="Personality preferences" hidden>
+                        <details class="maia-advanced" id="personality-advanced">
+                            <summary>Advanced personality options</summary>
+                            <div class="maia-fields" id="personality-fields"></div>
+                            <p class="tool-note">Preference weights range from minus four to four. Strength ranges from zero to three.</p>
+                        </details>
+                    </section>
+                    <p id="status" role="status" aria-live="polite"></p>
+                </section>
+                    <div id="import-loading" hidden>
+                        <p id="import-progress-label" role="status" aria-live="polite">Processing matches...</p>
+                        <small id="import-time">Estimating...</small>
+                        <progress id="import-progress" max="1" aria-label="Match loading progress"></progress>
+                    </div>
+                    <div id="training-import-details" role="region" aria-label="Prepared data" hidden>
+                        <span class="maia-data-layers" aria-hidden="true"></span>
+                        <div id="training-dataset-summary" hidden></div>
+                        <p id="prep-status" role="status" aria-live="polite" hidden></p>
+                        <div class="maia-import-recovery">
+                            <p>Need game files? Export matches from Chess.com or Lichess, then import the PGN here. Training reports do not contain game moves.</p>
+                            <a class="tool-button" href="../game-exporter/" target="_blank" rel="noopener noreferrer">Get matches</a>
+                        </div>
+                    </div>
+                <section class="maia-step" id="training-step" aria-label="Training" tabindex="-1" hidden>
+                    <fieldset id="training-controls" class="maia-lock-fieldset" disabled inert aria-label="Training controls">
+                    <form id="training-form">
+                        <div class="maia-fields">
+                            <label class="tool-field" id="base-network-field">Base network <select id="base-network">
+                                <option value="maia3" selected>Maia 3 recommended</option>
+                                <option value="maia-1100.pb">Maia 1100</option>
+                                <option value="maia-1200.pb">Maia 1200</option>
+                                <option value="maia-1300.pb">Maia 1300</option>
+                                <option value="maia-1400.pb">Maia 1400</option>
+                                <option value="maia-1500.pb">Maia 1500</option>
+                                <option value="maia-1600.pb">Maia 1600</option>
+                                <option value="maia-1700.pb">Maia 1700</option>
+                                <option value="maia-1800.pb">Maia 1800</option>
+                                <option value="maia-1900.pb">Maia 1900</option>
+                                <option value="maia-2200.pb">Maia 2200</option>
+                                <option value="custom">Upload compatible weights</option>
+                            </select></label>
+                            <label class="tool-field" id="training-method-field">Training method <select id="training-method">
+                                <option value="full" selected>Full Maia 3 model</option>
+                                <option value="adapter">Fast adapter</option>
+                            </select></label>
+                            <label class="tool-field" id="maia3-elo-field">Base Elo <input id="maia3-elo" type="number" min="600" max="2600" value="1500" step="1"></label>
+                            <label class="tool-field" id="personality-strength-field" hidden>Personality strength <input id="personality-strength" type="number" min="0" max="3" value="1" step="0.1"></label>
+                            <label class="tool-field" id="base-anchor-field">Keep base habits <select id="base-anchor">
+                                <option value="0.8">Prefer base</option>
+                                <option value="0.5">Balanced</option>
+                                <option value="0.25" selected>Mostly your moves</option>
+                                <option value="0">Max personalization</option>
+                            </select></label>
+                            <label class="tool-field" id="goal-field" hidden>Training goal <select id="training-goal">
+                                <option value="imitate">Imitate games</option>
+                                <option value="opening">Prefer an opening</option>
+                                <option value="shape">Prefer a board shape</option>
+                            </select></label>
+                            <label class="tool-field" id="opening-field" hidden>Opening line <input id="opening-line" type="text" placeholder="1. e4 e5 2. Nf3 Nc6"></label>
+                            <label class="tool-field" id="shape-field" hidden>Pawn squares <input id="shape-squares" type="text" value="d4 e4" placeholder="d4 e4" maxlength="32"></label>
+                        </div>
+                            <div class="maia-fields">
+                                <label class="tool-field">Maximum epochs <input id="epochs" type="number" min="1" max="100" value="12" step="1" required></label>
+                                <label class="tool-field" id="run-positions-field" hidden>Positions per run <input id="run-positions" type="number" min="20" max="50000" value="50000" step="1" required></label>
+                            <div class="tool-field" id="custom-weights-field" hidden>
+                                <label for="base-weights">Base weights</label>
+                                <div class="tool-file-picker">
+                                    <span class="tool-file-control"><input id="base-weights" type="file" accept=".pb,.gz" aria-describedby="base-weights-file-name"><span class="tool-button" aria-hidden="true">Choose weights</span></span>
+                                    <span id="base-weights-file-name" role="status" aria-live="polite">No file selected</span>
+                                </div>
+                            </div>
+                                <label class="tool-field">Learning rate <input id="learning-rate" type="number" min="0.00000001" max="0.001" value="0.00001" step="any" required></label>
+                                <label class="tool-field" id="full-batch-field">Full model batch <input id="full-batch" type="number" min="1" max="32" value="16" step="1" required></label>
+                                <label class="tool-field">Compute <select id="provider"><option value="wasm">WASM CPU</option><option value="webgpu">WebGPU</option></select></label>
+                            </div>
+                        <div class="maia-actions">
+                            <button class="install-button" id="start" type="submit" disabled>Start training</button>
+                            <button class="tool-button" id="stop" type="button" hidden>Stop</button>
+                        </div>
+                    </form>
+                    </fieldset>
+                </section>
+                <section class="maia-step maia-flow-step" id="diagnostics" aria-label="Training details" hidden>
+                    <div id="training-progress" hidden>
+                        <div class="maia-live-header"><strong id="stage" role="status" aria-live="polite">Ready</strong><span id="elapsed">0:00</span></div>
+                        <progress id="progress" max="1" value="0" aria-label="Current training stage progress"></progress>
+                    </div>
+                    <div id="training-live" hidden>
+                        <div class="maia-live-grid">
+                            <div><div id="training-board" class="maia-board" role="img" aria-label="Latest processed chess position"></div><p id="current-move" class="tool-note">Waiting for positions...</p></div>
+                            <dl class="maia-counters">
+                                <div><dt>Positions encoded</dt><dd id="encoded">0</dd></div>
+                                <div><dt>Training examples processed</dt><dd id="processed">0</dd></div>
+                                <div><dt>Gradient updates</dt><dd id="updates">0</dd></div>
+                                <div><dt>Epoch</dt><dd id="epoch">0</dd></div>
+                                <div><dt>Latest target probability</dt><dd id="probability">Waiting</dd></div>
+                                <div><dt>Best validation epoch</dt><dd id="best-epoch">Waiting</dd></div>
+                            </dl>
+                        </div>
+                    </div>
+                    <div id="training-charts" hidden>
+                        <div class="maia-chart-grid">
+                            <figure><figcaption id="loss-caption">Move prediction loss <small>Lower is better</small></figcaption><svg id="loss-chart" viewBox="0 0 440 250" role="img" aria-label="Training and validation cross entropy by epoch"></svg></figure>
+                            <figure><figcaption id="accuracy-caption">Move match rate <small>Higher is better</small></figcaption><svg id="accuracy-chart" viewBox="0 0 440 250" role="img" aria-label="Training and validation move accuracy by epoch"></svg></figure>
+                        </div>
+                        <p class="maia-legend" id="learning-legend"><span>Training games</span><span>Validation games</span></p>
+                    </div>
+                    <pre id="log" role="log" aria-label="Training log"></pre>
+                </section>
+                <section class="maia-step maia-flow-step" id="training-result" aria-label="Training result" hidden>
+                    <div id="result-summary"></div>
+                        <section id="personality-report" aria-live="polite" hidden>
+                            <h3>Personality target checks</h3>
+                            <dl id="personality-metrics" class="maia-result-metrics"></dl>
+                            <p class="personality-status" hidden>Lower KL means closer target distribution.</p>
+                        </section>
+                    <p id="result-engine"></p>
+                    <div class="maia-actions"><button class="install-button" id="use-in-app" type="button" hidden>Use in A.C.A.S</button><a class="tool-button" id="download-weights" hidden>Download Lc0 weights</a><a class="tool-button" id="download-report" hidden>Download report</a></div>
+                </section>
+                </div>
+                </section>
+                <section class="elo-guide">
+                    <h2>What to expect</h2>
+                    <p id="imitation-expectations">This learns habits, not a whole person. Our strongest checked models matched about 62% of moves on new boards, compared with about 54% for original Maia 3 on the same boards. They matched 84% on familiar opening boards, 67% in new sparse endings and 61% in middlegames. These measure move prediction. Your results will vary.</p>
+                    <h3>What does better move matching mean?</h3>
+                    <p>Going from 50% to 60% means the model picked your move on 60 out of 100 boards instead of 50. It may start playing more like you, especially in your usual openings. Try a few games with it and see whether its choices feel familiar.</p>
+                    <p>People do not always choose the same move on the same board. Mood, fatigue, time pressure and experimentation can all affect a decision, and the model does not see all that context. Near-100% agreement on unseen games may not be achievable, but we do not yet know how close we can get. Do not worry if you are far from perfect agreement.</p>
+                    <p>                    On a side note, I suspect move consistency is a major signal chess sites use to detect engine use. Maia 3 was built by talented researchers and imitates humans very well, yet even with personalization, exceeding 65% on new positions has been difficult in our tests.                     Engines have no emotions, so under the same conditions they tend to make the same choices.</p>
+                    <h3>Using your model</h3>
+                    <p id="timing-expectations">When your model is ready, download it for later.                     For Maia 3, click "Use in A.C.A.S" to apply your model directly in the app. For Maia 3 ONNX, choose Maia 3 and upload in <a href="../../app/?shl=maia3Model" target="_blank" rel="noopener noreferrer">Maia 3 Weights</a>. For original Maia exports, choose Lc0, not Legacy Lc0, and upload in <a href="../../app/?shl=modernLc0Weight" target="_blank" rel="noopener noreferrer">Lc0 Weights</a>. Start with one search node to explore move imitation.</p>
+                    <p>Use <a href="../../usage/#⚙️-dynamic-settings" target="_blank" rel="noopener noreferrer">Dynamic Settings</a> to keep <a href="../../app/?shl=suggestionMix" target="_blank" rel="noopener noreferrer">Funneling</a> off during the opening and enable it afterward.                     DoppelMaia can learn openings especially well, since people tend to play the same openings consistently.                                         Its settings let you mix "Best" and "Any alternative" moves, for example 90% and 10%, for more varied choices. Your profile needs to provide alternative moves for this to work, so set <a href="../../app/?shl=moveSuggestionAmount" target="_blank" rel="noopener noreferrer">Move Suggestion Amount (MultiPV)</a> to at least 2.</p>
+                    <h3>Frequently asked questions</h3>
+                    <details id="style-evidence"><summary>Has style learning been tested?</summary>
+                        <p>Full transformer training runs in this browser and has been checked against CUDA, including gradients, complete training runs and exported models in the app. It updates 22.4 million parameters, not just a small adapter.</p>
+                        <p>During development, we tested imitation using games from six Lichess accounts without BOT titles and 159,546 training positions. Each method below was evaluated on the same 21,687 boards, none used for that account's training, validation or earlier development checks.</p>
+                        <div class="maia-table-wrap maia-evidence" role="region" aria-label="Move agreement on unseen boards" tabindex="0"><table><thead><tr><th scope="col">Method</th><th scope="col">Move match</th></tr></thead><tbody>
+                            <tr><th scope="row">Original Maia 3</th><td>53.55%</td></tr>
+                            <tr><th scope="row">Starting model with recent moves</th><td>55.98%</td></tr>
+                            <tr><th scope="row">Previous personalized models</th><td>59.01%</td></tr>
+                            <tr><th scope="row">More games with the old input</th><td>59.09%</td></tr>
+                            <tr><th scope="row">Current full training</th><td>61.55%</td></tr>
+                        </tbody></table></div>
+                        <p>The gain over previous personalized models was 2.54 percentage points, with a game based 95% interval from 2.05 to 3.00. All six accounts improved, but this is still not nearly perfect imitation. Two earlier accounts had too few later games and were not replaced.</p>
+                        <p>These development tests used larger imports and chose between two base habit settings on validation. Your run uses the settings you choose. Raise Position limit in import settings to include more of your games.</p>
+                        <p>Some earlier development results included BOT accounts: five of six in full model tests and nine of twenty in adapter tests. Those averages do not describe human players alone. <a href="research.html#experiments" target="_blank" rel="noopener noreferrer">Testing details and corrections</a>.</p>
+                        <p>We explored 50 personality candidates and kept 18. Each has a distinct measured policy at the same Elo and kept its preference in fresh autonomous games. The confirmation played 552 games, including paired base controls. Extreme styles often played worse, so these are preferences rather than strength ratings. <a href="README.md#curated-personalities" target="_blank" rel="noopener noreferrer">Personality checks</a>.</p>
+                    </details>
+                    <details><summary>How do I personalize Maia or train Lc0?</summary><p>Import your games, select your player and a supported starting network, then train. Load your new weights in A.C.A.S. Check predictions on separate games before drawing conclusions about your engine's personality.</p></details>
+                    <details><summary>Can I make the engine play like me?</summary><p>The trainer learns patterns in the games you provide. Results on new positions depend on your games and the validation results. This does not prove that the engine copies a person or plays at a particular strength.</p></details>
+                    <details id="training-tab-faq"><summary>It stops when I leave the tab</summary><p>Keep DoppelMaia open and stay on this tab for the entire training run. Do not switch tabs or leave the page until training is finished.</p></details>
+                    <details><summary>What is an engine personality?</summary><p>Here, personality means patterns in your choices, such as the moves you prefer. DoppelMaia does not guarantee a human playing style or a specific opening.</p>
+                    <p>Personality presets describe soft preferences and tradeoffs such as piece choices, captures, or king safety. They are not claims that a preset has been proven to play near perfectly.</p>
+                    </details>
+                    <details><summary>Can I train any Lc0 model?</summary><p>No. Custom Lc0 weights need classical inputs and a compatible convolutional policy head. If you are unsure, choose one of the included Maia networks.</p></details>
+                    <p>Inspired by <a href="https://github.com/CSSLab/maia-individual" target="_blank" rel="noopener noreferrer">Maia Individual</a>, powered by <a href="https://github.com/CSSLab/maia-chess" target="_blank" rel="noopener noreferrer">Maia</a> and <a href="../../app/assets/engines/lc0/NOTICE.txt" target="_blank" rel="noopener noreferrer">modified Lc0</a>. <a href="research.html" target="_blank" rel="noopener noreferrer">Research notes</a>.</p>
+                </section>
+            </article>
+        </div>
+        <footer>
+            <div class="site-footer-knight" data-piece="king" aria-hidden="true"></div>
+            <div class="site-footer-content">
+                <div class="site-footer-intro">
+                    <a class="site-footer-brand" href="../../">A.C.A.S</a>
+                    <p>Free, open-source chess assistance.</p>
+                </div>
+                <nav class="site-footer-links" aria-label="Footer">
+                    <div>
+                        <h2>Explore</h2>
+                        <a href="../../">Home</a>
+                        <a href="../../install/">Installation</a>
+                        <a href="../../usage/">Usage Guide</a>
+                        <a href="../../troubleshoot/">Help</a>
+                        <a href="../../blog/">Blog</a>
+                    </div>
+                    <div>
+                        <h2>Chess tools</h2>
+                        <a href="../../tools/">All tools</a>
+                        <a href="../../tools/eloeye/">EloEye</a>
+                        <a href="../../tools/doppelmaia/">DoppelMaia</a>
+                        <a href="../../tools/game-exporter/">Export Matches</a>
+                        <a href="../../tools/leela2onnx/">Leela to ONNX</a>
+                    </div>
+                    <div>
+                        <h2>Project</h2>
+                        <a href="../../contributing/">Contributing</a>
+                        <a href="../../development/">Development</a>
+                        <a href="https://github.com/Psyyke/A.C.A.S">GitHub</a>
+                        <a href="https://github.com/Hakorr">Contact</a>
+                        <a href="../../privacy/">Privacy Policy</a>
+                        <a href="../../tos/">Terms of Service</a>
+                    </div>
+                </nav>
+                <div class="site-footer-bottom"><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a></div>
+            </div>
+        </footer>
+    </main>
+    <script async src="../../assets/js/site-additional-content.js"></script>
+    <script src="../../app/assets/js/misc/toastMessage.js"></script>
+    <script type="module" src="personalized-maia.js"></script>
+</body>
+</html>

@@ -2,6 +2,8 @@ import { logAppliedSetting, finishPendingSettingChanges } from '../misc/settingA
 import { fairyVariantKey, fairyChess960Key, isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 import { hintSettingKeys } from '../misc/learningHints.js';
 import { syncPictureInPicture } from '../gui/pip.js';
+import { isUpstreamLc0 } from './lc0Engines.js';
+import { engineTextFilesChanged } from './engineTextFiles.js';
 
 // Every instance owns its effective-value cache and queue. Never consult the GUI filter.
 export function changedSettingKeys(previous, current, keys, forcedKeys = []) {
@@ -72,8 +74,16 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = [], isDi
                     && (profileVariables.externalChessEngine ?? null) !== (current.externalChessEngine ?? null);
                 const advancedModeMismatch = profileVariables
                     && Boolean(profileVariables.usingAdvancedMode) !== Boolean(current.enableAdvancedElo);
+                const modernWeightsChanged = profileVariables && !current.useExternalChessEngine
+                    && isUpstreamLc0(current.chessEngine)
+                    && (profileVariables.modernLc0Weight ?? '') !== (current.modernLc0Weight ?? '');
+                const maia3ModelChanged = profileVariables && !current.useExternalChessEngine && current.chessEngine === 'maia3'
+                    && ((profileVariables.maia3Model ?? '') !== (current.maia3Model ?? '')
+                        || (profileVariables.maia3Provider || 'wasm') !== (current.maia3Provider || 'wasm'));
                 const needsReload = identityChanged || loadedEngineMismatch || requestedEngineMismatch
-                    || externalModeMismatch || externalEngineMismatch || advancedModeMismatch || fairyVariantChanged;
+                    || externalModeMismatch || externalEngineMismatch || advancedModeMismatch || fairyVariantChanged
+                    || modernWeightsChanged || maia3ModelChanged
+                    || engineTextFilesChanged(current.chessEngine, previous, current);
 
                 if(current.engineEnabled && (!profileVariables || needsReload)) {
                     this.pendingDynamicSettingChanges.set(name, { previous, current, keys: changed });

@@ -46,24 +46,24 @@
         <header>
             <div><a href="../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
             <div class="header-nav">
-                <a href="../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
-                <a href="../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
-                <a href="../tools/" aria-label="Chess tools" class="fancy-btn"><i class="bi bi-speedometer2"></i>Tools</a>
-                <a href="../troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-tools"></i>Help</a>
-                <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
+                <a href="../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+                <a href="../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+                <a href="../troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+                <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+                <a href="../tools/" aria-label="Chess tools" class="fancy-btn"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
                 <a href="../contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
                 <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
             <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
         </header>
         <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
-            <a href="../install/"><i class="bi bi-download"></i>Install</a>
-            <a href="../usage/" aria-current="page"><i class="bi bi-journals"></i>Usage</a>
-            <a href="../tools/"><i class="bi bi-speedometer2"></i>Tools</a>
-            <a href="../troubleshoot/"><i class="bi bi-tools"></i>Help</a>
-            <a href="../blog/"><i class="bi bi-pen"></i>Blog</a>
+            <a href="../install/"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+            <a href="../usage/" aria-current="page"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+            <a href="../troubleshoot/"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+            <a href="../blog/"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+            <a href="../tools/"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
             <a href="../contributing/"><i class="bi bi-heart"></i>Contribute</a>
-            <a href="../development/"><i class="bi bi-code-slash"></i>Development</a>
+            <a href="../development/"><i class="bi bi-code-slash" aria-hidden="true"></i>Development</a>
             <a href="https://github.com/psyyke/A.C.A.S" target="_blank"><i class="bi bi-github"></i>GitHub</a>
         </div></div></nav>
         <div class="content">
@@ -75,7 +75,7 @@
             <!-- PAGE CONTENT -->
             <article class="markdown-section-sub markdown-section" id="main">
                 <section>
-                    <h1 id="usage-📖">Usage Guide 📖</h1>
+                    <h1 id="usage-📖" class="page-heading"><span>Usage Guide</span><span class="page-heading-icon" aria-hidden="true">&#x1F4D6;</span></h1>
                     <p>This guide explains how to use A.C.A.S and what every setting does, so you can pick the best config for your device and playstyle. Install the userscript, then keep the <a target="_blank" href="../app">GUI</a> open while you play on a chess site. Suggested moves show up on the board you're playing on.</p>
                     <p class="tip">Press Ctrl+D (Cmd+D on Mac) to bookmark this page.</p>
                     <div id="lottie-animation"></div>
@@ -271,6 +271,8 @@
                     <p>For engine-managed timing through the Calculation Server, select the external engine, enable Advanced Elo, choose Engine movetime, and set its budget in milliseconds. Max Movetime is disabled and ignored in this mode so it cannot interrupt that budget; its saved value is preserved for other modes. A board change still stops the search. Infinite mode streams analysis until stopped; with Only Top Moves enabled, a nonzero Max Movetime waits for the final result.</p>
                     <p>For standard chess, A.C.A.S sends the recorded position and moves when they can be legally replayed. History starts when observation begins, so earlier moves are unavailable if you join mid-game. Missing or inconsistent history, Chess960, variants, and hypothetical turn changes use the current FEN instead. The Calculation Server must also be updated to accept longer position commands. Its 262,144-character limit accommodates tens of thousands of moves; if exceeded, only the most recent moves that fit are sent.</p>
                     <p>Other options come from your engine and appear once it starts. Open a chess board if the list is empty. Advanced Elo overrides the basic Elo controls, so disable it to go back to the normal Engine Elo setting.</p>
+                    <p>Some built-in engines accept text files through a textarea: <strong>PersonalityFile</strong> for Rodent V, <strong>VariantPath</strong> for Fairy-Stockfish, and <strong>ConfigFile</strong> for modern Lc0. Paste the file's contents, not its path. A.C.A.S supplies them in memory and restarts that profile when they change. Empty text removes the custom file. The 64 KiB limit applies to each file, and settings exports include the contents.</p>
+                    <p>Keep each engine's own format. Rodent uses one <code>setoption name ... value ...</code> per line. Fairy uses INI variant definitions, such as <code>[mychess:chess]</code> followed by <code>doubleStep = false</code> on the next line. Its variant dropdown updates after loading. Lc0 uses long options such as <code>--cpuct=3.25</code>. Invalid contents show an error instead of silently using defaults. Binary networks, opening books, tablebase directories and log outputs are not text-file inputs. External engines keep their normal path-based settings.</p>
 
                     <p>Not every Advanced Elo option does something. For example, "Ponder" most likely does nothing because A.C.A.S doesn't implement it. Built-in engines are also limited by your browser, so extra cores, memory or files may go unused. This is meant for advanced users.</p>
 
@@ -321,6 +323,13 @@
                     <p><strong>Learning Mode</strong> turns off random sampling and uses Stockfish's evaluation for grading, while keeping the Maia and personality preferences.</p>
 
                     <p class="tip">Fusion doesn't guarantee a particular playing strength or human-like play. Follow the chess site's rules and our <a href="../tos/">Terms of Service</a>.</p>
+
+                    <h3 id="rodent-v">Rodent V</h3>
+                    <p>Rodent V runs locally in your browser and supports chess, Chess960 and multiple move suggestions. Its personalities change how it evaluates positions, using handcrafted preferences, neural networks or a mix of both.</p>
+                    <p>To try one, select <strong>Rodent V</strong>, open a board, then enable <strong>Advanced Elo</strong> from the cog beside Engine ELO. The <strong>Personality</strong> dropdown has ampere, chaotic, hector, nimzoid, rodent, tal_hybrid and tal_nnue, plus the latest engine default. The port loads the matching network architecture automatically.</p>
+                    <p>Have your own personality text? Paste it into <strong>PersonalityFile</strong>. It overrides the base preset, while saved individual controls override the pasted text. Network and book references inside it must use the bundled resources. Clear the textarea to return to the preset and your individual controls.</p>
+                    <p>You can also tune <strong>hceWeight</strong>, <strong>nnueWeight</strong>, <strong>OwnSafety</strong>, <strong>OppSafety</strong>, mobility and other UCI settings there. Saved style edits override the selected base personality, including after reload. Use a fresh profile for an untouched preset. Unedited fields show engine defaults, not the preset's live values. Enable <strong>OwnBook</strong> if you want the preset's opening books too.</p>
+                    <p>Style and strength are separate. Normal Engine ELO uses Rodent's 800-3000 limiter, with 3200 meaning full strength. In Advanced Elo, turn on <strong>UCI_LimitStrength</strong> and choose <strong>UCI_Elo</strong>. Search Nodes overrides its rating-based node budget. These ratings are approximate, not a guarantee of human playing strength. See the <a href="../app/assets/engines/rodent-v/README.md">Rodent port notes</a> for controls, downloads and limitations.</p>
 
                     <h3 id="⚙️-weights">⚙️ Weights</h3>
                     <p>The <a target="_blank" href="../app?shl=lc0Weight">Lc0 Weights</a> setting decides how the Lc0 engine plays. <strong>Maia weights</strong> are marked with the ELO they roughly play at. The strength and style of the other weights is unknown, but most are quite weak.</p>
@@ -449,7 +458,7 @@
 
                     <h3 id="⚙️-theme-color">⚙️ Theme Color</h3>
                     <p><a target="_blank" href="../app?shl=themeColorHex">Theme Color</a> and the settings below it change the look of the GUI.</p>
-                    <p><a target="_blank" href="../app?shl=chessFont">Chess Font</a> changes the GUI's pieces and <a target="_blank" href="../app?shl=boardColorHex">Board Color</a> changes its board colors. Neither changes the chess site's own theme.</p>
+                    <p><a target="_blank" href="../app?shl=chessFont">Chess Font</a> changes the GUI's pieces. <a target="_blank" href="../app?shl=boardColorHex">Board Color 1</a> sets light squares and <a target="_blank" href="../app?shl=boardColorHex2">Board Color 2</a> sets dark squares independently. Neither changes the chess site's own theme.</p>
 
                     <h4>⚙️ Custom Background</h4>
                     <p>Choose <strong>Custom Image</strong> under <a target="_blank" href="../app?shl=backgroundTextureClass">Bg Texture</a>, then click the filename box to upload an image. PNG, JPEG, WebP, GIF and AVIF work, up to 10 MB. Use <strong>Image Blur</strong> to soften it or × to remove it. The image stays in this browser and isn't included in settings exports.</p>
@@ -531,8 +540,41 @@
             <!-- PAGE CONTENT ENDS -->
         </div>
         <footer>
-            <img style="right: -70px;bottom: -35px;width: 220px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wB.svg"/>
-            <section><a href="../tos">Terms of Service</a><a href="../privacy">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>
+            <div class="site-footer-knight" data-piece="bishop" aria-hidden="true"></div>
+            <div class="site-footer-content">
+                <div class="site-footer-intro">
+                    <a class="site-footer-brand" href="../">A.C.A.S</a>
+                    <p>Free, open-source chess assistance.</p>
+                </div>
+                <nav class="site-footer-links" aria-label="Footer">
+                    <div>
+                        <h2>Explore</h2>
+                        <a href="../">Home</a>
+                        <a href="../install/">Installation</a>
+                        <a href="../usage/">Usage Guide</a>
+                        <a href="../troubleshoot/">Help</a>
+                        <a href="../blog/">Blog</a>
+                    </div>
+                    <div>
+                        <h2>Chess tools</h2>
+                        <a href="../tools/">All tools</a>
+                        <a href="../tools/eloeye/">EloEye</a>
+                        <a href="../tools/doppelmaia/">DoppelMaia</a>
+                        <a href="../tools/game-exporter/">Export Matches</a>
+                        <a href="../tools/leela2onnx/">Leela to ONNX</a>
+                    </div>
+                    <div>
+                        <h2>Project</h2>
+                        <a href="../contributing/">Contributing</a>
+                        <a href="../development/">Development</a>
+                        <a href="https://github.com/Psyyke/A.C.A.S">GitHub</a>
+                        <a href="https://github.com/Hakorr">Contact</a>
+                        <a href="../privacy/">Privacy Policy</a>
+                        <a href="../tos/">Terms of Service</a>
+                    </div>
+                </nav>
+                <div class="site-footer-bottom"><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a></div>
+            </div>
         </footer>
     </main>
     <script async="" src="../assets/js/site-additional-content.js"></script>

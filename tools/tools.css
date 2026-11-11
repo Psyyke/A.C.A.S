@@ -2,6 +2,28 @@
 [hidden] {
     display: none !important;
 }
+.elo-page details {
+    font-weight: 500;
+    font-size: 15px;
+    min-width: 0;
+    margin-block: 12px;
+    padding: 12px;
+    outline: 1px solid rgb(33 58 67 / 18%);
+    border-radius: 5px;
+}
+.elo-page details > summary {
+    width: fit-content;
+    max-width: 100%;
+    font-weight: 500;
+    font-size: 15px;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+.elo-page details[open] {
+    outline-color: rgb(33 58 67 / 28%);
+}
 .tool-connection {
     list-style: none;
     display: flex;
@@ -77,10 +99,44 @@
 .tool-card p {
     line-height: 1.5;
 }
+.tool-card[href="leela2onnx/"] h2 .bi-gear::before,
+.tool-card[href="game-exporter/"] h2 .bi-download::before {
+    -webkit-text-stroke: 0.8px currentColor;
+}
+.tool-card[href="leela2onnx/"] h2 .bi-gear,
+.tool-card[href="game-exporter/"] h2 .bi-download,
+.tool-card[href="leela2onnx/"] h2 svg,
+.tool-card[href="game-exporter/"] h2 svg {
+    flex-shrink: 0;
+}
+.tool-card[href="game-exporter/"] h2 { font-weight: 800; gap: 14px; }
+.markdown-section .tool-group-divider {
+    height: 0;
+    margin: 0;
+    border: 0;
+    border-top: 1px solid rgb(33 58 67 / 18%);
+}
 .tool-card h2 .elo-eye-word {
     display: inline;
     font-weight: 500;
 }
+.tool-card[href="doppelmaia/"] h2 .doppelmaia-name {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: flex-start;
+    margin: 0;
+    font-family: inherit;
+    gap: 0;
+    white-space: nowrap;
+}
+.tool-card[href="doppelmaia/"] h2 .doppelmaia-name strong { font-weight: 800; }
+.tool-card[href="doppelmaia/"] h2 .doppelmaia-name > span {
+    display: inline;
+    margin: 0;
+    font-weight: 500;
+    justify-content: initial;
+}
+.tool-card[href="doppelmaia/"] h2 .doppelmaia-profiles { flex: 0 0 auto; }
 .tool-card span {
     display: flex;
     justify-content: flex-end;
@@ -194,9 +250,8 @@
     margin: 0 auto;
     width: 100%;
 }
-.elo-page > section:first-child {
-    margin-left: 32px;
-    margin-right: 32px;
+.markdown-section.elo-page > section:first-child {
+    margin: 20px 20px 0;
 }
 .elo-page #eloeye {
     display: flex;
@@ -399,6 +454,16 @@
     font-size: 16px;
     font-weight: 600;
 }
+.tool-field select:not([multiple]):not([size]),
+.elo-tool .tool-field select:not([multiple]):not([size]) {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23213a43' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 20px 20px;
+}
 .tool-field select:focus-visible,
 .tool-field input:focus-visible,
 .tool-button:focus-visible,
@@ -411,8 +476,60 @@
 }
 .tool-button {
     width: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    line-height: 1.4;
     cursor: pointer;
     transition: background-color 0.1s;
+}
+.markdown-section a.tool-button {
+    color: #213a43;
+    text-decoration: none;
+}
+.tool-file-picker {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    min-width: 0;
+}
+.tool-file-control {
+    position: relative;
+    display: inline-flex;
+    max-width: 100%;
+}
+.tool-file-control input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+}
+.tool-file-control input:focus-visible + .tool-button {
+    outline: 3px solid #5f8895;
+    outline-offset: 3px;
+}
+.tool-file-control input:disabled,
+.tool-file-control input:disabled + .tool-button {
+    cursor: not-allowed;
+}
+.tool-file-control input:disabled + .tool-button {
+    opacity: 0.5;
+}
+.tool-file-control:has(input:not(:disabled)):hover .tool-button {
+    background-color: rgb(0 0 0 / 5%);
+}
+.tool-file-picker > [role="status"] {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-weight: 400;
 }
 .tool-button:hover {
     background-color: rgb(0 0 0 / 5%);
@@ -784,9 +901,7 @@
     order: 1;
     min-inline-size: 0;
     box-sizing: border-box;
-    padding: 0;
-    border-top: 2px dashed #ebebeb;
-    border-bottom: 2px dashed #ebebeb;
+    padding: 12px;
 }
 .elo-tool #personality > summary {
     width: fit-content;

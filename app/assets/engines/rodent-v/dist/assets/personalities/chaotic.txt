@@ -1,0 +1,33 @@
+; Chaotic personality for Rodent V
+;
+; configured by Pawel Koziol
+;
+; aggressive, disregards pawn structure, tricky openings
+; based on an old net, horizontal mirrorring must be off
+;
+setoption name nnuePath value nets/rodent_4kb_768hl_8ob_v2.bin
+setoption name mainBookPath value books/tricky.bin
+setoption name guideBookPath value books/empty.bin
+setoption name hceWeight value 60
+setoption name nnueWeight value 40
+setoption name horizontalMirroring value 1
+setoption name nnueScale value 206
+setoption name likesClosed value 0
+setoption name kingTropism value 0
+setoption name forwardness value 0
+setoption name OwnMaterial value 0
+setoption name OppMaterial value 0
+setoption name OwnPST value 0
+setoption name OppPST value 0
+setoption name OwnMobility value 120
+setoption name OppMobility value 100
+setoption name OwnSafety value 100
+setoption name OppSafety value 140
+setoption name OwnPawns value 0
+setoption name OppPawns value 0
+setoption name OwnPassers value 0
+setoption name OppPassers value 0
+setoption name OwnThreats value 120
+setoption name OppThreats value 100
+setoption name OwnOther value 0
+setoption name OppOther value 0

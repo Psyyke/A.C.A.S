@@ -1,9 +1,11 @@
 import { isActivityLoggingEnabled, logActivity } from '../misc/activityLog.js';
 import { updatePipData } from '../gui/pip.js';
-import { onDynamicOptionsReady, resetDynamicOptionsReady } from '../gui/dynamicEngineOptionState.js';
+import { setProfileBubbleStatus } from '../gui/profiles.js';
+import { onDynamicOptionsReady, resetDynamicOptionsReady, getDynamicOption, getDynamicEngineDbKeyPrefix } from '../gui/dynamicEngineOptionState.js';
 import { finishPendingSettingChanges } from '../misc/settingActivity.js';
 import { clearFeedback, prepareFeedbackPosition } from './renderFeedback.js';
 import { applyFairyVariantSettings, refreshFairyBoard, isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
+import { isLc0Engine, isUpstreamLc0 } from './lc0Engines.js';
 
 async function startWithBasicOptions(variant, engineName, profile, isCurrentStart) {
     const profileVariables = this.pV[profile];
@@ -14,9 +16,9 @@ async function startWithBasicOptions(variant, engineName, profile, isCurrentStar
     if(!isCurrentStart()) return;
 
     this.setEngineMultiPV(multiPV, profile);
-    this.setEngineShowWDL(true, profile);
+    if(engineName !== 'rodent-v') this.setEngineShowWDL(true, profile);
 
-    if(engineName !== 'lc0') await this.setEngineVariant(variant, profile);
+    if(!isLc0Engine(engineName) && engineName !== 'rodent-v') await this.setEngineVariant(variant, profile);
     if(!isCurrentStart()) return;
 
     this.set960Mode(profileVariables.useChess960, profile);
@@ -38,7 +40,7 @@ async function startWithDynamicOptions(variant, engineName, profile, isCurrentSt
         ? Object.fromEntries(Object.entries(snapshot).filter(([key]) => key.startsWith('DYNAMIC_')))
         : await GET_GM_VALUES_STARTS_WITH('DYNAMIC_', this.instanceID, profile);
     const isExternal = await this.getConfigValue(this.configKeys.useExternalChessEngine, profile);
-    const shouldWarnAboutMaiaNodes = engineName === 'lc0' && !isExternal
+    const shouldWarnAboutMaiaNodes = isLc0Engine(engineName) && !isExternal
         && profileVariables.lc0WeightName?.includes('maia') && engineNodes > 1;
     const managesFairyVariant = isBuiltInFairyEngine(profileVariables);
 
@@ -52,6 +54,17 @@ async function startWithDynamicOptions(variant, engineName, profile, isCurrentSt
 
     profileVariables.searchDepth = advancedEloDepth;
     profileVariables.engineNodes = engineNodes;
+
+    // Files are consumed before UCI startup. Their effective defaults also
+    // control the app's variation count and castling interpretation.
+    const textFiles = this.getEngineAcasObj?.(profile)?.textFiles ?? {};
+    if(!isExternal && Object.values(textFiles).some(text => typeof text === 'string' && text.trim())) {
+        const prefix = getDynamicEngineDbKeyPrefix(engineName);
+        const multiPV = getDynamicOption(`${prefix}MultiPV`, profile, this.instanceID)?.defaultValue;
+        const chess960 = getDynamicOption(`${prefix}UCI_Chess960`, profile, this.instanceID)?.defaultValue;
+        if(multiPV != null) profileVariables.multiPV = Number(multiPV);
+        if(chess960 != null) profileVariables.useChess960 = String(chess960).toLowerCase() === 'true';
+    }
 
     if(engineNodes > 0) {
         updatePipData({ 'goalDepth': null }, this, profile);
@@ -88,7 +101,7 @@ async function applyStartupCurves(variant, engineName, profile, isAdvancedElo, i
     const uciCurves = Object.entries(curves)
         .filter(([key, curve]) => key.startsWith('DYNAMIC_') && curve.enabled
             && !(managesFairyVariant && isFairyVariantSetting(key)));
-    const shouldSetVariant = !managesFairyVariant && engineName !== 'lc0'
+    const shouldSetVariant = !managesFairyVariant && !isLc0Engine(engineName) && engineName !== 'rodent-v'
         && (isDynamicChange || curves.chessVariant?.enabled);
     const shouldSet960Mode = !managesFairyVariant
         && (isDynamicChange || curves.useChess960?.enabled || curves.chessVariant?.enabled);
@@ -170,11 +183,16 @@ export default async function engineStartNewGame(variant, profile, isDynamicChan
         const profileVariant = chessVariant ?? profileVariables.chessVariant ?? 'chess';
         const initializesFairyBoard = isBuiltInFairyEngine(profileVariables);
         const managesFairyVariant = isAdvancedElo && initializesFairyBoard;
-        const usesNodeLimit = isAdvancedElo || engineName === 'lc0';
-        const positionCommands = engineName === 'lc0'
+        const usesNodeLimit = isAdvancedElo || isLc0Engine(engineName);
+        const positionCommands = isLc0Engine(engineName) || engineName === 'rodent-v'
             ? ['position startpos'] : ['position startpos', 'd'];
 
         if(!isCurrentStart()) return;
+        if(!profileVariables.useExternalChessEngine && (isUpstreamLc0(engineName) || engineName === 'rodent-v')
+            && profileVariant !== 'chess') {
+            setProfileBubbleStatus('error', profileName, `${engineName === 'rodent-v' ? 'Rodent V' : 'Lc0'} supports chess and Chess960 only.`);
+            return;
+        }
 
         this.clearHistoryVariables(profileName);
 
@@ -241,7 +259,7 @@ export default async function engineStartNewGame(variant, profile, isDynamicChan
         });
 
         if(isAdvancedElo) applied.advancedEloDepth = profileVariables.searchDepth;
-        if(engineName === 'lc0') applied.lc0Weight = profileVariables.lc0WeightName;
+        if(isLc0Engine(engineName)) applied.lc0Weight = profileVariables.lc0WeightName;
 
         if(initializesFairyBoard) delete profileVariables.variantStartposFen;
 

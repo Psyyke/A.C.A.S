@@ -1,0 +1,30 @@
+; Tal personality for Rodent V
+;
+; created by Naman Thanki, tweaked by Pawel Koziol
+;
+setoption name nnuePath value nets/rodent_4kb_768hl_8ob_v2.bin
+setoption name mainBookPath value books/active.bin
+setoption name guideBookPath value books/empty.bin
+setoption name hceWeight value 80
+setoption name nnueWeight value 40
+setoption name nnueScale value 206
+setoption name horizontalMirroring value 1
+setoption name likesClosed value -100
+setoption name kingTropism value 100
+setoption name forwardness value 60
+setoption name OwnMaterial value 0
+setoption name OppMaterial value 1
+setoption name OwnPST value 100
+setoption name OppPST value 100
+setoption name OwnMobility value 125
+setoption name OppMobility value 100
+setoption name OwnSafety value 60
+setoption name OppSafety value 150
+setoption name OwnPawns value 80
+setoption name OppPawns value 100
+setoption name OwnPassers value 110
+setoption name OppPassers value 100
+setoption name OwnThreats value 130
+setoption name OppThreats value 75
+setoption name OwnOther value 100
+setoption name OppOther value 100

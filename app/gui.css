@@ -104,10 +104,6 @@ html:root {
     border-radius: 0 5px 5px 0;
     margin-left: 10px;
 }
-p[data-translation-remember-perfection],
-p[data-translation-experimental-warning] {
-    font-size: 15px;
-}
 .settings-divider-line {
     border-bottom: 1px dashed grey !important;
     margin-bottom: 20px !important;
@@ -755,6 +751,71 @@ cg-container {
 	font-weight: 400;
 	text-align: center;
 }
+@media (max-width: 700px), (pointer: coarse) and (max-width: 1100px) {
+    #acas-settings-container,
+    dialog:has(.custom-input) {
+        --settings-input-font-size: 16px;
+        font-size: 16px;
+    }
+    :is(#acas-settings-container, dialog) .input-title {
+        font-size: 16px;
+    }
+    :is(#acas-settings-container, dialog) .input-subtitle {
+        font-size: 12px;
+    }
+    :is(#acas-settings-container, dialog) .setting-panel-title {
+        font-size: 17px;
+    }
+    :is(#acas-settings-container, dialog) :is(.dropdown-item, .dropdown-none-item) {
+        font-size: 16px;
+    }
+    :is(#acas-settings-container, dialog) :is(.textfield-input input, .dropdown-input input, textarea, select) {
+        /* Keep editable controls large enough to avoid focus zoom on iOS. */
+        font-size: 16px;
+    }
+    #settings-navbar-subtitle,
+    #add-engine-button {
+        font-size: 14px;
+    }
+    #acas-instance-container {
+        row-gap: 0;
+    }
+    .instance-header {
+        border-bottom: 3px solid rgb(255 255 255 / 3%);
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 5px 10px;
+    }
+    .instance-basic-info,
+    .instance-misc {
+        display: contents;
+    }
+    .instance-settings-btn,
+    .instance-header .instance-basic-info-title,
+    .instance-domain {
+        display: none;
+    }
+    .instance-buttons,
+    .instance-info-text {
+        margin-top: 0;
+    }
+    .instance-buttons {
+        flex-wrap: wrap;
+    }
+    .instance-info-text {
+        margin-left: auto;
+    }
+    .instance-information {
+        order: 1;
+        flex-basis: 100%;
+        min-width: 0;
+        margin-top: 0;
+    }
+    .instance-information:not(:has(> :not(.hidden))) {
+        display: none;
+    }
+}
 .on-top-center-screen {
 	position: absolute;
 	top: 38%;
@@ -1189,10 +1250,12 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     -webkit-text-stroke: 0.5px currentColor;
 }
 #no-instances-sites {
+    --scrollbar-track-background: rgb(255 255 255 / 5%);
 	margin: 10px;
 	padding: 20px;
-	border-radius: inherit;
-	background-color: rgb(0 0 0 / 10%);
+	border-radius: 7px;
+	background-color: rgb(0 0 0 / 20%);
+	box-shadow: inset 0 6px 10px -5px rgb(0 0 0 / 50%);
 	max-height: 300px;
 	overflow: auto;
 }
@@ -1708,6 +1771,13 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 .acas-social-actions .header-social-button:hover {
     transform: none;
 }
+.acas-social-actions .language-dropdown-input .selected-language-img {
+    height: 20px;
+    padding: 5px 4px;
+}
+.acas-social-actions .language-dropdown-input .dropdown-input-container {
+    border-width: 2px 2px 5px;
+}
 .github-button {
     border-radius: var(--settings-input-border-radius);
     background-color: var(--settings-input-main-bg-color);
@@ -1757,7 +1827,6 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
 #des-no-result-text {
 	max-width: 400px;
 	text-align: center;
-	opacity: 0.5;
 	padding: 50px 0;
 	border-bottom: 0 !important;
 	align-self: center;
@@ -2290,8 +2359,42 @@ input[disabled] {
 #begging-floaty {
     max-width: 350px;
 }
+#maia3-weights-floaty,
+#modern-lc0-weights-floaty {
+    width: min(380px, calc(100vw - 24px));
+    box-sizing: border-box;
+}
+:is(#maia3-weights-floaty, #modern-lc0-weights-floaty) .file-input {
+    flex-direction: column;
+    align-items: stretch;
+}
+:is(#maia3-weights-floaty, #modern-lc0-weights-floaty) .book-upload-row {
+    width: 100%;
+}
+.lc0-weights-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px;
+    line-height: 1.45;
+}
+.lc0-weights-info p {
+    margin: 0;
+}
+.lc0-weights-info nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.lc0-weights-info a {
+    margin: 0;
+}
+
 #begging-floaty .floaty-body {
 	word-wrap: break-word;
+}
+#begging-floaty a:focus {
+    outline: none;
 }
 #begging-floaty small {
 	padding: 30px;
@@ -4225,12 +4328,18 @@ input[disabled] {
     justify-content: center;
     align-items: center;
 }
-p[data-translation-ffs-instructions] {
+.floaty-note,
+.lc0-weights-info {
 	max-width: 600px;
-	font-size: 14px;
-  	opacity: 0.8;
-	font-weight: 600;
+	font-size: 13px;
+	opacity: 0.6;
+	font-weight: 400;
 	font-style: italic;
+}
+p[data-translation-experimental-warning],
+p[data-translation-remember-perfection],
+.lc0-weights-info {
+    text-align: center;
 }
 video {
 	border-radius: 5px;
@@ -4446,16 +4555,38 @@ dialog > .floaty-container::before,
 		max-width: none;
 		border-radius: 0;
 		border-inline-width: 0;
-        border-top: 2px solid rgb(0 0 0 / 40%);
-        border-bottom-width: 3px;
+        border-top: 3px solid rgb(0 0 0 / 40%);
+        border-bottom: 3px solid rgb(0 0 0 / 20%);
 	}
 	#acas-header,
 	#acas-header::before {
 		border-radius: 0;
+        border-bottom: 2px solid rgb(255 255 255 / 3%);
 	}
 	.acas-instance .instance-header,
 	.acas-instance .instance-feedback-container,
 	.acas-instance .instance-opening-container:has(+ .instance-feedback-container:empty) {
 		border-radius: 0;
 	}
+}
+
+@media (max-width: 700px), (pointer: coarse) and (max-width: 1100px) {
+	.floaty-header .title h1 {
+	    font-size: 22px;
+	}
+	.floaty-header .title p {
+	    font-size: 14px;
+	}
+	#footer #footer-links {
+	    font-size: 14px;
+	}
+	#footer .footer-small-text {
+	    font-size: 11px;
+	}
+    #acas-instance-container > .acas-instance:has(+ .acas-instance) {
+        border-bottom-width: 0;
+    }
+    #acas-instance-container > .acas-instance + .acas-instance {
+        border-top: 3px solid rgb(0 0 0 / 40%);
+    }
 }

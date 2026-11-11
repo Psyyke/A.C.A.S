@@ -1,0 +1,97 @@
+{
+  "repository": "https://github.com/nescitus/Rodent-V",
+  "revision": "b55a1d142a4254dd091ede86845b2b9ac036653e",
+  "version": "1.2.03",
+  "goVersion": "go1.27.4",
+  "target": "js/wasm",
+  "threads": 1,
+  "hashMaxMB": 256,
+  "binaries": {
+    "512": {
+      "file": "rodent-512.wasm",
+      "sha256": "346755145425ddda4472e0c4891228d9b5857a4de844e4828eafaaf4f75bd709"
+    },
+    "768": {
+      "file": "rodent-768.wasm",
+      "sha256": "145692929e34680815d6f234e4eca80f3870fbc6efea2788086deda4a4780bf0"
+    }
+  },
+  "assets": {
+    "nets/rodent_4kb_768hl_8ob_v2.bin": {
+      "size": 4744768,
+      "sha256": "c35a1abc1b8c1cb1d5f4221454d494c1a6da1ed9088fd51ab27038bfa74b5053"
+    },
+    "nets/rodent_4kb_768hl_8ob_v5.bin": {
+      "size": 4744768,
+      "sha256": "990551a48a2024535959b42e7cde1c776ce144e310e0e1f2ad7985cf06df703b"
+    },
+    "nets/rodent_4kb_768hl_tal_aggressive.bin": {
+      "size": 4744768,
+      "sha256": "8211aea5a9d66fe8424523e2adb5384dcb4256b76ff791e04523357f187ca26f"
+    },
+    "nets/rodent_8kb_512hl_8ob_v7.bin": {
+      "size": 6308928,
+      "sha256": "6145a8c7afb0ea8f21d3b5dd3289a6f5928c0b094a0ac828e6707d8ccd392f5b"
+    },
+    "nets/rodent_8kb_512pw_multilayer_v8.bin": {
+      "size": 6393408,
+      "sha256": "4ba5791a15592a0927b994643102560bc65d2a916d64a1effb1f890cea7b2252"
+    },
+    "books/active.bin": {
+      "size": 298368,
+      "sha256": "4ce06ffe8208ea462623d4aa2cd76e5fffb43fee568eec926dda58c49de39a74"
+    },
+    "books/empty.bin": {
+      "size": 16,
+      "sha256": "60c69a3e87bf5c4f1e546bec45f262690bcf5494c4ecac2616bf2f731afa152a"
+    },
+    "books/nimzowitsch.bin": {
+      "size": 261040,
+      "sha256": "64f43e651515f68c5a8e5eb1c970cfc6b49b47e30abf3a078659b5465bf79459"
+    },
+    "books/ph-anand2.bin": {
+      "size": 1998384,
+      "sha256": "ca5d7a52b33f78e857fb44f6157ac83b943dcd2e36c630c77e107a7c8d5f94ad"
+    },
+    "books/ph-tal2.bin": {
+      "size": 2062464,
+      "sha256": "2e7923a363a4d24fa10cda6991dc5c289cde57d536b358b45b29a157690c9c04"
+    },
+    "books/rodent.bin": {
+      "size": 10179008,
+      "sha256": "4a65869ba4081398bfa0804b953502352815dcfae49ad5af9726a69d46047786"
+    },
+    "books/tricky.bin": {
+      "size": 236112,
+      "sha256": "8b46c160b0249b9da74e989cc488f0e37c799e3d1e04db74cf215779b3c5ba32"
+    },
+    "personalities/ampere.txt": {
+      "size": 1246,
+      "sha256": "e03c603ac538013aa90dd862cc1310036de5d0be1719ffecd60fd4551cd8e839"
+    },
+    "personalities/chaotic.txt": {
+      "size": 1176,
+      "sha256": "49ad49cb4f65c38da8103a46bc12df48c71f1cd5aebc28bc2e7a4716c1f09b82"
+    },
+    "personalities/hector.txt": {
+      "size": 1065,
+      "sha256": "b02209f87bc1b21b735ac5bf478019465620817940fde81347349449de8c88a9"
+    },
+    "personalities/nimzoid.txt": {
+      "size": 1315,
+      "sha256": "ad9191f9de47dcb8822845f5c8bbffa92664c43b6dfdf70ff7de40b53a64c019"
+    },
+    "personalities/rodent.txt": {
+      "size": 1039,
+      "sha256": "489b2c5d0412a848083f0de004cda8ff968cd79d7907e4f24ed5ada161a9b093"
+    },
+    "personalities/tal_hybrid.txt": {
+      "size": 1092,
+      "sha256": "2b6f525680941a0656ce999400c097b43bf5cf69e3ff4ed375c0ed46c46f2dea"
+    },
+    "personalities/tal_nnue.txt": {
+      "size": 470,
+      "sha256": "12bfeaf55ce78ee442c955d4d189bf9ade6bb7dbae85fdd964083e10dc91a9f6"
+    }
+  }
+}

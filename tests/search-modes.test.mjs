@@ -130,10 +130,20 @@ test('infinite mode and disabled advanced settings choose the correct search', a
     const infinite = fixture({ advancedSearchMode: 'infinite', movesOnDemand: true });
     await infinite.instance.calculateBestMoves(infinite.instance.currentFen, { specificMovesObj: { moves: ['e7e5'] } });
     assert.equal(infinite.commands[1], 'go infinite searchmoves e7e5');
+    assert.equal(infinite.vars.pendingCalculations[0].isSearchInfinite, true);
     const basic = fixture();
     basic.vars.usingAdvancedMode = false;
     await basic.instance.calculateBestMoves(basic.instance.currentFen);
     assert.equal(basic.commands[1], 'go nodes 100');
+    assert.equal(basic.vars.pendingCalculations[0].isSearchInfinite, false);
+    const rodent = fixture();
+    rodent.vars.usingAdvancedMode = false;
+    rodent.vars.searchDepth = null;
+    rodent.vars.engineNodes = 0;
+    rodent.instance.getEngineName = async () => 'rodent-v';
+    await rodent.instance.calculateBestMoves(rodent.instance.currentFen);
+    assert.equal(rodent.commands[1], 'go depth 100');
+    assert.equal(rodent.vars.pendingCalculations[0].isSearchInfinite, false);
 });
 
 test('Max Movetime still stops standard and infinite searches', async () => {

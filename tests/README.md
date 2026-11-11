@@ -1,5 +1,161 @@
 # Regression tests
 
+## Lc0 worker cleanup
+
+`node --test tests\lc0-worker-lifecycle.test.mjs app\assets\engines\lc0\converter-worker.test.mjs`
+checks repeated real CPU and converted WASM searches, invalid weights and
+cancellation during conversion. It counts browser worker targets after each
+stop, including nested converter and pthread VMs, rather than only checking
+that `terminate()` was called.
+Set `LC0_LIFECYCLE_WEBGPU=1` to also repeat real WebGPU searches in a headed
+browser. `LC0_TEST_BROWSER` can select a compatible browser executable.
+
+## Rodent V browser port
+
+`node --test tests\rodent-v.test.mjs tests\rodent-v-gui.test.mjs tests\rodent-v-settings.test.mjs`
+checks both real WASM runtimes, all seven bundled personalities, legal PVs,
+Chess960, MultiPV, depth, nodes, movetime, stop, Moves On Demand and explicit
+resource errors. The GUI test checks basic ELO, Advanced Elo controls and
+saved default-valued style overrides across a reload.
+
+Set `RODENT_NATIVE_TEST=1` and run `node --test tests\rodent-v-native.test.mjs`
+to compare exact depth-3 scores, PVs and best moves with native scalar Rodent.
+This needs the Go SDK and clean upstream checkout described in the
+[Rodent build guide](../app/assets/engines/rodent-v/README.md).
+The latest default and all seven presets are checked on four positions each.
+These are correctness tests, not rating calibration.
+
+## Inline engine text files
+
+`node --test tests\engine-text-files.test.mjs tests\engine-text-files-gui.test.mjs`
+checks Rodent PersonalityFile, Fairy-Stockfish VariantPath and modern Lc0
+ConfigFile with real workers. It covers content validation, native startup
+options, custom variant rules, notation, PGN, isolated analysis contexts,
+textarea persistence, reloads, clearing and recovery from invalid input.
+External engine paths and binary-file settings keep their existing behavior.
+The Rodent GUI suite above also checks pasted personalities alongside presets
+and saved manual overrides. `node --test app\assets\engines\lc0\worker.test.mjs`
+covers the Lc0 transport and native exit diagnostics.
+
+## Browser Maia personalization
+
+`node --test tests/doppelmaia-file-workflow.test.mjs` checks game and weight
+file selection, validation, and a real converter download.
+
+`node --test tools/doppelmaia/data.test.mjs tools/doppelmaia/model.test.mjs tests/personalized-maia-browser.test.mjs tests/personalized-maia-encoding.test.mjs tests/personalized-maia-ui.test.mjs`
+checks local PGN and site JSON imports, game-level data separation, real neural
+fine-tuning, live charts, cancellation and Lc0 protobuf export. Plane encodings
+and legal policy indices are compared directly with upstream Lc0 search.
+See the [technical notes](../tools/doppelmaia/README.md) for the exact
+training scope and the limits of these correctness tests.
+
+`node --test tests/personalized-maia3.test.mjs tests/personalized-maia3-ui.test.mjs` checks Maia 3 adapter gradients,
+opening and pawn-shape targets, real training and full ONNX exports loaded by
+the app's actual UCI worker. Set `PERSONAL_MAIA_PROVIDER=webgpu` and optionally
+`LC0_TEST_BROWSER` for the native WebGPU path and its CPU gradient comparison.
+Toy convergence fixtures are not generalization benchmarks. The UI test covers
+one-click installation into a non-default profile, actual app engine loading,
+model changes, persistent selections and responsive layouts.
+It also checks base preference anchoring, validation against actual moves rather
+than blended targets, and preserving the chosen 2000 rating on installation.
+
+`node --test tests\doppelmaia-transformer.test.mjs` checks deterministic full
+model ordering and early rejection of invalid settings, oversized data,
+overlapping games and missing novel validation boards. Set
+`DOPPELMAIA_FULL_TEST=1` and `LC0_TEST_BROWSER` to run actual WebGPU training.
+That path trains all eight blocks, verifies exported ONNX predictions, loads
+the result in the real app worker and checks layouts at 320, 768 and 1280 pixels.
+It also runs opening, shape and personality objectives, unchanged checkpoint
+fallback and an explicit unavailable GPU error.
+
+`node --test tests\doppelmaia-history.test.mjs` checks causal UCI continuation,
+opening replay, promotion, resets and per-frame orientation. It verifies that
+the 96 channel conversion leaves learned weights unchanged and runs context
+and legacy models in the actual app, including batched history and FEN padding.
+
+The complete CUDA and browser epoch comparison lives in
+`tools\doppelmaia\experiments\transformer_workflow.py` and its `.mjs` companion.
+Forward and all tensor gradient comparisons use `transformer_reference.py`,
+`transformer_parity.mjs` and `transformer_compare.py`.
+For the new history path, use `context_workflow.py` with the same `.mjs` runner
+and pass `--history` to `transformer_reference.py`.
+`context_evaluation_test.py` checks source replay, split and rating leakage,
+prior development board exclusions and paired source-game aggregation.
+`research_review_test.py` checks offline reviews and altered artifact rejection.
+`phase_review_test.py` checks phase boundaries, whole prediction coverage and
+repeated board choice counts. `game_budget_test.py` checks nested whole game
+sampling and validation novelty against the complete training pool. Neither
+test imports Torch or launches GPU training.
+`creative_targets_test.py` checks the experimental distributions and normalized
+sample weights. `creative_holdout_test.py` checks later source games, ownership,
+causal history and rejection of date overlap or BOT titles.
+`creative_parity.py` runs six CUDA updates, including short batches, and compares
+the exploratory baseline with the preserved contextual trainer.
+See the [transformer guide](../tools/doppelmaia/experiments/finetune_README.md)
+for measured tolerances, long run rounding differences and the corrected
+non-BOT player study. Inference parity alone is not training parity.
+
+`node --test tests\doppelmaia-personality.test.mjs tests\personalized-maia-personality-ui.test.mjs`
+checks all fifty historical candidate configurations, the eighteen confirmed
+public presets, all 153 retained pair comparisons and fresh game provenance.
+It also tests the shared version two evidence validator, practice hash rejection,
+source and method switching, custom settings and actual adapter training.
+Every public preset has a short picker description. The UI test checks those
+labels, the visible selected description and its custom preference state without
+changing the configurations bound to the curated evidence.
+Published preset evidence applies to the exact adapter settings, not full
+transformer training or edited traits.
+
+`node --test --test-concurrency=1 tests\doppelmaia-game-exporter.test.mjs`
+opens the actual standalone HTML through a file URL. It checks zero startup
+network requests, missing cookies and referrers, both providers, serial archive
+selection, UTC date boundaries, importable PGNs, duplicate filtering, empty
+results, partial exports, rate limit waits, cancellation and unexpected archive
+hosts. A hosted copy must refuse API collection. These deterministic tests mock
+public API responses. Live API checks are separate and do not authenticate.
+The same suite checks the Export Matches website entry point, SEO metadata,
+structured data, mobile navigation, gold buttons and the actual HTML download.
+The website includes the shared ad setup but must not request chess APIs.
+API collection stays local to avoid exposing the A.C.A.S Origin header as well
+as the referrer.
+Set `DOPPELMAIA_API_TEST=1` to also export two real public games from each site
+in a headed desktop browser. This is opt in because it contacts the services
+and opens a browser window. Lichess returns 404 for crawler classified clients
+including HeadlessChrome on its export route. Do not mask that with a changed
+user agent. The live test uses the same ordinary desktop browser as the user.
+The creative research helpers have twelve small source, target recipe and
+selection tests. Run them with
+`python -m unittest discover -s tools\doppelmaia\experiments -p 'creative_*test.py'`
+in the research environment. They check full cohort coverage, unchanged model
+eligibility, export identities and immutable selections without training a GPU
+model or inspecting the real holdout.
+
+`python tools\doppelmaia\experiments\generalization_test.py --dataset temp\doppelmaia-generalization-human-large\human-dataset.json --study temp\doppelmaia-generalization-study`
+checks source titles, chronological splits, training only ratings, source and
+model hashes, selections saved before test evaluation, raw predictions and
+pooled summary consistency. Use the CUDA environment from the transformer guide.
+Omit the two arguments for just the synthetic audit failure tests.
+The completed study is not retrained by this regression command.
+
+`node --test tests/doppelmaia-style.test.mjs tests/doppelmaia-branding.test.mjs`
+checks synthetic-style game and model-input separation, legal target controls,
+game-cluster uncertainty calculations, visible pre-JavaScript steps, compact
+heading spacing and the alien mark. It also checks the public research notebook
+without JavaScript, its evidence tables and responsive desktop and mobile
+layouts. The full
+KnightFan learning study is a separate reproducible experiment documented in
+[DoppelMaia](../tools/doppelmaia/README.md#synthetic-style-study).
+
+The native CPU and CUDA study lives in
+[`tools/doppelmaia/experiments`](../tools/doppelmaia/experiments).
+Run `python tools\doppelmaia\experiments\test_native.py` in its documented
+scientific environment for token encoding, legal masks and game bootstrap checks.
+The [native study guide](../tools/doppelmaia/README.md#native-rating-and-human-study)
+covers real player chronological holdouts, rating transfer, separate Stockfish
+quality estimates, full model parity, autonomous games and reviewable outputs.
+
+## Sticky floaty headers
+
 ## Fast shared move updates
 
 For the investigation history, current safeguards and future failure triage,
@@ -135,9 +291,6 @@ The GUI check requires Playwright and Chromium. The tests cover the opt-in UCI
 movetime and infinite modes, the separate stop timer, Calculation Server command
 limits, and legal recorded history, including positions longer than 8192 characters;
 they do not execute AggroChess itself.
-
-`node --test tests/search-mode-translations.test.mjs` checks the regular Advanced
-Elo labels and search-mode choices in all supported languages using Chromium.
 
 Repeated single-PV updates, distinct MultiPV suggestions and final bestmove
 reconciliation are covered by `node --test tests/engine-suggestions.test.mjs`.

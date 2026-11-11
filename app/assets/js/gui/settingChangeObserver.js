@@ -10,6 +10,7 @@ import { setProfileBubbleStatus } from './profiles.js';
 import { syncPictureInPicture } from './pip.js';
 import { getInputValue } from './domInputs.js';
 import { setThemeColorHex } from '../gui.js';
+import { isLc0Engine } from '../instance/lc0Engines.js';
 import { updateCustomBackgroundControls, setCustomBackgroundBlur } from './customBackground.js';
 import { maiaLearningWarning } from '../misc/feedbackText.js';
 
@@ -32,7 +33,7 @@ function updateSearchModeControls() {
         if(!setting) continue;
         input.disabled = disabled;
         setting.inert = disabled;
-        setting.classList.remove('blurred');
+        setting.classList.toggle('blurred', !enabled && basicAdvancedSettingsPanel.contains(setting));
         input.classList.toggle('blurred', disabled);
         setting.setAttribute('aria-disabled', String(disabled));
     }
@@ -140,13 +141,19 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
 
             break;
         case 'boardColorHex':
+        case 'boardColorHex2': {
+            const light = document.querySelector('input[data-key="boardColorHex"]').value;
+            const dark = document.querySelector('input[data-key="boardColorHex2"]').value;
+            const squares = Array.from({ length: 64 }, (_, i) =>
+                `<rect x="${i % 8}" y="${Math.floor(i / 8)}" width="1" height="1" fill="${(i % 8 + Math.floor(i / 8)) % 2 ? dark : light}"/>`).join('');
+            const image = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges">${squares}</svg>`);
             ADD_STYLES_TO_DOC(`cg-board {
-                background-color: ${value} !important;
+                background-color: ${light} !important;
+                background-image: url("data:image/svg+xml,${image}") !important;
             }`, 'boardColorHexCss');
 
-            console.log('[Setting Handler] Set board bg color to', value || 'nothing');
-
             break;
+        }
         case 'backgroundTextureClass':
             acasInstanceContainer.className = value;
             updateCustomBackgroundControls(value);
@@ -178,13 +185,16 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             const isFusionEngine = value === 'acas-fusion';
             const enginesWithoutAdvancedElo = ['maia2', 'maia3'];
             const isExternal = IS_EXTERNAL_ENGINE_SETTING_ACTIVE[SETTING_FILTER_OBJ.profileID];
+            document.getElementById('maia3-models')?.classList.toggle('hidden', isExternal || value !== 'maia3');
 
+            eloInput.classList.toggle('hidden', !isExternal && isLc0Engine(value));
             ensureOneDynamicEngineSettingVisible();
 
             if(isExternal) {
                 chess960Checkbox.classList.remove('hidden');
                 enemyEloInputContainer.classList.add('hidden');
                 lc0WeightDropdown.classList.add('hidden');
+                document.getElementById('modern-lc0-weights')?.classList.add('hidden');
 
                 break;
             }
@@ -202,21 +212,23 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
                 oppMoveGuessInputContainer?.classList?.remove('disabled');
             }
 
-            if(value === 'lc0') {
+            if(isLc0Engine(value)) {
                 eloInput.classList.add('disable-elo');
-                lc0WeightDropdown.classList.remove('hidden');
-                chess960Checkbox.classList.add('hidden');
+                lc0WeightDropdown.classList.toggle('hidden', value !== 'lc0');
+                document.getElementById('modern-lc0-weights')?.classList.toggle('hidden', value === 'lc0');
+                chess960Checkbox.classList.toggle('hidden', value === 'lc0');
                 
                 setAdvancedEloCheckboxChecked(true);
             } else {
                 eloInput.classList.remove('disable-elo');
                 lc0WeightDropdown.classList.add('hidden');
+                document.getElementById('modern-lc0-weights')?.classList.add('hidden');
             }
 
             if(enginesWithoutAdvancedElo.includes(value)) {
                 setAdvancedEloCheckboxChecked(false);
                 normalEloInput.removeAttribute('disabled');
-            } else if(value !== 'lc0') {
+            } else if(!isLc0Engine(value)) {
                 advancedEloEnableInput.removeAttribute('disabled');
             }
 

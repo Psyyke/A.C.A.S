@@ -1,0 +1,84 @@
+.elo-page #leela2onnx {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    min-height: 46px;
+}
+#leela2onnx svg {
+    flex-shrink: 0;
+}
+.elo-heading-main .converter-intro {
+    margin: 6px 0 24px;
+    line-height: 1.5;
+}
+.converter-panel {
+    margin: 0 32px 28px !important;
+    padding: 24px;
+    border: 2px solid #213a43;
+    border-bottom-width: 5px;
+    border-radius: 5px;
+    background: #fff;
+}
+.converter-panel form {
+    display: grid;
+    gap: 10px;
+}
+.converter-upload {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.converter-upload #weights-name {
+    overflow-wrap: anywhere;
+    min-width: 0;
+    font-weight: 400;
+}
+.converter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: stretch;
+}
+.converter-actions .install-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 54px;
+    padding: 12px 24px;
+    border-bottom-width: 5px;
+    font-size: 16px;
+    line-height: 1.4;
+}
+.converter-actions > * {
+    max-width: 100%;
+    text-align: center;
+}
+.converter-panel #status {
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
+}
+.converter-panel [data-error="true"] {
+    color: darkred;
+}
+.converter-panel details {
+    margin-top: 16px;
+}
+.converter-panel pre {
+    max-height: 240px;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+}
+@media (max-width: 600px) {
+    .converter-panel {
+        margin-left: 16px !important;
+        margin-right: 16px !important;
+        padding: 16px;
+    }
+}

@@ -22,6 +22,8 @@ import { initializePolyglotBookLoader } from './gui/openingBook.js';
 import { migrateHintSettings } from './misc/learningHints.js';
 import { initializeHintPieceFilters } from './gui/hintPieceFilters.js';
 import { initializeSuggestionMix } from './gui/suggestionMix.js';
+import { initializeLc0Weights } from './gui/lc0Weights.js';
+import { initializeMaia3Models } from './gui/maia3Models.js';
 
 export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
@@ -380,6 +382,8 @@ export async function initGUI() {
     initializeDynamicSettings();
     initializeInputElems();
     initializeSuggestionMix();
+    initializeLc0Weights();
+    initializeMaia3Models();
     initializeAppearanceTranslations();
 
     const customBackgroundReady = initializeCustomBackground();

@@ -101,16 +101,28 @@ function boardToMaia3Tokens(fen) {
 	return tensor;
 }
 
-function preprocessMaia3(fen) {
-	let board = new Chess(fen);
+function canonicalBoard(fen) {
+	const board = new Chess();
+	if(typeof fen !== 'string' || !board.load(fen)) throw new Error('Invalid Maia 3 FEN.');
 
-	if(fen.split(' ')[1] === 'b') {
-		board = new Chess(mirrorFEN(board.fen()));
-	}else if(fen.split(' ')[1] !== 'w') {
-		throw new Error(`Invalid FEN: ${fen}`);
+	return board.turn() === 'b' ? new Chess(mirrorFEN(board.fen())) : board;
+}
+
+function preprocessMaia3(fen, history) {
+	const board = canonicalBoard(fen);
+	let boardTokens = boardToMaia3Tokens(board.fen());
+	if(history !== undefined) {
+		if(!Array.isArray(history) || history.length < 1 || history.length > 8 || history[0] !== fen)
+			throw new Error('Maia 3 history needs one to eight positions with the analyzed board first.');
+		const frames = history.map((position, index) => index ? boardToMaia3Tokens(canonicalBoard(position).fen()) : boardTokens);
+		boardTokens = new Float32Array(64 * 96);
+		for(let frame = 0; frame < 8; frame++) {
+			// Each past board uses its own side to move, not the current player's orientation.
+			const tokens = frames[Math.min(7 - frame, frames.length - 1)];
+			for(let square = 0; square < 64; square++)
+				boardTokens.set(tokens.subarray(square * 12, square * 12 + 12), square * 96 + frame * 12);
+		}
 	}
-
-	const boardTokens = boardToMaia3Tokens(board.fen());
 
 	const legalMoves = new Float32Array(Object.keys(allPossibleMovesMaia3).length);
 

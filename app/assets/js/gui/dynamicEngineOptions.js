@@ -4,6 +4,7 @@ import { setInputValue, initializeSettingInputElem } from './domInputs.js';
 import { scheduleSettingsUpdate } from './settings.js';
 import { initializeDropdown } from './domDropdown.js';
 import { setDynamicOption, getDynamicEngineDbKeyPrefix } from './dynamicEngineOptionState.js';
+import { isEngineTextFile } from '../instance/engineTextFiles.js';
 export { resetDynamicOptionsReady, setDynamicOptionsReady, onDynamicOptionsReady,
     setDynamicOption, getDynamicOption, getDynamicEngineDbKeyPrefix } from './dynamicEngineOptionState.js';
 
@@ -39,7 +40,7 @@ export function ensureOneDynamicEngineSettingVisible(engineId) {
         dynamicEngineSettingNoResultText.classList.remove('hidden');
 }
 
-export async function fillDynamicEngineOptionContainer(uciMsg, profileName, instanceID = SETTING_FILTER_OBJ.instanceID, loadedEngineId) {
+export async function fillDynamicEngineOptionContainer(uciMsg, profileName, instanceID = SETTING_FILTER_OBJ.instanceID, loadedEngineId, externalEngine) {
     // PARSE_UCI_OPTION returns null for a line with no type token and throws on
     // over-long ones. The caller doesn't await this, so either used to escape as an
     // unhandled rejection and leave the settings panel half built.
@@ -55,7 +56,8 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     if(!parsedOption?.name) return;
 
     let { name, type, def, min, max, vars } = parsedOption;
-    const currentEngineId = loadedEngineId ?? (await GET_GM_CFG_VALUE('useExternalChessEngine', instanceID, profileName)
+    const external = externalEngine ?? await GET_GM_CFG_VALUE('useExternalChessEngine', instanceID, profileName);
+    const currentEngineId = loadedEngineId ?? (external
         ? await GET_GM_CFG_VALUE('externalChessEngine', instanceID, profileName)
         : await GET_GM_CFG_VALUE('chessEngine', instanceID, profileName));
     const dbKey = getDynamicEngineDbKeyPrefix(currentEngineId) + name.replaceAll(' ', '-');
@@ -64,7 +66,8 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     const existingDbValue = await GET_GM_CFG_BASE_VALUE(dbKey, instanceID, profileName);
     const profileContainerId = getDynamicEngineSettingDatasetKey(currentEngineId, profileName);
 
-    const defaultValue = def === null ? '' : def;
+    const inlineFile = isEngineTextFile(currentEngineId, name, external);
+    const defaultValue = inlineFile || def === null ? '' : def;
     const inputValue = existingDbValue ?? defaultValue;
 
     setDynamicOption(dbKey, { name, defaultValue, type, min, max, vars }, profileName, instanceID);
@@ -86,9 +89,13 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     // Options can arrive after the profile-switch visibility check has run.
     ensureOneDynamicEngineSettingVisible();
 
-    const doesOptionAlreadyExist = profileContainer.querySelector(`*[data-key="${dbKey}"]`);
-
-    if(doesOptionAlreadyExist) return;
+    let doesOptionAlreadyExist = profileContainer.querySelector(
+        `input[data-key="${dbKey}"], textarea[data-key="${dbKey}"], .dynamic-setting-button[data-key="${dbKey}"]`);
+    if(doesOptionAlreadyExist && type === 'string'
+        && inlineFile !== Boolean(doesOptionAlreadyExist.dataset.engineTextFile)) {
+        doesOptionAlreadyExist.closest('.custom-input').remove();
+        doesOptionAlreadyExist = null;
+    }
 
     const createDropdownItem = value => {
         const item = document.createElement('div');
@@ -100,12 +107,23 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
         return item;
     };
 
+    if(doesOptionAlreadyExist) {
+        if(type === 'button') return;
+        doesOptionAlreadyExist.dataset.defaultValue = defaultValue;
+        if(type === 'combo') {
+            const list = doesOptionAlreadyExist.closest('.dropdown-input-container')?.querySelector('.dropdown-list-container');
+            list?.replaceChildren(...(vars ?? []).map(createDropdownItem));
+        }
+        setInputValue(doesOptionAlreadyExist, inputValue, min, max);
+        return;
+    }
+
     const createInput = () => {
         const container = document.createElement('div'),
               textContainer = document.createElement('div'),
               title = document.createElement('div'),
               subtitle = document.createElement('div'),
-              input = document.createElement('input');
+              input = document.createElement(inlineFile ? 'textarea' : 'input');
 
         container.classList.add('custom-input');
         container.appendChild(textContainer);
@@ -117,7 +135,9 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
         title.innerText = name;
 
         subtitle.classList.add('input-subtitle');
-        subtitle.innerText = TRANS_OBJ?.desInputSubtitle ?? 'Dynamically added setting';
+        subtitle.innerText = inlineFile
+            ? (TRANS_OBJ?.engineTextFileHint ?? 'Paste contents, not a path. Leave empty for defaults. Changes restart the engine.')
+            : TRANS_OBJ?.desInputSubtitle ?? 'Dynamically added setting';
     
         input.dataset.key = dbKey;
         input.dataset.defaultValue = defaultValue;
@@ -129,7 +149,12 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
         switch(type) {
             case 'string':
                 container.classList.add('textfield-input');
-                input.type = 'textfield';
+                if(inlineFile) {
+                    input.rows = 6;
+                    input.spellcheck = false;
+                    input.dataset.engineTextFile = name;
+                    input.setAttribute('aria-label', name);
+                } else input.type = 'textfield';
                 container.appendChild(input);
 
                 break;
@@ -226,7 +251,7 @@ export async function fillDynamicEngineOptionContainer(uciMsg, profileName, inst
     };
 
     const settingElem = createInput();
-    const settingElemInput = settingElem.querySelector('input');
+    const settingElemInput = settingElem.querySelector('input, textarea');
 
     profileContainer.appendChild(settingElem);
 

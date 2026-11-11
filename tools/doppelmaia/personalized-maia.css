@@ -1,0 +1,232 @@
+.maia-page h1 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+}
+.maia-page .doppelmaia-title > span { display: inline-flex; align-items: baseline; gap: 0; white-space: nowrap; }
+.maia-page .doppelmaia-title strong { font-weight: 900; }
+.maia-page .doppelmaia-title > span > span { font-weight: 500; }
+.maia-page .doppelmaia-profiles { width: 38px; height: 38px; flex: 0 0 auto; color: #213a43; }
+.maia-intro { margin: 6px 0 16px; line-height: 1.5; }
+.maia-page > .elo-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.maia-page > .elo-heading > .elo-heading-main { min-width: 0; }
+.maia-saved-games { display: grid; grid-template-columns: auto auto; align-items: start; gap: 6px; text-align: right; }
+.maia-saved-games #saved-data-status { grid-column: 1 / -1; justify-self: end; }
+.maia-saved-games #saved-data-status { font-size: 13px; font-weight: 400; opacity: 0.6; overflow-wrap: anywhere; }
+.maia-saved-games .tool-button:disabled { opacity: 0.5; cursor: not-allowed; }
+@media (max-width: 900px) {
+    .maia-page > .elo-heading { grid-template-columns: minmax(0, 1fr); }
+    .maia-saved-games { text-align: center; }
+    .maia-saved-games #saved-data-status { justify-self: center; }
+}
+.maia-steps, .maia-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.maia-actions { align-items: stretch; }
+.maia-steps { margin-bottom: 24px; font-size: 15px; }
+.maia-workbench {
+    position: relative;
+    margin: 0 32px 28px !important;
+    padding: 0;
+    min-width: 0;
+}
+#workbench-content { display: grid; gap: 64px; }
+.maia-page #workbench-content > .maia-step {
+    min-width: 0;
+    margin: 0;
+    padding: 20px 24px;
+    background: white;
+    border: 2px solid #213a43;
+    border-bottom-width: 5px;
+    border-radius: 5px;
+}
+#dataset-step { position: relative; }
+#runtime-loading { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 24px; border-radius: 3px; background: white; text-align: center; font-family: "Rubik", sans-serif; font-size: 16px; font-weight: 400; font-stretch: extra-expanded; color: #213a43; }
+.maia-workbench .maia-step > h2 { margin: 0 0 8px !important; padding: 0 !important; border: 0; }
+.maia-step form { display: grid; gap: 12px; }
+.maia-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 16px; }
+.maia-step .tool-field { min-width: 0; }
+.maia-step .tool-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.maia-step .tool-note { margin: 4px 0 12px; }
+.maia-lock-fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.maia-lock-fieldset:disabled > * { filter: blur(1px); opacity: 0.58; }
+.maia-step .install-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 54px; padding: 12px 24px; border-bottom-width: 5px; font-size: 16px; line-height: 1.4; }
+.maia-actions > :is(.tool-button, .install-button) { max-width: 100%; text-align: center; }
+#training-form { grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 16px; }
+#training-form > .maia-fields { display: contents; }
+#training-form .tool-field select, #training-form .tool-field input:not([type="file"]), #custom-weights-field .tool-button { height: 54px; min-height: 54px; line-height: 1.4; }
+#custom-weights-field .tool-file-control, #custom-weights-field .tool-button { width: 100%; }
+#training-form > .maia-actions { justify-content: center; grid-column: 1 / -1; justify-self: center; max-width: 100%; margin-top: 12px; }
+#training-form #start { min-width: min(100%, 240px); padding: 18px 40px; }
+#preparation-controls { display: grid; gap: 16px; margin-top: 16px; }
+#elo-filter { margin-top: 24px; }
+#elo-filter .tool-field input:disabled { color: #64777c; background-color: #e8edef; border-color: #91a1a5; opacity: 0.65; cursor: not-allowed; }
+#elo-filter > p { margin: 8px 0 0; text-align: center; font-size: 15px; font-weight: 500; }
+#elo-filter > .maia-fields + p { margin-top: 16px; }
+#elo-filter-status[data-error="true"]:not(:empty)::before { content: " | "; }
+.maia-import-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; align-items: start; }
+.maia-import-row > form { display: contents; }
+.maia-import-row .tool-field:not([hidden]) { display: grid; grid-template-rows: subgrid; grid-row: span 2; margin: 0; }
+.maia-import-row :is(.maia-field-label, .maia-import-label) { align-self: end; }
+.maia-import-row > * { min-width: 0; }
+.maia-import-row select, .maia-import-row .tool-button { height: 54px; min-height: 54px; line-height: 1.4; }
+.maia-import-row .tool-file-picker { flex-wrap: wrap; }
+.maia-import-label { display: flex; align-items: center; gap: 4px; }
+.maia-import-label > label { margin: 0; }
+.maia-field-label { display: flex; align-items: center; gap: 4px; }
+.maia-field-label > label { margin: 0; }
+.maia-field-help { display: inline-flex; }
+.maia-field-help > button { padding: 0; border: 0; background: none; color: #213a43; font-size: 14px; cursor: help; }
+.maia-field-tip { position: fixed; z-index: 10; box-sizing: border-box; padding: 10px 12px; border: 2px solid #12242c; border-bottom-width: 5px; border-radius: 5px; background: #213a43; color: white; font-size: 13px; font-weight: 400; line-height: 1.5; visibility: hidden; }
+.maia-field-help:hover > .maia-field-tip, .maia-field-help:focus-within > .maia-field-tip { visibility: visible; }
+.maia-import-help { position: relative; display: inline-flex; }
+.maia-import-help > button { display: inline-flex; padding: 0; border: 0; background: none; color: #213a43; font-size: 16px; cursor: help; }
+.maia-import-help > #import-help { position: absolute; top: 100%; right: 0; z-index: 2; box-sizing: border-box; width: min(280px, 70vw); padding: 10px 12px; border: 2px solid #12242c; border-bottom-width: 5px; border-radius: 5px; background: #213a43; color: white; font-size: 13px; font-weight: 400; line-height: 1.5; visibility: hidden; }
+.maia-import-help:hover > #import-help, .maia-import-help:focus-within > #import-help { visibility: visible; }
+.maia-export-hint { display: block; margin: 12px 0; }
+#import-help .tool-button:hover, #import-help .tool-button:focus-visible { background-color: #e4efec; }
+@media (max-width: 600px) {
+    .maia-import-row { grid-template-columns: minmax(0, 1fr); }
+    #training-form > .maia-actions { display: grid; grid-template-columns: minmax(0, 1fr); width: max-content; }
+}
+#personality-controls { display: grid; gap: 16px; margin: 16px 0 0; padding: 0; }
+#personality-controls h3, #personality-report h3 { margin: 0; }
+#personality-controls > p, #personality-report > p { margin: 0; }
+#data-advanced > .tool-note, #personality-advanced > .tool-note { text-align: center; max-width: none; width: 100%; box-sizing: border-box; }
+#data-advanced > .tool-note { margin-top: 16px; }
+#personality-advanced > .tool-note { margin-top: 16px; }
+#data-advanced > .maia-actions { justify-content: center; }
+#download-data { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+#personality-controls > .tool-field { max-width: 440px; }
+#personality-fields { margin-top: 8px; }
+#training-result > #personality-report { margin: 24px 0 16px; padding: 24px 0 0; border-top: 1px solid #dde5e4; }
+#personality-report > p { margin: 8px 0 0; font-size: 14px; font-weight: 500; line-height: 1.5; color: #4f6881; }
+#personality-metrics { margin: 16px 0 0; }
+#personality-metrics > div { min-width: 0; }
+#personality-metrics { grid-template-columns: minmax(0, 1fr); }
+#personality-metrics dd { overflow-wrap: anywhere; }
+.maia-advanced summary { cursor: pointer; }
+#data-settings { display: grid; gap: 16px; }
+.maia-advanced { padding: 12px; }
+.maia-advanced > .maia-fields { margin-top: 16px; }
+#dataset-step, #training-step { scroll-margin-top: 20px; }
+.maia-step [data-error="true"] { color: darkred; }
+.maia-step :is(#status, #stage) { overflow-wrap: anywhere; font-size: 16px; }
+.maia-step #status { text-align: center; font-weight: 500; }
+.maia-step pre { max-height: 240px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; }
+.maia-summary { padding: 16px; margin: 16px 0; background: #f0f5f4; border-radius: 5px; }
+#training-import-details { position: relative; box-sizing: border-box; width: min(100%, 680px); justify-self: center; padding: 10px 12px; border: 2px solid #213a43; border-bottom-width: 5px; border-radius: 5px; background: white; text-align: center; }
+#import-loading { width: min(100%, 680px); justify-self: center; }
+#import-progress-label { margin: 0 0 0; font-size: 14px; font-weight: 700; }
+#import-time { display: block; margin-bottom: 8px; font-size: 13px; opacity: 0.65; }
+#training-import-details:has(> #prep-status[data-error="true"]:not([hidden])) { border-color: #9c2525; background: rgb(156 37 37 / 6%); color: #9c2525; }
+#training-import-details > #prep-status[data-error="true"] { display: none; }
+.maia-import-recovery { display: none; }
+#training-import-details:has(> #prep-status[data-error="true"]:not([hidden])) > .maia-import-recovery { display: block; }
+.maia-import-recovery p { margin: 0 0 12px; font-size: 14px; }
+.maia-import-recovery .tool-button { min-height: 36px; padding: 6px 12px; font-size: 14px; }
+.maia-import-recovery .tool-button:hover { background-color: #f5f7f7; color: #213a43; border-color: #213a43; text-decoration: none; }
+.maia-data-layers { display: none; position: absolute; top: -14px; left: 0; right: 0; height: 12px; pointer-events: none; }
+#training-import-details[data-ready="true"] > .maia-data-layers { display: block; }
+.maia-data-layers::before, .maia-data-layers::after { content: ""; position: absolute; height: 6px; box-sizing: border-box; border: 2px solid #213a43; border-bottom: 0; border-radius: 5px 5px 0 0; background: white; }
+.maia-data-layers::before { top: 0; left: 16px; right: 16px; opacity: 0.35; }
+.maia-data-layers::after { top: 6px; left: 8px; right: 8px; opacity: 0.65; }
+#training-import-details[data-ready="true"]::before, #training-import-details[data-ready="true"]::after, .maia-flow-step::before { content: ""; position: absolute; left: calc(50% - 20px); width: 40px; height: 66px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 50'%3E%3Cpath fill='%23213a43' d='M1 0h22C17 0 13.5 6 13.5 15v35h-3V15C10.5 6 7 0 1 0Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat; pointer-events: none; }
+.maia-flow-step { position: relative; }
+.maia-flow-step::before { bottom: 100%; height: 68px; }
+.maia-page .maia-flow-step > h3 { margin: 0 0 16px; }
+#result-summary { margin-top: 0; padding-top: 0; scroll-margin-top: 80px; }
+.maia-result-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 20px 24px; margin: 0 0 20px; }
+.maia-result-metrics dt { border: 0; font-size: 15px; font-weight: 500; }
+.maia-result-metrics dd { border: 0; margin: 4px 0 0; padding: 0; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#diagnostics #stage, #diagnostics .maia-counters dt, #diagnostics figcaption { font-family: "Mona Sans"; }
+#diagnostics > #log { box-sizing: border-box; min-width: 0; width: 100%; min-height: 80px; max-height: 280px; margin: 0; padding: 14px; border: 1px solid #dde5e4; border-radius: 5px; background: white; color: #213a43; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; line-height: 1.6; }
+#training-charts { margin-top: 24px; }
+#diagnostics > #log { margin-top: 24px; }
+#training-import-details[data-ready="true"] { margin-top: 12px; }
+#training-import-details[data-ready="true"]::before { bottom: calc(100% + 8px); height: 70px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 54'%3E%3Cpath fill='%23213a43' d='M1 0h22C17 0 13.5 6 13.5 15v39h-3V15C10.5 6 7 0 1 0Z'/%3E%3C/svg%3E"); z-index: 1; }
+#training-import-details[data-ready="true"]::after { top: 100%; margin-top: 2px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 50'%3E%3Cpath fill='%23213a43' d='M10.5 0h3v50h-3Z'/%3E%3C/svg%3E"); }
+.maia-data-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr)); align-items: center; gap: 8px; margin: 12px 0; }
+.maia-data-metrics > div { display: flex; flex-direction: column; justify-content: center; }
+.maia-data-metrics dt { border: 0; font-size: 15px; font-weight: 500; color: inherit; }
+.maia-data-metrics dd { border: 0; margin: 0; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#dataset-step > #status:not([data-error="true"]) { display: none; }
+.maia-live-header { display: flex; align-items: baseline; gap: 10px; margin: 0 0 4px; }
+#diagnostics #stage { font-size: 18px; }
+.maia-live-header #elapsed { margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.maia-workbench progress { appearance: none; -webkit-appearance: none; box-sizing: border-box; width: 100%; height: 10px; overflow: hidden; border: 1px solid rgb(33 58 67 / 20%); border-radius: 4px; background: #e5e9ec; box-shadow: inset 0 2px 3px rgb(0 0 0 / 25%), 0 1px 0 rgb(255 255 255 / 8%); }
+.maia-workbench progress::-webkit-progress-bar { background: #e5e9ec; box-shadow: inset 0 2px 3px rgb(0 0 0 / 25%); border-radius: 3px; }
+.maia-workbench progress::-webkit-progress-value { background: linear-gradient(#73949f, #527783 55%, #3b5d68); box-shadow: inset 0 1px 0 rgb(255 255 255 / 45%), inset 0 -1px 1px rgb(0 0 0 / 25%); border-radius: 3px; }
+.maia-workbench progress::-moz-progress-bar { background: linear-gradient(#73949f, #527783 55%, #3b5d68); box-shadow: inset 0 1px 0 rgb(255 255 255 / 45%), inset 0 -1px 1px rgb(0 0 0 / 25%); border-radius: 3px; }
+#training-result { scroll-margin-top: 20px; }
+.maia-workbench progress:indeterminate { background: repeating-linear-gradient(110deg, #e5e9ec 0 12px, #527783 12px 24px); }
+.maia-workbench progress:indeterminate::-webkit-progress-bar { background: inherit; }
+.maia-live-grid { display: grid; grid-template-columns: minmax(140px, 220px) 1fr; gap: 24px; margin: 20px 0; }
+.maia-board { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; border: 2px solid #213a43; border-radius: 3px; overflow: hidden; }
+.maia-square { position: relative; background: #e4ded6; }
+.maia-square.dark { background: #c5b8a5; }
+.maia-square.target { box-shadow: inset 0 0 0 3px #527783; }
+.maia-square img { position: absolute; width: 100%; height: 100%; }
+.maia-counters { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; align-content: center; }
+.maia-counters dt { border: 0; font-size: 13px; font-weight: 500; color: #4f6881; }
+.maia-counters dd { border: 0; padding: 0; font-size: 23px; font-weight: 700; margin: 0; font-variant-numeric: tabular-nums; }
+.maia-chart-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+.maia-chart-grid figure { min-width: 0; margin: 0; overflow-x: auto; }
+.maia-chart-grid figcaption { font-size: 16px; font-weight: 700; }
+.maia-chart-grid small { display: block; font-family: "Rubik", "IBM Plex Sans", "Mona Sans", sans-serif; font-size: 14px; font-weight: 500; color: #4f6881; }
+.maia-chart-grid svg { display: block; width: 100%; min-width: 640px; background: transparent; margin-top: 8px; font-family: "Rubik", "IBM Plex Sans", sans-serif; }
+.maia-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-size: 14px; font-weight: 500; }
+.maia-chart-grid svg text, .maia-page .tool-file-picker > [role="status"] { font-weight: 500; }
+.maia-legend span::before { content: ''; display: inline-block; width: 20px; height: 3px; background: #527783; margin-right: 6px; vertical-align: middle; }
+.maia-legend span + span::before { background: #b16a32; }
+.maia-table-wrap { max-height: 300px; overflow: auto; margin: 16px 0; border: 0; }
+.maia-table-wrap:focus-visible { outline: 3px solid #5f8895; outline-offset: 3px; }
+.maia-table-wrap table { display: table; width: 100%; margin: 0; border: 0; font-size: 14px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.maia-table-wrap tr { display: table-row; }
+.maia-table-wrap caption { text-align: left; font-family: "Mona Sans", sans-serif; font-weight: 700; padding: 12px 18px; border-bottom: 1px solid #ebebeb; }
+.maia-table-wrap :is(th, td) { display: table-cell; padding: 12px; text-align: right; vertical-align: middle; border: 0; border-bottom: 1px solid #ebebeb; white-space: normal; overflow-wrap: anywhere; }
+.maia-table-wrap thead { background: #f5f5f5; font-family: "Mona Sans", sans-serif; }
+.maia-table-wrap tbody :is(th, td) { font-family: "Rubik", sans-serif; }
+.maia-table-wrap tbody th { font-weight: 500; }
+.maia-table-wrap tr > * + * { border-left: 1px solid #ebebeb; }
+.maia-table-wrap tbody tr:last-child > * { border-bottom: 0; }
+.maia-comparison, .maia-goals { max-height: none; }
+.maia-comparison table { text-align: left; table-layout: fixed; }
+.maia-comparison :is(th, td) { text-align: left; white-space: normal; }
+.maia-goals table { table-layout: fixed; }
+.maia-goals :is(th, td) { text-align: left; white-space: normal; }
+.maia-goals small { display: block; font-weight: 400; }
+.maia-evidence { max-height: none; }
+.maia-evidence table { table-layout: fixed; }
+.maia-evidence tr > :first-child { text-align: left; }
+.maia-page .elo-guide h3 { margin: 32px 0 8px; }
+.maia-page .elo-guide > p:last-child { margin-top: 32px; }
+.elo-guide details { margin: 10px 0; }
+.elo-guide details summary { cursor: pointer; font-weight: 500; }
+.maia-research > .elo-heading { grid-template-columns: minmax(0, 1fr); text-align: center; }
+.maia-research > .elo-heading > .elo-heading-main { display: flex; flex-direction: column; align-items: center; }
+.maia-research .doppelmaia-title { justify-content: center; }
+.maia-research .maia-intro { margin-left: auto; margin-right: auto; }
+.maia-research-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; margin: 0 32px 28px; text-align: center; }
+.maia-research .elo-guide { scroll-margin-top: 20px; }
+.maia-research .maia-table-wrap { max-height: none; }
+.maia-research .maia-table-wrap table { table-layout: auto; }
+.maia-research .maia-table-wrap :is(th, td) { overflow-wrap: normal; }
+.maia-research pre { max-width: 100%; padding: 16px; overflow: auto; background: #f0f5f4; border-radius: 5px; }
+.maia-research pre code { white-space: pre; overflow-wrap: normal; }
+.maia-research :not(pre) > code { overflow-wrap: anywhere; }
+.maia-research .elo-heading .install-button { display: inline-flex; margin-top: 8px; }
+@media (max-width: 600px) {
+    .maia-table-wrap table { min-width: 460px; }
+    #training-result > .maia-actions { flex-direction: column; }
+    #training-result > .maia-actions > :is(button, a) { box-sizing: border-box; width: 100%; }
+    .maia-workbench { margin-left: 16px !important; margin-right: 16px !important; }
+    .maia-page #workbench-content > .maia-step { padding: 16px; }
+    .maia-chart-grid, .maia-live-grid { grid-template-columns: 1fr; }
+    #personality-metrics { grid-template-columns: 1fr; gap: 2px; }
+    #personality-metrics dd { margin-bottom: 8px; }
+    .maia-board { max-width: 220px; margin: 0 auto; }
+    .maia-live-header { flex-wrap: wrap; }
+    .maia-page .doppelmaia-profiles { width: 32px; height: 32px; }
+    .maia-research-nav { margin-left: 16px; margin-right: 16px; }
+}

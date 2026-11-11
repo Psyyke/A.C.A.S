@@ -25,7 +25,8 @@ export async function annotateOpponentMove(state, previousFen) {
         if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
         const move = await this.MoveEval.resolveMove(previousFen, fen,
             [state.boardChanges?.from, state.boardChanges?.to, state.boardChanges?.promotionPiece],
-            { chessVariant: variables.chessVariant || this.activeVariant, useChess960: variables.useChess960, isCurrent });
+            { chessVariant: variables.chessVariant || this.activeVariant, useChess960: variables.useChess960,
+                variantText: variables.variantText, isCurrent });
         if(!move || !isCurrent()) continue;
         await this.speak(move.selected.notationMove, profile.name, 'ttsAnnounceEnemyMoves', {
             isCurrent, opponent: true, useSan: true, announcementKey: `opponent|${fen}`

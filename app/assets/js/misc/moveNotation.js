@@ -46,7 +46,7 @@ function notationKey(move) {
     const context = variantConfig(move);
     const uci = move.playerUci || `${from}${to}${String(move.playerPromotion || '').toLowerCase()}`;
     if(!parseVariantMove(uci)) return '';
-    return `${context.variant}|${context.useChess960}|${move.fen}|${uci}`;
+    return `${context.variant}|${context.useChess960}|${move.fen}|${uci}${context.variantText ? `|${context.variantText}` : ''}`;
 }
 
 export function cacheMoveSan(move, san) {

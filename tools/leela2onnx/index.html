@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leela to ONNX Web / A.C.A.S</title>
+    <meta name="description" content="Convert Leela Chess Zero (Lc0) weights to ONNX online. Free, local, no uploads.">
+    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/tools/leela2onnx/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Leela to ONNX Web / A.C.A.S">
+    <meta property="og:description" content="Convert Leela Chess Zero (Lc0) weights to ONNX online. Free, local, no uploads.">
+    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/tools/leela2onnx/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Leela to ONNX Web / A.C.A.S">
+    <meta name="twitter:description" content="Convert Leela Chess Zero (Lc0) weights to ONNX online. Free, local, no uploads.">
+    <link rel="stylesheet" href="../../assets/css/home.css">
+    <link rel="stylesheet" href="../tools.css">
+    <link rel="stylesheet" href="leela2onnx.css">
+    <link rel="stylesheet" href="../../assets/libraries/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="icon" href="../../favicon.ico">
+</head>
+<body>
+    <main>
+        <header>
+            <div><a href="../../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
+            <div class="header-nav">
+                <a href="../../install/" class="fancy-btn"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+                <a href="../../usage/" class="fancy-btn"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+                <a href="../../troubleshoot/" class="fancy-btn"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+                <a href="../../blog/" class="fancy-btn"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+                <a href="../../tools/" aria-current="page" class="fancy-btn"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+                <a href="../../contributing/" class="fancy-btn" aria-label="Contribute"><i class="bi bi-heart"></i></a>
+                <a href="https://github.com/psyyke/A.C.A.S" class="github-corner fancy-btn" aria-label="View source on GitHub"><i class="bi bi-github"></i></a>
+            </div>
+            <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+        </header>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
+            <a href="../../install/"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+            <a href="../../usage/"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+            <a href="../../troubleshoot/"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+            <a href="../../blog/"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+            <a href="../../tools/" aria-current="page"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
+            <a href="../../contributing/"><i class="bi bi-heart"></i>Contribute</a>
+            <a href="../../development/"><i class="bi bi-code-slash" aria-hidden="true"></i>Development</a>
+            <a href="https://github.com/psyyke/A.C.A.S"><i class="bi bi-github"></i>GitHub</a>
+        </div></div></nav>
+        <div class="content">
+            <img style="right: -40px;width: 120px;top: -40px;transform: rotate(5deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/wN.svg" alt="">
+            <img style="left: -60px;width: 140px;top: 130px;transform: rotate(-6deg);" class="floaty-piece floaty-no-mobile floaty-subpage" src="../../assets/images/pieces/staunty/bK.svg" alt="">
+            <img style="left: -155px;width: 150px;top: 0;filter: blur(3px);transform: rotate(26deg);opacity: 0.7;" class="floaty-piece floaty-mobile-fix floaty-subpage" src="../../assets/images/pieces/staunty/wQ.svg" alt="">
+            <article class="markdown-section-sub markdown-section elo-page" id="main">
+                <section class="elo-heading">
+                    <div class="elo-heading-main">
+                        <h1 id="leela2onnx" class="page-heading"><span>Leela to ONNX Web</span><i class="bi bi-gear" aria-hidden="true"></i></h1>
+                        <p class="converter-intro">Convert Leela Chess Zero (Lc0) weights to ONNX right in your browser. Choose your weights and precision, then download the converted model. Everything runs locally, with no files uploaded.</p>
+                    </div>
+                </section>
+                <section class="converter-panel" aria-label="Convert Lc0 weights">
+                    <form id="converter-form">
+                        <div class="tool-field">
+                            <span>Lc0 weights</span>
+                            <input id="weights" type="file" accept=".pb,.gz,.pb.gz" aria-label="Lc0 weights" aria-describedby="weights-name" hidden>
+                            <div class="converter-upload">
+                                <button class="tool-button" id="choose-weights" type="button" aria-controls="weights" aria-describedby="weights-name">Choose weights</button>
+                                <span id="weights-name" role="status" aria-live="polite">No file selected</span>
+                            </div>
+                        </div>
+                        <label class="tool-field" for="precision">ONNX precision
+                            <select id="precision">
+                                <option value="f32">Float32</option>
+                                <option value="f16-mixed">Float16 weights, Float32 math</option>
+                                <option value="f16">Float16 (experimental)</option>
+                            </select>
+                        </label>
+                        <div class="converter-actions">
+                            <button class="install-button" id="convert" type="submit">Convert</button>
+                            <button class="tool-button" id="cancel" type="button" hidden>Cancel</button>
+                            <a class="tool-button" id="download" hidden>Download ONNX</a>
+                        </div>
+                    </form>
+                    <p id="status" role="status" aria-live="polite">Getting the converter ready...</p>
+                    <details id="diagnostics">
+                        <summary>Details</summary>
+                        <pre id="log" aria-label="Conversion details"></pre>
+                    </details>
+                </section>
+                <section class="elo-guide">
+                    <h2>About</h2>
+                    <p>Converts Lc0 weights with Lc0's own leela2onnx tool. Files stay in your browser.</p>
+                    <p>Large networks need plenty of memory. Float16 weights make a smaller download with Float32 math, not faster GPU math.</p>
+                    <p>Both Float16 options can change evaluations and policy outputs. Use Float32 when accuracy matters.</p>
+                    <p>Uses a modified Lc0 v0.32.1, GPLv3 or later. <a href="https://github.com/LeelaChessZero/lc0/tree/fd71a2d921b689c5f479d3227c3806c8e272d9c5">Upstream source</a>, <a href="https://github.com/Psyyke/A.C.A.S/tree/main/app/assets/engines/lc0">browser source and build scripts</a>, <a href="../../app/assets/engines/lc0/dist/LC0-COPYING">license</a> and <a href="../../app/assets/engines/lc0/NOTICE.txt">notices</a>.</p>
+                </section>
+            </article>
+        </div>
+        <footer>
+            <div class="site-footer-knight" data-piece="queen" aria-hidden="true"></div>
+            <div class="site-footer-content">
+                <div class="site-footer-intro">
+                    <a class="site-footer-brand" href="../../">A.C.A.S</a>
+                    <p>Free, open-source chess assistance.</p>
+                </div>
+                <nav class="site-footer-links" aria-label="Footer">
+                    <div>
+                        <h2>Explore</h2>
+                        <a href="../../">Home</a>
+                        <a href="../../install/">Installation</a>
+                        <a href="../../usage/">Usage Guide</a>
+                        <a href="../../troubleshoot/">Help</a>
+                        <a href="../../blog/">Blog</a>
+                    </div>
+                    <div>
+                        <h2>Chess tools</h2>
+                        <a href="../../tools/">All tools</a>
+                        <a href="../../tools/eloeye/">EloEye</a>
+                        <a href="../../tools/doppelmaia/">DoppelMaia</a>
+                        <a href="../../tools/game-exporter/">Export Matches</a>
+                        <a href="../../tools/leela2onnx/">Leela to ONNX</a>
+                    </div>
+                    <div>
+                        <h2>Project</h2>
+                        <a href="../../contributing/">Contributing</a>
+                        <a href="../../development/">Development</a>
+                        <a href="https://github.com/Psyyke/A.C.A.S">GitHub</a>
+                        <a href="https://github.com/Hakorr">Contact</a>
+                        <a href="../../privacy/">Privacy Policy</a>
+                        <a href="../../tos/">Terms of Service</a>
+                    </div>
+                </nav>
+                <div class="site-footer-bottom"><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a></div>
+            </div>
+        </footer>
+    </main>
+    <script async src="../../assets/js/site-additional-content.js"></script>
+    <script type="module" src="leela2onnx.js"></script>
+</body>
+</html>

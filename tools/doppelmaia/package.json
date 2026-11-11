@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:training": "node build-training-runtime.mjs"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-core": "4.22.0",
+    "@tensorflow/tfjs-backend-webgpu": "4.22.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

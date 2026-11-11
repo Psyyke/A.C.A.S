@@ -4,6 +4,8 @@ import { installNotificationElem, autoMoveCheckbox, hiddenSettingPanel, tosCheck
 import { highlightSettingElem, initGUI } from './gui.js';
 import { initializeActivityLogging } from './misc/activityLog.js';
 import { startEloEyeSessions } from './eloeyeSessions.js';
+import { loopThroughAndUpdateSettingsValues } from './gui/settings.js';
+import { isUpstreamLc0 } from './instance/lc0Engines.js';
 
 initializeActivityLogging();
 
@@ -83,7 +85,7 @@ async function removeStaleInstanceConfigs() {
     USERSCRIPT.setValue(gmConfigKey, config);
 }
 
-function processUrlParams() {
+async function processUrlParams() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const highlight = urlParams.get('hl');
@@ -101,13 +103,39 @@ function processUrlParams() {
                 break;
         }
     } else if(settingToHighlight) {
+        try {
+            await WAIT_UNTIL_VAR(() => SETTING_FILTER_OBJ.profileID, 10000);
+            await loopThroughAndUpdateSettingsValues();
+        } catch(error) {
+            console.error('Could not load settings for the setting link:', error);
+            toast.error(TRANS_OBJ?.weightsLinkError ?? 'Could not open this setting. Reload and try again.', 8000);
+            return;
+        }
+
         const foundSettingElem = [...document.querySelectorAll('input[data-key], textarea[data-key]')]
             .find(elem => elem.dataset.key === settingToHighlight);
 
         const settingContainer = foundSettingElem?.closest('.custom-input');
 
         if(foundSettingElem && settingContainer) {
-            highlightSettingElem(settingContainer, () => REMOVE_PARAM_FROM_URL('shl'));
+            const engine = document.querySelector('input[data-key="chessEngine"]')?.value;
+            const external = document.querySelector('input[data-key="useExternalChessEngine"]')?.checked;
+            const maia3Inactive = settingToHighlight === 'maia3Model' && (engine !== 'maia3' || external);
+            const lc0Inactive = settingToHighlight === 'modernLc0Weight' && (!isUpstreamLc0(engine) || external);
+
+            if(maia3Inactive) {
+                toast.message(TRANS_OBJ?.weightsEnableMaia3 ?? 'Select Maia 3, then open the link again.', 8000);
+            } else if(lc0Inactive) {
+                toast.message(TRANS_OBJ?.weightsEnableLc0 ?? 'Select Lc0, not Legacy Lc0, then open the link again.', 8000);
+            } else {
+                try {
+                    await WAIT_UNTIL_VAR(() => !settingContainer.closest('.hidden'), 10000);
+                    highlightSettingElem(settingContainer, () => REMOVE_PARAM_FROM_URL('shl'));
+                } catch(error) {
+                    console.error('Linked setting did not become visible:', settingToHighlight, error);
+                    toast.error(TRANS_OBJ?.weightsLinkError ?? 'Could not open this setting. Reload and try again.', 8000);
+                }
+            }
         }
     }
 

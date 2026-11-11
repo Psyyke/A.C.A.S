@@ -1,0 +1,43 @@
+Lc0 browser port for A.C.A.S
+
+Contains modified Leela Chess Zero v0.32.1.
+Copyright belongs to the LCZero authors and other upstream contributors.
+Lc0, including leela2onnx, is licensed under GPL version 3 or later.
+The license is provided in dist/LC0-COPYING. There is no warranty.
+Existing copyright and license notices remain in the upstream source.
+
+Upstream source revision:
+https://github.com/LeelaChessZero/lc0/tree/fd71a2d921b689c5f479d3227c3806c8e272d9c5
+
+A.C.A.S browser modifications and build scripts:
+https://github.com/Psyyke/A.C.A.S/tree/main/app/assets/engines/lc0
+
+Build instructions and modification details:
+README.md and DEVELOPMENT.md in this directory.
+
+Modified for A.C.A.S on 2026-11-09. Changes include the browser UCI bridge,
+WebAssembly build configuration, browser ONNX inference backend, conversion
+memory handling and optional float16 weight storage. These are local changes,
+not an unmodified official Lc0 release.
+
+build.mjs contains the checked source modifications and pins the upstream
+revision. It checks out upstream submodules and builds the modified source.
+The browser bridge and converter additions are supplied as source files here.
+package-lock.json pins the JavaScript dependencies. dist/build-info.json
+identifies the runtime versions and memory limit.
+
+ONNX Runtime Web 1.31.1 is separately MIT-licensed. Preserve
+dist/ONNXRUNTIME-LICENSE and dist/ONNXRUNTIME-THIRD-PARTY-NOTICES.txt.
+The upstream checkout and build dependencies retain their respective licenses.
+
+Publication requirements:
+Publish these source files, exact patches, build instructions and notices
+alongside the corresponding dist binaries in the same GitHub commit/release.
+The repository root LICENSE alone does not supply corresponding source.
+Keep that source revision accessible for recipients of the matching binaries.
+For a release, link to its immutable GitHub source revision rather than relying
+only on the moving main branch. Review source availability for upstream and
+build dependencies as part of release preparation.
+
+Network weights are separate works. Their redistribution terms and provenance
+must be checked separately. Neither conversion nor upload changes their license.

@@ -8,6 +8,7 @@ import { annotateEvaluation } from './annotate.js';
 import { parseVariantMove } from '../misc/variantPosition.js';
 import { isBuiltInFairyEngine } from './fairyVariant.js';
 import { recordEngineAnalysis } from './renderFeedback.js';
+import { isLc0Engine, isUpstreamLc0 } from './lc0Engines.js';
 
 export default async function engineMessageProcessor(msg, profile) {
     msg = msg?.trim();
@@ -60,7 +61,8 @@ export default async function engineMessageProcessor(msg, profile) {
     const movePosition = {
         fen: oldestUnfinishedCalcRequestObj?.analyzedFen ?? oldestUnfinishedCalcRequestObj?.fen,
         chessVariant: oldestUnfinishedCalcRequestObj?.chessVariant ?? profileObj.chessVariant ?? this.activeVariant,
-        useChess960: oldestUnfinishedCalcRequestObj?.useChess960 ?? profileObj.useChess960
+        useChess960: oldestUnfinishedCalcRequestObj?.useChess960 ?? profileObj.useChess960,
+        variantText: oldestUnfinishedCalcRequestObj?.variantText ?? profileObj.variantText
     };
     const calculationTimeElapsed = oldestUnfinishedCalcRequestObj?.startedAt
         ? Date.now() - oldestUnfinishedCalcRequestObj.startedAt
@@ -125,6 +127,8 @@ export default async function engineMessageProcessor(msg, profile) {
     const isMsgOption = msg.startsWith('option name ');
 
     if(isMsgOption) {
+        if(!profileObj.useExternalChessEngine && isUpstreamLc0(profileObj.requestedEngine)
+            && /^option name (?:WeightsFile|Backend) type /i.test(msg)) return;
         if(msg.startsWith('option name UCI_Variant type combo')) {
             const chessVariants = PARSE_UCI_OPTION(msg)?.vars ?? [];
 
@@ -139,7 +143,8 @@ export default async function engineMessageProcessor(msg, profile) {
             if(this.pV[profile] !== profileObj || this.instanceClosed) return;
 
             return fillDynamicEngineOptionContainer(msg, profile, this.instanceID,
-                profileObj.useExternalChessEngine ? profileObj.externalChessEngine : this.getEngineAcasObj(profile)?.type);
+                profileObj.useExternalChessEngine ? profileObj.externalChessEngine : this.getEngineAcasObj(profile)?.type,
+                profileObj.useExternalChessEngine);
         }).catch(console.error);
 
         await profileObj.uciOptionRegistrations;
@@ -322,13 +327,7 @@ export default async function engineMessageProcessor(msg, profile) {
 
         updatePipData({ calculationTimeElapsed, 'nodes': data?.nodes, topMoveObjects }, this, profile);
         
-        let isSearchInfinite = this.pV[profile].searchDepth ? false : true;
-
-        if(await this.getEngineName(profile) === 'lc0' || this.pV[profile].engineNodes > 0) {
-            isSearchInfinite = this.pV[profile].engineNodes > 9e6 ? true : false;
-        }
-        if(oldestUnfinishedCalcRequestObj?.searchMode === 'infinite') isSearchInfinite = true;
-        else if(oldestUnfinishedCalcRequestObj?.searchMode === 'movetime') isSearchInfinite = false;
+        const isSearchInfinite = oldestUnfinishedCalcRequestObj.isSearchInfinite;
 
         if(this.pV[profile] !== profileObj || this.instanceClosed
             || this.currentFen !== oldestUnfinishedCalcRequestObj.fen || oldestUnfinishedCalcRequestObj.finished) return;
@@ -492,7 +491,7 @@ export default async function engineMessageProcessor(msg, profile) {
 
             if(this.pV[profile] !== profileObj || this.currentFen !== fen || this.instanceClosed) return;
 
-            if(engineName === 'lc0' || profileObj.engineNodes > 0) {
+            if(isLc0Engine(engineName) || profileObj.engineNodes > 0) {
                 updatePipData({ nodes: this.isLearningProfile(profile) ? oldestUnfinishedCalcRequestObj.lastData?.nodes ?? 0 : profileObj.engineNodes,
                     goalDepth: null }, this, profile);
             } else {

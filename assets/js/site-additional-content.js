@@ -58,6 +58,62 @@ function initMobileNav() {
 
 initMobileNav();
 
+const contributionShare = document.querySelector('.contribution-share');
+contributionShare?.addEventListener('click', async () => {
+    const status = document.querySelector('#share-status');
+    const url = 'https://psyyke.github.io/A.C.A.S/';
+    status.hidden = true;
+    try {
+        if (navigator.share) {
+            await navigator.share({ title: 'A.C.A.S', url });
+        } else if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(url);
+            status.textContent = 'Link copied!';
+            status.hidden = false;
+        } else {
+            status.textContent = `Copy this link to share: ${url}`;
+            status.hidden = false;
+        }
+    } catch (error) {
+        if (error.name === 'AbortError') return;
+        console.error('Could not share A.C.A.S:', error);
+        status.textContent = `Could not share: ${error.message}. Copy this link instead: ${url}`;
+        status.hidden = false;
+    }
+});
+
+function initPageHeadings() {
+    const headings = [...document.querySelectorAll('#main h1')].filter(heading =>
+        heading.lastElementChild?.matches('svg, i, .page-heading-icon')
+    );
+    for (const heading of headings) {
+        heading.classList.add('page-heading');
+        const icon = heading.lastElementChild;
+        for (const node of [...heading.childNodes]) {
+            if (node.nodeType === Node.TEXT_NODE && !node.textContent.trim()) node.remove();
+        }
+        if (heading.childNodes.length !== 2 || heading.firstChild.nodeType === Node.TEXT_NODE) {
+            const label = document.createElement('span');
+            while (heading.firstChild !== icon) label.append(heading.firstChild);
+            heading.prepend(label);
+        }
+        const label = heading.firstElementChild;
+        const update = () => {
+            label.style.whiteSpace = 'nowrap';
+            const textWidth = label.scrollWidth;
+            label.style.removeProperty('white-space');
+            const style = getComputedStyle(heading);
+            const available = heading.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            heading.classList.toggle('icon-first', textWidth + icon.getBoundingClientRect().width + parseFloat(style.columnGap) > available);
+        };
+        new ResizeObserver(update).observe(heading);
+        document.fonts.ready.then(update);
+        update();
+    }
+}
+
+initPageHeadings();
+
 async function initIntroTagline() {
     const tagline = document.querySelector('.large-intro-tagline');
     if (!tagline) return;

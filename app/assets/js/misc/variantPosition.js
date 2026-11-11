@@ -4,6 +4,7 @@ export function variantConfig(config = {}) {
     const aliases = { standard: 'chess', normal: 'chess', fromposition: 'chess', threecheck: '3check' };
     const random = ['chess960', 'fischerandom'].includes(name);
     return { variant: random ? 'chess' : aliases[name] || name,
+        ...(config.variantText ? { variantText: config.variantText } : {}),
         useChess960: Boolean(config.useChess960 || random) };
 }
 

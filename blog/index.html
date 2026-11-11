@@ -67,24 +67,24 @@
         <header>
             <div><a href="../" class="acas-logo-main fancy-btn">A.C.A.S<span>V2</span></a></div>
             <div class="header-nav">
-                <a href="../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download"></i>Install</a>
-                <a href="../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-journals"></i>Usage</a>
-                <a href="../tools/" aria-label="Chess tools" class="fancy-btn"><i class="bi bi-speedometer2"></i>Tools</a>
-                <a href="../troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-tools"></i>Help</a>
-                <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-pen"></i>Blog</a>
+                <a href="../install/" aria-label="Install A.C.A.S" class="fancy-btn"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+                <a href="../usage/" aria-label="How to use A.C.A.S" class="fancy-btn"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+                <a href="../troubleshoot/" aria-label="Help and common questions" class="fancy-btn"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+                <a href="../blog/" aria-label="View A.C.A.S blog" class="fancy-btn"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+                <a href="../tools/" aria-label="Chess tools" class="fancy-btn"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
                 <a href="../contributing/" aria-label="Contribute to A.C.A.S" class="fancy-btn"><i class="bi bi-heart"></i></a>
                 <a href="https://github.com/psyyke/A.C.A.S" target="_blank" class="github-corner fancy-btn" aria-label="View source on Github"><i class="bi bi-github"></i></a>
             </div>
             <button type="button" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
         </header>
         <nav class="mobile-nav" id="mobile-nav" aria-label="Pages"><div class="mobile-nav-clip"><div class="mobile-nav-list">
-            <a href="../install/"><i class="bi bi-download"></i>Install</a>
-            <a href="../usage/"><i class="bi bi-journals"></i>Usage</a>
-            <a href="../tools/"><i class="bi bi-speedometer2"></i>Tools</a>
-            <a href="../troubleshoot/"><i class="bi bi-tools"></i>Help</a>
-            <a href="../blog/" aria-current="page"><i class="bi bi-pen"></i>Blog</a>
+            <a href="../install/"><i class="bi bi-download" aria-hidden="true"></i>Install</a>
+            <a href="../usage/"><i class="bi bi-clipboard" aria-hidden="true"></i>Usage</a>
+            <a href="../troubleshoot/"><i class="bi bi-lightbulb" aria-hidden="true"></i>Help</a>
+            <a href="../blog/" aria-current="page"><i class="bi bi-chat-right" aria-hidden="true"></i>Blog</a>
+            <a href="../tools/"><i class="bi bi-gear" aria-hidden="true"></i>Tools</a>
             <a href="../contributing/"><i class="bi bi-heart"></i>Contribute</a>
-            <a href="../development/"><i class="bi bi-code-slash"></i>Development</a>
+            <a href="../development/"><i class="bi bi-code-slash" aria-hidden="true"></i>Development</a>
             <a href="https://github.com/psyyke/A.C.A.S" target="_blank"><i class="bi bi-github"></i>GitHub</a>
         </div></div></nav>
         <div class="content">
@@ -96,7 +96,7 @@
             <!-- PAGE CONTENT -->
             <article class="markdown-section-sub markdown-section" id="main">
                 <section>
-                    <h1 id="faq">Blog 📝</h1>
+                    <h1 id="faq" class="page-heading"><span>Blog</span><span class="page-heading-icon" aria-hidden="true">&#x1F4DD;</span></h1>
                 </section>
                 <section>
                     <h2 id="basics">History of A.C.A.S</h2>
@@ -132,10 +132,9 @@
                     <h2 id="how-it-works">How does A.C.A.S work?</h2>
 
                     <p>
-                    Most userscripts interact directly with the site they run on. They hook into
-                    existing functions, override parts of the page's logic, or call the same
-                    internal code the website itself uses. While that works, it makes
-                    those scripts easy to detect and more unreliable for the future. As I've developed A.C.A.S I've noticed that some sites change their DOM and internal logic surprisingly often while looking visually the same.
+                    Many userscripts use the site's own functions, so the site can add detection there.
+                    They also append their GUI directly to the page, which the site can spot with a single DOM query.
+                    Not good...
                     </p>
 
                     <p>
@@ -353,8 +352,41 @@ addSupportedChessSite('lichess.org', {
             <!-- PAGE CONTENT ENDS -->
         </div>
         <footer>
-            <img style="right: -70px;bottom: -35px;width: 220px;" class="floaty-piece floaty-footer" src="../assets/images/pieces/staunty/wQ.svg"/>
-            <section><a href="../tos">Terms of Service</a><a href="../privacy">Privacy Policy</a><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a><a href="https://github.com/Hakorr">Contact Me</a></section>
+            <div class="site-footer-knight" data-piece="bishop" aria-hidden="true"></div>
+            <div class="site-footer-content">
+                <div class="site-footer-intro">
+                    <a class="site-footer-brand" href="../">A.C.A.S</a>
+                    <p>Free, open-source chess assistance.</p>
+                </div>
+                <nav class="site-footer-links" aria-label="Footer">
+                    <div>
+                        <h2>Explore</h2>
+                        <a href="../">Home</a>
+                        <a href="../install/">Installation</a>
+                        <a href="../usage/">Usage Guide</a>
+                        <a href="../troubleshoot/">Help</a>
+                        <a href="../blog/">Blog</a>
+                    </div>
+                    <div>
+                        <h2>Chess tools</h2>
+                        <a href="../tools/">All tools</a>
+                        <a href="../tools/eloeye/">EloEye</a>
+                        <a href="../tools/doppelmaia/">DoppelMaia</a>
+                        <a href="../tools/game-exporter/">Export Matches</a>
+                        <a href="../tools/leela2onnx/">Leela to ONNX</a>
+                    </div>
+                    <div>
+                        <h2>Project</h2>
+                        <a href="../contributing/">Contributing</a>
+                        <a href="../development/">Development</a>
+                        <a href="https://github.com/Psyyke/A.C.A.S">GitHub</a>
+                        <a href="https://github.com/Hakorr">Contact</a>
+                        <a href="../privacy/">Privacy Policy</a>
+                        <a href="../tos/">Terms of Service</a>
+                    </div>
+                </nav>
+                <div class="site-footer-bottom"><a href="https://www.gnu.org/licenses/gpl-3.0.en.html">Licensed with GPLv3</a></div>
+            </div>
         </footer>
     </main>
     <script async="" src="../assets/js/site-additional-content.js"></script>

@@ -176,7 +176,10 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         profileVariables.lastCalculatedFen = currentFen;
         profileVariables.lastFen = currentFen;
         delete profileVariables.pendingCalculationRequest;
-        const calculation = { fen: currentFen, startedAt: Date.now(), finished: false, goSent: false };
+        const calculation = {
+            fen: currentFen, startedAt: Date.now(), finished: false, goSent: false,
+            isSearchInfinite: search.infinite || search.goalNodes > 9e6
+        };
         profileVariables.pendingCalculations = profileVariables.pendingCalculations.filter(x => !x.finished);
         profileVariables.pendingCalculations.push(calculation);
         this.CommLink.analysisStarted?.(profileName, calculation);
@@ -196,6 +199,7 @@ export default async function calculateBestMoves(currentFen, config = {}) {
         calculation.annotationEligible = calculation.analyzedFen === currentFen && !specificMovesObj?.moves?.length;
         calculation.chessVariant = variant;
         calculation.useChess960 = profileVariables.useChess960;
+        calculation.variantText = profileVariables.variantText;
         calculation.searchMode = searchMode;
         calculation.engineMovetime = search.engineMovetime;
         const searchCommandStr = search.command;

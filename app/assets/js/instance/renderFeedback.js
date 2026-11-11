@@ -92,6 +92,7 @@ export function recordEngineAnalysis(data, calculation, profile, moveObject) {
     if(data.pv && (cp !== null || mate !== null || isFusionEngine)) {
         const candidate = { ...moveObject, cp,
             fen: calculation.fen, chessVariant: calculation.chessVariant, useChess960: calculation.useChess960,
+            variantText: calculation.variantText,
             playerUci: uci, mate, depth: Number(data.depth) || 0, pv: data.pv.split(/\s+/),
             ...(hasCandidateScores && (cp !== null || mate !== null) ? { candidateScore: true } : {}) };
         analysis.moves = [...analysis.moves.filter(item => item.ranking !== ranking), candidate].sort((a, b) => a.ranking - b.ranking);
@@ -103,7 +104,7 @@ export function recordEngineAnalysis(data, calculation, profile, moveObject) {
     } else if(!analysis.moves.length) {
         analysis.moves = [{ ...moveObject, cp: null, mate: null,
             ...analysis.score, fen: calculation.fen, playerUci: uci,
-            chessVariant: calculation.chessVariant, useChess960: calculation.useChess960 }];
+            chessVariant: calculation.chessVariant, useChess960: calculation.useChess960, variantText: calculation.variantText }];
         if(analysis.score) analysis.score = analysis.moves[0];
     }
     if(this.isLearningProfile(profile) && [this.learningReviewFen, this.learningReviewPostFen].includes(calculation.fen)) {
@@ -152,7 +153,7 @@ export async function renderLearningFeedback(specificProfile) {
         const analysis = before.analysis?.[profile], response = after.analysis?.[profile];
         const bestMove = analysis?.engine === variables.analysisKey ? analysis.moves[0] : null;
         const own = { ...CREATE_MOVE_OBJ({ playerMove: parseVariantMove(move), profile }), fen,
-            playerUci: move, chessVariant: variables.chessVariant, useChess960: variables.useChess960 };
+            playerUci: move, chessVariant: variables.chessVariant, useChess960: variables.useChess960, variantText: variables.variantText };
         const playedName = getMoveSan(own) || move;
         const scoredCandidates = bestMove?.candidateScore ? analysis.moves.filter(item => item.candidateScore) : [];
         const hasCandidateScores = scoredCandidates.length > 0;
@@ -449,7 +450,7 @@ async function backfillFeedback(profileID) {
             try {
                 if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
                 const config = { chessVariant: variables.chessVariant || this.activeVariant,
-                    useChess960: useChess960 || variables.useChess960, isCurrent };
+                    useChess960: useChess960 || variables.useChess960, variantText: variables.variantText, isCurrent };
                 const transition = await this.MoveEval.resolveMove(fen, postFen, [], config);
                 if(!isCurrent()) return;
                 const result = transition && await this.MoveEval.eval(
@@ -554,6 +555,7 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             // Calculation placeholders are deliberately omitted.
             if(!this.MoveEval) this.MoveEval = new MoveEvaluator();
             const analysisConfig = { chessVariant: variant, useChess960: useChess960 || variables.useChess960,
+                variantText: variables.variantText,
                 isCurrent: isCurrentRequest };
             const transition = await this.MoveEval.resolveMove(previousFen, currentFen,
                 [reportedChanges?.from, reportedChanges?.to, reportedChanges?.promotionPiece], analysisConfig);
@@ -606,7 +608,8 @@ export default async function renderFeedback(gameStateObj, specificProfileName) 
             const isBook = isBookMoveResult;
             const emoji = isBook ? '📖' : result.emoji || '⚪';
             const notationConfig = {
-                fen: previousFen, chessVariant: variant, useChess960: useChess960 || variables.useChess960
+                fen: previousFen, chessVariant: variant, useChess960: useChess960 || variables.useChess960,
+                variantText: variables.variantText
             };
             const [bestContinuation, playedContinuation] = await Promise.all([
                 formatPvNotationAsync(result.best?.pv, notationConfig, undefined, isCurrentRequest),

@@ -8,7 +8,12 @@ const ENGINES_REQUIRING_SAB = [ // Requiring SharedArrayBuffer
     'stockfish-16-1-wasm', 
     'stockfish-14-nnue',
     'fairy-stockfish-nnue-wasm',
-    'lc0'
+    'lc0',
+    'lc0-v0.32.1',
+    'lc0-v0.32.1-wasm',
+    'lc0-v0.32.1-webgpu',
+    'modern-lc0',
+    'modern-lc0-webgpu'
 ];
 
 const PROFILE_STORAGE_KEY_PREFIX = '__B64__';

@@ -1,0 +1,28 @@
+; Rodent V - Hector is for HCE (handcrafted evaluation)
+;
+setoption name nnuePath value nets/rodent_4kb_768hl_8ob_v2.bin
+setoption name mainBookPath value books/rodent.bin
+setoption name guideBookPath value books/empty.bin
+setoption name hceWeight value 100
+setoption name nnueWeight value 0
+setoption name nnueScale value 206
+setoption name likesClosed value 0
+setoption name kingTropism value 0
+setoption name forwardness value 0
+setoption name horizontalMirroring value 1
+setoption name OwnMaterial value 100
+setoption name OppMaterial value 100
+setoption name OwnPST value 100
+setoption name OppPST value 100
+setoption name OwnMobility value 100
+setoption name OppMobility value 100
+setoption name OwnSafety value 100
+setoption name OppSafety value 100
+setoption name OwnPawns value 100
+setoption name OppPawns value 100
+setoption name OwnPassers value 100
+setoption name OppPassers value 100
+setoption name OwnThreats value 100
+setoption name OppThreats value 100
+setoption name OwnOther value 100
+setoption name OppOther value 100

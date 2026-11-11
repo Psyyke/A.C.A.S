@@ -2,6 +2,7 @@ import { updatePipData, updatePipFeedback, pipSettingKeys } from '../gui/pip.js'
 import { clearFeedback } from './renderFeedback.js';
 import { isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 import { suggestionMixKeys } from './suggestionMix.js';
+import { isLc0Engine, isUpstreamLc0 } from './lc0Engines.js';
 
 export default async function updateSettings(updateObj) {
     const settingKey = updateObj?.data?.key,
@@ -99,6 +100,7 @@ export default async function updateSettings(updateObj) {
     const didUpdateElo = [this.configKeys.engineElo, this.configKeys.engineEnemyElo]
         .find(key => findSetting(key));
     const didUpdateLc0Weight = findSetting(this.configKeys.lc0Weight);
+    const didUpdateModernLc0Weight = findSetting(this.configKeys.modernLc0Weight);
     const didUpdateChessFont = findSetting(this.configKeys.chessFont);
     const didUpdateMultiPV = findSetting(this.configKeys.moveSuggestionAmount)
         || findSetting(this.configKeys.onlyShowWarningMoves);
@@ -250,15 +252,31 @@ export default async function updateSettings(updateObj) {
     }
 
     if(didUpdateSearchNodes) {
-        if(this.pV[profileName]) this.pV[profileName].engineNodes = this.pV[profileName].usingAdvancedMode || await this.getEngineName(profileName) === 'lc0'
+        if(this.pV[profileName]) this.pV[profileName].engineNodes = this.pV[profileName].usingAdvancedMode || isLc0Engine(await this.getEngineName(profileName))
             ? await this.getConfigValue(this.configKeys.engineNodes, profileName) : 0;
 
         updatePipData({ 'goalDepth': null }, this, profileName);
         return this.pV[profileName] ? { appliedValue: this.pV[profileName].engineNodes } : false;
     }
 
+    if(didUpdateModernLc0Weight) {
+        if(!this.pV[profileName] || !isUpstreamLc0(await this.getEngineName(profileName))) return false;
+        const snapshot = this.applyingSettings?.get(profileName) ?? updateObj.data.profile?.config;
+        await this.createAndLoadSpecificEngine(profileName, snapshot);
+        return { appliedValue: this.pV[profileName]?.modernLc0Weight };
+    }
+
+    if(findSetting(this.configKeys.maia3Model) || findSetting(this.configKeys.maia3Provider)) {
+        if(!this.pV[profileName] || await this.getEngineName(profileName) !== 'maia3') return false;
+        const snapshot = this.applyingSettings?.get(profileName) ?? updateObj.data.profile?.config;
+        await this.createAndLoadSpecificEngine(profileName, snapshot);
+        return { appliedValue: this.pV[profileName]?.[settingKey] };
+    }
+
     if(didUpdateLc0Weight) {
-        if(!this.pV[profileName] || await this.getEngineName(profileName) !== 'lc0') return false;
+        if(!this.pV[profileName]) return false;
+        const engine = await this.getEngineName(profileName);
+        if(engine !== 'lc0') return false;
         await this.setEngineWeight(await this.getConfigValue(this.configKeys.lc0Weight, profileName), profileName);
         return { appliedValue: this.pV[profileName].lc0WeightName };
     }

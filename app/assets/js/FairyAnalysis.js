@@ -17,6 +17,7 @@ export default class FairyAnalysis {
         this.activeSearch = null;
         this.terminated = false;
         this.rebootAttempts = 0;
+        this.variantText = '';
         if(loadEngine) this.loadStockfish();
     }
 
@@ -55,12 +56,15 @@ export default class FairyAnalysis {
                         this.uci('uci');
                     } else if(typeof event.data === 'string') {
                         event.data.split(/\r?\n/).forEach(line => this.processMessage(line.trim()));
+                    } else if(event.data?.type === 'error') {
+                        this.rebootEngine(new Error(event.data.message));
                     }
                 } catch(error) { this.rebootEngine(error); }
             };
             worker.onerror = error => {
                 if(this.engine === worker && !this.terminated) this.rebootEngine(error);
             };
+            worker.postMessage({ type: 'initialize-files', files: { VariantPath: this.variantText } });
             this.loadInterval = setInterval(() => {
                 if(this.engine !== worker || this.terminated) return;
                 try { worker.postMessage({ method: 'acas_check_loaded', args: [] }); }
@@ -178,6 +182,7 @@ export default class FairyAnalysis {
     }
 
     enqueue(key, config, execute) {
+        if(config.variantText) key = JSON.stringify([config.variantText, key]);
         const isCurrent = config.isCurrent || (() => true);
         if(this.terminated || !isCurrent()) return Promise.resolve(null);
         if(this.cache.has(key)) return Promise.resolve().then(() => isCurrent() ? this.cache.get(key) : null);
@@ -199,6 +204,11 @@ export default class FairyAnalysis {
         if(!job) return;
         this.activeJob = job;
         try {
+            if((job.variantText ?? '') !== this.variantText) {
+                this.variantText = job.variantText ?? '';
+                this.rebootAttempts = 0;
+                this.rebootEngine(new Error('Variant definitions changed'));
+            }
             let result;
             for(let attempt = 0; attempt < 2; attempt++) {
                 const worker = this.engine;
@@ -337,7 +347,7 @@ export default class FairyAnalysis {
                 to = `${move.to.charCodeAt(0) > move.from.charCodeAt(0) ? 'g' : 'c'}${move.from.slice(1)}`;
             }
         }
-        const notationMove = { fen: job.fen, chessVariant: job.variant, useChess960: job.useChess960,
+        const notationMove = { fen: job.fen, chessVariant: job.variant, useChess960: job.useChess960, variantText: job.variantText,
             player: [move.from, to], playerPromotion: move.promotion, playerUci: uci };
         return { ...move, to, san: formatMoveNotation(notationMove, true), notationMove };
     }
