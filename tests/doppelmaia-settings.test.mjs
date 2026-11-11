@@ -12,6 +12,7 @@ test('settings survive reload with separate training-method values and no file r
         page.on('pageerror', error => errors.push(error.message));
         await page.goto(`${url}/tools/doppelmaia/`);
         await page.waitForFunction(() => !document.querySelector('#games').disabled);
+        assert.equal(await page.locator('#full-batch').inputValue(), '6');
         await page.evaluate(async () => {
             const split = id => ({ gameIds: [id], samples: [{ gameId: id, gameIndex: 0 }] });
             await (await import('./storage.js')).savePreparedGames({
@@ -63,6 +64,7 @@ test('settings survive reload with separate training-method values and no file r
         await page.locator('#reset-settings').click();
         await page.waitForFunction(() => !document.querySelector('#start').disabled
             && document.querySelector('#base-network').value === 'maia3');
+        assert.equal(await page.locator('#full-batch').inputValue(), '6');
         assert.equal(await page.locator('#learning-rate').inputValue(), '0.00001');
         assert.equal(await page.locator('#epochs').inputValue(), '12');
         assert.equal(await page.evaluate(() => localStorage.getItem('acas-doppelmaia-settings-v1')), null);

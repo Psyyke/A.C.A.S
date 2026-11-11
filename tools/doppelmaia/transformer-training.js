@@ -28,7 +28,7 @@ function probabilities(logits) {
 }
 
 export async function trainTransformer(data, send = () => {}) {
-    const options = { epochs: 12, learningRate: 0.00001, batchSize: 16, patience: 2, baseAnchor: 0.25,
+    const options = { epochs: 12, learningRate: 0.00001, batchSize: 6, patience: 2, baseAnchor: 0.25,
         weightDecay: 0.01, clipNorm: 1, seed: 42, useHistory: false, ...data.options };
     const { epochs, learningRate, batchSize, patience, baseAnchor, seed, weightDecay, clipNorm, useHistory } = options;
     const tokenChannels = useHistory ? 96 : 12, tokenCount = 64 * tokenChannels;
