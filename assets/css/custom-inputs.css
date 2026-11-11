@@ -981,6 +981,8 @@ textarea:hover,
 dialog {
     border-radius: 5px;
     background: transparent;
+    --scrollbar-track-background: color-mix(in srgb, var(--background-texture-base, #5f8895) 50%, #000);
+    scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
     z-index: 0;
     box-shadow: 0 18px 60px rgb(0 0 0 / 35%);
     border-width: 2px 2px 10px 2px;
