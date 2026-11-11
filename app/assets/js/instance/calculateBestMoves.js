@@ -5,6 +5,7 @@ import { setDynamicSettingsContext } from '../gui/dynamicSettings.js';
 import { Chess } from '../../engines/libraries/chessjs/chess.js';
 import { enginePosition } from './enginePosition.js';
 import { searchCommand } from './searchCommand.js';
+import { isLc0Engine } from './lc0Engines.js';
 
 function getTerminalOutcome(fen, playerColor) {
     if(!['w', 'b'].includes(playerColor)) return null;
@@ -173,12 +174,19 @@ export default async function calculateBestMoves(currentFen, config = {}) {
             return;
         }
 
+        let isSearchInfinite = !profileVariables.searchDepth;
+        if(isLc0Engine(engineName) || profileVariables.engineNodes > 0) {
+            isSearchInfinite = profileVariables.engineNodes > 9e6;
+        }
+        if(searchMode === 'infinite') isSearchInfinite = true;
+        else if(searchMode === 'movetime') isSearchInfinite = false;
+
         profileVariables.lastCalculatedFen = currentFen;
         profileVariables.lastFen = currentFen;
         delete profileVariables.pendingCalculationRequest;
         const calculation = {
             fen: currentFen, startedAt: Date.now(), finished: false, goSent: false,
-            isSearchInfinite: search.infinite || search.goalNodes > 9e6
+            isSearchInfinite
         };
         profileVariables.pendingCalculations = profileVariables.pendingCalculations.filter(x => !x.finished);
         profileVariables.pendingCalculations.push(calculation);

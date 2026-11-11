@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { Chess } from '../app/assets/engines/libraries/chessjs/chess.js';
 import { enginePosition } from '../app/assets/js/instance/enginePosition.js';
 import { searchCommand } from '../app/assets/js/instance/searchCommand.js';
+import { isLc0Engine } from '../app/assets/js/instance/lc0Engines.js';
 import { parseClientMessage, validateUciCommand } from '../appServer/backend/uciCommand.js';
 
 test('advanced search modes do not combine incompatible UCI limits', () => {
@@ -38,7 +39,7 @@ test('Calculation Server accepts bounded history without relaxing other command 
 });
 
 const source = readFileSync(new URL('../app/assets/js/instance/calculateBestMoves.js', import.meta.url), 'utf8');
-const calculate = new Function('Chess', 'enginePosition', 'searchCommand',
+const calculate = new Function('Chess', 'enginePosition', 'searchCommand', 'isLc0Engine',
     'setProfileBubbleStatus', 'updatePipData', 'updatePipHints', 'incrementUserUsageStat', 'setDynamicSettingsContext',
     `${source.replace(/^import .*;\r?\n/gm, '').replace('export default async function calculateBestMoves', 'async function calculateBestMoves')}
     return calculateBestMoves;`);
@@ -49,7 +50,7 @@ function fixture(settings = {}) {
     const move = chess.move('e4');
     history.push({ fen: { full: chess.fen() }, boardChanges: { from: move.from, to: move.to } });
     const commands = [], statuses = [], pip = [];
-    const calculateBestMoves = calculate(Chess, enginePosition, searchCommand,
+    const calculateBestMoves = calculate(Chess, enginePosition, searchCommand, isLc0Engine,
         (...args) => statuses.push(args), data => pip.push(data), () => {}, () => {}, () => {});
     const config = { engineEnabled: true, reverseSide: false, onlyCalculateOwnTurn: false, alwaysMyTurn: false,
         maxMovetime: 0, advancedSearchMode: 'movetime', advancedSearchMovetime: 5000, ...settings };
@@ -140,10 +141,27 @@ test('infinite mode and disabled advanced settings choose the correct search', a
     rodent.vars.usingAdvancedMode = false;
     rodent.vars.searchDepth = null;
     rodent.vars.engineNodes = 0;
+    rodent.vars.useExternalChessEngine = false;
+    rodent.vars.appliedSettings = { engineElo: 1000 };
     rodent.instance.getEngineName = async () => 'rodent-v';
     await rodent.instance.calculateBestMoves(rodent.instance.currentFen);
     assert.equal(rodent.commands[1], 'go depth 100');
-    assert.equal(rodent.vars.pendingCalculations[0].isSearchInfinite, false);
+    // Rodent's runtime announces its effective node limit before its PV lines.
+    assert.equal(rodent.vars.pendingCalculations[0].isSearchInfinite, true);
+});
+
+test('3200 keeps unrestricted streaming for Stockfish, external engines and Rodent', async () => {
+    for(const [engine, external] of [['stockfish-18-single', false], ['external', true], ['rodent-v', false]]) {
+        const { instance, vars, commands } = fixture();
+        Object.assign(vars, {
+            usingAdvancedMode: false, useExternalChessEngine: external,
+            searchDepth: null, engineNodes: 0, appliedSettings: { engineElo: 3200 }
+        });
+        instance.getEngineName = async () => engine;
+        await instance.calculateBestMoves(instance.currentFen);
+        assert.equal(commands[1], 'go depth 100', engine);
+        assert.equal(vars.pendingCalculations[0].isSearchInfinite, true, engine);
+    }
 });
 
 test('Max Movetime still stops standard and infinite searches', async () => {

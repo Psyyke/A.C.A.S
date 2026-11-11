@@ -78,6 +78,12 @@ In normal mode, Engine ELO uses Rodent's own strength limiter from
 **800 to 3000**. The app's **3200** setting means full strength, not a
 calibrated 3200 rating. Out-of-range limited ratings are clamped with a warning.
 Stockfish's skill levels and ELO-derived depths are not used for Rodent.
+With **Only Top Moves** enabled, limited Elo searches wait for the final
+`bestmove`. The app uses Rodent's reported node limit, including limits set
+through Advanced Elo, rather than assuming a deep search is unrestricted.
+At **3200**, suggestions can update while the unrestricted engine
+thinks, just like the app's other unrestricted engines. Max Movetime still
+applies.
 
 In Advanced Elo, enable **UCI_LimitStrength** and set **UCI_Elo** yourself.
 Rodent reduces its node budget for lower ratings. An explicit Search Nodes

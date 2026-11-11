@@ -36,6 +36,12 @@ export default async function engineMessageProcessor(msg, profile) {
     const isBestmove = Object.hasOwn(data, 'bestmove');
     const oldestUnfinishedCalcRequestObj = this.pV[profile].pendingCalculations.find(x => !x.finished);
 
+    if(oldestUnfinishedCalcRequestObj && !profileObj.useExternalChessEngine
+        && profileObj.requestedEngine === 'rodent-v'
+        && /^info string search limited to [1-9]\d* nodes$/.test(msg)) {
+        oldestUnfinishedCalcRequestObj.rodentNodeLimited = true;
+    }
+
     // A missing mandatory human policy is not checkmate/stalemate. Wait for the
     // following bestmove to finish the request, preserving search queue order.
     if(isFusionEngine && msg.startsWith('info string Fusion: error: ')) {
@@ -338,7 +344,8 @@ export default async function engineMessageProcessor(msg, profile) {
             markingLimit !== 0
             && !oldestUnfinishedCalcRequestObj.finished
             && (reportedMoves.length >= markingLimit || profileObj.pastMoveObjects.length >= markingLimit)
-            && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited)) // handle infinite search, cannot only show top moves when search is infinite
+            && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited
+                && !oldestUnfinishedCalcRequestObj.rodentNodeLimited))
             && !this.pV[profile].onlyShowWarningMoves // all lines are needed first, so wait for the final result
             && (!isDelayActive || (calculationTimeElapsed > moveDisplayDelay)) // handle visual delay, do not show move if time elapsed is too low
             && (!this.CommLink.analysisFinished || (!oldestUnfinishedCalcRequestObj.finished

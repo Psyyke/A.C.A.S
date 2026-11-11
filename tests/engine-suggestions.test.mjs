@@ -88,18 +88,44 @@ test('different MultiPV moves remain distinct and final bestmove is primary', as
     assert.deepEqual(displays.at(-1).moves.map(move => move.opponentUci), ['c7c5', 'g8f6']);
 });
 
-test('Only Top Moves waits for Rodent default Elo searches to finish', async () => {
+test('Rodent reports its actual node limit before PVs, overriding unrestricted search classification', async () => {
     const { instance, profile, displays } = harness({ amount: 1, onlyTop: true });
     profile.searchDepth = null;
     profile.engineNodes = 0;
-    profile.pendingCalculations[0].isSearchInfinite = false;
+    profile.useExternalChessEngine = false;
+    profile.requestedEngine = 'rodent-v';
+    profile.appliedSettings = { engineElo: 3200 };
+    profile.pendingCalculations[0].isSearchInfinite = true;
     instance.getEngineName = async () => 'rodent-v';
+    await engineMessageProcessor.call(instance, 'info string search limited to 10200 nodes', 'main');
     await engineMessageProcessor.call(instance, 'info depth 1 score cp 50 pv e2e4 e7e5', 'main');
     await engineMessageProcessor.call(instance, 'info depth 2 score cp 60 pv d2d4 d7d5', 'main');
     assert.equal(displays.length, 0);
     await engineMessageProcessor.call(instance, 'bestmove d2d4', 'main');
     assert.equal(displays.length, 1);
     assert.equal(displays[0].moves[0].playerUci, 'd2d4');
+});
+
+test('Rodent node-limited searches still stream when Only Top Moves is disabled', async () => {
+    const { instance, profile, displays } = harness({ amount: 1 });
+    profile.useExternalChessEngine = false;
+    profile.requestedEngine = 'rodent-v';
+    profile.pendingCalculations[0].isSearchInfinite = true;
+    await engineMessageProcessor.call(instance, 'info string search limited to 10200 nodes', 'main');
+    await engineMessageProcessor.call(instance, 'info depth 1 score cp 50 pv e2e4 e7e5', 'main');
+    assert.equal(displays.length, 1);
+    assert.equal(profile.pendingCalculations[0].finished, false);
+});
+
+test('unrestricted 3200 searches still show provisional moves with Only Top Moves enabled', async () => {
+    const { instance, profile, displays } = harness({ amount: 1, onlyTop: true });
+    profile.searchDepth = null;
+    profile.pendingCalculations[0].isSearchInfinite = true;
+    await engineMessageProcessor.call(instance, 'info depth 1 score cp 50 pv e2e4 e7e5', 'main');
+    assert.equal(displays.length, 1);
+    assert.equal(profile.pendingCalculations[0].finished, false);
+    await engineMessageProcessor.call(instance, 'info depth 2 score cp 60 pv d2d4 d7d5', 'main');
+    assert.equal(displays.at(-1).moves[0].playerUci, 'd2d4');
 });
 
 test('successive different rank-one moves do not become secondary suggestions', async () => {

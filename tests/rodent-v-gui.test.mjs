@@ -4,6 +4,118 @@ import { chromium } from 'playwright';
 import { startServer } from './maia-elo/serve.mjs';
 import { buildUserscript } from './elo-tool/userscriptHarness.mjs';
 
+for(const { advanced, depth, limitedAdvanced } of [
+    { advanced: true, depth: 1 }, { advanced: false, depth: 1 },
+    { advanced: true, depth: 100, limitedAdvanced: true }
+]) {
+test(`Rodent ${limitedAdvanced ? 'Advanced Elo node limit waits despite depth 100' : advanced
+    ? 'depth 1 waits for final suggestions' : 'Elo 1000 waits for final suggestions and 3200 streams'}`, { timeout: 60000 }, async () => {
+    const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
+    const browser = await chromium.launch();
+    const context = await browser.newContext();
+    try {
+        await context.routeWebSocket('ws://localhost:2800/', socket => socket.onMessage(() => {}));
+        await context.addInitScript(({ advanced, depth, limitedAdvanced }) => {
+            localStorage.setItem('gm:isTosAccepted', 'true');
+            localStorage.setItem('gm:AcasConfig', JSON.stringify({ global: {
+                chessEngineProfile: 'default', profiles: { default: {
+                    engineEnabled: true, chessEngine: 'rodent-v', enableAdvancedElo: advanced, engineElo: 1000,
+                    advancedEloDepth: depth, engineNodes: 0, onlyShowTopMoves: true, maxMovetime: 0,
+                    onlyCalculateOwnTurn: false, displayMovesOnExternalSite: true,
+                    moveSuggestionAmount: limitedAdvanced ? 2 : 1, 'DYNAMIC_rodent-v_MultiPV': limitedAdvanced ? 2 : 1,
+                    ...(limitedAdvanced ? {
+                        'DYNAMIC_rodent-v_UCI_LimitStrength': true, 'DYNAMIC_rodent-v_UCI_Elo': 2000
+                    } : {})
+                } }
+            } }));
+        }, { advanced, depth, limitedAdvanced });
+        const gui = await context.newPage(), boardPage = await context.newPage();
+        const userscript = (await buildUserscript())
+            .replace("'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' }",
+                `'hosts': { 'prod': '${new URL(url).host}', 'dev': '${new URL(url).host}' }`)
+            .replace("'path': '/A.C.A.S/'", "'path': '/app/'");
+        await gui.addInitScript(userscript);
+        await gui.goto(`${url}/app/`);
+        await boardPage.route('**/rodent-depth-board', route => route.fulfill({ contentType: 'text/html', body: `
+            <div id="mount"></div><script type="module">
+            import { BoardSession } from '/tools/eloeye/boardSession.js';
+            import { Chess } from '/app/assets/engines/libraries/chessjs/chess.js';
+            window.board = new BoardSession(document.getElementById('mount'));
+            window.chess = new Chess();
+            window.board.setPosition({ fen: chess.fen(), turn: 'w' });
+            </script>` }));
+        await boardPage.goto(`${url}/rodent-depth-board`);
+        await gui.waitForFunction(() => AcasInstances?.[0]?.instance?.pV.default?.engineSettingsReady, null, { timeout: 30000 });
+        await boardPage.waitForFunction(() => board.hints?.moves?.length, null, { timeout: 30000 });
+        await gui.evaluate(() => {
+            const instance = AcasInstances[0].instance;
+            window.depthTrace = [];
+            const display = instance.displayMoves;
+            instance.displayMoves = function(moves, ...args) {
+                depthTrace.push({ type: 'display', fen: this.currentFen, moves: moves.map(move => move.playerUci),
+                    calculating: this.isEngineCalculating('default') });
+                return display.call(this, moves, ...args);
+            };
+            const engine = instance.getEngineAcasObj('default');
+            const send = engine.sendMsg;
+            engine.sendMsg = function(line, ...args) {
+                depthTrace.push({ type: 'command', line });
+                return send.call(this, line, ...args);
+            };
+            engine.worker.addEventListener('message', ({ data }) => depthTrace.push({ type: 'output', line: data }));
+        });
+        for(const move of ['e4', 'e5', 'Nf3', 'Nc6']) {
+            await gui.evaluate(() => { depthTrace.length = 0; });
+            const fen = await boardPage.evaluate(move => {
+                chess.move(move);
+                const fen = chess.fen();
+                board.setPosition({ fen, turn: chess.turn() });
+                return fen;
+            }, move);
+            await gui.waitForFunction(fen => depthTrace.some(entry => entry.type === 'display' && entry.fen === fen), fen);
+            await gui.waitForFunction(() => !AcasInstances[0].instance.isEngineCalculating('default'));
+            const trace = await gui.evaluate(() => depthTrace);
+            assert.deepEqual(trace.filter(entry => entry.type === 'command' && entry.line.startsWith('go ')).map(entry => entry.line),
+                [`go depth ${advanced ? depth : 100}`], JSON.stringify(trace));
+            const info = trace.filter(entry => entry.type === 'output' && /^info depth /.test(entry.line));
+            assert.ok(info.length > 0, JSON.stringify(trace));
+            if(advanced && depth === 1) assert.ok(info.every(entry => /^info depth 1 /.test(entry.line)), JSON.stringify(trace));
+            if(limitedAdvanced) assert.ok(trace.some(entry => entry.type === 'output'
+                && entry.line === 'info string search limited to 10200 nodes'), JSON.stringify(trace));
+            const displays = trace.filter(entry => entry.type === 'display');
+            assert.equal(displays.length, 1, JSON.stringify(trace));
+            assert.equal(displays[0].calculating, false, JSON.stringify(trace));
+            const bestmove = trace.find(entry => entry.type === 'output' && /^bestmove /.test(entry.line));
+            assert.ok(bestmove, JSON.stringify(trace));
+            assert.equal(displays[0].moves[0], bestmove.line.split(' ')[1], JSON.stringify(trace));
+        }
+        if(!advanced) {
+            await gui.evaluate(() => {
+                const input = document.querySelector('input[data-key="engineElo"]');
+                input.value = '3200';
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            await gui.waitForFunction(() => AcasInstances[0].instance.pV.default.appliedSettings.engineElo === 3200);
+            await gui.evaluate(() => { depthTrace.length = 0; });
+            await boardPage.evaluate(() => {
+                chess.move('Bb5');
+                board.setPosition({ fen: chess.fen(), turn: chess.turn() });
+            });
+            await gui.waitForFunction(() => depthTrace.some(entry => entry.type === 'display' && entry.calculating));
+            const trace = await gui.evaluate(() => depthTrace);
+            assert.ok(trace.some(entry => entry.type === 'command' && entry.line === 'go depth 100'));
+            assert.ok(!trace.some(entry => entry.type === 'output' && /^bestmove /.test(entry.line)));
+            await gui.evaluate(() => AcasInstances[0].instance.engineStopCalculating('default', 'Test finished'));
+            await gui.waitForFunction(() => !AcasInstances[0].instance.isEngineCalculating('default'));
+        }
+    } finally {
+        await context.close();
+        await browser.close();
+        await new Promise(resolve => server.close(resolve));
+    }
+});
+}
+
 test('Rodent works through the app in basic and advanced modes, including saved personalities', { timeout: 120000 }, async () => {
     const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
     const browser = await chromium.launch();
