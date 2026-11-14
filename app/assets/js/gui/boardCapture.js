@@ -20,7 +20,7 @@ export async function captureBoardLayers(instanceId, outputSize, boardElement = 
     if(boardElement) return { boardCanvas, overlayCanvas: null };
 
     const boardDrawerSvg = document.querySelector(
-        `#board-drawings svg${instanceId ? `[data-instance-id="${instanceId}"]` : ''}`
+        `#board-drawings svg${instanceId ? `[data-instance-id="${CSS.escape(String(instanceId))}"]` : ''}`
     );
     if(!boardDrawerSvg) return { boardCanvas, overlayCanvas: null };
 

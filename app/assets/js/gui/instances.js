@@ -54,10 +54,18 @@ export function addInstanceToSettingsDropdown(instanceID, domain, chessVariant, 
         dropmenuItem.classList.add('dropdown-item');
         dropmenuItem.dataset.instanceId = instanceID;
         dropmenuItem.dataset.domain = domain;
-        dropmenuItem.innerHTML = `
-        <div class="dropdown-item-title">${chessVariant} (${domain})</div>
-        <div class="dropdown-item-subtitle">${instanceID}</div>
-        `;
+
+    // Domain, variant and instance ID originate outside the GUI. Build text
+    // nodes instead of interpolating them into markup.
+    const titleElem = document.createElement('div');
+        titleElem.classList.add('dropdown-item-title');
+        titleElem.innerText = `${chessVariant} (${domain})`;
+
+    const subtitleElem = document.createElement('div');
+        subtitleElem.classList.add('dropdown-item-subtitle');
+        subtitleElem.innerText = instanceID;
+
+    dropmenuItem.append(titleElem, subtitleElem);
 
     const highlightedElem = instanceElem.querySelector('.highlight-indicator');
 
@@ -106,7 +114,7 @@ export function monitorInstances() {
         }
 
         const isUserOnNotExistingInstanceTab = SETTING_FILTER_OBJ?.instanceID
-            && !document.querySelector(`.acas-instance[data-instance-id="${SETTING_FILTER_OBJ?.instanceID}"]`);
+            && !document.querySelector(`.acas-instance[data-instance-id="${CSS.escape(String(SETTING_FILTER_OBJ?.instanceID))}"]`);
         
         if(isUserOnNotExistingInstanceTab) {
             toggleSelectedNavbarItem(settingsNavbarGlobalElem);

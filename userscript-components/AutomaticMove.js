@@ -41,8 +41,14 @@ class AutomaticMove {
 
         this.active = true;
         this.isPromotingPawn = false;
+        this.finished = false;
 
         this.onFinished = function(...args) {
+            // A pending delay can resolve after stop() already finished the move.
+            if(this.finished) return;
+
+            this.finished = true;
+
             AutomaticMove.actives = AutomaticMove.actives.filter(x => x.id !== this.id); // remove the move from the active automove list
 
             this.active = false;
@@ -262,18 +268,24 @@ class AutomaticMove {
             const rect = input.getBoundingClientRect();
             clientX = rect.left + rect.width / 2;
             clientY = rect.top + rect.height / 2;
-        } else if (typeof input === 'object') {
+        } else if(input && typeof input === 'object') {
             clientX = input[0];
             clientY = input[1];
         } else {
             return;
         }
 
+        if(!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
+            return;
+        }
+
         const xDivider = Math.random() < 0.85 ? 4 : Math.random() < 0.15 ? 3 : 2;
         const yDivider = Math.random() < 0.65 ? 3 : Math.random() < 0.35 ? 2 : 4;
 
-        const randomVariationX = (this.lastPieceSize?.width - 4) / xDivider;
-        const randomVariationY = (this.lastPieceSize?.height - 4) / yDivider;
+        const pieceWidth = Number(this.lastPieceSize?.width);
+        const pieceHeight = Number(this.lastPieceSize?.height);
+        const randomVariationX = Number.isFinite(pieceWidth) ? (pieceWidth - 4) / xDivider : 0;
+        const randomVariationY = Number.isFinite(pieceHeight) ? (pieceHeight - 4) / yDivider : 0;
 
         const randomOffsetX = (Math.random() - 0.5) * 2 * randomVariationX;
         const randomOffsetY = (Math.pow(Math.random(), 0.5) - 0.5) * 2 * randomVariationY;
@@ -287,10 +299,6 @@ class AutomaticMove {
             clientX: randomizedX,
             clientY: randomizedY,
         };
-
-        if(!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
-            return;
-        }
 
         const elementToTrigger = (input instanceof Element)
             ? input
@@ -355,7 +363,7 @@ class AutomaticMove {
     }
 
     click(domCoord) {
-        if(this.active)
+        if(this.active && domCoord)
             this.triggerPieceClick(domCoord);
     }
 

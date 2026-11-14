@@ -80,7 +80,8 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
         // Keep the instance in sync, it still held the 8x8 default otherwise
         this.boardDimensions = boardDimensions;
 
-        const instanceIdQuery = `[data-instance-id="${this.instanceID}"]`;
+        const escapedInstanceID = CSS.escape(String(this.instanceID));
+        const instanceIdQuery = `[data-instance-id="${escapedInstanceID}"]`;
 
         this.currentFen = fen;
 
@@ -125,7 +126,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
                     <div class="instance-domain" title="${TRANS_OBJ?.instanceDomain ?? 'Instance Domain'}"></div>
                     <div class="instance-buttons">
                         <div class="instance-fen-btn acas-fancy-button">${TRANS_OBJ?.showFenBtn ?? 'Show FEN'}</div>
-                        <div class="instance-pgn-btn acas-fancy-button">${(TRANS_OBJ?.showFenBtn.replace('FEN', 'PGN')) ?? 'Show PGN'}</div>
+                        <div class="instance-pgn-btn acas-fancy-button">${(TRANS_OBJ?.showFenBtn?.replace('FEN', 'PGN')) ?? 'Show PGN'}</div>
                     </div>
                     <div class="instance-information">
                         <div class="instance-fen hidden" title="${TRANS_OBJ?.instanceFen ?? 'Instance Fen'}"></div>
@@ -176,9 +177,9 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
             const didHide = [...instancePgnElem.classList].includes('hidden');
 
             if(didHide) {
-                showPgnBtn.innerText = TRANS_OBJ?.showFenBtn.replace('FEN', 'PGN') ?? 'Show PGN';
+                showPgnBtn.innerText = TRANS_OBJ?.showFenBtn?.replace('FEN', 'PGN') ?? 'Show PGN';
             } else {
-                showPgnBtn.innerText = TRANS_OBJ?.hideFenBtn.replace('FEN', 'PGN') ?? 'Hide PGN';
+                showPgnBtn.innerText = TRANS_OBJ?.hideFenBtn?.replace('FEN', 'PGN') ?? 'Hide PGN';
                 this.Interface.updatePgn().catch(error => console.warn('[PGN] Could not update game record:', error));
             }
         }
@@ -193,7 +194,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
         const settingsBtnElem = this.instanceElem.querySelector('.instance-settings-btn');
 
         settingsBtnElem.onclick = () => {
-            document.querySelector(`.dropdown-item[data-instance-id="${this.instanceID}"]`)?.click();
+            document.querySelector(`.dropdown-item[data-instance-id="${escapedInstanceID}"]`)?.click();
             
             const highlightIndicator = settingsContainerElem.querySelector('.highlight-indicator');
 
@@ -261,7 +262,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
         this.Interface.updateBoardOrientation(orientation);
         
         if(oldInstanceElem) {
-            const instanceItem = document.querySelector(`.dropdown-item[data-instance-id="${this.instanceID}"]`);
+            const instanceItem = document.querySelector(`.dropdown-item[data-instance-id="${escapedInstanceID}"]`);
             const itemTitle = instanceItem?.querySelector('.dropdown-item-title');
             const highlight = this.instanceElem.querySelector('.highlight-indicator');
 
