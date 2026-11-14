@@ -52,6 +52,15 @@ export function initializePreparation({ request, onReset, onDataset, onBusy }) {
         $('#data-options').hidden = false;
         onReset();
     }
+
+    // A dataset without both splits cannot train and used to replace good saved
+    // games before the trainer finally rejected it.
+    function ensureTrainableDataset(dataset) {
+        if(dataset?.train?.samples?.length && dataset?.validation?.samples?.length) return;
+        if(!dataset?.train?.samples?.length)
+            throw new Error('No positions were prepared. Check the position limit and that the selected player has games.');
+        throw new Error('No validation positions were prepared. The selected player needs at least two different games.');
+    }
     async function prepare() {
         if(!parsed || !$('#player').value) return;
         onReset();
@@ -63,7 +72,9 @@ export function initializePreparation({ request, onReset, onDataset, onBusy }) {
                 maxPositions: Number($('#positions').value), skipFirstPlies: Number($('#skip-plies').value),
                 validationFraction: Number($('#validation').value), seed: 42, maxPerGame: 200
             } }, progress);
-            await onDataset({ ...result.dataset, importIdentity });
+            const dataset = { ...result.dataset, importIdentity };
+            ensureTrainableDataset(dataset);
+            await onDataset(dataset);
             status(warnings ? `Games ready. ${warnings} entries were skipped. See the browser console.` : 'Games ready.');
         } catch(error) { status(error.message, true); }
         finally { setBusy(false); }
@@ -93,7 +104,9 @@ export function initializePreparation({ request, onReset, onDataset, onBusy }) {
                 status('Checking saved positions and game separation...');
                 const result = await request({ type: 'validate', dataset: inputs[0].dataset }, progress);
                 $('#data-options').hidden = true;
-                await onDataset({ ...result.dataset, importIdentity });
+                const dataset = { ...result.dataset, importIdentity };
+                ensureTrainableDataset(dataset);
+                await onDataset(dataset);
                 status('Games ready.');
                 return;
             }

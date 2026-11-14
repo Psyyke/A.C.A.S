@@ -1042,7 +1042,7 @@ export default class AcasInstance {
     }
 
     getEngineAcasObj(i) {
-        if(typeof i === 'object') {
+        if(typeof i === 'object' && i !== null) {
             return this.engines.find(obj => obj.profileName === i.name);
         }
 
@@ -1050,20 +1050,18 @@ export default class AcasInstance {
             return this.engines.find(obj => obj.profileName === i);
         }
 
-        return this.engines[i ? i : this.engines.length - 1];
+        return this.engines[typeof i === 'number' ? i : this.engines.length - 1];
     }
 
     getProfileName(i) {
         if(typeof i === 'string') return i;
 
-        const keys = Object.keys(this.engines);
-
         if(typeof i === 'object' && i !== null) {
-            return keys.find(key => key === i.name) || i.name;
+            return i.name ?? this.engines[this.engines.length - 1]?.profileName ?? 'engine';
         }
 
-        const index = (typeof i === 'number') ? i : keys.length - 1;
-        return keys[index] || 'engine';
+        const index = (typeof i === 'number') ? i : this.engines.length - 1;
+        return this.engines[index]?.profileName ?? 'engine';
     }
 
     contactEngine(method, args, i) {

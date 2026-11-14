@@ -105,9 +105,13 @@ class AcasWebSocketClient {
 
     async send(data, isCurrent = () => true) {
         if(!isCurrent()) return false;
-        if(!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+
+        let socket = this.socket;
+
+        if(!socket || socket.readyState !== WebSocket.OPEN) {
             console.warn("Connection missing. Attempting quick reconnect...");
             this.connect();
+            socket = this.socket;
 
             try {
                 await this._waitForOpen(2000);
@@ -118,8 +122,19 @@ class AcasWebSocketClient {
         }
 
         if(!isCurrent()) return false;
+
+        // The socket can be closed or replaced while the reconnect is pending.
+        if(!socket || this.socket !== socket || socket.readyState !== WebSocket.OPEN) return false;
+
         const message = typeof data === 'object' ? JSON.stringify(data) : data;
-        this.socket.send(message);
+
+        try {
+            socket.send(message);
+        } catch(error) {
+            console.error("Could not send the message to the server:", error);
+            return false;
+        }
+
         this._emit('sent', data);
         return true;
     }

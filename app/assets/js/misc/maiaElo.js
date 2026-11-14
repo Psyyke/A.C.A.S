@@ -58,7 +58,11 @@ function pump() {
     if(!worker) {
         queue.splice(0).forEach(job => {
             logProbCache.set(job.key, null);
+            const listenerKeys = waiting.get(job.key);
             waiting.delete(job.key);
+            // Settle waiters even though no rating will arrive, otherwise their
+            // loading state and callbacks stay pending forever.
+            if(listenerKeys) notifyListeners(listenerKeys);
         });
         return;
     }

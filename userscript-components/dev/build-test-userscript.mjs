@@ -26,10 +26,12 @@ function replaceOnce(search, replacement, what) {
     code = code.slice(0, index) + replacement + code.slice(index + search.length);
 }
 
-function replaceAll(regex, replacement, what) {
+function replaceAll(regex, replacement, what, { required = true } = {}) {
     const count = code.match(regex)?.length || 0;
 
-    if(!count) throw new Error(`No matches for "${what}", update the build script`);
+    // Optional patterns document a convention that may legitimately disappear
+    // from the source; required ones still catch drift in the build script.
+    if(required && !count) throw new Error(`No matches for "${what}", update the build script`);
 
     code = code.replace(regex, replacement);
 
@@ -63,7 +65,7 @@ replaceOnce('(async () => { try { await LOAD_LEGACY_GM_SUPPORT();',
     '(async () => { try { await LOAD_LEGACY_GM_SUPPORT();\n' + debugHelpers, 'script body start');
 
 const swallowedCatches = replaceAll(/catch\s*\((\w+)\)\s*\{\s*\}/g, 'catch($1) { __acasDebug.error($1) }', 'empty catch blocks')
-    + replaceAll(/\.catch\(\(\)\s*=>\s*\{\s*\}\)/g, '.catch(e => __acasDebug.error(e))', 'empty promise catches')
+    + replaceAll(/\.catch\(\(\)\s*=>\s*\{\s*\}\)/g, '.catch(e => __acasDebug.error(e))', 'empty promise catches', { required: false })
     + replaceAll(/if\(debugModeActivated\) console\.error\(e\);/g, '__acasDebug.error(e);', 'debug-only error logs');
 
 replaceOnce(`    } catch(e) {

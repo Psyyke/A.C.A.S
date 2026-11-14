@@ -185,7 +185,7 @@ function revealedMoves(frame, chess) {
 
 // Give the opening a shorter deadline so an unavailable GUI/profile is reported promptly.
 async function acasMove(frame, chess, signal, selectionWeights = defaultSelectionWeights, onFallback = () => {}) {
-    const timeout = chess.history().length <= 1 ? timings.openingTimeoutMs : timings.moveTimeoutMs;
+    const timeout = (frame.history?.length ?? 0) <= 2 ? timings.openingTimeoutMs : timings.moveTimeoutMs;
     const deadline = Date.now() + timeout;
     let sawUnsafeMoves = false;
     const hasApprovedMove = () => {
