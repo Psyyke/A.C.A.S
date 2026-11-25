@@ -288,18 +288,19 @@ function* gameSamples(game, target, config, gameIndex) {
     }
 }
 
-function spreadSamples(samples, limit, offset) {
+function spreadSamples(samples, limit, offset, rotate) {
     if(samples.length <= limit) return samples;
     if(!limit) return [];
-    if(limit === 1) return [samples[Math.floor(offset * samples.length)]];
+    if(limit === 1) return [samples[rotate ? Math.floor(offset * samples.length) : 0]];
     const opening = samples.filter(sample => sample.ply < 24), later = samples.filter(sample => sample.ply >= 24);
     let early = Math.min(opening.length, Math.max(1, Math.round(limit * 0.3)));
     const late = Math.min(later.length, limit - early);
     early = Math.min(opening.length, limit - late);
-    const pick = (pool, count) => Array.from({ length: count }, (_, i) =>
-        pool[count === 1 ? Math.floor(offset * pool.length) : Math.round(i * (pool.length - 1) / (count - 1))]);
-    const selected = [...pick(opening, early), ...pick(later, late)].sort((a, b) => a.ply - b.ply);
-    const start = Math.floor(offset * selected.length);
+    const pick = (pool, count, firstSlotAtStart = false) => Array.from({ length: count }, (_, i) =>
+        pool[count === 1 ? (firstSlotAtStart ? 0 : Math.floor(offset * pool.length))
+            : Math.round(i * (pool.length - 1) / (count - 1))]);
+    const selected = [...pick(opening, early, true), ...pick(later, late)].sort((a, b) => a.ply - b.ply);
+    const start = rotate ? Math.floor(offset * selected.length) : 0;
     return [...selected.slice(start), ...selected.slice(0, start)];
 }
 
@@ -379,9 +380,10 @@ export function buildDataset(games, player, options = {}, onProgress) {
         let active = partitions[partition].map((game, index) => {
             const pool = [...gameSamples(game, target, config, index)];
             const offset = ((parseInt(game.id.slice(-8), 16) ^ config.seed) >>> 0) / 0x100000000;
-            const first = spreadSamples(pool, Math.min(config.maxPerGame, quota), offset);
+            const rotate = partitions[partition].length > 1;
+            const first = spreadSamples(pool, Math.min(config.maxPerGame, quota), offset, rotate);
             const chosen = new Set(first.map(sample => sample.ply));
-            const rest = spreadSamples(pool.filter(sample => !chosen.has(sample.ply)), config.maxPerGame - first.length, offset);
+            const rest = spreadSamples(pool.filter(sample => !chosen.has(sample.ply)), config.maxPerGame - first.length, offset, rotate);
             onProgress?.(games.length + ++sampled, games.length + selected.length);
             return [...first, ...rest][Symbol.iterator]();
         });

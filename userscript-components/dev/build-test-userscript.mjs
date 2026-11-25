@@ -64,7 +64,10 @@ replaceOnce('(async () => { try { await LOAD_LEGACY_GM_SUPPORT();',
 
 const swallowedCatches = replaceAll(/catch\s*\((\w+)\)\s*\{\s*\}/g, 'catch($1) { __acasDebug.error($1) }', 'empty catch blocks')
     + replaceAll(/\.catch\(\(\)\s*=>\s*\{\s*\}\)/g, '.catch(e => __acasDebug.error(e))', 'empty promise catches', true)
-    + replaceAll(/if\(debugModeActivated\) console\.error\(e\);/g, '__acasDebug.error(e);', 'debug-only error logs');
+    + replaceAll(/if\(debugModeActivated\) console\.error\(e\);/g, '__acasDebug.error(e);', 'debug-only error logs', true);
+
+replaceOnce('function recordDevTaskError(error) {\n',
+    "function recordDevTaskError(error) {\n    __acasDebug.error(error, 'userscript task');\n", 'task error handler');
 
 replaceOnce(`    } catch(e) {
         return null;
@@ -75,7 +78,9 @@ replaceOnce(`    } catch(e) {
     }
 });`, 'frontend CommLink listener catch');
 
-replaceOnce('    //console.warn(e);', "    console.error('[A.C.A.S debug] userscript crashed', e);", 'top-level catch');
+replaceOnce('} catch(e) { // Attempt to catch all errors on userscript',
+    "} catch(e) { console.error('[A.C.A.S debug] userscript crashed', e); // Attempt to catch all errors on userscript",
+    'top-level catch');
 
 const instrumentation = `
 // ---- DEBUG BUILD instrumentation: inspect window.ACAS_DEBUG in the console ----

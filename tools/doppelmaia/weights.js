@@ -90,7 +90,8 @@ export async function unpackWeights(buffer) {
         bytes = join(parts);
     }
     const magic = get(bytes, 1);
-    if(!(magic instanceof Uint8Array) || new DataView(magic.buffer, magic.byteOffset, 4).getUint32(0, true) !== 0x1c0)
+    if(!(magic instanceof Uint8Array) || magic.byteLength < 4
+        || new DataView(magic.buffer, magic.byteOffset, 4).getUint32(0, true) !== 0x1c0)
         throw new Error('This is not an Lc0 weights file.');
     return bytes;
 }

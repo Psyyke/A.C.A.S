@@ -27,8 +27,10 @@ function harness(external = {}, timers = { setTimeout, clearTimeout }, navigator
     class Socket {
         static CONNECTING = 0;
         static OPEN = 1;
-        constructor() { this.readyState = 0; this.bufferedAmount = 0; this.messages = []; sockets.push(this); }
-        open() { this.readyState = 1; this.onopen(); }
+        constructor() { this.readyState = 0; this.bufferedAmount = 0; this.messages = []; this.listeners = new Map(); sockets.push(this); }
+        addEventListener(type, callback) { this.listeners.set(type, callback); }
+        removeEventListener(type, callback) { if(this.listeners.get(type) === callback) this.listeners.delete(type); }
+        open() { this.readyState = 1; this.onopen(); this.listeners.get('open')?.(); }
         status(supported, message = 'Screen overlay available.', error, offsets = true) {
             this.onmessage({ data: JSON.stringify({ type: 'screenOverlayStatus', msg: { supported, message, error, offsets } }) });
         }
@@ -55,7 +57,7 @@ function harness(external = {}, timers = { setTimeout, clearTimeout }, navigator
         console: { warn: (...args) => logs.push(args), error: (...args) => logs.push(args) }, TextEncoder,
         setTimeout: timers.setTimeout, clearTimeout: timers.clearTimeout, queueMicrotask
     };
-    vm.runInNewContext(`${source}\nglobalThis.api = { sendScreenOverlay, clearScreenOverlay, connectAcasToServer, disconnectAcasFromServer };`, context);
+    vm.runInNewContext(`${source}\nglobalThis.api = { AcasWebSocketClient, sendScreenOverlay, clearScreenOverlay, connectAcasToServer, disconnectAcasFromServer };`, context);
     return { ghost, overlay, offsetX, offsetY, status, title, subtitle, sockets, logs, api: context.api,
         translate(translations, configTranslations) {
             context.TRANS_OBJ = translations;
@@ -63,6 +65,28 @@ function harness(external = {}, timers = { setTimeout, clearTimeout }, navigator
             documentListeners.get('acas-translations-updated')();
         } };
 }
+
+test('send rejects replaced sockets and catches a close race without reporting success', async () => {
+    const h = harness();
+    const events = [];
+    const client = new h.api.AcasWebSocketClient(type => events.push(type));
+    const pending = client.send({ type: 'first' });
+    const old = h.sockets[0];
+    old.open();
+    client.socket = null;
+    client.connect();
+    assert.equal(await pending, false);
+    assert.equal(old.messages.some(message => message.type === 'first'), false);
+
+    const current = h.sockets[1];
+    current.open();
+    current.send = () => { throw new Error('closed while sending'); };
+    const before = events.filter(type => type === 'sent').length;
+    assert.equal(await client.send({ type: 'second' }), false);
+    assert.equal(events.filter(type => type === 'sent').length, before);
+    assert.match(String(h.logs.at(-1)[0]), /Could not send/);
+    client.disconnect();
+});
 
 test('desktop offsets track Draw on screen, including restored values', () => {
     const h = harness();

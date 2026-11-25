@@ -4,6 +4,21 @@ import { Chess } from '../app/assets/engines/libraries/chessjs/chess.js';
 import { enginePosition } from '../app/assets/js/instance/enginePosition.js';
 import { readFileSync } from 'node:fs';
 
+test('engine lookup uses actual profile names and accepts index zero', () => {
+    const source = readFileSync(new URL('../app/assets/js/AcasInstance.js', import.meta.url), 'utf8');
+    const start = source.indexOf('    getEngineAcasObj(i) {');
+    const end = source.indexOf('    contactEngine(', start);
+    assert.ok(start >= 0 && end > start);
+    const EngineLookup = new Function(`return class {${source.slice(start, end)}};`)();
+    const methods = new EngineLookup();
+    methods.engines = [{ profileName: 'first' }, { profileName: 'second' }];
+    assert.equal(methods.getEngineAcasObj(0).profileName, 'first');
+    assert.equal(methods.getEngineAcasObj(null).profileName, 'second');
+    assert.equal(methods.getProfileName(0), 'first');
+    assert.equal(methods.getProfileName(1), 'second');
+    assert.equal(methods.getProfileName({ name: 'first' }), 'first');
+});
+
 function game(moves, fen) {
     const chess = new Chess(fen);
     const history = [{ fen: { full: chess.fen() } }];

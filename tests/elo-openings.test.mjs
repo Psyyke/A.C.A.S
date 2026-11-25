@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { buildOpenings, openingCount } from '../tools/eloeye/openings.js';
+import { buildOpenings, loadOpenings, openingCount } from '../tools/eloeye/openings.js';
 import { planBatch, batchSizeForBoards, automaticRun } from '../tools/eloeye/eloPolicy.js';
 import { Chess } from '../app/assets/engines/libraries/chessjs/chess.js';
 
@@ -50,4 +50,18 @@ test('every board count uses each opening exactly twice with swapped colors thro
 
 test('insufficient opening data fails explicitly rather than repeating positions', () => {
     assert.throws(() => buildOpenings([]), /Not enough/);
+});
+
+test('opening load retries after a transient fetch failure', async () => {
+    const original = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = async () => {
+        calls++;
+        return calls === 1 ? { ok: false, status: 503 } : { ok: true, json: async () => records };
+    };
+    try {
+        await assert.rejects(loadOpenings(), /503/);
+        assert.equal((await loadOpenings()).length, openingCount);
+        assert.equal(calls, 2);
+    } finally { globalThis.fetch = original; }
 });

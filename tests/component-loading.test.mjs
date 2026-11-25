@@ -106,4 +106,13 @@ test('debug builder preserves production @requires even when no empty promise ca
     assert.deepEqual(requires(debug), requires(source));
     assert.equal(debug.includes('function getMissedFen('), source.includes('function getMissedFen('));
     assert.doesNotThrow(() => new Function(debug));
+    const start = debug.indexOf('function recordDevTaskError(error) {');
+    const end = debug.indexOf('\n}', start) + 2;
+    assert.ok(start >= 0 && end > start);
+    const reported = [];
+    const record = new Function('__acasDebug', 'runningOnDevPage', 'devTaskErrors',
+        `${debug.slice(start, end)}\nreturn recordDevTaskError;`)(
+        { error: (error, where) => reported.push([error.message, where]) }, false, []);
+    record(new Error('task failed'));
+    assert.deepEqual(reported, [['task failed', 'userscript task']]);
 });

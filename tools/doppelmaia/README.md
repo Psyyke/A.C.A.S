@@ -85,6 +85,8 @@ One page, two local steps at `tools/doppelmaia/`:
 The old `tools/chess-training-data/` URL redirects to the preparation section.
 Reusable data is an optional shortcut,
 not a second kind of chess game that a new user needs to understand.
+Training needs positions in both the training and validation splits. If an
+import cannot provide both, it will not replace your saved games.
 
 The existing `tools/leela2onnx/` remains the separate inference-format converter.
 There is deliberately no generic Python checkpoint converter. PyTorch pickles,

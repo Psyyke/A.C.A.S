@@ -68,6 +68,29 @@ test('processed games restore without worker processing and can be cleared', { t
         assert.equal(await page.locator('#data-options').isVisible(), false);
         assert.deepEqual(await page.evaluate(async () => (await (await import('./storage.js')).loadPreparedGames()).dataset), original);
 
+        await page.locator('#games').setInputFiles({ name: 'games.pgn', mimeType: 'text/plain', buffer: Buffer.from(pgn) });
+        await page.waitForFunction(() => !document.querySelector('#start').disabled
+            && !document.querySelector('#data-options').hidden);
+        await page.locator('#positions').evaluate(input => {
+            input.value = '';
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        await page.waitForFunction(() => document.querySelector('#positions').validity.valueMissing
+            && document.querySelector('#start').disabled);
+        assert.deepEqual(await page.evaluate(async () => (await (await import('./storage.js')).loadPreparedGames()).dataset), original);
+
+        const incomplete = { ...original, validation: { ...original.validation, samples: [] } };
+        await page.locator('#games').setInputFiles({
+            name: 'incomplete.json', mimeType: 'application/json',
+            buffer: Buffer.from(JSON.stringify(incomplete))
+        });
+        await page.locator('#prep-status[data-error="true"]').waitFor();
+        assert.match(await page.locator('#prep-status').textContent(), /No validation positions/);
+        assert.deepEqual(await page.evaluate(async () => (await (await import('./storage.js')).loadPreparedGames()).dataset), original);
+        await page.evaluate(() => localStorage.removeItem('acas-doppelmaia-settings-v1'));
+        await page.reload();
+        await page.waitForFunction(() => !document.querySelector('#start').disabled);
+
         await page.locator('#clear-data').click();
         await page.waitForFunction(() => document.querySelector('#saved-data-status').textContent.startsWith('No games saved'));
         assert.equal(await page.locator('#start').isDisabled(), false);
@@ -88,6 +111,7 @@ test('processed games restore without worker processing and can be cleared', { t
         });
         await page.waitForFunction(() => !document.querySelector('#start').disabled);
         assert.match(await page.locator('#saved-data-status').textContent(), /Could not save.*Storage quota/);
+        await page.waitForFunction(() => document.querySelector('#maia3-elo').value === '1800');
         assert.equal(await page.locator('#maia3-elo').inputValue(), '1800');
         assert.deepEqual(await page.evaluate(() => window.dataRequests), ['validate']);
         await page.reload();

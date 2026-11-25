@@ -137,7 +137,7 @@ function refreshSettingShortcuts(event) {
 
         if(contexts.length > 1 && line) {
             const states = contexts.map(({ instanceID, context }, index) => ({
-                instanceName: document.querySelector(`.dropdown-item[data-instance-id="${instanceID}"] .dropdown-item-title`)?.textContent || `${text('instance', 'Instance')} ${index + 1}`,
+                instanceName: document.querySelector(`.dropdown-item[data-instance-id="${CSS.escape(String(instanceID))}"] .dropdown-item-title`)?.textContent || `${text('instance', 'Instance')} ${index + 1}`,
                 state: describeDynamicSetting(core, base, line.curve, context, settingName) }));
             state.overridden = states.some(item => item.state.overridden);
             state.displayValue = states.map(item => `${item.instanceName}: ${item.state.displayValue}`).join(' · ');
@@ -646,7 +646,7 @@ function displayLineValue(line) {
     const contexts = previewContexts();
     const base = settingBase(line.profile, line.key);
     return contexts.length ? contexts.map(({ instanceID, context }, index) => {
-        const instanceName = document.querySelector(`.dropdown-item[data-instance-id="${instanceID}"] .dropdown-item-title`)?.textContent || `${text('instance', 'Instance')} ${index + 1}`;
+        const instanceName = document.querySelector(`.dropdown-item[data-instance-id="${CSS.escape(String(instanceID))}"] .dropdown-item-title`)?.textContent || `${text('instance', 'Instance')} ${index + 1}`;
         return `${contexts.length > 1 ? instanceName + ': ' : ''}${formatSettingValue(GET_HUMAN_READABLE_PROFILE_NAME(core.resolveValue(base, line.curve, context)))}`;
     }).join(' · ')
         : formatSettingValue(GET_HUMAN_READABLE_PROFILE_NAME(lineValue(line)));

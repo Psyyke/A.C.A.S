@@ -237,8 +237,10 @@ function updateMixUI() {
     $('mix-categories').hidden = !detailed;
     $('alternative-field').hidden = detailed;
     $('personality').hidden = $('mode').value !== 'auto';
-    const best = Math.round($('mix-best').valueAsNumber * 10) / 10;
-    $('mix-summary').textContent = `${best}% best, ${Math.round((100 - best) * 10) / 10}% ${detailed ? 'custom alternatives' : 'alternatives'}`;
+    const value = $('mix-best').valueAsNumber;
+    const best = Number.isFinite(value) ? Math.round(value * 10) / 10 : null;
+    $('mix-summary').textContent = best === null ? 'Enter a best percentage'
+        : `${best}% best, ${Math.round((100 - best) * 10) / 10}% ${detailed ? 'custom alternatives' : 'alternatives'}`;
 }
 
 function restoreSettings() {
@@ -618,7 +620,7 @@ for(const category of moveCategories) $(`mix-${category}`).addEventListener('inp
         updateMixUI();
         showError('');
         saveSettings();
-    } catch(error) { showError(error.message); }
+    } catch(error) { updateMixUI(); showError(error.message); }
 });
 
 $('mix-detailed').addEventListener('change', () => {

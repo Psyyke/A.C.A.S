@@ -33,7 +33,8 @@ function startWorker() {
             unavailable = true;
             worker?.terminate();
             worker = null;
-            settle(inFlight?.id, null);
+            if(inFlight) settle(inFlight.id, null);
+            else pump();
         };
     } catch(error) {
         console.warn('Could not start Maia live rating worker:', error);
@@ -58,7 +59,9 @@ function pump() {
     if(!worker) {
         queue.splice(0).forEach(job => {
             logProbCache.set(job.key, null);
+            const listenerKeys = waiting.get(job.key);
             waiting.delete(job.key);
+            if(listenerKeys) notifyListeners(listenerKeys);
         });
         return;
     }

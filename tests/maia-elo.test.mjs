@@ -24,6 +24,33 @@ test('findMove returns null when positions are not one move apart', () => {
     assert.equal(findMove(startFen, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1'), null);
 });
 
+test('unavailable rating workers settle queued listeners, including failure before ready', async () => {
+    const original = globalThis.Worker;
+    let worker;
+    class FailingWorker {
+        constructor() { worker = this; }
+        terminate() {}
+    }
+    globalThis.Worker = FailingWorker;
+    try {
+        const { estimateMaiaElo } = await import('../app/assets/js/misc/maiaElo.js?failure-before-ready');
+        const entries = Array.from({ length: 6 }, (_, index) => ({
+            fen: `8/8/8/8/8/8/8/8 w - - 0 ${5 + index}`, move: `a${index + 1}a${index + 2}`
+        }));
+        let updates = 0;
+        estimateMaiaElo(entries, () => { updates++; }, 'test');
+        worker.onerror(new Error('worker failed before ready'));
+        await new Promise(resolve => setTimeout(resolve, 300));
+        assert.equal(updates, 1);
+        assert.equal(estimateMaiaElo(entries, () => { updates++; }, 'test'), null);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        assert.equal(updates, 1);
+    } finally {
+        if(original === undefined) delete globalThis.Worker;
+        else globalThis.Worker = original;
+    }
+});
+
 test('posteriorElo recovers the likelihood peak when the data is informative', () => {
     const strong = totalsPeakingAt(8).map(value => value * 50);
     assert.ok(Math.abs(peakElo(strong) - maiaEloGrid[8]) < 1);

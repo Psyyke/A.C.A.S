@@ -14,7 +14,7 @@ import { isLc0Engine } from '../instance/lc0Engines.js';
 import { updateCustomBackgroundControls, setCustomBackgroundBlur } from './customBackground.js';
 import { maiaLearningWarning } from '../misc/feedbackText.js';
 
-const processedElems = [];
+const processedValues = new WeakMap();
 
 function updateSearchModeControls() {
     const enabled = advancedEloEnableInput.checked;
@@ -57,7 +57,7 @@ function setAdvancedEloCheckboxChecked(isChecked) {
 export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpdateLoop) { setTimeout(async () => {
     const value = getInputValue(inputElem);
     const valueExists = typeof value === 'boolean' || value;
-    const alreadyProcessed = processedElems.findLast(([elem]) => elem === inputElem)?.[1] === value;
+    const alreadyProcessed = processedValues.get(inputElem) === value;
 
     if(['learningMode', 'chessEngine', 'useExternalChessEngine'].includes(inputElem.dataset.key)) {
         const maiaLearning = learningModeInput?.checked && ['maia2', 'maia3'].includes(chessEngineInput?.value)
@@ -362,5 +362,5 @@ export function runSettingChangeObserver(inputElem, delayMs = 0, wasCalledByUpda
             break;
     }
 
-    processedElems.push([inputElem, value]);
+    processedValues.set(inputElem, value);
 }, delayMs); }

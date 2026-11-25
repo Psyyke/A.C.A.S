@@ -118,6 +118,17 @@ async function finishes(page, expectedGames) {
     assert.match(await page.locator('#match-status').textContent(), /\(\d+\/\d+\/\d+\)/);
 }
 
+test('clearing the best percentage keeps the summary readable and reports invalid input', { skip, timeout }, () => withTool(null, async (page, url) => {
+    await page.goto(`${url}/tools/eloeye/index.html?fast`, { waitUntil: 'domcontentloaded' });
+    await page.locator('#personality summary').click();
+    await page.locator('#mix-best').fill('');
+    assert.equal(await page.locator('#mix-summary').textContent(), 'Enter a best percentage');
+    assert.equal(await page.locator('#form-error').isVisible(), true);
+    await page.locator('#mix-best').fill('80');
+    assert.match(await page.locator('#mix-summary').textContent(), /^80% best/);
+    assert.equal(await page.locator('#form-error').isVisible(), false);
+}));
+
 for(const behaviour of ['moves', 'multi', 'illegal', 'unsafe-first']) {
     test(`config that gives moves (${behaviour}) plays a match on two boards`, { skip, timeout }, () => withTool(behaviour, async (page, url) => {
         await start(page, url);

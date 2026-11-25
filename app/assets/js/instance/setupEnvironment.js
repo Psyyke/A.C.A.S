@@ -85,7 +85,8 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
         // Keep the instance in sync, it still held the 8x8 default otherwise
         this.boardDimensions = boardDimensions;
 
-        const instanceIdQuery = `[data-instance-id="${this.instanceID}"]`;
+        const escapedInstanceID = CSS.escape(String(this.instanceID));
+        const instanceIdQuery = `[data-instance-id="${escapedInstanceID}"]`;
 
         this.currentFen = fen;
 
@@ -97,8 +98,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
 
         const instanceWidth = `${Number(localStorage.getItem(INSTANCE_SIZE_KEY)) * Number(localStorage.getItem(BOARD_SIZE_MODIFIER_KEY))}px`;
     
-        // To avoid XSS do not put data from external sites directly inside the innerHTML string using templates!
-        // InstanceIdQuery, boardPieceDimensions and such are safe since they don't contain external data.
+        // Do not interpolate external data into HTML, including inside a style element.
         const acasInstanceElem = document.createElement('div');
             acasInstanceElem.classList.add('acas-instance');
             acasInstanceElem.dataset.instanceId = this.instanceID;
@@ -109,19 +109,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
                 <div class="connection-warning-subtitle">${TRANS_OBJ?.revisitReconnect ?? 'Revisit the page to reconnect'} 👀</div>
             </div>
             <div class="instance-header">
-                <style class="instance-styling">
-                ${instanceIdQuery} .cg-wrap piece {
-                    width: ${boardPieceDimensions.width}%;
-                    height: ${boardPieceDimensions.height}%;
-                }
-                ${instanceIdQuery} cg-board square {
-                    width: ${boardPieceDimensions.width}%;
-                    height: ${boardPieceDimensions.height}%;
-                }
-                ${instanceIdQuery} cg-board {
-                    background-size: ${backgroundSize}% ${backgroundHeight}%;
-                }
-                </style>
+                <style class="instance-styling"></style>
                 <div class="instance-basic-info">
                     <div class="instance-basic-info-title">
                         <div class="instance-variant" title="${TRANS_OBJ?.instanceVariant ?? 'Instance Chess Variant'}"></div>
@@ -130,7 +118,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
                     <div class="instance-domain" title="${TRANS_OBJ?.instanceDomain ?? 'Instance Domain'}"></div>
                     <div class="instance-buttons">
                         <div class="instance-fen-btn acas-fancy-button">${TRANS_OBJ?.showFenBtn ?? 'Show FEN'}</div>
-                        <div class="instance-pgn-btn acas-fancy-button">${(TRANS_OBJ?.showFenBtn.replace('FEN', 'PGN')) ?? 'Show PGN'}</div>
+                        <div class="instance-pgn-btn acas-fancy-button">${(TRANS_OBJ?.showFenBtn?.replace('FEN', 'PGN')) ?? 'Show PGN'}</div>
                     </div>
                     <div class="instance-information">
                         <div class="instance-fen hidden" title="${TRANS_OBJ?.instanceFen ?? 'Instance Fen'}"></div>
@@ -153,6 +141,19 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
             <div><div class="pseudoground-x"></div></div>
             `;
 
+        acasInstanceElem.querySelector('.instance-styling').textContent = `
+            ${instanceIdQuery} .cg-wrap piece {
+                width: ${boardPieceDimensions.width}%;
+                height: ${boardPieceDimensions.height}%;
+            }
+            ${instanceIdQuery} cg-board square {
+                width: ${boardPieceDimensions.width}%;
+                height: ${boardPieceDimensions.height}%;
+            }
+            ${instanceIdQuery} cg-board {
+                background-size: ${backgroundSize}% ${backgroundHeight}%;
+            }
+        `;
         acasInstanceElem.style.width = instanceWidth;
 
         const instanceChessVariantElem = acasInstanceElem.querySelector('.instance-variant');
@@ -181,9 +182,9 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
             const didHide = [...instancePgnElem.classList].includes('hidden');
 
             if(didHide) {
-                showPgnBtn.innerText = TRANS_OBJ?.showFenBtn.replace('FEN', 'PGN') ?? 'Show PGN';
+                showPgnBtn.innerText = TRANS_OBJ?.showFenBtn?.replace('FEN', 'PGN') ?? 'Show PGN';
             } else {
-                showPgnBtn.innerText = TRANS_OBJ?.hideFenBtn.replace('FEN', 'PGN') ?? 'Hide PGN';
+                showPgnBtn.innerText = TRANS_OBJ?.hideFenBtn?.replace('FEN', 'PGN') ?? 'Hide PGN';
                 this.Interface.updatePgn().catch(error => console.warn('[PGN] Could not update game record:', error));
             }
         }
@@ -198,7 +199,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
         const settingsBtnElem = this.instanceElem.querySelector('.instance-settings-btn');
 
         settingsBtnElem.onclick = () => {
-            document.querySelector(`.dropdown-item[data-instance-id="${this.instanceID}"]`)?.click();
+            document.querySelector(`.dropdown-item[data-instance-id="${escapedInstanceID}"]`)?.click();
             
             const highlightIndicator = settingsContainerElem.querySelector('.highlight-indicator');
 
@@ -266,7 +267,7 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
         this.Interface.updateBoardOrientation(orientation);
         
         if(oldInstanceElem) {
-            const instanceItem = document.querySelector(`.dropdown-item[data-instance-id="${this.instanceID}"]`);
+            const instanceItem = document.querySelector(`.dropdown-item[data-instance-id="${escapedInstanceID}"]`);
             const itemTitle = instanceItem?.querySelector('.dropdown-item-title');
             const highlight = this.instanceElem.querySelector('.highlight-indicator');
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { unpackWeights, readPolicy, writePolicy, get, fields, decodeLayer, encodeLayer } from './weights.js';
+import { unpackWeights, readPolicy, writePolicy, get, fields, field, decodeLayer, encodeLayer } from './weights.js';
 import { moveIndex, encodePlanes } from './encoding.js';
 import { trainPolicy } from './learning.js';
 
@@ -34,6 +34,12 @@ test('Maia policy export retains untouched neural layers and network metadata', 
 test('LINEAR16 handles constant layers and rejects nonfinite weights', () => {
     assert.deepEqual(decodeLayer(encodeLayer(Float32Array.of(2, 2))), Float32Array.of(2, 2));
     assert.throws(() => encodeLayer(Float32Array.of(NaN)), /non-finite/);
+});
+
+test('truncated Lc0 magic reports a weights validation error', async () => {
+    for(let length = 0; length < 4; length++) {
+        await assert.rejects(unpackWeights(field(1, new Uint8Array(length))), /not an Lc0 weights file/);
+    }
 });
 
 test('Lc0 policy mapping handles colors, standard castling and knight promotions', () => {

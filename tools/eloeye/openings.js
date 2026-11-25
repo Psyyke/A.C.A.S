@@ -49,6 +49,9 @@ export function loadOpenings() {
     loaded ??= fetch(new URL('../../app/assets/openings/pgn.json', import.meta.url)).then(async response => {
         if(!response.ok) throw new Error(`Could not load EloEye openings (${response.status})`);
         return buildOpenings(await response.json());
+    }).catch(error => {
+        loaded = undefined;
+        throw error;
     });
     return loaded;
 }
