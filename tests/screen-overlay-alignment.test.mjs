@@ -47,7 +47,7 @@ test('headful isolated Chromium and Electron alignment at real browser zoom', as
         await page.goto(boardUrl);
         const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
         child = spawn(path.resolve('appServer', 'node_modules', 'electron', 'dist', 'electron.exe'),
-            [path.resolve('tests', 'screen-overlay-alignment-electron.cjs'), electronProfile, String(controlPort), String(wsPort)],
+            [path.resolve('tests', 'screen-overlay-alignment-electron.mjs'), electronProfile, String(controlPort), String(wsPort)],
             { stdio: 'ignore' });
         const status = async () => (await fetch(`http://127.0.0.1:${controlPort}/`)).json();
         await wait(async () => (await status()).ready, 'Electron WebSocket server');

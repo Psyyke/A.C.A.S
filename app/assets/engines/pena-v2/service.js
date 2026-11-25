@@ -891,7 +891,7 @@ async function converse(response, instance) {
     if(pena.response !== response || boardFen() !== response.fen) return;
     if(response.prepared.directReply) {
         finishChat(response, { raw: response.prepared.directReply, tokens: 0, finishReason: 'stop' });
-        setStatus('Local memory or glossary reply; no language-model generation.');
+        setStatus('localReply');
         return;
     }
     try {
@@ -901,7 +901,7 @@ async function converse(response, instance) {
         }
         await pena.groundedReady;
         if(pena.response !== response) return;
-        setStatus('Collecting current LC0 search and Maia human-choice evidence…');
+        setStatus('collectingEvidence');
         const evidenceStart = performance.now();
         const engineEvidence = await pena.groundedEngines.collect(response.fen, history, response.controller.signal);
         response.timing = { evidenceMs: performance.now() - evidenceStart };
@@ -909,7 +909,7 @@ async function converse(response, instance) {
         response.input = await liveCoachingInput({ prepared: response.prepared, fen: response.fen, history,
             playerColor: response.playerColor, question, engineEvidence });
         if(pena.response !== response) return;
-        setStatus('Generating from the shared coaching input…');
+        setStatus('generatingCoaching');
         const s = pena.settings || {};
         response.timing.posted = performance.now();
         pena.worker.postMessage({ type: 'converse', chatId: response.chatId, input: response.input,
@@ -927,7 +927,7 @@ async function converse(response, instance) {
 // With no board open Pena just chats. No engines, no position notes.
 function plainChat(response) {
     const s = pena.settings || {};
-    setStatus('Chatting without a board…');
+    setStatus('chattingWithoutBoard');
     // With no board, the usage guide and Pena's own settings are all he can look at.
     const app = appNotes(response.question, { pena: s }, { previous: pena.idleApp });
     pena.idleApp = app.text ? { topics: app.topics, usage: app.usage } : null;
@@ -955,7 +955,11 @@ function showThought(response, text) {
 // Reading a long board prompt is the slow part, so the player sees it move and the console gets the numbers.
 function showPrefill(response, { processed, total }) {
     if(!(total > 0)) return;
-    if(processed < total) { setStatus(`Reading ${response.idle ? 'your message' : 'the board'}, ${Math.round(100 * processed / total)}%`); return; }
+    if(processed < total) {
+        setStatus(response.idle ? 'readingMessageProgress' : 'readingBoardProgress',
+            { percent: Math.round(100 * processed / total) });
+        return;
+    }
     setStatus('');
     const timing = response.timing;
     if(!timing?.posted || timing.logged) return;

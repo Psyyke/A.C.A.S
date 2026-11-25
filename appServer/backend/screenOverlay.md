@@ -43,6 +43,17 @@ unless Electron is explicitly started with the X11 ozone platform or hint.
 The packaged and development renderers use the same
 `userscript-components/UniversalBoardDrawer.js` source.
 
+The local server defaults to software rendering for its Electron windows on all
+platforms. You can enable GPU acceleration in local server settings and restart
+the server to apply it. Electron cannot select this per window, so it affects
+both the overlay and the control window. It does not affect the browser,
+separately launched engines or the native AI server.
+
+Software rendering is a workaround for intermittent dark external drawings.
+GPU compositing is a possible cause, but this has not been confirmed on an
+affected machine. A passing screenshot check alone cannot confirm the fix,
+especially when opening a screenshot tool makes the issue disappear.
+
 ## Verification
 
 `tests/screen-overlay-fixture.mjs` executes the current userscript drawer and
@@ -52,9 +63,14 @@ Electron server by the smoke test.
 
 On Windows, run `$env:ACAS_SCREEN_OVERLAY_SMOKE='1'` followed by
 `node --test tests\screen-overlay.test.mjs tests\screen-overlay-integration.test.mjs`
-from the repository root. The smoke checks transparent background pixels,
-click-through configuration, real SVG content, hide, disconnect and stale cleanup.
+from the repository root. The smoke uses production startup without a test-only
+rendering override. It checks default software composition, translucent arrow
+and square color/alpha across repeated snapshots and hide/show cycles,
+transparent background pixels, click-through configuration, real SVG content,
+disconnect and stale cleanup.
 It does not physically test mouse passthrough.
+Set `ACAS_SCREEN_OVERLAY_GPU=1` as well to run the same check with GPU
+acceleration enabled.
 
 For an unpacked build, set `ACAS_SCREEN_OVERLAY_PACKAGED_DIR` to the fresh
 `win-unpacked` directory and run `node --test tests\screen-overlay-packaged.test.mjs`.

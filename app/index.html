@@ -147,7 +147,7 @@
 				};
 			})();
 		</script>
-		<link rel="stylesheet" type="text/css" href="gui.css?v=weights-layout-3"/>
+		<link rel="stylesheet" type="text/css" href="gui.css?v=ghost-welcome-2"/>
         <link rel="stylesheet" href="./assets/engines/pena-v2/pena.css">
 		<meta name="description" content="Use A.C.A.S to analyze positions and review your moves while playing chess">
 		<meta name="keywords" content="chess gui, chess assistant dashboard, stockfish settings, lichess helper, chess.com helper, board overlays, chess variants, engine elo">
@@ -224,6 +224,19 @@
 			</div>
 		</div>
 		<audio id="silence-audio" class="hidden" src="assets/audio/sound_of_silence.wav" loop controls></audio>
+
+        <dialog id="ghost-welcome" aria-label="Ghost Script" aria-describedby="ghost-welcome-description">
+            <div class="floaty-container">
+                <div class="floaty-body ghost-welcome-content">
+                    <p id="ghost-welcome-description"><strong data-ghost-welcome-intro>Ghost Script is on by default for your safety.</strong> <span data-ghost-welcome-explanation>This means no arrows or markings on the chess page. You'll still see your board and analysis here in A.C.A.S.</span></p>
+                    <p data-ghost-welcome-server>If you'd like drawings over your chessboard, the <a href="https://github.com/Psyyke/A.C.A.S/releases" target="_blank" rel="noopener noreferrer">local server on GitHub</a> can draw them entirely outside the page. It's desktop-only, and safer than drawing on the page itself.</p>
+                </div>
+                <footer class="ghost-welcome-actions">
+                    <button class="ghost-welcome-primary acas-fancy-button" type="button" data-ghost-welcome-settings autofocus>Show the setting</button>
+                    <button class="ghost-welcome-secondary acas-fancy-button" type="button" data-ghost-welcome-dismiss>Got it</button>
+                </footer>
+            </div>
+        </dialog>
 
 		<!-- TOS CONTAINER-->
 		<div id="tos-container" class="hidden">

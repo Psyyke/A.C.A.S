@@ -243,6 +243,16 @@
         "concealAssistanceAutoDelayMs": ["Auto Conceal (ms)", "Automatically conceal after this time"]
     },
     "translations": {
+        "ghostWelcome": {
+            "label": "Ghost Script",
+            "intro": "Ghost Script is on by default for your safety.",
+            "explanation": "This means no arrows or markings on the chess page. You'll still see your board and analysis here in A.C.A.S.",
+            "server": "If you'd like drawings over your chessboard, the {link} can draw them entirely outside the page. It's desktop-only, and safer than drawing on the page itself.",
+            "link": "local server on GitHub",
+            "settings": "Show the setting",
+            "dismiss": "Got it",
+            "saveError": "Could not save this tip. It may appear again next time."
+        },
         "ghostScreen": {"invalidOffset": "Enter whole pixel offsets from -1000 to 1000.", "tagline":"Finetune your ghostly experience","inactive":"Turn on Ghost Script and the local server.","connecting":"Connecting to the local server...","available":"Screen overlay available.","unavailable":"Screen overlay unavailable.","update":"Update the local server and reconnect.","paused":"Screen overlay paused. Too many drawings or server busy."},
         "pena": {
             "setupPena": "Download about {size} to run Pena on your computer.",

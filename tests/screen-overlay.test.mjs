@@ -314,7 +314,7 @@ test('Electron overlay window loads the real drawer and isolated preload', async
     assert.equal(existsSync(profile), false);
     try {
         const { stdout } = await promisify(execFile)(electron,
-            [path.resolve('tests', 'screen-overlay-electron-smoke.cjs'), profile], { timeout: 30000 });
+            [path.resolve('tests', 'screen-overlay-electron-smoke.mjs'), profile], { timeout: 30000 });
         assert.match(stdout, /electron overlay smoke passed/);
     } finally {
         rmSync(profile, { recursive: true, force: true });

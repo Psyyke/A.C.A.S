@@ -34,6 +34,75 @@ test('pins, attacks and defenses pick each side and piece from the verb and the 
     assert.deepEqual(pin.references.relations.map(pair => [...pair]), [['g4', 'f3'], ['f3', 'd1']]);
 });
 
+test('challenging a piece keeps the opposing target through the narrated continuation', () => {
+    const fen = '8/5pk1/p5p1/1p1p1r1p/8/bP3B1P/3R1PK1/8 w - - 0 5';
+    const text = 'Black just took your a3 pawn, so your rook is the one that can challenge that bishop. '
+        + 'Ra2 hits it right away, though Bb4 keeps it safe and then your rook can grab a6.';
+    const compiled = compileTeaching(text, fen);
+    const bishop = compiled.mentions.find(mention => text.slice(mention.index, mention.end) === 'that bishop');
+    assert.equal(bishop.status, 'resolved');
+    assert.deepEqual(bishop.entities.map(piece => [piece.square, piece.color]), [['a3', 'b']]);
+    assert.deepEqual(cueFor(text, 'that bishop', fen).references.squares, ['a3']);
+    assert.deepEqual(cueFor(text, 'hits', fen).references.relations, [['a2', 'a3']]);
+    assert.deepEqual(cueFor(text, 'Bb4', fen).references.moves, [['a3', 'b4']]);
+    assert.deepEqual(compiled.mentions.filter(mention => mention.kind === 'piece').at(-1).entities.map(piece => piece.square), ['a2']);
+});
+
+test('challenge references respect active and passive roles, explicit owners and either player color', () => {
+    const fen = '8/5pk1/p5p1/1p1p1r1p/8/bP3B1P/3R1PK1/8 w - - 0 5';
+    for(const rootColor of ['w', 'b']) {
+        const own = rootColor === 'w' ? 'f3' : 'a3', enemy = rootColor === 'w' ? 'a3' : 'f3';
+        for(const [text, expected] of [
+            ['Your rook can challenge that bishop.', enemy],
+            ['Your rook confronts the bishop.', enemy],
+            ['Your rook is challenged by that bishop.', enemy],
+            ['Your rook is challenged alongside your bishop.', own],
+            ['Your rook can challenge your bishop.', own],
+            ['Your rook can protect that bishop.', own]
+        ]) {
+            const mention = new TeachingContext(text, fen, { rootColor }).results.at(-1);
+            assert.deepEqual(mention.entities.map(piece => piece.square), [expected], `${rootColor}: ${text}`);
+        }
+    }
+    const text = 'Your rook on a2 challenges that bishop and attacks it.';
+    const after = new Chess(fen); after.move('Ra2');
+    assert.deepEqual(cueFor(text, 'attacks', after.fen(), text, { rootColor: 'w' }).references.relations, [['a2', 'a3']]);
+    for(const text of ['Your rook can challenge that bishop.', 'Your rook can maneuver against that bishop.'])
+        assert.equal(cueFor(text, 'that bishop',
+            '4k3/8/8/8/8/b4b2/8/3RK3 w - - 0 1'), undefined,
+            'Two enemy bishops must remain ambiguous without a distinguishing reference');
+});
+
+test('directed actions resolve their target against the actor across different wording', () => {
+    const fen = '8/5pk1/p5p1/1p1p1r1p/8/bP3B1P/3R1PK1/8 w - - 0 5';
+    for(const rootColor of ['w', 'b']) {
+        const own = rootColor === 'w' ? 'f3' : 'a3', enemy = rootColor === 'w' ? 'a3' : 'f3';
+        for(const [text, expected] of [
+            ['Your rook can drive away that bishop.', enemy],
+            ['Your rook can chase that bishop off.', enemy],
+            ['Your rook can force that bishop back.', enemy],
+            ['Your rook can trade for that bishop.', enemy],
+            ['Your rook can exchange for that bishop.', enemy],
+            ['Your rook is driven off by that bishop.', enemy],
+            ['Your rook can remove that bishop.', enemy],
+            ['Your rook can maneuver against that bishop.', enemy],
+            ['Your rook is outplaying that bishop.', enemy],
+            ['Your rook can support that bishop.', own],
+            ['Your rook can protect that bishop.', own],
+            ['Your rook can keep that bishop safe.', own],
+            ['Your rook can challenge your bishop.', own]
+        ]) {
+            const mention = new TeachingContext(text, fen, { rootColor }).results.at(-1);
+            assert.deepEqual(mention.entities.map(piece => piece.square), [expected], `${rootColor}: ${text}`);
+        }
+    }
+
+    const after = new Chess(fen); after.move('Ra2');
+    const text = 'Your rook on a2 challenges that bishop.';
+    assert.deepEqual(cueFor(text, 'that bishop', after.fen(), text, { rootColor: 'w' })
+        .references.relations, [['a2', 'a3']]);
+});
+
 test('stranded words join the highlight they lead into, in text and in speech', () => {
     const fen = 'rn1qkbnr/ppp2ppp/3p4/4p3/4P3/2N2b2/PPPP1PPP/R1BQKB1R w KQkq - 0 5';
     const text = "Black's bishop on f3 is attacking your queen on d1, so you have to deal with it.";

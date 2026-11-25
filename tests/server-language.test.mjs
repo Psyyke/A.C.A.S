@@ -35,7 +35,7 @@ test('server language changes preserve live UI state and persist', async () => {
         const page = await browser.newPage({ viewport: { width: 1000, height: 800 } });
         await page.addInitScript(() => {
             const callbacks = {};
-            window.fixture = { callbacks, sends: 0, portUpdates: [], cacheClears: 0 };
+            window.fixture = { callbacks, sends: 0, portUpdates: [], cacheClears: 0, gpu: false };
             window.engineAPI = {
                 getSavedEngines: async () => [{ engineId: 'e', name: 'engine.exe', title: 'Engine', path: 'C:\\engine.exe' }],
                 onRefreshEngineCards: cb => callbacks.refresh = cb, onAddConsoleView: cb => callbacks.add = cb,
@@ -46,6 +46,12 @@ test('server language changes preserve live UI state and persist', async () => {
             window.serverAPI = { sendEnginesList: async () => { window.fixture.sends++; },
                 getPort: async () => 2800,
                 setPort: async port => { window.fixture.portUpdates.push(port); return false; },
+                getHardwareAcceleration: async () => window.fixture.gpu,
+                setHardwareAcceleration: async enabled => {
+                    if(window.fixture.failGpu) throw new Error('test GPU save');
+                    window.fixture.gpu = enabled;
+                    return enabled;
+                },
                 onListening: cb => callbacks.listening = cb, onClientChange: cb => callbacks.client = cb,
                 onUnauthorized: cb => callbacks.unauthorized = cb };
             window.electronAPI = { getAlwaysOnTop: async () => false, getVersion: async () => '1',
@@ -127,7 +133,8 @@ test('server language changes preserve live UI state and persist', async () => {
         await page.emulateMedia({ reducedMotion: 'no-preference' });
         const openSettings = async () => {
             await page.locator('#portSettingsBtn').click();
-            await page.waitForFunction(() => !document.querySelector('#serverPortInput').disabled);
+            await page.waitForFunction(() => !document.querySelector('#serverPortInput').disabled
+                && !document.querySelector('#server-gpu-acceleration').disabled);
         };
         const logoWidths = () => page.evaluate(() => {
             const context = document.createElement('canvas').getContext('2d');
@@ -164,6 +171,30 @@ test('server language changes preserve live UI state and persist', async () => {
             await page.selectOption('#server-language', language);
             await closeSettings();
         };
+        await selectLanguage('jp');
+        const brand = await page.locator('#acas-header').evaluate(element => {
+            const rect = element.getBoundingClientRect();
+            return { height: rect.height, overflows: element.scrollWidth > element.clientWidth };
+        });
+        assert.ok(brand.height <= 95 && !brand.overflows, `Japanese header should stay compact: ${JSON.stringify(brand)}`);
+        await selectLanguage('en');
+        await openSettings();
+        const gpuInput = page.locator('#server-gpu-acceleration');
+        assert.equal(await gpuInput.isChecked(), false);
+        assert.match(await page.locator('#server-gpu-hint').textContent(), /Restart.*not engines or Pena/);
+        await gpuInput.check();
+        await page.waitForFunction(() => window.fixture.gpu && !document.querySelector('#server-gpu-acceleration').disabled);
+        await page.evaluate(() => { window.fixture.failGpu = true; });
+        await gpuInput.click();
+        await page.waitForFunction(() => document.querySelector('#acas-toast-container').textContent.includes('Could not load or save GPU acceleration.'));
+        assert.equal(await gpuInput.isChecked(), true, 'failed saves must restore the saved choice');
+        await page.evaluate(() => { window.fixture.failGpu = false; });
+        await closeSettings();
+        await openSettings();
+        assert.equal(await gpuInput.isChecked(), true);
+        await gpuInput.uncheck();
+        await page.waitForFunction(() => !window.fixture.gpu && !document.querySelector('#server-gpu-acceleration').disabled);
+        await closeSettings();
         await page.evaluate(() => {
             window.fixture.getPort = window.serverAPI.getPort;
             window.serverAPI.getPort = async () => { throw new Error('test port load'); };

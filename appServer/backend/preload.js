@@ -33,7 +33,9 @@ contextBridge.exposeInMainWorld('serverAPI', {
 	onUnauthorized: (callback) => ipcRenderer.on('serverUnauthorized', (event, data) => callback(data)),
 	sendEnginesList: () => ipcRenderer.invoke('sendEnginesList'),
 	getPort: () => ipcRenderer.invoke('getServerPort'),
-	setPort: port => ipcRenderer.invoke('setServerPort', port)
+	setPort: port => ipcRenderer.invoke('setServerPort', port),
+	getHardwareAcceleration: () => ipcRenderer.invoke('getHardwareAcceleration'),
+	setHardwareAcceleration: enabled => ipcRenderer.invoke('setHardwareAcceleration', enabled)
 });
 
 contextBridge.exposeInMainWorld('fileAPI', {

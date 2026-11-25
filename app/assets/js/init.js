@@ -6,6 +6,7 @@ import { initializeActivityLogging } from './misc/activityLog.js';
 import { startEloEyeSessions } from './eloeyeSessions.js';
 import { loopThroughAndUpdateSettingsValues } from './gui/settings.js';
 import { isUpstreamLc0 } from './instance/lc0Engines.js';
+import { prepareGhostWelcome, showGhostWelcome } from './gui/ghostWelcome.js';
 
 initializeActivityLogging();
 
@@ -53,6 +54,8 @@ async function initDbValue(name, value) {
 async function initializeDatabase() {
     const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
     const tempValueIndicator = USERSCRIPT_SHARED_VARS.tempValueIndicator;
+
+    await prepareGhostWelcome();
 
     // add AcasConfig value if it doesn't exist already
     await initDbValue(gmConfigKey, { 'global': { 'chessEngineProfile': 'default' } });
@@ -243,6 +246,11 @@ async function attemptStarting() {
         window.ACAS_LOADING?.setStage(95);
         window.ACAS_LOADING?.markReady('startup');
         console.log('Userscript ready! Listening to instance calls...');
+
+        showGhostWelcome(highlightSettingElem).catch(error => {
+            console.error('Could not open Ghost Script welcome:', error);
+            toast.error('Could not open the welcome tip. Reload and try again.', 8000);
+        });
     }
 }
 

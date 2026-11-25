@@ -61,8 +61,12 @@ RUNTIME
   coaching-policy.js is active. The worker adds its policy to system messages,
   including custom prompts, with an extra restriction when moves are withheld.
   Teaching binds named sides, guard relationships, pin victims and pawn chains
-  to actual pieces and geometry. Suggestions do not relocate explicitly named
-  live pieces in their later explanations. Observed pawn pushes can be recapped
+  to actual pieces and geometry. Active piece-to-piece actions resolve an
+  unnamed target against the actor's side, while defensive wording keeps allied
+  targets. Passive wording, explicit owners and ambiguous targets are handled
+  separately, so a clear reference wins and uncertain ones stay unhighlighted.
+  Suggestions do not relocate explicitly named live pieces in their later
+  explanations. Observed pawn pushes can be recapped
   from the verified preceding board rather than guessed from the new position.
   The latest player question supplies referents for follow-up wording like
   "it is hanging". Later mentions resolve individually, including file-pawns,

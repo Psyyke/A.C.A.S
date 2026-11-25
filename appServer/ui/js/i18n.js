@@ -2506,6 +2506,50 @@
         ta: ['அமைப்புகள்', 'உரை அளவு', 'மூடு'], ge: ['პარამეტრები', 'ტექსტის ზომა', 'დახურვა'],
         am: ['Կարգավորումներ', 'Տեքստի չափ', 'Փակել'], lk: ['සැකසුම්', 'අකුරු ප්‍රමාණය', 'වසන්න']
     };
+    const gpuLabels = {
+        en: ['GPU acceleration', 'Restart the server to apply. This affects server windows, not engines or Pena.', 'Could not load or save GPU acceleration.'],
+        fi: ['GPU-kiihdytys', 'Käynnistä palvelin uudelleen, jotta asetus tulee voimaan. Se vaikuttaa palvelimen ikkunoihin, ei moottoreihin tai Penaan.', 'GPU-kiihdytyksen asetusta ei voitu ladata tai tallentaa.'],
+        es: ['Aceleración por GPU', 'Reinicia el servidor para aplicar el cambio. Afecta a sus ventanas, no a los motores ni a Pena.', 'No se pudo cargar o guardar la aceleración por GPU.'],
+        fr: ['Accélération GPU', 'Redémarrez le serveur pour appliquer le changement. Il concerne ses fenêtres, pas les moteurs ni Pena.', "Impossible de charger ou d'enregistrer l'accélération GPU."],
+        de: ['GPU-Beschleunigung', 'Starte den Server neu, um die Änderung zu übernehmen. Sie betrifft die Serverfenster, nicht die Engines oder Pena.', 'Die GPU-Beschleunigung konnte nicht geladen oder gespeichert werden.'],
+        pt: ['Aceleração por GPU', 'Reinicie o servidor para aplicar. A configuração afeta as janelas do servidor, não os motores nem o Pena.', 'Não foi possível carregar ou salvar a aceleração por GPU.'],
+        it: ['Accelerazione GPU', 'Riavvia il server per applicare la modifica. Riguarda le finestre del server, non i motori o Pena.', "Impossibile caricare o salvare l'accelerazione GPU."],
+        nl: ['GPU-versnelling', 'Herstart de server om de wijziging toe te passen. Dit geldt voor servervensters, niet voor engines of Pena.', 'GPU-versnelling kon niet worden geladen of opgeslagen.'],
+        se: ['GPU-acceleration', 'Starta om servern för att ändringen ska gälla. Den påverkar serverfönstren, inte motorerna eller Pena.', 'Det gick inte att läsa in eller spara GPU-accelerationen.'],
+        id: ['Akselerasi GPU', 'Mulai ulang server untuk menerapkan perubahan. Ini berlaku untuk jendela server, bukan mesin atau Pena.', 'Akselerasi GPU tidak dapat dimuat atau disimpan.'],
+        cn: ['GPU 加速', '重启服务器后生效。此设置影响服务器窗口，不影响引擎或 Pena。', '无法读取或保存 GPU 加速设置。'],
+        jp: ['GPU アクセラレーション', '変更を適用するにはサーバーを再起動してください。サーバーのウィンドウに適用され、エンジンや Pena には影響しません。', 'GPU アクセラレーションの設定を読み込みまたは保存できませんでした。'],
+        ru: ['Ускорение GPU', 'Перезапустите сервер, чтобы применить настройку. Она влияет на окна сервера, но не на движки и Pena.', 'Не удалось загрузить или сохранить настройку ускорения GPU.'],
+        kr: ['GPU 가속', '적용하려면 서버를 다시 시작하세요. 서버 창에만 적용되며 엔진과 Pena에는 영향을 주지 않습니다.', 'GPU 가속 설정을 불러오거나 저장하지 못했습니다.'],
+        tr: ['GPU hızlandırma', 'Uygulamak için sunucuyu yeniden başlatın. Bu ayar motorları veya Pena’yı değil, sunucu pencerelerini etkiler.', 'GPU hızlandırma ayarı yüklenemedi veya kaydedilemedi.'],
+        pl: ['Akceleracja GPU', 'Uruchom serwer ponownie, aby zastosować zmianę. Dotyczy ona okien serwera, a nie silników ani Peny.', 'Nie udało się wczytać lub zapisać ustawienia akceleracji GPU.'],
+        ua: ['Прискорення GPU', 'Перезапустіть сервер, щоб застосувати зміну. Вона впливає на вікна сервера, але не на рушії чи Pena.', 'Не вдалося завантажити або зберегти налаштування прискорення GPU.'],
+        vn: ['Tăng tốc GPU', 'Khởi động lại máy chủ để áp dụng. Cài đặt này ảnh hưởng đến cửa sổ máy chủ, không ảnh hưởng đến engine hay Pena.', 'Không thể tải hoặc lưu cài đặt tăng tốc GPU.'],
+        ro: ['Accelerare GPU', 'Repornește serverul pentru aplicare. Setarea afectează ferestrele serverului, nu motoarele sau Pena.', 'Setarea de accelerare GPU nu a putut fi încărcată sau salvată.'],
+        cz: ['Akcelerace GPU', 'Pro použití změny restartujte server. Nastavení ovlivňuje okna serveru, nikoli enginy ani Pena.', 'Nastavení akcelerace GPU se nepodařilo načíst nebo uložit.'],
+        arab: ['تسريع GPU', 'أعد تشغيل الخادم لتطبيق التغيير. يؤثر الإعداد على نوافذ الخادم، وليس على المحركات أو Pena.', 'تعذّر تحميل إعداد تسريع GPU أو حفظه.'],
+        in: ['GPU एक्सेलेरेशन', 'बदलाव लागू करने के लिए सर्वर दोबारा शुरू करें। यह सर्वर की विंडो पर लागू होता है, इंजन या Pena पर नहीं।', 'GPU एक्सेलेरेशन सेटिंग लोड या सेव नहीं हो सकी।'],
+        hr: ['GPU ubrzanje', 'Ponovno pokrenite poslužitelj za primjenu. Postavka utječe na prozore poslužitelja, ne na motore ili Penu.', 'Nije moguće učitati ili spremiti postavku GPU ubrzanja.'],
+        sk: ['Akcelerácia GPU', 'Zmenu použijete reštartovaním servera. Týka sa okien servera, nie enginov ani Pena.', 'Nastavenie akcelerácie GPU sa nepodarilo načítať alebo uložiť.'],
+        ph: ['GPU acceleration', 'I-restart ang server para ilapat. Mga window ng server ang apektado, hindi ang mga engine o si Pena.', 'Hindi na-load o na-save ang GPU acceleration.'],
+        bd: ['GPU অ্যাক্সেলারেশন', 'পরিবর্তন প্রয়োগ করতে সার্ভার পুনরায় চালু করুন। এটি সার্ভারের উইন্ডোতে প্রযোজ্য, ইঞ্জিন বা Pena-তে নয়।', 'GPU অ্যাক্সেলারেশন সেটিং লোড বা সংরক্ষণ করা যায়নি।'],
+        ir: ['شتاب‌دهی GPU', 'برای اعمال تغییر، سرور را دوباره راه‌اندازی کنید. این تنظیم بر پنجره‌های سرور اثر دارد، نه موتور‌ها یا Pena.', 'بارگذاری یا ذخیرهٔ تنظیم شتاب‌دهی GPU ممکن نشد.'],
+        il: ['האצת GPU', 'יש להפעיל מחדש את השרת כדי להחיל את השינוי. ההגדרה משפיעה על חלונות השרת, לא על המנועים או על Pena.', 'לא ניתן לטעון או לשמור את הגדרת האצת ה־GPU.'],
+        rs: ['GPU убрзање', 'Поново покрените сервер да бисте применили промену. Она утиче на прозоре сервера, не на моторе или Penu.', 'Није могуће учитати или сачувати подешавање GPU убрзања.'],
+        bg: ['GPU ускорение', 'Рестартирайте сървъра, за да приложите промяната. Тя засяга прозорците на сървъра, но не и двигателите или Pena.', 'Настройката за GPU ускорение не можа да се зареди или запази.'],
+        gr: ['Επιτάχυνση GPU', 'Επανεκκίνησε τον διακομιστή για να εφαρμοστεί η αλλαγή. Επηρεάζει τα παράθυρά του, όχι τις μηχανές ή τον Pena.', 'Δεν ήταν δυνατή η φόρτωση ή αποθήκευση της επιτάχυνσης GPU.'],
+        hu: ['GPU-gyorsítás', 'Az alkalmazáshoz indítsd újra a szervert. Ez a szerverablakokra hat, a motorokra és Penára nem.', 'A GPU-gyorsítás beállítását nem sikerült betölteni vagy menteni.'],
+        th: ['การเร่งด้วย GPU', 'รีสตาร์ตเซิร์ฟเวอร์เพื่อใช้การเปลี่ยนแปลง การตั้งค่านี้มีผลกับหน้าต่างเซิร์ฟเวอร์ ไม่ใช่เอนจินหรือ Pena', 'โหลดหรือบันทึกการตั้งค่าการเร่งด้วย GPU ไม่ได้'],
+        ee: ['GPU kiirendus', 'Muudatuse rakendamiseks taaskäivita server. See mõjutab serveriaknaid, mitte mootoreid ega Penat.', 'GPU kiirenduse seadet ei saanud laadida ega salvestada.'],
+        uz: ['GPU tezlatish', 'O‘zgarishni qo‘llash uchun serverni qayta ishga tushiring. Bu server oynalariga ta’sir qiladi, dvigatellar yoki Pena’ga emas.', 'GPU tezlatish sozlamasini yuklab yoki saqlab bo‘lmadi.'],
+        az: ['GPU sürətləndirməsi', 'Dəyişikliyi tətbiq etmək üçün serveri yenidən başladın. Bu, mühərriklərə və ya Pena-ya deyil, server pəncərələrinə təsir edir.', 'GPU sürətləndirmə ayarını yükləmək və ya saxlamaq mümkün olmadı.'],
+        kz: ['GPU жеделдетуі', 'Өзгерісті қолдану үшін серверді қайта іске қосыңыз. Бұл қозғалтқыштарға немесе Pena-ға емес, сервер терезелеріне әсер етеді.', 'GPU жеделдету баптауын жүктеу немесе сақтау мүмкін болмады.'],
+        mn: ['GPU хурдасгал', 'Өөрчлөлтийг хэрэгжүүлэхийн тулд серверийг дахин эхлүүлнэ үү. Энэ нь хөдөлгүүрүүд болон Pena-д биш, серверийн цонхонд нөлөөлнө.', 'GPU хурдасгалын тохиргоог ачаалах эсвэл хадгалах боломжгүй.'],
+        ta: ['GPU முடுக்கம்', 'மாற்றத்தைப் பயன்படுத்த சேவையகத்தை மறுதொடக்கம் செய்யவும். இது சேவையகச் சாளரங்களை மட்டுமே பாதிக்கும், இயந்திரங்களையோ Pena-வையோ அல்ல.', 'GPU முடுக்க அமைப்பை ஏற்றவோ சேமிக்கவோ முடியவில்லை.'],
+        ge: ['GPU აჩქარება', 'ცვლილების გამოსაყენებლად გადატვირთეთ სერვერი. ეს გავლენას ახდენს სერვერის ფანჯრებზე და არა ძრავებზე ან Pena-ზე.', 'GPU აჩქარების პარამეტრის ჩატვირთვა ან შენახვა ვერ მოხერხდა.'],
+        am: ['GPU արագացում', 'Փոփոխությունը կիրառելու համար վերագործարկեք սերվերը։ Այն ազդում է սերվերի պատուհանների վրա, ոչ թե շարժիչների կամ Pena-ի։', 'Չհաջողվեց բեռնել կամ պահպանել GPU արագացման կարգավորումը։'],
+        lk: ['GPU ත්වරණය', 'වෙනස යෙදීමට සර්වරය නැවත ආරම්භ කරන්න. මෙය සර්වරයේ කවුළුවලට බලපාන අතර එන්ජින් හෝ Pena වලට බලපාන්නේ නැහැ.', 'GPU ත්වරණ සැකසුම පූරණය කිරීමට හෝ සුරැකීමට නොහැකි විය.']
+    };
     const dropLabels = {
         en: ['Drop engine files here', 'Checking runs these files. Only continue if you trust them.', 'Checking {name}…', "Can't read {name}.", "Couldn't check {name}."],
         fi: ['Pudota moottoritiedostot tähän', 'Tarkistus suorittaa nämä tiedostot. Jatka vain, jos luotat niihin.', 'Tarkistetaan {name}…', 'Tiedostoa {name} ei voi lukea.', 'Tiedostoa {name} ei voitu tarkistaa.'],
@@ -2598,6 +2642,9 @@
         if(!settingsLabels[id]) throw new Error(`Missing server settings translations: ${id}`);
         const [settings, textSize, close] = settingsLabels[id];
         Object.assign(catalog, { settings, textSize, close });
+        if(!gpuLabels[id]) throw new Error(`Missing GPU acceleration translations: ${id}`);
+        const [gpuAcceleration, gpuAccelerationHint, gpuAccelerationError] = gpuLabels[id];
+        Object.assign(catalog, { gpuAcceleration, gpuAccelerationHint, gpuAccelerationError });
         if(!dropLabels[id]) throw new Error(`Missing engine drop translations: ${id}`);
         const [dropEngines, dropConfirm, dropChecking, dropPathError, dropFailed] = dropLabels[id];
         Object.assign(catalog, { dropEngines, dropConfirm, dropChecking, dropPathError, dropFailed });

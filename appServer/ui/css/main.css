@@ -100,6 +100,10 @@ header {
 .server-settings-row > label { min-width: 0; overflow-wrap: anywhere; }
 .server-settings-row select { width: calc(180px * var(--server-font-scale, 1)); max-width: 55%; }
 .server-settings-row input[type="checkbox"] { flex: 0 0 auto; }
+.server-gpu-row { align-items: flex-start; }
+.server-gpu-copy { flex: 1 1 0; min-width: 0; }
+.server-gpu-copy label { display: block; overflow-wrap: anywhere; }
+.server-gpu-hint { margin-top: 6px; }
 .server-port-settings { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #555; }
 .server-port-row { width: 100%; margin-top: 0; }
 .server-port-row input { flex: 0 0 auto; width: calc(5ch + 3.2em + 4px); direction: ltr; }
@@ -650,6 +654,7 @@ button { cursor: pointer; border: none; border-radius: 4px; transition: color 0.
     flex-direction: column;
     gap: 5px;
 }
+html:lang(ja) #acas-is-free-reminder > span { line-height: 1.15; }
 #acas-is-free-reminder .acas-social-actions {
     display: flex;
     flex-direction: row-reverse;
@@ -895,6 +900,9 @@ button { cursor: pointer; border: none; border-radius: 4px; transition: color 0.
     font-weight: 400;
     white-space: nowrap;
     width: fit-content;
+}
+html:lang(ja) #acas-logo-secondary:not(.has-whisper-font) {
+    line-height: calc(19px * var(--server-logo-scale));
 }
 #acas-logo-secondary.has-whisper-font {
     font-family: "Whisper", sans-serif;

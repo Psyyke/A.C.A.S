@@ -8,6 +8,10 @@ Open **Settings** with the gear beside the connection status and port. Choose an
 of the main app's 42 languages, adjust the server text size, or toggle console
 line wrapping. These preferences apply right away and are saved on this computer.
 You can also clear the cache here.
+
+GPU acceleration for the server windows is off by default. You can turn it on
+in Settings and restart the server to apply the change. This does not change
+GPU use by chess engines or Pena.
 **Credits & licences** opens a searchable panel for app libraries, fonts,
 icons and optional AI downloads. Expand an entry to read its licence or
 follow its source links. Chromium notices open as a separate document.

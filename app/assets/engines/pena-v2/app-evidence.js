@@ -6,11 +6,11 @@ export class LiveCoachingEvidence {
     constructor() { this.closed = false; }
 
     async initialize(onProgress) {
-        onProgress('Loading local LC0 network for grounded coaching…');
+        onProgress('loadingLc0Evidence');
         this.lc0 = await this.loadLc0();
         if(this.closed) { this.dispose(); throw new DOMException('Coaching stopped.', 'AbortError'); }
         try {
-            onProgress('Loading local Maia-3 human-choice model…');
+            onProgress('loadingMaiaEvidence');
             const response = await fetch(new URL('../Maia3/model/maia3_simplified.onnx', import.meta.url));
             if(!response.ok) throw new Error(`Maia model request failed (${response.status}).`);
             const bytes = await response.arrayBuffer();

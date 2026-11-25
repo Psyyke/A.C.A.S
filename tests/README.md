@@ -20,7 +20,18 @@ checks attack lookup parity, profile and setting races, and shape reuse over
 1,000 refreshes. The Ghost userscript tests also check metric stacking and
 cleanup across profiles.
 
+## First-install Ghost Script tip
+
+`node --test tests\ghost-welcome.test.mjs tests\screen-overlay-settings.test.mjs`
+checks that only fresh installs see the welcome tip after accepting the terms.
+It covers dismissal, reloads, the shared setting highlighter, all supported
+translations, language changes and narrow or short mobile screens.
+
 ## Pena local AI and chess GUI
+
+`node --test tests\pena-translations.test.mjs` checks every supported language
+for missing Pena strings and mismatched placeholders. It also switches through
+all languages in the live settings, including voice controls and progress text.
 
 The complete shipped runtime is [pena-v2](../app/assets/engines/pena-v2/).
 All app regression scripts and fixtures are in its
@@ -357,6 +368,9 @@ file picker labels through Electron. It requires the dependencies
 in `appServer` and the existing root Playwright installation. Run it separately
 on Windows, macOS, and desktop Linux for native coverage; simulated platform
 branches do not replace testing on those operating systems.
+
+`node --test tests\server-gpu-settings.test.mjs` checks the GPU setting UI,
+save and load failures, and the compact Japanese header.
 
 `node --test tests/server-language.test.mjs` checks server language coverage,
 placeholders, persistence, right-to-left layouts and language switching in

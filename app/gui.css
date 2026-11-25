@@ -2360,6 +2360,90 @@ input[disabled] {
 #begging-floaty {
     max-width: 350px;
 }
+#ghost-welcome {
+    width: min(460px, calc(100% - 24px));
+    max-height: calc(100dvh - 24px);
+    box-sizing: border-box;
+}
+#ghost-welcome::backdrop {
+    background: rgb(0 0 0 / 32%);
+}
+#ghost-welcome > .floaty-container {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 36px);
+    box-sizing: border-box;
+}
+#ghost-welcome button {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 15px;
+    border-style: solid;
+    border-color: rgb(255 255 255 / 20%);
+    border-radius: 5px;
+    color: rgb(255 255 255 / 90%);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+#ghost-welcome :is(button, a):focus-visible {
+    outline: 2px solid rgb(255 255 255 / 70%);
+    outline-offset: 4px;
+}
+#ghost-welcome .ghost-welcome-content {
+    gap: 16px;
+    min-height: 0;
+    padding: 18px 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.ghost-welcome-content > * {
+    flex-shrink: 0;
+}
+#ghost-welcome p {
+    margin: 0;
+    color: rgb(255 255 255 / 72%);
+    font-size: 15px;
+    line-height: 1.6;
+}
+#ghost-welcome strong {
+    color: rgb(255 255 255 / 95%);
+    font-weight: 500;
+}
+#ghost-welcome .ghost-welcome-content a {
+    display: inline;
+    margin: 0;
+    text-underline-offset: 3px;
+}
+#ghost-welcome .ghost-welcome-content a:hover {
+    color: white;
+}
+.ghost-welcome-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 0 16px 16px;
+}
+.ghost-welcome-primary {
+    flex: 1;
+    background: rgb(255 255 255 / 15%);
+}
+.ghost-welcome-secondary {
+    background: rgb(255 255 255 / 6%);
+}
+@media (max-width: 450px) {
+    #ghost-welcome p {
+        font-size: 14px;
+        line-height: 1.55;
+    }
+    .ghost-welcome-actions {
+        flex-direction: column;
+    }
+}
 #maia3-weights-floaty,
 #modern-lc0-weights-floaty {
     width: min(380px, calc(100vw - 24px));

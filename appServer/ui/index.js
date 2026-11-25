@@ -8,10 +8,11 @@ let portAvailable = false;
 let portLoadId = 0;
 const t = window.serverI18n.text;
 const textSizeSelect = document.getElementById('server-text-size');
+const gpuAccelerationInput = document.getElementById('server-gpu-acceleration');
 const serverConnectionInfo = document.getElementById('serverConnectionInfo');
 const textSizeStorageKey = 'acas-server-text-size';
 
-// Size the subtitle so it spans exactly the "A.C.A.S" wordmark, whatever the language or text size.
+// Fit the subtitle to the wordmark without enlarging ordinary text fonts.
 function fitLogoSubtitle() {
     const main = document.getElementById('acas-logo-main');
     const subtitle = document.getElementById('acas-logo-secondary');
@@ -32,8 +33,8 @@ function fitLogoSubtitle() {
     const target = measure(wordmark);
     const current = measure(subtitle);
     if(!target || !current) return;
-    // Clamped so very short or very long translations stay readable.
-    const ratio = Math.min(1.6, Math.max(0.55, target / current));
+    const maxRatio = subtitle.classList.contains('has-whisper-font') ? 1.6 : 1;
+    const ratio = Math.min(maxRatio, Math.max(0.55, target / current));
     subtitle.style.fontSize = `${parseFloat(getComputedStyle(subtitle).fontSize) * ratio}px`;
 }
 document.fonts?.addEventListener('loadingdone', fitLogoSubtitle);
@@ -71,6 +72,45 @@ textSizeSelect.addEventListener('change', () => setServerTextSize(Number(textSiz
 const portRestartDelay = 5;
 let savedPort = null;
 let portCountdown = null;
+let savedGpuAcceleration = null;
+let gpuAccelerationBusy = false;
+
+async function loadGpuAcceleration() {
+    if(gpuAccelerationBusy) return;
+    gpuAccelerationBusy = true;
+    gpuAccelerationInput.disabled = true;
+    try {
+        const enabled = await window.serverAPI.getHardwareAcceleration();
+        if(typeof enabled !== 'boolean') throw new TypeError('Invalid hardware acceleration setting.');
+        savedGpuAcceleration = enabled;
+        gpuAccelerationInput.checked = enabled;
+        gpuAccelerationInput.disabled = false;
+    } catch(error) {
+        console.error('Failed to load GPU acceleration setting:', error);
+        toast.error(t('gpuAccelerationError'), 5000);
+    } finally {
+        gpuAccelerationBusy = false;
+    }
+}
+
+gpuAccelerationInput.addEventListener('change', async () => {
+    if(gpuAccelerationBusy || savedGpuAcceleration === null) return;
+    const enabled = gpuAccelerationInput.checked;
+    gpuAccelerationBusy = true;
+    gpuAccelerationInput.disabled = true;
+    try {
+        const saved = await window.serverAPI.setHardwareAcceleration(enabled);
+        if(saved !== enabled) throw new Error('Hardware acceleration setting was not saved.');
+        savedGpuAcceleration = enabled;
+    } catch(error) {
+        gpuAccelerationInput.checked = savedGpuAcceleration;
+        console.error('Failed to save GPU acceleration setting:', error);
+        toast.error(t('gpuAccelerationError'), 5000);
+    } finally {
+        gpuAccelerationBusy = false;
+        gpuAccelerationInput.disabled = false;
+    }
+});
 
 const setPortSettingsBusy = busy => {
     portUpdatePending = busy;
@@ -126,6 +166,7 @@ serverPortInput.addEventListener('input', () => {
 portSettingsBtn.addEventListener('click', async () => {
     if(portSettingsDialog.open || portUpdatePending) return;
     portSettingsDialog.showModal();
+    void loadGpuAcceleration();
     if(portCountdown) return;
     portAvailable = false;
     setPortSettingsBusy(false);

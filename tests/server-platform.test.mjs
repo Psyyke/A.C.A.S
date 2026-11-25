@@ -12,15 +12,22 @@ const require = createRequire(new URL('../appServer/package.json', import.meta.u
 const WebSocket = require('ws');
 
 for(const platform of ['win32', 'darwin', 'linux']) {
-    test(`${platform} window lifecycle, absolute UI path and engine picker`, async () => {
+  for(const initialGpu of [undefined, true]) {
+    test(`${platform} window lifecycle and GPU acceleration ${initialGpu === true ? 'enabled' : 'default'}`, async () => {
         const source = (await readFile(new URL('../appServer/backend/main.js', import.meta.url), 'utf8'))
             .replace(/^import[\s\S]*?;\r?\n/gm, '').replace('export let mainWindow', 'let mainWindow');
         const events = new Map(), handlers = new Map(), windows = [];
-        let quitCount = 0, serverStarts = 0, picker;
+        const values = new Map(initialGpu === undefined ? [] : [['hardwareAcceleration', initialGpu]]);
+        let quitCount = 0, serverStarts = 0, softwareRendering = false, picker;
         const app = {
             commandLine: { appendSwitch() {} }, getVersion: () => 'test',
+            disableHardwareAcceleration: () => { softwareRendering = true; },
             getPath: () => 'userdata',
-            whenReady: () => ({ then: callback => callback() }),
+            whenReady: () => {
+                assert.equal(softwareRendering, initialGpu !== true,
+                    'Software composition must be selected before app readiness unless explicitly enabled');
+                return { then: callback => callback() };
+            },
             on: (event, callback) => events.set(event, callback),
             quit: () => quitCount++
         };
@@ -42,7 +49,10 @@ for(const platform of ['win32', 'darwin', 'linux']) {
         const nativePath = platform === 'win32' ? path.win32 : path.posix;
         const entry = platform === 'win32' ? 'C:\\repo\\appServer\\backend\\main.js' : '/repo/appServer/backend/main.js';
         runInNewContext(source.replace('import.meta.url', '"entry"'), {
-            app, BrowserWindow: FakeWindow, Store: class { get(_key, fallback) { return fallback; } },
+            app, BrowserWindow: FakeWindow, Store: class {
+                get(key, fallback) { return values.has(key) ? values.get(key) : fallback; }
+                set(key, value) { values.set(key, value); }
+            },
             fileURLToPath: value => value === 'entry' ? entry : value, path: nativePath, process: { platform },
             ipcMain: { handle: (name, callback) => handlers.set(name, callback) },
             dialog: { showOpenDialog: async (window, options) => { picker = options; return { canceled: true }; } },
@@ -56,6 +66,12 @@ for(const platform of ['win32', 'darwin', 'linux']) {
         const senderFrame = sender.mainFrame;
         senderFrame.url = windows[0].file;
         const event = { sender, senderFrame };
+        assert.equal(await handlers.get('getHardwareAcceleration')(event), initialGpu === true);
+        assert.equal(await handlers.get('setHardwareAcceleration')(event, initialGpu !== true), initialGpu !== true);
+        assert.equal(values.get('hardwareAcceleration'), initialGpu !== true);
+        assert.throws(() => handlers.get('setHardwareAcceleration')(event, 'true'), /must be a boolean/);
+        assert.throws(() => handlers.get('setHardwareAcceleration')({ ...event, sender: {} }, true), /untrusted/);
+        assert.equal(softwareRendering, initialGpu !== true, 'changes apply on the next launch');
         await handlers.get('pickFile')(event, 'Lisää moottori', 'tiedostot');
         assert.equal(picker.title, 'Lisää moottori');
         assert.ok(picker.filters.some(filter => filter.name === 'tiedostot'));
@@ -73,7 +89,62 @@ for(const platform of ['win32', 'darwin', 'linux']) {
         assert.equal(quitCount, platform === 'darwin' ? 0 : 2,
             'Closing the main window quits even while auxiliary windows remain');
     });
+  }
 }
+
+test('GPU acceleration persists and takes effect only after restarting the server', { timeout: 60000 }, async t => {
+    const directory = await mkdtemp(path.join(tmpdir(), 'acas-server-gpu-'));
+    let application;
+    t.after(async () => {
+        await application?.close();
+        await rm(directory, { recursive: true, force: true });
+    });
+    const probe = createServer();
+    await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
+    const port = probe.address().port;
+    await new Promise(resolve => probe.close(resolve));
+    const userData = path.join(directory, 'user-data');
+    await mkdir(userData);
+    await writeFile(path.join(userData, 'config.json'), JSON.stringify({ serverPort: port }));
+    const entry = path.join(directory, 'main.mjs');
+    await writeFile(entry, `import { app } from 'electron';
+        app.setPath('userData', ${JSON.stringify(userData)});
+        await import(${JSON.stringify(new URL('../appServer/backend/main.js', import.meta.url).href)});`);
+    const env = { ...process.env };
+    delete env.ELECTRON_RUN_AS_NODE;
+    const launch = async () => {
+        application = await electron.launch({ executablePath: require('electron'), args: [entry], cwd: directory, env });
+        const page = await application.firstWindow();
+        await page.locator('#portSettingsBtn').click();
+        await page.waitForFunction(() => !document.querySelector('#server-gpu-acceleration').disabled);
+        return page;
+    };
+    const hardwareActive = () => application.evaluate(async ({ app }) => {
+        await app.getGPUInfo('basic');
+        return app.isHardwareAccelerationEnabled();
+    });
+    let page = await launch();
+    assert.equal(await page.locator('#server-gpu-acceleration').isChecked(), false);
+    assert.equal(await hardwareActive(), false);
+    await page.locator('#server-gpu-acceleration').check();
+    await page.waitForFunction(async () => await window.serverAPI.getHardwareAcceleration());
+    assert.equal(await hardwareActive(), false, 'changing the choice must not affect the running process');
+    await application.close();
+    application = null;
+
+    page = await launch();
+    assert.equal(await page.locator('#server-gpu-acceleration').isChecked(), true);
+    assert.equal(await hardwareActive(), true);
+    await page.locator('#server-gpu-acceleration').uncheck();
+    await page.waitForFunction(async () => !(await window.serverAPI.getHardwareAcceleration()));
+    assert.equal(await hardwareActive(), true);
+    await application.close();
+    application = null;
+
+    page = await launch();
+    assert.equal(await page.locator('#server-gpu-acceleration').isChecked(), false);
+    assert.equal(await hardwareActive(), false);
+});
 
 test('native Calculation Server starts, serves WebSocket commands, and pins its window', { timeout: 60000 }, async () => {
     const directory = await mkdtemp(path.join(tmpdir(), 'acas-server-platform-'));

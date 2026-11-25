@@ -13,6 +13,21 @@ const predicate = new RegExp(`^(?:\\s|,)*(?:(?:${fillers})\\s+)*$`, 'i');
 const pronounPredicate = new RegExp(`\\b(it|they|them|both(?: of them)?|neither(?: of them)?)(?:'s|'re)?\\s+(?:(?:${fillers})\\s+)*$`, 'i');
 // "which just captured there and sits undefended": a short relative clause that ends in a state verb.
 const relativeState = new RegExp(`^(?:[\\w'-]+\\s+){0,6}?(?:and\\s+)?(?:is|are|was|were|sits?|sitting|stands?|standing|remains?|looks?|left)\\s+(?:(?:${fillers})\\s+)*$`, 'i');
+const directedActions = '(?:in check from|under attack from|attack\\w*|target\\w*|captur\\w*|tak(?:e|es|ing)|grab\\w*|snap\\w*(?: up| off)?|wins?|kick\\w*|chas(?:e|es|ing)|challeng\\w*|confront\\w*|driv\\w*(?: away| off| back)?|drove(?: away| off| back)?|forc\\w*(?: away| off| back)?|push\\w*(?: away| off| back)?|repel\\w*|dislodg\\w*|trade\\w*(?: for| with)?|exchang\\w*(?: for| with)?|sacrific\\w*|eliminat\\w*|remov\\w*|clear\\w*|get rid of|deal with|pin(?:s|ning|ned)?|skewer\\w*|fork\\w*|threat\\w*|hit(?:s|ting)?|trap\\w*|harass\\w*|pressur\\w*|go(?:es)? after|check(?:s|ing)?)';
+const directedAction = new RegExp(`\\b${directedActions}\\b`, 'i');
+const relationAction = /\b(?:attack\w*|control\w*|defend\w*|protect\w*|support\w*|guard\w*|cover\w*|eye\w*|hit\w*|target\w*|pressur\w*|challeng\w*|confront\w*)\b/gi;
+const targetAction = new RegExp(`\\b(?:${directedActions}|defend\\w*|protect\\w*|support\\w*|guard\\w*|cover\\w*|eye\\w*)\\s+(?:(?:the|that|this|your|their)\\s+)?$`, 'i');
+const cooperativeAction = /\b(?:defend\w*|protect\w*|support\w*|guard\w*|cover\w*|shield\w*|shelter\w*|help\w*|aid\w*|assist\w*|back\w*|bolster\w*|reinforce\w*|save\w*|rescue\w*|keep\w*\b[^.!?;]*\b(?:safe|protected|defended|guarded|covered))\b/i;
+const stateVerbs = new Set(['be', 'is', 'are', 'was', 'were', 'been', 'being', 'have', 'has', 'had', 'seem', 'seems', 'look', 'looks', 'remain', 'remains', 'stay', 'stays', 'sit', 'sits', 'stand', 'stands', 'lie', 'lies', 'appear', 'appears', 'feel', 'feels']);
+
+function activePredicate(clause, subjectEnd) {
+    const tail = clause.slice(subjectEnd).replace(/\s+(?:the|that|this|your|their)\s*$/i, '');
+    const modalVerb = [...tail.matchAll(/\b(?:can|could|will|would|may|might|should|must|do|does|did)\s+(?:(?:not|also|directly|immediately|still|then)\s+)*([a-z][\w'-]*)\b/gi)].at(-1)?.[1].toLowerCase();
+    if(modalVerb) return !stateVerbs.has(modalVerb);
+    const leadingVerb = tail.match(/^\s*(?:also|directly|immediately|still|then)?\s*([a-z][\w'-]*)\b/i)?.[1].toLowerCase();
+    if(leadingVerb && !stateVerbs.has(leadingVerb)) return true;
+    return /\b(?:is|are|was|were|be|been|being)\s+[a-z][\w'-]*ing\b/i.test(tail);
+}
 export { negatedConcept } from './concepts.js';
 
 export class TeachingContext {
@@ -109,16 +124,18 @@ export class TeachingContext {
         // "The bishop on g4 pins..." names its side through the piece itself.
         const subjectPiece = this.results.find(result => result.index >= clauseStart && result.index < spec.index
             && result.status === 'resolved' && result.entities.length
-            && /^\s*(?:(?:and|so|then|now|here|also)\s+)?$/i.test(clause.slice(0, result.index - clauseStart)));
+            && /^\s*(?:(?:and|so|then|now|here|also)\s+)?(?:(?:the\s+)?(?:white|black|opponent|enemy|player|your|you)(?:'s)?\s*)?$/i.test(clause.slice(0, result.index - clauseStart)));
         const subjectColor = ownerColor(namedSubject, this.root)
             || (subjectPiece && new Set(subjectPiece.entities.map(entity => entity.color)).size === 1 ? subjectPiece.entities[0].color : null);
-        const hostile = /\b(?:in check from|under attack from|attack\w*|target\w*|captur\w*|tak(?:e|es|ing)|grab\w*|snap\w*(?: up| off)?|wins?|kick\w*|chas(?:e|es|ing)|get rid of|deal with|pin(?:s|ning|ned)?|skewer\w*|fork\w*|threat\w*|hit(?:s|ting)?|trap\w*|harass\w*|pressur\w*|go(?:es)? after|check(?:s|ing)?)\b/i;
+        const roleContext = `${clause} ${this.text.slice(spec.end).split(/[.!?;,]|\b(?:while|whereas|but)\b/i)[0]}`;
         // "Your knight is pinned to the queen" keeps one side. "pinned by the bishop" names the other one.
-        const agent = /\b(?:by|from)\s+(?:the\s+|an?\s+)?$/i.test(clause) && hostile.test(clause);
-        const passive = /\b(?:is|are|was|were|been|being|gets?|got|stays?|remains?)\s+(?:(?:still|now|already|badly|absolutely|completely|also|just)\s+)*(?:pinned|skewered|forked|attacked|threatened|targeted|trapped|hit|pressured|captured|checked)\b/i.test(clause);
+        const agent = /\b(?:by|from)\s+(?:the\s+|an?\s+)?$/i.test(clause) && directedAction.test(clause);
+        const passive = /\b(?:is|are|was|were|been|being|gets?|got|stays?|remains?)\s+(?:(?:still|now|already|badly|absolutely|completely|also|just)\s+)*(?:pinned|skewered|forked|attacked|threatened|targeted|trapped|hit|pressured|captured|checked|challenged|confronted|chased|driven(?:\s+(?:away|off|back))?|repelled|dislodged)\b/i.test(clause);
         // "Take it with the knight" names the tool, so the subject's side holds.
         const instrument = /\bwith\s+(?:the\s+|an?\s+)?$/i.test(clause) && !/\bdeal\s+with\s+(?:the\s+|an?\s+)?$/i.test(clause);
-        const opposingSubject = agent || !passive && !instrument && hostile.test(clause);
+        const actionBySubject = subjectPiece && activePredicate(clause, subjectPiece.end - clauseStart);
+        const opposingSubject = agent || !passive && !instrument
+            && (directedAction.test(roleContext) || actionBySubject && !cooperativeAction.test(roleContext));
         const color = ownerColor(spec.owner, this.root)
             || (/^(?:their|his|her)$/i.test(spec.determiner || '') ? other(this.root) : null)
             || (!spec.square && subjectColor ? opposingSubject ? other(subjectColor) : subjectColor : null);
@@ -275,7 +292,7 @@ export class TeachingContext {
         const prior = this.prior(index, branch);
         const sentence = Math.max(0, ...[...this.text.slice(0, index).matchAll(/[.!?;]\s+/g)].map(match => match.index + match[0].length));
         const actor = prior.findLast(result => result.index >= sentence && result.entities.length === 1
-            && !/\b(?:attack\w*|target\w*|captur\w*|defend\w*|protect\w*|support\w*|guard\w*|cover\w*|eye\w*|hit\w*|pin\w*)\s+(?:(?:the|your|their)\s+)?$/i.test(this.text.slice(sentence, result.index)));
+            && !targetAction.test(this.text.slice(sentence, result.index)));
         const described = this.results.find(result => result.index <= index && result.end > index);
         const entity = (described?.status === 'resolved' && described.entities.length === 1 ? described.entities[0] : null)
             || actor?.entities[0];
@@ -293,7 +310,7 @@ export class TeachingContext {
 
     relations(target, index) {
         const prefix = this.text.slice(0, index);
-        const verb = [...prefix.matchAll(/\b(?:attack\w*|control\w*|defend\w*|protect\w*|support\w*|guard\w*|cover\w*|eye\w*|hit\w*|target\w*|pressur\w*)\b/gi)].at(-1);
+        const verb = [...prefix.matchAll(relationAction)].at(-1);
         if(!verb || /[.!?;]/.test(prefix.slice(verb.index)) || /^\s+by\b/i.test(prefix.slice(verb.index + verb[0].length))) return [];
         const position = this.at(verb.index);
         const source = position.actor;

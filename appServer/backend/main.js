@@ -10,12 +10,17 @@ import { startLocalWSS, stopLocalWSS, sendEnginesList, getServerPort, setServerP
 import { normalizeAISettings, AI_DEFAULTS } from './nativeAI.js';
 import { probeEngine } from './engineProbe.js';
 
+const store = new Store();
+const hardwareAccelerationEnabled = store.get('hardwareAcceleration', false);
+if(typeof hardwareAccelerationEnabled !== 'boolean')
+	throw new TypeError('Invalid saved hardware acceleration setting.');
+if(!hardwareAccelerationEnabled) app.disableHardwareAcceleration();
+
 export let mainWindow = null;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const store = new Store();
 let portRestartPending = false;
 let quitCleanupStarted = false;
 let quitCleanupFinished = false;
@@ -204,6 +209,12 @@ app.whenReady().then(() => {
 		return win.isAlwaysOnTop();
 	});
 	handleTrustedIpc('getServerPort', () => getServerPort());
+	handleTrustedIpc('getHardwareAcceleration', () => store.get('hardwareAcceleration', false));
+	handleTrustedIpc('setHardwareAcceleration', (_event, enabled) => {
+		if(typeof enabled !== 'boolean') throw new TypeError('Hardware acceleration must be a boolean.');
+		store.set('hardwareAcceleration', enabled);
+		return enabled;
+	});
 	handleTrustedIpc('getAISettings', () => storedAISettings());
 	handleTrustedIpc('getAIStatus', () => localAISetup.fullStatus());
 	handleTrustedIpc('startAI', async (_event, settings) => {

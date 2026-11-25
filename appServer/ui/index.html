@@ -154,6 +154,13 @@
             <option value="150">150%</option>
         </select>
     </div>
+    <div class="server-settings-row server-gpu-row">
+        <div class="server-gpu-copy">
+            <label for="server-gpu-acceleration" data-i18n="gpuAcceleration">GPU acceleration</label>
+            <p id="server-gpu-hint" class="port-settings-hint server-gpu-hint" data-i18n="gpuAccelerationHint">Restart the server to apply. This affects server windows, not engines or Pena.</p>
+        </div>
+        <input id="server-gpu-acceleration" type="checkbox" aria-describedby="server-gpu-hint" disabled>
+    </div>
     <form id="portSettingsForm" class="server-port-settings">
         <div class="server-settings-row server-port-row">
             <label for="serverPortInput" data-i18n="localPort">Local server port</label>
