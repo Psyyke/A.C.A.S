@@ -146,6 +146,36 @@ test(`real userscript and GUI keep delivering moves against a ${moveTimeMs}ms op
             const recoveredSuggestions = await dev.evaluate(() => window.pipelineSuggestions);
             assert.ok(recoveredSuggestions.some(move => stalledOpening.moves({ verbose: true }).some(legal =>
                 legal.from === move[0] && legal.to === move[1])), 'Reported three-ply opening gap delivers a legal black reply');
+            const missedCastle = new Chess();
+            await setPosition(missedCastle.fen());
+            await waitPosition(missedCastle.fen());
+            for(const san of ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5', 'd3', 'd6']) {
+                missedCastle.move(san);
+                await setPosition(missedCastle.fen());
+                await waitPosition(missedCastle.fen());
+            }
+            await dev.evaluate(() => { window.pipelineSuggestions = []; });
+            for(const san of ['O-O', 'Nf6', 'Nc3']) assert.ok(missedCastle.move(san));
+            await setPosition(missedCastle.fen());
+            await waitPosition(missedCastle.fen());
+            await gui.waitForFunction(fen => window.AcasInstances?.some(({ instance }) =>
+                instance.currentFen.split(' ').slice(0, 4).join(' ') === fen.split(' ').slice(0, 4).join(' ')
+                && instance.instanceElem.querySelector('.instance-pgn').innerText.includes('PGN unavailable: moves were missed')),
+            missedCastle.fen(), { timeout: 8000 });
+            await dev.waitForFunction(() => window.pipelineSuggestions.length > 0, null, { timeout: 8000 });
+            const gapSuggestions = await dev.evaluate(() => window.pipelineSuggestions);
+            assert.ok(gapSuggestions.some(move => missedCastle.moves({ verbose: true }).some(legal =>
+                legal.from === move[0] && legal.to === move[1])), 'Missed castling delivers a legal reply despite unavailable PGN');
+            await dev.evaluate(() => { window.pipelineSuggestions = []; });
+            for(const san of ['O-O', 'Bg5']) {
+                assert.ok(missedCastle.move(san));
+                await setPosition(missedCastle.fen());
+                await waitPosition(missedCastle.fen());
+            }
+            await dev.waitForFunction(() => window.pipelineSuggestions.length > 0, null, { timeout: 8000 });
+            const followingSuggestions = await dev.evaluate(() => window.pipelineSuggestions);
+            assert.ok(followingSuggestions.some(move => missedCastle.moves({ verbose: true }).some(legal =>
+                legal.from === move[0] && legal.to === move[1])), 'Legal suggestions continue on later turns with incomplete history');
             await setPosition(chess.fen());
             await waitPosition(chess.fen());
             for(const move of replay.history().slice(0, -2)) {

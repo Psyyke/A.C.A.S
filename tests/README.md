@@ -1,5 +1,105 @@
 # Regression tests
 
+## Production domain
+
+`node --test tests\domain-migration.test.mjs tests\server-platform.test.mjs`
+checks production-root loading, userscript URL migration, localhost routing,
+and exact WebSocket origin checks for `https://acaschess.com`.
+
+## Local engine drag and drop
+
+`node --test tests\server-engine-drop.test.mjs tests\server-platform.test.mjs`
+checks UCI detection, timeouts, cancellation and Chromium file drops into the
+Electron window. The test uses a local fixture and does not download an engine.
+It does not test Windows Explorer's administrator privilege restrictions.
+
+## Rendering metrics
+
+`node --test tests\render-metric-performance.test.mjs tests\screen-overlay-userscript.test.mjs`
+checks attack lookup parity, profile and setting races, and shape reuse over
+1,000 refreshes. The Ghost userscript tests also check metric stacking and
+cleanup across profiles.
+
+## Pena local AI and chess GUI
+
+The complete shipped runtime is [pena-v2](../app/assets/engines/pena-v2/).
+All app regression scripts and fixtures are in its
+[tests directory](../app/assets/engines/pena-v2/tests/), excluded from release
+packages and denied by Apache. Run from the repository root:
+
+```powershell
+node --test app\assets\engines\pena-v2\tests\*.test.mjs
+```
+
+These tests cover the real GUI/worker path with mocked inference, PCF/BinProp
+facts, input/history binding, citations, speech/microphone lifecycle and visuals.
+The native-only checks are `local-ai.test.mjs` and `local-worker.test.mjs`.
+They cover WebSocket streaming, cancellation, connection failures, mobile
+classification, model-specific chat templates and small context windows.
+Pena's worker never loads an LLM in the browser. Native model setup is described
+in [the local server README](../appServer/README.md).
+The layout regression checks that runtime entry points resolve without the old
+Pena folder or Desktop tooling. Normal app operation requires neither Desktop
+nor development dependencies. Keep the required browser bundles and notices
+under the runtime's distribution directory.
+
+`node --test --test-name-pattern="Pena external|markings from an older" tests\board-observer.test.mjs`
+checks external cue toggles, stale turns, ordered clears, expiry and hint isolation.
+`node --test tests\screen-overlay-integration.test.mjs`
+also sends real Pena guard cues through the Ghost Script drawer and the local
+server's drawing validator, including stale-position clearing.
+
+For a saved response corpus, run
+`node app\assets\engines\pena-v2\tests\pena-visual-coverage.mjs <outputs.jsonl>`.
+Each row needs `fen`, `playerColor` and `text`. Supply `beforeFen` for observed
+move recaps, `antecedent` for the preceding reply and `citations` for independently
+grounded lines. `question` supplies the latest player question's referents.
+`--assert-moves` checks exact arrows for resolved moves.
+Independent `expected` phrase targets enable `--assert-targets`, while
+`--samples=target` shows wrong or missing targets without stopping the audit.
+Concept span overlap is diagnostic only. It does not certify the right side,
+board frame or arrows, and unsupported references stay in the report.
+`--evidence` replays the saved engine and threat lines as runtime evidence.
+This shares evidence with cited-line expectations, so it is not a fully
+independent semantic oracle. First and later targets are reported separately.
+`--cited` goes one step further and hands each sentence the evidence tags the
+model actually wrote next to it, just like the live chat does. Move targets come
+from those same tags, so read cited move numbers next to the plain and
+`--evidence` runs rather than on their own.
+`--min-target-coverage=95` fails below 95% of annotated targets. Always inspect
+wrong-board and wrong-arrow misses rather than relying on arrow-only coverage.
+
+`pena-concept-targets.mjs <input.jsonl> <output.jsonl>` adds conservative concept
+targets from frozen cited facts without consulting the teaching resolver.
+It skips hypothetical and post-move descriptions. Sentence-wide citations can
+still refer to a different subject, so this provisional oracle does not certify
+concept precision or general 95% correctness. Expected concept targets can
+include `targetSquares` and `positionFen`.
+
+`node --test tests\screen-overlay-userscript.test.mjs tests\screen-overlay-integration.test.mjs`
+checks quiet drawer errors, malformed geometry, detached text and cleanup in
+Chromium, alongside Ghost transport validation. Future and definition-demo
+boards remain GUI previews rather than shapes on an unchanged external board.
+The local UniversalBoardDrawer 1.3.8 must be published separately before the
+userscript's `acasv=3` library reference can fetch these fixes.
+
+Training, export/build tooling, original reference models, old Queen regressions
+and research now live in `C:\Users\USER\Desktop\Pena-chat`, not in the app.
+From that workspace, `node tools\pena-v2\build.mjs` rebuilds shipped dependencies;
+its tests also cover export and speech-build helpers. Real-model microphone
+checks remain explicitly opt-in there. The guide knowledge builder is
+`tools\pena-v2\knowledge.mjs` in that workspace.
+See the [runtime guide](../app/assets/engines/pena-v2/README.txt) for the current
+contract and deployment boundary. Historical source-hash certificates are not
+silently accepted after relocation; original data and checkpoints stay frozen.
+
+`node tests\pena-vram-bench.cjs '{"name":"x","mode":"both","args":[]}'` is a manual
+GPU check that measures Inkling and ZONOS3 VRAM and speed together. Modes are
+`inkling`, `zonos` and `both`. Extra llama-server flags go in `args`, and `"ngl":null`
+leaves out `--n-gpu-layers`. It needs Pena's
+downloaded runtime and model, and results land in `temp\pena-vram-bench\`. See
+`appServer\PENA-12GB-PLAN.md` for what it found.
+
 ## Lc0 worker cleanup
 
 `node --test tests\lc0-worker-lifecycle.test.mjs app\assets\engines\lc0\converter-worker.test.mjs`
@@ -170,14 +270,19 @@ also retains delivery when the engine sends only a final `bestmove`.
 Fast DOM updates can briefly show incomplete moves. Accepting that partial
 position can leave the correct pieces paired with the wrong turn, so own-turn
 filtering skips analysis.
+Missing game history disables PGN export, not live suggestions. Gap recovery
+removes castling rights that the current pieces no longer permit, so missed
+castling cannot leave engines analyzing an invalid FEN. Regression checks cover
+current-position searches on later turns and legal live replies while PGN is
+unavailable.
 The shared detector validates orthodox endpoints regardless of changed-square
 count, rather than listing individual disappearance or duplication patterns.
 This includes castling followed by a reply, which can change five or six squares.
 Larger unresolved endpoints affecting more than four squares recover immediately
 with a guessed turn when counts of every piece type and color are unchanged.
 Other unresolved endpoints wait for another observation. If the placement stays unchanged
-for two seconds, shared recovery resumes with a guessed turn and marks history
-incomplete, without needing page-provided metadata. Changing placements restart
+for 500 ms, shared recovery resumes with a guessed turn and marks history
+incomplete without restarting the instance or needing page-provided metadata. Changing placements restart
 the wait. Promotion and single-piece disappearance frames remain rejected.
 The guessed turn is best effort, not a reconstruction of missing moves.
 Already reconstructed two-ply
@@ -247,10 +352,23 @@ userscript or prove that the entire browser can run forever.
 
 `node --test tests/server-platform.test.mjs` verifies Calculation Server platform
 branches and runs native Electron startup, WebSocket, engine launch/kill, and
-pin/unpin checks with temporary isolated settings. It requires the dependencies
+pin/unpin checks with temporary isolated settings. It also checks localized
+file picker labels through Electron. It requires the dependencies
 in `appServer` and the existing root Playwright installation. Run it separately
 on Windows, macOS, and desktop Linux for native coverage; simulated platform
 branches do not replace testing on those operating systems.
+
+`node --test tests/server-language.test.mjs` checks server language coverage,
+placeholders, persistence, right-to-left layouts and language switching in
+Chromium. It does not replace a native-speaker translation review.
+
+`node --test tests\screen-overlay*.test.mjs` checks Ghost screen overlay settings,
+the userscript drawing lifecycle, server validation and BoardDrawer rendering.
+For the native Electron smoke test, set `ACAS_SCREEN_OVERLAY_SMOKE=1` before
+running the same command. It needs the dependencies in `appServer` and a
+desktop session. On Windows, set `ACAS_SCREEN_OVERLAY_ALIGNMENT=1` to also run
+the headful Chromium alignment check. It does not replace checking placement
+and click-through on each operating system and display setup.
 
 For a quick EloEye result-state check, open `tools/eloeye/?dev` and start a
 fresh run. It plays twice the selected board count with the real opponent and shows the normal
@@ -520,6 +638,11 @@ component, including mutations during a pending publish. Diagnostics report
 recovery coverage, legal alternatives and parser-only timing. The corpus enforces
 99% recovery and mean diff time below 1 ms; these are regression bounds, not a
 real-time guarantee. Set `BOARD_CHANGE_GAMES` / `BOARD_CHANGE_PLIES` to adjust size.
+
+The restart keybind clears cached userscript match state and rebuilds it from
+the current board before restarting the GUI instance. The observer tests check
+that stale castling rights and history are discarded even on an unchanged board,
+and that opening turn and en passant recovery still work.
 
 Whole-game state integration also runs 30 deterministic 80-ply game traces through production
 observation, state updates and publishing, mixing duplicate notifications,

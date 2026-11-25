@@ -1,4 +1,14 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
+
+contextBridge.exposeInMainWorld('aiAPI', {
+	getSettings: () => ipcRenderer.invoke('getAISettings'),
+	getStatus: () => ipcRenderer.invoke('getAIStatus'),
+	pickFile: (kind, title) => ipcRenderer.invoke('pickAIFile', kind, title),
+	start: settings => ipcRenderer.invoke('startAI', settings),
+	stop: () => ipcRenderer.invoke('stopAI'),
+	cancel: () => ipcRenderer.invoke('cancelAISetup'),
+	onStatus: callback => ipcRenderer.on('aiStatus', (_event, status) => callback(status))
+});
 
 contextBridge.exposeInMainWorld('engineAPI', {
 	killAllEngines: () => ipcRenderer.invoke('killAllEngines'),
@@ -7,6 +17,7 @@ contextBridge.exposeInMainWorld('engineAPI', {
 	getSavedEngines: () => ipcRenderer.invoke('getSavedEngines'),
 	sendManualUciToEngine: (cmd, identifierObj) => ipcRenderer.invoke('sendManualUciToEngine', cmd, identifierObj),
 	addEngine: (fileInfo, title) => ipcRenderer.invoke('addEngine', fileInfo, title),
+	addDroppedEngine: filePath => ipcRenderer.invoke('addDroppedEngine', filePath),
 	removeEngine: (enginePath) => ipcRenderer.invoke('removeEngine', enginePath),
 	renameEngine: (enginePath, title) => ipcRenderer.invoke('renameEngine', enginePath, title),
 	onRenderEngineGrid: (callback) => ipcRenderer.on('renderEngineGrid', (event, data) => callback(data)),
@@ -26,10 +37,11 @@ contextBridge.exposeInMainWorld('serverAPI', {
 });
 
 contextBridge.exposeInMainWorld('fileAPI', {
-	pickFile: async () => {
-		const filePath = await ipcRenderer.invoke('pickFile');
+	pickFile: async (title, filesLabel) => {
+		const filePath = await ipcRenderer.invoke('pickFile', title, filesLabel);
 		return filePath;
-	}
+	},
+	getPathForFile: file => webUtils.getPathForFile(file)
 });
 
 contextBridge.exposeInMainWorld('toastAPI', {
@@ -38,6 +50,8 @@ contextBridge.exposeInMainWorld('toastAPI', {
 
 contextBridge.exposeInMainWorld('electronAPI', {
 	getVersion: () => ipcRenderer.invoke('getAppVersion'),
+	getCredits: () => ipcRenderer.invoke('getCredits'),
+	openChromiumNotices: () => ipcRenderer.invoke('openChromiumNotices'),
 	getAlwaysOnTop: () => ipcRenderer.invoke('getAlwaysOnTop'),
 	setAlwaysOnTop: enabled => ipcRenderer.invoke('setAlwaysOnTop', enabled),
 	openExternal: (url) => ipcRenderer.invoke('openExternal', url)

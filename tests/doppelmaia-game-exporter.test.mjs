@@ -107,7 +107,7 @@ test('downloaded exporter is self contained and matches the responsive tool desi
         assert.equal(await page.locator('#diagnostics').count(), 0);
         assert.equal(await page.locator('#log').count(), 0);
         assert.equal(await page.locator('#export-help a').first().getAttribute('href'),
-            'https://psyyke.github.io/A.C.A.S/tools/doppelmaia/');
+            'https://acaschess.com/tools/doppelmaia/');
         assert.match(await page.locator('#export-help').textContent(), /100 MiB import limit/);
         assert.match(await page.locator('#collect').evaluate(element => getComputedStyle(element).backgroundImage), /rgb\(227, 184, 68\)/);
         assert.deepEqual(requests, []);
@@ -326,7 +326,7 @@ test('Export Matches tool page matches site controls and keeps API collection lo
         const tools = await readFile(new URL('../tools/index.html', import.meta.url), 'utf8');
         const sitemap = await readFile(new URL('../sitemap.xml', import.meta.url), 'utf8');
         assert.match(tools, /class="tool-card" href="game-exporter\/"/);
-        assert.match(sitemap, /<loc>https:\/\/psyyke\.github\.io\/A\.C\.A\.S\/tools\/game-exporter\/<\/loc>/);
+        assert.match(sitemap, /<loc>https:\/\/acaschess\.com\/tools\/game-exporter\/<\/loc>/);
         await localPage(async page => {
             const requests = [], failures = [];
             await page.route('https://**', route => route.fulfill({ body: '', contentType: 'application/javascript' }));
@@ -337,7 +337,7 @@ test('Export Matches tool page matches site controls and keeps API collection lo
             assert.equal(await page.locator('h1').textContent(), 'Export Matches');
             assert.equal(await page.title(), 'Export Matches / A.C.A.S');
             assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),
-                'https://psyyke.github.io/A.C.A.S/tools/game-exporter/');
+                'https://acaschess.com/tools/game-exporter/');
             assert.ok(await page.locator('meta[name="description"]').getAttribute('content'));
             const schema = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
             assert.equal(schema['@graph'][1]['@type'], 'SoftwareApplication');

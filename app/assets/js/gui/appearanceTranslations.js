@@ -11,6 +11,10 @@ export function initializeAppearanceTranslations() {
             const label = appearanceText(element.dataset.appearanceText, element.dataset.appearanceFallback);
             if(element.textContent !== label) element.textContent = label;
         });
+        document.querySelectorAll('[data-appearance-label]').forEach(element => {
+            element.dataset.appearanceLabelFallback ??= element.getAttribute('aria-label');
+            element.setAttribute('aria-label', appearanceText(element.dataset.appearanceLabel, element.dataset.appearanceLabelFallback));
+        });
 
         const labels = typeof TRANS_OBJ === 'undefined' ? {} : TRANS_OBJ?.appearance?.textures ?? {};
         document.querySelectorAll('.background-texture-picker .dropdown-item').forEach(item => {

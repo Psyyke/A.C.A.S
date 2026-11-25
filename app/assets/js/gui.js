@@ -24,6 +24,9 @@ import { initializeHintPieceFilters } from './gui/hintPieceFilters.js';
 import { initializeSuggestionMix } from './gui/suggestionMix.js';
 import { initializeLc0Weights } from './gui/lc0Weights.js';
 import { initializeMaia3Models } from './gui/maia3Models.js';
+import { initializePenaSettings } from '../engines/pena-v2/app-settings.js';
+import { initializePena } from '../engines/pena-v2/service.js';
+import { migrateLegacyPenaSettings, migrateLegacyPenaStorage } from '../engines/pena-v2/migrate.js';
 
 export const guiBroadcastChannel = new BroadcastChannel(GUI_BROADCAST_NAME);
 let initialized = false;
@@ -327,8 +330,10 @@ export async function initGUI() {
     const hintsMigrated = migrateHintSettings(config);
     const feedbackMigrated = migrateFeedbackSettings(config);
     const pipMigrated = migratePipSettings(config);
+    const penaMigrated = migrateLegacyPenaSettings(config);
+    migrateLegacyPenaStorage();
 
-    if(hintsMigrated || feedbackMigrated || pipMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
+    if(hintsMigrated || feedbackMigrated || pipMigrated || penaMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
 
     initializeBackgroundGrain();
     initializeStarfield();
@@ -384,6 +389,8 @@ export async function initGUI() {
     initializeSuggestionMix();
     initializeLc0Weights();
     initializeMaia3Models();
+    initializePenaSettings();
+    initializePena();
     initializeAppearanceTranslations();
 
     const customBackgroundReady = initializeCustomBackground();

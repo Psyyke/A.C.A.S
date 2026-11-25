@@ -127,6 +127,26 @@ test('engine movetime ignores the external timer and incomplete history falls ba
     clearTimeout(vars.currentMovetimeTimeout);
 });
 
+test('incomplete history keeps starting current-position searches on subsequent turns for local and external engines', async () => {
+    for(const engine of ['external', 'rodent-v', 'lc0']) {
+        const { instance, commands, vars } = fixture({ onlyCalculateOwnTurn: true });
+        vars.useExternalChessEngine = engine === 'external';
+        instance.getEngineName = async () => engine;
+        const chess = new Chess();
+        instance.gameStateHistory.push({ historyIncomplete: true, fen: { full: chess.fen() } });
+        for(const moves of [[], ['e4', 'e5'], ['Nf3', 'Nc6']]) {
+            for(const san of moves) chess.move(san);
+            instance.currentFen = chess.fen();
+            instance.gameStateHistory.push({ historyIncomplete: true, fen: { full: chess.fen() } });
+            await instance.calculateBestMoves(instance.currentFen);
+            assert.deepEqual(commands.splice(0), [`position fen ${chess.fen()}`, 'go movetime 5000'], engine);
+            const calculation = vars.pendingCalculations.at(-1);
+            assert.equal(calculation.goSent, true);
+            calculation.finished = true;
+        }
+    }
+});
+
 test('infinite mode and disabled advanced settings choose the correct search', async () => {
     const infinite = fixture({ advancedSearchMode: 'infinite', movesOnDemand: true });
     await infinite.instance.calculateBestMoves(infinite.instance.currentFen, { specificMovesObj: { moves: ['e7e5'] } });

@@ -2,45 +2,176 @@ let savedEngines = [];
 let runningEngines = [];
 let serverConnectionStatus = false;
 let portUpdatePending = false;
+let portRestarting = false;
+let serverStatus = 'offline';
+let portAvailable = false;
+let portLoadId = 0;
+const t = window.serverI18n.text;
+const textSizeSelect = document.getElementById('server-text-size');
+const serverConnectionInfo = document.getElementById('serverConnectionInfo');
+const textSizeStorageKey = 'acas-server-text-size';
+
+// Size the subtitle so it spans exactly the "A.C.A.S" wordmark, whatever the language or text size.
+function fitLogoSubtitle() {
+    const main = document.getElementById('acas-logo-main');
+    const subtitle = document.getElementById('acas-logo-secondary');
+    const wordmark = main?.firstChild;
+    if(!subtitle || wordmark?.nodeType !== Node.TEXT_NODE) return;
+    subtitle.style.fontSize = '';
+    // Measures painted ink, because Whisper swashes overhang their layout box.
+    const context = (fitLogoSubtitle.canvas ||= document.createElement('canvas')).getContext('2d');
+    const measure = node => {
+        const element = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+        const style = getComputedStyle(element);
+        context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        context.fontStretch = style.fontStretch === '200%' ? 'ultra-expanded' : 'normal';
+        context.letterSpacing = style.letterSpacing === 'normal' ? '0px' : style.letterSpacing;
+        const metrics = context.measureText(node.textContent.trim());
+        return metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
+    };
+    const target = measure(wordmark);
+    const current = measure(subtitle);
+    if(!target || !current) return;
+    // Clamped so very short or very long translations stay readable.
+    const ratio = Math.min(1.6, Math.max(0.55, target / current));
+    subtitle.style.fontSize = `${parseFloat(getComputedStyle(subtitle).fontSize) * ratio}px`;
+}
+document.fonts?.addEventListener('loadingdone', fitLogoSubtitle);
+document.fonts?.ready.then(fitLogoSubtitle);
+document.addEventListener('server-language-changed', fitLogoSubtitle);
+
+function setServerTextSize(size, persist = true) {
+    if(!Number.isInteger(size) || size < 80 || size > 150 || size % 10 !== 0)
+        throw new RangeError('Invalid server text size.');
+    const positions = [...CONSOLE_OBJS.values()].map(({ logDiv }) => ({
+        logDiv,
+        atBottom: logDiv.scrollHeight - logDiv.clientHeight <= logDiv.scrollTop + 60,
+        ratio: logDiv.scrollTop / Math.max(1, logDiv.scrollHeight - logDiv.clientHeight)
+    }));
+    document.documentElement.style.setProperty('--server-font-scale', String(size / 100));
+    textSizeSelect.value = String(size);
+    fitLogoSubtitle();
+    positions.forEach(({ logDiv, atBottom, ratio }) => {
+        logDiv.scrollTop = atBottom ? logDiv.scrollHeight : ratio * (logDiv.scrollHeight - logDiv.clientHeight);
+    });
+    if(persist) {
+        try { localStorage.setItem(textSizeStorageKey, String(size)); }
+        catch(error) { console.warn('Could not save server text size:', error); }
+    }
+}
+
+try {
+    const saved = localStorage.getItem(textSizeStorageKey);
+    const size = Number(saved);
+    if(saved !== null && Number.isInteger(size) && size >= 80 && size <= 150 && size % 10 === 0)
+        setServerTextSize(size, false);
+} catch(error) { console.warn('Could not read server text size:', error); }
+textSizeSelect.addEventListener('change', () => setServerTextSize(Number(textSizeSelect.value)));
+
+const portRestartDelay = 5;
+let savedPort = null;
+let portCountdown = null;
 
 const setPortSettingsBusy = busy => {
     portUpdatePending = busy;
-    serverPortInput.disabled = busy;
+    serverPortInput.disabled = busy || portRestarting || !portAvailable;
     portSettingsCancel.disabled = busy;
-    portSettingsSave.disabled = busy;
     portSettingsBtn.disabled = busy;
-    portSettingsSave.textContent = busy ? 'Saving…' : 'Save & Restart';
 };
+
+function cancelPortCountdown() {
+    if(!portCountdown) return;
+    clearInterval(portCountdown.interval);
+    portCountdown.toast.close();
+    portCountdown = null;
+}
+
+function startPortCountdown(port) {
+    const reusable = portCountdown?.toast.isOpen() ? portCountdown.toast : null;
+    if(portCountdown) clearInterval(portCountdown.interval);
+    portCountdown = null;
+    let seconds = portRestartDelay;
+    const text = t('portCountdown', { port, seconds });
+    if(reusable) {
+        reusable.setContent(text);
+        reusable.resetTimer();
+    }
+    const countdown = {
+        port,
+        toast: reusable || toast.message(text, portRestartDelay * 1000)
+    };
+    countdown.interval = setInterval(() => {
+        if(portCountdown !== countdown) return clearInterval(countdown.interval);
+        // Closing the toast cancels the pending restart.
+        if(!countdown.toast.isOpen()) {
+            clearInterval(countdown.interval);
+            portCountdown = null;
+            return;
+        }
+        seconds--;
+        if(seconds > 0) return countdown.toast.setContent(t('portCountdown', { port, seconds }));
+        cancelPortCountdown();
+        applyPort(port);
+    }, 1000);
+    portCountdown = countdown;
+}
+
+serverPortInput.addEventListener('input', () => {
+    const port = Number(serverPortInput.value);
+    if(!portAvailable || portUpdatePending || !serverPortInput.checkValidity() ||
+        !Number.isInteger(port) || port === savedPort) return cancelPortCountdown();
+    startPortCountdown(port);
+});
 
 portSettingsBtn.addEventListener('click', async () => {
     if(portSettingsDialog.open || portUpdatePending) return;
-
+    portSettingsDialog.showModal();
+    if(portCountdown) return;
+    portAvailable = false;
+    setPortSettingsBusy(false);
+    const loadId = ++portLoadId;
     try {
-        serverPortInput.value = String(await window.serverAPI.getPort());
-        portSettingsDialog.showModal();
-        serverPortInput.focus();
-        serverPortInput.select();
+        const port = await window.serverAPI.getPort();
+        if(loadId !== portLoadId || !portSettingsDialog.open) return;
+        savedPort = port;
+        serverPortInput.value = String(port);
+        portAvailable = true;
+        setPortSettingsBusy(false);
     } catch(error) {
+        if(loadId !== portLoadId || !portSettingsDialog.open) return;
         console.error('Failed to load server port:', error);
-        toast.error('Could not load the server port setting.', 5000);
+        toast.error(t('portLoadError'), 5000);
     }
 });
 portSettingsCancel.addEventListener('click', () => portSettingsDialog.close('cancel'));
+portSettingsDialog.addEventListener('close', () => { portLoadId++; });
+portSettingsDialog.addEventListener('click', event => {
+    if(event.target !== portSettingsDialog || portUpdatePending) return;
+    const bounds = portSettingsDialog.getBoundingClientRect();
+    if(event.clientX < bounds.left || event.clientX > bounds.right ||
+        event.clientY < bounds.top || event.clientY > bounds.bottom) portSettingsDialog.close();
+});
 portSettingsDialog.addEventListener('cancel', event => {
     if(portUpdatePending) event.preventDefault();
 });
-portSettingsForm.addEventListener('submit', async event => {
+// Enter applies the typed port right away instead of waiting for the countdown.
+portSettingsForm.addEventListener('submit', event => {
     event.preventDefault();
 
-    if(portUpdatePending || !portSettingsForm.reportValidity()) return;
+    if(portUpdatePending || !portAvailable || !portSettingsForm.reportValidity()) return;
 
     const port = Number(serverPortInput.value);
 
     if(!Number.isInteger(port) || port < 1 || port > 65535) {
-        toast.error('Port must be a whole number between 1 and 65535.', 5000);
+        toast.error(t('portInvalid'), 5000);
         return;
     }
+    cancelPortCountdown();
+    applyPort(port);
+});
 
+async function applyPort(port) {
+    if(portUpdatePending || portRestarting) return;
     let restarting = false;
 
     setPortSettingsBusy(true);
@@ -52,36 +183,46 @@ portSettingsForm.addEventListener('submit', async event => {
             toast.error(result, 5000);
             return;
         }
-        portSettingsDialog.close('save');
-        if(result === false) toast.message('Port is unchanged.', 2000);
+        if(result === false) {
+            savedPort = port;
+            toast.message(t('portUnchanged'), 2000);
+        }
         if(result === true) {
             restarting = true;
-            portSettingsSave.textContent = 'Restarting…';
-            toast.message(`Restarting on port ${port}. Update the server port in the A.C.A.S web GUI to match.`, 5000);
+            portRestarting = true;
+            if(portSettingsDialog.open) portSettingsDialog.close('save');
+            toast.message(t('portRestarting', { port }), 5000);
         }
     } catch(error) {
         console.error('Failed to update server port:', error);
-        toast.error('Could not update the server port.', 5000);
+        toast.error(t('portUpdateError'), 5000);
     } finally {
         if(!restarting) setPortSettingsBusy(false);
     }
-});
+}
 
 function updateAlwaysOnTopButton(enabled) {
     alwaysOnTopToggle.setAttribute('aria-pressed', String(enabled));
-    const label = enabled ? 'Stop keeping window always on top' : 'Keep window always on top';
+    const label = t(enabled ? 'unpinWindow' : 'pinWindow');
     alwaysOnTopToggle.title = label;
     alwaysOnTopToggle.setAttribute('aria-label', label);
     alwaysOnTopToggle.querySelector('i').className = `bi ${enabled ? 'bi-pin-angle-fill' : 'bi-pin-angle'}`;
 }
 
+const alwaysOnTopStorageKey = 'acas-server-always-on-top';
+
 (async () => {
     try {
-        updateAlwaysOnTopButton(await window.electronAPI.getAlwaysOnTop());
+        let pinned = await window.electronAPI.getAlwaysOnTop();
+        let savedPin = null;
+        try { savedPin = localStorage.getItem(alwaysOnTopStorageKey); } catch {}
+        if(savedPin !== null && (savedPin === '1') !== pinned)
+            pinned = await window.electronAPI.setAlwaysOnTop(savedPin === '1');
+        updateAlwaysOnTopButton(pinned);
         alwaysOnTopToggle.disabled = false;
     } catch(error) {
         console.error('Failed to load always-on-top state:', error);
-        toast.error('Could not load the window pin setting.', 5000);
+        toast.error(t('pinLoadError'), 5000);
     }
 })();
 
@@ -89,32 +230,52 @@ alwaysOnTopToggle.addEventListener('click', async () => {
     alwaysOnTopToggle.disabled = true;
     try {
         const enabled = alwaysOnTopToggle.getAttribute('aria-pressed') !== 'true';
-        updateAlwaysOnTopButton(await window.electronAPI.setAlwaysOnTop(enabled));
+        const pinned = await window.electronAPI.setAlwaysOnTop(enabled);
+        updateAlwaysOnTopButton(pinned);
+        saveLayoutFlag(alwaysOnTopStorageKey, pinned);
     } catch(error) {
         console.error('Failed to change always-on-top state:', error);
-        toast.error('Could not change the window pin setting.', 5000);
+        toast.error(t('pinUpdateError'), 5000);
     } finally {
         alwaysOnTopToggle.disabled = false;
     }
 });
 
-logOnlyToggle.addEventListener('click', () => {
-    const logOnly = document.body.classList.toggle('logs-only');
+const layoutStorageKeys = { logOnly: 'acas-server-logs-only', collapsed: 'acas-server-panels-collapsed' };
+
+function saveLayoutFlag(key, enabled) {
+    try { localStorage.setItem(key, enabled ? '1' : '0'); }
+    catch(error) { console.warn('Could not save layout preference:', error); }
+}
+
+function setLogOnlyMode(logOnly, save = true) {
+    document.body.classList.toggle('logs-only', logOnly);
     logOnlyToggle.setAttribute('aria-pressed', String(logOnly));
-    const label = logOnly ? 'Show console controls' : 'Show logs only';
+    const label = t(logOnly ? 'showControls' : 'showLogs');
     logOnlyToggle.title = label;
     logOnlyToggle.setAttribute('aria-label', label);
     logOnlyToggle.querySelector('i').className = `bi ${logOnly ? 'bi-sliders' : 'bi-eye-slash-fill'}`;
-});
+    if(save) saveLayoutFlag(layoutStorageKeys.logOnly, logOnly);
+}
 
-panelsToggle.addEventListener('click', () => {
-    const isExpanded = panelsToggle.getAttribute('aria-expanded') === 'true';
-    document.body.classList.toggle('panels-collapsed', isExpanded);
-    panelsToggle.setAttribute('aria-expanded', String(!isExpanded));
-    panelsToggle.setAttribute('aria-label', `${isExpanded ? 'Show' : 'Collapse'} panels`);
-    panelsToggle.title = `${isExpanded ? 'Show' : 'Collapse'} panels`;
-    panelsToggle.querySelector('i').className = `bi bi-chevron-${isExpanded ? 'down' : 'up'}`;
-});
+function setPanelsCollapsed(collapsed, save = true) {
+    document.body.classList.toggle('panels-collapsed', collapsed);
+    panelsToggle.setAttribute('aria-expanded', String(!collapsed));
+    panelsToggle.setAttribute('aria-label', t(collapsed ? 'showPanels' : 'collapsePanels'));
+    panelsToggle.title = t(collapsed ? 'showPanels' : 'collapsePanels');
+    panelsToggle.querySelector('i').className = `bi bi-chevron-${collapsed ? 'down' : 'up'}`;
+    if(save) saveLayoutFlag(layoutStorageKeys.collapsed, collapsed);
+}
+
+logOnlyToggle.addEventListener('click', () => setLogOnlyMode(!document.body.classList.contains('logs-only')));
+panelsToggle.addEventListener('click', () => setPanelsCollapsed(panelsToggle.getAttribute('aria-expanded') === 'true'));
+
+try {
+    if(localStorage.getItem(layoutStorageKeys.logOnly) === '1') setLogOnlyMode(true, false);
+    if(localStorage.getItem(layoutStorageKeys.collapsed) === '1') setPanelsCollapsed(true, false);
+} catch(error) {
+    console.warn('Could not restore layout preferences:', error);
+}
 
 (async () => {
     try {
@@ -128,7 +289,7 @@ panelsToggle.addEventListener('click', () => {
     try {
         const version = await window.electronAPI.getVersion();
         serverVersionTagElem.textContent = `v${version}`;
-        document.title = `Advanced Chess Assistance Server v${version} (Beta)`;
+        document.title = `Advanced Chess Assistance Server v${version}`;
     } catch(error) {
         console.error('Failed to load server version:', error);
     }
@@ -154,10 +315,10 @@ if(engineUiGrid) {
 stopBtn.onclick = () => window.engineAPI.killAllEngines();
 clearBtn.onclick = () => {
     window.engineAPI.clearCache();
-    toast.success('Cache cleared!', 1000);
+    toast.success(t('cacheCleared'), 1000);
 };
 addEngineBtn.onclick = async () => {
-    const filePath = await window.fileAPI.pickFile();
+    const filePath = await window.fileAPI.pickFile(t('addEngine'), t('itemFiles'));
 
     if(!filePath) return;
 
@@ -166,35 +327,87 @@ addEngineBtn.onclick = async () => {
         path: filePath
     };
 
-    const title = await AcasPrompt.prompt('Enter a custom name for this engine (optional):', fileInfo.name) || fileInfo.name;
+    const title = await AcasPrompt.prompt(t('enterEngineName'), fileInfo.name) || fileInfo.name;
 
     try {
         const result = await window.engineAPI.addEngine(fileInfo, title);
 
-        if (result === true) toast.success(`Added engine: ${fileInfo.name}`, 5000);
+        if (result === true) toast.success(t('engineAdded', { name: fileInfo.name }), 5000);
         else if (typeof result === 'string') toast.error(result, 5000);
     } catch (err) {
         console.error('Failed to add engine:', err);
     }
 };
 
+const engineDropOverlay = document.getElementById('engine-drop-overlay');
+let engineDropBusy = false;
+const isFileDrag = event => Array.from(event.dataTransfer?.types || []).includes('Files');
+
+document.addEventListener('dragover', event => {
+    if(!isFileDrag(event)) return;
+    event.preventDefault();
+    const available = !engineDropBusy && !document.querySelector('dialog[open]');
+    event.dataTransfer.dropEffect = available ? 'copy' : 'none';
+    engineDropOverlay.hidden = !available;
+});
+document.addEventListener('dragleave', event => {
+    if(!event.relatedTarget) engineDropOverlay.hidden = true;
+});
+document.addEventListener('drop', async event => {
+    if(!isFileDrag(event)) return;
+    event.preventDefault();
+    engineDropOverlay.hidden = true;
+    if(engineDropBusy || document.querySelector('dialog[open]')) return;
+
+    const paths = [];
+    for(const file of event.dataTransfer.files) {
+        try {
+            const filePath = window.fileAPI.getPathForFile(file);
+            if(filePath) paths.push(filePath);
+            else toast.error(t('dropPathError', { name: file.name }), 7000);
+        } catch(error) {
+            console.error('Could not read dropped file path:', error);
+            toast.error(t('dropPathError', { name: file.name }), 7000);
+        }
+    }
+    if(!paths.length) return;
+
+    engineDropBusy = true;
+    try {
+        const confirmed = await AcasPrompt.confirm(
+            `${t('dropConfirm')}\n\n${paths.join('\n')}`, t('addEngine'));
+        if(!confirmed) return;
+        for(const filePath of paths) {
+            const name = filePath.split(/[/\\]/).pop();
+            const progress = toast.message(t('dropChecking', { name }), 16000);
+            try {
+                const result = await window.engineAPI.addDroppedEngine(filePath);
+                if(result === true) toast.success(t('engineAdded', { name }), 5000);
+                else toast.error(`${t('dropFailed', { name })} ${result}`, 10000);
+            } catch(error) {
+                console.error('Failed to check dropped engine:', error);
+                toast.error(t('dropFailed', { name }), 10000);
+            } finally {
+                progress.close();
+            }
+        }
+    } finally {
+        engineDropBusy = false;
+    }
+});
+
 function refreshEngineCards(aliveEngineProcesses) {
     runningEngines = aliveEngineProcesses;
-    engineSummary.textContent = `${savedEngines.length} saved · ${runningEngines.length} running`;
+    engineSummary.textContent = t('engineRunning', { count: runningEngines.length });
     engineUiGrid.querySelectorAll('.engine-card').forEach(card => {
         const processes = runningEngines.filter(engine => String(engine.identifierObj.engineId) === card.dataset.engineId);
         card.classList.toggle('active', processes.length > 0);
-        card.querySelector('.engine-status').textContent = processes.length
-            ? `${processes.length} running` : 'Idle';
+        const status = processes.length ? t('engineRunning', { count: processes.length }) : t('idle');
+        card.querySelector('.engine-status').textContent = status;
+        card.setAttribute('aria-label', t('engineCardLabel', { name: card.querySelector('.engine-card-title').textContent, status }));
 
         const processList = card.querySelector('.engine-process-list');
         processList.replaceChildren();
-        if(!processes.length) {
-            const idleText = document.createElement('span');
-            idleText.className = 'engine-idle-hint';
-            idleText.textContent = 'Ready to use from the web GUI';
-            processList.appendChild(idleText);
-        }
         processes.forEach(({ identifierObj }) => {
             const row = document.createElement('div');
             row.className = 'engine-process-row';
@@ -229,8 +442,10 @@ async function renderEngineGrid(engines) {
             const title = existingCard.querySelector('.engine-card-title');
             title.textContent = engine.title || engine.name;
             title.title = title.textContent;
-            existingCard.querySelector('.edit-btn').setAttribute('aria-label', `Rename ${title.textContent}`);
-            existingCard.querySelector('.remove-btn').setAttribute('aria-label', `Remove ${title.textContent} from the library`);
+            existingCard.querySelector('.edit-btn').title = t('changeDisplayName');
+            existingCard.querySelector('.edit-btn').setAttribute('aria-label', t('renameEngine', { name: title.textContent }));
+            existingCard.querySelector('.remove-btn').title = t('removeEngineHint');
+            existingCard.querySelector('.remove-btn').setAttribute('aria-label', t('removeEngineLabel', { name: title.textContent }));
             return;
         }
 
@@ -238,16 +453,26 @@ async function renderEngineGrid(engines) {
         card.className = 'card engine-card';
         card.dataset.engineId = engine.engineId;
         card.dataset.enginePath = engine.path;
+        card.tabIndex = 0;
+        card.setAttribute('role', 'group');
+        const showUsage = () => toast.message(t('engineUsage'), 4000);
+        card.addEventListener('click', event => {
+            if(!event.target.closest('button')) showUsage();
+        });
+        card.addEventListener('keydown', event => {
+            if(event.target === card && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                showUsage();
+            }
+        });
 
-        const statusRow = document.createElement('div');
-        statusRow.className = 'engine-card-status-row';
         const engineIcon = document.createElement('i');
-        engineIcon.className = 'bi bi-cpu';
+        engineIcon.className = 'bi bi-cpu engine-card-icon';
         engineIcon.setAttribute('aria-hidden', 'true');
         const status = document.createElement('span');
         status.className = 'engine-status';
-        status.textContent = 'Idle';
-        statusRow.append(engineIcon, status);
+        status.textContent = t('idle');
+        status.setAttribute('aria-live', 'polite');
 
         const top = document.createElement('div');
         top.className = 'top';
@@ -260,8 +485,8 @@ async function renderEngineGrid(engines) {
         const editBtn = document.createElement('button');
         editBtn.className = 'edit-btn acas-fancy-button';
         editBtn.type = 'button';
-        editBtn.title = 'Change display name';
-        editBtn.setAttribute('aria-label', `Rename ${engine.title || engine.name}`);
+        editBtn.title = t('changeDisplayName');
+        editBtn.setAttribute('aria-label', t('renameEngine', { name: engine.title || engine.name }));
         editBtn.onclick = async (e) => {
             const currentEngine = savedEngines.find(saved => saved.path === engine.path);
 
@@ -273,7 +498,7 @@ async function renderEngineGrid(engines) {
 
             try {
                 const newTitle = await AcasPrompt.prompt(
-                    'Change this engine\'s display name:', currentEngine.title || currentEngine.name,
+                    t('changeEngineName'), currentEngine.title || currentEngine.name,
                     { showCancel: true }
                 );
 
@@ -282,10 +507,10 @@ async function renderEngineGrid(engines) {
                 const result = await window.engineAPI.renameEngine(engine.path, newTitle);
 
                 if(typeof result === 'string') toast.error(result, 5000);
-                else toast.success('Engine display name updated.', 2000);
+                else toast.success(t('engineRenamed'), 2000);
             } catch(error) {
                 console.error('Failed to rename engine:', error);
-                toast.error('Could not rename this engine.', 5000);
+                toast.error(t('engineRenameError'), 5000);
             } finally {
                 if(editBtn.isConnected) editBtn.disabled = false;
             }
@@ -300,8 +525,8 @@ async function renderEngineGrid(engines) {
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-btn acas-fancy-button';
         removeBtn.type = 'button';
-        removeBtn.title = 'Remove this binary from the library and kill its running processes';
-        removeBtn.setAttribute('aria-label', `Remove ${engine.title || engine.name} from the library`);
+        removeBtn.title = t('removeEngineHint');
+        removeBtn.setAttribute('aria-label', t('removeEngineLabel', { name: engine.title || engine.name }));
         removeBtn.onclick = async (e) => {
             const currentEngine = savedEngines.find(saved => saved.path === engine.path);
 
@@ -313,8 +538,8 @@ async function renderEngineGrid(engines) {
 
             try {
                 const confirmed = await AcasPrompt.confirm(
-                    `Remove "${currentEngine.title || currentEngine.name}" from the engine library?\n\nThis will stop its running processes. The binary file will remain on disk.`,
-                    'Remove'
+                    t('removeEngineConfirm', { name: currentEngine.title || currentEngine.name }),
+                    t('remove')
                 );
 
                 if(!confirmed) return;
@@ -324,7 +549,7 @@ async function renderEngineGrid(engines) {
                 if(typeof result === 'string') toast.error(result, 5000);
             } catch(error) {
                 console.error('Failed to remove engine:', error);
-                toast.error('Could not remove this engine.', 5000);
+                toast.error(t('engineRemoveError'), 5000);
             } finally {
                 if(removeBtn.isConnected) removeBtn.disabled = false;
             }
@@ -338,8 +563,7 @@ async function renderEngineGrid(engines) {
         const actions = document.createElement('div');
         actions.className = 'engine-card-actions';
         actions.append(editBtn, removeBtn);
-        top.appendChild(title);
-        top.appendChild(actions);
+        top.append(engineIcon, title, actions);
 
         const bottom = document.createElement('div');
         bottom.className = 'bottom';
@@ -358,10 +582,10 @@ async function renderEngineGrid(engines) {
         const processList = document.createElement('div');
         processList.className = 'engine-process-list';
 
-        card.appendChild(statusRow);
         card.appendChild(top);
         card.appendChild(bottom);
         card.appendChild(processList);
+        card.appendChild(status);
 
         engineUiGrid.appendChild(card);
     });
@@ -370,7 +594,9 @@ async function renderEngineGrid(engines) {
     if(!savedEngines.length) {
         const emptyState = document.createElement('div');
         emptyState.className = 'engine-empty-state';
-        emptyState.innerHTML = '<i class="bi bi-cpu" aria-hidden="true"></i><b>No engines added yet</b><span>Add an engine binary, then select it in the A.C.A.S web GUI.</span>';
+        emptyState.innerHTML = '<i class="bi bi-cpu" aria-hidden="true"></i><b></b><span></span>';
+        emptyState.querySelector('b').textContent = t('emptyLibrary');
+        emptyState.querySelector('span').textContent = t('emptyLibraryHint');
         engineUiGrid.appendChild(emptyState);
     }
     refreshEngineCards(runningEngines);
@@ -379,45 +605,87 @@ async function renderEngineGrid(engines) {
 }
 
 function updateServerStatusIcon(state) {
+    serverStatus = state;
     const statuses = {
-        offline: ['bi-wifi-off', 'Offline'],
-        listening: ['server-connection-loading', 'Waiting for the web GUI to connect'],
-        connected: ['bi-check-circle-fill', 'Web GUI connected'],
-        warning: ['bi-exclamation-triangle-fill', 'Unauthorized connection blocked']
+        offline: ['bi-wifi-off', 'offline'],
+        listening: ['server-connection-loading', 'waitingGui'],
+        connected: ['bi-check-circle-fill', 'guiConnected'],
+        warning: ['bi-exclamation-triangle-fill', 'unauthorized']
     };
     const [icon, description] = statuses[state];
     statusDot.className = `bi ${icon}`;
-    const label = `${description}. Local server port ${portDisplay.textContent} - click to change`;
-    portSettingsBtn.title = label;
-    portSettingsBtn.setAttribute('aria-label', label);
+    const label = state === 'offline' ? t(description) : `${t(description)} · ${t('localPort')}: ${portDisplay.textContent}`;
+    serverConnectionInfo.title = label;
+    serverConnectionInfo.setAttribute('aria-label', label);
 }
 
 window.serverAPI.onListening(({ address, family, port }) => {
+    delete portDisplay.dataset.i18n;
 	portDisplay.textContent = String(port);
-	portSettingsBtn.title = `Local server port ${port} - click to change`;
 	updateServerStatusIcon('listening');
 });
 
 window.serverAPI.onClientChange(({ isConnected, origin }) => {
 	if(isConnected) {
-		toast.success(`Remote client connected: ${origin}`, 1000);
+		toast.success(t('clientConnected', { origin }), 1000);
 		updateServerStatusIcon('connected');
         serverConnectionStatus = true;
 	} else {
-		toast.message(`Remote client disconnected!`, 1000);
+		toast.message(t('clientDisconnected'), 1000);
 		updateServerStatusIcon('listening');
         serverConnectionStatus = false;
 	}
 });
 
 window.serverAPI.onUnauthorized(({ origin }) => {
-	toast.warning(`SECURITY ALERT: Blocked unauthorized origin: ${origin}`);
+	toast.warning(t('blockedOrigin', { origin }));
 	updateServerStatusIcon('warning');
 
 	setTimeout(() => {
 		updateServerStatusIcon(serverConnectionStatus ? 'connected' : 'listening');
 	}, 3000);
 });
+
+function refreshLanguage() {
+    setPortSettingsBusy(portUpdatePending);
+    updateAlwaysOnTopButton(alwaysOnTopToggle.getAttribute('aria-pressed') === 'true');
+    const logLabel = t(document.body.classList.contains('logs-only') ? 'showControls' : 'showLogs');
+    logOnlyToggle.title = logLabel;
+    logOnlyToggle.setAttribute('aria-label', logLabel);
+    const panelLabel = t(panelsToggle.getAttribute('aria-expanded') === 'true' ? 'collapsePanels' : 'showPanels');
+    panelsToggle.title = panelLabel;
+    panelsToggle.setAttribute('aria-label', panelLabel);
+    updateServerStatusIcon(serverStatus);
+    engineSummary.textContent = t('engineRunning', { count: runningEngines.length });
+    const empty = engineUiGrid.querySelector('.engine-empty-state');
+    if(empty) {
+        empty.querySelector('b').textContent = t('emptyLibrary');
+        empty.querySelector('span').textContent = t('emptyLibraryHint');
+    }
+    engineUiGrid.querySelectorAll('.engine-card').forEach(card => {
+        const name = card.querySelector('.engine-card-title').textContent;
+        const processes = runningEngines.filter(engine => String(engine.identifierObj.engineId) === card.dataset.engineId);
+        const status = processes.length ? t('engineRunning', { count: processes.length }) : t('idle');
+        card.querySelector('.engine-status').textContent = status;
+        card.setAttribute('aria-label', t('engineCardLabel', { name, status }));
+        const edit = card.querySelector('.edit-btn');
+        edit.title = t('changeDisplayName');
+        edit.setAttribute('aria-label', t('renameEngine', { name }));
+        const remove = card.querySelector('.remove-btn');
+        remove.title = t('removeEngineHint');
+        remove.setAttribute('aria-label', t('removeEngineLabel', { name }));
+        card.querySelectorAll('.engine-process-row').forEach((row, index) => {
+            const identifier = processes[index]?.identifierObj;
+            if(!identifier) return;
+            const display = getEngineDisplayContext(identifier);
+            row.querySelector('.engine-process-context').textContent = display.context;
+            row.querySelector('.engine-process-context').title = display.label;
+            updateKillEngineButton(row.querySelector('.kill-engine-btn'), identifier);
+        });
+    });
+}
+document.addEventListener('server-language-changed', refreshLanguage);
+refreshLanguage();
 
 window.engineAPI.onRefreshEngineCards(({ aliveEngineProcesses }) => {
     refreshEngineCards(aliveEngineProcesses);

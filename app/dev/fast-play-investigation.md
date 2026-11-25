@@ -70,8 +70,8 @@ See [the main userscript](../../acas.user.js),
    can retry it. Larger unresolved diffs affecting more than four squares recover
    immediately when counts of every piece type and color are unchanged. Other
    unresolved placements use the timed fallback. After the same placement has been observed unchanged
-   for two seconds, shared recovery can resume with a guessed turn and explicitly
-   incomplete history. Every observed placement change restarts that wait.
+   for 500 ms, shared recovery can resume with a guessed turn and explicitly
+   incomplete history without restarting the instance. Every observed placement change restarts that wait.
 4. Larger unresolved gaps with site-provided turn metadata and existing
    board-repopulation reset heuristics are allowed through. Variant and reserve
    boards retain their existing handling. This is not blanket orthodox

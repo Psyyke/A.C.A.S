@@ -679,7 +679,8 @@ cg-container {
 #feedback-floaty:has(input[data-key="learningMode"]:checked) .move-feedback-settings,
 #feedback-floaty:not(:has(input[data-key="learningMode"]:checked)) .move-feedback-settings > .custom-input[aria-disabled="true"],
 #feedback-floaty .feedback-display-settings .custom-input[aria-disabled="true"],
-#suggestion-mix-floaty .custom-input[aria-disabled="true"] {
+#suggestion-mix-floaty .custom-input[aria-disabled="true"],
+#ghost-floaty .custom-input[aria-disabled="true"] {
     filter: blur(2px);
     opacity: 0.5;
     pointer-events: none;
@@ -2414,19 +2415,20 @@ input[disabled] {
     flex-direction: column;
     align-items: stretch;
 }
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 #suggestion-mix-floaty .textfield-input input[type="number"][data-mix-category] {
     box-sizing: content-box;
     width: 4.2ch;
     min-width: 0;
     field-sizing: fixed;
-    appearance: textfield;
-    -moz-appearance: textfield;
-}
-
-#suggestion-mix-floaty input::-webkit-inner-spin-button,
-#suggestion-mix-floaty input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
 }
 
 #suggestion-mix-floaty .suggestion-mix-divider {
@@ -4335,6 +4337,14 @@ input[disabled] {
 	opacity: 0.6;
 	font-weight: 400;
 	font-style: italic;
+}
+#ghost-floaty {
+    box-sizing: border-box;
+    width: min(440px, calc(100vw - 32px));
+}
+#ghost-floaty .floaty-note {
+    margin: 0 5px 5px;
+    text-align: center;
 }
 p[data-translation-experimental-warning],
 p[data-translation-remember-perfection],

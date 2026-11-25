@@ -267,7 +267,7 @@ test('all site adapters retain their logical-square contract', () => {
         const chesscomPiece = { classList: { toString: () => 'piece wp square-37' } };
         assert.deepEqual(api.supportedSites['chess.com'].pieceElemCoords({ pieceElem: chesscomPiece, pathname: '/play' }), [2, 6]);
         for (const domain of ['lichess.org', 'playstrategy.org', 'pychess.org', 'chess.coolmathgames.com',
-            'chess.net', 'freechess.club', 'psyyke.github.io', 'localhost']) {
+            'chess.net', 'freechess.club', 'acaschess.com', 'localhost']) {
             assert.deepEqual(api.supportedSites[domain].pieceElemCoords({ pieceElem: { cgKey: 'c7' } }), [2, 6], domain);
             assert.deepEqual(api.supportedSites[domain].pieceElemCoords({ pieceElem: transformPiece }), [2, 6], domain);
         }

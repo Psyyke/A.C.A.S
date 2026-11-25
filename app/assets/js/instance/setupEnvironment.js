@@ -75,6 +75,11 @@ export default async function setupEnvironment(startpos, dimensions, selectedPro
 
         if(!isCurrentSetup()) return;
 
+        if(this.boardState.fen && this.boardState.fen !== fen) {
+            this.environmentSetupRun = false;
+            return;
+        }
+
         const boardDimensions = { 'width': dimensions[0], 'height': dimensions[1] };
 
         // Keep the instance in sync, it still held the 8x8 default otherwise

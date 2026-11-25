@@ -12,9 +12,9 @@ before(async () => {
     });
     browser = await chromium.launch();
     userscript = (await buildUserscript())
-        .replace("'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' }",
+        .replace("'hosts': { 'prod': 'acaschess.com', 'dev': 'localhost' }",
             `'hosts': { 'prod': '${new URL(url).host}', 'dev': '${new URL(url).host}' }`)
-        .replace("'path': '/A.C.A.S/'", "'path': '/app/'");
+        .replace("'devPath': '/A.C.A.S/'", "'devPath': '/app/'");
 });
 after(async () => {
     await browser?.close();

@@ -43,6 +43,7 @@ window.AcasPrompt = (function() {
             inputElem.hidden = confirmation;
             inputElem.required = !confirmation;
             cancelBtn.style.display = showCancel ? '' : 'none';
+            cancelBtn.textContent = window.serverI18n.text('cancel');
             okBtn.textContent = confirmLabel;
             dialog.returnValue = '';
 

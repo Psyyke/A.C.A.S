@@ -24,7 +24,7 @@ for(const filename of ['acas.user.js', 'acas.user.test.js']) {
         let listener;
         const responses = [];
         const window = {
-            location: { origin: 'https://psyyke.github.io' },
+            location: { origin: 'https://acaschess.com' },
             addEventListener: (type, callback) => { listener = callback; }
         };
         const pageWindow = {};

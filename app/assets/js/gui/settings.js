@@ -81,6 +81,7 @@ export function migratePipSettings(config) {
 }
 
 function getSettingFilter(settingElem) {
+    if(settingElem.dataset.globalOnly) return { ...SETTING_FILTER_OBJ, type: 'global', instanceID: null };
     return {
         ...SETTING_FILTER_OBJ,
         profileID: settingElem.closest('.dynamic-setting-profile-container')?.dataset.profileId
@@ -338,8 +339,9 @@ export async function loopThroughAndUpdateSettingsValues(isDirectlyCausedByUser)
         const key = inputElem.dataset.key;
         const noProfile = inputElem.dataset.noProfile;
 
+        const instanceID = inputElem.dataset.globalOnly ? null : settingFilter.instanceID;
         const value = noProfile
-            ? await GET_GM_CFG_BASE_VALUE(key, settingFilter.instanceID, false)
+            ? await GET_GM_CFG_BASE_VALUE(key, instanceID, false)
             : await GET_GM_CFG_BASE_VALUE(key, settingFilter.instanceID, settingFilter.profileID);
 
         if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
@@ -347,6 +349,10 @@ export async function loopThroughAndUpdateSettingsValues(isDirectlyCausedByUser)
         if(typeof value === 'boolean' || value || value === 0
             || value === '' && (inputElem.dataset.uciOptionType === 'string' || inputElem.dataset.dynamicValueType === 'text')) {
             setInputValue(inputElem, value);
+            if(key === 'ghostScreenOverlay' && value === true && inputElem.disabled && !inputElem.checked) {
+                await saveSetting(inputElem, isDirectlyCausedByUser);
+                if(version !== settingsUpdateVersion || Object.keys(settingFilter).some(key => settingFilter[key] !== SETTING_FILTER_OBJ[key])) return;
+            }
             runSettingChangeObserver(inputElem, 50, true);
         } else {
             activateInputDefaultValue(inputElem);

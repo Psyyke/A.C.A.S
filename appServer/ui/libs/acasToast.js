@@ -1,5 +1,16 @@
 const activeToasts = new Map();
 
+// A modal dialog makes everything outside it inert, so toasts move inside it while it's open.
+function raiseToastContainer(container = document.querySelector('#acas-toast-container')) {
+    if(!container) return;
+    const modals = document.querySelectorAll('dialog:modal');
+    const host = modals[modals.length - 1] || document.body;
+    if(container.parentElement !== host) host.appendChild(container);
+}
+new MutationObserver(records => {
+    if(records.some(record => record.target.tagName === 'DIALOG')) raiseToastContainer();
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
+
 const toast = {
     'create': (type, icon, content, duration) => {
         const intervalRate = 100;
@@ -84,6 +95,7 @@ const toast = {
         });
 
         toastContainer.prepend(toastElem);
+        raiseToastContainer(toastContainer);
 
         if(toastKey) {
             let count = 1;
@@ -140,7 +152,12 @@ const toast = {
             }, 200);
         }
 
-        return { 'close': triggerFadeOut };
+        return {
+            'close': triggerFadeOut,
+            'isOpen': () => !isFading && document.body.contains(toastElem),
+            'setContent': text => { contentElem.innerText = text; },
+            'resetTimer': () => { elapsedTime = 0; progressBarElem.style.width = '0%'; }
+        };
     },
     'success': (content, duration) => toast.create('success', '👍', content, duration),
     'message': (content, duration) => toast.create('message', '🗿', content, duration),

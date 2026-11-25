@@ -1,0 +1,12 @@
+{
+  "sourceSnapshot": "e412c6f468b7b9e0f16f2540244236f8ad68e9ae",
+  "patch": "pena-runtime/inkling-webgpu.patch",
+  "patchSha256": "2b4834cc918b7b09b76e3c0da9f1691da9d3959f16466582ee5f077546518b9c",
+  "experimental": true,
+  "cacheTypeK": "f16",
+  "cacheTypeV": "f16",
+  "hashes": {
+    "wllama.js": "74e3db26fda843a3408545ffe176a6ccde23fdfb94e42e001f6dee5aa823db33",
+    "wllama.wasm": "c096b8c394146a0d3db527528439e59efa1a7f5cc3c0b2da196cc63b70e0e594"
+  }
+}

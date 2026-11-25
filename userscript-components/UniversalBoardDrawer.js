@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.3.7
+ - Version: 1.3.8
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -11,7 +11,7 @@ class UniversalBoardDrawer {
 
         this.window = config?.window || window;
         this.document = this.window?.document;
-        this.parentElem = config?.parentElem || this.document.body;
+        this.parentElem = config?.parentElem || this.document?.body;
 
         this.boardDimensions = {
             'width': config?.boardDimensions?.[0] || 8,
@@ -24,6 +24,8 @@ class UniversalBoardDrawer {
         this.zIndex = config?.zIndex || 1000; // container z-index
         this.usePrepend = config?.prepend || false;
         this.debugMode = config?.debugMode || false;
+        this.onError = config?.onError;
+        this.lastError = null;
         this.ignoreBodyRectLeft = config?.ignoreBodyRectLeft || false;
 
         this.boardContainerElem = null;
@@ -45,19 +47,20 @@ class UniversalBoardDrawer {
         this.terminated = false;
 
         if(!this.document) {
-            if(this.debugMode) console.error(`Inputted document element doesn't exist!`);
+            this.reportError('Board drawer document is unavailable.');
 
             return;
         }
 
         if(!this.boardElem) {
-            if(this.debugMode) console.error(`Inputted board element doesn't exist!`);
+            this.reportError('Board drawer board element is unavailable.');
 
             return;
         }
 
-        if(typeof this.boardDimensions != 'object') {
-            if(this.debugMode) console.error(`Invalid board dimensions value, please use array! (e.g. [8, 8])`);
+        if(!Number.isInteger(this.boardDimensions.width) || !Number.isInteger(this.boardDimensions.height)
+            || this.boardDimensions.width <= 0 || this.boardDimensions.height <= 0) {
+            this.reportError('Board drawer dimensions are invalid.');
 
             return;
         }
@@ -109,6 +112,12 @@ class UniversalBoardDrawer {
         this.updateDimensions();
     }
 
+    reportError(message, cause) {
+        this.lastError = new Error(message, cause ? { cause } : undefined);
+        if(typeof this.onError === 'function') this.onError(this.lastError);
+        return false;
+    }
+
     setBoardDimensions(dimensionArr) {
         const [width, height] = dimensionArr || [8, 8];
 
@@ -128,7 +137,7 @@ class UniversalBoardDrawer {
         const toCoordinateObj = this.squareSvgCoordinates.find(x => this.coordinateToFen(x.coordinates) == to);
 
         if(!fromCoordinateObj || !toCoordinateObj) {
-            if(this.debugMode) console.error('Coordinates', from, to, 'do not exist. Possibly out of bounds?');
+            this.reportError('Board drawer arrow coordinates are unavailable.');
 
             return;
         }
@@ -180,7 +189,7 @@ class UniversalBoardDrawer {
         const squareCoordinateObj = this.squareSvgCoordinates.find(x => this.coordinateToFen(x.coordinates) == square);
 
         if(!squareCoordinateObj) {
-            if(this.debugMode) console.error('Coordinate', square, 'does not exist. Possibly out of bounds?');
+            this.reportError('Board drawer text coordinate is unavailable.');
 
             return;
         }
@@ -212,7 +221,7 @@ class UniversalBoardDrawer {
         );
 
         if (!squareCoordinateObj) {
-            if (this.debugMode) console.error('Coordinate', square, 'does not exist. Possibly out of bounds?');
+            this.reportError('Board drawer rectangle coordinate is unavailable.');
             return;
         }
 
@@ -256,6 +265,7 @@ class UniversalBoardDrawer {
             .forEach(shapeObj => {
                 shapeObj.element?.remove();
             });
+        this.addedShapes = [];
     }
 
     removeAllDebugDots() {
@@ -264,12 +274,18 @@ class UniversalBoardDrawer {
             .forEach(debugDotObj => {
                 debugDotObj.element?.remove();
             });
+        this.addedShapes = this.addedShapes.filter(shapeObj => shapeObj.type !== 'debugDot');
     }
 
     setTextPosition(square, originalElement, config, newElement = originalElement) {
         const squareCoordinateObj = this.squareSvgCoordinates.find(x => this.coordinateToFen(x.coordinates) == square);
-
-        const textBounds = originalElement.getBBox();
+        if(!squareCoordinateObj || !originalElement || !newElement)
+            return this.reportError('Board drawer cannot position unavailable text.');
+        let textBounds;
+        try { textBounds = originalElement.getBBox(); }
+        catch(error) {
+            return this.reportError('Board drawer cannot measure text.', error);
+        }
 
         const squareCenterPos = squareCoordinateObj.positions;
         let [correctionX, correctionY] = config?.position || [0, 0];
@@ -285,6 +301,7 @@ class UniversalBoardDrawer {
     }
 
     updateShapes() {
+        this.addedShapes = this.addedShapes.filter(shape => shape.element?.parentNode === this.boardContainerElem);
         if(this.debugMode) {
             this.removeAllDebugDots();
 
@@ -300,6 +317,7 @@ class UniversalBoardDrawer {
                         const newTextElement = this.createTextOnSquare(shapeObj.positions, shapeObj.config);
                         const originalTextElement = shapeObj.element;
 
+                        if(!newTextElement) break;
                         this.setTextPosition(shapeObj.positions, originalTextElement, shapeObj.config, newTextElement);
 
                         this.transferAttributes(newTextElement, shapeObj.element);
@@ -328,16 +346,18 @@ class UniversalBoardDrawer {
         let square;
 
         if(this.terminated) {
-            if(this.debugMode) console.warn('Failed to create shape! Tried to create shape after termination!');
-
-            return false;
+            return this.reportError('Board drawer is terminated.');
         }
 
         if(!this.boardContainerElem) {
-            if(this.debugMode) console.warn(`Failed to create shape! Board SVG doesn't exist yet! (createOverlaySVG() failed?)`);
-
-            return false;
+            return this.reportError('Board drawer overlay is unavailable.');
         }
+        if(!['text', 'rectangle', 'arrow'].includes(type))
+            return this.reportError('Board drawer shape type is unsupported.');
+        if(type === 'arrow' && (!Array.isArray(positions) || positions.length !== 2 || positions.some(square => typeof square !== 'string')))
+            return this.reportError('Board drawer arrow needs two squares.');
+        if(type !== 'arrow' && typeof positions !== 'string')
+            return this.reportError('Board drawer shape needs a square.');
 
         if(typeof positions === 'string') {
             square = positions;
@@ -350,11 +370,7 @@ class UniversalBoardDrawer {
                   if(textElement) {
                       this.addedShapes.push({ type, positions, config, 'element': textElement });
 
-                      if(this.usePrepend) {
-                          this.boardContainerElem.prepend(textElement);
-                      } else {
-                          this.boardContainerElem.appendChild(textElement);
-                      }
+                      this.boardContainerElem.appendChild(textElement);
 
                       this.setTextPosition(square, textElement, config);
 
@@ -372,7 +388,7 @@ class UniversalBoardDrawer {
                       if(this.usePrepend) {
                           this.boardContainerElem.prepend(rectElement);
                       } else {
-                          this.boardContainerElem.appendChild(rectElement);
+                          this.boardContainerElem.insertBefore(rectElement, this.boardContainerElem.querySelector('text'));
                       }
 
                       return rectElement;
@@ -389,7 +405,7 @@ class UniversalBoardDrawer {
                       if(this.usePrepend) {
                           this.boardContainerElem.prepend(arrowElement);
                       } else {
-                          this.boardContainerElem.appendChild(arrowElement);
+                          this.boardContainerElem.insertBefore(arrowElement, this.boardContainerElem.querySelector('text'));
                       }
 
                       return arrowElement;
@@ -438,13 +454,19 @@ class UniversalBoardDrawer {
     }
 
     updateDimensions() {
+        if(this.terminated || !this.boardContainerElem || !this.boardElem || !this.document?.body) return;
         const boardRect = this.boardElem.getBoundingClientRect(),
               bodyRect = this.document.body.getBoundingClientRect(); // https://stackoverflow.com/a/62106310
 
         let boardWidth = boardRect.width,
             boardHeight = boardRect.height;
 
-        let boardPositionTop = boardRect.top + (window?.scrollY || 0),
+        if(![boardRect.width, boardRect.height, boardRect.top, boardRect.left, bodyRect.left].every(Number.isFinite)
+            || !Number.isFinite(this.boardDimensions.width) || !Number.isFinite(this.boardDimensions.height)
+            || this.boardDimensions.width <= 0 || this.boardDimensions.height <= 0)
+            return this.reportError('Board drawer geometry is invalid.');
+        if(boardWidth <= 0 || boardHeight <= 0) return;
+        let boardPositionTop = boardRect.top + (this.window?.scrollY || 0),
               boardPositionLeft = boardRect.left - (this.ignoreBodyRectLeft ? 0 : bodyRect.left);
 
         if(this.adjustSizeByDimensions) {
@@ -502,11 +524,13 @@ class UniversalBoardDrawer {
 
         this.parentElem.appendChild(this.boardContainerElem);
 
-        const rObs = new ResizeObserver(this.updateDimensions.bind(this));
+        const Observer = this.window.ResizeObserver;
+        if(Observer) {
+            const rObs = new Observer(this.updateDimensions.bind(this));
             rObs.observe(this.boardElem);
             rObs.observe(this.document.body);
-
-        this.observers.push(rObs);
+            this.observers.push(rObs);
+        }
 
         let oldBoardRect = JSON.stringify(this.boardElem.getBoundingClientRect());
 
@@ -576,7 +600,8 @@ class UniversalBoardDrawer {
 
         this.observers.forEach(observer => observer.disconnect());
 
-        this.boardContainerElem.remove();
+        this.boardContainerElem?.remove();
+        this.addedShapes = [];
     }
 
     async demo() {

@@ -4,6 +4,7 @@ import { updatePipFeedback } from '../gui/pip.js';
 import { getHintSettings, filterHintMoves, presentHintMove } from '../misc/learningHints.js';
 import { formatMoveNotationAsync, formatPvNotationAsync, getMoveSan, replayPvAsync, resolveVariantMove } from '../misc/moveNotation.js';
 import { parseVariantMove, variantConfig } from '../misc/variantPosition.js';
+import { removeMetricShapes } from './metricShapes.js';
 
 const recordedEvaluator = new MoveEvaluator(false);
 
@@ -388,7 +389,7 @@ export function prepareFeedbackPosition(currentFen) {
         const variables = this.pV[profileID];
         const sameGame = Boolean(currentFen) && this.gameStateHistory.some(state => state.fen?.full === variables.lastFeedbackFen);
         clearFeedback.call(this, profileID, true, sameGame);
-        this.pV[profileID].activePieceEvalDisplays?.forEach(marking => marking.elem?.remove());
+        removeMetricShapes(this.BoardDrawer, this.pV[profileID].activePieceEvalDisplays);
         this.pV[profileID].activePieceEvalDisplays = [];
     });
 }

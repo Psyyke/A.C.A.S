@@ -1,4 +1,4 @@
-import Sf167Web from '/A.C.A.S/app/assets/engines/lila-stockfish/sf16-7.js';
+import Sf167Web from './sf16-7.js';
 
 let engine = null;
 

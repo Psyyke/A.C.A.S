@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const source = readFileSync(new URL('../app/assets/js/instance/Interface.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../app/assets/js/instance/Interface.js', import.meta.url), 'utf8')
+    .replaceAll('import.meta.url', JSON.stringify('https://acaschess.com/app/assets/js/instance/Interface.js'));
 const start = source.indexOf('    async updateBoardFen(');
 const end = source.indexOf('\n    }', start) + '\n    }'.length;
 const createUpdate = new Function('GET_BOARD_DIMENSIONS_FROM_FEN', 'resetPipHints',
-    'prepareFeedbackPosition', 'setDynamicSettingsContext', 'annotateOpponentMove',
+    'prepareFeedbackPosition', 'setDynamicSettingsContext', 'annotateOpponentMove', 'document', 'CustomEvent',
     `return ({${source.slice(start, end)}}).updateBoardFen;`);
 
 test('duplicate no-op notification cannot cancel an in-flight forced analysis of the same FEN', async () => {
@@ -68,4 +69,30 @@ test('a changed FEN still cancels searches for the previous position', async () 
     await update.call(iface);
     assert.deepEqual(stops, [[false, 'New board FEN, any running calculations are now useless!']]);
     assert.deepEqual(calculations, [fen]);
+});
+
+test('missing GUI fields cannot freeze the live board and history before setup', async () => {
+    const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
+    const history = [{ fen: { full: fen, basic: fen.split(' ')[0] } }];
+    const calculations = [];
+    const events = [];
+    const instance = {
+        boardState: { history, playerColor: 'w' }, currentFen: null,
+        boardDimensions: { width: 8, height: 8 }, gameStateHistory: [], pV: {},
+        engineStopCalculating() {}, syncDynamicSettings: async () => {},
+        renderFeedback: async () => {}, calculateBestMoves: async value => calculations.push(value)
+    };
+    const iface = { AcasInstance: instance, removeMarkings() {}, removeBookMarkings() {},
+        updateLearningBoard: async () => {}, updatePgn: async () => {} };
+    const document = { dispatchEvent(event) {
+        events.push(event.type);
+        assert.equal(event.detail.instance.currentFen, fen);
+        assert.equal(event.detail.instance.gameStateHistory.at(-1).fen.full, fen);
+    } };
+    class CustomEvent { constructor(type, options) { this.type = type; this.detail = options.detail; } }
+    await createUpdate(() => [8, 8], () => {}, () => {}, () => {}, async () => {}, document, CustomEvent).call(iface);
+    assert.equal(instance.currentFen, fen);
+    assert.deepEqual(instance.gameStateHistory.map(state => state.fen), history.map(state => state.fen));
+    assert.deepEqual(calculations, [fen]);
+    assert.deepEqual(events, ['acas-board-position']);
 });

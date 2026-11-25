@@ -1,0 +1,15 @@
+diff --git a/servers/web/src/gpu/device.ts b/servers/web/src/gpu/device.ts
+--- a/servers/web/src/gpu/device.ts
++++ b/servers/web/src/gpu/device.ts
+@@ -19,6 +19,10 @@ export async function initGpu(onLost?: (message: string) => void): Promise<GPUDe
+   device.lost.then(info => {
+     if (info.reason !== 'destroyed') onLost?.('GPU device lost: ' + info.message + '; reload the page');
+   });
+-  device.addEventListener('uncapturederror', e => console.error('WebGPU error:', (e as GPUUncapturedErrorEvent).error.message));
++  device.addEventListener('uncapturederror', e => {
++    const error = (e as GPUUncapturedErrorEvent).error;
++    if (error instanceof GPUOutOfMemoryError) onLost?.('WebGPU out of memory: ' + error.message);
++    else console.error('WebGPU error:', error.message);
++  });
+   return device;
+ }

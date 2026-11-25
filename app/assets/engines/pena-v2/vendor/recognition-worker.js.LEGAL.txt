@@ -1,0 +1,8 @@
+Bundled license information:
+
+onnxruntime-web/dist/ort.webgpu.bundle.min.mjs:
+  /*!
+   * ONNX Runtime Web v1.31.0-dev.20260914-8d85527a0
+   * Copyright (c) Microsoft Corporation. All rights reserved.
+   * Licensed under the MIT License.
+   */

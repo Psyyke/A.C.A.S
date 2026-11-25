@@ -6,6 +6,7 @@ import { finishPendingSettingChanges } from '../misc/settingActivity.js';
 import { clearFeedback, prepareFeedbackPosition } from './renderFeedback.js';
 import { applyFairyVariantSettings, refreshFairyBoard, isBuiltInFairyEngine, isFairyVariantSetting } from './fairyVariant.js';
 import { isLc0Engine, isUpstreamLc0 } from './lc0Engines.js';
+import { removeMetricShapes } from './metricShapes.js';
 
 async function startWithBasicOptions(variant, engineName, profile, isCurrentStart) {
     const profileVariables = this.pV[profile];
@@ -158,7 +159,7 @@ export default async function engineStartNewGame(variant, profile, isDynamicChan
         this.pV[profile].feedbackRequest = (this.pV[profile].feedbackRequest || 0) + 1;
         this.pV[profile].pieceEvalRequest = (this.pV[profile].pieceEvalRequest || 0) + 1;
         this.BoardPiecesEval?.cancelStaleRequests();
-        this.pV[profile].activePieceEvalDisplays?.forEach(marking => marking.elem?.remove());
+        removeMetricShapes(this.BoardDrawer, this.pV[profile].activePieceEvalDisplays);
         this.pV[profile].activePieceEvalDisplays = [];
         this.MoveEval?.cancelStaleRequests();
         clearFeedback.call(this, profile);

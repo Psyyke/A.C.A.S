@@ -16,6 +16,17 @@ const defaultPieces = {
 };
 const shogiVariants = ['shogi', 'checkshogi', 'shoshogi', 'minishogi', 'mini', 'gorogoro',
     'gorogoroplus', 'judkins', 'kyotoshogi', 'micro'];
+const compiledBetza = new Map();
+
+function compileBetza(betza) {
+    let result = compiledBetza.get(betza);
+    if(!result) {
+        result = [...betza.matchAll(/([a-z]*)([A-Z])(\d+)?/g)]
+            .map(([, modifiers, atom, distance]) => ({ modifiers, atom, distance }));
+        compiledBetza.set(betza, result);
+    }
+    return result;
+}
 
 function pieceBetza(type, variant) {
     if(shogiVariants.includes(variant)) {
@@ -81,7 +92,7 @@ export function getVariantPiecePaths(board, piece, position, variant, isPlayerBl
     }
 
     const paths = new Map();
-    const add = (y, x) => paths.set(`${y},${x}`, [y, x]);
+    const add = (y, x) => paths.set(y * width + x, [y, x]);
     const allowed = (y, x, dx, dy) => {
         if((xiangqi || janggi) && ['k', 'a'].includes(type) && !inOwnPalace(y, x)) return false;
         if(xiangqi && ['b', 'e'].includes(type) && homeRank(y) >= height / 2) return false;
@@ -92,7 +103,7 @@ export function getVariantPiecePaths(board, piece, position, variant, isPlayerBl
         return true;
     };
 
-    for(const [, modifiers, atom, distance] of betza.matchAll(/([a-z]*)([A-Z])(\d+)?/g)) {
+    for(const { modifiers, atom, distance } of compileBetza(betza)) {
         if(modifiers.includes('m') && !modifiers.includes('c')) continue;
         const slider = 'RBQ'.includes(atom);
         const hopper = modifiers.includes('p');

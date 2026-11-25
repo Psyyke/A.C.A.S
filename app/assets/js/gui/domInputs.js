@@ -84,7 +84,11 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
         if(elem.dataset?.between) {
             [min, max] = PARSE_MINMAX_FROM_STR(elem.dataset.between);
 
-            elem.style.width = `${Math.max(String(min).length, String(max).length)}ch`;
+            // A decimal step like 0.05 needs room for "0.05" even when min and max are whole numbers.
+            const step = String(elem.step || '').split('.')[1]?.length || 0;
+            const digits = Math.max(String(Math.trunc(min)).length, String(Math.trunc(max)).length);
+
+            elem.style.width = `${Math.max(String(min).length, String(max).length, step ? digits + 1 + step : 0)}ch`;
         } else {
             elem.style.width = `${(String(defaultVal).length + 0.45) * 25}px`;
         }
@@ -110,7 +114,8 @@ export function initializeSettingInputElem(elem, skipDefaultValueSet) {
             e?.target?.dataset?.key === 'displayMovesOnExternalSite' ||
             e?.target?.dataset?.key === 'renderOnExternalSite' ||
             e?.target?.dataset?.key === 'movesOnDemand' ||
-            e?.target?.dataset?.key === 'isUserscriptGhost'
+            e?.target?.dataset?.key === 'isUserscriptGhost' ||
+            e?.target?.dataset?.key === 'ghostScreenOverlay'
         ) {
             const msg = TRANS_OBJ?.refreshSiteNotification ?? 'Refresh the external site to see changes!';
 

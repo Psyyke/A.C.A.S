@@ -1,18 +1,29 @@
 import { decodeFloat16, encodeFloat16 } from './float16.js';
 
-export async function createBrowserInference(weights, provider, onError, dataType = 'f32') {
+export async function createBrowserInference(weights, provider, onError, dataType = 'f32',
+    { batchedReadback = provider === 'webgpu' && dataType === 'f32' } = {}) {
     if(provider !== 'webgpu' && provider !== 'wasm')
         throw new Error('Expected the webgpu or wasm inference provider.');
-    if(provider === 'webgpu' && !navigator.gpu)
-        throw new Error('WebGPU is not available in this browser.');
     if(!['f32', 'f16', 'f16-mixed'].includes(dataType))
         throw new Error('Expected the f32, f16 or f16-mixed inference data type.');
     if(dataType === 'f16' && provider !== 'webgpu')
         throw new Error('Float16 inference requires the WebGPU provider.');
+    if(typeof batchedReadback !== 'boolean' || batchedReadback && (provider !== 'webgpu' || dataType !== 'f32'))
+        throw new Error('Batched GPU readback requires float32 WebGPU.');
+    if(provider === 'webgpu' && !navigator.gpu)
+        throw new Error('WebGPU is not available in this browser.');
     let adapter;
-    if(dataType === 'f16') {
-        adapter = await navigator.gpu.requestAdapter();
-        if(!adapter || !adapter.features.has('shader-f16'))
+    let deviceInfo;
+    if(provider === 'webgpu') {
+        adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+        if(!adapter) throw new Error('No WebGPU adapter is available; CPU fallback is disabled.');
+        const fallback = adapter.info?.isFallbackAdapter ?? adapter.isFallbackAdapter ?? null;
+        if(fallback === true) throw new Error('A software WebGPU adapter cannot run the LC0 GPU backend.');
+        deviceInfo = { provider, powerPreference: 'high-performance', fallback,
+            vendor: adapter.info?.vendor || '', architecture: adapter.info?.architecture || '',
+            device: adapter.info?.device || '', description: adapter.info?.description || '',
+            readback: batchedReadback ? 'batched' : 'ordinary' };
+        if(dataType === 'f16' && !adapter.features.has('shader-f16'))
             throw new Error('Float16 inference requires a WebGPU adapter with shader-f16 support.');
     }
 
@@ -43,15 +54,17 @@ export async function createBrowserInference(weights, provider, onError, dataTyp
     ort.env.wasm.wasmPaths = new URL('./dist/', import.meta.url).href;
     ort.env.wasm.numThreads = 1;
     if(adapter) ort.env.webgpu.adapter = adapter;
-    const session = await ort.InferenceSession.create(new Uint8Array(converted.output), {
-        executionProviders: [provider]
+    let session = await ort.InferenceSession.create(new Uint8Array(converted.output), {
+        executionProviders: [provider], ...(batchedReadback ? { preferredOutputLocation: 'gpu-buffer' } : {})
     });
     if(session.inputNames.length !== 1 || session.inputNames[0] !== '/input/planes'
         || !session.outputNames.includes('/output/policy'))
         throw new Error('Unexpected converted Lc0 ONNX model interface.');
 
+    if(batchedReadback) session = (await import('./gpu-readback.js')).createGpuReadbackSession(session, ort.env.webgpu.device);
+
     return { inference: createInferenceDispatcher(ort, session, onError, dataType === 'f16-mixed' ? 'f32' : dataType),
-        weights: returnedWeights };
+        weights: returnedWeights, ...(deviceInfo ? { deviceInfo } : {}) };
 }
 
 export function createInferenceDispatcher(ort, session, onError, dataType = 'f32') {

@@ -49,9 +49,9 @@ test('upstream Lc0 produces GUI suggestions and reloads changed weights', { time
             gui.on('pageerror', error => console.error('Lc0 GUI page error:', error.message));
         }
         const userscript = (await buildUserscript())
-            .replace("'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' }",
+            .replace("'hosts': { 'prod': 'acaschess.com', 'dev': 'localhost' }",
                 `'hosts': { 'prod': '${new URL(url).host}', 'dev': '${new URL(url).host}' }`)
-            .replace("'path': '/A.C.A.S/'", "'path': '/app/'");
+            .replace("'devPath': '/A.C.A.S/'", "'devPath': '/app/'");
         await gui.addInitScript(userscript);
         await gui.goto(`${url}/app/`);
         await gui.waitForFunction(() => typeof SETTING_FILTER_OBJ !== 'undefined' && SETTING_FILTER_OBJ.profileID, null, { timeout: 30000 });

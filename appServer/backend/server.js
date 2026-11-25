@@ -5,6 +5,9 @@ import http from 'http';
 import Store from 'electron-store';
 import CommandQueue from './commandQueue.js';
 import { parseClientMessage, validateUciCommand } from './uciCommand.js';
+import { NativeAIHost, attachAIClient } from './nativeAI.js';
+import { PenaSetup } from './aiSetup.js';
+import { screenOverlays, reportOverlayCapabilities } from './screenOverlay.js';
 
 import { findAliveEngineObj, updateAliveEngineObjFen, killAllBy,
     sendToProcess, startEngine, savedEngines, markEngineOptionsInitialized } from './engine.js';
@@ -14,11 +17,15 @@ const PORT_STORAGE_KEY = 'serverPort';
 const store = new Store();
 const ALLOWED_ORIGIN = [
     'http://localhost',
-    'https://psyyke.github.io'
+    'https://acaschess.com'
 ];
 
 const clients = new Set();
+const guiClients = new Set();
+export const localAIHost = new NativeAIHost();
+export const localAISetup = new PenaSetup({ host: localAIHost, notify: toast });
 let wssRef = null;
+let overlaySweepTimer = null;
 let warnedAboutMultipleClients = false;
 
 export function getServerPort() {
@@ -51,7 +58,7 @@ export async function setServerPort(port) {
 function broadcastToClients(payloadObj) {
     const data = JSON.stringify(payloadObj);
 
-    if(clients.size > 1 && !warnedAboutMultipleClients) {
+    if(guiClients.size > 1 && !warnedAboutMultipleClients) {
         warnedAboutMultipleClients = true;
         toast('error', `Multiple GUI tabs connected! Please only use one at a time.`, 60000);
     }
@@ -65,6 +72,14 @@ function broadcastToClients(payloadObj) {
             }
         }
     }
+}
+
+function disconnectClient(ws, wss) {
+    if(!clients.delete(ws)) return;
+    guiClients.delete(ws);
+    if(guiClients.size <= 1) warnedAboutMultipleClients = false;
+    screenOverlays.disconnect(ws);
+    if(clients.size === 0) wss.onClientChange?.(false);
 }
 
 function getIdentifierKey(identifierObj) {
@@ -226,14 +241,24 @@ export function startLocalWSS() {
     wss.on('connection', (ws, request) => {
         clients.add(ws);
 
-        if(wss.onClientChange) wss.onClientChange(true, request.headers.origin);
+        if(clients.size === 1) wss.onClientChange?.(true, request.headers.origin);
 
         const commandQueue = new CommandQueue();
+        const handleAI = attachAIClient(ws, localAIHost, localAISetup);
         ws.on('message', (msg) => {
             const command = msg.toString();
             try {
                 const parsed = parseClientMessage(command);
-                if(parsed?.type === 'uci') {
+                if(parsed && parsed.type !== 'ai') guiClients.add(ws);
+                if(parsed?.type === 'ai') {
+                    // Generation and cancellation must not block the UCI queue or each
+                    // other. AI errors are private protocol responses, never console logs.
+                    void handleAI(parsed);
+                } else if(parsed?.type === 'screenOverlayCapabilities') {
+                    reportOverlayCapabilities(ws);
+                } else if(parsed?.type === 'screenOverlay') {
+                    screenOverlays.receive(ws, parsed.msg);
+                } else if(parsed?.type === 'uci') {
                     const key = getIdentifierKey(parsed.msg);
                     commandQueue.run(key, () => onCommandReceived(parsed))
                         .catch(error => reportCommandFailure(command, error));
@@ -244,20 +269,25 @@ export function startLocalWSS() {
                     onCommandReceived(parsed).catch(error => reportCommandFailure(command, error));
                 }
             } catch(error) {
-                reportCommandFailure(command, error);
+                if(typeof error.overlayInstanceId === 'string') {
+                    if(error.overlayInstanceId) screenOverlays.remove(ws, error.overlayInstanceId);
+                    screenOverlays.status(ws, { supported: !screenOverlays.unsupported,
+                        instanceId: error.overlayInstanceId || undefined, error: error.message });
+                    return;
+                }
+                reportCommandFailure(command, error instanceof SyntaxError
+                    ? new Error('Malformed client JSON payload.') : error);
             }
         });
 
         ws.on('close', () => {
-            clients.delete(ws);
-
-            if(wss.onClientChange) wss.onClientChange(false);
+            disconnectClient(ws, wss);
         });
 
         // ws requires this, without it a client resetting mid-frame throws
         ws.on('error', err => {
             console.error('[server] client socket error:', err?.message);
-            clients.delete(ws);
+            disconnectClient(ws, wss);
         });
     });
 
@@ -294,18 +324,24 @@ export function startLocalWSS() {
     server.listen(port, '127.0.0.1');
 
     wssRef = wss;
+    overlaySweepTimer = setInterval(() => screenOverlays.sweep(), 250);
+    overlaySweepTimer.unref();
 
     return wss;
 }
 
 export function stopLocalWSS() {
     if(!wssRef) return;
+    clearInterval(overlaySweepTimer);
+    overlaySweepTimer = null;
+    screenOverlays.close();
 
     for(const ws of clients) {
         try { ws.close(); } catch (e) {}
     }
 
     clients.clear();
+    guiClients.clear();
 
     wssRef.close();
     wssRef.httpServer?.close();

@@ -283,7 +283,7 @@ function promotionPieceName(promotion, move, speech) {
     return speechPieceName(shogiPromotion ? `+${source}` : promotion, move, speech);
 }
 
-function speakSan(san, speech, move) {
+export function speakSan(san, speech = englishSpeech, move = {}) {
     const shot = getAmazonsShot(move);
     const compound = shot && san.match(/^(.*),([a-z]\d+)([+#]?)$/);
     if(compound && compound[2] === shot.to) {

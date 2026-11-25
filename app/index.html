@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<script src="../assets/js/domain-redirect.js"></script>
 		<meta charset="UTF-8">
 		<title>A.C.A.S</title>
 		<script>
@@ -147,14 +148,15 @@
 			})();
 		</script>
 		<link rel="stylesheet" type="text/css" href="gui.css?v=weights-layout-3"/>
+        <link rel="stylesheet" href="./assets/engines/pena-v2/pena.css">
 		<meta name="description" content="Use A.C.A.S to analyze positions and review your moves while playing chess">
 		<meta name="keywords" content="chess gui, chess assistant dashboard, stockfish settings, lichess helper, chess.com helper, board overlays, chess variants, engine elo">
 		<meta property="og:title" content="Advanced Chess Assist">
 		<meta property="og:description" content="Use A.C.A.S to analyze positions and review your moves while playing chess">
 		<meta property="og:type" content="website">
-		<meta property="og:url" content="https://psyyke.github.io/A.C.A.S/app/">
+		<meta property="og:url" content="https://acaschess.com/app/">
 		<meta property="og:site_name" content="A.C.A.S">
-		<meta property="og:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+		<meta property="og:image" content="https://acaschess.com/assets/images/main.png">
 		<meta property="og:image:type" content="image/png">
 		<meta property="og:image:width" content="1903">
 		<meta property="og:image:height" content="907">
@@ -162,10 +164,10 @@
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="Advanced Chess Assist">
 		<meta name="twitter:description" content="Use A.C.A.S to analyze positions and review your moves while playing chess">
-		<meta name="twitter:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+		<meta name="twitter:image" content="https://acaschess.com/assets/images/main.png">
 		<meta name="twitter:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
 		<meta name="robots" content="max-image-preview:large">
-		<link rel="canonical" href="https://psyyke.github.io/A.C.A.S/app/">
+		<link rel="canonical" href="https://acaschess.com/app/">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="coi-serviceworker.js?v=3"></script>
 		<link rel="manifest" href="manifest.json" />
@@ -406,7 +408,7 @@
 					</div>
 				</div>
 				<div id="settings-control-panel">
-					<a target="_eloeye" href="../tools/eloeye/" class="control-panel-btn no-select acas-fancy-button" title="Open EloEye" aria-label="Open EloEye">📐</a>
+					<a target="_eloeye" href="../tools/eloeye/" class="control-panel-btn no-select acas-fancy-button" title="Open EloEye" aria-label="Open EloEye">📈</a>
 					<a target="_about" href="../usage/" class="control-panel-btn no-select acas-fancy-button" title="Open Documentation">📖</a>
 					<div id="import-settings-btn" class="control-panel-btn no-select acas-fancy-button" title="Import Settings">📂</div>
                     <div class="floaty-wrapper activity-log-launcher">
@@ -644,7 +646,7 @@
 														<div class="dropdown-input-container">
 															<input disabled type="text" additional-type="dropdown" data-key="externalChessEngine" data-default-value="" placeholder="None"><div class="dropdown-icon"></div>
 															<div class="dropdown-list-container hidden" style="height: fit-content; max-height: 300px;"></div>
-															<p id="install-acas-server-text"><a href="/A.C.A.S/usage/#external" target="_blank"><span data-translation-external-engine-2>Install the A.C.A.S server</span></a> <span data-translation-external-engine-3>to use external engines</span></p>
+															<p id="install-acas-server-text"><a href="../usage/#external" target="_blank"><span data-translation-external-engine-2>Install the A.C.A.S server</span></a> <span data-translation-external-engine-3>to use external engines</span></p>
 														</div>
 													</div>
 													<div class="textfield-input custom-input">
@@ -660,6 +662,7 @@
 									</dialog>
 								</div>
 							</div>
+
 							<div id="engine-elo-input" class="textfield-input custom-input"><div><div class="input-title">Engine ELO</div>
 								<div class="input-subtitle">Higher number, stronger engine</div></div>
 								<div class="floaty-wrapper">
@@ -1410,9 +1413,74 @@
                 </div>
                 <div class="setting-panel">
                     <div class="setting-panel-title"><span class="misc-panel-title">Miscellaneous</span> ❔</div>
+                    <div class="custom-input">
+                        <div><div class="input-title" id="colors-title" data-appearance-text="colors">Colors</div><div class="input-subtitle" data-appearance-text="colorsHint">Theme and board</div></div>
+                        <div class="floaty-wrapper">
+                            <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="colors-floaty" aria-haspopup="dialog" aria-labelledby="colors-title">⚙️</button>
+                            <dialog id="colors-floaty" aria-labelledby="colors-floaty-title">
+                                <div class="floaty-container">
+                                    <section class="floaty-header">
+                                        <div class="title"><h1 id="colors-floaty-title" data-appearance-text="colors">Colors</h1><p data-appearance-text="colorsHint">Theme and board</p></div>
+                                        <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" data-appearance-label="closeColors" aria-label="Close color settings">💾</button></div>
+                                    </section>
+                                    <section class="floaty-body">
+                                        <div class="setting-panel">
+                                            <div class="color-input custom-input"><div class="input-title">Theme Color</div>
+                                                <input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
+                                            </div>
+                                            <div class="color-input custom-input"><div class="input-title">Board Color 1</div>
+                                                <input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
+                                            </div>
+                                            <div class="color-input custom-input"><div class="input-title">Board Color 2</div>
+                                                <input type="color" data-key="boardColorHex2" data-no-profile="true" data-default-value="#9e9384">
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </dialog>
+                        </div>
+                    </div>
                     <div class="checkbox-input custom-input"><div><div class="input-title">Ghost Script</div>
-                        <div class="input-subtitle">Disable all detectable external functionality (e.g. move arrows) to avoid detection</div></div><div class="checkbox-container">
-                        <input type="checkbox" data-key="isUserscriptGhost" data-no-profile="true" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                        <div class="input-subtitle">Hide drawings on the chess page</div></div>
+                        <div class="floaty-wrapper">
+                            <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="ghost-floaty" aria-haspopup="dialog" aria-labelledby="ghost-floaty-title">⚙️</button>
+                            <dialog id="ghost-floaty" aria-labelledby="ghost-floaty-title">
+                                <div class="floaty-container">
+                                    <section class="floaty-header">
+                                        <div class="title">
+                                            <h1 id="ghost-floaty-title">Ghost Script</h1>
+                                            <p id="ghost-floaty-subtitle">Finetune your ghostly experience</p>
+                                        </div>
+                                        <div class="floaty-buttons">
+                                            <button class="floaty-close-btn acas-fancy-button" type="button">💾</button>
+                                        </div>
+                                    </section>
+                                    <section class="floaty-body">
+                                        <div class="checkbox-input custom-input">
+                                            <div>
+                                                <div class="input-title">Draw on screen</div>
+                                                <div class="input-subtitle">Use the local server to draw outside the chess page</div>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" data-key="ghostScreenOverlay" data-no-profile="true" data-global-only="true" data-default-value="false"><div class="checkbox-fill">✔</div>
+                                            </div>
+                                        </div>
+                                        <div class="textfield-input custom-input">
+                                            <div><div class="input-title">X offset (px)</div></div>
+                                            <input type="number" min="-1000" max="1000" step="1" required value="0" data-between="-1000-1000" data-key="ghostScreenOffsetX" data-no-profile="true" data-global-only="true" data-default-value="0">
+                                        </div>
+                                        <div class="textfield-input custom-input">
+                                            <div><div class="input-title">Y offset (px)</div></div>
+                                            <input type="number" min="-1000" max="1000" step="1" required value="0" data-between="-1000-1000" data-key="ghostScreenOffsetY" data-no-profile="true" data-global-only="true" data-default-value="0">
+                                        </div>
+                                        <p id="ghost-screen-overlay-status" class="floaty-note" role="status">Turn on Ghost Script and start the local server to use this.</p>
+                                    </section>
+                                </div>
+                            </dialog>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" data-key="isUserscriptGhost" data-no-profile="true" data-global-only="true" data-default-value="true"><div class="checkbox-fill">✔</div>
+                        </div>
                     </div>
                     <div class="checkbox-input custom-input">
                         <div>
@@ -1486,6 +1554,30 @@
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" data-key="suggestionMix" data-no-profile="true" data-default-value="false">
+                            <div class="checkbox-fill">✔</div>
+                        </div>
+                    </div>
+                    <div class="checkbox-input custom-input">
+                        <div>
+                            <div class="input-title" data-pena-text="settingsTitle">Pena AI</div>
+                            <div class="input-subtitle" data-pena-text="coach">A chess coach that explains the position</div>
+                        </div>
+                        <div class="floaty-wrapper">
+                            <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="pena-floaty" aria-haspopup="dialog" aria-labelledby="pena-floaty-title">⚙️</button>
+                            <dialog id="pena-floaty" aria-labelledby="pena-floaty-title">
+                                <div class="floaty-container">
+                                    <section class="floaty-header">
+                                        <div class="title"><h1 id="pena-floaty-title" data-pena-text="settingsTitle">Pena AI</h1><p data-pena-text="settingsSubtitle">Personal Educator &amp; Neural Advisor</p></div>
+                                        <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" data-pena-label="closeSettings" aria-label="Close Pena settings">💾</button></div>
+                                    </section>
+                                    <section class="floaty-body">
+                                        <div class="pena-personalization-root"></div>
+                                    </section>
+                                </div>
+                            </dialog>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" data-key="penaEnabled" data-no-profile="true" data-default-value="false">
                             <div class="checkbox-fill">✔</div>
                         </div>
                     </div>
@@ -1590,15 +1682,6 @@
                             <div class="dropdown-item" data-value="custom-image-texture"><span class="background-texture-preview" aria-hidden="true"><span class="custom-image-texture"></span></span>Custom Image</div>
                         </div>
                     </div></div>
-                    </div>
-                        <div class="color-input custom-input"><div class="input-title">Theme Color</div>
-                        <input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
-                    </div>
-                    <div class="color-input custom-input"><div class="input-title">Board Color 1</div>
-                        <input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
-                    </div>
-                    <div class="color-input custom-input"><div class="input-title">Board Color 2</div>
-                        <input type="color" data-key="boardColorHex2" data-no-profile="true" data-default-value="#9e9384">
                     </div>
                 </div>
 			</div>

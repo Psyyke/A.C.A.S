@@ -1,0 +1,93 @@
+Pena attribution retained after runtime consolidation
+
+GGUF browser runtime:
+@wllama/wllama 3.13.0, MIT, Xuan Son NGUYEN
+https://github.com/ngxson/wllama/tree/6647c1ea3837b2f0205a300c3bf5ff644aaa06bf
+Unmodified npm JavaScript/WASM assets; wrapper license: vendor/wllama-LICENSE.
+Embedded llama.cpp version: b12211-7d7f028 (MIT); vendor/llama-cpp-LICENSE.
+https://github.com/ggml-org/llama.cpp/tree/7d7f028
+The local build-copy script and dependency lock are in C:\Users\USER\Desktop\Pena-chat\pena-runtime.
+Tokenizer-only bundle: @mlc-ai/web-tokenizers 0.1.6, Apache-2.0
+https://github.com/mlc-ai/tokenizers-cpp
+Its bundled copyright/license comments and vendor/tokenizers-LICENSE are retained.
+The WebLLM inference runtime and model catalogue are not shipped.
+The retired Queen decoder, model installer and model weights are not shipped.
+The position-format helpers retain upstream attribution below. Speech component
+notices also remain applicable to the active Pena runtime.
+
+Historical Queen browser integration for A.C.A.S
+
+Architecture and adapted encoder/attention calculations:
+Queen Project / Princeton NLP
+https://github.com/queen-project/queen
+Reference revision: c372da22ca75e95c3c79bee8a83c220fc54d0dcb
+Upstream source license: Apache License, Version 2.0
+The unmodified upstream license is retained in LICENSE-Queen.txt.
+
+Changes for A.C.A.S include staged ONNX export, Q4 weights with float32
+activations, browser tokenization, WebGPU execution with custom WGSL decoder
+kernels, persistent model storage, legal recommendation validation, UCI
+adaptation and explanation presentation.
+The A.C.A.S integration is distributed under the project's GPLv3 license.
+
+SmolLM3 implementation reference:
+Hugging Face Transformers, Apache License, Version 2.0
+https://github.com/huggingface/transformers
+
+ONNX Runtime Web is reused from the existing LC0 distribution.
+Its existing license and third-party notices remain applicable.
+
+Model weights are not included. The Queen release model card does not assert
+a blanket license for the combined fine-tuned release. This notice does not
+grant redistribution rights for those weights or establish their GPL status.
+
+Local recognition, voice and teaching additions:
+Transformers.js 4.3.2, Apache-2.0
+https://github.com/huggingface/transformers.js
+ONNX Runtime Web 1.31.0-dev.20260914-8d85527a0, MIT
+https://github.com/microsoft/onnxruntime
+Primary licenses, bundled JavaScript copyright comments and ONNX third-party
+notices are retained in dist. The ONNX runtime used for Queen itself remains
+the separate existing LC0 distribution.
+
+ZONOS3 WebGPU voice runtime:
+Copyright (c) 2026 Zyphra, Inc., MIT
+https://github.com/Zyphra/ZONOS3-Mini
+Source revision a50e14117d99181ba7f28047b451ba03ba1a09a9.
+The bundled runtime was built from servers/web with gpu-oom.patch applied.
+The full license, upstream third-party notices and patch are in vendor/zonos3.
+Model weights are downloaded separately from Zyphra/ZONOS3-Mini, revision
+2921b8821772b0bd10a04456863d21abf9d2f283. The publisher declares Apache-2.0.
+https://huggingface.co/Zyphra/ZONOS3-Mini
+
+Word timing uses the ZONOS3 WebGPU FuseAlign implementation. Its Apache-2.0
+software attribution and license are retained in vendor/zonos3/NOTICE and
+vendor/zonos3/third_party/licenses/fusealign-multilingual-Apache-2.0.txt.
+The aligner model is downloaded separately from the ZONOS3 model repository.
+
+Optional recognition model, downloaded separately:
+Whisper Base is based on OpenAI Whisper, MIT, with ONNX conversion by
+onnx-community. Model terms and source notices remain applicable.
+https://github.com/openai/whisper
+https://huggingface.co/onnx-community/whisper-base
+
+Optional Piper voice synthesis:
+Voice packs and their individual MODEL_CARD files are downloaded separately
+from rhasspy/piper-voices. Pack and dataset terms differ. In particular,
+catalogue-wide MIT metadata must not be interpreted as a license for every
+individual voice. No voice weights are bundled here.
+https://huggingface.co/rhasspy/piper-voices
+
+The optional phonemizer is fetched at runtime from
+@diffusionstudio/piper-wasm 1.0.0, npm gitHead
+69522c832bd52d7c16389e9a8aee568065027689.
+Its npm wrapper metadata says MIT, but its compiled components include
+eSpeak NG and must not be described as wholly MIT.
+Source and Emscripten build instructions:
+https://github.com/diffusionstudio/piper-wasm/tree/69522c832bd52d7c16389e9a8aee568065027689
+https://github.com/wide-video/piper-phonemize
+https://github.com/rhasspy/espeak-ng
+https://github.com/espeak-ng/espeak-ng
+eSpeak NG is GPL-3.0-or-later. Retain the component licenses and satisfy
+corresponding-source obligations if redistributing compiled phonemizer files.
+The external phonemizer files are not included in this repository.

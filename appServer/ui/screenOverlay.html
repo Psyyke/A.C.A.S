@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; font-src 'self';">
+    <style>
+        @font-face { font-family: Rubik; src: url('./fonts/Rubik.ttf') format('truetype'); font-weight: 200 900; }
+        html, body, #board { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; pointer-events: none; font-family: Rubik, Arial, sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <script src="../../userscript-components/UniversalBoardDrawer.js"></script>
+    <script src="screenOverlayRenderer.js"></script>
+</body>
+</html>

@@ -586,11 +586,16 @@ async function capturePipBoards(cgElem, instanceId, captureSize, positions, stat
         && (!animationKey || canAnimatePipBoard() && pipHintInstance === instance
             && instance.learningReviewPostFen === reviewFen
             && JSON.stringify(pipData.feedbackPositions || []) === positionKey);
-    const { boardCanvas, overlayCanvas } = await captureBoardLayers(instanceId, captureSize, null, pipProfile);
+    // Pena can play a future line on its own board, PiP follows that board while it is open.
+    const preview = instance?.penaPreview?.element?.isConnected && instance.penaPreview.element.getBoundingClientRect().width > 0
+        && !CONCEAL_ASSISTANCE_ACTIVE ? instance.penaPreview : null;
+    const { boardCanvas, overlayCanvas } = preview
+        ? await captureBoardLayers(null, captureSize, preview.element, null, preview.overlay)
+        : await captureBoardLayers(instanceId, captureSize, null, pipProfile);
 
     if(!boardCanvas) return;
 
-    const boardFrames = fen && state && instance.chessground.getFen().split(' ')[0] !== fen.split(' ')[0]
+    const boardFrames = !preview && fen && state && instance.chessground.getFen().split(' ')[0] !== fen.split(' ')[0]
         ? await capturePipAnimation(cgElem, [], { fen }, captureSize, state, isCurrent) : [];
     const bitmap = await createImageBitmap(boardFrames[0]?.[0] || boardCanvas);
 
@@ -601,7 +606,7 @@ async function capturePipBoards(cgElem, instanceId, captureSize, positions, stat
     const bitmap2 = await createImageBitmap(
         overlayCanvas || emptyOverlayCanvas
     );
-    const animationFrames = animationKey && isCurrent()
+    const animationFrames = animationKey && !preview && isCurrent()
         ? await capturePipAnimation(cgElem, positions, rootPosition, captureSize, state, isCurrent) : [];
 
     // Captures are asynchronous. Discard an older capture if a newer refresh
@@ -1183,6 +1188,14 @@ return {
 
     refresh,
 
+    // Pena draws and clears short visual cues, so the board picture is taken again.
+    refreshBoard() {
+        // A playing learning line would restart on every cue, so it keeps priority over Pena's flashes.
+        if(destroyed || pipBoardAnimation && !instance?.penaPreview) return;
+        pipBoardCaptureRevision++;
+        clearPipBoardAnimation();
+        scheduleRefresh();
+    },
     destroy() {
         destroyed = true;
         pipRefreshRevision++;

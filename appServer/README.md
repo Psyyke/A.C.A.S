@@ -2,26 +2,265 @@
 
 Please visit the GitHub for more details: https://github.com/Psyyke/A.C.A.S
 
-This file basically just lists the LICENSE and the dependencies A.C.A.S might use.
+This file includes local hosting setup, platform requirements and dependency licenses.
+
+Open **Settings** with the gear beside the connection status and port. Choose any
+of the main app's 42 languages, adjust the server text size, or toggle console
+line wrapping. These preferences apply right away and are saved on this computer.
+You can also clear the cache here.
+**Credits & licences** opens a searchable panel for app libraries, fonts,
+icons and optional AI downloads. Expand an entry to read its licence or
+follow its source links. Chromium notices open as a separate document.
+To change the port, save it in Settings. This restarts the server app and stops
+running engines, so set the same port in the web GUI to reconnect.
+
+On Windows and Linux, closing the main window stops the server and its Ghost
+overlays too. The Windows `run_dev_loop.bat` can then reopen it after a second.
+On macOS, closing the window keeps the app running as usual.
+
+File picker titles use the chosen language, while system-provided controls and
+backend diagnostic details may still appear in English.
+
+## Adding engines
+
+Drop one or more local engine executables into the server window, or use
+**Add engine binary**. Before checking dropped files, the server asks for
+confirmation because the check runs them. Only use files you trust. It sends
+`uci` and adds programs that reply with `uciok` within 15 seconds. The check
+stops the process afterwards. On Linux and macOS it may add owner execute
+permission, just like launching an engine normally.
+
+A failed check does not always mean an engine is incompatible. It might need
+extra files or launch options, or take longer to start. You can still add it
+with the file picker. Files stay in their original locations.
+On Windows, run the server as a normal user. Windows can block drops from
+Explorer if the server is running as administrator. Close an elevated server
+and start it normally before trying again.
+
+## Pena AI (native GGUF)
+
+One web GUI can open separate engine and Pena connections. The server announces
+the first connection and the final disconnect, and only counts engine or board
+connections toward the multiple-GUI warning.
+
+Open **AI** beside the server status in the Electron window and press **Download Pena**. The web
+GUI has the same button. The server then does everything by itself:
+
+* Picks a pinned official [llama.cpp](https://github.com/ggml-org/llama.cpp/releases)
+  build (`b12633`). Windows NVIDIA gets CUDA 13.5 (driver 580+) or CUDA 12.4
+  (driver 551+), AMD and Intel get Vulkan, Apple Silicon gets Metal, and
+  everything else gets the CPU build. Linux uses Vulkan on every vendor.
+* Downloads the runtime, the matching plain Inkling base (8.67 GB) and the
+  published [Pena chess LoRA](https://huggingface.co/Hakorr/Pena) (39.4 MB)
+  into this computer's app user-data folder under `pena`, then starts with
+  `--lora`. No developer files, Hugging Face account or manually selected
+  model paths are needed. The adapter already includes the refusal-removal
+  edit, so setup never pairs it with an already-uncensored base.
+  Existing installs fetch only the changed files. Downloads resume after a
+  pause or a dropped connection, and every file is checked against its
+  pinned SHA-256 before use.
+* Unpacks the runtime, starts it and remembers to start Pena on the next launch.
+  Launching never downloads anything by itself.
+
+Errors show up as toasts in the app server and in the web GUI. The web GUI can
+only ask for this pinned setup or pause it, never choose files.
+**Stop** unloads the model, cancels inference and turns off the automatic start.
+Quit cleans up the owned native process; closing the window on macOS leaves the
+app running.
+
+### Advanced
+
+**Advanced** lets you run your own **llama-server executable** and GGUF model,
+plus an optional GGUF LoRA trained for that exact base model. Custom files are
+used when both a runtime and a model are chosen. **Use Pena's download** clears
+them again. Context, GPU layers, threads and the backend choice apply to both.
+For Pena's download, the backend decides which build gets downloaded (pick
+**CPU only** if your GPU driver cannot run it).
+
+**Graphics memory** is Automatic by default, so there's nothing to set up. Pena
+asks llama-server how much memory your graphics card has and picks a mode for
+Inkling. Cards with 14 GB or more run at full speed with no extra flags. 12, 10, 8
+and 6 GB cards keep part of Inkling in system RAM so it fits next to ZONOS3 and a
+LoRA, which is slower but works. If the size can't be read, Pena uses the 8 GB
+mode and says so. If llama-server still dies while loading, Pena tries again one
+mode smaller and remembers that until the app restarts. You can pick a mode by
+hand here too. Other models stay at full speed unless you pick one. The numbers
+behind each mode are in `PENA-12GB-PLAN.md`.
+
+For your own build, keep its required libraries beside the executable:
+
+* Windows/Linux NVIDIA: CUDA build plus compatible NVIDIA driver/runtime.
+* Windows/Linux AMD (or other supported GPUs): Vulkan build plus working Vulkan
+  drivers. Actual device/model support depends on that build.
+* macOS: Metal build on supported Apple hardware; select the actual executable,
+  not a `.app` bundle. Unix binaries need execute permission. Signing/quarantine
+  and library issues must be resolved by the user.
+* CPU: select a CPU-compatible executable and **CPU only** (zero GPU layers).
+
+With custom files, **Backend** labels the selected build; it cannot add
+CUDA/Vulkan/Metal support to an executable. **Automatic** infers a label only
+when its path contains a backend name. Defaults request 99 GPU layers, automatic flash
+attention, one inference slot and 8,192 context tokens. Lower context/GPU layers
+if memory is insufficient; threads zero uses the runtime default. Native builds
+supporting `--flash-attn auto`, `--jinja`, `--offline`, `--no-webui` and
+`--log-disable` and `--reasoning-budget` are required. A model's architecture, quantization, chat template
+and LoRA must all be supported by the selected build: “GGUF” alone does **not**
+guarantee compatibility. No cross-platform/model certification
+is implied.
+
+Only the trusted Electron main-frame UI can configure executable/model/adapter
+paths via IPC. The native HTTP server binds
+`127.0.0.1` on an OS-selected free port, with a private per-launch API key.
+Inherited `LLAMA_*` overrides are removed, offline mode is enabled and native
+stdout/stderr are discarded. The existing origin-validated WebSocket server
+proxies inference; browsers need no native HTTP/CORS access. Allowed origins
+are exactly `http://localhost` and `https://acaschess.com`. Origin checks
+are not authentication against programs already running on your computer.
+Older installed servers need rebuilding or updating before the app on
+`https://acaschess.com/app/` can connect. Local development still uses
+`http://localhost/A.C.A.S/app/`.
+
+### WebSocket AI protocol
+
+Connect to the existing Calculation Server WebSocket port (default 2800).
+Messages use a nonempty string `requestId` (maximum 128 characters):
+
+```js
+{type: 'ai', action: 'status', requestId: 'status-1'}
+{type: 'ai', action: 'setup', requestId: 'setup-1'}        // download if needed, then start
+{type: 'ai', action: 'cancelSetup', requestId: 'setup-2'}  // pause a download
+{type: 'ai', action: 'promptInfo', requestId: 'count-1',
+ messages: [{role: 'user', content: 'Hello'}],
+ chat_template_kwargs: {enable_thinking: false}}
+{type: 'ai', action: 'generate', requestId: 'chat-1',
+ options: {messages: [{role: 'user', content: 'Hello'}],
+           max_tokens: 256, temperature: 0.7,
+           chat_template_kwargs: {enable_thinking: false}}}
+{type: 'ai', action: 'cancel', requestId: 'chat-1'}
+```
+
+Replies have `type: 'ai'`, the matching `requestId`, and:
+
+* `phase: 'status'`: `state`/`status` (`ready`, `loading`, `offline`), `ready`,
+  `error`, `model`/`lora` basenames, `context`, `modelInfo` and `capabilities`.
+  `setup` adds `installed`, `busy`, `phase` (`checking`, `downloading`,
+  `verifying`, `unpacking`, `starting`, `idle`), `progress` (0 to 1),
+  `received`/`total` bytes, `downloadBytes` and the last setup `error`.
+  State changes are also pushed with `requestId: null`. Bounded GGUF metadata
+  inspection identifies architecture/Inkling identity even after renaming the
+  model (for example, `atomic-iq2-m.gguf`); `modelInfo.identitySource` distinguishes
+  metadata from a filename-only fallback hint. Backend/family detection is not
+  proof of runtime support or provenance, and never certifies LoRA compatibility.
+* `phase: 'promptInfo'`: `tokens`, `context`; uses native `/apply-template`
+  with `add_generation_prompt:true`, then `/tokenize` with `add_special:false`.
+  Pass the same messages/template kwargs **and top-level** `reasoning_effort`/
+  `reasoning_budget_tokens` as generation. Alternatively pass the identical
+  generation `options` object on `promptInfo`. These controls can change the
+  rendered prompt even when the messages/kwargs are unchanged. No prompt is returned.
+* `phase: 'chunk'`: `chunk` is unchanged parsed OpenAI SSE JSON, including
+  reasoning deltas, prompt progress, usage and timings when supplied. Consumers
+  must not display/speak `reasoning_content` as the visible answer.
+* `phase: 'complete'`: `text` (content deltas only), `finishReason`, optional
+  `usage`/`timings`; cancellation returns `cancelled:true`, empty `text`, and
+  `finishReason:'cancelled'`. Retain previously received chunks if desired.
+* `phase: 'error'`: `error` and `message` contain a human-readable reason.
+  Empty visible completions fail with `code:'NO_VISIBLE_ANSWER'`, preserving
+  `finishReason`, native `usage` and `timings` when supplied instead of returning
+  a misleading successful empty answer.
+
+Generation accepts text-only `system`/`user`/`assistant` messages, `max_tokens`
+(or `max_completion_tokens`), `temperature`, `top_p`, `top_k`, `min_p`,
+`repeat_penalty`, presence/frequency penalties, `seed`, `stop`,
+`chat_template_kwargs`, `reasoning_effort`, `reasoning_budget_tokens` and
+`return_progress`, `timings_per_token`, and `stream_options.include_usage`
+(default true). `stream`, `model`, `cache_prompt` are tolerated for client
+compatibility, but streaming is always on, the Electron-selected model is used,
+and prompt caching is off. Reasoning options are forwarded, not simulated;
+support depends on the build/template. No arbitrary extra options, file paths,
+URLs, tool calls, grammar files, or native launch configuration are accepted.
+Output is limited to min(8,192, context) tokens; payloads to 512 KiB, 256 messages
+and 450,000 content characters. One generation runs at a time. Cancel uses the
+original request ID and produces that request's terminal response; disconnect
+aborts all requests owned by that socket. Startup has a three-minute health
+timeout and at most three attempts for early native exits/port-bind races.
+
+Native reasoning defaults to a zero-token budget. For metadata-identified
+Inkling, a request for no thinking is normalized to its supported template
+control (`chat_template_kwargs.reasoning_effort:'none'`); the generic
+`enable_thinking:false`/top-level `reasoning_effort` override is removed for that
+family to keep the native template effort intact. Standard `inkling2` retains
+an explicit zero sampler budget. Only `inkling2_loop` receives 16 tokens of
+per-thinking-block headroom even when the client requests zero, matching the
+loop variant's no-thinking requirement. No messages/evidence are changed.
+`capabilities.noThinkingBudgetTokens` reports the effective zero/16 policy.
+The same normalization is applied to
+`promptInfo`, including its top-level messages/kwargs schema. Other models'
+reasoning parameters are forwarded unchanged.
+
+### AtomicChat loop-model validation
+
+AtomicChat's IQ2_M file uses `inkling2_loop`, not the standard `inkling2`
+architecture. A loop-compatible native build is required. Local Windows CUDA
+validation successfully loaded this architecture and returned a real greeting.
+The native sampler treats `-1` as unlimited and zero as immediately forcing a
+thinking-block end; it re-arms for later blocks. Zero is not silently unlimited,
+but repeated immediately closed blocks can consume the entire output budget.
+The loop-only 16-token headroom avoids that no-answer behavior.
+
+The unchanged Italian development-fixture PCF input had exactly 6,397 native
+prompt tokens at context 8,192. With client no-thinking/zero controls normalized
+to the loop policy and `max_tokens:512`, raw SSE returned 16 reasoning chunks
+(54 characters), then 467 visible chunks (1,198 characters), a final `stop`,
+and 490 generated tokens total. Native prefill took 5.97 seconds, generation
+8.21 seconds and the WebSocket request 14.19 seconds overall. This is a verified
+visible final completion, **not** a universal ten-second latency guarantee or
+a coaching-quality study. The fixture used a synthetic test-style search
+snapshot; no engine experiment, training change or evidence modification was
+performed. Any future LoRA must match the exact base and be verified separately.
+No machine-specific runtime is bundled into the app or installer.
+
+Focused native hosting tests (no runtime/model download):
+`node --test tests/server-native-ai.test.mjs`.
 
 ## Developing / Building
 
-Node.js 22.12 or newer is required for the current Electron and build dependencies.
+The easiest way to make an installer is the build script for your system. It
+grabs a private copy of Node.js into a `.node` folder if yours is missing or too
+old, installs the build tools and packages the app into `dist/`. Nothing else
+needs to be installed.
 
-From the `appServer` directory, on Windows, macOS, or Linux:
+* **Windows:** double-click `build.bat`. It asks for admin rights, because the
+  packaging tools unpack files that Windows only allows admins to create. You get
+  an NSIS installer.
+* **macOS:** double-click `build.command`, or run `sh build.sh` in Terminal. You
+  get a `.dmg` and a `.zip`.
+* **Linux:** run `sh build.sh` in a terminal. You get an AppImage, plus a `.deb`
+  when your system has the tools for it.
+
+Each system can only build its own installer, so build the Mac one on a Mac and
+the Linux one on Linux.
+
+For development, Node.js 22.12 or newer is required. From the `appServer`
+directory, on Windows, macOS, or Linux:
 
 1. `npm ci`
 2. `npm start`
 
-Run `npm run build` on the target operating system to package it. Output is
-written to `dist/`. The batch files are Windows-only shortcuts.
+On Windows, `run_dev_loop.bat` also starts the development server and restarts
+it when it closes. Open it normally rather than from an administrator terminal.
+Installed builds need to be rebuilt and reinstalled to include source changes.
+
+`npm run build` also packages for the current system. Windows gets an NSIS
+installer, macOS gets a `.dmg` and a `.zip`, and Linux gets an AppImage and a
+`.deb`. The other batch files are just Windows shortcuts.
 
 ### Platform status
 
 The Electron application targets Windows, macOS, and desktop Linux, not every
 operating system. Windows native startup and WebSocket communication are tested
-locally. macOS and Linux still require native runtime and packaging validation;
-do not treat source-level checks as certification.
+locally. macOS and Linux builds aren't signed or notarized, so macOS may ask you
+to allow the app in System Settings the first time. They still need hands-on
+testing, so source-level checks aren't a promise that everything works there.
 
 Use an engine binary built for your OS and CPU. Unix engines often have no file
 extension; select the executable itself, not a macOS `.app` bundle. Windows
@@ -62,28 +301,24 @@ This program hosts a local WebSocket server on your computer. While local server
 
 ## Dependencies
 
-- [Fairy Stockfish WASM](https://github.com/fairy-stockfish/fairy-stockfish.wasm) – the chess engine of A.C.A.S
-- [Stockfish WASM](https://github.com/nmrugg/stockfish.js/) – another chess engine of A.C.A.S
-- [ZeroFish](https://github.com/schlawg/zerofish) – WASM port of Lc0 and the latest Stockfish, another chess engine of A.C.A.S
-- [Maia-Chess](https://github.com/CSSLab/maia-chess) – legit looking weights for Lc0
-- [Maia-Platform-Frontend](https://github.com/CSSLab/maia-platform-frontend) – source for the Maia 2 engine
-- [Lozza](https://github.com/op12no2/lozza) – another chess engine of A.C.A.S
-- [COI-Serviceworker](https://github.com/gzuidhof/coi-serviceworker) – allowing WASM on GitHub pages, extremely important library
-- [ChessgroundX](https://github.com/gbtami/chessgroundx) – for displaying a board on the GUI. Modified the library a bit
-- [FileSaver](http://purl.eligrey.com/github/FileSaver.js) – for saving the config file
-- [bodymovin](https://github.com/airbnb/lottie-web) – for SVG animations
-- [chess.js](https://github.com/jhlywa/chess.js) – used for Maia 2 engine implementation
-- [onnxruntime-web](https://github.com/Microsoft/onnxruntime) – used for Maia 2 engine implementation
-- [Klaro!](https://github.com/klaro-org/klaro-js) – for legal reasons, to ask user for cookie permission
-- [SnapDOM](https://github.com/zumerlab/snapdom) – for DOM screenshots (e.g. turning the board into image)
-- [UniversalBoardDrawer](https://github.com/Hakorr/UniversalBoardDrawer) – for drawing arrows on the GUI and the chess site chessboards
-- [CommLink](https://github.com/AugmentedWeb/CommLink) – for cross-window communication between the GUI tab and chess sites
-- [Bootstrap Icons](https://getbootstrap.com/) – for the icons
-- [Mona Sans](https://github.com/github/mona-sans) – GitHub's open-source variable font
-- [Rubik](https://fonts.google.com/specimen/Rubik) – a sans-serif font family by Hubert & Fischer
-- [IBM Plex Sans](https://github.com/IBM/plex) – IBM's official open-source typeface
-- [ws](https://github.com/websockets/ws) – WebSocket library for the A.C.A.S server
-- [Electron](https://www.electronjs.org/) – Framework for the local calculation server
+The server bundles Electron, electron-store, ws, Bootstrap Icons, Mona Sans,
+Rubik, Whisper, IBM Plex Sans and a local copy of UniversalBoardDrawer for
+the screen overlay. Production npm dependency notices are collected from the
+installed packages on every build. Browser-only chess engines and libraries
+are not part of this installer.
+
+Installed copies include `THIRD-PARTY-NOTICES.txt`, the full GPL in `LICENSE`,
+Electron and Chromium notices, and the app's matching source and build files
+under `source`. Fonts and third-party libraries keep their own licences.
+
+Optional AI setup downloads llama.cpp and the Inkling GGUF separately.
+NVIDIA CUDA libraries have proprietary terms. Inkling's original provider
+links an acceptable-use policy alongside its Apache-2.0 declaration, which
+needs clarification before calling the entire model stack GPL-compatible.
+
+See [the licensing check](LICENSING.md) for verified versions, sources,
+attribution requirements and the remaining release checks. No extra font
+credit screen is normally needed, but licence notices must accompany copies.
 
 ## License
 

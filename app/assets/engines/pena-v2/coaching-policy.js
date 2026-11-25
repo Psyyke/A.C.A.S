@@ -1,0 +1,343 @@
+import { moveHint, sourceSentences } from './commentary.js';
+import { moveMentions, moveOwner } from './teacher.js';
+import { markdownPlain } from './formatting.js';
+import { Chess } from '../libraries/chessjs/chess.js';
+import { withTurn } from './factsheet.js';
+
+export const coachingPolicy = 'Explain the purpose behind an idea, its tradeoffs and possible counterplay in natural language rather than listing evidence. '
+    + 'Use chess knowledge to reason from the position, but distinguish inference from verified board facts and avoid claiming uncertain outcomes as certain. '
+    + 'Do not volunteer a best move or line when the player has not asked for one.';
+
+export function asksForMove(question, { offeredMove = false } = {}) {
+    const text = String(question || '').trim();
+    if(/\b(?:do not|don't|without|avoid|hide|not)\b[^.!?]*\b(?:moves?|lines?|variations?)\b/i.test(text)) return false;
+    if(offeredMove && /^(?:please\s+|just\s+|ok(?:ay)?,?\s+)*(?:yes|yeah|yep|yup|sure|go ahead|go on|do it|i(?: (?:want|would like|need)|['’]d like) (?:it|that|to (?:see|know|hear) (?:it|that))|(?:show|tell|give|reveal) (?:me )?(?:it|that)|(?:show|tell) me|let me (?:see|know|hear)(?: it| that)?|let['’]s (?:see|hear) it|what is it)(?:,?\s+please)?[.!?]*$/i.test(text))
+        return true;
+    return /\b(?:what|which|where|how|should|could|can|would|want|need|recommend|suggest|tell|show|give|reveal)\b[^.!?]*\b(?:moves?|play|push|capture|castle|line|variation|continuation)\b/i.test(text)
+        || /\b(?:play|push|try|move|capture)\s+[a-h][1-8]\b/i.test(text)
+        || moveMentions(text).length > 0;
+}
+
+// Moves the player could make right now, and the opponent's replies or threats, read from the real board.
+function sides(fen, playerColor) {
+    if(!fen || !/^[wb]$/.test(playerColor || '')) return null;
+    try {
+        new Chess(fen);
+        return { fen, player: playerColor, other: playerColor === 'w' ? 'b' : 'w' };
+    } catch { return null; }
+}
+
+function legalMoves(fen, color) {
+    try { return new Chess(withTurn(fen, color)).moves({ verbose: true }); } catch { return []; }
+}
+
+function matches(moves, input) {
+    if(!input) return [];
+    if(typeof input === 'object') return moves.filter(move => move.from === input.from && move.to === input.to);
+    const san = input.replace(/[+#!?]/g, '');
+    return moves.filter(move => move.san.replace(/[+#]/g, '') === san);
+}
+
+// Only a move the player could make right now gives the answer away. Once the line starts with
+// an opponent move, the rest is the consequence being explained, like a forced mate after ignoring a threat.
+function playerMentions(plain, mentions, board) {
+    if(!board) return mentions;
+    const mine = legalMoves(board.fen, board.player), theirs = legalMoves(board.fen, board.other);
+    let line = null;
+    return mentions.filter(mention => {
+        const owner = moveOwner(plain.slice(0, mention.index), board.player);
+        if(line) {
+            const next = matches(line.moves({ verbose: true }), mention.input)[0];
+            if(next) { line.move(next); return false; }
+        }
+        if(owner !== board.other && matches(mine, mention.input).length) return true;
+        const threat = matches(theirs, mention.input)[0];
+        if(!threat) return owner !== board.other && !line;
+        try { line = new Chess(withTurn(board.fen, board.other)); line.move(threat); } catch { line = null; }
+        return false;
+    });
+}
+
+function hasSuggestion(plain, playedSan = '', board = null) {
+    const past = playedSan && /\b(?:played|just played|last move|your move|that move|after)\b/i.test(plain);
+    const suggestions = playerMentions(plain, moveMentions(plain).filter(mention => !(past && typeof mention.input === 'string'
+        && mention.input.replace(/[+#]/g, '') === playedSan.replace(/[+#]/g, ''))), board);
+    const mine = board ? legalMoves(board.fen, board.player) : [];
+    const verbs = /\b(?:play\w*|push\w*|mov\w*|advanc\w*|captur\w*|tak\w*|put\w*|bring\w*|develop\w*|jump\w*|land\w*|retreat\w*)\b[^.!?]*?\b(to|on|from)\s+([a-h][1-8])\b/gi;
+    const verbal = [...plain.matchAll(verbs)].some(([, by, square]) => !board
+        || mine.some(move => move[by.toLowerCase() === 'from' ? 'from' : 'to'] === square.toLowerCase()));
+    const pawnMove = /\b(?:consider|try|recommend|suggest|choose|prefer|favor|favour)\s+[a-h][1-8]\b|^\s*[a-h][1-8]\s+(?:develops|controls|attacks|opens|protects|threatens|wins|loses|works|looks)\b/i.test(plain);
+    const namedAction = /^\s*(?:castle|promote)\b|\b(?:should|could|can|try|consider|recommend|suggest|prefer|best move is)\s+(?:to\s+)?(?:castle|promote)\b|\b(?:push|advance|move)\s+(?:(?:your|the|own)\s+)?[a-h][- ]pawn\b/i.test(plain);
+    return Boolean(suggestions.length || verbal || pawnMove || namedAction);
+}
+
+export function hideMoveSuggestions(text, { playedSan = '', fen = '', playerColor = '' } = {}) {
+    let withheld = false;
+    const board = sides(fen, playerColor);
+    const sentences = sourceSentences(text).map(({ text: sentence }) => {
+        const plain = markdownPlain(sentence);
+        if(!hasSuggestion(plain, playedSan, board)) return sentence;
+        withheld = true;
+        const hint = moveHint(plain);
+        return hint.startsWith('Look for a move ') && !hasSuggestion(hint) ? hint : '';
+    }).filter(Boolean);
+    return { text: withheld ? sentences.join(' ') : text, withheld };
+}
+
+const pieceTypes = { pawn: 'p', knight: 'n', bishop: 'b', rook: 'r', queen: 'q', king: 'k' };
+const squareList = String.raw`[a-h][1-8](?:(?:\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or)\s+)[a-h][1-8](?![a-z0-9-]))*`;
+const ownerWord = String.raw`a|an|any|the|your|my|our|their|(?:the\s+)?opponent's|white's|black's|white|black`;
+const adjective = String.raw`(?:own|other|light-squared|dark-squared|remaining|last|lone|extra|passed|isolated|doubled|backward|loose|undefended|unprotected|pinned|trapped|bad|good|active|passive|hanging|advanced|central|queenside|kingside|[a-h]-)`;
+const placementPattern = new RegExp(String.raw`\b(?:(${ownerWord})\s+)?(?:${adjective}\s*)*(pawn|knight|bishop|rook|queen|king)(s)?\s+(?:on|at|(?:still|sitting|standing|sat)\s+on)\s+(${squareList})`
+    + String.raw`|\b(?:(${ownerWord})\s+)?([a-h][1-8])[- ](pawn|knight|bishop|rook|queen|king)\b`, 'gi');
+// A placement after these words is about a later or imagined board, not the one on screen.
+const elsewhere = /\b(?:if|after|once|when|whenever|following|would|imagine|suppose|instead|then|later|eventually|next|push\w*|playing|plays?|moving)\b|\b(?:[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h]x[a-h][1-8]|O-O)|\.\.\.\s*[a-h][1-8]/i;
+const wishes = /\b(?:put|puts|putting|bring|brings|bringing|get|gets|getting|place|places|placing|want|wants|wanting|land|lands|landing|reach|reaches|reaching|aim|aims|aiming|heading|reroute|rerouting|route|like|love|with|without|for|needs?|swap|swaps|trade|trades|trading|plant|plants|planting|post|posting|establish|establishing|park|parks|parking|develop\w*|to)\s+(?:\w+\s+){0,2}$/i;
+const denied = /\b(?:no|not|never|isn't|aren't|wasn't|nor)\s+(?:\w+\s+){0,2}$/i;
+const hypothetical = /^\s*(?:would|will|could|might|break|breaks|push|lever)\b/i;
+const past = /\b(?:was|were|had|used to|moved|left|went|came|gone|captured|took|taken|traded|lost|missing|played|started|began|hung|picked|opened|just|no longer|anymore|on move \d+)\b/i;
+
+function ownerColor(word, playerColor, inherited) {
+    const owner = String(word || '').toLowerCase().replace(/\s+/g, ' ');
+    if(/^(?:your|my|our)$/.test(owner)) return playerColor || null;
+    if(/^(?:their|(?:the )?opponent's)$/.test(owner)) return playerColor ? (playerColor === 'w' ? 'b' : 'w') : null;
+    if(/^white/.test(owner)) return 'w';
+    if(/^black/.test(owner)) return 'b';
+    return inherited;
+}
+
+function pieceAt(board, square) {
+    try { return board.get(square) || null; } catch { return null; }
+}
+
+// "Your knight on b1" after that knight already left: the sentence describes an older board.
+function misplaced(plain, boards, playerColor) {
+    let inherited = null, previousEnd = -1;
+    for(const match of plain.matchAll(placementPattern)) {
+        const square = Boolean(match[6]);
+        const word = square ? match[5] : match[1];
+        const type = pieceTypes[(square ? match[7] : match[2]).toLowerCase()];
+        // "the rook on g8, and g7 is empty" names one rook, so only a plural takes the whole list.
+        const listed = (square ? match[6] : match[4]).toLowerCase().match(/[a-h][1-8]/g);
+        const squares = !square && match[3] ? listed : listed.slice(0, 1);
+        const before = plain.slice(0, match.index);
+        const after = plain.slice(match.index + match[0].length);
+        const joined = !word && previousEnd >= 0 && /^\s*(?:,\s*)?(?:and\s+|or\s+)?$/.test(plain.slice(previousEnd, match.index));
+        const color = ownerColor(word, playerColor, joined ? inherited : null);
+        inherited = color;
+        previousEnd = match.index + match[0].length;
+        if(/^(?:a|an|any)$/i.test(word || '') || elsewhere.test(before) || wishes.test(before)
+            || denied.test(before) || hypothetical.test(after)) continue;
+        const holds = board => squares.every(at => {
+            const piece = pieceAt(board, at);
+            return piece?.type === type && (!color || piece.color === color);
+        });
+        if(holds(boards.now)) continue;
+        if(past.test(plain) && (!boards.before || holds(boards.before))) continue;
+        return true;
+    }
+    return false;
+}
+
+export function dropMisplacedPieces(text, { fen = '', beforeFen = '', playerColor = '' } = {}) {
+    let now, before = null;
+    try { now = new Chess(fen); } catch { return { text, removed: [] }; }
+    try { if(beforeFen) before = new Chess(beforeFen); } catch {}
+    const removed = [];
+    const kept = sourceSentences(text).filter(({ text: sentence }) => {
+        if(!misplaced(markdownPlain(sentence), { now, before }, playerColor)) return true;
+        removed.push(sentence);
+        return false;
+    }).map(({ text: sentence }) => sentence);
+    return { text: removed.length ? kept.join(' ') : text, removed };
+}
+
+const wordsOf = sentence => markdownPlain(sentence).toLowerCase().replace(/\[[^\]\n]*\]/g, ' ').match(/[a-z0-9]+/g) || [];
+
+// A reply copied from an older position talks about a board that is gone, so copied sentences go.
+export function dropRepeatedSentences(text, earlier = []) {
+    const old = earlier.flatMap(reply => sourceSentences(String(reply || '')).map(({ text: sentence }) => wordsOf(sentence)))
+        .filter(words => words.length >= 5);
+    if(!old.length) return { text, removed: [] };
+    const copied = words => words.length >= 5 && old.some(previous => {
+        const seen = new Set(previous);
+        const shared = words.filter(word => seen.has(word)).length;
+        return shared / Math.max(words.length, previous.length) >= 0.85;
+    });
+    const removed = [];
+    const kept = sourceSentences(text).filter(({ text: sentence }) => {
+        if(!copied(wordsOf(sentence))) return true;
+        removed.push(sentence);
+        return false;
+    }).map(({ text: sentence }) => sentence);
+    return { text: removed.length ? kept.join(' ') : text, removed };
+}
+
+const side = String.raw`(?:white|black|you|you're|your opponent|your side|the opponent|he|she|they|we|it|things|the position|this position|this|that|the game)`;
+const degree = String.raw`(?:(?:a\s+)?(?:bit|little|lot|touch)\s+|slightly\s+|clearly\s+|much\s+|way\s+|far\s+|still\s+|now\s+|just\s+|probably\s+|definitely\s+|already\s+|comfortably\s+|completely\s+|totally\s+|only\s+|objectively\s+|technically\s+)*`;
+const verdicts = [
+    new RegExp(String.raw`(?<!\b(?:does|do|did|doing|handles?|handled|makes?|made|plays?|played|puts?|says?|said|times?|timed)\s)\b${side}\s*(?:is|are|'s|'re|stands?|looks?|seems?|feels?|remains?|stays?)?\s+${degree}(?:better|worse|winning|losing|ahead|behind|on top|in control|for choice|in the driver's seat|in great shape|in trouble|lost|won|fine|okay|ok|comfortable|level|equal|even|balanced)\b(?!\s+(?:at|for\s+(?:the|a|an|\w+ing)|to|on|in\s+(?:development|space|the cent(?:er|re)|material|time|the race)|of|by\s+(?:a|an|one|two)\s+(?:pawn|piece|tempo|move)|a|an|the|your|his|her|their|its|that|this|material|time|tempo|tempi|development|space|placed|off|square|squares|bishop|knight|rook|queen|pawn|pawns|piece|pieces|move|moves|exchange|trade)\b)`, 'i'),
+    new RegExp(String.raw`\b${side}\s+(?:has|have|holds?|keeps?|got|gets?)\s+(?:a|an|the)\s+${degree}(?:small\s+|slight\s+|big\s+|clear\s+|real\s+|nice\s+|comfortable\s+|decisive\s+|winning\s+)*(?:edge|advantage|upper hand|plus|lead)\b`, 'i'),
+    /\b(?:about|roughly|basically|pretty much|dead|more or less|close to|near|totally|completely|fairly|kind of)\s+(?:equal|level|even|balanced)\b/i,
+    /\b(?:eval|evaluation|engine score)\b/i,
+    /(?:^|\s)[+-]\d+(?:\.\d+)?(?:\s|[.,]|$)/,
+    /\b(?:winning|losing|lost|won|equal|level|balanced|even)\s+(?:position|game|ending|endgame)\b/i,
+    /\b(?:stay|stays|remain|remains|keep|keeps|keeping|staying|remaining)\s+(?:(?:clearly|comfortably|completely|totally|slightly)\s+)?(?:winning|better|ahead|on top)\b/i,
+    /\b(?:with|keep\w*|leav\w*)\s+(?:(?:a|an|the|your|you)\s+)?(?:slight|small|clear|big|decisive|comfortable|winning)\s+(?:edge|advantage|plus|lead)\b/i
+];
+const asksStanding = /\b(?:who(?:'s| is)?\s+(?:winning|better|ahead|losing)|winning|losing|better|worse|ahead|behind|advantage|edge|equal|level|eval\w*|score|how\s+(?:am i|are we|is it|is the game|is the position|does it look|do i stand|has the game|did the game|did i do)|am i (?:doing|lost|ok|okay|fine)|is (?:it|this) (?:lost|won|over|drawn|hopeless)|chances?|assess\w*|stand|save|hold|hopeless|draw\w*|win (?:this|it|the game|from here)|recap|sum (?:it )?up|so far|gone|going|changed?|blunder\w*|mistake\w*|turn(?:ed|ing)? (?:it )?around|still true)\b/i;
+const filler = String.raw`(?:only|just|it|you|the|position|game|things|white|black|your|opponent|them|a|an|in|with|still|clearly|slightly|about|roughly|approximately|comfortably|much|small|clear|big|nice|is|are|'s|'re|stays?|remains?|now|here|you're|it's|they're|keep|keeps?|keeping|totally|completely|pretty|fairly|dead|level|also|slight|winning|small)`;
+const outcome = String.raw`(?:equal|level|balanced|winning|better|worse|ahead|edge|advantage|upper hand)(?:\s+(?:position|game))?`;
+const clauseBody = String.raw`(?:though|but|although|while|and|so|with|in|keep(?:s|ing)?|leav(?:e|es|ing)|retain(?:s|ing)?|reach(?:es|ing)?|stay(?:s|ing)?|remain(?:s|ing)?|giv(?:e|es|ing)|about|roughly|approximately)(?:\s+${filler})*\s+${outcome}(?:\s+(?:here|now|overall|either way|for now|with best play|for (?:you|white|black|them|us)|in (?:all of them|both|every line|all lines)))?`;
+const markers = String.raw`(?:\s|[\uE000-\uF8FF]|\[[^\]\n]*\])*`;
+// Only a verdict that ends the sentence, or sits between commas, comes out without breaking the grammar.
+const verdictClause = new RegExp(String.raw`(?:,\s*|\s+)${clauseBody}(?=${markers}(?:[.!?;]|$))|,\s*${clauseBody}(?=${markers},)`, 'gi');
+const verdictLead = new RegExp(String.raw`^\s*(?:honestly,\s*)?(?:(?:white|black|you|it|the position|things)(?:'s|'re)?(?:\s+(?:is|are|stays?|remains?))?(?:\s+${filler})*\s+${outcome}|it's\s+(?:about|roughly)\s+(?:equal|level))(?:\s+(?:here|now|overall))?\s*,\s*(?:but|and|so)\s+`, 'i');
+const dangling = /\b(?:that|which|the|is|are|was|be|and|to|a|an|it|its|your|with|in|of|but|though|so|still|also|just|now|then|really|remains?|stays?|keeps?|looks?|seems?|feels?|you|we|they|he|she|white|black|leaves?|gives?|while|whereas|although)\s*$/i;
+
+// Who is winning is already on screen elsewhere, so Pena leaves verdicts out unless the player asks.
+// A verdict tacked onto real advice loses only its clause. A sentence that is nothing but a verdict goes.
+export function dropUnaskedVerdicts(text, question = '') {
+    if(asksStanding.test(String(question || ''))) return { text, removed: [] };
+    const removed = [];
+    const isVerdict = sentence => verdicts.some(pattern => pattern.test(markdownPlain(sentence).replace(/\[[^\]\n]*\]/g, '')));
+    const kept = sourceSentences(text).map(({ text: sentence }) => {
+        if(!isVerdict(sentence)) return sentence;
+        const end = sentence.match(/[.!?]+(?=[^.!?]*$)/)?.[0] || '.';
+        let body = sentence.replace(verdictLead, '').replace(verdictClause, '');
+        if(body !== sentence) {
+            const tail = sentence.slice(sentence.search(/[.!?]+[^.!?]*$/) >= 0 ? sentence.search(/[.!?]+[^.!?]*$/) : sentence.length);
+            body = body.replace(/[.!?]+[^.!?]*$/, '').replace(/[\s,;]+$/, '');
+            if(/^[a-z]/.test(body) && !/^(?:[a-h]x?[a-h]?[1-8]|O-O)/.test(body)) body = body.charAt(0).toUpperCase() + body.slice(1);
+            // "the position is still" lost its point, so the sentence ends at the last clause that still stands.
+            if(dangling.test(markdownPlain(body))) body = body.replace(/,\s*(?:(?:and|but|so|though|while)\s+)?[^,]*$/, '');
+            // A lone move left after the last full stop, like "a4", lost the sentence it started.
+            body = body.replace(/([.!?])\s+\S+$/, '$1');
+            const words = markdownPlain(body).match(/[A-Za-z0-9]+/g) || [];
+            if(words.length >= 4 && !dangling.test(markdownPlain(body)) && !isVerdict(body)) {
+                removed.push(sentence);
+                return /[.!?]$/.test(body) ? body : body + (tail || end);
+            }
+        }
+        removed.push(sentence);
+        return null;
+    }).filter(sentence => sentence !== null);
+    return { text: removed.length ? kept.join(' ') : text, removed };
+}
+
+const files = 'abcdefgh';
+const coords = square => [files.indexOf(square[0]), Number(square[1]) - 1];
+const squareName = (x, y) => files[x] + (y + 1);
+const lineKinds = { diagonal: ([fx, fy], [tx, ty]) => fx !== tx && Math.abs(fx - tx) === Math.abs(fy - ty),
+    file: ([fx, fy], [tx, ty]) => fx === tx && fy !== ty, rank: ([fx, fy], [tx, ty]) => fy === ty && fx !== tx };
+
+// Whether the piece on from reaches to, looking through at most one piece, so batteries and x-rays still count.
+// A piece that only eyes a square may look through any number of pieces, as long as the square is on its line.
+function reaches(board, from, to, blockerLimit = 1) {
+    const piece = pieceAt(board, from);
+    if(!piece || from === to) return false;
+    const [fx, fy] = coords(from), [tx, ty] = coords(to);
+    const dx = tx - fx, dy = ty - fy;
+    if(piece.type === 'p') return Math.abs(dx) === 1 && dy === (piece.color === 'w' ? 1 : -1);
+    if(piece.type === 'n') return Math.abs(dx * dy) === 2;
+    if(piece.type === 'k') return Math.max(Math.abs(dx), Math.abs(dy)) === 1;
+    const straight = !dx || !dy, diagonal = Math.abs(dx) === Math.abs(dy);
+    if(piece.type === 'r' && !straight || piece.type === 'b' && !diagonal || piece.type === 'q' && !straight && !diagonal) return false;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy)), sx = Math.sign(dx), sy = Math.sign(dy);
+    let blockers = 0;
+    for(let step = 1; step < steps; step++) if(pieceAt(board, squareName(fx + sx * step, fy + sy * step))) blockers++;
+    return blockers <= blockerLimit;
+}
+
+// A pinned piece that can still slide along the pin line is not stuck.
+function stuckByPin(board, fen, square) {
+    const piece = pieceAt(board, square);
+    if(!piece) return true;
+    const moves = legalMoves(fen, piece.color).filter(move => move.from === square);
+    if(!moves.length) return true;
+    const [x, y] = coords(square);
+    for(const [sx, sy] of [[1, 0], [0, 1], [1, 1], [1, -1]]) {
+        const ray = sign => {
+            for(let step = 1; step < 8; step++) {
+                const nx = x + sx * sign * step, ny = y + sy * sign * step;
+                if(nx < 0 || nx > 7 || ny < 0 || ny > 7) return null;
+                const found = pieceAt(board, squareName(nx, ny));
+                if(found) return found;
+            }
+            return null;
+        };
+        const ahead = ray(1), behind = ray(-1);
+        const slides = found => found && found.type === 'q' || found?.type === (sx && sy ? 'b' : 'r');
+        const pinned = [[ahead, behind], [behind, ahead]].some(([pinner, shielded]) => pinner && shielded
+            && pinner.color !== piece.color && shielded.color === piece.color && slides(pinner));
+        if(!pinned) continue;
+        return !moves.some(move => {
+            const [mx, my] = coords(move.to);
+            return (mx - x) * sy === (my - y) * sx;
+        });
+    }
+    return false;
+}
+
+const namedPiece = /\b(pawn|knight|bishop|rook|queen|king)\s+on\s+([a-h][1-8])\b|\b([a-h][1-8])[- ](pawn|knight|bishop|rook|queen|king)\b/gi;
+// Singular verbs only, so "the queen and bishop cover f5" is never pinned on one of them.
+const sightVerb = String.raw`looks\s+at|eyes|aims\s+at|points\s+at|stares\s+at|x-rays|targets|(?:is|are|'s)\s+(?:looking\s+at|eyeing|aiming\s+at|pointing\s+at|staring\s+at|targeting)`;
+const guardVerb = String.raw`guards|defends|protects|covers|supports|attacks|hits|(?:is|are|'s)\s+(?:guarding|defending|protecting|covering|supporting|attacking|hitting)|${sightVerb}`;
+const sighting = new RegExp(String.raw`^(?:${sightVerb})\b`, 'i');
+const pieceNoun = String.raw`(?:(?:the|your|their|its|that|this|black's|white's|opponent's)\s+)?(?:[\w-]+\s+)?(?:pawn|knight|bishop|rook|queen|king|piece)`;
+const claimPattern = new RegExp(String.raw`\b(?:is|are|sits|stands|lies)?\s*(?:on|along)\s+the\s+same\s+(diagonal|file|rank)\s+as\s+(?:${pieceNoun}\s+on\s+)?([a-h][1-8])\b`
+    + String.raw`|\b(?:${guardVerb})\s+(?:${pieceNoun}\s+on\s+([a-h][1-8])|([a-h][1-8])\b(?![- ]?(?:pawn|knight|bishop|rook|queen|king)?\s*,?\s*(?:and\b|or\b|[a-h][1-8]))|(that|this)\s+(?:pawn|piece|square)|(it)\b)`, 'gi');
+const passiveClaim = new RegExp(String.raw`\b([a-h][1-8])\s+is\s+(?:\w+\s+)?(?:guarded|defended|protected|covered|supported|attacked|hit)\s+by\s+(?:the|your|their|its|black's|white's|a)\s+(?:[\w-]+\s+)?(pawn|knight|bishop|rook|queen|king)\s+on\s+([a-h][1-8])\b(?!\s*,?\s*and\b)`, 'gi');
+const stuckClaim = /\b([a-h][1-8])(?:[- ](?:pawn|knight|bishop|rook|queen|king))?\s+(?:cannot|can't|can not|is unable to)\s+move\b(?!\s+(?:without|or|because|since|until|unless|safely|freely|away))/gi;
+const unsure = /(?:\b(?:not|never|no longer|nothing|no one|none|would|could|will|might|may|can|to|once|soon|then|also|only)|n't)\s+(?:\w+\s+)?$/i;
+const clauseStart = /(?:^|[,;:]|\b(?:and|but|so|while|because|since|though|although|when|where|as)\b)(?![\s\S]*(?:[,;:]|\b(?:and|but|so|while|because|since|though|although|when|where|as)\b))([\s\S]*)$/i;
+// Words that make the piece an object or put it inside a phrase, so it isn't who the claim is about.
+const notSubject = /\b(?:by|with|from|than|of|against|behind|for|to|like|into|onto|at|in|on|toward|towards|after|threatening|attacking|hitting|checks?|hits?|attacks?|moves?|takes?|pins?|forks?|traps?|wipes|captures?|defending|guarding|protecting|covering|eyes|targets?|has|have|had|is|are|was|were)\b/i;
+const moving = /\b(?:go|goes|going|went|jumps?|jumping|moves?|moving|lands?|landing|comes?|coming|heads?|heading|steps?|stepping|retreats?|retreating|travels?|reroutes?|drops?|returns?|swings?|lifts?|slides?|pushes|pushed|advances?|later|then|after|once)\b/i;
+const pieceWord = /\b(?:pawn|knight|bishop|rook|queen|king|piece|it's)s?\b/i;
+
+// "The bishop on e2 is on the same diagonal as f2" when it is not: the model misread the board.
+function falseGeometry(plain, board, fen) {
+    const settled = !elsewhere.test(plain);
+    const subjects = [...plain.matchAll(namedPiece)].map(match => ({ index: match.index, end: match.index + match[0].length,
+        type: pieceTypes[(match[1] || match[4]).toLowerCase()], square: (match[2] || match[3]).toLowerCase() }))
+        .filter(item => !notSubject.test(plain.slice(0, item.index).match(clauseStart)?.[1] || '')
+            && !/\b(?:by|with)\b/i.test(plain.slice(0, item.index).split(/[,;:]/).at(-1)));
+    const squaresBefore = index => [...plain.slice(0, index).matchAll(/\b[a-h][1-8]\b/gi)].map(match => match[0].toLowerCase());
+    for(const claim of settled ? plain.matchAll(claimPattern) : []) {
+        const before = plain.slice(0, claim.index);
+        if(unsure.test(before)) continue;
+        // "e3 protects d4": a bare square right before the verb is the subject.
+        const bare = !claim[1] && before.match(/\b([a-h][1-8])(?:[- ]pawn)?\s+(?:still\s+|now\s+|already\s+)?$/i);
+        let subject = bare ? { square: bare[1].toLowerCase(), type: pieceAt(board, bare[1].toLowerCase())?.type } : subjects.filter(item => item.end <= claim.index).at(-1);
+        if(!subject?.type || pieceAt(board, subject.square)?.type !== subject.type) continue;
+        if(!bare) {
+            const gap = plain.slice(subject.end, claim.index);
+            if(pieceWord.test(gap) || moving.test(gap) || /\b(?:[KQRBN]x?[a-h][1-8]|[a-h]x[a-h][1-8])/.test(gap)) continue;
+        }
+        if(claim[1]) {
+            if(!lineKinds[claim[1].toLowerCase()](coords(subject.square), coords(claim[2].toLowerCase()))) return true;
+            continue;
+        }
+        const target = (claim[3] || claim[4] || (claim[5] || claim[6]) && squaresBefore(claim.index).filter(square => square !== subject.square).at(-1) || '').toLowerCase();
+        if(target && !reaches(board, subject.square, target, sighting.test(claim[0].trim()) ? 7 : 1)) return true;
+    }
+    for(const claim of settled ? plain.matchAll(passiveClaim) : []) {
+        const square = claim[3].toLowerCase();
+        if(pieceAt(board, square)?.type === pieceTypes[claim[2].toLowerCase()] && !reaches(board, square, claim[1].toLowerCase())) return true;
+    }
+    if(/\bpinn\w*\b/i.test(plain)) for(const claim of plain.matchAll(stuckClaim))
+        if(!stuckByPin(board, fen, claim[1].toLowerCase())) return true;
+    return false;
+}
+export function dropFalseGeometry(text, { fen = '' } = {}) {
+    let board;
+    try { board = new Chess(fen); } catch { return { text, removed: [] }; }
+    const removed = [];
+    const kept = sourceSentences(text).filter(({ text: sentence }) => {
+        if(!falseGeometry(markdownPlain(sentence), board, fen)) return true;
+        removed.push(sentence);
+        return false;
+    }).map(({ text: sentence }) => sentence);
+    return { text: removed.length ? kept.join(' ') : text, removed };
+}

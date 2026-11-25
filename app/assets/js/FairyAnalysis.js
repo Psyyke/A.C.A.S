@@ -6,9 +6,9 @@ import { getEngineWorkerConfig } from './instance/engineWorker.js';
 // One serial UCI queue per worker. Feedback and piece contributions share this
 // implementation, including cancellation/draining and variant-aware legality.
 export default class FairyAnalysis {
-    constructor(loadEngine = true) {
-        this.engineName = 'Fairy Stockfish';
-        this.workerConfig = getEngineWorkerConfig('fairy-stockfish-nnue-wasm');
+    constructor(loadEngine = true, engineType = 'fairy-stockfish-nnue-wasm') {
+        this.engineName = engineType === 'fairy-stockfish-nnue-wasm' ? 'Fairy Stockfish' : engineType;
+        this.workerConfig = getEngineWorkerConfig(engineType);
         this.queue = [];
         this.inFlight = new Map();
         this.cache = new Map();
@@ -22,7 +22,8 @@ export default class FairyAnalysis {
     }
 
     uci(message) {
-        this.engine?.postMessage({ method: this.workerConfig.commandMethod, args: [message] });
+        this.engine?.postMessage(this.workerConfig.commandMethod
+            ? { method: this.workerConfig.commandMethod, args: [message] } : message);
     }
 
     loadStockfish() {
@@ -35,13 +36,13 @@ export default class FairyAnalysis {
             this.rejectReady = reject;
         });
         this.readyPromise.catch(() => {});
-        if(typeof SharedArrayBuffer === 'undefined') {
+        if(this.workerConfig.initializeFiles && typeof SharedArrayBuffer === 'undefined') {
             this.rejectReady(new Error('Fairy Stockfish requires SharedArrayBuffer'));
             return;
         }
         this.readyTimeout = setTimeout(() => this.rebootEngine(new Error('Fairy engine initialization timed out')), 30000);
         try {
-            // Use the same full-variant build and transport as the main engine.
+            // Share the main engine's transport, including the single-threaded standard build.
             const worker = new Worker(new URL(`../engines/${this.workerConfig.path}.js`, import.meta.url),
                 this.workerConfig.module ? { type: 'module' } : undefined);
             this.engine = worker;
@@ -64,13 +65,16 @@ export default class FairyAnalysis {
             worker.onerror = error => {
                 if(this.engine === worker && !this.terminated) this.rebootEngine(error);
             };
-            worker.postMessage({ type: 'initialize-files', files: { VariantPath: this.variantText } });
-            this.loadInterval = setInterval(() => {
-                if(this.engine !== worker || this.terminated) return;
-                try { worker.postMessage({ method: 'acas_check_loaded', args: [] }); }
-                catch(error) { this.rebootEngine(error); }
-            }, 100);
-            worker.postMessage({ method: 'acas_check_loaded', args: [] });
+            if(this.workerConfig.initializeFiles)
+                worker.postMessage({ type: 'initialize-files', files: { VariantPath: this.variantText } });
+            if(this.workerConfig.poll) {
+                this.loadInterval = setInterval(() => {
+                    if(this.engine !== worker || this.terminated) return;
+                    try { worker.postMessage({ method: 'acas_check_loaded', args: [] }); }
+                    catch(error) { this.rebootEngine(error); }
+                }, 100);
+                worker.postMessage({ method: 'acas_check_loaded', args: [] });
+            } else this.uci('uci');
         } catch(error) { this.rebootEngine(error); }
     }
 

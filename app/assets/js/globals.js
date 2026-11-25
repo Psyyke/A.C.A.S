@@ -54,7 +54,7 @@ const ACTIVE_INPUT_LISTENERS = [];
 
 const POLY_OPENING_BOOKS = new Map();
 
-const USERSCRIPT_MIN_VERSION = '2.5.7';
+const USERSCRIPT_MIN_VERSION = '2.6.0';
 
 let TRANS_OBJ = null; // set by translationProcessor.js
 let FULL_TRANS_OBJ = null; // set by translationProcessor.js
@@ -234,7 +234,8 @@ function CREATE_INPUT_LISTENER(listenerType, targetValue, callback) {
     };
 
     addListener('keydown', (e) => {
-        if(!targetValue.startsWith("Interact") && e.code === targetValue)
+        if(!targetValue.startsWith("Interact") && e.code === targetValue
+            && !e.composedPath().some(node => node?.isContentEditable || node?.matches?.('input, textarea, select')))
             callback(e);
     });
 
@@ -465,7 +466,7 @@ async function SEND_WEBHOOK(data = {}) {
             username: 'A.C.A.S',
             avatar_url:
                 webhookAvatar ||
-                `${location.origin}/A.C.A.S/assets/images/logo-192.png`,
+                'https://acaschess.com/assets/images/logo-192.png',
             embeds: [embed]
         })
     );
@@ -949,14 +950,11 @@ async function GET_ACTIVE_ENGINE_NAME(profileName) {
     return name.trim().replace(/\s+/g, '-');
 }
 
-async function GET_GM_CFG_VALUE(key, instanceID, profileID) {
+function RESOLVE_GM_CFG_VALUE(config, key, instanceID, profileID) {
     if(profileID === null) return null;
     if(typeof profileID === 'object') {
         profileID = profileID.name;
     }
-
-    const gmConfigKey = USERSCRIPT_SHARED_VARS.gmConfigKey;
-    const config = await USERSCRIPT.getValue(gmConfigKey);
     const profileKey = profileID ? GET_PROFILE_STORAGE_KEY(profileID) : null;
     const globalProfile = profileKey ? config?.global?.profiles?.[profileKey] : null;
     const instanceProfile = profileKey ? config?.instance?.[instanceID]?.profiles?.[profileKey] : null;
@@ -977,6 +975,17 @@ async function GET_GM_CFG_VALUE(key, instanceID, profileID) {
         ) ?? value;
     }
     return value;
+}
+
+async function GET_GM_CFG_VALUES(keys, instanceID, profileID) {
+    const config = await USERSCRIPT.getValue(USERSCRIPT_SHARED_VARS.gmConfigKey);
+    return Object.fromEntries(keys.map(key => [key, RESOLVE_GM_CFG_VALUE(config, key, instanceID, profileID)]));
+}
+
+async function GET_GM_CFG_VALUE(key, instanceID, profileID) {
+    if(profileID === null) return null;
+    const config = await USERSCRIPT.getValue(USERSCRIPT_SHARED_VARS.gmConfigKey);
+    return RESOLVE_GM_CFG_VALUE(config, key, instanceID, profileID);
 }
 
 async function GET_GM_CFG_BASE_VALUE(key, instanceID, profileID) {

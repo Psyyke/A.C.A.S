@@ -1,6 +1,12 @@
 **/desktop.ini
 node_modules/
+/.vscode/settings.json
 acas.user.test.js
 temp/
 __pycache__/
 *.pyc
+/tools-dev/pena-research/
+/tools-dev/pena-runtime/
+/tools-dev/pena-runtime/qwen-*.json
+/tools-dev/pena-runtime/qwen-*.jsonl
+/tools-dev/pena-runtime/qwen-*/

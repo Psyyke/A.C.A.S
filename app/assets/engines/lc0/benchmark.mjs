@@ -5,7 +5,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { candidateConverterSource } from './candidate-converter.mjs';
+import { candidateConverterSource, batchedReadbackSource } from './candidate-converter.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const runtime = resolve(process.env.LC0_BENCH_RUNTIME || join(root, 'dist'));
@@ -16,7 +16,12 @@ const nodes = Number(process.env.LC0_BENCH_NODES || 500);
 const runs = Number(process.env.LC0_BENCH_RUNS || 3);
 const threads = Number(process.env.LC0_BENCH_THREADS || 1);
 const batch = Number(process.env.LC0_BENCH_BATCH || 1);
+const prefetch = Number(process.env.LC0_BENCH_PREFETCH || 0);
+const multipv = Number(process.env.LC0_BENCH_MULTIPV || 1);
 const gpu = process.env.LC0_BENCH_WEBGPU === '1';
+const batchedReadback = gpu && (process.env.LC0_BENCH_INFERENCE_TYPE || 'f32') === 'f32' && process.env.LC0_BENCH_BATCHED_READBACK !== '0';
+if(batchedReadback && (!gpu || (process.env.LC0_BENCH_INFERENCE_TYPE || 'f32') !== 'f32'))
+    throw new Error('Batched-readback benchmark requires float32 WebGPU.');
 const nativeBackend = process.env.LC0_NATIVE_BACKEND || 'eigen';
 const skipCpu = process.env.LC0_BENCH_SKIP_CPU === '1';
 const inferenceDataType = process.env.LC0_BENCH_INFERENCE_TYPE || 'f32';
@@ -28,15 +33,19 @@ if(candidateModel && inferenceDataType !== 'f16-mixed')
     throw new Error('Candidate benchmarks require f16-mixed float32 tensor interfaces.');
 if(!executable || !weights || !Number.isSafeInteger(nodes) || nodes < 16
     || !Number.isSafeInteger(runs) || runs < 1 || !Number.isSafeInteger(threads) || threads < 1 || threads > 128
-    || !Number.isSafeInteger(batch) || batch < 1 || batch > 1024)
+    || !Number.isSafeInteger(batch) || batch < 1 || batch > 1024
+    || !Number.isSafeInteger(prefetch) || prefetch < 0 || prefetch > 1024
+    || !Number.isSafeInteger(multipv) || multipv < 1 || multipv > 3)
     throw new Error('Set LC0_NATIVE, LC0_BENCH_WEIGHTS and valid nodes, runs, threads and batch settings.');
 
 const options = [
     `setoption name Threads value ${threads}`, `setoption name MinibatchSize value ${batch}`,
-    'setoption name NNCacheSize value 1000', 'setoption name MultiPV value 1',
+    `setoption name MaxPrefetch value ${prefetch}`,
+    'setoption name NNCacheSize value 1000', `setoption name MultiPV value ${multipv}`,
     'setoption name SmartPruningFactor value 0'
 ];
-const position = 'position startpos moves e2e4';
+const position = process.env.LC0_BENCH_POSITION || 'position startpos moves e2e4';
+if(!/^position (?:startpos|fen )/.test(position) || /[\r\n\0]/.test(position)) throw new Error('Invalid benchmark UCI position.');
 
 async function nativeBenchmark() {
     const startupBegan = performance.now();
@@ -96,7 +105,8 @@ async function nativeBenchmark() {
             const info = lines.slice(start).filter(line => /^info .* nodes \d+/.test(line)).at(-1);
             results.push({ elapsedMs, info, best });
         }
-        return { identity: lines.find(line => line.startsWith('id name ')), readyMs, warmupMs, runs: results };
+        return { identity: lines.find(line => line.startsWith('id name ')), readyMs, warmupMs, runs: results,
+            diagnostics: stderr.split(/\r?\n/).filter(line => /CUDA|GPU|backend|precision|Device|FP32|float32/i.test(line)) };
     } finally {
         process.stdin.end('quit\n');
     }
@@ -105,7 +115,8 @@ async function nativeBenchmark() {
 async function browserBenchmark(provider) {
     const files = new Map([
         ['/weights', resolve(weights)],
-        ...['worker.js', 'converter-worker.js', 'browser-inference.js', 'float16.js',
+        ['/text-files.js', resolve(root, '..', 'text-files.js')],
+        ...['worker.js', 'worker-tree.js', 'converter-worker.js', 'browser-inference.js', 'gpu-readback.js', 'float16.js',
             'dist/lc0.js', 'dist/lc0.wasm', 'dist/ort.webgpu.bundle.min.mjs',
             'dist/ort-wasm-simd-threaded.jsep.mjs', 'dist/ort-wasm-simd-threaded.jsep.wasm',
             'dist/ort-wasm-simd-threaded.asyncify.mjs', 'dist/ort-wasm-simd-threaded.asyncify.wasm']
@@ -115,6 +126,11 @@ async function browserBenchmark(provider) {
         'ort-wasm-simd-threaded.asyncify.mjs', 'ort-wasm-simd-threaded.asyncify.wasm'])
         files.set(`/dist/${name}`, join(runtime, name));
     let candidateHash;
+    let inferenceProbe;
+    if(gpu && inferenceDataType === 'f32') {
+        inferenceProbe = batchedReadbackSource(batchedReadback);
+        files.set('/original-browser-inference.js', join(root, 'browser-inference.js'));
+    }
     if(candidateModel) {
         candidateHash = createHash('sha256').update(await readFile(resolve(weights))).digest('hex');
         files.set('/candidate-onnx', resolve(candidateModel));
@@ -124,6 +140,10 @@ async function browserBenchmark(provider) {
         res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
         res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
         if(req.url === '/') { res.end('<title>Lc0 benchmark</title>'); return; }
+        if(inferenceProbe && req.url === '/browser-inference.js') {
+            res.writeHead(200, { 'Content-Type': 'text/javascript' }).end(inferenceProbe);
+            return;
+        }
         if(candidateModel && req.url === '/converter-worker.js') {
             res.writeHead(200, { 'Content-Type': 'text/javascript' }).end(candidateConverterSource(candidateHash));
             return;
@@ -215,7 +235,10 @@ console.log(`Native ${nativeBackend}:`, JSON.stringify(native));
 const browserCpu = skipCpu ? null : await browserBenchmark(null);
 if(browserCpu) console.log('Browser Eigen:', JSON.stringify(browserCpu));
 const browserWebgpu = gpu ? await browserBenchmark('webgpu') : null;
-const report = { weights: resolve(weights), nativeBackend, inferenceDataType, nodes, runs, options, position,
+const report = { weights: resolve(weights), networkSha256: createHash('sha256').update(await readFile(resolve(weights))).digest('hex'),
+    portBuild: JSON.parse(await readFile(join(root, 'dist', 'build-info.json'), 'utf8')),
+    nativeExecutableSha256: createHash('sha256').update(await readFile(executable)).digest('hex'),
+    nativeBackend, inferenceDataType, batchedReadback, nodes, runs, options, position,
     runtime, candidateModel: candidateModel ? resolve(candidateModel) : null, native, browserCpu, browserWebgpu };
 for(const [backend, result] of Object.entries({ native, browserCpu, browserWebgpu })) {
     if(!result) continue;
@@ -226,5 +249,5 @@ for(const [backend, result] of Object.entries({ native, browserCpu, browserWebgp
     }
 }
 if(process.env.LC0_BENCH_REPORT)
-    await writeFile(process.env.LC0_BENCH_REPORT, JSON.stringify(report, null, 2));
+    await writeFile(process.env.LC0_BENCH_REPORT, JSON.stringify(report, null, 2), { flag: 'wx' });
 console.log(JSON.stringify(report, null, 2));
