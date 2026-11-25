@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="../assets/js/domain-redirect.js"></script>
     <title>Development / A.C.A.S</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
@@ -8,9 +9,9 @@
     <meta name="keywords" content="chess dev docs, chess userscript, setup guide, acas architecture, contribute code">
     <meta property="og:title" content="Development / A.C.A.S">
     <meta property="og:description" content="Development notes for A.C.A.S">
-    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/development/">
+    <meta property="og:url" content="https://acaschess.com/development/">
     <meta property="og:site_name" content="A.C.A.S">
-    <meta property="og:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta property="og:image" content="https://acaschess.com/assets/images/main.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1903">
     <meta property="og:image:height" content="907">
@@ -18,7 +19,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Development / A.C.A.S">
     <meta name="twitter:description" content="Development notes for A.C.A.S">
-    <meta name="twitter:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta name="twitter:image" content="https://acaschess.com/assets/images/main.png">
     <meta name="twitter:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
     <meta name="robots" content="max-image-preview:large">
     <link rel="preload" href="../assets/fonts/Mona-Sans.woff2" as="font" type="font/woff2" crossorigin="anonymous">
@@ -29,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="../assets/css/home.css">
     <link rel="stylesheet" href="../assets/libraries/bootstrap-icons/font/bootstrap-icons.css"/>
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
-    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/development/">
+    <link rel="canonical" href="https://acaschess.com/development/">
     <meta property="og:type" content="website">
     <script type="text/javascript"src="../assets/js/tag-manager.js"></script>
     <script async="" type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-5499BQ4B"></script>
@@ -90,6 +91,19 @@
                         </ol>
                         <p class="tip">Make sure there are no additional folders which would make the URL like <code>http://localhost/A.C.A.S/A.C.A.S/</code>.</p>
                         <p>You can use <a href="https://desktop.github.com/" target="_blank" rel="noopener">GitHub Desktop</a> to make Git actions such as cloning easy.</p>
+                        <h3 id="production-domain">Production domain</h3>
+                        <p>The production site is <a href="https://acaschess.com/">https://acaschess.com/</a>, with the app at <a href="https://acaschess.com/app/">/app/</a>. Deploy the repository at the domain root, without the old project-folder prefix. Localhost keeps its <code>/A.C.A.S/</code> folder.</p>
+                        <ol>
+                            <li>Configure <code>acaschess.com</code> as the custom domain with your hosting provider and finish its DNS and HTTPS setup. The root <code>CNAME</code> file supports GitHub Pages. Using Cloudflare for DNS does not require moving the site to Cloudflare Pages.</li>
+                            <li>Redirect <code>www.acaschess.com</code> to the HTTPS apex domain. When keeping an old-domain redirect, remove its <code>/A.C.A.S</code> prefix and preserve the remaining path and query string.</li>
+                            <li>Publish userscript version <code>2.6.0</code> or newer so installed scripts match the new domain. The updated script replaces saved legacy backend URLs while preserving localhost selections.</li>
+                            <li>Rebuild and publish the Calculation Server too. Older binaries do not allow the new website origin.</li>
+                        </ol>
+                        <p>Browser storage belongs to its origin. Cached models and site-only preferences do not automatically move to the new domain. Userscript settings remain with the installed userscript, so update it rather than uninstalling it.</p>
+                        <h3 id="legacy-domain-redirect">Keeping old links working</h3>
+                        <p>Keep the old GitHub Pages site published with <code>assets/js/domain-redirect.js</code> and the updated pages, including <code>404.html</code>. The script only redirects the old host's <code>/A.C.A.S</code> URLs. It removes that prefix and keeps the remaining path, query string and anchor. It does nothing on the new domain or localhost.</p>
+                        <p>For another page, add <code>&lt;script src="../assets/js/domain-redirect.js"&gt;&lt;/script&gt;</code> near the start of its head, before other scripts. Adjust the relative path for the page's folder depth. The 404 page loads the script from the old project root so missing deep URLs work too. The downloaded game collector keeps an inline copy to preserve its offline behavior and content security policy.</p>
+                        <p>For search engines, a permanent HTTP 301 or 308 redirect is preferable when your old hosting supports it. JavaScript is a fallback, not a guarantee of unchanged rankings. Keep the new canonical URLs and <code>sitemap.xml</code>, and submit the new sitemap in Google Search Console. See <a href="https://developers.google.com/search/docs/crawling-indexing/301-redirects">Google's redirect guidance</a>.</p>
                     </section>
                     <section>
                         <h2 id="seasonal-effects">Seasonal effects</h2>

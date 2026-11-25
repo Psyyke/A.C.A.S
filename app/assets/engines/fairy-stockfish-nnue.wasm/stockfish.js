@@ -1,6 +1,8 @@
 
 var Stockfish = (function() {
-  var _scriptDir = '/A.C.A.S/app/assets/engines/fairy-stockfish-nnue.wasm/stockfish.js';
+  var _scriptDir = typeof document !== 'undefined' && document.currentScript
+    ? document.currentScript.src
+    : typeof self !== 'undefined' ? new URL('stockfish.js', self.location.href).href : '';
 
   if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
   return (

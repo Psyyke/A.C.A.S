@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>A.C.A.S Calculation Server</title>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:*; img-src 'self' data: blob:;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,29 +13,28 @@
     <link rel="preload" href="./fonts/Mona-Sans.woff2" as="font" type="font/woff2">
     <link rel="preload" href="./fonts/Rubik.ttf" as="font" type="font/ttf">
     <link rel="preload" href="./fonts/IBMPlexSans.ttf" as="font" type="font/ttf">
-    <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" href="./favicon.ico"/>
 </head>
 
 <body>
 <div id="acas-header">
-    <a id="acas-logo" class="external" href="https://psyyke.github.io/A.C.A.S/" target="_blank">
+    <a id="acas-logo" class="external" href="https://acaschess.com/" target="_blank">
         <img id="acas-logo-img" src="./images/logo.png">
         <div id="acas-logo-text-container">
-            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.1.3</div></div>
-            <div id="acas-logo-secondary">Calculation Server</div>
+            <div id="acas-logo-main">A.C.A.S<div id="acas-version-tag">v1.2.0</div></div>
+            <div id="acas-logo-secondary" data-i18n="calculationServer">Calculation Server</div>
         </div>
     </a>
     <div id="acas-is-free-reminder">
         <span>(´｡• ◡ •｡`) Psst! ♡ ⤵</span>
         <div class="acas-social-actions">
-            <a class="header-social-button github-button acas-fancy-button external" href="https://github.com/Psyyke/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub">
+            <a class="header-social-button github-button acas-fancy-button external" href="https://github.com/Psyyke/A.C.A.S" target="_blank" title="Star A.C.A.S on GitHub" data-i18n-title="star" data-i18n-label="star">
                 <i class="bi bi-github"></i>
             </a>
-            <a class="header-social-button acas-fancy-button external" href="https://psyyke.github.io/A.C.A.S/usage/" target="_blank" title="A.C.A.S usage guide" aria-label="A.C.A.S usage guide">
+            <a class="header-social-button usage-guide-button acas-fancy-button external" href="https://acaschess.com/usage/" target="_blank" title="A.C.A.S usage guide" aria-label="A.C.A.S usage guide" data-i18n-title="guide" data-i18n-label="guide">
                 <i class="bi bi-file-earmark-text-fill usage-guide-icon" aria-hidden="true"></i>
             </a>
-            <a class="header-social-button affiliate-button acas-fancy-button external" href="https://psyyke.github.io/A.C.A.S/contributing/" target="_blank" title="Support A.C.A.S development">
+            <a class="header-social-button affiliate-button acas-fancy-button external" href="https://acaschess.com/contributing/" target="_blank" title="Support A.C.A.S development" data-i18n-title="support" data-i18n-label="support">
                 <i class="bi bi-heart-fill"></i>
             </a>
         </div>
@@ -43,30 +43,37 @@
 <header id="server-controls">
     <div class="header-buttons-container">
         <div>
-            <button id="addEngineBtn" class="acas-fancy-button"><i class="bi bi-plus-lg"></i> ADD ENGINE BINARY</button>
-            <input 
-                type="file" 
-                id="filePicker" 
-                accept=".exe, .bin, .so, .dylib, application/octet-stream" 
+            <button id="addEngineBtn" class="acas-fancy-button"><i class="bi bi-plus-lg"></i> <span data-i18n="addEngine">Add engine binary</span></button>
+            <input
+                type="file"
+                id="filePicker"
+                accept=".exe, .bin, .so, .dylib, application/octet-stream"
             />
-
         </div>
-        <button id="stopBtn" class="acas-fancy-button" title="Kill every running engine process"><i class="bi bi-x-lg"></i> KILL ALL ENGINES</button>
-        <button id="clearBtn" class="acas-fancy-button"><i class="bi bi-x-lg"></i> CLEAR CACHE</button>
+        <button id="stopBtn" class="acas-fancy-button" title="Kill every running engine process" data-i18n-title="killAllHint"><i class="bi bi-x-lg"></i> <span data-i18n="killAll">Kill all engines</span></button>
     </div>
-    <button id="portSettingsBtn" class="server-info acas-fancy-button" type="button"
-        title="Configure the local server port" aria-label="Configure the local server port">
-        <i id="statusDot" class="bi bi-wifi-off" aria-hidden="true"></i>
-        <span id="portDisplay">OFFLINE</span>
-    </button>
+    <div class="server-controls-end">
+        <div id="serverConnectionInfo" class="server-info" role="status">
+            <i id="statusDot" class="bi bi-wifi-off" aria-hidden="true"></i>
+            <span id="portDisplay" data-i18n="offline">Offline</span>
+        </div>
+        <button id="open-local-ai" class="acas-fancy-button" type="button" aria-haspopup="dialog"
+            aria-controls="local-ai"><i class="bi bi-stars" aria-hidden="true"></i> AI</button>
+        <button id="portSettingsBtn" class="acas-fancy-button" type="button"
+            aria-haspopup="dialog" aria-controls="portSettingsDialog" data-i18n-label="settings" data-i18n-title="settings">
+            <i class="bi bi-gear-fill" aria-hidden="true"></i>
+        </button>
+    </div>
 </header>
-
 <div class="engine-library-heading" id="engine-library-heading">
-    <h1>Engine library</h1>
-    <span id="engineSummary">0 saved · 0 running</span>
+    <h1 data-i18n="library">Engine library</h1>
+    <span id="engineSummary">0 running</span>
 </div>
-<div class="engine-grid" id="engineGrid" aria-label="Saved chess engines"></div>
+<div class="engine-grid" id="engineGrid" aria-label="Saved chess engines" data-i18n-label="savedEngines"></div>
+<div id="engine-drop-overlay" hidden aria-hidden="true"><div><i class="bi bi-download" aria-hidden="true"></i><span data-i18n="dropEngines">Drop engine files here</span></div></div>
 <div id="console-toolbar">
+    <div id="panelResizer" role="separator" aria-orientation="horizontal" aria-controls="engineGrid consoles-container" tabindex="0"
+        aria-label="Drag to resize the log panel" title="Drag to resize the log panel" data-i18n-label="resizeLogPanel" data-i18n-title="resizeLogPanel"></div>
     <button id="logOnlyToggle" class="acas-fancy-button" type="button" aria-pressed="false"
         aria-controls="consoles-container" aria-label="Show logs only" title="Show logs only">
         <i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
@@ -82,26 +89,137 @@
     </button>
 </div>
 <div id="consoles-container"></div>
+<dialog id="portSettingsDialog" class="prompt-dialog server-settings" aria-labelledby="serverSettingsTitle">
+    <div class="server-settings-header">
+        <h2 id="serverSettingsTitle" data-i18n="settings">Settings</h2>
+        <button id="portSettingsCancel" class="acas-fancy-button" type="button" data-i18n-label="close" title="Close" data-i18n-title="close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </div>
+    <div class="server-settings-row">
+            <label for="server-language" data-i18n="language">Language</label>
+            <select id="server-language">
+                <option value="en">English</option>
+                <option value="fi">Suomi</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="pt">Português</option>
+                <option value="it">Italiano</option>
+                <option value="nl">Nederlands</option>
+                <option value="se">Svenska</option>
+                <option value="id">Bahasa Indonesia</option>
+                <option value="cn">中文</option>
+                <option value="jp">日本語</option>
+                <option value="ru">Русский</option>
+                <option value="kr">한국어</option>
+                <option value="tr">Türkçe</option>
+                <option value="pl">Polski</option>
+                <option value="ua">Українська</option>
+                <option value="vn">Tiếng Việt</option>
+                <option value="ro">Română</option>
+                <option value="cz">Čeština</option>
+                <option value="arab">العربية</option>
+                <option value="in">हिन्दी</option>
+                <option value="hr">Hrvatski</option>
+                <option value="sk">Slovenčina</option>
+                <option value="ph">Filipino</option>
+                <option value="bd">বাংলা</option>
+                <option value="ir">فارسی</option>
+                <option value="il">עברית</option>
+                <option value="rs">Српски</option>
+                <option value="bg">Български</option>
+                <option value="gr">Ελληνικά</option>
+                <option value="hu">Magyar</option>
+                <option value="th">ไทย</option>
+                <option value="ee">Eesti</option>
+                <option value="uz">O‘zbekcha</option>
+                <option value="az">Azərbaycan dili</option>
+                <option value="kz">Қазақша</option>
+                <option value="mn">Монгол</option>
+                <option value="ta">தமிழ்</option>
+                <option value="ge">ქართული</option>
+                <option value="am">Հայերեն</option>
+                <option value="lk">සිංහල</option>
+            </select>
+    </div>
+    <div class="server-settings-row">
+        <label for="server-text-size" data-i18n="textSize">Text size</label>
+        <select id="server-text-size">
+            <option value="80">80%</option>
+            <option value="90">90%</option>
+            <option value="100" selected>100%</option>
+            <option value="110">110%</option>
+            <option value="120">120%</option>
+            <option value="130">130%</option>
+            <option value="140">140%</option>
+            <option value="150">150%</option>
+        </select>
+    </div>
+    <form id="portSettingsForm" class="server-port-settings">
+        <div class="server-settings-row server-port-row">
+            <label for="serverPortInput" data-i18n="localPort">Local server port</label>
+            <input id="serverPortInput" type="number" min="1" max="65535" step="1" required aria-describedby="portSettingsHint" />
+        </div>
+        <p id="portSettingsHint" class="port-settings-hint" data-i18n="portHint">Changing the port restarts the app after 5 seconds and stops all running engines. Set the same server port in the A.C.A.S web GUI's external engine settings to reconnect.</p>
+    </form>
+    <div class="server-settings-actions">
+        <button id="openCredits" class="acas-fancy-button" type="button" aria-haspopup="dialog" aria-controls="serverCredits"><i class="bi bi-info-circle" aria-hidden="true"></i> <span data-i18n="credits">Credits &amp; licences</span></button>
+        <button id="clearBtn" class="acas-fancy-button" type="button"><i class="bi bi-x-lg" aria-hidden="true"></i> <span data-i18n="clearCache">Clear cache</span></button>
+    </div>
+</dialog>
+<dialog id="serverCredits" class="prompt-dialog server-settings server-credits" aria-labelledby="creditsTitle">
+    <div class="server-settings-header">
+        <h2 id="creditsTitle" data-i18n="credits">Credits &amp; licences</h2>
+        <button id="closeCredits" class="acas-fancy-button" type="button" data-i18n-label="close" data-i18n-title="close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </div>
+    <input id="creditsSearch" type="search" data-i18n-placeholder="creditsSearch" data-i18n-label="creditsSearch" placeholder="Search credits" aria-label="Search credits" autocomplete="off" disabled />
+    <p id="creditsStatus" class="port-settings-hint" role="status" aria-live="polite" hidden></p>
+    <button id="creditsRetry" class="acas-fancy-button" type="button" data-i18n="retry" hidden>Try again</button>
+    <div id="creditsList" class="credits-list"></div>
+</dialog>
+<dialog id="local-ai" class="prompt-dialog local-ai" aria-labelledby="ai-title">
+    <div class="ai-dialog-header">
+        <h2 id="ai-title"><i class="bi bi-stars" aria-hidden="true"></i> Pena AI</h2>
+        <p id="ai-summary" role="status">Not set up</p>
+    </div>
+    <div class="ai-main">
+        <div class="ai-main-text">
+            <p id="ai-status" role="status" aria-live="polite">Pena runs on this computer. One download gets everything ready.</p>
+            <div id="ai-progress" class="ai-progress" hidden><span></span></div>
+        </div>
+        <button id="ai-primary" class="acas-fancy-button" type="button">Download Pena</button>
+        <button id="ai-stop" class="acas-fancy-button" type="button" hidden>Stop</button>
+    </div>
+    <details class="ai-advanced">
+        <summary data-i18n="advanced">Advanced</summary>
+        <form id="ai-form">
+            <p class="ai-advanced-hint" data-i18n="advancedHint">Leave empty to use Pena's download, or choose your own llama-server and GGUF model.</p>
+            <div class="ai-file-row"><label for="ai-executable" data-i18n="runtime">Runtime</label><input id="ai-executable" readonly placeholder="Pena's download" data-i18n-placeholder="defaultDownload" /><button class="acas-fancy-button" type="button" data-ai-file="executablePath" data-i18n="choose">Choose</button></div>
+            <div class="ai-file-row"><label for="ai-model" data-i18n="model">Model</label><input id="ai-model" readonly placeholder="Pena's download" data-i18n-placeholder="defaultDownload" /><button class="acas-fancy-button" type="button" data-ai-file="modelPath" data-i18n="choose">Choose</button></div>
+            <div class="ai-file-row"><label for="ai-lora">LoRA</label><input id="ai-lora" readonly placeholder="Optional, must match the model" data-i18n-placeholder="optionalLora" /><button class="acas-fancy-button" type="button" data-ai-file="loraPath" data-i18n="choose">Choose</button></div>
+            <div class="ai-options">
+                <label><span data-i18n="backend">Backend</span><select id="ai-backend"><option value="auto" data-i18n="automatic">Automatic</option><option value="cuda">CUDA (NVIDIA)</option><option value="vulkan">Vulkan (AMD, Intel, NVIDIA)</option><option value="metal">Metal (Mac)</option><option value="cpu" data-i18n="cpuOnly">CPU only</option></select></label>
+                <label><span data-i18n="context">Context</span><input id="ai-context" type="number" min="512" max="131072" step="1" value="8192" required /></label>
+                <label><span data-i18n="gpuLayers">GPU layers</span><input id="ai-gpu-layers" type="number" min="0" max="999" step="1" value="99" required /></label>
+                <label><span data-i18n="threads">Threads (0 auto)</span><input id="ai-threads" type="number" min="0" max="256" step="1" value="0" required /></label>
+                <label><span data-i18n="graphicsMemory">Graphics memory</span><select id="ai-vram-mode"><option value="auto" data-i18n="automatic">Automatic</option><option value="fast" data-i18n="vramFast">16 GB or more</option><option value="12">12 GB</option><option value="10">10 GB</option><option value="8">8 GB</option><option value="6">6 GB</option></select></label>
+            </div>
+            <div class="ai-actions"><button id="ai-reset" class="acas-fancy-button" type="button" data-i18n="useDownload">Use Pena's download</button><button id="ai-start" class="acas-fancy-button" type="submit" data-i18n="applyStart">Apply &amp; start</button></div>
+        </form>
+    </details>
+</dialog>
 
 <div id="acas-toast-container"></div>
-<dialog id="portSettingsDialog" class="prompt-dialog" aria-labelledby="portSettingsLabel" aria-describedby="portSettingsHint">
-    <form method="dialog" id="portSettingsForm">
-        <label id="portSettingsLabel" for="serverPortInput">Local server port</label>
-        <input id="serverPortInput" type="number" min="1" max="65535" step="1" style="width: 90%; margin-bottom: 1em;" required aria-describedby="portSettingsHint" />
-        <p id="portSettingsHint" class="port-settings-hint">Saving a new port restarts the app and stops all running engines. Set the same server port in the A.C.A.S web GUI's external engine settings to reconnect.</p>
-        <menu style="display:flex; justify-content:flex-end; gap: 0.5em;">
-            <button id="portSettingsCancel" class="acas-fancy-button" style="padding: 8px 15px;" type="button">Cancel</button>
-            <button id="portSettingsSave" class="acas-fancy-button" style="padding: 8px 15px;" type="submit" value="save">Save &amp; Restart</button>
-        </menu>
-    </form>
-</dialog>
 <script src="./libs/acasToast.js"></script>
 <script src="./libs/acasPrompt.js"></script>
 
+<script src="./js/i18n.js"></script>
 <script src="./js/utils.js"></script>
 <script src="./js/console.js"></script>
 <script src="./elementDeclarations.js"></script>
 <script src="./index.js"></script>
+<script src="./js/panelResize.js"></script>
+<script src="./js/localAI.js"></script>
+<script src="./js/credits.js"></script>
 
 </body>
 </html>

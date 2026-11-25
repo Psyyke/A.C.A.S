@@ -35,7 +35,7 @@ const harnessBody = `
     let fenReads = 0, nextReadSnapshot = null;
     let lastAllowedFen = snapshot, lastRejectedFen = '', rejectedFenStreak = new Set(), history = [];
     const MAX_CONSECUTIVE_REJECTED_FENS = 5;
-    const UNRESOLVED_POSITION_SETTLE_MS = 2000;
+    ${source.match(/^const UNRESOLVED_POSITION_SETTLE_MS = \d+;$/m)[0]}
     let unresolvedPosition = null;
     let gameState = getGameStateObjTemplate();
     const gameStateHistory = { get: () => history, set: value => { history = value || []; } };
@@ -518,6 +518,47 @@ test('restart rebases a rejected board position so later moves can be accepted',
     assert.equal(harness.state().history[0].fen.basic, nextMove);
 });
 
+test('restart discards stale castling rights and history even when the cached board is unchanged', async () => {
+    const opening = new Chess().fen();
+    const current = 'r2qr1k1/6pp/ppbb1p2/2pnp3/4N3/P2PPN1P/1B2QPP1/R1R3K1 b - - 0 1';
+    const harness = makeHarness(opening);
+    // Reproduce a cached endpoint whose king and rook moves were not observed.
+    harness.set(current, 'b');
+    harness.refresh();
+    assert.equal(harness.state().history[0].castlingRights, 'KQkq');
+
+    await harness.restart();
+    const fresh = makeHarness(current).state().history[0];
+    const restored = harness.state();
+    assert.equal(restored.restartCount, 1);
+    assert.equal(restored.history.length, 1);
+    assert.equal(restored.history[0].fen.full, fresh.fen.full);
+    assert.equal(restored.history[0].castlingRights, '-');
+    assert.equal(restored.lastAllowedFen, basic(current));
+
+    const chess = new Chess(current);
+    chess.move(chess.moves()[0]);
+    await harness.check(chess.fen(), chess.turn());
+    assert.deepEqual(harness.state().history[0].fen.full.split(' ').slice(0, 4), chess.fen().split(' ').slice(0, 4));
+});
+
+test('restart clears lost castling rights and rebuilds opening history like a fresh page', async () => {
+    const chess = new Chess();
+    const harness = makeHarness('4k3/8/8/8/8/8/8/4K3 w - - 0 1');
+    chess.move('e4');
+    harness.set(chess.fen());
+    harness.refresh();
+    assert.equal(harness.state().history[0].castlingRights, '-');
+
+    await harness.restart();
+    const { history, lastAllowedFen } = harness.state();
+    assert.equal(history.length, 2);
+    assert.equal(history[0].fen.full, chess.fen());
+    assert.equal(history[0].enPassantTarget, 'e3');
+    assert.equal(history[1].fen.basic, basic(new Chess().fen()));
+    assert.equal(lastAllowedFen, basic(chess.fen()));
+});
+
 test('five distinct rejected positions trigger one automatic restart and rebase', async () => {
     const opening = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
     const harness = makeHarness(`${opening} w - - 0 1`);
@@ -772,6 +813,26 @@ test('conservative gaps preserve the match, mark incomplete history and resume w
     }
 });
 
+test('missed castling removes impossible rights so incomplete history still publishes an engine-safe position', async () => {
+    const initial = 'r3k2r/ppp2ppp/2npbn2/4p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 4 6';
+    for(const moves of [['O-O', 'a6', 'Bb3'], ['O-O', 'O-O', 'Bg5']]) {
+        const chess = new Chess(initial);
+        const harness = makeHarness(initial, { productionProcessing: true, conservative: true });
+        for(const san of moves) assert.ok(chess.move(san), san);
+        await harness.check(chess.fen(), chess.turn());
+        const state = harness.state();
+        assert.equal(state.history[0].historyIncomplete, true);
+        assert.equal(state.resets.length, 0);
+        assert.deepEqual(state.packets.at(-1).fen.split(' ').slice(0, 4), chess.fen().split(' ').slice(0, 4));
+        assert.equal(state.history[0].castlingRights, chess.fen().split(' ')[2]);
+
+        assert.ok(chess.move(chess.moves()[0]));
+        await harness.check(chess.fen(), chess.turn());
+        assert.equal(harness.state().history[0].historyIncomplete, true);
+        assert.deepEqual(harness.state().packets.at(-1).fen.split(' ').slice(0, 4), chess.fen().split(' ').slice(0, 4));
+    }
+});
+
 test('conservative single-move processing retains inferred turn when the page clock lags behind', async () => {
     const chess = new Chess(), harness = makeHarness(chess.fen(), { conservative: true });
     chess.move('e4');
@@ -814,7 +875,7 @@ test('dev-board adapters do not supply a turn when the page has no turn metadata
         const dataset = {};
         let adapter;
         new Function('backendConfig', 'addSupportedChessSite', 'getBoardElem', 'getBasicFen', code.slice(start, end))(
-            { hosts: { prod: 'psyyke.github.io', dev: 'localhost' } },
+            { hosts: { prod: 'acaschess.com', dev: 'localhost' } },
             (hosts, site) => { adapter = site; },
             () => ({ closest: () => ({ dataset }) }),
             () => '');
@@ -822,7 +883,7 @@ test('dev-board adapters do not supply a turn when the page has no turn metadata
     }
 });
 
-test('unresolved fallback waits for an unchanged board and does not accept promotion or disappearance frames', async t => {
+test('unresolved fallback resumes after 500 ms without restarting and still rejects partial frames', async t => {
     let now = Date.now();
     t.mock.method(Date, 'now', () => now);
     for(const conservative of [false, true]) {
@@ -836,18 +897,22 @@ test('unresolved fallback waits for an unchanged board and does not accept promo
         for(const san of ['e4', 'e5', 'dxe5']) chess.move(san);
         const firstGap = chess.fen();
         await harness.check(firstGap);
-        now += 1999;
+        now += 499;
+        await harness.check(firstGap);
+        assert.equal(harness.state().lastAllowedFen, accepted);
         chess.move('Ng8');
         await harness.check(chess.fen());
-        now++;
+        now += 499;
         await harness.check(chess.fen());
         assert.equal(harness.state().lastAllowedFen, accepted);
-        now += 1999;
+        now++;
         await harness.check(chess.fen());
         assert.equal(harness.state().lastAllowedFen, basic(chess.fen()));
         assert.equal(harness.state().history[0].boardChanges.recovery.turnGuessed, true);
         assert.equal(harness.state().history[0].historyIncomplete, true);
+        assert.equal(harness.state().packets.at(-1).fen, harness.state().history[0].fen.full);
         assert.equal(harness.state().resets.length, 0);
+        assert.equal(harness.state().restartCount, 0);
     }
 
     const initial = '4k3/P7/8/8/8/8/8/4K3 w - - 0 1';
@@ -1006,4 +1071,148 @@ test('markings from an older position are never drawn and are cleared once the b
             removed: drawn.map(shape => shape.removed) };
     `);
     assert.deepEqual(run(), { staleDrawn: 0, keptOnSameBoard: 2, left: ['metric'], removed: [true, false] });
+});
+
+test('Pena external cues honor toggle, full position, expiry and ordered clears without erasing hints', () => {
+    const run = new Function(`
+        let activeVisuals = [], enabled = true;
+        const timers = [];
+        const setTimeout = callback => timers.push(callback);
+        const gameState = { fen: { full: 'start w - - 0 1' } };
+        const getFen = () => 'start', getConfigValue = () => enabled;
+        const configKeys = { displayMovesOnExternalSite: 'external' };
+        const penaVisualRevisions = new Map(), feedbackVisualRevisions = new Map();
+        const maybeAnnounceMarkingsToPage = () => {};
+        const BoardDrawer = { addedShapes: [], createShape() {
+            const shape = { remove() {}, animate() {} };
+            this.addedShapes.push({ element: shape });
+            return shape;
+        } };
+        ${declaration('renderStuffToBoard')}
+        ${source.slice(source.indexOf('function clearVisuals('), source.indexOf('function displayImportantNotification('))}
+        const packet = revision => [{ category: 'pena-teaching', profileID: 'p', positionFen: gameState.fen.full,
+            teachingRevision: revision, expiresAt: Date.now() + 1000,
+            shapeType: 'rectangle', shapeSquare: 'e4', shapeConfig: {} }];
+        renderStuffToBoard([{ category: 'move', profileID: 'p', shapeType: 'arrow', shapeSquare: ['e2','e4'], shapeConfig: {} }]);
+        renderStuffToBoard(packet(1));
+        const afterFirst = activeVisuals.length;
+        renderStuffToBoard(packet(2));
+        timers[0]();
+        const afterOldTimer = activeVisuals.length;
+        renderStuffToBoard([{ ...packet(3)[0], positionFen: 'start b - - 0 1' }]);
+        const afterWrongTurn = activeVisuals.length;
+        renderStuffToBoard(packet(2));
+        const afterLatePacket = activeVisuals.length;
+        enabled = false;
+        renderStuffToBoard(packet(4));
+        const afterToggleOff = activeVisuals.length;
+        enabled = true;
+        renderStuffToBoard([{ ...packet(5)[0], expiresAt: Date.now() - 1 }]);
+        const afterExpired = activeVisuals.length;
+        renderStuffToBoard(packet(6));
+        timers.at(-1)();
+        return { afterFirst, afterOldTimer, afterWrongTurn, afterLatePacket, afterToggleOff, afterExpired,
+            remaining: activeVisuals.map(item => item.marking.category), trackedShapes: BoardDrawer.addedShapes.length };
+    `);
+    assert.deepEqual(run(), { afterFirst: 2, afterOldTimer: 2, afterWrongTurn: 1, afterLatePacket: 1,
+        afterToggleOff: 1, afterExpired: 1, remaining: ['move'], trackedShapes: 1 });
+});
+
+test('Pena external cues keep existing shapes, pulse duplicates and expire independently', () => {
+    const run = new Function(`
+        let activeVisuals = [];
+        const timers = [];
+        const setTimeout = callback => timers.push(callback);
+        const gameState = { fen: { full: 'start w - - 0 1' } };
+        const getFen = () => 'start', getConfigValue = () => true;
+        const configKeys = { displayMovesOnExternalSite: 'external' };
+        const penaVisualRevisions = new Map(), feedbackVisualRevisions = new Map();
+        const maybeAnnounceMarkingsToPage = () => {};
+        const BoardDrawer = { addedShapes: [], createShape() {
+            const shape = { pulses: 0, removed: false, remove() { this.removed = true; },
+                animate(frames) { if('strokeOpacity' in frames[0]) this.pulses++; } };
+            this.addedShapes.push({ element: shape });
+            return shape;
+        } };
+        ${declaration('renderStuffToBoard')}
+        ${source.slice(source.indexOf('function clearVisuals('), source.indexOf('function displayImportantNotification('))}
+        const first = { category: 'pena-teaching', profileID: 'p', positionFen: gameState.fen.full,
+            expiresAt: Date.now() + 1000, teachingID: 10, teachingPulse: 0,
+            shapeType: 'rectangle', shapeSquare: 'e4', shapeConfig: {} };
+        const label = { ...first, teachingID: 11, shapeType: 'text', expiresAt: Date.now() + 1400 };
+        renderStuffToBoard([{ category: 'move', profileID: 'p', shapeType: 'arrow', shapeSquare: ['e2','e4'], shapeConfig: {} }]);
+        renderStuffToBoard([{ ...first, teachingRevision: 1 }]);
+        const rectangle = activeVisuals.at(-1).shape;
+        renderStuffToBoard([{ ...first, teachingRevision: 2 }, { ...label, teachingRevision: 2 }]);
+        renderStuffToBoard([{ ...first, teachingRevision: 3, teachingPulse: 1 }, { ...label, teachingRevision: 3 }]);
+        const beforeExpiry = { count: activeVisuals.length, same: activeVisuals[1].shape === rectangle,
+            pulses: rectangle.pulses, created: BoardDrawer.addedShapes.length };
+        timers[0]();
+        const afterFirst = activeVisuals.map(item => item.marking.shapeType);
+        timers[1]();
+        return { beforeExpiry, afterFirst, afterBoth: activeVisuals.map(item => item.marking.category) };
+    `);
+    assert.deepEqual(run(), { beforeExpiry: { count: 3, same: true, pulses: 1, created: 3 },
+        afterFirst: ['arrow', 'text'], afterBoth: ['move'] });
+});
+
+test('Pena external hover leases renew without fading and timed cues keep their full fade lifetime', t => {
+    t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: 1000 });
+    const run = new Function('tick', `
+        let activeVisuals = [];
+        const gameState = { fen: { full: 'start w - - 0 1' } };
+        const getFen = () => 'start', getConfigValue = () => true;
+        const configKeys = { displayMovesOnExternalSite: 'external' };
+        const penaVisualRevisions = new Map(), feedbackVisualRevisions = new Map();
+        const maybeAnnounceMarkingsToPage = () => {};
+        const BoardDrawer = { addedShapes: [], createShape() {
+            const shape = { animations: [], remove() {}, animate(frames, options) {
+                this.animations.push({ frames, options }); return { cancel() {} };
+            } };
+            this.addedShapes.push({ element: shape }); return shape;
+        } };
+        ${declaration('renderStuffToBoard')}
+        ${source.slice(source.indexOf('function clearVisuals('), source.indexOf('function displayImportantNotification('))}
+        const hover = { category: 'pena-teaching', profileID: 'p', positionFen: gameState.fen.full,
+            expiresAt: Date.now() + 3000, teachingID: 10, persistent: true,
+            shapeType: 'rectangle', shapeSquare: 'e4', shapeConfig: {} };
+        renderStuffToBoard([{ ...hover, teachingRevision: 1 }]);
+        const shape = activeVisuals[0].shape;
+        for(let i = 0; i < 31; i++) {
+            tick(1000);
+            renderStuffToBoard([{ ...hover, teachingRevision: i + 2, expiresAt: Date.now() + 3000 }]);
+        }
+        const retained = activeVisuals.length === 1 && activeVisuals[0].shape === shape && !shape.animations.length;
+        tick(3000);
+        const expired = activeVisuals.length === 0;
+        renderStuffToBoard([{ ...hover, persistent: false, teachingID: 11, teachingRevision: 34,
+            expiresAt: Date.now() + 10000 }]);
+        const timed = activeVisuals[0].shape;
+        tick(8000);
+        const beforeFadeEnd = activeVisuals.length;
+        tick(2000);
+        return { retained, expired, beforeFadeEnd, left: activeVisuals.length,
+            animation: timed.animations[0] };
+    `);
+    assert.deepEqual(run(ms => t.mock.timers.tick(ms)), { retained: true, expired: true, beforeFadeEnd: 1, left: 0,
+        animation: { frames: [{ opacity: 1 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }],
+            options: { duration: 10000, fill: 'forwards' } } });
+});
+
+test('Pena teaching packets never enter Auto Move or mark the first suggestion as given', () => {
+    const start = source.indexOf('CommLink.registerListener(`backend_${commLinkInstanceID}`');
+    const end = source.indexOf('\n});', start);
+    assert.ok(start > 0 && end > start);
+    const run = new Function('category', `
+        let listener, renders = 0, moves = 0, matchFirstSuggestionGiven = false;
+        const commLinkInstanceID = 'test';
+        const CommLink = { registerListener: (id, callback) => { listener = callback; } };
+        const renderStuffToBoard = () => renders++;
+        const handleAutoMove = () => moves++;
+        ${source.slice(start, end + 4)}
+        listener({ command: 'renderVisualsToSite', data: [{ category }] });
+        return { renders, moves, matchFirstSuggestionGiven };
+    `);
+    assert.deepEqual(run('pena-teaching'), { renders: 1, moves: 0, matchFirstSuggestionGiven: false });
+    assert.deepEqual(run('move'), { renders: 1, moves: 1, matchFirstSuggestionGiven: true });
 });

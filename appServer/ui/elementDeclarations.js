@@ -9,7 +9,6 @@ const portSettingsDialog = document.getElementById('portSettingsDialog');
 const portSettingsForm = document.getElementById('portSettingsForm');
 const serverPortInput = document.getElementById('serverPortInput');
 const portSettingsCancel = document.getElementById('portSettingsCancel');
-const portSettingsSave = document.getElementById('portSettingsSave');
 const statusDot = document.getElementById('statusDot');
 const consolesContainer = document.getElementById('consoles-container');
 const addEngineBtn = document.getElementById('addEngineBtn');

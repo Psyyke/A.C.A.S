@@ -645,3 +645,6 @@ document.addEventListener('acas-translations-updated', () => {
     refreshPanels(true).catch(console.error);
 });
 document.addEventListener('acas-settings-updated', () => syncPictureInPicture().catch(console.error));
+document.addEventListener('acas-pena-visuals', event => {
+    profileRenderers(event.detail?.instance).forEach(panel => panel.renderer.refreshBoard?.());
+});

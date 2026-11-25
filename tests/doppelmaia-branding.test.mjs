@@ -23,7 +23,7 @@ test('research notebook keeps its evidence and mobile layout readable', { timeou
         '../tools/doppelmaia/personalized-maia.css', '../tools/doppelmaia/index.html'
     ].map(read));
     assert.match(index, /href="research\.html"/);
-    assert.match(html, /rel="canonical" href="https:\/\/psyyke.github.io\/A\.C\.A\.S\/tools\/doppelmaia\/research\.html"/);
+    assert.match(html, /rel="canonical" href="https:\/\/acaschess\.com\/tools\/doppelmaia\/research\.html"/);
     assert.match(await read('../sitemap.xml'), /tools\/doppelmaia\/research\.html/);
     const browser = await chromium.launch({ executablePath: process.env.LC0_TEST_BROWSER });
     try {

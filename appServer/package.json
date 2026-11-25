@@ -1,6 +1,6 @@
 {
 	"name": "acas-local-server",
-	"version": "1.1.3",
+	"version": "1.2.0",
 	"description": "A local chess server for the A.C.A.S GUI",
 	"main": "backend/main.js",
 	"scripts": {
@@ -26,13 +26,75 @@
 	"build": {
 		"productName": "ACAS",
 		"artifactName": "Acas-Setup-${version}.${ext}",
+		"appId": "io.github.psyyke.acas.server",
+		"icon": "ui/images/icon.png",
+		"beforePack": "scripts/prepare-licenses.cjs",
+		"files": [
+			"backend/**/*",
+			"ui/**/*",
+			"package.json"
+		],
 		"win": {
-			"icon": "ui/images/icon.png"
+			"target": ["nsis"]
+		},
+		"mac": {
+			"target": ["dmg", "zip"],
+			"category": "public.app-category.games",
+			"artifactName": "Acas-${version}-mac-${arch}.${ext}"
+		},
+		"linux": {
+			"target": ["AppImage", "deb"],
+			"category": "Game",
+			"maintainer": "Haka",
+			"artifactName": "Acas-${version}-linux-${arch}.${ext}"
 		},
 		"extraFiles": [
 			{
 				"from": "README.md",
 				"to": "./README.md"
+			},
+			{
+				"from": "LICENSE",
+				"to": "LICENSE"
+			},
+			{
+				"from": "LICENSING.md",
+				"to": "LICENSING.md"
+			},
+			{
+				"from": ".licenses",
+				"to": ".",
+				"filter": ["THIRD-PARTY-NOTICES.txt", "LICENSE.electron.txt", "LICENSES.chromium.html"]
+			},
+			{
+				"from": "..",
+				"to": "source",
+				"filter": [
+					"appServer/backend/**/*",
+					"appServer/ui/**/*",
+					"appServer/licenses/**/*",
+					"appServer/scripts/**/*",
+					"appServer/package.json",
+					"appServer/package-lock.json",
+					"appServer/LICENSE",
+					"appServer/README.md",
+					"appServer/LICENSING.md",
+					"appServer/PENA-12GB-PLAN.md",
+					"appServer/build.bat",
+					"appServer/build.sh",
+					"appServer/build.command",
+					"userscript-components/UniversalBoardDrawer.js"
+				]
+			}
+		],
+		"extraResources": [
+			{
+				"from": ".licenses/credits.json",
+				"to": "credits.json"
+			},
+			{
+				"from": "../userscript-components/UniversalBoardDrawer.js",
+				"to": "userscript-components/UniversalBoardDrawer.js"
 			}
 		],
 		"nsis": {

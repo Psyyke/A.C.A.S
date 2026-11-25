@@ -29,6 +29,9 @@ The portable build recipe and all browser-specific changes live here instead:
 - `browser-inference.js` converts the chosen weights, runs ONNX Runtime Web
   and validates and copies results into Lc0's memory. `float16.js` handles
   half-precision tensor values.
+- `gpu-readback.js` packs float32 WebGPU outputs into one bounded staging buffer
+  and performs one submit/map per inference. It reuses storage, disposes ORT-owned
+  outputs, preserves input ownership and propagates device/map/cleanup errors.
 - `converter-worker.js` runs the upstream `leela2onnx` command in the same
   WebAssembly build. It is not a separate JavaScript converter.
 - `float16_storage.h` keeps half-precision weight initializers while inserting
@@ -129,6 +132,62 @@ conversion, while a 4 GiB build succeeded in both formats on one machine.
 Other models and devices can still fail.
 
 ## Inference and integration cautions
+
+### Float32 GPU throughput qualification (2026-11-15)
+
+The local port is the current stable upstream v0.32.1 revision, not ZeroFish
+v0.29.0. The slow Pena collector had selected its Eigen path by omitting the
+provider. It now explicitly selects WebGPU, records the hardware adapter and
+uses one search thread, batch 32, zero prefetch and the original float32 network.
+Historical CPU defaults in the reusable analysis API remain unchanged; collection
+requires explicit GPU provenance and does not mix old CPU records into a GPU run.
+
+Good Gyal 7, RTX 4070 Ti SUPER, 128 requested nodes, MultiPV 3, one thread:
+
+| Position | Batch 1 WebGPU median ms | Batch 32 ordinary readback ms | Batch 32 packed readback ms | Native CUDA batch 32 ms |
+| --- | ---: | ---: | ---: | ---: |
+| After e4 | 1159 | 106 | 84 | 17 |
+| Rook/pawn ending | 1101 | 130 | 99 | 21 |
+| Quiet middlegame | 1344 | 136 | 97 | 21 |
+| Tactical/castling position | 1201 | 156 | 116 | 24 |
+
+The ordinary/packed pair used five runs per position. Packed readback reduced its
+matched GPU medians by 20.8-28.7%. Batch-one timings used three runs. All paired
+native and browser best moves and reported scores agreed in these bounded probes.
+Batch-32 searches visited 137-154 nodes on these positions, not exactly 128.
+Batching changes tree scheduling; speed is not a proof of equal playing strength.
+Native CUDA remains about five times faster here. No 100% GPU-occupancy or native
+speed claim is made. Conversion, cold shader setup and full coaching latency are
+separate costs. Do not burn extra work merely to maximize a utilization counter.
+
+Packed output transport was checked on every policy logit and value/WDL output
+from 37 real Good Gyal batches and 43 real Maia 1500 batches. It was bitwise equal
+to ordinary float32 WebGPU. Against float32 WASM the maximum Good Gyal errors were
+0.000916 policy and 0.000000865 value; Maia maxima were 0.0000246 policy and
+0.000000775 WDL. Existing numerical limits were not widened. Special-move, stop,
+invalid-input and service-worker checks passed. This is not certification of all
+networks or long-running BT4 reliability. No accelerated FP16 mode was promoted.
+
+`createBrowserInference()` defaults to packed readback only for float32 WebGPU.
+Its optional fifth argument `{ batchedReadback: false }` retains the ordinary path
+for comparisons. WASM and lower-precision paths are unchanged. `benchmark.mjs`
+accepts `LC0_BENCH_BATCHED_READBACK=0|1`, `LC0_BENCH_BATCH`,
+`LC0_BENCH_PREFETCH`, `LC0_BENCH_MULTIPV` and `LC0_BENCH_POSITION`.
+`precision-test.mjs` accepts `batchedReadback: true` on a float32 WebGPU model;
+it requires an earlier ordinary WebGPU entry for the identical model and checks
+their full outputs for exact equality, in addition to the WASM comparison.
+
+The browser test fixture now serves the current worker's `text-files.js` import.
+Its numerical reference searches explicitly use the same two-node/batch-one
+setup on both backends instead of comparing a tuned timed search against a
+different reference schedule. The separately timed search still verifies its
+requested node budget and legal result; matched native benchmarks cover batching.
+
+The native reference was official v0.32.1 CUDA12-nodll (archive SHA-256
+`4e88d897e4c415ed1ceede29ff971255d1932fd6642553fc12e32353aed562c4`),
+backend `cuda`, not `cuda-auto` or `cuda-fp16`. Existing CUDA 12.8 libraries were
+used; the executable emitted its compiled-12.9/runtime-12.8 warning. It completed
+the reported searches. No system CUDA libraries were replaced.
 
 The older bundled engine identifies itself as `Lc0 v0.29.0+zerofish` and
 reports only the Eigen backend. Its GUI name is CPU Lc0 v0.29.0.

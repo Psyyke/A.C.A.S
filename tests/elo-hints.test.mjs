@@ -305,6 +305,47 @@ test('GUI includes safety even with warning colors disabled and rejects Maia roo
     }
 });
 
+test('bringing the primary GUI move forward leaves existing teaching labels on top', async () => {
+    const source = await readFile(new URL('../app/assets/js/instance/Interface.js', import.meta.url), 'utf8');
+    const start = source.indexOf('    async markMoves(');
+    const end = source.indexOf('\n    removeMarkingFromProfile(', start);
+    const label = { localName: 'text' };
+    const children = [label];
+    const parent = {
+        querySelector: () => label,
+        appendChild(element) {
+            const index = children.indexOf(element);
+            if(index >= 0) children.splice(index, 1);
+            children.push(element);
+        },
+        insertBefore(element, before) {
+            const index = children.indexOf(element);
+            if(index >= 0) children.splice(index, 1);
+            children.splice(children.indexOf(before), 0, element);
+        }
+    };
+    const instance = {
+        configKeys: new Proxy({}, { get: (_, key) => key }),
+        getConfigValue: async key => key === 'arrowOpacity' ? 100 : false,
+        getEngineName: async () => 'stockfish-18-lite-single',
+        BoardDrawer: { createShape() {
+            const element = { localName: 'polygon', dataset: {}, parentElement: parent };
+            parent.insertBefore(element, label);
+            return element;
+        } },
+        pV: { main: { activeGuiMoveMarkings: [] } }
+    };
+    const iface = {
+        AcasInstance: instance, removeMarkings() {},
+        getMoveShapes: () => [{ shapeType: 'arrow', shapeSquare: ['e2', 'e4'], shapeConfig: {}, bringToFront: true }]
+    };
+    await vm.runInNewContext(`({${source.slice(start, end)}}).markMoves.call(iface,
+        [{ player: ['e2', 'e4'] }], 'main', { detail: 'full' })`,
+    { iface, WARNING_TYPES: ['mistake', 'blunder', 'miss'] });
+    assert.equal(children.length, 2);
+    assert.equal(children.at(-1), label);
+});
+
 test('presentation-only redraws remain revealed but never trigger userscript Auto Move', async () => {
     const source = await readFile(new URL('../acas.user.js', import.meta.url), 'utf8');
     const start = source.indexOf('function handleAutoMove(');

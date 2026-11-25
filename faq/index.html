@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="../assets/js/domain-redirect.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help / A.C.A.S</title>
-    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/troubleshoot/">
+    <link rel="canonical" href="https://acaschess.com/troubleshoot/">
     <script>
-        location.replace('../troubleshoot/' + (location.hash || '#faq'));
+        if(location.hostname !== 'psyyke.github.io')
+            location.replace('../troubleshoot/' + location.search + (location.hash || '#faq'));
     </script>
 </head>
 <body>

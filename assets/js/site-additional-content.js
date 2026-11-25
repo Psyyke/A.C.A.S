@@ -61,7 +61,7 @@ initMobileNav();
 const contributionShare = document.querySelector('.contribution-share');
 contributionShare?.addEventListener('click', async () => {
     const status = document.querySelector('#share-status');
-    const url = 'https://psyyke.github.io/A.C.A.S/';
+    const url = 'https://acaschess.com/';
     status.hidden = true;
     try {
         if (navigator.share) {

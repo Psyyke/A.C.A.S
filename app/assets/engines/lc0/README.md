@@ -32,12 +32,25 @@ preinstalled dropdown belongs to Legacy Lc0 only. The default reuses the
 existing Maia asset instead of downloading or storing a duplicate.
 WebGPU requires a compatible
 browser and GPU, uses float32, and reports errors rather than falling back to CPU.
+It requests a high-performance adapter and rejects a reported software adapter.
+The float32 GPU path packs policy/value/WDL/moves-left downloads into one reusable
+readback buffer per inference, without changing network arithmetic or weights.
+Adapter preference is a browser hint, not a guarantee of full GPU utilization.
 CPU is a good starting point for Maia at one node per move. WebGPU can help
 with larger networks and longer searches, but is not automatically faster.
 Both options require cross-origin isolation. Chess and Chess960 are supported.
 Large networks can need substantial memory and are not yet reliable on every
 device. Lc0 itself converts the supplied protobuf for WebGPU, so the standalone
 converter at `tools/leela2onnx/` is optional and useful for other ONNX tools.
+
+Batching matters: one-position batches underuse the GPU. A bounded Good Gyal 7
+probe on an RTX 4070 Ti SUPER used 128 requested nodes, one thread and MultiPV 3.
+Batch 32 plus packed readback took 84-116 ms median across four positions, versus
+1101-1344 ms for batch-one WebGPU. Larger batches change MCTS scheduling and can
+overshoot the requested node count; this is not an equal-strength guarantee.
+Matching native CUDA batch-32 medians were 17-24 ms, so a native speed gap remains.
+These are measured warm-search results, not startup, full coaching latency or a
+promise about other networks/devices. See the developer notes for verification.
 
 ## What is supported
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="../assets/js/domain-redirect.js"></script>
     <title>Usage Guide / A.C.A.S</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
@@ -8,9 +9,9 @@
     <meta name="keywords" content="how to use chess assistant, acas guide, acas settings, best stockfish settings, chess engine elo setting, maia chess settings, lichess helper guide, chess.com helper guide, stockfish settings help">
     <meta property="og:title" content="Usage Guide / A.C.A.S">
     <meta property="og:description" content="Learn how to use A.C.A.S, the chess assistant for Lichess and Chess.com. Every setting explained, from engine choice and Elo to Fusion, Maia, move timing and learning mode.">
-    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/usage/">
+    <meta property="og:url" content="https://acaschess.com/usage/">
     <meta property="og:site_name" content="A.C.A.S">
-    <meta property="og:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta property="og:image" content="https://acaschess.com/assets/images/main.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1903">
     <meta property="og:image:height" content="907">
@@ -18,7 +19,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Usage Guide / A.C.A.S">
     <meta name="twitter:description" content="Learn how to use A.C.A.S, the chess assistant for Lichess and Chess.com. Every setting explained, from engine choice and Elo to Fusion, Maia, move timing and learning mode.">
-    <meta name="twitter:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta name="twitter:image" content="https://acaschess.com/assets/images/main.png">
     <meta name="twitter:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
     <meta name="robots" content="max-image-preview:large">
     <link rel="preload" href="../assets/fonts/Mona-Sans.woff2" as="font" type="font/woff2" crossorigin="anonymous">
@@ -29,9 +30,9 @@
     <link rel="stylesheet" type="text/css" href="../assets/css/home.css">
     <link rel="stylesheet" href="../assets/libraries/bootstrap-icons/font/bootstrap-icons.css"/>
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
-    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/usage/">
+    <link rel="canonical" href="https://acaschess.com/usage/">
     <meta property="og:type" content="website">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"A.C.A.S Usage Guide: Settings, Engines and Best Config","description":"Every A.C.A.S setting explained, including engine choice, Elo, Fusion, Maia, move timing and learning mode.","mainEntityOfPage":"https://psyyke.github.io/A.C.A.S/usage/","image":"https://psyyke.github.io/A.C.A.S/assets/images/main.png","author":{"@type":"Person","name":"Psyyke"},"about":{"@type":"SoftwareApplication","name":"A.C.A.S","applicationCategory":"GameApplication","operatingSystem":"Web"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"A.C.A.S","item":"https://psyyke.github.io/A.C.A.S/"},{"@type":"ListItem","position":2,"name":"Usage","item":"https://psyyke.github.io/A.C.A.S/usage/"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"A.C.A.S Usage Guide: Settings, Engines and Best Config","description":"Every A.C.A.S setting explained, including engine choice, Elo, Fusion, Maia, move timing and learning mode.","mainEntityOfPage":"https://acaschess.com/usage/","image":"https://acaschess.com/assets/images/main.png","author":{"@type":"Person","name":"Psyyke"},"about":{"@type":"SoftwareApplication","name":"A.C.A.S","applicationCategory":"GameApplication","operatingSystem":"Web"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"A.C.A.S","item":"https://acaschess.com/"},{"@type":"ListItem","position":2,"name":"Usage","item":"https://acaschess.com/usage/"}]}]}</script>
     <script type="text/javascript" src="../assets/js/tag-manager.js"></script>
     <script src="../assets/libraries/bodymovin/lottie.js" type="text/javascript"></script>
     <script async="" type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-5499BQ4B"></script>
@@ -132,12 +133,12 @@
                     <p>Use the plus and minus buttons on the GUI to resize its boards. <strong>Show FEN</strong> shows the current position as text and <strong>Show PGN</strong> shows the recorded moves. The PGN only contains positions A.C.A.S saw, so keep it connected from the start if you want the whole game.</p>
                 </section>
                 <section>
-                    <h2 id="external">🔥 Running External Engines (Beta)</h2>
+                    <h2 id="external">🔥 Running External Engines</h2>
                     <blockquote class="bordered">
                         <p>External engines can be less stable and a bit slower than the built-in WASM engines, depending on your hardware and the engine.</p>
                     </blockquote>
 
-                    <p>This feature is in <b>beta</b>, so expect bugs and please report them. Not every engine has been tested. The server is currently built for <b>Windows only</b>. It uses Electron, so other systems might come later.</p>
+                    <p>Not every engine has been tested, so please report any bugs you run into. The server runs on Windows, macOS and Linux. Windows gets the most testing.</p>
 
                     <img loading="lazy" alt="A.C.A.S Server GUI" height="600" src="../assets/images/extgui.png">
 
@@ -149,7 +150,7 @@
                         <li><p>Your engines appear as a list in the GUI. Click the one you want.</p><small>(Add engines in step 2 first)</small></li>
                     </ol>
 
-                    <p>If the server is running but the GUI won't connect, check <strong>Server Port</strong> in Engine Settings. It must match the port shown in the Calculation Server. The GUI starts with 2800. The icon beside the server's port shows its status: spinning dots mean it is waiting for the web GUI to connect, a checkmark in a circle means the web GUI is connected, and a warning triangle means an unauthorized connection was blocked. Hover over the port for details, or click it to change the port.</p>
+                    <p>If the server is running but the GUI won't connect, check <strong>Server Port</strong> in Engine Settings. It must match the port shown in the Calculation Server. The GUI starts with 2800. The icon beside the server's port shows its status: spinning ring means it is waiting for the web GUI to connect, a checkmark in a circle means the web GUI is connected, and a warning triangle means an unauthorized connection was blocked. Hover over the port for details, or click it to change the port.</p>
 
                     <h3>Connection status circle</h3>
                     <ul>
@@ -195,7 +196,7 @@
                         <li><a href="#⚙️-learning-mode">Learning Mode</a>, <a href="#⚙️-feedback">Feedback</a> and <a href="#⚙️-move-detail">Move Detail</a></li>
                         <li><a href="#⚙️-turn-settings">Turn Settings</a>, <a href="#⚙️-moves-on-demand">Moves On Demand</a> and <a href="#render-settings">Render Settings</a></li>
                         <li><a href="#⚙️-move-tts">Spoken Moves</a>, <a href="#⚙️-messages">Messages</a> and <a href="#⚙️-ghost-script">Ghost Script</a></li>
-                        <li><a href="#⚙️-theme-color">Appearance</a> and <a href="#⚙️-concealment">Concealment and Restart Triggers</a></li>
+                        <li><a href="#pena">Pena</a>, <a href="#⚙️-theme-color">Colors</a> and <a href="#⚙️-concealment">Concealment and Restart Triggers</a></li>
                     </ul>
 
                     <h3 id="⚙️-settings-backups">⚙️ Import, Export and Reset</h3>
@@ -402,7 +403,7 @@
 
                     <h3 id="⚙️-moves-on-demand">⚙️ Moves On Demand</h3>
                     <p><a target="_blank" href="../app?shl=movesOnDemand">Moves On Demand</a> waits until you click or tap a piece on the chess site's board, then asks the engine for moves with that piece instead of suggesting moves for the whole board.</p>
-                    <p>It's useful when you want to choose the piece yourself. Refresh the chess site after changing it if it doesn't respond. Ghost Script disables the board overlay this feature needs, so they don't work together.</p>
+                    <p>It's useful when you want to choose the piece yourself. Refresh the chess site after changing it if it doesn't respond. With Ghost Script, this needs the optional local screen overlay.</p>
 
                     <h3 id="⚙️-turn-settings">⚙️ Only Own Turn, Always My Turn and Reverse Side</h3>
                     <p>These change which side the main engine calculates for. They're easy to mix up.</p>
@@ -456,8 +457,40 @@
                     <p><a target="_blank" href="../app?shl=showOpponentMoveGuess">Opponent Move Guess</a> shows the reply the engine expects <strong>after you play its suggested move</strong>. It isn't necessarily what the opponent should play right now, and it doesn't promise what they'll actually play.</p>
                     <p>The reply normally appears when you hover over the square the suggested move starts from. Enable <a target="_blank" href="../app?shl=showOpponentMoveGuessConstantly">Constantly Visible</a> to keep it showing, which helps on touchscreens. Some engines don't give a reply, so there may be nothing to show.</p>
 
-                    <h3 id="⚙️-theme-color">⚙️ Theme Color</h3>
-                    <p><a target="_blank" href="../app?shl=themeColorHex">Theme Color</a> and the settings below it change the look of the GUI.</p>
+                    <h3 id="pena">♛ Pena</h3>
+                    <p>Want someone to talk through the position with you? That is what Pena, your Personal Educator &amp; Neural Advisor, is for. His AI runs on your computer through the A.C.A.S local server, and this page is the chat and chess GUI. He follows your current game, comments on the moves and chats with you about them. Turn on <a target="_blank" href="../app?shl=penaEnabled">Pena AI</a> in Misc and keep the GUI open while you play. Pena is hidden and disabled on phones and tablets, not on narrow desktop windows.</p>
+                    <p>Setting him up is one click. Open the A.C.A.S app server, then press <strong>Download Pena</strong> in his chat window or open <strong>Pena AI</strong> on the app server's toolbar. The app server picks the right runtime for your graphics card, downloads it with the matching plain Inkling model and the published <a target="_blank" rel="noopener noreferrer" href="https://huggingface.co/Hakorr/Pena">Pena chess LoRA</a> (about 8.7 GB together), checks every file and starts him. No account or manually selected model files are needed. Existing installs fetch only the changed pieces. Big downloads can be paused and resumed. After that he starts with the app server by himself. Setup progress and any connection problems appear in the chat window.</p>
+                    <p>NVIDIA cards get a CUDA build, AMD and Intel cards get Vulkan, Macs get Metal, and anything else falls back to the CPU. Models and AI inference are never downloaded or run by the website.</p>
+                    <p>Want your own model? Open <strong>Advanced</strong> in the app server's Pena AI panel and pick a native <strong>llama-server</strong> build and a chat-capable <strong>GGUF model</strong>, plus an optional LoRA. An adapter must match its base model, it can't turn an unrelated model into Inkling. Coaching covers standard chess only, and other models may handle its evidence differently. Use Pena's download takes you back to the default.</p>
+
+                    <h4>Chatting with Pena</h4>
+                    <p>Type a message and press Enter, or click the mic and talk. The mic keeps listening and sends your words when you pause. Click it again to stop. Ask why a move works, whether your idea is any good, what the opponent is up to or what a chess term means.</p>
+                    <p>You don't need a match open to chat. Without one, Pena talks about chess in general and answers questions about A.C.A.S. With a match open, he also gets real Stockfish and LC0 lines, Maia's guess at what humans would play and exact facts about the board, so his answers stay tied to the position.</p>
+                    <p>The round arrow in his header starts a new chat and forgets everything said so far. While he thinks, a faint line next to the dots shows what he's working through. If he needs a download, a restart or a connection to the app server, the chat shows what to do. The port is shared with the external engine server setting.</p>
+                    <p>He can also help with A.C.A.S itself. Ask which engine you're using, what Move Detail does or how to make the engine weaker, and he checks your current settings and this guide before answering. You don't have to say A.C.A.S, just ask about the setting. He can't change settings for you, but he'll tell you where to find them.</p>
+                    <p>A.C.A.S can't see the chess site's clock, the time control, ratings or the opponent's name, so Pena doesn't know them either. He'll just tell you so.</p>
+
+                    <h4>Privacy</h4>
+                    <p>Chats are never saved or logged by A.C.A.S. Messages travel only to the local server on your own computer, not to an online AI service. Refreshing the page forgets the conversation. The native model can keep a prompt cache in memory while running, so stop the AI server to release that too. The chat box turns off browser autofill, spell check and writing suggestions. These controls cannot guarantee erasure from operating system swap, crash dumps or third-party browser tools.</p>
+
+                    <h4>Telling Pena about yourself</h4>
+                    <p>Pena doesn't keep memories between chats. If you want him to know your name, your rating, the openings you love or what you're working on, add it to the System prompt in the Pena AI settings. It stays in this browser and he keeps it in mind every time.</p>
+
+                    <h4>Pena AI settings</h4>
+                    <p>Open the Pena AI cog in Misc. Setup and connection controls are in the chat instead. Choose files, graphics backend and context size in the local server app.</p>
+                    <ul>
+                        <li><strong>Conversation:</strong> Don't give away moves makes Pena share ideas instead of the move, until you ask for it. Only talk when asked keeps him quiet until you type or speak. Live board teaching flashes squares, pieces and arrows as he talks, and Visual duration sets how long they stay. Voice pause is the silence before the mic sends. Play out future moves previews the lines he talks about over the board.</li>
+                        <li><strong>Move checking &amp; What Pena sees:</strong> Check moves with Stockfish lets Stockfish 18 Lite Single double check the moves Pena suggests and hold back the ones that don't hold up. Search depth trades speed for accuracy. Turning it off doesn't take engine info away from Pena, it only skips that final check. Evidence amount picks Full, Medium or Light. Less is faster, and the board itself is always included. The switches choose whether he gets engine lines, opponent replies, move comparisons, what-if positions and earlier positions from the game.</li>
+                        <li><strong>Voice:</strong> Read aloud starts on. The speaker button in Pena's header toggles it and remembers your choice. Read aloud with picks Off, a browser voice or ZONOS3, which is the default. Thaddeus is the default ZONOS voice. Choose another supplied voice or import a voice clip you have permission to use. Clips stay in the browser. ZONOS downloads its voice models when needed and uses your GPU. If WebGPU can't run it, Pena uses browser speech. Speech speed changes the playback speed and pitch.</li>
+                        <li><strong>Thinking &amp; Prompt:</strong> Thinking effort sets how long he thinks before answering on models that support it. Auto picks per question, so greetings get no thinking and chat without a match thinks lightly. Max thinking tokens caps it. Temperature defaults to 0.3 for a little variety, while 0 is more predictable. Your saved choice stays put. Exact behavior depends on the model's chat template. The System prompt says who Pena is and how he talks. It starts filled in, so you can tweak it or write a whole new character, cold, clingy, grumpy or anything else. He plays it straight, without talking about the prompt or softening it into a polite assistant. With a match open he still coaches from the engine evidence, just in that voice. Reset prompt brings the original back.</li>
+                        <li><strong>Chess LoRA:</strong> Pena's download includes his chess-coaching adapter and its matching plain Inkling base. The adapter already includes the refusal-removal edit, so don't combine it with an already-uncensored base. Advanced in the local server lets you choose your own compatible model and adapter instead. Use Pena's download restores the managed pair.</li>
+                    </ul>
+                    <p class="tip">Pena is an AI and can still get things wrong, even with engine evidence behind him. Treat his advice as a second opinion, not the final word.</p>
+                    <p>Something not working with Pena? The <a href="../troubleshoot/#pena">help page</a> covers the usual suspects.</p>
+
+
+                    <h3 id="⚙️-theme-color">⚙️ Colors</h3>
+                    <p>Open <a target="_blank" href="../app?shl=themeColorHex">Colors</a> to pick the GUI theme and board squares.</p>
                     <p><a target="_blank" href="../app?shl=chessFont">Chess Font</a> changes the GUI's pieces. <a target="_blank" href="../app?shl=boardColorHex">Board Color 1</a> sets light squares and <a target="_blank" href="../app?shl=boardColorHex2">Board Color 2</a> sets dark squares independently. Neither changes the chess site's own theme.</p>
 
                     <h4>⚙️ Custom Background</h4>
@@ -491,13 +524,14 @@
                     <p>The Floating Panel shows one section named Funneling instead of separate profile sections. It follows the chosen move and its profile settings, including book picks. Speech uses that pick too. Enable the panel and speech on the profiles you want to use. Changing settings or redrawing the same pick does not say the move again.</p>
 
                     <h3 id="⚙️-ghost-script">⚙️ Ghost Script</h3>
-                    <p><a target="_blank" href="../app?shl=isUserscriptGhost">Ghost Script</a> stops A.C.A.S from creating its board overlay on the chess site. That means no external move arrows, rendered metrics or feedback markings. Moves On Demand needs the overlay too, so it won't work with Ghost Script. Refresh the chess site after changing this setting.</p>
+                    <p><a target="_blank" href="../app?shl=isUserscriptGhost">Ghost Script</a> stops A.C.A.S from creating its board overlay on the chess site. Without the optional screen overlay, that also turns off external move arrows, rendered metrics, feedback markings and Moves On Demand.</p>
+                    <p>To draw outside the page, start the A.C.A.S local server, turn on Ghost Script and choose <strong>Draw on screen</strong> in its settings. This applies to every profile. On mobile devices, this setting is unavailable and automatically switches off. Keep the GUI and server running, then refresh the chess site. If the drawing is a little off, adjust the X and Y offsets in pixels. Positive values move it right or down, and changes apply right away. The overlay hides when the chess tab loses focus, the board is partly off-screen, the page is pinch-zoomed or the board is inside an iframe. Positioning can vary with browser panels, zoom and display scaling. Linux Wayland is not supported.</p>
                     <p>The GUI can still receive the board and calculate. If it no longer opens automatically, open it yourself and keep it running. Ghost Script isn't an undetectable mode and doesn't change the rules about using assistance.</p>
 
                     <h3 id="⚙️-concealment">⚙️ Concealment and Restart Triggers</h3>
                     <p>The <a target="_blank" href="../app?shl=concealAssistanceTriggerCode">Concealment Trigger</a> temporarily hides assistance like arrows and feedback, including in the Floating Panel, and stops current speech. Use the trigger again to show it. It doesn't stop engine calculations or unload the userscript.</p>
                     <p><a target="_blank" href="../app?shl=concealAssistanceAutoDelayMs">Auto Conceal</a> hides assistance again after the chosen time whenever you reveal it. For example, 3000 gives you about three seconds to look. 0 disables the timer.</p>
-                    <p>The <a target="_blank" href="../app?shl=instanceRestartTriggerCode">Restart Trigger</a> restarts connected instances if they get stuck. It doesn't reset your saved settings. Both triggers accept a key or one of the listed mouse gestures, so check them if assistance keeps disappearing or restarting.</p>
+                    <p>The <a target="_blank" href="../app?shl=instanceRestartTriggerCode">Restart Trigger</a> restarts connected instances if they get stuck. It doesn't reset your saved settings. Both triggers accept a key or one of the listed mouse gestures, so check them if assistance keeps disappearing or restarting. Keyboard triggers are paused while typing in an input.</p>
 
                     <h2 id="render-settings">⚙️ Render Settings</h2>
                     <p>Rendering settings show information about the position instead of telling you a move. Square vision and capture warnings don't use a chess engine. <strong>Show Piece Contributions</strong> does use a separate engine and can take longer. They can help you learn, but they don't replace checking a line yourself.</p><img loading="lazy" alt="Image of A.C.A.S' instance view, displaying a chessboard with information rendered on top of it." height="645" src="../assets/images/render-example.png">

@@ -10,7 +10,7 @@ import engineStartNewGame from './instance/engineStartNewGame.js';
 import syncDynamicSettings from './instance/syncDynamicSettings.js';
 import applyDynamicOption from './instance/applyDynamicOption.js';
 import { setDynamicSettingsContext, removeDynamicSettingsContext } from './gui/dynamicSettings.js';
-import { sendUciToExternalEngine, closeAllExternalEnginesWithId } from './AcasWebSocketClient.js';
+import { sendUciToExternalEngine, closeAllExternalEnginesWithId, sendScreenOverlay, clearScreenOverlay } from './AcasWebSocketClient.js';
 import { removeInstance } from './instanceManager.js';
 import { updatePipData, updatePipHints, syncPictureInPicture, pipSettingKeys } from './gui/pip.js';
 import { formatMoveNotationAsync, getMoveSpeechConfig } from './misc/moveNotation.js';
@@ -18,6 +18,7 @@ import { feedbackQualityText } from './misc/feedbackText.js';
 import { isActivityLoggingEnabled, logActivity } from './misc/activityLog.js';
 import { hintSettingKeys, getHintSettings, filterHintMoves, presentHintMove } from './misc/learningHints.js';
 import SuggestionMix, { suggestionMixKeys } from './instance/suggestionMix.js';
+import { removeMetricShapes } from './instance/metricShapes.js';
 
 const logEngineMessages = false,
       debugLogsEnabled = false;
@@ -79,6 +80,18 @@ export default class AcasInstance {
             if(snapshot && Object.hasOwn(snapshot, key)) return snapshot[key];
             return await this.config[key]?.get(profile);
         }
+
+        this.getConfigValues = async (keys, profile) => {
+            const name = typeof profile === 'object' ? profile?.name : profile;
+            const snapshot = this.applyingSettings?.get(name)
+                ?? (!this.pV?.[name]?.engineSettingsReady ? this.pV?.[name]?.startupConfig : null);
+            const missing = keys.filter(key => !snapshot || !Object.hasOwn(snapshot, key));
+            const values = missing.length ? await GET_GM_CFG_VALUES(missing, this.instanceID, profile) : {};
+            for(const key of keys) {
+                if(snapshot && Object.hasOwn(snapshot, key)) values[key] = snapshot[key];
+            }
+            return values;
+        };
 
         this.isLearningProfile = profile => Boolean(this.pV?.[profile]?.learningMode);
     
@@ -303,6 +316,7 @@ export default class AcasInstance {
                 case 'settingSave': {
                     const isFirstTime = msg?.data?.isFirstTime;
                     if(msg.data?.instanceID != null && String(msg.data.instanceID) !== String(this.instanceID)) break;
+                    if(['isUserscriptGhost', 'ghostScreenOverlay', 'ghostScreenOffsetX', 'ghostScreenOffsetY'].includes(msg.data?.key)) break;
                     if(!isFirstTime && !msg.data?.noProfile && msg.data?.profile?.name)
                         await this.syncDynamicSettings(msg.data.profile.name, [msg.data.key], msg.data.isDirectlyCausedByUser);
                     else if(!isFirstTime) await this.updateSettings(msg);
@@ -446,6 +460,9 @@ export default class AcasInstance {
             case 'log':
                 this.Interface.frontLog(packet.data);
                 return true;
+            case 'screenOverlay':
+                if(packet.data?.instanceId !== this.instanceID || this.instanceClosed) return false;
+                return sendScreenOverlay(packet.data);
             case 'updateBoardOrientation':
                 this.boardState.boardOrientation = packet.data;
                 this.Interface.updateBoardOrientation(packet.data);
@@ -1474,8 +1491,9 @@ export default class AcasInstance {
             if(variables) {
                 variables.feedbackRequest = (variables.feedbackRequest || 0) + 1;
                 clearFeedback.call(this, i);
-                ['activeMetrics', 'activeFeedbackDisplays', 'activePieceEvalDisplays'].forEach(key =>
-                    variables[key]?.forEach(marking => (marking.elem ?? marking)?.remove?.()));
+                removeMetricShapes(this.BoardDrawer, variables.activeMetrics);
+                removeMetricShapes(this.BoardDrawer, variables.activePieceEvalDisplays);
+                variables.activeFeedbackDisplays?.forEach(marking => (marking.elem ?? marking)?.remove?.());
                 variables.currentSpeeches?.forEach(speech => speech.cancel());
                 this.Interface.removeBookMarkings(i);
                 this.Interface.removeMarkings(i, 'Killing engine');
@@ -1535,6 +1553,7 @@ export default class AcasInstance {
     close() {
         if(!this.instanceClosed) logActivity('instance', 'Instance closed.', { instanceID: this.instanceID });
         this.instanceClosed = true;
+        clearScreenOverlay(this.instanceID);
         updatePipHints(this);
         removeDynamicSettingsContext(this.instanceID);
 

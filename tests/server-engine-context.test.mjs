@@ -2,17 +2,68 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
+import { EventEmitter } from 'node:events';
 import { chromium } from 'playwright';
 import { validateUciCommand } from '../appServer/backend/uciCommand.js';
 
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 const consoleSource = read('../appServer/ui/js/console.js');
+const i18nSource = read('../appServer/ui/js/i18n.js');
 const uiSource = read('../appServer/ui/index.js');
 const engineSource = read('../appServer/backend/engine.js');
 const serverSource = read('../appServer/backend/server.js');
 const identifier = { engineId: 'engine-hash', profileName: 'Aggressive', instanceId: 'instance-hash',
     identifierKey: 'process-key', siteDomain: 'lichess.org' };
 const savedEngines = [{ engineId: identifier.engineId, title: 'AggroChess', name: 'aggro.exe' }];
+
+test('Pena and engine sockets from one GUI do not announce duplicate connections or multiple tabs', () => {
+    const notices = [], warnings = [], clients = new Set(), guiClients = new Set();
+    class SocketServer extends EventEmitter {}
+    const httpServer = new EventEmitter();
+    httpServer.listen = () => {};
+    const functions = serverSource.slice(serverSource.indexOf('function broadcastToClients('),
+        serverSource.indexOf('function getIdentifierKey('));
+    const start = serverSource.slice(serverSource.indexOf('export function startLocalWSS('),
+        serverSource.indexOf('export function stopLocalWSS(')).replace('export function', 'function');
+    const { wss, broadcast } = runInNewContext(`${functions}\n${start}\n({ wss: startLocalWSS(), broadcast: broadcastToClients });`, {
+        clients, guiClients, warnedAboutMultipleClients: false, wssRef: null, overlaySweepTimer: null,
+        WebSocketServer: SocketServer, WebSocket: { OPEN: 1 }, http: { createServer: () => httpServer },
+        getServerPort: () => 2800, mainWindow: null, ALLOWED_ORIGIN: [],
+        setInterval: () => ({ unref() {} }), screenOverlays: { disconnect() {}, sweep() {} },
+        attachAIClient: () => async () => {}, localAIHost: {}, localAISetup: {},
+        CommandQueue: class {}, parseClientMessage: JSON.parse,
+        onCommandReceived: async () => {}, reportCommandFailure: error => { throw error; },
+        toast: (_type, text) => warnings.push(text), console
+    });
+    wss.onClientChange = connected => notices.push(connected);
+    const connect = () => {
+        const socket = new EventEmitter();
+        socket.readyState = 1;
+        socket.send = () => {};
+        wss.emit('connection', socket, { headers: { origin: 'http://localhost' } });
+        return socket;
+    };
+    const engine = connect();
+    engine.emit('message', JSON.stringify({ type: 'getEngines' }));
+    const ai = connect();
+    ai.emit('message', JSON.stringify({ type: 'ai', action: 'status' }));
+    assert.deepEqual(notices, [true], 'Only the first socket announces a connection');
+    assert.equal(guiClients.size, 1, 'Pena is not a second GUI tab');
+    broadcast({});
+    assert.equal(warnings.length, 0);
+    ai.emit('close');
+    assert.deepEqual(notices, [true], 'Closing Pena does not mark the remaining GUI disconnected');
+    const otherGui = connect();
+    otherGui.emit('message', JSON.stringify({ type: 'getEngines' }));
+    broadcast({});
+    assert.equal(warnings.length, 1, 'Two real GUI clients still warn');
+    broadcast({});
+    assert.equal(warnings.length, 1, 'The warning is not repeated on every broadcast');
+    otherGui.emit('close');
+    engine.emit('close');
+    engine.emit('close');
+    assert.deepEqual(notices, [true, false], 'Only the final disconnect is announced, once');
+});
 
 test('site metadata travels with UCI commands without changing engine identity', async () => {
     let packet, started;
@@ -65,13 +116,15 @@ test('console and library labels use domains but retain internal IDs for kill ac
     const browser = await chromium.launch({ headless: true });
     try {
         const page = await browser.newPage();
-        await page.setContent('<span id="engineSummary"></span><div id="engineGrid"><div class="engine-card" data-engine-id="engine-hash"><span class="engine-status"></span><div class="engine-process-list"></div></div></div><div id="consoles-container"></div>');
+        await page.setContent('<select id="server-language"></select><span id="engineSummary"></span><div id="engineGrid"><div class="engine-card" data-engine-id="engine-hash"><span class="engine-card-title">AggroChess</span><span class="engine-status"></span><div class="engine-process-list"></div></div></div><div id="consoles-container"></div>');
+        await page.addScriptTag({ content: i18nSource });
         const refresh = uiSource.slice(uiSource.indexOf('function refreshEngineCards('), uiSource.indexOf('async function renderEngineGrid('));
         await page.addScriptTag({ content: `
             const savedEngines = ${JSON.stringify(savedEngines)};
             const consolesContainer = document.getElementById('consoles-container');
             const engineSummary = document.getElementById('engineSummary');
             const engineUiGrid = document.getElementById('engineGrid');
+            const t = window.serverI18n.text;
             let runningEngines = [];
             window.engineAPI = { killEngine: async value => { window.killed = value; return true; } };
             ${consoleSource}

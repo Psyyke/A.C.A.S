@@ -31,9 +31,9 @@ test(`Rodent ${limitedAdvanced ? 'Advanced Elo node limit waits despite depth 10
         }, { advanced, depth, limitedAdvanced });
         const gui = await context.newPage(), boardPage = await context.newPage();
         const userscript = (await buildUserscript())
-            .replace("'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' }",
+            .replace("'hosts': { 'prod': 'acaschess.com', 'dev': 'localhost' }",
                 `'hosts': { 'prod': '${new URL(url).host}', 'dev': '${new URL(url).host}' }`)
-            .replace("'path': '/A.C.A.S/'", "'path': '/app/'");
+            .replace("'devPath': '/A.C.A.S/'", "'devPath': '/app/'");
         await gui.addInitScript(userscript);
         await gui.goto(`${url}/app/`);
         await boardPage.route('**/rodent-depth-board', route => route.fulfill({ contentType: 'text/html', body: `
@@ -148,9 +148,9 @@ test('Rodent works through the app in basic and advanced modes, including saved 
             gui.on('pageerror', error => console.error('Rodent GUI:', error.message));
         }
         const userscript = (await buildUserscript())
-            .replace("'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' }",
+            .replace("'hosts': { 'prod': 'acaschess.com', 'dev': 'localhost' }",
                 `'hosts': { 'prod': '${new URL(url).host}', 'dev': '${new URL(url).host}' }`)
-            .replace("'path': '/A.C.A.S/'", "'path': '/app/'");
+            .replace("'devPath': '/A.C.A.S/'", "'devPath': '/app/'");
         await gui.addInitScript(userscript);
         await gui.goto(`${url}/app/`);
         await gui.waitForFunction(() => typeof SETTING_FILTER_OBJ !== 'undefined' && SETTING_FILTER_OBJ.profileID);

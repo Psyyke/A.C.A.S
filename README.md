@@ -12,7 +12,7 @@ A.C.A.S (Advanced Chess Assistance System) is an open-source chess assistant (**
 > [!CAUTION]
 > The use of A.C.A.S may violate the rules and lead to disqualification or banning from tournaments and online platforms. A.C.A.S is meant to be used as a real-time learning tool. Remember, struggling at chess doesn't mean you're unintelligent... it's not an IQ test, just a board game. And even IQ tests only measure certain aspects of your abilities. Use A.C.A.S fairly, be kind to other players.
 
-| [▶️ Open A.C.A.S](https://psyyke.github.io/A.C.A.S/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
+| [▶️ Open A.C.A.S](https://acaschess.com/) | [⬇️ Install (GreasyFork)](https://greasyfork.org/en/scripts/459137-a-c-a-s-advanced-chess-assistance-system)  | [💬 Discuss With Community](https://hakorr.github.io/Userscripts/community/invite)
 |-------|-------|-------|
 
 * Many built in WebAssembly engines (faster than JS)
@@ -99,6 +99,6 @@ There might be more, please let us know if anything is missing, thank you!
 </tr>
 </table>
 
-If you're having issues, please visit the [help](https://psyyke.github.io/A.C.A.S/troubleshoot/) page. Developers can visit the [development](https://psyyke.github.io/A.C.A.S/development/) page. Thank you!
+If you're having issues, please visit the [help](https://acaschess.com/troubleshoot/) page. Developers can visit the [development](https://acaschess.com/development/) page. Thank you!
 
 <img width="1903" height="1676" alt="acas" src="https://github.com/user-attachments/assets/cbb510f0-5083-4a6b-9bd5-a7b91d390e68" />

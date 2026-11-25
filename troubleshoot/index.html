@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="../assets/js/domain-redirect.js"></script>
     <title>Help / A.C.A.S</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
@@ -8,9 +9,9 @@
     <meta name="keywords" content="acas troubleshooting, chess assistant not working, fix chess userscript, frozen tab, no move suggestions">
     <meta property="og:title" content="Help / A.C.A.S">
     <meta property="og:description" content="Common questions, troubleshooting and external server help for A.C.A.S.">
-    <meta property="og:url" content="https://psyyke.github.io/A.C.A.S/troubleshoot/">
+    <meta property="og:url" content="https://acaschess.com/troubleshoot/">
     <meta property="og:site_name" content="A.C.A.S">
-    <meta property="og:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta property="og:image" content="https://acaschess.com/assets/images/main.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1903">
     <meta property="og:image:height" content="907">
@@ -18,7 +19,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Help / A.C.A.S">
     <meta name="twitter:description" content="Common questions, troubleshooting and external server help for A.C.A.S.">
-    <meta name="twitter:image" content="https://psyyke.github.io/A.C.A.S/assets/images/main.png">
+    <meta name="twitter:image" content="https://acaschess.com/assets/images/main.png">
     <meta name="twitter:image:alt" content="A.C.A.S showing three chessboards with engine move suggestions.">
     <meta name="robots" content="max-image-preview:large">
     <link rel="preload" href="../assets/fonts/Mona-Sans.woff2" as="font" type="font/woff2" crossorigin="anonymous">
@@ -29,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="../assets/css/home.css">
     <link rel="stylesheet" href="../assets/libraries/bootstrap-icons/font/bootstrap-icons.css"/>
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
-    <link rel="canonical" href="https://psyyke.github.io/A.C.A.S/troubleshoot/">
+    <link rel="canonical" href="https://acaschess.com/troubleshoot/">
     <meta property="og:type" content="website">
     <script type="text/javascript"src="../assets/js/tag-manager.js"></script>
     <script async="" type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-5499BQ4B"></script>
@@ -73,7 +74,7 @@
             <!-- PAGE CONTENT -->
             <article class="markdown-section-sub markdown-section" id="main">
             <section>
-                <h1 id="help-🛠️" class="page-heading"><span>Help</span><span class="page-heading-icon" aria-hidden="true">&#x1F6DF;</span></h1><p><a href="#not-working">Something not working?</a> / <a href="#faq">Common questions</a> / <a href="#external-server">External server</a></p><p class="tip">Browsers freeze code execution on inactive pages, you need to visit the GUI tab from time to time, <strong>keep it at least partly visible on a separate window</strong> or <strong>use the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting</strong>. This prevents A.C.A.S from freezing and not giving any move suggestions.</p>
+                <h1 id="help-🛠️" class="page-heading"><span>Help</span><span class="page-heading-icon" aria-hidden="true">&#x1F6DF;</span></h1><p><a href="#not-working">Something not working?</a> / <a href="#pena">Pena AI</a> / <a href="#faq">Common questions</a> / <a href="#external-server">External server</a></p><p class="tip">Browsers freeze code execution on inactive pages, you need to visit the GUI tab from time to time, <strong>keep it at least partly visible on a separate window</strong> or <strong>use the <a target="_about" href="../app?shl=pip">Floating Panel</a> setting</strong>. This prevents A.C.A.S from freezing and not giving any move suggestions.</p>
             </section>
 
             <section>
@@ -106,6 +107,26 @@
                         <li>You can also include a screenshot of the browser console (e.g. <code>CTRL + SHIFT + I</code> or right click, inspect, and go to the console tab), look for <strong>grey underlined text</strong> at the beginning of a red background area, on the right side of the screen, which has the word 'A.C.A.S'. That's an error from the userscript.</li>
                     </ul>
                 </blockquote>
+            </section>
+            <section>
+                <h2 id="pena">Pena AI not working?</h2>
+                <p>Pena's AI runs in the A.C.A.S local server, not in the browser. Here are the usual fixes.</p>
+                <ul>
+                    <li><p><strong>Can't connect.</strong> The app server isn't running or can't be reached. Open it and check that the external engine server port in the GUI matches the app server. Pena retries automatically, or you can press Reconnect in his chat. There is no browser AI fallback.</p></li>
+                    <li><p><strong>Pena isn't running.</strong> If the app server is open, press Download Pena or Start Pena in the chat. Errors show up there and as a toast in the app server.</p></li>
+                    <li><p><strong>The download stopped.</strong> Press the button again and it carries on where it left off. Pena needs about 10 GB of free disk space. A file that fails its checksum is deleted and fetched again.</p></li>
+                    <li><p><strong>The browser blocks the connection.</strong> Allow local network access for the A.C.A.S page when prompted. The model service binds only to your own computer. Microphone use still needs HTTPS or localhost.</p></li>
+                    <li><p><strong>The runtime won't start.</strong> Update your graphics driver first. NVIDIA uses CUDA, AMD and Intel use Vulkan, and Macs use Metal. If your card still fails, set Backend to CPU only under Advanced in the app server's Pena AI panel and press Apply &amp; start. It's slow but works anywhere.</p></li>
+                    <li><p><strong>Your own model or adapter won't load.</strong> Use a GGUF supported by the llama-server build you picked under Advanced, with a working chat template. A LoRA must match its base model. Other models are allowed, but not every model understands chess evidence equally well.</p></li>
+                    <li><p><strong>The graphics card ran out of memory or the driver reset.</strong> Stop Pena in the app server, close heavy games or other AI tools, and start him again. Under Advanced, a shorter context or fewer GPU layers can help if it still doesn't fit.</p></li>
+                    <li><p><strong>He's quiet.</strong> He only comments on moves during a standard chess match, but you can chat with him any time. If Only talk when asked is on, he waits until you type or speak to him.</p></li>
+                    <li><p><strong>Pena is missing on mobile.</strong> This is intentional. Pena is hidden and disabled on phones and tablets even when an imported configuration enables him. Narrow desktop windows still work.</p></li>
+                    <li><p><strong>He's slow.</strong> With a match open he first gathers Stockfish, LC0 and Maia evidence, which takes a while, especially for the first answer. A higher Thinking effort also adds time. Set it to Auto or Low, or lower the Evidence amount, for quicker replies.</p></li>
+                    <li><p><strong>The mic does nothing.</strong> Allow microphone access for the GUI page. If the position changes while you're talking, Pena asks you to try again so the answer matches the board.</p></li>
+                    <li><p><strong>No sound.</strong> Browsers block audio until you interact with the page, so click Read aloud once. Pena speaks English, so pick an English voice.</p></li>
+                    <li><p><strong>An answer is withheld.</strong> Pena holds an answer back if it cites evidence he wasn't given, leaks internal model markup or can't fit the position into his context. Try a shorter or more specific question. Answers that do come through can still be wrong, so treat them as a second opinion.</p></li>
+                    <li><p><strong>He doesn't know the clock or your opponent.</strong> That's expected. A.C.A.S can't see the site's clock, time control, ratings or player names, so Pena can't either.</p></li>
+                </ul>
             </section>
                 <section id="faq" itemscope itemtype="https://schema.org/FAQPage">
                     <h2 id="common-questions">Common questions</h2>
@@ -209,7 +230,7 @@
             <ol>
                 <li><strong>Google Chrome / Edge</strong>
                     <ul>
-                        <li>Click the lock/config icon in the address bar → <a href="chrome://settings/content/siteDetails?site=https%3A%2F%2Fpsyyke.github.io" target="_blank"><strong>Site settings</strong></a>.</li>
+                        <li>Click the lock/config icon in the address bar → <a href="chrome://settings/content/siteDetails?site=https%3A%2F%2Facaschess.com" target="_blank"><strong>Site settings</strong></a>.</li>
                         <li>Enable <strong>Local network access</strong> and <strong>Installable / Apps on device</strong> permissions.</li>
                     </ul>
                 </li>

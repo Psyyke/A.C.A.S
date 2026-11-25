@@ -1,6 +1,7 @@
 node_modules/
 
 dist/
+.licenses/
 out/
 
 cache/
@@ -9,3 +10,7 @@ cache/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Private Node.js copy the build scripts download when Node isn't installed
+.node/
+.node-tmp/

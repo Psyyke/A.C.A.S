@@ -6,12 +6,17 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, firefox } from 'playwright';
 import { Chess } from '../libraries/chessjs/chess.js';
-import { candidateConverterSource } from './candidate-converter.mjs';
+import { candidateConverterSource, batchedReadbackSource } from './candidate-converter.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const runtime = resolve(process.env.LC0_TEST_RUNTIME || join(root, 'dist'));
 const candidateModel = process.env.LC0_TEST_CANDIDATE_ONNX;
 const captureInputs = process.env.LC0_TEST_INPUTS_OUTPUT;
+const batchedReadback = process.env.LC0_TEST_BATCHED_READBACK === '1';
+if(batchedReadback && (process.env.LC0_TEST_PROVIDER !== 'webgpu' || (process.env.LC0_TEST_INFERENCE_TYPE || 'f32') !== 'f32'))
+    throw new Error('Batched readback requires float32 WebGPU.');
+const readbackOverride = process.env.LC0_TEST_BATCHED_READBACK === undefined ? undefined : batchedReadback;
+const inferenceProbe = readbackOverride === undefined ? null : batchedReadbackSource(readbackOverride);
 function testNumber(name, fallback, min, max) {
     const raw = process.env[name];
     if(raw === undefined) return fallback;
@@ -65,10 +70,12 @@ if(candidateModel && (settings.provider !== 'webgpu' || settings.inferenceDataTy
 if(process.env.LC0_TEST_REFERENCE_ONNX && settings.convertType !== 'f32')
     throw new Error('Native ONNX comparison requires f32 conversion');
 const files = new Map([
+    ['/text-files.js', [resolve(root, '..', 'text-files.js'), 'text/javascript']],
     ['/worker.js', [join(root, 'worker.js'), 'text/javascript']],
     ['/worker-tree.js', [join(root, 'worker-tree.js'), 'text/javascript']],
     ['/converter-worker.js', [join(root, 'converter-worker.js'), 'text/javascript']],
     ['/browser-inference.js', [join(root, 'browser-inference.js'), 'text/javascript']],
+    ['/gpu-readback.js', [join(root, 'gpu-readback.js'), 'text/javascript']],
     ['/float16.js', [join(root, 'float16.js'), 'text/javascript']],
     ['/dist/lc0.js', [join(root, 'dist', 'lc0.js'), 'text/javascript']],
     ['/dist/lc0.wasm', [join(root, 'dist', 'lc0.wasm'), 'application/wasm']],
@@ -82,7 +89,7 @@ if(candidateModel) {
     files.set('/candidate-onnx', [resolve(candidateModel), 'application/octet-stream']);
     files.set('/original-converter-worker.js', [join(root, 'converter-worker.js'), 'text/javascript']);
 }
-if(captureInputs)
+if(captureInputs || inferenceProbe)
     files.set('/original-browser-inference.js', [join(root, 'browser-inference.js'), 'text/javascript']);
 if(process.env.LC0_TEST_WEIGHTS)
     files.set('/extra-weights', [resolve(process.env.LC0_TEST_WEIGHTS), 'application/octet-stream']);
@@ -121,12 +128,16 @@ const server = createServer(async (req, res) => {
         res.writeHead(200, { 'Content-Type': 'text/javascript' }).end(candidateConverterSource(candidateWeightHash));
         return;
     }
+    if(inferenceProbe && !captureInputs && req.url === '/browser-inference.js') {
+        res.writeHead(200, { 'Content-Type': 'text/javascript' }).end(inferenceProbe);
+        return;
+    }
     if(captureInputs && req.url === '/browser-inference.js') {
         res.writeHead(200, { 'Content-Type': 'text/javascript' }).end(`
             export { createInferenceDispatcher } from './original-browser-inference.js';
             import { createBrowserInference as create } from './original-browser-inference.js';
-            export async function createBrowserInference(...args) {
-                const result = await create(...args);
+            export async function createBrowserInference(weights, provider, onError, dataType) {
+                const result = await create(weights, provider, onError, dataType, ${readbackOverride === undefined ? '{}' : JSON.stringify({ batchedReadback })});
                 const dispatch = result.inference;
                 result.inference = (...parameters) => {
                     const input = new Float32Array(parameters[8], parameters[0] >>> 0, parameters[1] * 112 * 64);
@@ -552,7 +563,8 @@ try {
                 for(const line of ['setoption name UCI_Chess960 value false', 'setoption name UCI_ShowWDL value false',
                     'setoption name Threads value 1', 'setoption name MinibatchSize value 1',
                     'setoption name MultiPV value 2']) uci(line);
-                for(const position of settings.comparisonPositions) {
+                // Numerical reference searches use the same two-node, batch-one setup on both backends.
+                for(const position of ['position startpos moves e2e4', ...settings.comparisonPositions]) {
                     uci('ucinewgame');
                     uci(position);
                     const comparisonStart = events.length;
@@ -645,7 +657,7 @@ try {
                 .filter(Boolean)
                 .map(([, score, multipv, move]) => ({ score: Number(score), multipv, move }));
         };
-        const actualSearches = [result.search, ...result.comparisons];
+        const actualSearches = result.comparisons;
         assert.equal(actualSearches.length, cpuSearches.length);
         for(let position = 0; position < cpuSearches.length; position++) {
             const cpu = firstScores(cpuSearches[position]);

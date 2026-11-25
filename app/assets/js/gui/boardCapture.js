@@ -1,4 +1,4 @@
-export async function captureBoardLayers(instanceId, outputSize, boardElement = null, profile = null) {
+export async function captureBoardLayers(instanceId, outputSize, boardElement = null, profile = null, overlayElement = null) {
     const boards = [...document.querySelectorAll('.chessground-x')];
     const cgElem = boardElement || (instanceId
         ? boards.find(elem => elem.parentElement?.parentElement?.dataset?.instanceId === String(instanceId))
@@ -17,9 +17,9 @@ export async function captureBoardLayers(instanceId, outputSize, boardElement = 
     }
 
     const boardCanvas = await snapdom.toCanvas(cgElem, captureOptions);
-    if(boardElement) return { boardCanvas, overlayCanvas: null };
+    if(boardElement && !overlayElement) return { boardCanvas, overlayCanvas: null };
 
-    const boardDrawerSvg = document.querySelector(
+    const boardDrawerSvg = overlayElement || document.querySelector(
         `#board-drawings svg${instanceId ? `[data-instance-id="${instanceId}"]` : ''}`
     );
     if(!boardDrawerSvg) return { boardCanvas, overlayCanvas: null };
@@ -27,7 +27,7 @@ export async function captureBoardLayers(instanceId, outputSize, boardElement = 
     const svg = boardDrawerSvg.cloneNode(true);
     svg.style.position = 'unset';
 
-    if(profile !== null) {
+    if(profile !== null && !overlayElement) {
         svg.querySelectorAll('[data-profile-id]').forEach(shape => {
             if(shape.dataset.profileId !== profile) shape.remove();
         });

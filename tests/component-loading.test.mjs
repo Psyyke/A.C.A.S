@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import vm from 'node:vm';
-import { fileURLToPath } from 'node:url';
 import { wireComponents, wireDynamicSettings } from '../userscript-components/dev/wire-components.mjs';
 
 const source = readFileSync(new URL('../acas.user.js', import.meta.url), 'utf8');
@@ -92,11 +93,16 @@ test('publication refuses bad URLs, missing anchors and unexpected declarations 
         /Missing published DynamicSettings/);
 });
 
-test('debug builder preserves all production @requires verbatim and does not replace the parser', () => {
-    execFileSync(process.execPath, [fileURLToPath(new URL('../userscript-components/dev/build-test-userscript.mjs', import.meta.url))], {
-        cwd: new URL('..', import.meta.url), encoding: 'utf8'
-    });
-    const debug = readFileSync(new URL('../acas.user.test.js', import.meta.url), 'utf8');
+test('debug builder preserves production @requires even when no empty promise catches exist', t => {
+    const root = mkdtempSync(join(tmpdir(), 'acas-debug-test-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const directory = join(root, 'userscript-components', 'dev');
+    mkdirSync(directory, { recursive: true });
+    const builder = join(directory, 'build-test-userscript.mjs');
+    writeFileSync(builder, readFileSync(new URL('../userscript-components/dev/build-test-userscript.mjs', import.meta.url)));
+    writeFileSync(join(root, 'acas.user.js'), source.replace(/\.catch\(\(\)\s*=>\s*\{\s*\}\)/g, '.catch(recordDevTaskError)'));
+    execFileSync(process.execPath, [builder], { cwd: root, encoding: 'utf8' });
+    const debug = readFileSync(join(root, 'acas.user.test.js'), 'utf8');
     assert.deepEqual(requires(debug), requires(source));
     assert.equal(debug.includes('function getMissedFen('), source.includes('function getMissedFen('));
     assert.doesNotThrow(() => new Function(debug));

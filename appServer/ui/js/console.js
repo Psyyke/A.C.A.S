@@ -69,9 +69,9 @@ function setLogWrapMode(wrapLines) {
 function updateLogWrapControl(logDiv, wrapBtn) {
     logDiv.classList.toggle('no-wrap', !wrapLogLines);
     wrapBtn.setAttribute('aria-pressed', String(!wrapLogLines));
-    wrapBtn.setAttribute('aria-label', wrapLogLines ? 'Allow horizontal overflow' : 'Wrap console lines');
-    wrapBtn.title = wrapLogLines ? 'Line wrapping on' : 'Horizontal overflow on';
-    wrapBtn.querySelector('i').className = `bi ${wrapLogLines ? 'bi-arrow-return-left' : 'bi-arrow-right'}`;
+    wrapBtn.setAttribute('aria-label', window.serverI18n.text(wrapLogLines ? 'wrapOff' : 'wrapOn'));
+    wrapBtn.title = window.serverI18n.text(wrapLogLines ? 'wrappingOn' : 'horizontalOn');
+    wrapBtn.querySelector('i').className = `bi ${wrapLogLines ? 'bi-arrow-return-left' : 'bi-arrow-right-short'}`;
 }
 
 function formatLogTimestamp(timestamp, mode = logTimeMode) {
@@ -99,10 +99,13 @@ function updateLogTimeControl(logDiv, timeBtn) {
     logDiv.dataset.timeMode = logTimeMode;
     timeBtn.dataset.timeMode = logTimeMode;
     const labels = {
-        full: 'Full time', compact: 'Seconds and milliseconds', seconds: 'Seconds only', none: 'No timestamps'
+        full: 'timeFull', compact: 'timeCompact', seconds: 'timeSeconds', none: 'timeNone'
     };
     const nextMode = LOG_TIME_MODES[(LOG_TIME_MODES.indexOf(logTimeMode) + 1) % LOG_TIME_MODES.length];
-    const label = `Timestamp: ${labels[logTimeMode]}. Click for ${labels[nextMode].toLowerCase()}.`;
+    const label = window.serverI18n.text('timeLabel', {
+        current: window.serverI18n.text(labels[logTimeMode]),
+        next: window.serverI18n.text(labels[nextMode]).toLowerCase()
+    });
     timeBtn.setAttribute('aria-label', label);
     timeBtn.title = label;
 }
@@ -126,35 +129,42 @@ function setLogTimeMode(mode) {
 
 function getEngineDisplayContext(identifierObj) {
     const engine = savedEngines.find(engine => engine.engineId === identifierObj.engineId);
-    const name = engine?.title || engine?.name || 'Unknown engine';
-    const site = identifierObj.siteDomain || 'Unknown site';
-    const context = `${site} · ${identifierObj.profileName}`;
-    return { name, site, context, label: `${name} · ${context}` };
+    const name = engine?.title || engine?.name || window.serverI18n.text('unknownEngine');
+    const site = identifierObj.siteDomain || window.serverI18n.text('unknownSite');
+    const profile = identifierObj.profileName;
+    const context = `${site} · ${profile}`;
+    return { name, site, profile, context, label: `${name} · ${context}` };
 }
 
 function createKillEngineButton(identifierObj) {
-    const { label } = getEngineDisplayContext(identifierObj);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'kill-engine-btn acas-fancy-button';
-    button.innerHTML = '<i class="bi bi-stop-fill" aria-hidden="true"></i> Kill';
-    button.title = `Kill ${label}. The web GUI can launch it again on a new analysis.`;
-    button.setAttribute('aria-label', `Kill ${label}`);
+    button.innerHTML = '<i class="bi bi-stop-fill" aria-hidden="true"></i> <span></span>';
+    updateKillEngineButton(button, identifierObj);
     button.onclick = async event => {
         event.stopPropagation();
+        const { label } = getEngineDisplayContext(identifierObj);
         button.disabled = true;
         try {
             const result = await window.engineAPI.killEngine(identifierObj);
             if(typeof result === 'string') toast.error(`${label}: ${result}`, 5000);
-            else if(result === false) toast.message(`${label} is no longer running.`, 2000);
+            else if(result === false) toast.message(window.serverI18n.text('noLongerRunning', { label }), 2000);
         } catch(error) {
             console.error('Failed to kill engine:', error);
-            toast.error(`Could not kill ${label}.`, 5000);
+            toast.error(window.serverI18n.text('killError', { label }), 5000);
         } finally {
             if(button.isConnected) button.disabled = false;
         }
     };
     return button;
+}
+
+function updateKillEngineButton(button, identifierObj) {
+    const { label } = getEngineDisplayContext(identifierObj);
+    button.querySelector('span').textContent = window.serverI18n.text('kill');
+    button.title = window.serverI18n.text('killHint', { label });
+    button.setAttribute('aria-label', window.serverI18n.text('killLabel', { label }));
 }
 
 async function log(text, type = 'info', identifierObj) {
@@ -207,16 +217,18 @@ function addConsoleView(identifierObj) {
     const consoleSection = document.createElement('div');
     consoleSection.className = 'console-section advanced-console';
     consoleSection.innerHTML = `
-        <div class="console-title-row">
+        <div class="console-header">
             <div class="console-title-details">
                 <b class="console-engine-name">Console</b>
-                <span class="console-engine-context"></span>
+                <span class="console-engine-context"><span class="console-engine-site"></span><span class="console-engine-separator"> · </span><span class="console-engine-profile"></span></span>
             </div>
-        </div>
-        <div class="console-header">
             <input type="text" class="logFilter" placeholder="Filter (depth, pv, ...)" />
-            <button class="acas-fancy-button clearBtn" title="Clear console">Clear</button>
-            <button class="pauseBtn acas-fancy-button">Pause</button>
+            <button class="acas-fancy-button clearBtn" type="button">
+                <i class="bi bi-trash3" aria-hidden="true"></i>
+            </button>
+            <button class="pauseBtn acas-fancy-button" type="button" aria-pressed="false">
+                <i class="bi bi-pause-fill" aria-hidden="true"></i>
+            </button>
             <button class="timeBtn acas-fancy-button" type="button">
                 <i class="bi bi-clock" aria-hidden="true"></i>
             </button>
@@ -230,12 +242,7 @@ function addConsoleView(identifierObj) {
             <input class="cmdInput" autofocus placeholder="Enter UCI command..." />
         </div>`;
 
-    const engineNameElem = consoleSection.querySelector('.console-engine-name');
-    const { name, context, label } = getEngineDisplayContext(identifierObj);
-    engineNameElem.textContent = name;
-    engineNameElem.title = label;
-    consoleSection.querySelector('.console-engine-context').textContent = context;
-    consoleSection.querySelector('.console-title-row').appendChild(createKillEngineButton(identifierObj));
+    consoleSection.querySelector('.console-header').appendChild(createKillEngineButton(identifierObj));
 
     const logDiv = consoleSection.querySelector('.log');
     const cmdInput = consoleSection.querySelector('.cmdInput');
@@ -257,8 +264,7 @@ function addConsoleView(identifierObj) {
 
     pauseBtn.onclick = () => {
         isPaused = !isPaused;
-        pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
-        pauseBtn.classList.toggle('active', isPaused);
+        updatePauseControl(pauseBtn, isPaused);
     };
 
     clearBtn.onclick = () => { logDiv.innerHTML = ''; };
@@ -279,7 +285,7 @@ function addConsoleView(identifierObj) {
                 commandHistory.unshift(cmd);
                 if(commandHistory.length > 50) commandHistory.pop();
             } else {
-                log('Error: Something went wrong, e.g. engine process was not writable.', 'error', identifierObj);
+                log(window.serverI18n.text('commandError'), 'error', identifierObj);
             }
 
             this.value = '';
@@ -302,6 +308,7 @@ function addConsoleView(identifierObj) {
     });
 
     consolesContainer.prepend(consoleSection);
+    consoleTitleObserver.observe(consoleSection.querySelector('.console-header'));
 
     CONSOLE_OBJS.set(identifierObj.identifierKey, {
         consoleSection,
@@ -312,14 +319,65 @@ function addConsoleView(identifierObj) {
         clearBtn,
         timeBtn,
         wrapBtn,
+        identifierObj,
         'isPaused': () => isPaused
     });
+    updateConsoleLanguage(CONSOLE_OBJS.get(identifierKey));
 }
+
+function updateConsoleLanguage(consoleObj) {
+    const { consoleSection, logDiv, cmdInput, filterInput, pauseBtn, clearBtn, timeBtn, wrapBtn, identifierObj, isPaused } = consoleObj;
+    const t = window.serverI18n.text;
+    filterInput.placeholder = t('filter');
+    cmdInput.placeholder = t('uciCommand');
+    clearBtn.title = t('clear');
+    clearBtn.setAttribute('aria-label', t('clear'));
+    updatePauseControl(pauseBtn, isPaused());
+    logDiv.title = t('resizeLogs');
+    updateLogTimeControl(logDiv, timeBtn);
+    updateLogWrapControl(logDiv, wrapBtn);
+    const { name, site, profile, label } = getEngineDisplayContext(identifierObj);
+    const details = consoleSection.querySelector('.console-title-details');
+    details.title = label;
+    details.querySelector('.console-engine-name').textContent = name;
+    details.querySelector('.console-engine-site').textContent = site;
+    details.querySelector('.console-engine-profile').textContent = profile;
+    updateKillEngineButton(consoleSection.querySelector('.kill-engine-btn'), identifierObj);
+    fitConsoleTitle(consoleSection);
+}
+
+function updatePauseControl(pauseBtn, isPaused) {
+    const label = window.serverI18n.text(isPaused ? 'resume' : 'pause');
+    pauseBtn.title = label;
+    pauseBtn.setAttribute('aria-label', label);
+    pauseBtn.setAttribute('aria-pressed', String(isPaused));
+    pauseBtn.classList.toggle('active', isPaused);
+    pauseBtn.querySelector('i').className = `bi ${isPaused ? 'bi-play-fill' : 'bi-pause-fill'}`;
+}
+
+// Keeps the console header on one line by dropping the site, then the whole context, then the name.
+const CONSOLE_TITLE_FIT_STEPS = ['', 'hide-site', 'hide-context', 'hide-name'];
+
+function fitConsoleTitle(consoleSection) {
+    const header = consoleSection.querySelector('.console-header');
+    const details = header?.querySelector('.console-title-details');
+    if(!details) return;
+    for(const step of CONSOLE_TITLE_FIT_STEPS) {
+        details.classList.remove(...CONSOLE_TITLE_FIT_STEPS.filter(Boolean));
+        if(step) details.classList.add(...CONSOLE_TITLE_FIT_STEPS.slice(1, CONSOLE_TITLE_FIT_STEPS.indexOf(step) + 1));
+        if(header.scrollWidth <= header.clientWidth) return;
+    }
+}
+
+const consoleTitleObserver = new ResizeObserver(entries => entries.forEach(entry => fitConsoleTitle(entry.target.closest('.console-section'))));
+
+document.addEventListener('server-language-changed', () => CONSOLE_OBJS.forEach(updateConsoleLanguage));
 
 async function removeConsoleView(identifierObj) {
     const consoleObj = CONSOLE_OBJS.get(identifierObj.identifierKey);
 
     if(consoleObj) {
+        consoleTitleObserver.unobserve(consoleObj.consoleSection.querySelector('.console-header'));
         consoleObj.consoleSection.remove();
         CONSOLE_OBJS.delete(identifierObj.identifierKey);
     }

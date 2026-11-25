@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { startServer } from './maia-elo/serve.mjs';
 
-test('server surfaces use the main app grain and the library has a darker background', async () => {
+test('server surfaces use a finer grain and darker engine cards', async () => {
     const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
     const browser = await chromium.launch({ headless: true });
     try {
@@ -15,15 +15,23 @@ test('server surfaces use the main app grain and the library has a darker backgr
             <div class="engine-library-heading"></div><div class="engine-grid">
                 <div class="engine-card" id="idle"></div><div class="engine-card active" id="active"></div>
             </div><div id="console-toolbar"></div><div id="consoles-container"></div>
-            <div class="console-section"><div class="log"></div></div>`);
+            <div class="console-section"><div class="console-header"></div><div class="log"></div></div>
+            <div class="prompt-dialog server-settings"></div>`);
         await page.addStyleTag({ content: '.engine-card { transition: none; }' });
-        for(const selector of ['body', '#acas-header', '#server-controls', '.engine-library-heading', '.engine-grid', '#idle', '#active', '.console-section']) {
-            const image = await page.locator(selector).evaluate(element => getComputedStyle(element).backgroundImage);
-            assert.match(image, /background-grain\.png/, selector);
+        for(const selector of ['body', '#acas-header', '#server-controls', '.engine-library-heading', '.engine-grid',
+            '#console-toolbar', '.console-section', '.console-header', '.log', '.prompt-dialog.server-settings']) {
+            const style = await page.locator(selector).evaluate(element => ({
+                image: getComputedStyle(element).backgroundImage, size: getComputedStyle(element).backgroundSize
+            }));
+            assert.match(style.image, /background-grain\.png/, selector);
+            assert.equal(style.size, '80px 80px', selector);
         }
         for(const selector of ['.engine-library-heading', '.engine-grid', '#console-toolbar']) {
-            assert.equal(await page.locator(selector).evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(0, 0, 0)');
+            assert.equal(await page.locator(selector).evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(20, 20, 20)');
         }
+        assert.equal(await page.locator('.console-header').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(16, 16, 16)');
+        for(const selector of ['#idle', '#active'])
+            assert.equal(await page.locator(selector).evaluate(element => getComputedStyle(element).backgroundColor), 'rgba(0, 0, 0, 0.2)');
         const toolbar = await page.locator('#console-toolbar').evaluate(element => {
             const style = getComputedStyle(element);
             return { width: style.borderTopWidth, color: style.borderTopColor };
@@ -36,7 +44,7 @@ test('server surfaces use the main app grain and the library has a darker backgr
                 transform: floor.transform, inset: floor.inset,
                 fade: getComputedStyle(element, '::after').backgroundImage, pointerEvents: floor.pointerEvents };
         });
-        assert.equal(emptyConsole.background, 'rgb(0, 0, 0)');
+        assert.equal(emptyConsole.background, 'rgb(20, 20, 20)');
         assert.match(emptyConsole.image, /checkerboard-floor\.svg/);
         assert.equal(emptyConsole.size, 'cover');
         assert.equal(emptyConsole.transform, 'none');
@@ -44,16 +52,16 @@ test('server surfaces use the main app grain and the library has a darker backgr
         assert.match(emptyConsole.fade, /linear-gradient/);
         assert.match(emptyConsole.fade, /background-grain\.png/);
         assert.equal(await page.locator('#consoles-container').evaluate(element =>
-            getComputedStyle(element, '::after').backgroundSize), '160px 160px, 100% 100%');
+            getComputedStyle(element, '::after').backgroundSize), '80px 80px, 100% 100%');
         assert.equal(emptyConsole.pointerEvents, 'none');
         await page.locator('#consoles-container').evaluate(element => {
             const consoleSection = document.querySelector('.console-section');
             element.appendChild(consoleSection);
         });
         assert.equal(await page.locator('.console-section').evaluate(element =>
-            getComputedStyle(element).backgroundColor), 'rgba(0, 0, 0, 0.85)');
+            getComputedStyle(element).backgroundColor), 'rgba(20, 20, 20, 0.88)');
         assert.equal(await page.locator('.log').evaluate(element =>
-            getComputedStyle(element).backgroundColor), 'rgba(0, 0, 0, 0)');
+            getComputedStyle(element).backgroundColor), 'rgb(15, 15, 15)');
         assert.match(await page.locator('#consoles-container').evaluate(element =>
             getComputedStyle(element, '::before').backgroundImage), /checkerboard-floor/);
         await page.evaluate(() => document.body.classList.add('panels-collapsed'));
@@ -72,7 +80,7 @@ test('server surfaces use the main app grain and the library has a darker backgr
         assert.deepEqual(floorSize, [1000, 600]);
         for(const selector of ['#idle', '#active']) {
             await page.locator(selector).hover();
-            assert.match(await page.locator(selector).evaluate(element => getComputedStyle(element).backgroundImage), /background-grain\.png/);
+            assert.equal(await page.locator(selector).evaluate(element => getComputedStyle(element).backgroundColor), 'rgba(0, 0, 0, 0.2)');
         }
 
         const source = readFileSync(new URL('../app/assets/js/gui/backgroundGrain.js', import.meta.url), 'utf8')

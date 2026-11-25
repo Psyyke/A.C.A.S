@@ -1,0 +1,1191 @@
+#pena-floaty .pena-personalization-root {
+    display: contents;
+}
+
+#pena-floaty [data-pena-picker] {
+    width: 180px;
+}
+
+#pena-floaty input[data-key="penaCheckDepth"] {
+    min-width: 2ch;
+}
+
+#pena-floaty .pena-model-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    align-items: stretch;
+}
+
+#pena-floaty .pena-model-controls > :is(.pena-actions, .pena-model-progress, [role="status"]) {
+    margin: 0;
+}
+
+#pena-floaty .pena-model-controls > [role="status"] {
+    text-align: center;
+}
+
+#pena-floaty .pena-model-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+#pena-floaty .custom-input[aria-disabled="true"] {
+    filter: blur(2px);
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+}
+
+#pena-floaty .input-subtitle:empty {
+    display: none;
+}
+
+#pena-floaty .pena-model-progress[hidden],
+#pena-floaty .pena-model-controls[hidden],
+#pena-floaty .pena-cancel-button[hidden],
+#pena-floaty .custom-input[hidden],
+#pena-floaty .pena-setting-hint[hidden],
+#pena-floaty [aria-busy="true"] .pena-actions,
+#pena-floaty [aria-busy="true"] button:not(.pena-cancel-button),
+#pena-floaty [data-pena-action][hidden] {
+    display: none;
+}
+
+#pena-floaty .pena-model-progress progress {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    border-radius: 3px;
+}
+
+.pena-window .pena-voice-progress {
+    display: grid;
+    flex: none;
+    gap: 4px;
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 8px;
+    font-size: 11px;
+    text-align: center;
+    opacity: 0.85;
+}
+
+.pena-window .pena-voice-progress progress { width: 100%; }
+.pena-window .pena-voice-progress[hidden] { display: none; }
+
+#pena-floaty .pena-cancel-button {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    padding: 0;
+    font-size: 12px;
+    color: rgb(255 255 255 / 85%);
+    background: rgb(255 255 255 / 5%);
+    border: 2px solid rgb(255 255 255 / 10%);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#pena-floaty .pena-model-controls > .floaty-wrapper {
+    display: contents;
+}
+
+#pena-floaty .pena-model-controls > div:first-child {
+    flex: none !important;
+}
+
+#pena-floaty .pena-model-controls .pena-actions {
+    justify-content: flex-start;
+}
+
+#pena-floaty .pena-model-controls progress {
+    width: 100%;
+}
+
+#pena-floaty .pena-actions .open-floaty-btn {
+    width: auto;
+    height: auto;
+}
+
+#pena-floaty :is(.pena-actions, [role="status"]) {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+#pena-floaty progress[hidden],
+#pena-floaty [role="status"]:empty,
+#pena-floaty .pena-actions:not(:has(button:not([hidden]))) {
+    display: none;
+}
+
+#pena-floaty .pena-prompt-input {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.pena-personalization textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 10px;
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    background: rgb(0 0 0 / 20%);
+    border: 1px solid rgb(255 255 255 / 15%);
+    border-radius: 5px;
+    resize: vertical;
+}
+
+.pena-personalization textarea:not([data-key="penaSystemPrompt"]) {
+    min-height: 56px;
+}
+
+.pena-personalization textarea::placeholder {
+    color: rgb(255 255 255 / 35%);
+}
+
+.pena-setting-hint {
+    margin: 0;
+    padding: 0 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgb(255 255 255 / 55%);
+}
+
+.pena-personalization .dropdown-input-container {
+    min-width: 180px;
+    max-width: 55%;
+}
+
+#pena-floaty .dropdown-input-container .dropdown-list-container {
+    left: 0;
+    right: auto;
+    width: min(250px, 70vw);
+    max-width: min(250px, 70vw);
+    box-sizing: border-box;
+}
+
+#pena-floaty .dropdown-input:dir(rtl) .dropdown-input-container .dropdown-list-container {
+    left: auto;
+    right: 0;
+}
+
+#pena-floaty .dropdown-list-container .dropdown-item {
+    overflow-wrap: anywhere;
+}
+
+#pena-floaty .dropdown-input-container:has(:is([data-key="penaEvidenceAmount"], [data-key="penaEffort"])) {
+    min-width: 110px;
+    width: 110px;
+}
+
+#pena-floaty .dropdown-input-container:has(:is([data-key="penaEvidenceAmount"], [data-key="penaEffort"])) .dropdown-list-container {
+    width: max-content;
+    max-width: min(220px, 70vw);
+}
+
+/* The hover outline needs room before the arrow. */
+.pena-personalization .dropdown-input-container input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    margin-right: 6px;
+    box-sizing: border-box;
+}
+
+.pena-personalization .pena-choice-selected input {
+    color: transparent;
+}
+
+.pena-personalization .pena-choice-selected::before {
+    content: attr(data-pena-choice-label);
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 10px 30px;
+    display: block;
+    align-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    font-weight: 500;
+}
+
+.pena-original .pena-raw {
+    max-height: 250px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 8px;
+}
+
+.pena-window summary {
+    font-size: 12px;
+    opacity: 0.7;
+    cursor: pointer;
+    list-style: none;
+}
+
+.pena-window summary::-webkit-details-marker,
+.pena-window summary::marker {
+    display: none;
+    content: '';
+}
+
+.pena-reference:hover,
+.pena-reference:focus-visible {
+    background: rgb(255 255 255 / 10%);
+    border-radius: 3px;
+    outline: none;
+}
+
+.pena-reference {
+    cursor: pointer;
+}
+
+.pena-question-form input {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    min-height: 40px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    color: white;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--settings-input-border-radius, 5px);
+    font: inherit;
+    font-size: 15px;
+}
+
+.pena-question-form input::placeholder {
+    color: rgb(255 255 255 / 45%);
+}
+
+.pena-question-form input:is(:hover, :focus, :focus-visible, :active) {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    /* The app-wide input hover outline is !important. */
+    outline: none !important;
+}
+
+.pena-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pena-actions button {
+    padding: 8px 12px;
+    font: inherit;
+    color: rgb(255 255 255 / 85%);
+    background: rgb(255 255 255 / 5%);
+    border: 2px solid rgb(255 255 255 / 10%);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.pena-actions button:hover:not(:disabled) {
+    background: rgb(255 255 255 / 10%);
+}
+
+.pena-actions button[aria-pressed="true"] {
+    background: rgb(255 255 255 / 15%);
+    border-color: rgb(255 255 255 / 35%);
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    padding: 0;
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress::-webkit-progress-bar {
+    background: transparent;
+    border-radius: 3px;
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress::-webkit-progress-value {
+    background: rgb(255 255 255 / 30%);
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress::-moz-progress-bar {
+    background: rgb(255 255 255 / 30%);
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress:indeterminate {
+    background-image: linear-gradient(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
+    background-size: 35% 100%;
+    background-repeat: no-repeat;
+    animation: pena-progress 1.2s ease-in-out infinite alternate;
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress:indeterminate::-moz-progress-bar {
+    background: transparent;
+}
+
+@keyframes pena-progress {
+    from { background-position: 0% 0; }
+    to { background-position: 100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :is(#pena-floaty, .pena-window .pena-voice-progress) progress:indeterminate {
+        animation: none;
+        background-position: 50% 0;
+    }
+}
+
+#pena-floaty [role="status"] {
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.pena-feedback {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.pena-setup-panel { display: contents; }
+
+.pena-window .pena-feedback.is-setup:not([hidden]) {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    padding: 4px 8px;
+    padding-top: 15px;
+    font-size: 13px;
+    line-height: 1.4;
+    flex: none;
+}
+
+.pena-window .pena-feedback.is-setup {
+    padding: 8px 12px 4px;
+    font-size: 12px;
+    opacity: .85;
+}
+
+.pena-window .pena-feedback.is-error { color: #ff8a8a; }
+
+.pena-window .pena-setup {
+    align-self: flex-start;
+    flex: none;
+    margin: 0 12px 6px;
+    padding: 8px 12px;
+    font: inherit;
+    color: rgb(255 255 255 / 85%);
+    background: rgb(255 255 255 / 5%);
+    border: 2px solid rgb(255 255 255 / 10%);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.pena-window .pena-setup:hover:not(:disabled) { background: rgb(255 255 255 / 10%); }
+.pena-window .pena-setup:focus-visible { outline: 2px solid #bfe1ff; outline-offset: 3px; }
+.pena-window .pena-setup[hidden] { display: none; }
+
+.pena-notice {
+    margin: 0;
+    padding: 6px 12px;
+    flex: none;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgb(255 255 255 / 80%);
+    background: rgb(0 0 0 / 22%);
+}
+
+.pena-answer {
+    min-height: 110px;
+    max-height: 350px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.pena-variation[hidden] {
+    display: none;
+}
+
+.pena-variation {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+}
+
+.pena-variation .pena-variation-board.cg-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.pena-variation-actions {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline: 12px;
+    z-index: 502;
+    max-width: 420px;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    color: white;
+    background: rgb(25 25 25 / 90%);
+    border: 1px solid rgb(255 255 255 / 15%);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgb(0 0 0 / 25%);
+    backdrop-filter: blur(12px);
+}
+
+.pena-variation-actions button {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+}
+
+.pena-variation-actions svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.pena-variation-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(255 255 255 / 80%);
+}
+
+.pena-variation-caption {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#pena-floaty button:disabled,
+.pena-window button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+/* The floating window wears the same glass floaty look as the activity log. */
+.pena-window {
+    box-sizing: border-box;
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    width: min(360px, calc(100vw - 32px));
+    height: 360px;
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+    color: white;
+    border: 2px solid rgb(255 255 255 / 30%);
+    border-bottom-width: 10px;
+    border-radius: 5px;
+    box-shadow: 0 18px 60px rgb(0 0 0 / 35%);
+    --scrollbar-track-background: rgb(255 255 255 / 3%);
+    scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
+    overflow: clip;
+}
+
+.pena-window > .pena-container {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: clip;
+    padding: 0;
+    background-color: rgb(0 0 0 / 6%);
+}
+
+.pena-window > .pena-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: rgb(255 255 255 / 4%);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    background-image:
+        var(--header-background-grain-image, var(--background-grain-image, none)),
+        linear-gradient(to bottom right, rgb(0 0 0 / 2%), rgb(0 0 0 / 14%) 48%, rgb(0 0 0 / 42%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+}
+
+.pena-window[hidden],
+.pena-window [hidden] {
+    display: none !important;
+}
+
+.pena-window.is-dragged {
+    right: auto;
+    bottom: auto;
+}
+
+.pena-window.pena-concealed {
+    visibility: hidden;
+}
+
+.pena-window .pena-window-header {
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 42px;
+    flex: none;
+    gap: 8px;
+    padding: 0 0 0 12px;
+    align-items: stretch;
+    background-color: rgb(0 0 0 / 8%);
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+.pena-window .pena-window-header:active {
+    cursor: grabbing;
+}
+
+.pena-heading {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+}
+
+.pena-title {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 18px;
+    font-weight: 700;
+    font-stretch: expanded;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 0 rgb(0 0 0 / 40%);
+}
+
+.pena-beta {
+    flex: none;
+    padding: 2px 5px;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 3px;
+    background: rgb(255 255 255 / 4%);
+    color: rgb(255 255 255 / 45%);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+}
+
+.pena-window.is-minimized {
+    height: auto !important;
+}
+
+.pena-window.is-minimized .pena-window-body,
+.pena-window.is-minimized .pena-resize-handle {
+    display: none;
+}
+
+.pena-window .pena-window-body {
+    flex: 1;
+    gap: 4px;
+    min-height: 0;
+    padding: 0;
+    border-radius: 0;
+    overflow: clip;
+}
+
+.pena-window .pena-chat-log {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0;
+    overscroll-behavior: contain;
+}
+
+.pena-window :is(.pena-loading, .pena-answer-meta, .pena-language-note) {
+    box-sizing: border-box;
+    padding: 4px 8px;
+}
+
+.pena-window .pena-loading[hidden],
+.pena-window .pena-answer-meta:has(.pena-thinking[hidden]):has(.pena-checks[hidden]) {
+    display: none;
+}
+
+.pena-window .pena-turn {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: 10px;
+    box-sizing: border-box;
+    padding: 8px;
+    min-width: 0;
+}
+
+.pena-window .pena-turn:last-child {
+    min-height: 100%;
+}
+
+.pena-window .pena-setup-panel:has(> .pena-feedback.is-setup:not([hidden])) ~ .pena-turn:last-child {
+    min-height: 0;
+}
+
+.pena-message {
+    flex: none;
+    max-width: 92%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.pena-message-user {
+    align-self: flex-end;
+    background: rgb(255 255 255 / 14%);
+}
+
+.pena-message-assistant {
+    align-self: flex-start;
+}
+
+.pena-evidence-warning {
+    display: inline-flex;
+    width: 14px;
+    height: 14px;
+    margin-left: 6px;
+    vertical-align: middle;
+    color: #e6b65c;
+    cursor: help;
+}
+
+.pena-evidence-warning svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.pena-window-body p {
+    margin: 0;
+}
+
+.pena-language-note {
+    flex: none;
+    font-size: 11px;
+    line-height: 1.35;
+    color: rgb(255 255 255 / 55%);
+}
+
+.pena-answer.pena-answer-quiet {
+    font-size: 0.9em;
+    color: rgb(255 255 255 / 50%);
+}
+
+.pena-window,
+#pena-floaty {
+    --scrollbar-width: 3px;
+    --scrollbar-height: 3px;
+}
+
+.pena-window,
+.pena-window *,
+#pena-floaty,
+#pena-floaty * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-background) transparent;
+}
+
+@supports selector(::-webkit-scrollbar) {
+    .pena-window,
+    .pena-window *,
+    #pena-floaty,
+    #pena-floaty * {
+        scrollbar-width: auto;
+        scrollbar-color: auto;
+    }
+
+    .pena-window ::-webkit-scrollbar-button,
+    #pena-floaty ::-webkit-scrollbar-button {
+        display: none;
+    }
+}
+
+.pena-checks summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pena-answer-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex: none;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.pena-answer-meta:has(.pena-thinking[hidden]):has(.pena-checks[hidden]) {
+    display: none;
+}
+
+.pena-answer-meta .pena-checks {
+    min-width: 0;
+    overflow: visible;
+}
+
+.pena-sheet-resize {
+    display: none;
+}
+
+.pena-check-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 0;
+}
+
+.pena-check-count svg {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.pena-window .pena-answer {
+    flex: none;
+    min-height: 0;
+    max-height: none;
+    padding: 10px;
+    background-color: rgb(0 0 0 / 10%);
+    border-radius: 5px;
+    font-size: 15px;
+    overflow: visible;
+}
+
+.pena-window :is(.pena-answer, .pena-original, .pena-original summary):focus {
+    outline: none;
+}
+
+.pena-resize-handle {
+    position: absolute;
+    bottom: 0;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    z-index: 20;
+    touch-action: none;
+}
+
+.pena-resize-left {
+    left: 0;
+    cursor: nesw-resize;
+}
+
+.pena-resize-right {
+    right: 0;
+    cursor: nwse-resize;
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress:not(:indeterminate)::-webkit-progress-value {
+    background-image: linear-gradient(90deg, transparent 25%, rgb(255 255 255 / 18%) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: pena-progress-glow 2.8s ease-in-out infinite;
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress:not(:indeterminate)::-moz-progress-bar {
+    background-image: linear-gradient(90deg, transparent 25%, rgb(255 255 255 / 18%) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: pena-progress-glow 2.8s ease-in-out infinite;
+}
+
+@keyframes pena-progress-glow {
+    0%, 100% { background-position: 100% 0; opacity: 0.8; }
+    50% { background-position: 0% 0; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :is(#pena-floaty, .pena-window .pena-voice-progress) progress:not(:indeterminate)::-webkit-progress-value {
+        animation: none;
+    }
+    :is(#pena-floaty, .pena-window .pena-voice-progress) progress:not(:indeterminate)::-moz-progress-bar {
+        animation: none;
+    }
+}
+
+@media (max-width: 700px), (pointer: coarse) and (max-width: 1100px) {
+    .pena-window,
+    .pena-window.is-dragged {
+        inset: auto 0 0 0;
+        width: 100%;
+        max-height: calc(100dvh - 8px);
+        border-width: 0;
+        border-radius: 0;
+    }
+
+    .pena-window > .pena-container {
+        border-top: 2px solid rgb(255 255 255 / 30%);
+    }
+
+    .pena-window .pena-window-header {
+        display: flex;
+        min-height: 40px;
+        padding-left: 10px;
+    }
+
+    .pena-window .pena-window-header .pena-icon-btn.pena-icon-btn {
+        width: 40px;
+    }
+
+    .pena-window .pena-minimize {
+        display: none;
+    }
+
+    .pena-window .pena-title {
+        font-size: 15px;
+    }
+
+    .pena-window .pena-sheet-resize {
+        display: block;
+        position: absolute;
+        inset: 0 0 auto;
+        z-index: 20;
+        width: 100%;
+        height: 10px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        cursor: ns-resize;
+        touch-action: none;
+    }
+
+    .pena-sheet-resize::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 50%;
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgb(255 255 255 / 35%);
+        transform: translateX(-50%);
+    }
+
+    .pena-window .pena-window-body {
+        padding: 0;
+    }
+
+    .pena-window .pena-question-form {
+        padding-bottom: max(4px, env(safe-area-inset-bottom));
+    }
+
+    .pena-resize-handle {
+        display: none;
+    }
+}
+.pena-loading {
+    display: grid;
+    gap: 4px;
+    font-size: 11px;
+    text-align: center;
+    opacity: 0.85;
+}
+
+:is(#pena-floaty, .pena-window .pena-voice-progress) progress,
+.pena-loading-track {
+    box-sizing: border-box;
+    height: 10px;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 16%);
+    border-radius: 4px;
+    background: rgb(0 0 0 / 22%);
+    box-shadow: inset 0 2px 3px rgb(0 0 0 / 25%), 0 1px 0 rgb(255 255 255 / 8%);
+}
+
+.pena-loading-track span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background-color: rgb(255 255 255 / 30%);
+    background-image: linear-gradient(90deg, transparent 25%, rgb(255 255 255 / 18%) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: pena-progress-glow 2.8s ease-in-out infinite;
+    transition: width 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pena-loading-track span {
+        animation: none;
+    }
+}
+
+.pena-thinking {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    min-height: 1.5em;
+    gap: 4px;
+}
+
+.pena-thinking .pena-thought {
+    flex: 1;
+    min-width: 0;
+    margin-left: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    direction: rtl;
+    text-align: left;
+    font-size: 11px;
+    font-style: italic;
+    color: rgb(255 255 255 / 38%);
+}
+
+.pena-thinking .pena-thought:empty {
+    display: none;
+}
+
+.pena-thinking span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 60%);
+    animation: pena-dot 1s infinite ease-in-out;
+}
+
+.pena-thinking span:nth-child(2) { animation-delay: 0.15s; }
+.pena-thinking span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes pena-dot {
+    0%, 100% { opacity: 0.25; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-3px); }
+}
+
+.pena-checks ul {
+    display: grid;
+    gap: 4px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.pena-checks li::before {
+    content: '\2713  ';
+    color: rgb(255 255 255 / 75%);
+}
+
+.pena-checks li[data-state="skipped"] {
+    opacity: 0.5;
+}
+
+.pena-checks li[data-state="skipped"]::before {
+    content: '\2013  ';
+    color: inherit;
+}
+
+.pena-checks li[data-state="removed"] {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.pena-checks li[data-state="removed"]::before {
+    content: '\2717  ';
+    color: rgb(255 255 255 / 75%);
+}
+
+.pena-question-form {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    flex: none;
+    padding: 0;
+    background: rgb(255 255 255 / 7%);
+    border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.pena-window .acas-fancy-button:active,
+#pena-floaty .acas-fancy-button:active,
+.pena-variation-actions .acas-fancy-button:active {
+    margin-top: 0 !important;
+    transform: none !important;
+    border-bottom-width: 5px !important;
+}
+
+.pena-icon-btn {
+    box-sizing: border-box;
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    color: rgb(255 255 255 / 72%);
+    background: rgb(255 255 255 / 6%);
+    border: 2px solid rgb(255 255 255 / 20%);
+    border-bottom-width: 5px;
+    border-radius: var(--settings-input-border-radius, 5px);
+    cursor: pointer;
+}
+
+.pena-icon-btn:not(:disabled):is(:hover, :focus-visible) {
+    border-color: rgb(255 255 255 / 55%);
+    background: rgb(255 255 255 / 14%);
+}
+
+.pena-icon-btn[aria-pressed="true"] {
+    color: white;
+    border-color: rgb(255 255 255 / 65%);
+    background: rgb(255 255 255 / 18%);
+}
+
+.pena-icon-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.pena-read-aloud[aria-pressed="false"] .pena-sound-waves {
+    opacity: 0.25;
+}
+
+.pena-microphone[aria-pressed="true"] .pena-mic-slash {
+    display: none;
+}
+
+/* Header and chat bar buttons: flat squares, hover only lifts the background a little. */
+.pena-window :is(.pena-question-form, .pena-window-header) .pena-icon-btn {
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+    align-self: stretch;
+    margin: 0;
+    padding: 0 10px;
+    color: rgb(255 255 255 / 65%);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+}
+
+.pena-window .pena-window-header > span {
+    align-self: center;
+}
+
+/* Neighbouring header buttons touch, so their highlights meet. */
+.pena-window .pena-window-header .pena-icon-btn + .pena-icon-btn {
+    margin-left: -8px;
+}
+
+.pena-window .pena-window-header .pena-icon-btn {
+    /* A fixed width keeps them square even when the minimized window has no set height. */
+    width: 42px;
+    aspect-ratio: auto;
+    padding: 0;
+}
+
+.pena-window :is(.pena-question-form, .pena-window-header) .pena-icon-btn:not(:disabled):is(:hover, :focus-visible) {
+    color: rgb(255 255 255 / 90%);
+    background: rgb(255 255 255 / 8%);
+    outline: none;
+}
+
+.pena-window .pena-question-form .pena-icon-btn[aria-pressed="true"],
+.pena-window .pena-window-header .pena-icon-btn[aria-pressed="true"] {
+    color: white;
+}
+
+.pena-upload .book-upload-row {
+    max-width: 55%;
+}
+
+#pena-floaty .pena-model-controls > div:first-child:has(> .input-subtitle:empty:only-child) {
+    display: none;
+}
+
+/* Formatted answers: the model's Markdown, drawn as real text styles. */
+.pena-answer :is(p, ul, ol, pre) { margin: 0 0 0.55em; white-space: normal; }
+.pena-answer > :last-child { margin-bottom: 0; }
+.pena-answer :is(ul, ol) { padding-left: 1.3em; }
+.pena-answer li + li { margin-top: 0.2em; }
+.pena-answer strong { font-weight: 650; color: #fff; }
+.pena-answer code { font-family: ui-monospace, Consolas, monospace; font-size: 0.9em; padding: 0.05em 0.35em; border-radius: 4px; background: rgba(255, 255, 255, 0.08); }
+.pena-answer pre { white-space: pre-wrap; padding: 0.5em 0.7em; border-radius: 6px; background: rgba(255, 255, 255, 0.06); }
+.pena-answer pre code { padding: 0; background: none; }
+.pena-answer .pena-md-heading { font-weight: 650; color: #fff; }
+.pena-answer.pena-answer-error { color: #f3b4a8; font-style: italic; }
+[data-pena-mobile-hidden="true"] { display: none !important; }

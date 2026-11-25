@@ -20,6 +20,18 @@ export function candidateConverterSource(weightHash) {
             } catch(error) {
                 self.postMessage({ type: 'error', message: error.message });
             }
+
         };
+    `;
+}
+
+export function batchedReadbackSource(enabled) {
+    if(typeof enabled !== 'boolean') throw new Error('Readback override must be boolean.');
+    return `
+        import { createBrowserInference as create } from './original-browser-inference.js';
+        export { createInferenceDispatcher } from './original-browser-inference.js';
+        export function createBrowserInference(weights, provider, onError, dataType) {
+            return create(weights, provider, onError, dataType, { batchedReadback: ${enabled} });
+        }
     `;
 }

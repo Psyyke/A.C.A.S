@@ -1,0 +1,4 @@
+AddType text/javascript .mjs
+AddType application/wasm .wasm
+AddType application/gzip .gz
+RemoveEncoding .gz

@@ -20,6 +20,8 @@ if(!Array.isArray(models) || !models.length || models.some(model =>
     !model || typeof model.name !== 'string' || !model.name || typeof model.path !== 'string' || !model.path
     || !['float32', 'float16'].includes(model.type) || !['wasm', 'webgpu'].includes(model.provider)))
     throw new Error('LC0_PRECISION_MODELS must list { name, path, type: float32|float16, provider: wasm|webgpu } models.');
+if(models.some(model => model.batchedReadback && (model.type !== 'float32' || model.provider !== 'webgpu')))
+    throw new Error('Batched readback only supports float32 WebGPU models.');
 if(new Set(models.map(model => model.name)).size !== models.length)
     throw new Error('Precision model names must be unique.');
 const enforce = process.env.LC0_PRECISION_ENFORCE === '1';
@@ -27,6 +29,7 @@ if(enforce && (models.length < 2 || models[0].type !== 'float32' || models[0].pr
     throw new Error('Accuracy enforcement needs a float32 WASM reference and at least one candidate.');
 const files = new Map([
     ['/float16.js', join(root, 'float16.js')],
+    ['/gpu-readback.js', join(root, 'gpu-readback.js')],
     ...models.map((model, index) => [`/model-${index}`, resolve(model.path)]),
     ...['ort.webgpu.bundle.min.mjs', 'ort-wasm-simd-threaded.asyncify.mjs', 'ort-wasm-simd-threaded.asyncify.wasm',
         'ort-wasm-simd-threaded.jsep.mjs', 'ort-wasm-simd-threaded.jsep.wasm'].map(name => [`/dist/${name}`, join(runtime, name)])
@@ -67,8 +70,9 @@ try {
             ort.env.wasm.numThreads = 1;
             const response = await fetch(`/model-${index}`);
             if(!response.ok) throw new Error(`Model HTTP ${response.status}`);
-            const session = await ort.InferenceSession.create(new Uint8Array(await response.arrayBuffer()),
-                { executionProviders: [model.provider] });
+            let session = await ort.InferenceSession.create(new Uint8Array(await response.arrayBuffer()),
+                { executionProviders: [model.provider], ...(model.batchedReadback ? { preferredOutputLocation: 'gpu-buffer' } : {}) });
+            if(model.batchedReadback) session = (await import('/gpu-readback.js')).createGpuReadbackSession(session, ort.env.webgpu.device);
             try {
                 const patterns = [];
                 const samples = corpus || [1, 2, 16].flatMap(batch =>
@@ -116,6 +120,14 @@ try {
                     sum += delta;
                 }
                 differences[name] = { max, mean: sum / output.values.length };
+                if(models[index].batchedReadback) {
+                    const direct = models.findIndex((model, at) => at < index && !model.batchedReadback && model.provider === 'webgpu'
+                        && model.type === 'float32' && resolve(model.path) === resolve(models[index].path));
+                    assert.ok(direct >= 0, 'Readback verification needs the ordinary WebGPU path for the identical model.');
+                    const expected = results[direct].patterns[sample].outputs[name];
+                    assert.deepEqual(output.dims, expected.dims);
+                    assert.deepEqual(output.values, expected.values, `Batched readback changed ${name} values on sample ${sample}`);
+                }
                 if(max > (name === '/output/policy' ? 0.2 : 0.01))
                     violations.push(`${result.name}: batch ${pattern.batch}, pattern ${pattern.pattern}, ${name} error ${max} exceeds bounds`);
             }

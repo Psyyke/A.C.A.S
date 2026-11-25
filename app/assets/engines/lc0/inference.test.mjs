@@ -183,6 +183,7 @@ test('rejects float16 if the GPU adapter lacks shader-f16', async () => {
     Object.defineProperty(globalThis, 'navigator', {
         configurable: true, value: { gpu: { async requestAdapter() { return { features: new Set() }; } } }
     });
+
     try {
         await assert.rejects(createBrowserInference(new ArrayBuffer(1), 'webgpu', () => {}, 'f16'), /shader-f16/);
         await assert.rejects(createBrowserInference(new ArrayBuffer(1), 'wasm', () => {}, 'f16'), /requires the WebGPU/);
@@ -190,6 +191,29 @@ test('rejects float16 if the GPU adapter lacks shader-f16', async () => {
         if(original) Object.defineProperty(globalThis, 'navigator', original);
         else delete globalThis.navigator;
     }
+});
+
+test('GPU startup requests high performance and rejects unavailable or software adapters before conversion', async () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+    try {
+        for(const adapter of [null, { info: { isFallbackAdapter: true } }]) {
+            Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { gpu: {
+                async requestAdapter(options) {
+                    assert.deepEqual(options, { powerPreference: 'high-performance' });
+                    return adapter;
+                }
+            } } });
+            await assert.rejects(createBrowserInference(new ArrayBuffer(1), 'webgpu', () => {}), /CPU fallback is disabled|software WebGPU adapter/);
+        }
+    } finally {
+        if(original) Object.defineProperty(globalThis, 'navigator', original);
+        else delete globalThis.navigator;
+    }
+});
+
+test('batched readback refuses CPU and lower precision rather than silently changing arithmetic', async () => {
+    await assert.rejects(createBrowserInference(new ArrayBuffer(1), 'wasm', () => {}, 'f32', { batchedReadback: true }), /requires float32 WebGPU/);
+    await assert.rejects(createBrowserInference(new ArrayBuffer(1), 'webgpu', () => {}, 'f16-mixed', { batchedReadback: true }), /requires float32 WebGPU/);
 });
 
 for(const [name, wdl, mlh, value, movesLeft, expected] of [

@@ -101,9 +101,9 @@ test('simple Maia 3 tool trains, selects a saved app profile, reloads and report
             } }));
         });
         const userscript = (await buildUserscript())
-            .replace("'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' }",
+            .replace("'hosts': { 'prod': 'acaschess.com', 'dev': 'localhost' }",
                 `'hosts': { 'prod': '${new URL(url).host}', 'dev': '${new URL(url).host}' }`)
-            .replace("'path': '/A.C.A.S/'", "'path': '/app/'");
+            .replace("'devPath': '/A.C.A.S/'", "'devPath': '/app/'");
         await page.addInitScript(userscript);
         await page.locator('#use-in-app').click();
         await page.waitForURL(`${url}/app/**`);

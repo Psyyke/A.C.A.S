@@ -39,9 +39,9 @@
 // @description:vi     Nâng cao hiệu suất cờ vua của bạn với hệ thống phân tích nước đi và hỗ trợ chiến thuật hiện đại
 // @description:uk     Покращуйте свою шахову гру з використанням передової системи аналізу ходів в режимі реального часу та стратегічної підтримки
 // @description:ru     Слава Украине
-// @homepageURL https://psyyke.github.io/A.C.A.S
-// @supportURL  https://github.com/Psyyke/A.C.A.S/tree/main#why-doesnt-it-work
-// @match       https://psyyke.github.io/A.C.A.S/*
+// @homepageURL https://acaschess.com/
+// @supportURL  https://acaschess.com/troubleshoot/
+// @match       https://acaschess.com/*
 // @match       http://localhost/*
 // @match       https://www.chess.com/*
 // @match       https://lichess.org/*
@@ -76,17 +76,17 @@
 // @grant       GM_notification
 // @grant       unsafeWindow
 // @run-at      document-start
-// @version     2.5.9
+// @version     2.6.0
 // @namespace   HKR
 // @author      HKR
 // @license     GPL-3.0
 // @require     https://update.greasyfork.org/scripts/534637/LegacyGMjs.js?acasv=2
 // @require     https://update.greasyfork.org/scripts/470418/CommLinkjs.js?acasv=7
-// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=2
+// @require     https://update.greasyfork.org/scripts/470417/UniversalBoardDrawerjs.js?acasv=10
 // @require     https://update.greasyfork.org/scripts/591079/1919285/AutomaticMove.js
 // @require     https://update.greasyfork.org/scripts/604137/1988721/DynamicSettingsjs.js
 // @require     https://update.greasyfork.org/scripts/604162/1988934/BoardChangeParserjs.js
-// @icon        https://raw.githubusercontent.com/Psyyke/A.C.A.S/main/assets/images/logo-192.png
+// @icon        https://acaschess.com/assets/images/logo-192.png
 // ==/UserScript==
 
 /*
@@ -121,8 +121,9 @@ Code below this point runs on any site, including the GUI.
 */
 
 const backendConfig = {
-    'hosts': { 'prod': 'psyyke.github.io', 'dev': 'localhost' },
-    'path': '/A.C.A.S/'
+    'hosts': { 'prod': 'acaschess.com', 'dev': 'localhost' },
+    'path': '/',
+    'devPath': '/A.C.A.S/'
 };
 
 const currentBackendUrlKey = 'currentBackendURL';
@@ -130,24 +131,27 @@ const currentBackendUrl = typeof GM_getValue === 'function'
     ? GM_getValue(currentBackendUrlKey)
     : await GM.getValue(currentBackendUrlKey);
 const isBackendUrlUpToDate = Object.values(backendConfig.hosts)
-    .some(x => currentBackendUrl?.includes(x));
+    .some(host => currentBackendUrl === constructBackendURL(host));
 const isDevPage = window?.location?.pathname?.includes('/dev');
 
-function constructBackendURL(host) {
-    const protocol = window.location.protocol + '//';
-    const hosts = backendConfig.hosts;
+function constructBackendURL(host = backendConfig.hosts.prod) {
+    const isDevHost = host === backendConfig.hosts.dev;
+    const protocol = isDevHost ? 'http:' : 'https:';
+    const path = isDevHost ? backendConfig.devPath : backendConfig.path;
 
-    return protocol + (host || (hosts?.prod || hosts?.path)) + backendConfig.path;
+    return `${protocol}//${host}${path}`;
 }
 
 function isRunningOnBackend(skipGM) {
     const hostsArr = Object.values(backendConfig.hosts);
 
-    const path = window?.location?.pathname;
-    const foundHost = hostsArr.find(host => host === window?.location?.host);
-    const isCorrectPath = path?.includes(backendConfig.path);
+    const foundHost = hostsArr.find(host => {
+        const backendUrl = new URL(constructBackendURL(host));
+        return window.location.origin === backendUrl.origin
+            && window.location.pathname.startsWith(backendUrl.pathname);
+    });
 
-    const isBackend = typeof foundHost === 'string' && isCorrectPath;
+    const isBackend = typeof foundHost === 'string';
 
     if(isBackend && !skipGM)
         GM_setValue(currentBackendUrlKey, constructBackendURL(foundHost));
@@ -197,7 +201,7 @@ function getCurrentBackendURL(skipGmStorage) {
     return prependProtocolWhenNeeded(gmStorageUrl);
 }
 
-if(!isBackendUrlUpToDate) {
+if(!isBackendUrlUpToDate && !runningOnBackend) {
     GM_setValue(currentBackendUrlKey, getCurrentBackendURL(true));
 }
 
@@ -388,7 +392,7 @@ const configKeys = Object.freeze([
     'renderPieceEnemyCapture', 'renderOnExternalSite', 'feedbackOnExternalSite',
     'enableMoveRatings', 'enableEnemyFeedback', 'feedbackEngineDepth',
     'enableAdvancedElo', 'moveAsFilledSquares',
-    'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost'
+    'movesOnDemand', 'onlySuggestPieces', 'isUserscriptGhost', 'ghostScreenOverlay'
 ].reduce((o, k) => (o[k] = k, o), {}));
 
 const config = {};
@@ -468,7 +472,7 @@ function getBoardState() {
 }
 
 const MAX_CONSECUTIVE_REJECTED_FENS = 5;
-const UNRESOLVED_POSITION_SETTLE_MS = 2000;
+const UNRESOLVED_POSITION_SETTLE_MS = 500;
 let unresolvedPosition = null;
 
 let BoardDrawer = null;
@@ -635,6 +639,7 @@ CommLink.registerSendCommand('calculateBestMoves');
 CommLink.registerSendCommand('calculateSpecificMoves');
 CommLink.registerSendCommand('forceInstanceRestart');
 CommLink.registerSendCommand('toggleConcealAssistance');
+CommLink.registerSendCommand('screenOverlay');
 
 CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
     try {
@@ -650,7 +655,7 @@ CommLink.registerListener(`backend_${commLinkInstanceID}`, packet => {
                 if(packet.data.fen && packet.data.fen !== gameState?.fen?.full) return false;
                 return updateUserscriptDynamicContext({ ...packet.data, gameStart: 0 });
             case 'renderVisualsToSite':
-                if(Array.isArray(packet.data) && packet.data[0]?.category === 'feedback') {
+                if(Array.isArray(packet.data) && ['feedback', 'pena-teaching'].includes(packet.data[0]?.category)) {
                     if(packet.data[0].feedbackFen && packet.data[0].feedbackFen !== gameState?.fen?.full) return false;
                     renderStuffToBoard(packet.data);
                     return true;
@@ -747,7 +752,8 @@ function createInputListener(listenerType, targetValue, callback) {
     };
 
     addListener('keydown', (e) => {
-        if(!targetValue.startsWith("Interact") && e.code === targetValue)
+        if(!targetValue.startsWith("Interact") && e.code === targetValue
+            && !e.composedPath().some(node => node?.isContentEditable || node?.matches?.('input, textarea, select')))
             runUserscriptTask(() => callback(e));
     });
 
@@ -874,9 +880,6 @@ async function makeMove(profile, fenMoveArr, isLegit) {
     }, e => {
         // This is ran when the move finished
 
-        if(debugModeActivated) {
-            console.warn('Move', fenMoveArr, move.id, 'finished', 'for profile:', profile);
-        }
     });
 }
 
@@ -922,6 +925,294 @@ function handleAutoMove(markings) {
 }
 
 const feedbackVisualRevisions = new Map();
+const penaVisualRevisions = new Map();
+
+// Keep the site's existing visual lifecycle while the actual SVG is drawn by
+// UniversalBoardDrawer in the local server's click-through window.
+class ScreenBoardDrawer {
+    constructor(boardElem, dimensions, orientation) {
+        this.boardElem = boardElem;
+        this.boardDimensions = { width: dimensions[0], height: dimensions[1] };
+        this.orientation = orientation;
+        this.addedShapes = [];
+        this.order = [];
+        this.customActivityListeners = [];
+        this.nextID = 1;
+        this.lastInputPositionStr = null;
+        this.lastInputPosition = null;
+        this.isInputDown = false;
+        this.hidden = false;
+        this.inFlight = false;
+        this.finalPublishPending = false;
+        this.lastSnapshot = '';
+        this.lastSentAt = 0;
+        this.terminated = false;
+        this.boardContainerElem = { style: {} };
+        Object.defineProperty(this.boardContainerElem.style, 'display', {
+            set: value => { this.hidden = value === 'none'; this.publish(); },
+            get: () => this.hidden ? 'none' : 'block'
+        });
+        this.onMove = event => this.handleInput(event);
+        this.onTouchStart = event => {
+            this.isInputDown = false;
+            this.handleInput(event, true);
+        };
+        this.onDown = event => {
+            this.isInputDown = false;
+            this.handleInput(event, true);
+            this.isInputDown = true;
+        };
+        this.onUp = () => { this.isInputDown = false; };
+        this.onVisibility = () => {
+            if(document.hidden || !document.hasFocus()) this.isInputDown = false;
+            this.publish();
+        };
+        document.addEventListener('mousemove', this.onMove);
+        document.addEventListener('touchstart', this.onTouchStart);
+        document.addEventListener('mousedown', this.onDown);
+        document.addEventListener('mouseup', this.onUp);
+        document.addEventListener('visibilitychange', this.onVisibility);
+        window.addEventListener('focus', this.onVisibility);
+        window.addEventListener('blur', this.onVisibility);
+        this.timer = setInterval(() => this.publish(), 100);
+        this.publish();
+    }
+
+    setOrientation(orientation) { this.orientation = orientation; this.publish(); }
+    setBoardDimensions([width, height]) {
+        this.boardDimensions = { width, height };
+        this.publish();
+    }
+    updateDimensions() { this.publish(); }
+
+    createShape(type, positions, config) {
+        const squares = Array.isArray(positions) ? positions : [positions];
+        if(!squares.every(square => {
+            const match = /^(.)(\d+)$/.exec(square);
+            return match && match[1].charCodeAt(0) > 96
+                && match[1].charCodeAt(0) - 96 <= this.boardDimensions.width
+                && Number(match[2]) >= 1 && Number(match[2]) <= this.boardDimensions.height;
+        })) return null;
+
+        const drawer = this;
+        const item = {
+            id: this.nextID++, type, positions, config,
+            display: /(?:^|;)\s*display\s*:\s*none\s*(?:;|$)/i.test(config?.style || '') ? 'none' : '',
+            animations: [], animationTimers: new Map(), ariaLabel: null, title: null, unsupported: null
+        };
+        const unsupported = operation => {
+            if(item.unsupported === operation) return;
+            item.unsupported = operation;
+            drawer.publish();
+        };
+        const shape = {
+            style: new Proxy({}, {
+                get: (_, property) => property === 'display' ? item.display : undefined,
+                set: (_, property, value) => {
+                    if(property === 'display') {
+                        item.display = value;
+                        drawer.publish();
+                    } else unsupported(`style.${String(property)}`);
+                    return true;
+                }
+            }),
+            setAttribute(name, value) {
+                if(name !== 'aria-label') return unsupported(`attribute.${name}`);
+                item.ariaLabel = String(value);
+                drawer.publish();
+            },
+            setDescription(value) {
+                item.ariaLabel = String(value);
+                item.title = String(value);
+                drawer.publish();
+            },
+            appendChild(child) {
+                if(child?.localName !== 'title') return unsupported('appendChild');
+                item.title = child.textContent;
+                drawer.publish();
+            },
+            remove() {
+                for(const timer of item.animationTimers.values()) clearTimeout(timer);
+                item.animationTimers.clear();
+                drawer.order = drawer.order.filter(entry => entry !== item);
+                drawer.publish();
+            },
+            animate(keyframes, options) {
+                const animation = { keyframes, options, start: Date.now() };
+                item.animations.push(animation);
+                const duration = Number(options?.duration);
+                if(Number.isFinite(duration) && duration >= 0 && !['forwards', 'both'].includes(options?.fill)) {
+                    item.animationTimers.set(animation, setTimeout(() => {
+                        item.animations = item.animations.filter(entry => entry !== animation);
+                        item.animationTimers.delete(animation);
+                        drawer.publish();
+                    }, duration));
+                }
+                drawer.publish();
+                return { cancel() {
+                    clearTimeout(item.animationTimers.get(animation));
+                    item.animationTimers.delete(animation);
+                    item.animations = item.animations.filter(entry => entry !== animation);
+                    drawer.publish();
+                } };
+            },
+            parentElement: {
+                appendChild() {
+                    drawer.order = drawer.order.filter(entry => entry !== item);
+                    drawer.order.push(item);
+                    drawer.publish();
+                },
+                prependChild() {
+                    drawer.order = drawer.order.filter(entry => entry !== item);
+                    drawer.order.unshift(item);
+                    drawer.publish();
+                }
+            }
+        };
+        item.element = shape;
+        this.addedShapes.push({ type, positions, config, element: shape });
+        this.order.unshift(item);
+        this.publish();
+        return shape;
+    }
+
+    addSquareListener(square, callback) {
+        const listener = { square, cb: callback };
+        this.customActivityListeners.push(listener);
+        return { remove: () => {
+            this.customActivityListeners = this.customActivityListeners.filter(item => item !== listener);
+        } };
+    }
+
+    handleInput(event, refresh = false) {
+        if(event.touches && !event.touches[0]) return;
+        const rect = this.getDrawingRect();
+        this.squareWidth = rect.width / this.boardDimensions.width;
+        this.squareHeight = rect.height / this.boardDimensions.height;
+        if(refresh && !this.isInputDown) {
+            const position = this.getCoordinatesFromInputPosition(event);
+            if(position.toString() === this.lastInputPositionStr && position[0] !== null) {
+                const square = this.coordinateToFen(position);
+                this.customActivityListeners.filter(item => item.square === square).forEach(item => item.cb('enter'));
+                return;
+            }
+        }
+        UniversalBoardDrawer.prototype.handleMouseEvent.call(this, event);
+    }
+
+    coordinateToFen(coordinates) {
+        return UniversalBoardDrawer.prototype.coordinateToFen.call(this, coordinates);
+    }
+
+    getCoordinatesFromInputPosition(event) {
+        const { left, top, width, height } = this.getDrawingRect();
+        const { clientX, clientY } = event.touches ? event.touches[0] : event;
+        if(!Number.isFinite(clientX) || !Number.isFinite(clientY) || width <= 0 || height <= 0
+            || clientX < left || clientX >= left + width || clientY < top || clientY >= top + height)
+            return [null, null];
+        return [Math.floor((clientX - left) / this.squareWidth) + 1,
+            Math.floor((clientY - top) / this.squareHeight) + 1];
+    }
+
+    getDrawingRect() {
+        const rect = this.boardElem.getBoundingClientRect();
+        const dimensions = [this.boardDimensions.width, this.boardDimensions.height];
+        let { left, top, width, height } = rect;
+        if(domain === 'chess.com' && window.location.pathname.includes('/variants')) {
+            if(dimensions[0] > dimensions[1]) {
+                const adjustedHeight = width * dimensions[1] / dimensions[0];
+                top += (height - adjustedHeight) / 2;
+                height = adjustedHeight;
+            }
+            else width = width * dimensions[0] / dimensions[1];
+        }
+        return { left, top, width, height };
+    }
+
+    snapshot() {
+        const { left, top, width, height } = this.getDrawingRect();
+        const dimensions = [this.boardDimensions.width, this.boardDimensions.height];
+        const browser = /Firefox\//.test(navigator.userAgent) ? 'firefox' : 'chromium';
+        const geometry = {
+            screenX: window.screenX, screenY: window.screenY,
+            outerWidth: window.outerWidth, outerHeight: window.outerHeight,
+            innerWidth: window.innerWidth, innerHeight: window.innerHeight,
+            dpr: window.devicePixelRatio, rect: { left, top, width, height }, browser
+        };
+        if(browser === 'firefox') {
+            geometry.mozInnerScreenX = window.mozInnerScreenX;
+            geometry.mozInnerScreenY = window.mozInnerScreenY;
+        }
+        const viewport = window.visualViewport;
+        const viewportStable = !viewport || Math.abs(viewport.scale - 1) < 0.001
+            && Math.abs(viewport.offsetLeft) < 0.001 && Math.abs(viewport.offsetTop) < 0.001;
+        const visible = !this.hidden && !this.terminated && this.boardElem.isConnected && viewportStable
+            && !document.hidden && document.hasFocus() && window.top === window
+            && width > 0 && height > 0 && left >= 0 && top >= 0
+            && left + width <= window.innerWidth && top + height <= window.innerHeight;
+        return {
+            instanceId: commLinkInstanceID, visible, geometry, orientation: this.orientation,
+            dimensions, shapes: this.order.map(({ id, type, positions, config, display, animations, ariaLabel, title, unsupported }) => ({
+                id, type, positions, config, display, animations,
+                ...(ariaLabel !== null ? { ariaLabel } : {}),
+                ...(title !== null ? { title } : {}),
+                ...(unsupported !== null ? { unsupported } : {})
+            })).sort((a, b) => Number(a.type === 'text') - Number(b.type === 'text'))
+        };
+    }
+
+    publish(final = false) {
+        if(this.terminated && !final) return;
+        if(this.inFlight) {
+            if(final) this.finalPublishPending = true;
+            return;
+        }
+        const snapshot = this.snapshot();
+        const serialized = JSON.stringify(snapshot);
+        if(serialized === this.lastSnapshot && Date.now() - this.lastSentAt < 1000) return;
+        this.inFlight = true;
+        Promise.resolve().then(() => CommLink.commands.screenOverlay(snapshot)).then(result => {
+            if(result) {
+                this.lastSnapshot = serialized;
+                this.lastSentAt = Date.now();
+            }
+        }).catch(recordDevTaskError).finally(() => {
+            this.inFlight = false;
+            if(this.finalPublishPending) {
+                this.finalPublishPending = false;
+                this.publish(true);
+            }
+        });
+    }
+
+    terminate() {
+        this.hidden = true;
+        this.publish(true);
+        this.terminated = true;
+        clearInterval(this.timer);
+        document.removeEventListener('mousemove', this.onMove);
+        document.removeEventListener('touchstart', this.onTouchStart);
+        document.removeEventListener('mousedown', this.onDown);
+        document.removeEventListener('mouseup', this.onUp);
+        document.removeEventListener('visibilitychange', this.onVisibility);
+        window.removeEventListener('focus', this.onVisibility);
+        window.removeEventListener('blur', this.onVisibility);
+        this.customActivityListeners = [];
+    }
+}
+
+function animateTeachingShape(shape, marking, previous = null) {
+    if(marking.persistent) return null;
+    const now = Date.now();
+    const duration = Math.max(0, marking.expiresAt - now);
+    const fadeAt = marking.fadeAt ?? now + duration * 0.8;
+    const opacityOf = item => item.persistent ? 1 : Math.max(0, Math.min(1,
+        (item.expiresAt - now) / Math.max(1, item.expiresAt - (item.fadeAt ?? now))));
+    const opacity = Math.min(opacityOf({ ...marking, fadeAt }),
+        previous && fadeAt <= now && marking.expiresAt <= previous.expiresAt ? opacityOf(previous) : 1);
+    return shape.animate?.([{ opacity }, { opacity, offset: Math.max(0, Math.min(1,
+        (fadeAt - now) / Math.max(1, duration))) }, { opacity: 0 }], { duration, fill: 'forwards' });
+}
 
 function renderStuffToBoard(markings) {
     if(!BoardDrawer || !Array.isArray(markings) || !markings.length) {
@@ -930,6 +1221,21 @@ function renderStuffToBoard(markings) {
 
     const profileID = markings[0]?.profileID;
     const category = markings[0]?.category;
+
+    if(category === 'pena-teaching') {
+        const { teachingRevision, positionFen } = markings[0];
+        if(!Number.isFinite(teachingRevision) || teachingRevision <= (penaVisualRevisions.get(profileID) || 0)) return;
+        penaVisualRevisions.set(profileID, teachingRevision);
+        if(!getConfigValue(configKeys.displayMovesOnExternalSite, profileID)
+            || positionFen !== gameState?.fen?.full || positionFen?.split(' ')[0] !== getFen(true)) {
+            clearVisuals({ profileID, category });
+            return;
+        }
+        markings = markings.filter(marking => marking.shapeType && marking.expiresAt > Date.now());
+        const retainTeachingIDs = new Set(markings.map(marking => marking.teachingID).filter(Number.isFinite));
+        clearVisuals({ profileID, category, retainTeachingIDs });
+        if(!markings.length) return;
+    }
 
     // A rating can cross the CommLink after another move has already reached
     // the DOM. Never draw it (or clear newer feedback) on that newer position.
@@ -951,12 +1257,31 @@ function renderStuffToBoard(markings) {
     if(markings.some(marking => marking?.shapeType && marking.positionFen
         && marking.positionFen.split(' ')[0] !== boardFen)) return;
 
-    clearVisuals({
+    let metricMatches = null;
+    let metricOrderChanged = false;
+    if(category === 'metric' && profileID) {
+        const previous = activeVisuals.filter(item => item.marking.profileID === profileID && item.marking.category === category);
+        const available = new Map();
+        for(const entry of previous) {
+            const key = JSON.stringify(entry.marking);
+            if(!available.has(key)) available.set(key, []);
+            available.get(key).push(entry);
+        }
+        metricMatches = markings.map(marking => {
+            if(!marking?.shapeType || !marking?.shapeSquare || !marking?.shapeConfig) return null;
+            return available.get(JSON.stringify(marking))?.shift() || null;
+        });
+        const removed = [...available.values()].flat();
+        if(removed.length) clearVisuals({ profileID, category, shapes: new Set(removed.map(entry => entry.shape)) });
+        metricOrderChanged = removed.length > 0 || metricMatches.length !== previous.length
+            || metricMatches.some((entry, index) => entry !== previous[index]);
+    } else if(category !== 'pena-teaching') clearVisuals({
         profileID,
         category
     });
 
-    markings.forEach(marking => {
+    const orderedMetrics = [];
+    markings.forEach((marking, index) => {
         const {
             shapeType,
             shapeSquare,
@@ -970,6 +1295,35 @@ function renderStuffToBoard(markings) {
             return;
         }
 
+        const matchingMetric = metricMatches?.[index];
+        if(matchingMetric) {
+            matchingMetric.marking = marking;
+            matchingMetric.boardFen = boardFen;
+            orderedMetrics.push(matchingMetric);
+            return;
+        }
+
+        const existing = category === 'pena-teaching' && Number.isFinite(marking.teachingID)
+            && activeVisuals.find(item => item.marking.category === category && item.marking.profileID === profileID
+                && item.marking.teachingID === marking.teachingID);
+        if(existing) {
+            if(marking.teachingPulse > existing.marking.teachingPulse && shapeType !== 'text')
+                existing.shape.animate?.([{ strokeOpacity: 0.4 }, { strokeOpacity: 1 }, { strokeOpacity: 0.4 }],
+                    { duration: 320 });
+            if(marking.expiresAt !== existing.marking.expiresAt || marking.persistent !== existing.marking.persistent
+                || marking.fadeAt !== existing.marking.fadeAt) {
+                clearTimeout(existing.expiryTimer);
+                const previousAnimation = existing.animation;
+                existing.animation = animateTeachingShape(existing.shape, marking, existing.marking);
+                previousAnimation?.cancel();
+                existing.expiryTimer = setTimeout(() => {
+                    if(activeVisuals.includes(existing)) clearVisuals({ profileID, category, shapes: new Set([existing.shape]) });
+                }, Math.max(0, marking.expiresAt - Date.now()));
+            }
+            existing.marking = marking;
+            return;
+        }
+
         const shape = BoardDrawer.createShape(
             shapeType,
             shapeSquare,
@@ -979,12 +1333,17 @@ function renderStuffToBoard(markings) {
         if(!shape) {
             return;
         }
+        const animation = category === 'pena-teaching' ? animateTeachingShape(shape, marking) : null;
 
         if(marking.feedbackDescription) {
-            shape.setAttribute('aria-label', marking.feedbackDescription);
-            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-            title.textContent = marking.feedbackDescription;
-            shape.appendChild(title);
+            if(BoardDrawer instanceof ScreenBoardDrawer) {
+                shape.setDescription(marking.feedbackDescription);
+            } else {
+                shape.setAttribute('aria-label', marking.feedbackDescription);
+                const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                title.textContent = marking.feedbackDescription;
+                shape.appendChild(title);
+            }
         }
 
         let hoverListener = null;
@@ -1006,14 +1365,31 @@ function renderStuffToBoard(markings) {
             shape.parentElement?.appendChild(shape);
         }
 
-        activeVisuals.push({
+        const entry = {
             marking,
             shape,
+            animation,
             hoverListener,
             boardFen
-        });
+        };
+        activeVisuals.push(entry);
+        if(metricMatches) orderedMetrics.push(entry);
+        if(category === 'pena-teaching') entry.expiryTimer = setTimeout(() => {
+            if(activeVisuals.includes(entry)) clearVisuals({ profileID, category, shapes: new Set([shape]) });
+        }, Math.max(0, marking.expiresAt - Date.now()));
     });
 
+    if(metricOrderChanged) {
+        for(const { shape } of orderedMetrics) {
+            if(shape.parentElement?.prependChild) shape.parentElement.prependChild();
+            else shape.parentElement?.prepend(shape);
+        }
+        for(const { shape, marking } of orderedMetrics) {
+            if(marking.bringToFront) shape.parentElement?.appendChild(shape);
+        }
+        activeVisuals = activeVisuals.filter(entry =>
+            entry.marking.profileID !== profileID || entry.marking.category !== category).concat(orderedMetrics);
+    }
     maybeAnnounceMarkingsToPage();
 }
 
@@ -1021,9 +1397,11 @@ function clearVisuals({
     noMetricsRemoval = false,
     profileID = null,
     category = null,
-    staleForFen = null
+    staleForFen = null,
+    retainTeachingIDs = null,
+    shapes = null
 } = {}) {
-    const shouldRemove = (marking, boardFen) => {
+    const shouldRemove = (marking, boardFen, shape) => {
         if(staleForFen && boardFen === staleForFen) {
             return false;
         }
@@ -1039,22 +1417,30 @@ function clearVisuals({
         if(noMetricsRemoval && marking?.category === 'metric') {
             return false;
         }
+        if(retainTeachingIDs?.has(marking?.teachingID) || shapes && !shapes.has(shape)) return false;
 
         return true;
     };
 
     const removalArr = activeVisuals.filter(
-        item => shouldRemove(item.marking, item.boardFen)
+        item => shouldRemove(item.marking, item.boardFen, item.shape)
     );
 
     activeVisuals = activeVisuals.filter(
-        item => !shouldRemove(item.marking, item.boardFen)
+        item => !shouldRemove(item.marking, item.boardFen, item.shape)
     );
 
-    removalArr.forEach(({ shape, hoverListener }) => {
-        hoverListener?.remove();
+    removalArr.forEach(({ shape, hoverListener, expiryTimer, animation }) => {
+        clearTimeout(expiryTimer);
+        // Removing first prevents the screen drawer publishing the unfaded base shape.
         shape?.remove();
+        animation?.cancel();
+        hoverListener?.remove();
     });
+    if(BoardDrawer?.addedShapes) {
+        const removed = new Set(removalArr.map(item => item.shape));
+        BoardDrawer.addedShapes = BoardDrawer.addedShapes.filter(item => !removed.has(item.element));
+    }
 }
 
 function displayImportantNotification(title, text) {
@@ -1216,7 +1602,7 @@ function getBoardDimensionsFromSize() {
 // Dimensions are [width, height]; legacy lastBoardRanks/Files mean width/height.
 const BoardCoordinates = Object.freeze({
     invalid(value) {
-        if(debugModeActivated) console.warn('Invalid board coordinates:', value);
+        recordDevTaskError(new Error('Invalid board coordinates.'));
         // Keep the pair shape for callers that destructure; never use a real square as fallback.
         return [NaN, NaN];
     },
@@ -1469,6 +1855,7 @@ function addMovesOnDemandListeners() {
     if(!BoardDrawer) return;
 
     function handle() {
+        if(!isMovesOnDemandActive) return;
         if((lastProcessedSquareFen !== modLastEnteredSquare.squareFen) || !modLastEnteredSquare.squareFen) {
             const lastIdx = modLastEnteredSquare.squareIndex;
 
@@ -1529,6 +1916,13 @@ function addMovesOnDemandListeners() {
                             modLastEnteredSquare.squareFen = squareFen;
                             modLastEnteredSquare.squareIndex = [x, y];
 
+                            break;
+                        case 'leave':
+                            if(modLastEnteredSquare.squareFen === squareFen) {
+                                modLastEnteredSquare.pieceFen = null;
+                                modLastEnteredSquare.squareFen = null;
+                                modLastEnteredSquare.squareIndex = null;
+                            }
                             break;
                     }
                 });
@@ -1592,7 +1986,8 @@ function isBoardDrawerNeeded() {
         const config = GM_getValue(dbValues.AcasConfig);
         const gP = config?.global?.['profiles'];
         const iP = config?.instance?.[commLinkInstanceID]?.['profiles'];
-        if(config?.global?.[configKeys.isUserscriptGhost]) return false;
+        if(config?.global?.[configKeys.isUserscriptGhost]
+            && !config?.global?.[configKeys.ghostScreenOverlay]) return false;
 
         function check(cfg) {
             if(!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) return false;
@@ -1843,7 +2238,7 @@ function getBoardMatrix() {
                 const [column, row] = BoardCoordinates.toMatrix(pieceCoordsArr, [boardRanks, boardFiles]);
                 board[row][column] = pieceFenCode;
             } catch(e) {
-                if(debugModeActivated) console.error(e);
+                recordDevTaskError(e);
             }
         });
     }
@@ -2136,12 +2531,13 @@ async function determineBoardPositionValidity() {
 async function restartInstanceWithCurrentFen() {
     try {
         clearRejectedFenStreak();
-        forceUpdateGameState();
+        resetStoredMatchVariables();
         lastAllowedFen = gameState.fen.basic || getFen(true);
-        clearRejectedFenStreak();
         setBoardState({ fen: gameState.fen.full, ...(gameState.turn && { turn: gameState.turn }) });
         await CommLink.commands.forceInstanceRestart();
-    } catch(error) { }
+    } catch(error) {
+        recordDevTaskError(error);
+    }
 }
 
 function forceUpdateGameState() {
@@ -2288,9 +2684,8 @@ function updateGameState(basicFenToProcess, boardChanges, forceFen, forcedTurn) 
         }
     };
 
-    // First state of this match (e.g. page loaded mid-game)
-    // Derive the impossible castling rights from the board itself.
-    if(!stateHistory.length) seedLostCastlingRights(basicFenToProcess);
+    // Missing moves can include castling, king moves or rook captures.
+    if(!stateHistory.length || historyGap) seedLostCastlingRights(basicFenToProcess);
     
     if(isWhiteKingMove) loseCastlingRights('K', 'Q');
     if(isBlackKingMove) loseCastlingRights('k', 'q');
@@ -2467,7 +2862,7 @@ function observeNewMoves() {
 
             checkPosition();
         } catch(e) {
-            if(debugModeActivated) console.error(e);
+            recordDevTaskError(e);
         }
     });
 
@@ -3495,7 +3890,7 @@ addSupportedChessSite('app.edchess.io', {
 });
 
 addSupportedChessSite([
-    backendConfig?.hosts?.prod || 'psyyke.github.io',
+    backendConfig?.hosts?.prod || 'acaschess.com',
     backendConfig?.hosts?.dev || 'localhost'
 ], {
     'turn': obj => {
@@ -3611,22 +4006,27 @@ async function start(boardElem = chessBoardElem) {
     const created = await CommLink.commands.createInstance(commLinkInstanceID);
     if(!created || !boardElem.isConnected || boardElem !== chessBoardElem) return false;
 
+    clearVisuals();
+    BoardDrawer?.terminate();
+    BoardDrawer = null;
     if(isBoardDrawerNeeded()) {
-        if(BoardDrawer) BoardDrawer?.terminate();
-
-        BoardDrawer = new UniversalBoardDrawer(chessBoardElem, {
+        const globalConfig = GM_getValue(dbValues.AcasConfig)?.global;
+        const screenOverlay = globalConfig?.[configKeys.isUserscriptGhost] && globalConfig?.[configKeys.ghostScreenOverlay];
+        BoardDrawer = screenOverlay ? new ScreenBoardDrawer(chessBoardElem, getBoardDimensions(), boardOrientation)
+            : new UniversalBoardDrawer(chessBoardElem, {
             'window': window,
             'boardDimensions': getBoardDimensions(),
             'playerColor': getBoardOrientation(),
             'zIndex': Math.floor(Math.random() * 90) + 10,
             'prepend': true,
             'debugMode': debugModeActivated,
+            'onError': recordDevTaskError,
             'adjustSizeByDimensions': domain === 'chess.com' && pathname?.includes('/variants'),
             'adjustSizeConfig': {
                 'noLeftAdjustment': true
             },
             'ignoreBodyRectLeft': domain === 'app.edchess.io'
-        });
+            });
 
         const waitForBoardMatrix = setInterval(() => {
             if(lastBoardMatrix) {
@@ -3782,7 +4182,6 @@ setInterval(() => runUserscriptTask(initializeIfSiteReady), 100);
 setInterval(refreshSettings, 2500);
 
 } catch(e) { // Attempt to catch all errors on userscript (Note: ONLY LOG DURING DEVELOPMENT. ERRORS EXPOSE USERSCRIPT TO THE PAGE!)
-    //console.warn(e);
 }})(); // Wraps around the whole userscript to enable async.
 
 /*////////////////////////////////////////////////////////////////

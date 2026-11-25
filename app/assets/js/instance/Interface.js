@@ -9,6 +9,7 @@ import { getVariantPgn } from '../misc/moveNotation.js';
 import { variantConfig, getAmazonsShot } from '../misc/variantPosition.js';
 import MoveEvaluator from '../MoveEvaluator.js';
 import { getMoveWarning as classifyMoveWarning, moveSelection } from '../misc/moveSelection.js';
+import { getArrowStyle, moveArrowConfig } from '../misc/arrowStyle.js';
 
 const moveEvaluator = new MoveEvaluator(false);
 const WARNING_TYPES = ['mistake', 'blunder', 'miss'];
@@ -53,36 +54,6 @@ function computeArrowScale(index, total) {
     return maxScale - minScale * (index / Math.max(total - 1, 2));
 }
 
-function getArrowStyle(type, fill, opacity) {
-    const getBaseStyleModification = (f, o) => [
-        'stroke: rgb(0 0 0 / 50%);',
-        'stroke-width: 0.5%;',
-        'stroke-linejoin: round;',
-        `fill: ${fill ?? f};`,
-        `opacity: ${opacity ?? o};`
-    ].join('\n');
-
-    switch(type) {
-        case 'best':
-            return getBaseStyleModification('limegreen', 0.9);
-        case 'secondary':
-            return getBaseStyleModification('dodgerblue', 0.7);
-        case 'opponent':
-            return getBaseStyleModification('crimson', 0.3);
-        case 'book':
-            return getBaseStyleModification('#00d4ff', 0.75);
-        case 'future':
-            return [
-                'stroke: rgb(0 0 0 / 40%);',
-                'stroke-width: 0.3%;',
-                'stroke-linejoin: round;',
-                'stroke-dasharray: 2;',
-                'fill: rgb(255 255 255 / 20%);',
-                `opacity: ${opacity};`
-            ].join('\n');
-    }
-}
-
 export default class Interface {
     constructor(instance) {
         this.AcasInstance = instance;
@@ -101,13 +72,7 @@ export default class Interface {
         return {
             shapeType: 'arrow',
             shapeSquare: [move.from, move.to],
-            shapeConfig: {
-                style: getArrowStyle('book', color, opacity),
-                lineWidth: 30 * scale,
-                arrowheadWidth: 80 * scale,
-                arrowheadHeight: 60 * scale,
-                startOffset: 30
-            }
+            shapeConfig: moveArrowConfig('book', color, opacity, scale)
         };
     }
 
@@ -142,13 +107,7 @@ export default class Interface {
         return {
             shapeType: 'arrow',
             shapeSquare: [move.player[0], move.player[1]],
-            shapeConfig: {
-                style: getArrowStyle(isFuture ? 'future' : 'best', fillColor, arrowOpacity),
-                lineWidth: 30 * scale,
-                arrowheadWidth: 80 * scale,
-                arrowheadHeight: 60 * scale,
-                startOffset: 30
-            }
+            shapeConfig: moveArrowConfig(isFuture ? 'future' : 'best', fillColor, arrowOpacity, scale)
         };
     }
 
@@ -468,7 +427,8 @@ export default class Interface {
             // any others drawn before it.
             if(shapes[0].bringToFront && elems.length) {
                 const parent = elems[0].parentElement;
-                elems.forEach(elem => parent.appendChild(elem));
+                elems.forEach(elem => elem.localName === 'text' ? parent.appendChild(elem)
+                    : parent.insertBefore(elem, parent.querySelector('text')));
             }
 
             this.AcasInstance.pV[profile].activeGuiMoveMarkings.push({ otherElems: elems });
@@ -738,13 +698,6 @@ export default class Interface {
 
         const instanceElem = this?.AcasInstance?.instanceElem;
         const instanceFenElem = instanceElem?.querySelector('.instance-fen');
-        const instancePgnElem = instanceElem?.querySelector('.instance-pgn');
-        const instanceOpeningElem = instanceElem?.querySelector('.instance-opening-container span');
-
-        if(!instanceFenElem || !instancePgnElem || !instanceOpeningElem) {
-            console.error('Cannot update fen, could not find the correct elements from the instance document.');
-            return;
-        }
 
         this.AcasInstance.engineStopCalculating(false, 'New board FEN, any running calculations are now useless!');
         this.removeMarkings(null, 'New board FEN');
@@ -758,6 +711,9 @@ export default class Interface {
                 });
             }
             this.AcasInstance.currentFen = fen;
+            if(typeof document !== 'undefined') document.dispatchEvent(new CustomEvent('acas-board-position', {
+                detail: { instance: this.AcasInstance }
+            }));
             // Cancel stale calculations and board markings immediately.
             // Keep the latest feedback text visible while the next rating is calculated.
             prepareFeedbackPosition.call(this.AcasInstance, fen);
@@ -768,7 +724,7 @@ export default class Interface {
             });
             await this.AcasInstance.syncDynamicSettings();
             if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen || this.AcasInstance.instanceClosed) return;
-            instanceFenElem.innerText = fen;
+            if(instanceFenElem) instanceFenElem.innerText = fen;
 
             await this.updateLearningBoard();
             if(this.boardUpdateRequest !== request || this.AcasInstance.currentFen !== fen) return;
@@ -801,15 +757,17 @@ export default class Interface {
             console.error('[Engine] Board update calculation failed:', error));
 
         if(this.AcasInstance.debugLogsEnabled) {
-            const origin = (typeof location !== 'undefined' && location.origin) ? location.origin : '';
             const fens = [this.AcasInstance.currentFen, fen];
             const fensString = fens.map(x => x.split(' ')[0]).join(',');
+            const boardUrl = new URL('../../../../board/', import.meta.url);
+            boardUrl.searchParams.set('fens', fensString);
+            boardUrl.searchParams.set('o', this.AcasInstance.lastOrientation);
 
             console.warn(
                 '%c[ NEW FEN RECEIVED! ]', 'color: neon; font-weight: bold; font-size: 50px;'
             );
             console.warn(
-                '[Logical Change Detection] New board FEN received:', `${origin}/A.C.A.S/board/?fens=${fensString}&o=${this.AcasInstance.lastOrientation}`,
+                '[Logical Change Detection] New board FEN received:', boardUrl.href,
                 { fen, currentStateObj }
             );
         }

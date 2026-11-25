@@ -70,7 +70,7 @@ self.onmessage = async ({ data }) => {
             if(browserBackend)
                 engine.ccall('lc0_send', null, ['string'], ['setoption name Backend value browser-onnx']);
             state = 'ready';
-            self.postMessage({ type: 'ready' });
+            self.postMessage({ type: 'ready', ...(browserBackend?.deviceInfo ? { inference: browserBackend.deviceInfo } : {}) });
         } else if(data.type === 'uci') {
             if(state !== 'ready') throw new Error('Lc0 is not ready.');
             if(typeof data.line !== 'string' || /[\r\n\0]/.test(data.line))

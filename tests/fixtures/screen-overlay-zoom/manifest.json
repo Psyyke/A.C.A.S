@@ -1,0 +1,7 @@
+{
+  "manifest_version": 3,
+  "name": "ACAS isolated overlay alignment test",
+  "version": "1.0",
+  "permissions": ["tabs"],
+  "background": { "service_worker": "worker.js" }
+}

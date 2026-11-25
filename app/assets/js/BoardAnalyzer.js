@@ -98,111 +98,46 @@ export default class BoardAnalyzer {
         return getVariantPiecePaths(this.board, pObj.piece, pObj.position, this.variant, this.isPlayerBlack);
     }
 
-    createPathLookup(pieces) {
-        const lookup = {};
-
-        for(let pObj of pieces) {
-            const id = pObj.piece + pObj.position.join(',');
-
-            lookup[id] = new Set(pObj.paths.map(path => path.join(',')));
-
-            pObj.id = id;
-        }
-
-        return lookup;
-    }
-
     analyze() {
         const { player, enemy } = this.pieces;
-
-        const boardWidth = this.boardWidth;
-        const boardHeight = this.boardHeight;
-
-        // Preprocess paths for faster lookup (player and enemy)
-        const playerPaths = this.createPathLookup(player);
-        const enemyPaths = this.createPathLookup(enemy);
-
-        // Analyze protection, attacks, and capture danger for a set of pieces
-        const analyzePieces = (pieces, opponentPieces, piecePaths, opponentPaths) => {
-            for(let pObj of pieces) {
-                const pos = pObj.position;
-
-                // Detect who defends the current piece
-                pObj.defendedBy = pieces.filter(x => piecePaths[x.id]?.has(pos.join(',')));
-                // Detect attacks on the current piece by opponent
-                pObj.attackedBy = opponentPieces.filter(x => opponentPaths[x.id]?.has(pos.join(',')));
-
-                // Preserve exact orthodox exchanges. Variants deliberately use a
-                // rough geometric estimate instead of another engine/rules system.
-                pObj.captureLoss = this.captureExchange?.captureLoss(this.indexToFen(pos)) ?? null;
-                pObj.captureDanger = this.analyzeCaptures && (this.captureExchange?.valid
-                    ? pObj.captureLoss > 0
-                    : pObj.attackedBy.length > 0 && (pObj.defendedBy.length < pObj.attackedBy.length
-                        || pObj.attackedBy.some(attacker => attacker.ranking > 0 && attacker.ranking < pObj.ranking)));
+        const width = this.boardWidth, height = this.boardHeight;
+        const index = ([row, col]) => row * width + col;
+        const collectAttackers = pieces => {
+            const lookup = Array.from({ length: width * height }, () => []);
+            for(const piece of pieces) {
+                piece.id = piece.piece + piece.position.join(',');
+                for(const path of piece.paths) lookup[index(path)].push(piece);
+            }
+            return lookup;
+        };
+        const playerPaths = collectAttackers(player);
+        const enemyPaths = collectAttackers(enemy);
+        const analyzePieces = (pieces, ownPaths, opposingPaths) => {
+            for(const piece of pieces) {
+                const square = index(piece.position);
+                piece.defendedBy = ownPaths[square];
+                piece.attackedBy = opposingPaths[square];
+                piece.captureLoss = this.captureExchange?.captureLoss(this.indexToFen(piece.position)) ?? null;
+                piece.captureDanger = this.analyzeCaptures && (this.captureExchange?.valid
+                    ? piece.captureLoss > 0
+                    : piece.attackedBy.length > 0 && (piece.defendedBy.length < piece.attackedBy.length
+                        || piece.attackedBy.some(attacker => attacker.ranking > 0 && attacker.ranking < piece.ranking)));
             }
         };
-
-        analyzePieces(player, enemy, playerPaths, enemyPaths);
-        analyzePieces(enemy, player, enemyPaths, playerPaths);
-
-        const analyzeSquares = () => {
-            const result = {
-                safe: [],
-                playerOnly: [],
-                enemyOnly: [],
-                contested: []
-            };
-
-            const playerSeenCounts = new Map();
-            const enemySeenCounts = new Map();
-
-            // Collect squares that the player's pieces see
-            for(let piece in playerPaths) {
-                let squares = playerPaths[piece];
-
-                squares.forEach(square => {
-                    playerSeenCounts.set(square, (playerSeenCounts.get(square) || 0) + 1);
-                });
+        analyzePieces(player, playerPaths, enemyPaths);
+        analyzePieces(enemy, enemyPaths, playerPaths);
+        const squares = { safe: [], playerOnly: [], enemyOnly: [], contested: [] };
+        for(let row = 0; row < height; row++) {
+            for(let col = 0; col < width; col++) {
+                if(this.board[row][col] === '*') continue;
+                const square = [row, col], squareIndex = row * width + col;
+                const playerCount = playerPaths[squareIndex].length, enemyCount = enemyPaths[squareIndex].length;
+                if(!playerCount && !enemyCount) squares.safe.push(square);
+                else if(!enemyCount) squares.playerOnly.push(square);
+                else if(!playerCount) squares.enemyOnly.push(square);
+                else squares.contested.push({ square, counts: { playerCount, enemyCount } });
             }
-
-            // Collect squares that the enemy's pieces see
-            for(let piece in enemyPaths) {
-                let squares = enemyPaths[piece];
-
-                squares.forEach(square => {
-                    enemySeenCounts.set(square, (enemySeenCounts.get(square) || 0) + 1);
-                });
-            }
-
-            // Loop through all possible squares on the board
-            for(let row = 0; row < boardHeight; row++) {
-                for(let col = 0; col < boardWidth; col++) {
-                    const square = `${row},${col}`;
-                    if(this.board[row][col] === '*') continue;
-
-                    const playerCount = playerSeenCounts.get(square) || 0;
-                    const enemyCount = enemySeenCounts.get(square) || 0;
-
-                    if(playerCount === 0 && enemyCount === 0) {
-                        result.safe.push([row, col]); // Safe squares
-
-                    } else if(playerCount > 0 && enemyCount === 0) {
-                        result.playerOnly.push([row, col]); // Seen only by player
-
-                    } else if(enemyCount > 0 && playerCount === 0) {
-                        result.enemyOnly.push([row, col]); // Seen only by enemy
-
-                    } else if(playerCount > 0 && enemyCount > 0) {
-                        result.contested.push({ square: [row, col], counts: {playerCount, enemyCount} });
-                    }
-                }
-            }
-
-            return result;
-        };
-
-        const squares = analyzeSquares();
-
+        }
         return { player, enemy, squares };
     }
 }
