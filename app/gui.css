@@ -1020,7 +1020,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     align-items: center;
 }
 @media (max-width: 600px) {
-	.tos-checkbox-label a {
+	.tos-checkbox-label {
 		font-size: 14px;
 	}
 }
@@ -1031,7 +1031,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     .tos-description {
         font-size: 15px;
     }
-	.tos-checkbox-label a {
+	.tos-checkbox-label {
 		font-size: 12px;
 	}
 }
@@ -1054,6 +1054,7 @@ body:has(#install-notification:not(.hidden)) #acas-settings-container {
     font-weight: 300;
 }
 .tos-checkbox-label a {
+	font-size: inherit;
 	color: #b7efc2;
 	text-decoration: none;
 	border-bottom: 1px solid #5b9c68;
@@ -2624,6 +2625,15 @@ input[type="number"]::-webkit-outer-spin-button {
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
 }
+/* These panels scroll their bodies, so their headers can reuse the main glass
+   surface instead of compositing a second backdrop blur over the same area. */
+#log-floaty .floaty-header,
+#dynamic-settings-floaty .floaty-header,
+.pena-window .floaty-header {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
 #log-floaty {
     width: min(960px, calc(100vw - 32px));
     max-width: 95vw;
@@ -3868,24 +3878,20 @@ input[type="number"]::-webkit-outer-spin-button {
     clip-path: inset(50%);
     white-space: nowrap;
 }
-#dynamic-settings-floaty #dynamic-fit-graph,
-#dynamic-settings-floaty #dynamic-fullscreen-toggle {
+#dynamic-settings-floaty .dynamic-settings-toolbar > .dynamic-graph-icon-button {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 34px;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    padding: 0;
 }
-#dynamic-settings-floaty #dynamic-fit-graph svg {
-    width: 18px;
-    height: 18px;
-}
-#dynamic-settings-floaty #dynamic-fullscreen-toggle svg {
-    width: 18px;
-    height: 18px;
-}
-#dynamic-settings-floaty :is(#dynamic-zoom-in, #dynamic-zoom-out) {
-    font-size: 18px;
-    line-height: 1;
+#dynamic-settings-floaty .dynamic-graph-icon-button svg {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
 }
 #dynamic-settings-floaty #dynamic-fit-graph svg path {
     stroke-width: 2.4;
@@ -4364,16 +4370,10 @@ input[type="number"]::-webkit-outer-spin-button {
         padding: 8px 16px;
         font-size: var(--dynamic-control-font-size);
     }
-    #dynamic-settings-floaty #dynamic-fit-graph svg {
-        width: 15px;
-        height: 15px;
-    }
-    #dynamic-settings-floaty #dynamic-fullscreen-toggle svg {
-        width: 15px;
-        height: 15px;
-    }
-    #dynamic-settings-floaty :is(#dynamic-zoom-in, #dynamic-zoom-out) {
-        font-size: 17px;
+    #dynamic-settings-floaty .dynamic-settings-toolbar > .dynamic-graph-icon-button {
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
     }
 }
 @media (max-width: 700px) and (max-height: 500px) and (orientation: landscape), (pointer: coarse) and (max-width: 1100px) and (max-height: 500px) and (orientation: landscape) {

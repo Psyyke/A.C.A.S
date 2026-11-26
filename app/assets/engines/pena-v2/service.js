@@ -1089,6 +1089,7 @@ async function startWorker() {
         else if(data?.type === 'ready') {
             ui.loading.hidden = true;
             ui.setup.hidden = true;
+            ui.serverDownload.hidden = true;
             ui.status.classList.remove('is-error', 'is-setup');
             pena.setupAction = null;
             setStatus('');
@@ -1115,6 +1116,7 @@ async function startWorker() {
                 setPenaText(ui.loadingText, '');
             }
             ui.setup.hidden = !view.action;
+            ui.serverDownload.hidden = Boolean(data.connected && data.setup);
             if(view.action) setPenaText(ui.setup, view.actionLabel);
             if(interrupted) failure(new Error(data.error || penaText('serverDisconnected')));
         } else if(data?.type === 'error') {
@@ -1154,6 +1156,7 @@ function stopWorker(resetState = true) {
     pena.groundedEngines = pena.groundedReady = null;
     ui.loading.hidden = true;
     ui.setup.hidden = true;
+    ui.serverDownload.hidden = true;
     ui.status.classList.remove('is-error', 'is-setup');
     pena.setupAction = null;
     ui.thinking.hidden = true;
@@ -1659,7 +1662,10 @@ function createWindow() {
                 <div class="pena-setup-panel">
                     <span class="pena-feedback" role="status" aria-live="polite" hidden></span>
                     <div class="pena-loading" hidden><div class="pena-loading-track"><span></span></div><p></p></div>
-                    <button type="button" class="acas-fancy-button pena-setup" hidden></button>
+                    <div class="pena-setup-actions">
+                        <button type="button" class="acas-fancy-button pena-setup" hidden></button>
+                        <a class="acas-fancy-button pena-server-download" href="https://github.com/Psyyke/A.C.A.S/releases/latest" target="_blank" rel="noopener noreferrer" data-pena-text="download" hidden>Download</a>
+                    </div>
                 </div>
                 <div class="pena-turn"><div class="pena-answer pena-message pena-message-assistant" hidden></div>
                 <div class="pena-answer-meta">
@@ -1684,6 +1690,7 @@ function createWindow() {
     return {
         window: element, header: $('.pena-window-header'), sheetResize: $('.pena-sheet-resize'), setupPanel: $('.pena-setup-panel'),
         loading: $('.pena-loading'), loadingBar: $('.pena-loading-track span'), loadingText: $('.pena-loading p'),
+        serverDownload: $('.pena-server-download'),
         status: $('.pena-feedback'), setup: $('.pena-setup'), log: $('.pena-chat-log'), turn: $('.pena-turn'), answer: $('.pena-answer'), meta: $('.pena-answer-meta'), thinking: $('.pena-thinking'), thought: $('.pena-thought'),
         checks: $('.pena-checks'), checkSummary: $('.pena-checks summary'), checkList: $('.pena-checks ul'),
         raw: $('.pena-raw'), notice: $('.pena-notice'), form: $('form'), input: $('form input'), microphone: $('.pena-microphone'),

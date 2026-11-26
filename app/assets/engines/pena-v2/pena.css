@@ -385,12 +385,30 @@
 
 .pena-window .pena-feedback.is-error { color: #ff8a8a; }
 
-.pena-window .pena-setup {
+.pena-window .pena-setup-actions {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 12px 6px;
+}
+
+.pena-window .pena-setup-actions:not(:has(> :not([hidden]))) {
+    display: none;
+}
+
+.pena-window :is(.pena-setup, .pena-server-download) {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     align-self: flex-start;
     flex: none;
-    margin: 0 12px 6px;
+    margin: 0;
     padding: 8px 12px;
     font: inherit;
+    line-height: 1.2;
     color: rgb(255 255 255 / 85%);
     background: rgb(255 255 255 / 5%);
     border: 2px solid rgb(255 255 255 / 10%);
@@ -398,9 +416,9 @@
     cursor: pointer;
 }
 
-.pena-window .pena-setup:hover:not(:disabled) { background: rgb(255 255 255 / 10%); }
-.pena-window .pena-setup:focus-visible { outline: 2px solid #bfe1ff; outline-offset: 3px; }
-.pena-window .pena-setup[hidden] { display: none; }
+.pena-window :is(.pena-setup, .pena-server-download):hover:not(:disabled) { background: rgb(255 255 255 / 10%); }
+.pena-window :is(.pena-setup, .pena-server-download):focus-visible { outline: 2px solid #bfe1ff; outline-offset: 3px; }
+.pena-window :is(.pena-setup, .pena-server-download)[hidden] { display: none; }
 
 .pena-notice {
     margin: 0;
