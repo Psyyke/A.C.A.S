@@ -26,7 +26,7 @@ test('app HF registry pins the Inkling GGUF and rejects retired or unrelated mod
         browserModelUrl + '?download=1', browserModelUrl.replace('https:', 'http:'),
         browserModelUrl.replace('huggingface.co', 'huggingface.co.evil.invalid'), browserModelUrl.replace(browserModel.revision, 'unknown'),
         'https://huggingface.co/example/unsupported-gguf',
-        'https://huggingface.co/AtomicChat/Inkling-2-Mini-Uncensored-GGUF',
+        'https://huggingface.co/AtomicChat/Inkling-2-Mini-GGUF',
         'https://huggingface.co/mlc-ai/Qwen3-8B-q4f16_1-MLC'])
         assert.throws(() => resolveBrowserModel(url), /supported|Unsupported/);
 });
@@ -92,10 +92,10 @@ test('a custom system prompt replaces the instructions and keeps evidence, earli
 
 test('out-of-range Pena model settings fall back to defaults', () => {
     const fixed = normalizeModelPreferences({ penaPreset: 16, penaEffort: 'max', penaLora: 'evil', penaThinkingTokens: 10.5,
-        penaTemperature: '0.7', penaLoraScale: 5, penaSystemPrompt: null, penaEvidenceAmount: 'huge', penaEvidenceReplies: 'false' });
-    assert.deepEqual({ ...fixed }, { penaPreset: '16', penaEffort: 'auto', penaLora: 'pena', penaThinkingTokens: 1536,
-        penaTemperature: 0.7, penaLoraScale: 1, penaLoraFile: '', penaSystemPrompt: '', penaEvidenceAmount: 'full',
-        penaEvidenceLines: true, penaEvidenceReplies: false, penaEvidenceCompare: true, penaEvidenceWhatIf: true, penaEvidenceHistory: true });
+        penaTemperature: '0.7', penaLoraScale: 5, penaSystemPrompt: null, penaCoaching: 'false' });
+        assert.deepEqual({ ...fixed }, { penaPreset: '16', penaEffort: 'auto', penaLora: 'off', penaThinkingTokens: 1536,
+        penaTemperature: 0.7, penaLoraScale: 1, penaLoraFile: '', penaSystemPrompt: '', penaCoaching: false });
+    assert.equal(normalizeModelPreferences({}).penaCoaching, true, 'Chess coaching starts on');
 });
 
 test('custom LoRA uploads must be GGUF adapters, not base models', async () => {

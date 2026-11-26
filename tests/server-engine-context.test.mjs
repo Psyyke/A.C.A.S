@@ -5,6 +5,7 @@ import { runInNewContext } from 'node:vm';
 import { EventEmitter } from 'node:events';
 import { chromium } from 'playwright';
 import { validateUciCommand } from '../appServer/backend/uciCommand.js';
+import { startServer } from './maia-elo/serve.mjs';
 
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 const consoleSource = read('../appServer/ui/js/console.js');
@@ -27,6 +28,7 @@ test('Pena and engine sockets from one GUI do not announce duplicate connections
         serverSource.indexOf('export function stopLocalWSS(')).replace('export function', 'function');
     const { wss, broadcast } = runInNewContext(`${functions}\n${start}\n({ wss: startLocalWSS(), broadcast: broadcastToClients });`, {
         clients, guiClients, warnedAboutMultipleClients: false, wssRef: null, overlaySweepTimer: null,
+        app: { getVersion: () => '1.2.1' },
         WebSocketServer: SocketServer, WebSocket: { OPEN: 1 }, http: { createServer: () => httpServer },
         getServerPort: () => 2800, mainWindow: null, ALLOWED_ORIGIN: [],
         setInterval: () => ({ unref() {} }), screenOverlays: { disconnect() {}, sweep() {} },
@@ -39,13 +41,16 @@ test('Pena and engine sockets from one GUI do not announce duplicate connections
     const connect = () => {
         const socket = new EventEmitter();
         socket.readyState = 1;
-        socket.send = () => {};
+        socket.messages = [];
+        socket.send = message => socket.messages.push(JSON.parse(message));
         wss.emit('connection', socket, { headers: { origin: 'http://localhost' } });
         return socket;
     };
     const engine = connect();
+    assert.deepEqual(JSON.parse(JSON.stringify(engine.messages[0])), { type: 'serverInfo', version: '1.2.1' });
     engine.emit('message', JSON.stringify({ type: 'getEngines' }));
     const ai = connect();
+    assert.equal(ai.messages[0].version, '1.2.1', 'Pena-only connections receive the version too');
     ai.emit('message', JSON.stringify({ type: 'ai', action: 'status' }));
     assert.deepEqual(notices, [true], 'Only the first socket announces a connection');
     assert.equal(guiClients.size, 1, 'Pena is not a second GUI tab');
@@ -63,6 +68,72 @@ test('Pena and engine sockets from one GUI do not announce duplicate connections
     engine.emit('close');
     engine.emit('close');
     assert.deepEqual(notices, [true, false], 'Only the final disconnect is announced, once');
+});
+
+test('server update floaty checks the exact minimum, translates all languages and stays dismissible', async t => {
+    const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
+    t.after(() => new Promise(resolve => server.close(resolve)));
+    const browser = await chromium.launch();
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 320, height: 700 } });
+    await page.goto(`${url}/app/index.html`);
+    const versions = ['1.1.99', '1.2.0', '1.2.1-rc.1', '1.2.1', 'v1.2.1+build.2', '1.2.2-rc.1',
+        '1.2.10', '1.10.0', '2.0.0', null, 'invalid'];
+    const results = await page.evaluate(async versions => {
+        const api = await import('./assets/js/gui/serverVersion.js');
+        api.reportServerVersion('1.2.1');
+        return { checks: versions.map(api.serverNeedsUpdate), open: document.getElementById('server-update-floaty').open };
+    }, versions);
+    assert.deepEqual(results, { checks: [true, true, true, false, false, false, false, false, false, true, true], open: false });
+    await page.evaluate(async () => (await import('./assets/js/gui/serverVersion.js')).reportServerVersion('1.2.0'));
+    const dialog = page.locator('#server-update-floaty');
+    assert.equal(await dialog.isVisible(), true);
+    assert.equal(await dialog.locator('.floaty-header, h1').count(), 0);
+    const root = new URL('../assets/i18n/', import.meta.url);
+    const { availableLanguages } = JSON.parse(readFileSync(new URL('meta.json', root), 'utf8'));
+    for(const [language] of availableLanguages) {
+        const data = JSON.parse(readFileSync(new URL(`${language}.json`, root), 'utf8'));
+        const strings = data.translations.serverUpdate;
+        assert.deepEqual(Object.keys(strings).sort(), ['close', 'download', 'message', 'title'], language);
+        assert.deepEqual([...strings.message.matchAll(/\{\w+\}/g)].map(match => match[0]), ['{version}'], language);
+        await page.evaluate(data => {
+            TRANS_OBJ = data.translations;
+            FULL_TRANS_OBJ = data;
+            document.dispatchEvent(new Event('acas-translations-updated'));
+        }, data);
+        for(const key of ['message', 'download', 'close'])
+            assert.equal(await dialog.locator(`[data-server-update="${key}"]`).textContent(),
+                strings[key].replace('{version}', '1.2.1'), `${language}: ${key}`);
+        const layout = await dialog.evaluate(element => {
+            const bounds = element.getBoundingClientRect();
+            const close = element.querySelector('[data-server-update="close"]').getBoundingClientRect();
+            const download = element.querySelector('[data-server-update="download"]').getBoundingClientRect();
+            const message = element.querySelector('[data-server-update="message"]').getBoundingClientRect();
+            return { left: bounds.left, right: bounds.right, width: innerWidth,
+                overflow: element.scrollWidth > element.clientWidth,
+                splitRow: close.right < download.left && Math.abs(close.top - download.top) < 1
+                    && Math.abs(close.width - download.width) < 1 && close.top > message.bottom };
+        });
+        assert.ok(layout.left >= 0 && layout.right <= layout.width && !layout.overflow, `${language}: ${JSON.stringify(layout)}`);
+        assert.equal(layout.splitRow, true, `${language}: buttons share an equally split bottom row, dismiss on the left`);
+        assert.equal(await dialog.getAttribute('dir'), data.textDirection ?? 'auto');
+    }
+    assert.equal(await dialog.locator('a').getAttribute('href'), 'https://github.com/Psyyke/A.C.A.S/releases/latest');
+    const close = dialog.locator('[data-server-update="close"]');
+    const beforePress = await close.boundingBox();
+    const containerBeforePress = await dialog.boundingBox();
+    await page.mouse.move(beforePress.x + 2, beforePress.y + 2);
+    await page.mouse.down();
+    assert.deepEqual(await dialog.boundingBox(), containerBeforePress, 'The press animation must not resize the floaty');
+    await page.mouse.up();
+    assert.equal(await dialog.isVisible(), false, 'An edge click dismisses the warning reliably');
+    await page.evaluate(async () => (await import('./assets/js/gui/serverVersion.js')).reportServerVersion(null));
+    assert.equal(await dialog.isVisible(), false, 'Legacy reconnections do not reopen a dismissed warning');
+    await page.reload();
+    await page.evaluate(async () => (await import('./assets/js/gui/serverVersion.js')).reportServerVersion(null));
+    assert.equal(await dialog.isVisible(), true, 'Legacy servers without a version warn');
+    await page.evaluate(async () => (await import('./assets/js/gui/serverVersion.js')).reportServerVersion('1.2.1'));
+    assert.equal(await dialog.isVisible(), false, 'Connecting an updated server closes the warning');
 });
 
 test('site metadata travels with UCI commands without changing engine identity', async () => {

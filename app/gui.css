@@ -2360,6 +2360,61 @@ input[disabled] {
 #begging-floaty {
     max-width: 350px;
 }
+#server-update-floaty {
+    width: min(460px, calc(100% - 24px));
+    max-height: calc(100dvh - 24px);
+    box-sizing: border-box;
+}
+#server-update-floaty .floaty-body {
+    overflow-wrap: anywhere;
+    padding: 16px;
+}
+#server-update-floaty .floaty-body p {
+    margin: 0;
+}
+.server-update-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    direction: ltr;
+    padding: 0 16px 16px;
+}
+#server-update-floaty .server-update-actions > * {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 44px;
+    margin: 0;
+    padding: 10px;
+    border-style: var(--settings-input-border-style);
+    border-color: rgb(255 255 255 / 5%);
+    border-radius: var(--settings-input-border-radius);
+    background-color: rgb(255 255 255 / 10%);
+    color: rgb(255 255 255 / 75%);
+    font: inherit;
+    text-align: center;
+    overflow-wrap: anywhere;
+    transition: transform 100ms ease, border-bottom-width 100ms ease, padding-bottom 100ms ease,
+        border-color 100ms ease, box-shadow 100ms ease;
+}
+#server-update-floaty .server-update-actions > :hover {
+    border-color: rgb(255 255 255 / 55%);
+}
+#server-update-floaty .server-update-actions > :active {
+    margin: 0 !important;
+    /* Replace the pressed border's lost height without moving the layout. */
+    padding-bottom: 13px;
+}
+#server-update-floaty .server-update-actions > :active::after {
+    inset: -3px 0 0;
+}
+#server-update-floaty .server-update-actions > :focus-visible {
+    outline: 2px solid rgb(255 255 255 / 70%);
+    outline-offset: 2px;
+}
 #ghost-welcome {
     width: min(460px, calc(100% - 24px));
     max-height: calc(100dvh - 24px);

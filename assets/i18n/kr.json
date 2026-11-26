@@ -242,6 +242,12 @@
         "concealAssistanceAutoDelayMs": ["자동 숨김 (ms)", "이 시간 이후 자동으로 지원 기능을 숨김"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "서버 업데이트가 필요합니다",
+            "message": "로컬 A.C.A.S 서버를 {version} 버전 이상으로 업데이트한 다음 다시 시작하세요. 이전 버전은 이 앱과 제대로 작동하지 않을 수 있습니다.",
+            "download": "업데이트 다운로드",
+            "close": "나중에"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "안전을 위해 Ghost Script가 기본으로 켜져 있습니다.",
@@ -254,6 +260,10 @@
         },
         "ghostScreen": {"invalidOffset": "픽셀 이동을 -1000부터 1000 사이의 정수로 입력하세요.", "tagline":"고스트 환경을 조정하세요","inactive":"고스트 스크립트와 로컬 서버를 켜세요.","connecting":"로컬 서버에 연결 중...","available":"화면 오버레이를 사용할 수 있습니다.","unavailable":"화면 오버레이를 사용할 수 없습니다.","update":"로컬 서버를 업데이트하고 다시 연결하세요.","paused":"화면 오버레이가 일시 중지되었습니다. 그림이 너무 많거나 서버가 사용 중입니다."},
         "pena": {
+            "chessCoaching": "체스 코칭",
+            "chessCoachingHint": "보드 정보, 엔진 및 답변 검사. 끄면 모델과 직접 대화합니다",
+            "chattingRaw": "모델과 직접 대화 중…",
+            "coachingUnchecked": "체스 코칭이 꺼져 있어 여기서는 아무것도 검사하지 않습니다.",
             "penaNotSetUp": "설정 안 됨",
             "penaStopped": "중지됨",
             "penaInstalled": "Pena가 설치되었습니다. 언제든 시작하세요.",
@@ -310,11 +320,6 @@
             "liveTeachingHint": "Pena가 언급하는 칸, 기물, 화살표를 깜박여 표시",
             "futureMoves": "이후 수 진행하기",
             "futureMovesHint": "대국 보드에 앞으로의 포지션을 겹쳐 미리 봅니다.",
-            "moveChecking": "수 검증",
-            "checkMoves": "Stockfish로 수 검증",
-            "checkMovesHint": "Stockfish 18 Lite Single이 조언을 검증합니다",
-            "searchDepth": "탐색 깊이",
-            "searchDepthHint": "낮을수록 빠르지만 전술을 놓칠 수 있습니다",
             "voice": "음성",
             "readWith": "읽어줄 음성",
             "off": "끄기",
@@ -392,7 +397,6 @@
             "checkedCount": "{count}개 검증됨",
             "removedCount": "{count}개 제거됨",
             "checksEnabled": "보드와 모순되는 내용은 걸러지고 설명된 수는 탐색됩니다. 모든 전략적 설명의 정확성이 증명되는 것은 아닙니다.",
-            "checksDisabled": "보드와 모순되는 내용은 걸러집니다. Stockfish 수 검증은 꺼져 있습니다.",
             "shown": "표시됨",
             "skipped": "간결하게 유지하려고 생략했습니다.",
             "contradictsBoard": "보드와 모순됩니다.",
@@ -523,23 +527,7 @@
             "prompt": "프롬프트",
             "systemPrompt": "시스템 프롬프트",
             "systemPromptHint": "Pena의 정체와 말투",
-            "resetPrompts": "프롬프트 초기화",
-            "evidence": "Pena가 보는 정보",
-            "evidenceAmount": "근거의 양",
-            "evidenceAmountHint": "적을수록 빠르며 보드 정보는 항상 포함됩니다",
-            "evidenceFull": "전체",
-            "evidenceMedium": "중간",
-            "evidenceLight": "적음",
-            "evidenceLines": "엔진 분석 수순",
-            "evidenceLinesHint": "Stockfish와 LC0가 선호하는 수",
-            "evidenceReplies": "상대의 응수",
-            "evidenceRepliesHint": "상대가 어떻게 대응할 수 있는지",
-            "evidenceCompare": "수 비교",
-            "evidenceCompareHint": "후보 수에 따라 달라지는 점",
-            "evidenceWhatIf": "가정한 포지션",
-            "evidenceWhatIfHint": "추천된 수를 둔 뒤의 보드",
-            "evidenceHistory": "이전 포지션",
-            "evidenceHistoryHint": "이번 대국에서 더 이전의 포지션"
+            "resetPrompts": "프롬프트 초기화"
         },
         "weightsRuntime": "실행 방식",
         "weightsTrain": "DoppelMaia로 학습",

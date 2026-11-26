@@ -6,10 +6,6 @@
     width: 180px;
 }
 
-#pena-floaty input[data-key="penaCheckDepth"] {
-    min-width: 2ch;
-}
-
 #pena-floaty .pena-model-controls {
     display: flex;
     flex-direction: column;
@@ -184,12 +180,12 @@
     overflow-wrap: anywhere;
 }
 
-#pena-floaty .dropdown-input-container:has(:is([data-key="penaEvidenceAmount"], [data-key="penaEffort"])) {
+#pena-floaty .dropdown-input-container:has([data-key="penaEffort"]) {
     min-width: 110px;
     width: 110px;
 }
 
-#pena-floaty .dropdown-input-container:has(:is([data-key="penaEvidenceAmount"], [data-key="penaEffort"])) .dropdown-list-container {
+#pena-floaty .dropdown-input-container:has([data-key="penaEffort"]) .dropdown-list-container {
     width: max-content;
     max-width: min(220px, 70vw);
 }

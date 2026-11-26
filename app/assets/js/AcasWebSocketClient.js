@@ -1,5 +1,6 @@
 import { updateEnginesList } from './gui/externalEngine.js';
 import { externalEngineServerPortInput as serverPortInput } from './gui/elementDeclarations.js';
+import { reportServerVersion } from './gui/serverVersion.js';
 
 const SERVER_PORT_STORAGE_KEY = 'acasExternalEngineServerPort';
 const DEFAULT_SERVER_PORT = 2800;
@@ -146,6 +147,7 @@ class AcasWebSocketClient {
 
         clearTimeout(this.reconnectTimer);
         const socket = this.socket = new WebSocket(this.url);
+        let versionReported = false;
 
         this.socket.onopen = () => {
             if(this.socket !== socket) return;
@@ -166,6 +168,13 @@ class AcasWebSocketClient {
                 payload = JSON.parse(event.data);
             } catch (e) {
                 payload = event.data;
+            }
+            if(payload?.type === 'serverInfo') {
+                versionReported = true;
+                reportServerVersion(payload.version);
+            } else if(!versionReported && payload?.type === 'enginesList') {
+                versionReported = true;
+                reportServerVersion(null);
             }
             this._emit('message', payload);
         };

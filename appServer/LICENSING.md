@@ -55,12 +55,15 @@ runtime project's name, not the model's licence.
   OpenMP, cpp-httplib, BoringSSL and jsonhpp. Those notices are included in
   the app's notice bundle. The archive's separate OpenMP licence is retained
   by setup. This does not certify every CUDA, Vulkan, Linux or macOS binary.
+* [AtomicChat's uncensored Inkling GGUF](https://huggingface.co/AtomicChat/Inkling-2-Mini-Uncensored-GGUF/tree/82b34b9b0e5bc2e3e7b6d617ec8cc3e0f9692ee2):
+  the managed default, run with no adapter. Its pinned repository declares
+  Apache-2.0. A.C.A.S downloads the GGUF unchanged.
 * [AtomicChat's plain Inkling GGUF](https://huggingface.co/AtomicChat/Inkling-2-Mini-GGUF/tree/4f0c56af7e0c242e620be6394983d245b8c3fd27):
-  the managed base for Pena's published LoRA. Its pinned repository has an
-  Apache-2.0 `LICENSE` and no separate `NOTICE` file. A.C.A.S downloads the
-  GGUF unchanged.
+  the base for Pena's optional LoRA. Its pinned repository has an
+  Apache-2.0 `LICENSE` and no separate `NOTICE` file. It is not downloaded
+  by default.
 * [Pena's chess LoRA](https://huggingface.co/Hakorr/Pena/tree/499376296cc03cb4c964bf1a148371f1150ae3f2):
-  the Pena-specific contribution is GPLv3. The adapter includes chess-coaching
+  optional, not downloaded by default. The Pena-specific contribution is GPLv3. The adapter includes chess-coaching
   fine-tuning and OpenUncensored's refusal-removal edit, so it must be paired
   with the matching plain base, not an already-uncensored one. The server's
   credits preserve the GPL and upstream Apache-2.0 texts. Publication does

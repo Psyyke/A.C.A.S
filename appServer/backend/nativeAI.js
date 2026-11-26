@@ -291,6 +291,43 @@ export function validateChatOptions(options, context = AI_DEFAULTS.context) {
     return result;
 }
 
+// Raw prompt continuation, used by Pena's live thought evidence to resume a thinking block it extended.
+export function validateCompletionOptions(options, context = AI_DEFAULTS.context) {
+    if(!options || typeof options !== 'object' || Array.isArray(options))
+        throw new Error('Complete requires completion options.');
+    const allowed = new Set(['prompt', 'n_predict', 'temperature', 'top_p', 'top_k', 'min_p', 'seed', 'cache_prompt', 'return_tokens', 'logit_bias']);
+    for(const key of Object.keys(options)) {
+        if(!allowed.has(key)) throw new Error(`Unsupported completion option: ${key}`);
+    }
+    if(typeof options.prompt !== 'string' || !options.prompt || options.prompt.length > 450000)
+        throw new Error('Completion prompts must be non-empty text under 450000 characters.');
+    if(!Number.isInteger(options.n_predict) || options.n_predict < 1 || options.n_predict > Math.min(8192, context))
+        throw new Error('Requested output tokens exceed the local limit.');
+    const result = { prompt: options.prompt, n_predict: options.n_predict, stream: true, cache_prompt: true, return_tokens: true };
+    const ranges = { temperature: [0, 2], top_p: [0, 1], top_k: [0, 1000], min_p: [0, 1], seed: [-1, 2147483647] };
+    for(const [key, [min, max]] of Object.entries(ranges)) {
+        if(options[key] === undefined) continue;
+        if(typeof options[key] !== 'number' || !Number.isFinite(options[key]) || options[key] < min || options[key] > max
+            || (['seed', 'top_k'].includes(key) && !Number.isInteger(options[key])))
+            throw new Error(`Invalid ${key}.`);
+        result[key] = options[key];
+    }
+    for(const key of ['cache_prompt', 'return_tokens']) {
+        if(options[key] === undefined) continue;
+        if(typeof options[key] !== 'boolean') throw new Error(`Invalid ${key}.`);
+        result[key] = options[key];
+    }
+    if(options.logit_bias !== undefined) {
+        const bias = options.logit_bias;
+        if(!Array.isArray(bias) || bias.length > 64 || bias.some(entry => !Array.isArray(entry) || entry.length !== 2
+            || !Number.isInteger(entry[0]) || entry[0] < 0 || entry[0] > 10000000
+            || !(entry[1] === false || (typeof entry[1] === 'number' && Number.isFinite(entry[1]) && Math.abs(entry[1]) <= 100))))
+            throw new Error('Invalid logit bias.');
+        result.logit_bias = bias.map(([token, value]) => [token, value]);
+    }
+    return result;
+}
+
 export function normalizeNativeReasoning(options, modelInfo) {
     if(!modelInfo?.inkling) return options;
     const kwargs = options.chat_template_kwargs || {};
@@ -528,7 +565,7 @@ export class NativeAIHost extends EventEmitter {
         return this.lifecycle;
     }
 
-    async promptInfo(messages, chatTemplateKwargs, signal, templateOptions = {}) {
+    async promptInfo(messages, chatTemplateKwargs, signal, templateOptions = {}, { includePrompt = false } = {}) {
         if(this.state !== 'ready') throw new Error('Local AI is not ready.');
         if(this.requests.size >= 8) throw new Error('Too many local AI requests.');
         const options = normalizeNativeReasoning(validateChatOptions({
@@ -561,19 +598,94 @@ export class NativeAIHost extends EventEmitter {
             if(typeof template.prompt !== 'string') throw new Error('Local template returned no prompt.');
             const tokenized = await post('/tokenize', { content: template.prompt, add_special: false });
             if(!Array.isArray(tokenized.tokens)) throw new Error('Local tokenizer returned no token count.');
-            return { phase: 'promptInfo', tokens: tokenized.tokens.length, context: this.status().context };
+            return { phase: 'promptInfo', tokens: tokenized.tokens.length, context: this.status().context,
+                ...(includePrompt ? { prompt: template.prompt } : {}) };
         } finally {
             signal?.removeEventListener('abort', abort);
             this.requests.delete(controller);
         }
     }
 
-    async generate(options, emit, signal) {
-        if(this.state !== 'ready') throw new Error('Local AI is not ready. Start a model in the Calculation Server.');
+    // A cancelled request may still be closing its stream when the next one arrives, so wait for it briefly.
+    async claimGeneration(signal) {
+        if(this.generationController?.signal.aborted) {
+            await Promise.race([this.generationSettled, new Promise(resolve => setTimeout(resolve, 5000))]);
+            signal?.throwIfAborted();
+        }
         if(this.generationController) throw new Error('Local AI is busy. Cancel or wait for the current request.');
-        const body = normalizeNativeReasoning(validateChatOptions(options, this.status().context), this.modelInfo);
         const controller = new AbortController();
         this.generationController = controller;
+        let settle;
+        this.generationSettled = new Promise(resolve => { settle = resolve; });
+        return { controller, release: () => {
+            if(this.generationController === controller) this.generationController = null;
+            settle();
+        } };
+    }
+
+    async complete(options, emit, signal) {
+        if(this.state !== 'ready') throw new Error('Local AI is not ready. Start a model in the Calculation Server.');
+        const body = validateCompletionOptions(options, this.status().context);
+        const { controller, release } = await this.claimGeneration(signal);
+        const abort = () => controller.abort();
+        signal?.addEventListener('abort', abort, { once: true });
+        if(signal?.aborted) controller.abort();
+        this.requests.add(controller);
+        let reader;
+        try {
+            const response = await this.dependencies.fetchLocal(this.url('/completion'), {
+                method: 'POST', headers: this.headers(), body: JSON.stringify(body),
+                signal: AbortSignal.any([controller.signal, AbortSignal.timeout(600000)])
+            });
+            if(!response.ok) {
+                await response.body?.cancel();
+                throw new Error(`Local model rejected the completion (HTTP ${response.status}).`);
+            }
+            if(!response.body) throw new Error('Local model returned no stream.');
+            reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '', text = '', stopped = null;
+            const consume = line => {
+                if(!line.startsWith('data:')) return;
+                const data = line.slice(5).trim();
+                if(!data || data === '[DONE]') return;
+                const chunk = JSON.parse(data);
+                if(chunk.error) throw new Error('Local model reported a generation error.');
+                const content = typeof chunk.content === 'string' ? chunk.content : '';
+                text += content;
+                const tokens = Array.isArray(chunk.tokens) ? chunk.tokens.filter(Number.isInteger).slice(0, 64) : [];
+                if(chunk.stop) stopped = typeof chunk.stop_type === 'string' ? chunk.stop_type : 'eos';
+                emit({ phase: 'chunk', chunk: { content, tokens, stop: Boolean(chunk.stop),
+                    ...(chunk.stop ? { stop_type: stopped } : {}), ...(chunk.timings ? { timings: chunk.timings } : {}) } });
+            };
+            while(!stopped) {
+                const { value, done } = await reader.read();
+                buffer += decoder.decode(value, { stream: !done });
+                if(buffer.length > 1048576) throw new Error('Local model stream frame is too large.');
+                let newline;
+                while((newline = buffer.indexOf('\n')) !== -1) {
+                    consume(buffer.slice(0, newline).replace(/\r$/, ''));
+                    buffer = buffer.slice(newline + 1);
+                }
+                if(done) {
+                    if(buffer.trim()) consume(buffer);
+                    break;
+                }
+            }
+            if(!stopped) throw new Error('Local model stream ended unexpectedly.');
+            return { phase: 'complete', text, finishReason: stopped === 'limit' ? 'length' : 'stop' };
+        } finally {
+            await reader?.cancel().catch(() => {});
+            signal?.removeEventListener('abort', abort);
+            this.requests.delete(controller);
+            release();
+        }
+    }
+
+    async generate(options, emit, signal) {
+        if(this.state !== 'ready') throw new Error('Local AI is not ready. Start a model in the Calculation Server.');
+        const body = normalizeNativeReasoning(validateChatOptions(options, this.status().context), this.modelInfo);
+        const { controller, release } = await this.claimGeneration(signal);
         const abort = () => controller.abort();
         signal?.addEventListener('abort', abort, { once: true });
         if(signal?.aborted) controller.abort();
@@ -638,7 +750,7 @@ export class NativeAIHost extends EventEmitter {
             await reader?.cancel().catch(() => {});
             signal?.removeEventListener('abort', abort);
             this.requests.delete(controller);
-            if(this.generationController === controller) this.generationController = null;
+            release();
         }
     }
 }
@@ -685,7 +797,7 @@ export function attachAIClient(ws, host, setup = null) {
                 requests.get(requestId)?.abort();
                 return;
             }
-            if(!['generate', 'promptInfo'].includes(message.action)) throw new Error('Unknown AI action.');
+            if(!['generate', 'complete', 'promptInfo'].includes(message.action)) throw new Error('Unknown AI action.');
             if(requests.has(requestId)) throw new Error('AI request ID is already active.');
             if(requests.size >= 8) throw new Error('Too many local AI requests.');
             const controller = new AbortController();
@@ -696,9 +808,12 @@ export function attachAIClient(ws, host, setup = null) {
                         message.chat_template_kwargs ?? message.options?.chat_template_kwargs, controller.signal,
                         { ...message.options,
                             ...(message.reasoning_effort === undefined ? {} : { reasoning_effort: message.reasoning_effort }),
-                            ...(message.reasoning_budget_tokens === undefined ? {} : { reasoning_budget_tokens: message.reasoning_budget_tokens }) })
-                    : await host.generate(message.options,
-                        chunk => send({ requestId, ...chunk }), controller.signal);
+                            ...(message.reasoning_budget_tokens === undefined ? {} : { reasoning_budget_tokens: message.reasoning_budget_tokens }) },
+                        { includePrompt: message.includePrompt === true })
+                    : message.action === 'complete'
+                        ? await host.complete(message.options, chunk => send({ requestId, ...chunk }), controller.signal)
+                        : await host.generate(message.options,
+                            chunk => send({ requestId, ...chunk }), controller.signal);
                 send({ requestId, ...result });
             } catch(error) {
                 if(controller.signal.aborted) send({ phase: 'complete', requestId, text: '', cancelled: true, finishReason: 'cancelled' });

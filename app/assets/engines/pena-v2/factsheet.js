@@ -232,7 +232,7 @@ function pawnFeatures(facts) {
             const base = members.filter(square => !links.some(link => link[1] === square))
                 .sort((a, b) => (rank(a) - rank(b)) * forward(color))[0];
             found.push({ kind: 'pawn chain', side: color, weight: 2,
-                text: `${sides[color]} pawns ${members.sort().join(', ')} protect each other diagonally, the base on ${base} has no pawn guarding it and is the natural target`,
+                text: `${sides[color]} pawns ${members.sort().join(', ')} protect each other diagonally, the base on ${base} is the one no pawn protects, so it is the natural target (pieces may still defend it)`,
                 references: references({ relations: links.slice(0, 5), regions: [region('Pawn chain', members, green), region('Base', [base], orange)] }) });
         }
     }

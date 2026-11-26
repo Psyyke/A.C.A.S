@@ -69,6 +69,12 @@
         "ghostScreenOffsetY": ["Y: විස්ථාපනය (px)",""], "useExternalChessEngine": ["සක්‍රියයි", "බාහිර එන්ජිම සක්‍රියද"], "instanceRestartTriggerCode": ["නැවත ආරම්භ කිරීමේ යතුර", "සියලු සැසි නැවත ආරම්භ කරයි; ඒවා බිඳවැටුණොත් ප්‍රයෝජනවත් වේ"], "concealAssistanceTriggerCode": ["සැඟවීමේ යතුර", "සහායක විශේෂාංග (උදා. ඇදීම් ඊතල) සඟවන්න හෝ පෙන්වන්න"], "engineEnemyElo": ["ප්‍රතිවාදියාගේ Elo", "එන්ජිම මිනිසෙකුට වඩාත් සමානව ක්‍රීඩා කිරීමට උදව් කරන්න"], "concealAssistanceAutoDelayMs": ["ස්වයංක්‍රීය සැඟවීම (ms)", "මෙම කාලයෙන් පසු ස්වයංක්‍රීයව සඟවන්න"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "සේවාදායකය යාවත්කාලීන කළ යුතුයි",
+            "message": "ඔබේ දේශීය A.C.A.S සේවාදායකය {version} හෝ ඊට නව අනුවාදයකට යාවත්කාලීන කර නැවත ආරම්භ කරන්න. පැරණි අනුවාද මෙම යෙදුම සමඟ නිසි ලෙස ක්‍රියා නොකරන්නට පුළුවන්.",
+            "download": "යාවත්කාලීනය බාගන්න",
+            "close": "දැන් නොවේ"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "ඔබේ ආරක්ෂාව සඳහා Ghost Script පෙරනිමියෙන් ක්‍රියාත්මකයි.",
@@ -81,6 +87,10 @@
         },
         "ghostScreen": {"invalidOffset": "-1000 සිට 1000 දක්වා පූර්ණ පික්සල් අගයන් ඇතුළත් කරන්න.", "tagline":"ඔබේ සැඟවුණු අත්දැකීම සකසන්න","inactive":"සැඟවුණු ස්ක්‍රිප්ට් සහ දේශීය සේවාදායකය සක්‍රිය කරන්න.","connecting":"දේශීය සේවාදායකයට සම්බන්ධ වෙමින්...","available":"තිර ආවරණය තිබේ.","unavailable":"තිර ආවරණය නොමැත.","update":"දේශීය සේවාදායකය යාවත්කාලීන කර නැවත සම්බන්ධ වන්න.","paused":"තිර ආවරණය නතර විය. ඇඳීම් වැඩියි හෝ සේවාදායකය කාර්යබහුලයි."},
         "pena": {
+            "chessCoaching": "චෙස් පුහුණුව",
+            "chessCoachingHint": "පුවරුවේ කරුණු, එන්ජින් සහ පිළිතුරු පරීක්ෂා කිරීම. අක්‍රිය කළ විට ආකෘතිය සමඟ සෘජුව කතා කරයි",
+            "chattingRaw": "ආකෘතිය සමඟ සෘජුව කතා කරමින්…",
+            "coachingUnchecked": "චෙස් පුහුණුව අක්‍රියයි, එබැවින් මෙහි කිසිවක් පරීක්ෂා නොකෙරේ.",
             "penaNotSetUp": "සකසා නැත",
             "penaStopped": "නතර කර ඇත",
             "penaInstalled": "Pena ස්ථාපනය කර ඇත. ඕනෑම වේලාවක ආරම්භ කළ හැක.",
@@ -137,11 +147,6 @@
             "liveTeachingHint": "Pena කතා කරන කොටු, ඉත්තන් සහ ඊතල දිලිසෙන්න සලස්වන්න",
             "futureMoves": "ඉදිරි ඇදීම් පෙන්වන්න",
             "futureMovesHint": "ක්‍රීඩා පුවරුව මත අනාගත ස්ථාන පෙරදසුන් කරන්න.",
-            "moveChecking": "ඇදීම් පරීක්ෂාව",
-            "checkMoves": "Stockfish මඟින් ඇදීම් පරීක්ෂා කරන්න",
-            "checkMovesHint": "Stockfish 18 Lite Single උපදෙස් පරීක්ෂා කරයි",
-            "searchDepth": "සෙවුම් ගැඹුර",
-            "searchDepthHint": "ගැඹුර අඩු නම් වේගවත් නමුත් උපක්‍රම මඟහැරිය හැක",
             "voice": "හඬ",
             "readWith": "ශබ්ද නඟා කියවීමට",
             "off": "අක්‍රිය",
@@ -219,7 +224,6 @@
             "checkedCount": "{count} පරීක්ෂා කළා",
             "removedCount": "{count} ඉවත් කළා",
             "checksEnabled": "පුවරුවට පටහැනි තොරතුරු පෙරන අතර සඳහන් ඇදීම් සොයා බලයි. එයින් සෑම උපායමාර්ගික පැහැදිලි කිරීමක්ම ඔප්පු නොවේ.",
-            "checksDisabled": "පුවරුවට පටහැනි තොරතුරු පෙරයි. Stockfish ඇදීම් පරීක්ෂාව අක්‍රියයි.",
             "shown": "පෙන්වූවා",
             "skipped": "කෙටි කිරීමට මඟහැරියා.",
             "contradictsBoard": "පුවරුවට පටහැනියි.",
@@ -350,23 +354,7 @@
             "prompt": "ප්‍රොම්ප්ට්",
             "systemPrompt": "පද්ධති ප්‍රොම්ප්ට්",
             "systemPromptHint": "Pena කවුද සහ කතා කරන ආකාරය",
-            "resetPrompts": "ප්‍රොම්ප්ට් යළි පිහිටුවන්න",
-            "evidence": "Pena දකින දේ",
-            "evidenceAmount": "සාක්ෂි ප්‍රමාණය",
-            "evidenceAmountHint": "අඩු නම් වේගවත්ය; පුවරුව සැමවිටම ඇතුළත් වේ",
-            "evidenceFull": "සම්පූර්ණ",
-            "evidenceMedium": "මධ්‍යම",
-            "evidenceLight": "අඩු",
-            "evidenceLines": "එන්ජින් විශ්ලේෂණය",
-            "evidenceLinesHint": "Stockfish සහ LC0 කැමති ඇදීම්",
-            "evidenceReplies": "ප්‍රතිවාදියාගේ පිළිතුරු",
-            "evidenceRepliesHint": "අනෙක් පාර්ශ්වය ප්‍රතිචාර දක්වන්නේ කෙසේද",
-            "evidenceCompare": "ඇදීම් සැසඳීම",
-            "evidenceCompareHint": "අපේක්ෂක ඇදීම් අතර වෙනස් වන්නේ කුමක්ද",
-            "evidenceWhatIf": "කල්පිත ස්ථාන",
-            "evidenceWhatIfHint": "යෝජිත ඇදීම්වලින් පසු පුවරුව",
-            "evidenceHistory": "පෙර ස්ථාන",
-            "evidenceHistoryHint": "මෙම තරගයේ පෙර ඇදීම්"
+            "resetPrompts": "ප්‍රොම්ප්ට් යළි පිහිටුවන්න"
         },
         "weightsRuntime": "ධාවන ක්‍රමය",
         "weightsTrain": "DoppelMaia සමඟ පුහුණු කරන්න",

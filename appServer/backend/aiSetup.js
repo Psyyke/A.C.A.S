@@ -17,11 +17,17 @@ export const PENA_LORA = Object.freeze({
     sha256: '7601536b68f9e7c10999daa0306a0430ce5d1fe4943ec570a7ee1918a9e992a4',
     url: 'https://huggingface.co/Hakorr/Pena/resolve/499376296cc03cb4c964bf1a148371f1150ae3f2/pena-lora.gguf'
 });
-// The adapter includes the refusal-removal edit, so it needs the matching plain base.
-const LORA_BASE_MODEL = Object.freeze({
+// The adapter includes the refusal-removal edit, so it needs the matching plain base. It's opt-in through Advanced.
+export const LORA_BASE_MODEL = Object.freeze({
     name: 'Inkling-2-Mini-AD-IQ2_M.gguf', bytes: 8665091680,
     sha256: '7321d77bd62fb1b4ee620ec12e677a4b4b99668d083c1e6e350fd1c3376e29bf',
     url: 'https://huggingface.co/AtomicChat/Inkling-2-Mini-GGUF/resolve/4f0c56af7e0c242e620be6394983d245b8c3fd27/Inkling-2-Mini-AD-IQ2_M.gguf'
+});
+// The default: uncensored Inkling on its own. In local tests the LoRA misread piece geometry far more often.
+const UNCENSORED_MODEL = Object.freeze({
+    name: 'Inkling-2-Mini-Uncensored-AD-IQ2_M.gguf', bytes: 8665091680,
+    sha256: 'fca99d488bff5d401c8bc6b0110c5377c743f0ffb3a6d19c1ae4a3b9071fa2cd',
+    url: 'https://huggingface.co/AtomicChat/Inkling-2-Mini-Uncensored-GGUF/resolve/82b34b9b0e5bc2e3e7b6d617ec8cc3e0f9692ee2/Inkling-2-Mini-Uncensored-AD-IQ2_M.gguf'
 });
 
 export const PENA_RELEASE = Object.freeze({
@@ -54,8 +60,8 @@ export const PENA_RELEASE = Object.freeze({
         'darwin-x64-cpu': { backend: 'cpu', files: [
             asset('llama-b12633-bin-macos-x64.tar.gz', 12382012, '42e69b4d89531197ec0551f288347a71856c4613e52030196486b888c82b8892')] }
     }),
-    model: LORA_BASE_MODEL,
-    lora: PENA_LORA
+    model: UNCENSORED_MODEL,
+    lora: null
 });
 
 export function chooseRuntime({ platform, arch, nvidiaDriver = 0, preference = 'auto' }) {

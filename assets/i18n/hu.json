@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Automatikus elrejtés (ms)", "Rejtse el automatikusan a segítségfunkciókat ezen idő után"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "A szervert frissíteni kell",
+            "message": "Frissítsd a helyi A.C.A.S szervert a(z) {version} vagy újabb verzióra, majd indítsd újra. A régebbi verziók nem biztos, hogy megfelelően működnek ezzel az alkalmazással.",
+            "download": "Frissítés letöltése",
+            "close": "Most nem"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "A biztonságod érdekében a Ghost Script alapértelmezés szerint be van kapcsolva.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Adj meg egész pixelértékeket -1000 és 1000 között.", "tagline":"Állítsd be a szellem módot","inactive":"Kapcsold be a szellem scriptet és a helyi szervert.","connecting":"Csatlakozás a helyi szerverhez...","available":"A képernyőfedvény elérhető.","unavailable":"A képernyőfedvény nem érhető el.","update":"Frissítsd a helyi szervert, majd csatlakozz újra.","paused":"A fedvény szünetel. Túl sok rajz van, vagy a szerver foglalt."},
         "pena": {
+            "chessCoaching": "Sakkoktatás",
+            "chessCoachingHint": "Táblatények, motorok és válaszellenőrzés. Kikapcsolva közvetlenül a modellel beszélgetsz",
+            "chattingRaw": "Beszélgetés közvetlenül a modellel…",
+            "coachingUnchecked": "A sakkoktatás ki van kapcsolva, ezért itt semmit sem ellenőrzünk.",
             "penaNotSetUp": "Nincs beállítva",
             "penaStopped": "Leállítva",
             "penaInstalled": "A Pena telepítve van. Bármikor elindíthatod.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "A mezők, bábuk és nyilak felvillantása, amikor Pena említi őket",
             "futureMoves": "Későbbi lépések lejátszása",
             "futureMovesHint": "Jövőbeli állások előnézete a játéktáblán.",
-            "moveChecking": "Lépések ellenőrzése",
-            "checkMoves": "Lépések ellenőrzése Stockfish segítségével",
-            "checkMovesHint": "A Stockfish 18 Lite Single ellenőrzi a tanácsokat",
-            "searchDepth": "Keresési mélység",
-            "searchDepthHint": "A kisebb érték gyorsabb, de taktikákat hagyhat ki",
             "voice": "Hang",
             "readWith": "Felolvasás ezzel",
             "off": "Ki",
@@ -393,7 +398,6 @@
             "checkedCount": "{count} ellenőrizve",
             "removedCount": "{count} eltávolítva",
             "checksEnabled": "A táblának ellentmondó részeket kiszűrjük, az említett lépéseket kereséssel ellenőrizzük. Ez nem bizonyít minden stratégiai magyarázatot.",
-            "checksDisabled": "A táblának ellentmondó részeket kiszűrjük. A Stockfish lépésellenőrzése ki van kapcsolva.",
             "shown": "Megjelenítve",
             "skipped": "A rövidség kedvéért kihagyva.",
             "contradictsBoard": "Ellentmond a táblának.",
@@ -524,23 +528,7 @@
             "prompt": "Prompt",
             "systemPrompt": "Rendszerprompt",
             "systemPromptHint": "Ki Pena, és hogyan beszél",
-            "resetPrompts": "Prompt visszaállítása",
-            "evidence": "Amit Pena lát",
-            "evidenceAmount": "Bizonyítékok mennyisége",
-            "evidenceAmountHint": "Kevesebbel gyorsabb, a tábla mindig szerepel",
-            "evidenceFull": "Teljes",
-            "evidenceMedium": "Közepes",
-            "evidenceLight": "Kevés",
-            "evidenceLines": "Motorváltozatok",
-            "evidenceLinesHint": "A Stockfish és az LC0 által előnyben részesített lépések",
-            "evidenceReplies": "Az ellenfél válaszai",
-            "evidenceRepliesHint": "Hogyan válaszolhat a másik oldal",
-            "evidenceCompare": "Lépések összehasonlítása",
-            "evidenceCompareHint": "Mi változik a jelöltlépések között",
-            "evidenceWhatIf": "Elképzelt állások",
-            "evidenceWhatIfHint": "A tábla az ajánlott lépések után",
-            "evidenceHistory": "Korábbi állások",
-            "evidenceHistoryHint": "A játszma korábbi lépései"
+            "resetPrompts": "Prompt visszaállítása"
         },
         "weightsRuntime": "Futtatási mód",
         "weightsTrain": "Tanítás a DoppelMaiával",

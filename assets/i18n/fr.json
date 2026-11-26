@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Dissimulation automatique (ms)", "Dissimuler automatiquement les fonctionnalités après ce délai"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Le serveur a besoin d'une mise à jour",
+            "message": "Mettez votre serveur local A.C.A.S à jour vers la version {version} ou une version plus récente, puis redémarrez-le. Les anciennes versions risquent de mal fonctionner avec cette application.",
+            "download": "Télécharger la mise à jour",
+            "close": "Pas maintenant"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Pour votre sécurité, Ghost Script est activé par défaut.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Saisis des décalages entiers de -1000 à 1000 pixels.", "tagline":"Ajuste ton expérience fantôme","inactive":"Active le Script fantôme et le serveur local.","connecting":"Connexion au serveur local...","available":"Superposition à l'écran disponible.","unavailable":"Superposition à l'écran indisponible.","update":"Mets à jour le serveur local et reconnecte-toi.","paused":"Superposition en pause. Trop de dessins ou serveur occupé."},
         "pena": {
+            "chessCoaching": "Coaching d'échecs",
+            "chessCoachingHint": "Faits sur l'échiquier, moteurs et vérification des réponses. Désactivé, vous parlez directement au modèle",
+            "chattingRaw": "Discussion directement avec le modèle…",
+            "coachingUnchecked": "Le coaching d'échecs est désactivé, donc rien n'est vérifié ici.",
             "penaNotSetUp": "Non configuré",
             "penaStopped": "Arrêté",
             "penaInstalled": "Pena est installé. Lancez-le quand vous voulez.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Faire clignoter les cases, pièces et flèches dont parle Pena",
             "futureMoves": "Jouer les coups à venir",
             "futureMovesHint": "Prévisualisez les positions futures sur l’échiquier de la partie.",
-            "moveChecking": "Vérification des coups",
-            "checkMoves": "Vérifier les coups avec Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single vérifie les conseils",
-            "searchDepth": "Profondeur de recherche",
-            "searchDepthHint": "Une profondeur moindre est plus rapide mais peut manquer des tactiques",
             "voice": "Voix",
             "readWith": "Lire à voix haute avec",
             "off": "Désactivé",
@@ -398,7 +403,6 @@
             "replacedPick": "Le choix de Pena a été remplacé après une vérification indépendante. Le remplacement explique une variante analysée.",
             "moveChecked": "Coup vérifié. Le raisonnement stratégique n'est pas prouvé.",
             "checksEnabled": "Les contradictions avec l'échiquier sont filtrées et les coups énoncés sont analysés. Cela ne prouve pas chaque explication stratégique.",
-            "checksDisabled": "Les contradictions avec l'échiquier sont filtrées. La vérification des coups par Stockfish est désactivée.",
             "requiresSecure": "Pena nécessite HTTPS ou localhost.",
             "requiresGpu": "Pena nécessite WebGPU. Activez l'accélération matérielle ou utilisez un navigateur compatible.",
             "noAdapter": "Aucun adaptateur WebGPU n'est disponible pour Pena.",
@@ -524,23 +528,7 @@
             "prompt": "Instruction",
             "systemPrompt": "Instruction système",
             "systemPromptHint": "Qui est Pena et comment il s’exprime",
-            "resetPrompts": "Réinitialiser l’instruction",
-            "evidence": "Ce que Pena voit",
-            "evidenceAmount": "Quantité d’éléments de preuve",
-            "evidenceAmountHint": "Moins, c’est plus rapide ; l’échiquier est toujours inclus",
-            "evidenceFull": "Complète",
-            "evidenceMedium": "Moyenne",
-            "evidenceLight": "Légère",
-            "evidenceLines": "Variantes du moteur",
-            "evidenceLinesHint": "Les coups préférés de Stockfish et LC0",
-            "evidenceReplies": "Réponses adverses",
-            "evidenceRepliesHint": "Les réponses possibles de l’autre camp",
-            "evidenceCompare": "Comparaison des coups",
-            "evidenceCompareHint": "Ce qui change entre les coups candidats",
-            "evidenceWhatIf": "Positions hypothétiques",
-            "evidenceWhatIfHint": "L’échiquier après les coups suggérés",
-            "evidenceHistory": "Positions précédentes",
-            "evidenceHistoryHint": "Les coups précédents de cette partie"
+            "resetPrompts": "Réinitialiser l’instruction"
         },
         "weightsRuntime": "Exécution",
         "weightsTrain": "Entraîner avec DoppelMaia",

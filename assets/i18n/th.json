@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["ซ่อนอัตโนมัติ (มิลลิวินาที)", "ซ่อนคุณสมบัติการช่วยเหลือโดยอัตโนมัติหลังจากเวลานี้"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "เซิร์ฟเวอร์ต้องอัปเดต",
+            "message": "อัปเดตเซิร์ฟเวอร์ A.C.A.S ในเครื่องเป็นเวอร์ชัน {version} หรือใหม่กว่า แล้วเริ่มใหม่ เวอร์ชันเก่าอาจทำงานกับแอปนี้ได้ไม่ถูกต้อง",
+            "download": "ดาวน์โหลดอัปเดต",
+            "close": "ไว้ก่อน"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "เพื่อความปลอดภัยของคุณ Ghost Script จะเปิดไว้เป็นค่าเริ่มต้น",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "ใส่ค่าพิกเซลจำนวนเต็มตั้งแต่ -1000 ถึง 1000", "tagline":"ปรับประสบการณ์ผีของคุณ","inactive":"เปิดสคริปต์ผีและเซิร์ฟเวอร์ในเครื่อง","connecting":"กำลังเชื่อมต่อเซิร์ฟเวอร์ในเครื่อง...","available":"ใช้ภาพซ้อนบนหน้าจอได้","unavailable":"ใช้ภาพซ้อนบนหน้าจอไม่ได้","update":"อัปเดตเซิร์ฟเวอร์ในเครื่องแล้วเชื่อมต่อใหม่","paused":"พักภาพซ้อนแล้ว มีภาพมากเกินไปหรือเซิร์ฟเวอร์ไม่ว่าง"},
         "pena": {
+            "chessCoaching": "การฝึกสอนหมากรุก",
+            "chessCoachingHint": "ข้อเท็จจริงบนกระดาน เอนจิน และการตรวจคำตอบ เมื่อปิดจะคุยกับโมเดลโดยตรง",
+            "chattingRaw": "กำลังคุยกับโมเดลโดยตรง…",
+            "coachingUnchecked": "ปิดการฝึกสอนหมากรุกอยู่ จึงไม่มีการตรวจสอบสิ่งใดที่นี่",
             "penaNotSetUp": "ยังไม่ได้ตั้งค่า",
             "penaStopped": "หยุดแล้ว",
             "penaInstalled": "ติดตั้ง Pena แล้ว เริ่มใช้งานได้ทุกเมื่อ",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "กะพริบช่อง ตัวหมาก และลูกศรขณะที่ Pena พูดถึง",
             "futureMoves": "แสดงการเดินถัดไป",
             "futureMovesHint": "ดูตัวอย่างตำแหน่งในอนาคตบนกระดานเกม",
-            "moveChecking": "ตรวจสอบการเดิน",
-            "checkMoves": "ตรวจสอบการเดินด้วย Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single ตรวจสอบคำแนะนำ",
-            "searchDepth": "ความลึกในการค้นหา",
-            "searchDepthHint": "ความลึกน้อยจะเร็วกว่า แต่อาจพลาดกลยุทธ์บางอย่าง",
             "voice": "เสียง",
             "readWith": "อ่านออกเสียงด้วย",
             "off": "ปิด",
@@ -393,7 +398,6 @@
             "checkedCount": "ตรวจสอบแล้ว {count} รายการ",
             "removedCount": "นำออกแล้ว {count} รายการ",
             "checksEnabled": "ข้อมูลที่ขัดกับกระดานจะถูกกรอง และการเดินที่กล่าวถึงจะถูกค้นหา แต่ไม่ได้พิสูจน์คำอธิบายเชิงกลยุทธ์ทุกข้อ",
-            "checksDisabled": "ข้อมูลที่ขัดกับกระดานจะถูกกรอง การตรวจสอบการเดินด้วย Stockfish ปิดอยู่",
             "shown": "แสดงแล้ว",
             "skipped": "ข้ามเพื่อให้กระชับ",
             "contradictsBoard": "ขัดกับสถานการณ์บนกระดาน",
@@ -524,23 +528,7 @@
             "prompt": "พรอมป์ต์",
             "systemPrompt": "พรอมป์ต์ระบบ",
             "systemPromptHint": "Pena เป็นใครและพูดอย่างไร",
-            "resetPrompts": "รีเซ็ตพรอมป์ต์",
-            "evidence": "สิ่งที่ Pena มองเห็น",
-            "evidenceAmount": "ปริมาณข้อมูลอ้างอิง",
-            "evidenceAmountHint": "ยิ่งน้อยยิ่งเร็ว และมีกระดานรวมอยู่เสมอ",
-            "evidenceFull": "ทั้งหมด",
-            "evidenceMedium": "ปานกลาง",
-            "evidenceLight": "น้อย",
-            "evidenceLines": "แนวหมากจากเอนจิน",
-            "evidenceLinesHint": "ตาที่ Stockfish และ LC0 เห็นว่าดี",
-            "evidenceReplies": "ตาตอบโต้ของคู่แข่ง",
-            "evidenceRepliesHint": "คู่แข่งอาจตอบอย่างไร",
-            "evidenceCompare": "เปรียบเทียบการเดิน",
-            "evidenceCompareHint": "สิ่งที่เปลี่ยนไประหว่างตาที่เป็นตัวเลือก",
-            "evidenceWhatIf": "ตำแหน่งสมมติ",
-            "evidenceWhatIfHint": "กระดานหลังจากเดินตามที่แนะนำ",
-            "evidenceHistory": "ตำแหน่งก่อนหน้า",
-            "evidenceHistoryHint": "ตาเดินก่อนหน้านี้ในเกมนี้"
+            "resetPrompts": "รีเซ็ตพรอมป์ต์"
         },
         "weightsRuntime": "วิธีประมวลผล",
         "weightsTrain": "ฝึกด้วย DoppelMaia",

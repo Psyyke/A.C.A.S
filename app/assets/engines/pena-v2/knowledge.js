@@ -448,31 +448,25 @@ export const knowledge = [
   "page": "usage guide",
   "title": "Pena AI settings",
   "part": 1,
-  "text": "Open the Pena AI cog in Misc. Setup and connection controls are in the chat instead. Choose files, graphics backend and context size in the local server app. Conversation: Don't give away moves makes Pena share ideas instead of the move, until you ask for it. Only talk when asked keeps him quiet until you type or speak. Live board teaching flashes squares, pieces and arrows as he talks, and Visual duration sets how long they stay. Voice pause is the silence before the mic sends. Play out future moves previews the lines he talks about over the board. Move checking & What Pena sees: Check moves with Stockfish lets Stockfish 18 Lite Single double check the moves Pena suggests and hold back the ones that don't hold up."
+  "text": "Open the Pena AI cog in Misc. Setup and connection controls are in the chat instead. Choose files, graphics backend and context size in the local server app. Conversation: Chess coaching starts on. Pena reads the board, asks the engines while he thinks, and Stockfish double checks the moves he suggests and holds back the ones that don't hold up. Turn it off to talk to the plain model instead. It then gets only the System prompt and the chat, with no board, no engines, no answer checks and no comments until you ask. The System prompt still controls the character, and temperature, thinking effort and Max thinking tokens stay editable. Auto uses low effort in this mode. Don't give away moves makes Pena share ideas instead of the move, until you ask for it. Only talk when asked keeps him quiet until you type or speak."
  },
  {
   "page": "usage guide",
   "title": "Pena AI settings",
   "part": 2,
-  "text": "Search depth trades speed for accuracy. Turning it off doesn't take engine info away from Pena, it only skips that final check. Evidence amount picks Full, Medium or Light. Less is faster, and the board itself is always included. The switches choose whether he gets engine lines, opponent replies, move comparisons, what-if positions and earlier positions from the game. Voice: Read aloud starts on. The speaker button in Pena's header toggles it and remembers your choice. Read aloud with picks Off, a browser voice or ZONOS3, which is the default. Thaddeus is the default ZONOS voice. Choose another supplied voice or import a voice clip you have permission to use. Clips stay in the browser."
+  "text": "Live board teaching flashes squares, pieces and arrows as he talks, and Visual duration sets how long they stay. Voice pause is the silence before the mic sends. Play out future moves previews the lines he talks about over the board. Voice: Read aloud starts on. The speaker button in Pena's header toggles it and remembers your choice. Read aloud with picks Off, a browser voice or ZONOS3, which is the default. Thaddeus is the default ZONOS voice. Choose another supplied voice or import a voice clip you have permission to use. Clips stay in the browser. ZONOS downloads its voice models when needed and uses your GPU. If WebGPU can't run it, Pena uses browser speech. Speech speed changes the playback speed and pitch."
  },
  {
   "page": "usage guide",
   "title": "Pena AI settings",
   "part": 3,
-  "text": "ZONOS downloads its voice models when needed and uses your GPU. When it's picked and Read aloud is on, it starts loading as soon as A.C.A.S opens, so the first reply isn't kept waiting. If WebGPU can't run it, Pena uses browser speech. Speech speed changes the playback speed and pitch. Thinking & Prompt: Thinking effort sets how long he thinks before answering on models that support it. Auto picks per question, so greetings get no thinking and chat without a match thinks lightly. Max thinking tokens caps it. Temperature defaults to 0.3 for a little variety, while 0 is more predictable. Your saved choice stays put. Exact behavior depends on the model's chat template. The System prompt says who Pena is and how he talks. It starts filled in, so you can tweak it or write a whole new character, cold, clingy, grumpy or anything else."
+  "text": "Thinking & Prompt: Thinking effort sets how long he thinks before answering on models that support it. Auto picks per question, so greetings get no thinking and chat without a match thinks lightly. Max thinking tokens caps it. Temperature defaults to 0.3 for a little variety, while 0 is more predictable. Your saved choice stays put. Exact behavior depends on the model's chat template. The System prompt says who Pena is and how he talks. It starts filled in, so you can tweak it or write a whole new character, cold, clingy, grumpy or anything else. He plays it straight, without talking about the prompt or softening it into a polite assistant. With a match open he still coaches from the engine evidence, just in that voice."
  },
  {
   "page": "usage guide",
   "title": "Pena AI settings",
   "part": 4,
-  "text": "He plays it straight, without talking about the prompt or softening it into a polite assistant. With a match open he still coaches from the engine evidence, just in that voice. Reset prompt brings the original back. Chess LoRA: Pena's download includes his chess-coaching adapter and its matching plain Inkling base. The adapter already includes the refusal-removal edit, so don't combine it with an already-uncensored base. Advanced in the local server lets you choose your own compatible model and adapter instead. Use Pena's download restores the managed pair. Pena is an AI and can still get things wrong, even with engine evidence behind him. Treat his advice as a second opinion, not the final word. Something not working with Pena?"
- },
- {
-  "page": "usage guide",
-  "title": "Pena AI settings",
-  "part": 5,
-  "text": "The help page covers the usual suspects."
+  "text": "Reset prompt brings the original back. Chess LoRA: Pena's download includes his chess-coaching adapter and its matching plain Inkling base. The adapter already includes the refusal-removal edit, so don't combine it with an already-uncensored base. Advanced in the local server lets you choose your own compatible model and adapter instead. Use Pena's download restores the managed pair. Pena is an AI and can still get things wrong, even with engine evidence behind him. Treat his advice as a second opinion, not the final word. Something not working with Pena? The help page covers the usual suspects."
  },
  {
   "page": "usage guide",

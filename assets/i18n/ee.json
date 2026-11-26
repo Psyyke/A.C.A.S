@@ -242,6 +242,12 @@
 
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Server vajab uuendust",
+            "message": "Uuenda oma kohalik A.C.A.S server versioonile {version} või uuemale ja käivita see uuesti. Vanemad versioonid ei pruugi selle rakendusega õigesti töötada.",
+            "download": "Laadi uuendus alla",
+            "close": "Mitte praegu"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Sinu turvalisuse huvides on Ghost Script vaikimisi sisse lülitatud.",
@@ -254,6 +260,10 @@
         },
         "ghostScreen": {"invalidOffset": "Sisesta täisarvulised piksliväärtused vahemikus -1000 kuni 1000.", "tagline":"Kohanda oma kummituskogemust","inactive":"Lülita kummitusskript ja kohalik server sisse.","connecting":"Kohaliku serveriga ühendamine...","available":"Ekraani ülekate on saadaval.","unavailable":"Ekraani ülekate pole saadaval.","update":"Uuenda kohalikku serverit ja ühenda uuesti.","paused":"Ekraani ülekate on pausil. Liiga palju jooniseid või server on hõivatud."},
         "pena": {
+            "chessCoaching": "Maletreening",
+            "chessCoachingHint": "Lauafaktid, mootorid ja vastuste kontroll. Väljalülitatult vestled otse mudeliga",
+            "chattingRaw": "Vestlus otse mudeliga…",
+            "coachingUnchecked": "Maletreening on välja lülitatud, seega siin midagi ei kontrollita.",
             "penaNotSetUp": "Seadistamata",
             "penaStopped": "Peatatud",
             "penaInstalled": "Pena on paigaldatud. Võid selle igal ajal käivitada.",
@@ -310,11 +320,6 @@
             "liveTeachingHint": "Pane väljad, malendid ja nooled vilkuma, kui Pena neist räägib",
             "futureMoves": "Näita tulevasi käike",
             "futureMovesHint": "Eelvaata tulevasi seise mängulaual.",
-            "moveChecking": "Käikude kontroll",
-            "checkMoves": "Kontrolli käike Stockfishiga",
-            "checkMovesHint": "Stockfish 18 Lite Single kontrollib nõuandeid",
-            "searchDepth": "Otsingu sügavus",
-            "searchDepthHint": "Väiksem sügavus on kiirem, kuid võib taktikaid märkamata jätta",
             "voice": "Hääl",
             "readWith": "Ettelugemise hääl",
             "off": "Väljas",
@@ -392,7 +397,6 @@
             "checkedCount": "{count} kontrollitud",
             "removedCount": "{count} eemaldatud",
             "checksEnabled": "Lauaga vastuolus olevad väited filtreeritakse ja mainitud käike otsitakse läbi. See ei tõesta iga strateegilist selgitust.",
-            "checksDisabled": "Lauaga vastuolus olevad väited filtreeritakse. Stockfishi käigukontroll on välja lülitatud.",
             "shown": "Näidatud",
             "skipped": "Lühiduse huvides vahele jäetud.",
             "contradictsBoard": "On lauaga vastuolus.",
@@ -523,23 +527,7 @@
             "prompt": "Viip",
             "systemPrompt": "Süsteemiviip",
             "systemPromptHint": "Kes Pena on ja kuidas ta räägib",
-            "resetPrompts": "Lähtesta viip",
-            "evidence": "Mida Pena näeb",
-            "evidenceAmount": "Tõendusmaterjali hulk",
-            "evidenceAmountHint": "Vähem tähendab kiiremat tööd; laud lisatakse alati",
-            "evidenceFull": "Täielik",
-            "evidenceMedium": "Keskmine",
-            "evidenceLight": "Vähene",
-            "evidenceLines": "Mootori variandid",
-            "evidenceLinesHint": "Käigud, mida Stockfish ja LC0 eelistavad",
-            "evidenceReplies": "Vastase vastused",
-            "evidenceRepliesHint": "Kuidas vastaspool võiks vastata",
-            "evidenceCompare": "Käikude võrdlus",
-            "evidenceCompareHint": "Mis muutub kandidaatkäikude vahel",
-            "evidenceWhatIf": "Hüpoteetilised seisud",
-            "evidenceWhatIfHint": "Laud pärast soovitatud käike",
-            "evidenceHistory": "Varasemad seisud",
-            "evidenceHistoryHint": "Selle partii varasemad käigud"
+            "resetPrompts": "Lähtesta viip"
         },
         "weightsRuntime": "Käivitusviis",
         "weightsTrain": "Treeni DoppelMaiaga",

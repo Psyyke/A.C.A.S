@@ -8,7 +8,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NativeAIHost, AI_DEFAULTS, normalizeAISettings, buildLlamaArgs, vramModeFor, parseDeviceMemory,
-    validateChatOptions, attachAIClient, readGGUFModelInfo, normalizeNativeReasoning } from '../appServer/backend/nativeAI.js';
+    validateChatOptions, validateCompletionOptions, attachAIClient, readGGUFModelInfo, normalizeNativeReasoning } from '../appServer/backend/nativeAI.js';
 import { parseClientMessage } from '../appServer/backend/uciCommand.js';
 
 const settings = {
@@ -346,6 +346,30 @@ test('promptInfo counts the full native chat template with the same kwargs', asy
     assert.equal(posts[0].body.reasoning_budget_tokens, 0);
     assert.deepEqual(posts[1].body, { content: '<bos>[USER]Test[ASSISTANT]', add_special: false });
     assert.equal(result.prompt, undefined);
+    await host.stop();
+});
+
+test('raw completion streams tokens for live thought evidence and rejects unsafe options', async () => {
+    assert.throws(() => validateCompletionOptions({ prompt: 'x', n_predict: 8, grammar: 'root ::= "a"' }), /Unsupported completion option/);
+    assert.throws(() => validateCompletionOptions({ prompt: 'x', n_predict: 999999 }), /output tokens/);
+    assert.throws(() => validateCompletionOptions({ prompt: 'x', n_predict: 8, logit_bias: [[58, 'no']] }), /logit bias/);
+    const events = [{ content: 'Qe6', tokens: [7, 8], stop: false }, { content: '', tokens: [200010], stop: true, stop_type: 'eos' }];
+    const posts = [];
+    const { host } = makeHost({ fetchLocal: async (url, options) => {
+        if(url.endsWith('/completion')) {
+            posts.push(JSON.parse(options.body));
+            return new Response(events.map(event => `data: ${JSON.stringify(event)}\n\n`).join(''));
+        }
+        return jsonResponse({ status: 'ok' });
+    } });
+    await host.start(settings);
+    const emitted = [];
+    const done = await host.complete({ prompt: 'P', n_predict: 8, logit_bias: [[58, false]] }, event => emitted.push(event.chunk));
+    assert.equal(posts[0].stream, true);
+    assert.deepEqual(posts[0].logit_bias, [[58, false]]);
+    assert.deepEqual(emitted.map(chunk => chunk.tokens), [[7, 8], [200010]]);
+    assert.equal(done.text, 'Qe6');
+    assert.equal(host.requests.size, 0);
     await host.stop();
 });
 

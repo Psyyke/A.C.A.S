@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Sembunyikan Otomatis (ms)", "Secara otomatis sembunyikan fitur bantuan setelah waktu ini"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Server perlu diperbarui",
+            "message": "Perbarui server A.C.A.S lokal Anda ke versi {version} atau yang lebih baru, lalu mulai ulang. Versi lama mungkin tidak berfungsi dengan baik dengan aplikasi ini.",
+            "download": "Unduh pembaruan",
+            "close": "Tidak sekarang"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Demi keamananmu, Ghost Script aktif secara bawaan.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Masukkan pergeseran piksel bulat dari -1000 hingga 1000.", "tagline":"Atur pengalaman hantumu","inactive":"Aktifkan Skrip Hantu dan server lokal.","connecting":"Menghubungkan ke server lokal...","available":"Lapisan layar tersedia.","unavailable":"Lapisan layar tidak tersedia.","update":"Perbarui server lokal dan sambungkan lagi.","paused":"Lapisan layar dijeda. Terlalu banyak gambar atau server sibuk."},
         "pena": {
+            "chessCoaching": "Pelatihan catur",
+            "chessCoachingHint": "Fakta papan, mesin, dan pemeriksaan jawaban. Jika dimatikan, Anda berbicara langsung dengan model",
+            "chattingRaw": "Mengobrol langsung dengan model…",
+            "coachingUnchecked": "Pelatihan catur dimatikan, jadi tidak ada yang diperiksa di sini.",
             "penaNotSetUp": "Belum disiapkan",
             "penaStopped": "Dihentikan",
             "penaInstalled": "Pena sudah terpasang. Mulai kapan saja.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Sorot petak, bidak, dan panah saat Pena membahasnya",
             "futureMoves": "Peragakan langkah berikutnya",
             "futureMovesHint": "Pratinjau posisi mendatang di atas papan permainan.",
-            "moveChecking": "Pemeriksaan langkah",
-            "checkMoves": "Periksa langkah dengan Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single memeriksa saran",
-            "searchDepth": "Kedalaman pencarian",
-            "searchDepthHint": "Lebih rendah lebih cepat tetapi bisa melewatkan taktik",
             "voice": "Suara",
             "readWith": "Bacakan dengan",
             "off": "Mati",
@@ -398,7 +403,6 @@
             "replacedPick": "Pilihan Pena diganti setelah pemeriksaan langkah independen. Penggantinya menjelaskan variasi yang telah dianalisis.",
             "moveChecked": "Langkah diperiksa. Penalaran strategis belum terbukti.",
             "checksEnabled": "Kontradiksi dengan papan disaring dan langkah yang disebutkan dianalisis. Ini tidak membuktikan setiap penjelasan strategis.",
-            "checksDisabled": "Kontradiksi dengan papan disaring. Pemeriksaan langkah Stockfish dimatikan.",
             "requiresSecure": "Pena memerlukan HTTPS atau localhost.",
             "requiresGpu": "Pena memerlukan WebGPU. Aktifkan akselerasi perangkat keras atau gunakan browser yang didukung.",
             "noAdapter": "Tidak ada adaptor WebGPU yang tersedia untuk Pena.",
@@ -524,23 +528,7 @@
             "prompt": "Prompt",
             "systemPrompt": "Prompt sistem",
             "systemPromptHint": "Siapa Pena dan bagaimana cara bicaranya",
-            "resetPrompts": "Atur ulang prompt",
-            "evidence": "Yang dilihat Pena",
-            "evidenceAmount": "Jumlah bukti",
-            "evidenceAmountHint": "Lebih sedikit lebih cepat, papan selalu disertakan",
-            "evidenceFull": "Penuh",
-            "evidenceMedium": "Sedang",
-            "evidenceLight": "Ringan",
-            "evidenceLines": "Variasi engine",
-            "evidenceLinesHint": "Langkah yang disukai Stockfish dan LC0",
-            "evidenceReplies": "Balasan lawan",
-            "evidenceRepliesHint": "Cara lawan dapat membalas",
-            "evidenceCompare": "Perbandingan langkah",
-            "evidenceCompareHint": "Perubahan di antara langkah kandidat",
-            "evidenceWhatIf": "Posisi andaikan",
-            "evidenceWhatIfHint": "Papan setelah langkah yang disarankan",
-            "evidenceHistory": "Posisi sebelumnya",
-            "evidenceHistoryHint": "Langkah terdahulu dalam permainan ini"
+            "resetPrompts": "Atur ulang prompt"
         },
         "weightsRuntime": "Cara menjalankan",
         "weightsTrain": "Latih dengan DoppelMaia",

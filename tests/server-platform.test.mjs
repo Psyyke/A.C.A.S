@@ -180,7 +180,7 @@ test('native Calculation Server starts, serves WebSocket commands, and pins its 
         assert.equal(aiStatus.state, 'offline', 'Launching must not download or start a model');
         assert.equal(aiStatus.setup.mode, 'managed');
         assert.equal(aiStatus.setup.installed, false);
-        assert.equal(aiStatus.setup.loraAvailable, true);
+        assert.equal(aiStatus.setup.loraAvailable, false);
         await application.evaluate(({ dialog }) => {
             dialog.showOpenDialog = async (_window, options) => {
                 globalThis.lastPickerOptions = options;

@@ -99,7 +99,7 @@ async function prepareLicenses(appDir = path.resolve(__dirname, '..')) {
             licenseText: [licenseTexts['llama.cpp-LICENSE.txt'],
                 licenseTexts['llama-b12633-win-cpu-dependencies-LICENSE.txt']].join('\n\n') },
         { name: PENA_RELEASE.model.name, license: 'Apache-2.0',
-            description: 'Inkling 2 Mini by Thinking Machines Lab, GGUF by AtomicChat.',
+            description: 'Inkling 2 Mini by Thinking Machines Lab, uncensored GGUF by AtomicChat.',
             source: PENA_RELEASE.model.url.replace('/resolve/', '/blob/'),
             terms: 'https://thinkingmachines.ai/model-acceptable-use-policy/',
             licenseText: licenseTexts['Inkling-LICENSE.txt'] },

@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Automatisch verbergen (ms)", "Hulpfuncties na deze tijd automatisch verbergen"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "De server moet worden bijgewerkt",
+            "message": "Werk je lokale A.C.A.S-server bij naar versie {version} of nieuwer en start hem daarna opnieuw. Oudere versies werken mogelijk niet goed met deze app.",
+            "download": "Update downloaden",
+            "close": "Niet nu"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Voor je veiligheid staat Ghost Script standaard aan.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Vul hele pixelwaarden van -1000 tot 1000 in.", "tagline":"Pas je spookervaring aan","inactive":"Schakel het spookscript en de lokale server in.","connecting":"Verbinden met de lokale server...","available":"Schermoverlay beschikbaar.","unavailable":"Schermoverlay niet beschikbaar.","update":"Werk de lokale server bij en verbind opnieuw.","paused":"Schermoverlay gepauzeerd. Te veel tekeningen of de server is bezet."},
         "pena": {
+            "chessCoaching": "Schaakcoaching",
+            "chessCoachingHint": "Bordfeiten, engines en antwoordcontroles. Uit praat je rechtstreeks met het model",
+            "chattingRaw": "Rechtstreeks praten met het model…",
+            "coachingUnchecked": "Schaakcoaching staat uit, dus hier wordt niets gecontroleerd.",
             "penaNotSetUp": "Niet ingesteld",
             "penaStopped": "Gestopt",
             "penaInstalled": "Pena is geïnstalleerd. Start het wanneer je wilt.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Velden, stukken en pijlen laten oplichten terwijl Pena erover spreekt",
             "futureMoves": "Toekomstige zetten uitspelen",
             "futureMovesHint": "Bekijk toekomstige stellingen als voorbeeld op het speelbord.",
-            "moveChecking": "Zetcontrole",
-            "checkMoves": "Zetten controleren met Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single controleert het advies",
-            "searchDepth": "Zoekdiepte",
-            "searchDepthHint": "Minder diep is sneller, maar kan tactieken missen",
             "voice": "Stem",
             "readWith": "Voorlezen met",
             "off": "Uit",
@@ -398,7 +403,6 @@
             "replacedPick": "De keuze van Pena is vervangen na een onafhankelijke zetcontrole. De vervanging legt een onderzochte variant uit.",
             "moveChecked": "Zet gecontroleerd. De strategische redenering is niet bewezen.",
             "checksEnabled": "Tegenstrijdigheden met het bord worden gefilterd en genoemde zetten worden onderzocht. Dit bewijst niet elke strategische uitleg.",
-            "checksDisabled": "Tegenstrijdigheden met het bord worden gefilterd. Zetcontrole met Stockfish staat uit.",
             "requiresSecure": "Pena vereist HTTPS of localhost.",
             "requiresGpu": "Pena vereist WebGPU. Schakel hardwareversnelling in of gebruik een ondersteunde browser.",
             "noAdapter": "Er is geen WebGPU-adapter beschikbaar voor Pena.",
@@ -524,23 +528,7 @@
             "prompt": "Prompt",
             "systemPrompt": "Systeemprompt",
             "systemPromptHint": "Wie Pena is en hoe het praat",
-            "resetPrompts": "Prompt herstellen",
-            "evidence": "Wat Pena ziet",
-            "evidenceAmount": "Hoeveelheid bewijs",
-            "evidenceAmountHint": "Minder is sneller; het bord is altijd inbegrepen",
-            "evidenceFull": "Volledig",
-            "evidenceMedium": "Gemiddeld",
-            "evidenceLight": "Beperkt",
-            "evidenceLines": "Enginevarianten",
-            "evidenceLinesHint": "De zetten die Stockfish en LC0 verkiezen",
-            "evidenceReplies": "Antwoorden van de tegenstander",
-            "evidenceRepliesHint": "Hoe de andere kant kan antwoorden",
-            "evidenceCompare": "Zetten vergelijken",
-            "evidenceCompareHint": "Wat er verandert tussen kandidaat-zetten",
-            "evidenceWhatIf": "Hypothetische stellingen",
-            "evidenceWhatIfHint": "Het bord na de voorgestelde zetten",
-            "evidenceHistory": "Eerdere stellingen",
-            "evidenceHistoryHint": "Eerdere zetten uit deze partij"
+            "resetPrompts": "Prompt herstellen"
         },
         "weightsRuntime": "Uitvoering",
         "weightsTrain": "Trainen met DoppelMaia",

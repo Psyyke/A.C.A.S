@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, rm, stat, writeFile, mkdir } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { PenaSetup, chooseRuntime, PENA_RELEASE } from '../appServer/backend/aiSetup.js';
+import { PenaSetup, chooseRuntime, PENA_RELEASE, PENA_LORA, LORA_BASE_MODEL } from '../appServer/backend/aiSetup.js';
 import { attachAIClient, AI_DEFAULTS, buildLlamaArgs } from '../appServer/backend/nativeAI.js';
 import { browserModel, browserModelFileUrl, penaLora } from '../app/assets/engines/pena-v2/models.js';
 import { setupView } from '../app/assets/engines/pena-v2/setup-view.js';
@@ -126,23 +126,22 @@ test('a published LoRA is downloaded with its base model and passed to the serve
     await assert.rejects(stat(path.join(root, 'models', 'pena.gguf')));
 });
 
-test('a fresh user gets the published Pena pair without selecting any local files', async t => {
+test('a fresh user gets uncensored Inkling with no LoRA and without selecting any local files', async t => {
     assert.equal(PENA_RELEASE.model.url, browserModelFileUrl);
     assert.equal(PENA_RELEASE.model.sha256, browserModel.sha256);
-    assert.equal(PENA_RELEASE.lora.url, penaLora.url);
-    assert.equal(PENA_RELEASE.lora.sha256, penaLora.sha256);
-    const loraData = bytes('published-pena-adapter');
+    assert.equal(PENA_RELEASE.lora, null);
+    assert.equal(PENA_LORA.url, penaLora.url);
+    assert.equal(LORA_BASE_MODEL.url, penaLora.base.url);
+    assert.notEqual(LORA_BASE_MODEL.sha256, PENA_RELEASE.model.sha256);
     const runtime = PENA_RELEASE.builds['win32-x64-vulkan'];
     const publicRelease = { ...PENA_RELEASE,
         builds: { 'win32-x64-vulkan': { ...runtime, files: [
             { ...runtime.files[0], bytes: runtimeZip.length, sha256: sha(runtimeZip) }] } },
-        model: { ...PENA_RELEASE.model, bytes: modelData.length, sha256: sha(modelData) },
-        lora: { ...PENA_RELEASE.lora, bytes: loraData.length, sha256: sha(loraData) }
+        model: { ...PENA_RELEASE.model, bytes: modelData.length, sha256: sha(modelData) }
     };
     const downloads = new Map([
         [runtime.files[0].url, runtimeZip],
-        [PENA_RELEASE.model.url, modelData],
-        [PENA_RELEASE.lora.url, loraData]
+        [PENA_RELEASE.model.url, modelData]
     ]);
     const { setup, host, root, requests } = await makeSetup(t, {
         release: publicRelease,
@@ -154,15 +153,13 @@ test('a fresh user gets the published Pena pair without selecting any local file
     });
     setup.getSettings = () => ({ ...AI_DEFAULTS });
     assert.equal(setup.status().mode, 'managed');
-    assert.equal(setup.status().loraAvailable, true);
+    assert.equal(setup.status().loraAvailable, false);
     assert.equal((await setup.run()).state, 'ready');
     assert.deepEqual(requests.map(request => request.url), [...downloads.keys()]);
     const launch = host.starts[0];
-    assert.equal(launch.modelPath, path.join(root, 'models', 'Inkling-2-Mini-AD-IQ2_M.gguf'));
-    assert.equal(launch.loraPath, path.join(root, 'models', 'pena-lora.gguf'));
-    const args = buildLlamaArgs(launch, 49152, 'test-key');
-    assert.equal(args[args.indexOf('--lora') + 1], launch.loraPath);
-    assert.deepEqual(await readFile(launch.loraPath), loraData);
+    assert.equal(launch.modelPath, path.join(root, 'models', 'Inkling-2-Mini-Uncensored-AD-IQ2_M.gguf'));
+    assert.equal(launch.loraPath, '');
+    assert.equal(buildLlamaArgs(launch, 49152, 'test-key').includes('--lora'), false);
 });
 
 test('runtime choice covers NVIDIA drivers, AMD and other systems', () => {

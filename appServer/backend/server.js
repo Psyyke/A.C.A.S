@@ -2,6 +2,7 @@ import { toast } from './util.js';
 import { mainWindow } from './main.js';
 import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
+import { app } from 'electron';
 import Store from 'electron-store';
 import CommandQueue from './commandQueue.js';
 import { parseClientMessage, validateUciCommand } from './uciCommand.js';
@@ -240,6 +241,7 @@ export function startLocalWSS() {
 
     wss.on('connection', (ws, request) => {
         clients.add(ws);
+        ws.send(JSON.stringify({ type: 'serverInfo', version: app.getVersion() }));
 
         if(clients.size === 1) wss.onClientChange?.(true, request.headers.origin);
 

@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Tự động ẩn (ms)", "Tự động ẩn các tính năng trợ giúp sau khoảng thời gian này"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Máy chủ cần được cập nhật",
+            "message": "Hãy cập nhật máy chủ A.C.A.S cục bộ lên phiên bản {version} hoặc mới hơn, rồi khởi động lại. Các phiên bản cũ có thể không hoạt động đúng với ứng dụng này.",
+            "download": "Tải bản cập nhật",
+            "close": "Để sau"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Để an toàn cho bạn, Ghost Script được bật mặc định.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Nhập độ lệch pixel nguyên từ -1000 đến 1000.", "tagline":"Tùy chỉnh trải nghiệm ẩn của bạn","inactive":"Bật chế độ ẩn và máy chủ cục bộ.","connecting":"Đang kết nối máy chủ cục bộ...","available":"Có thể dùng lớp phủ màn hình.","unavailable":"Không thể dùng lớp phủ màn hình.","update":"Cập nhật máy chủ cục bộ và kết nối lại.","paused":"Lớp phủ tạm dừng. Quá nhiều hình vẽ hoặc máy chủ đang bận."},
         "pena": {
+            "chessCoaching": "Huấn luyện cờ vua",
+            "chessCoachingHint": "Dữ kiện bàn cờ, động cơ và kiểm tra câu trả lời. Khi tắt, bạn trò chuyện trực tiếp với mô hình",
+            "chattingRaw": "Đang trò chuyện trực tiếp với mô hình…",
+            "coachingUnchecked": "Huấn luyện cờ vua đã tắt, nên không có gì ở đây được kiểm tra.",
             "penaNotSetUp": "Chưa thiết lập",
             "penaStopped": "Đã dừng",
             "penaInstalled": "Pena đã được cài đặt. Bạn có thể khởi động bất cứ lúc nào.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Làm nổi bật các ô, quân và mũi tên khi Pena nhắc đến",
             "futureMoves": "Diễn các nước tiếp theo",
             "futureMovesHint": "Xem trước các thế cờ tiếp theo trên bàn cờ ván đấu.",
-            "moveChecking": "Kiểm tra nước đi",
-            "checkMoves": "Kiểm tra nước đi bằng Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single kiểm tra lời khuyên",
-            "searchDepth": "Độ sâu tìm kiếm",
-            "searchDepthHint": "Độ sâu thấp nhanh hơn nhưng có thể bỏ sót chiến thuật",
             "voice": "Giọng nói",
             "readWith": "Đọc bằng",
             "off": "Tắt",
@@ -393,7 +398,6 @@
             "checkedCount": "Đã kiểm tra {count}",
             "removedCount": "Đã xóa {count}",
             "checksEnabled": "Các mâu thuẫn với bàn cờ được lọc và những nước đi được nhắc đến được tìm kiếm. Điều này không chứng minh mọi giải thích chiến lược.",
-            "checksDisabled": "Các mâu thuẫn với bàn cờ được lọc. Chức năng kiểm tra nước đi bằng Stockfish đã tắt.",
             "shown": "Đã hiển thị",
             "skipped": "Đã bỏ qua để giữ ngắn gọn.",
             "contradictsBoard": "Mâu thuẫn với bàn cờ.",
@@ -524,23 +528,7 @@
             "prompt": "Lời nhắc",
             "systemPrompt": "Lời nhắc hệ thống",
             "systemPromptHint": "Pena là ai và nói chuyện thế nào",
-            "resetPrompts": "Đặt lại lời nhắc",
-            "evidence": "Những gì Pena thấy",
-            "evidenceAmount": "Lượng bằng chứng",
-            "evidenceAmountHint": "Ít hơn thì nhanh hơn; luôn bao gồm bàn cờ",
-            "evidenceFull": "Đầy đủ",
-            "evidenceMedium": "Trung bình",
-            "evidenceLight": "Ít",
-            "evidenceLines": "Các dòng phân tích",
-            "evidenceLinesHint": "Nước đi Stockfish và LC0 đánh giá cao",
-            "evidenceReplies": "Nước đáp trả của đối thủ",
-            "evidenceRepliesHint": "Cách đối thủ có thể đáp lại",
-            "evidenceCompare": "So sánh nước đi",
-            "evidenceCompareHint": "Điều gì thay đổi giữa các nước đi ứng viên",
-            "evidenceWhatIf": "Thế cờ giả định",
-            "evidenceWhatIfHint": "Bàn cờ sau các nước đi được gợi ý",
-            "evidenceHistory": "Thế cờ trước đó",
-            "evidenceHistoryHint": "Các nước đi trước trong ván này"
+            "resetPrompts": "Đặt lại lời nhắc"
         },
         "weightsRuntime": "Cách chạy",
         "weightsTrain": "Huấn luyện với DoppelMaia",

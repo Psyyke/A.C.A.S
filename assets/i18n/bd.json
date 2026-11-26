@@ -135,6 +135,12 @@
         "useExternalChessEngine": ["চালু", "বাহ্যিক ইঞ্জিন চালু আছে কি না"], "instanceRestartTriggerCode": ["পুনরায় চালুর কী", "সব সেশন পুনরায় চালু করে; সেশন বন্ধ হয়ে গেলে কাজে লাগে"], "concealAssistanceTriggerCode": ["লুকানোর কী", "সহায়ক সুবিধা (যেমন চালের তীর) লুকান বা দেখান"], "engineEnemyElo": ["প্রতিপক্ষের Elo", "ইঞ্জিনকে মানুষের মতো খেলতে সাহায্য করুন"], "concealAssistanceAutoDelayMs": ["স্বয়ংক্রিয়ভাবে লুকানো (ms)", "এই সময়ের পরে স্বয়ংক্রিয়ভাবে লুকান"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "সার্ভার আপডেট করা দরকার",
+            "message": "আপনার স্থানীয় A.C.A.S সার্ভারটি {version} বা তার পরের সংস্করণে আপডেট করে আবার চালু করুন। পুরোনো সংস্করণ এই অ্যাপের সঙ্গে ঠিকমতো কাজ নাও করতে পারে।",
+            "download": "আপডেট ডাউনলোড করুন",
+            "close": "এখন নয়"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "আপনার নিরাপত্তার জন্য Ghost Script ডিফল্টভাবে চালু থাকে।",
@@ -147,6 +153,10 @@
         },
         "ghostScreen": {"invalidOffset": "-1000 থেকে 1000 পর্যন্ত পূর্ণ পিক্সেল অফসেট দিন।", "tagline":"আপনার ভূতুড়ে অভিজ্ঞতা সাজান","inactive":"গোপন স্ক্রিপ্ট ও স্থানীয় সার্ভার চালু করুন।","connecting":"স্থানীয় সার্ভারে সংযোগ হচ্ছে...","available":"স্ক্রিন ওভারলে চালু করা যাবে।","unavailable":"স্ক্রিন ওভারলে চালু করা যাবে না।","update":"স্থানীয় সার্ভার আপডেট করে আবার সংযোগ করুন।","paused":"স্ক্রিন ওভারলে থেমেছে। আঁকা চিহ্ন বেশি বা সার্ভার ব্যস্ত।"},
         "pena": {
+            "chessCoaching": "দাবা প্রশিক্ষণ",
+            "chessCoachingHint": "বোর্ডের তথ্য, ইঞ্জিন ও উত্তর যাচাই। বন্ধ করলে শুধু মডেলের সঙ্গে কথা বলবেন",
+            "chattingRaw": "শুধু মডেলের সঙ্গে কথা হচ্ছে…",
+            "coachingUnchecked": "দাবা প্রশিক্ষণ বন্ধ আছে, তাই এখানে কিছুই যাচাই করা হচ্ছে না।",
             "penaNotSetUp": "সেট আপ করা হয়নি",
             "penaStopped": "বন্ধ",
             "penaInstalled": "Pena ইনস্টল করা আছে। যেকোনো সময় চালু করুন।",
@@ -203,11 +213,6 @@
             "liveTeachingHint": "Pena কথা বলার সময় সংশ্লিষ্ট ঘর, ঘুঁটি ও তীর ঝলকান",
             "futureMoves": "পরবর্তী চাল দেখান",
             "futureMovesHint": "খেলার বোর্ডে ভবিষ্যৎ অবস্থানগুলোর পূর্বরূপ দেখুন।",
-            "moveChecking": "চাল যাচাই",
-            "checkMoves": "Stockfish দিয়ে চাল যাচাই করুন",
-            "checkMovesHint": "Stockfish 18 Lite Single পরামর্শ যাচাই করে",
-            "searchDepth": "অনুসন্ধানের গভীরতা",
-            "searchDepthHint": "কম গভীরতা দ্রুত, তবে কৌশল বাদ পড়তে পারে",
             "voice": "কণ্ঠস্বর",
             "readWith": "পড়ে শোনান",
             "off": "বন্ধ",
@@ -285,7 +290,6 @@
             "checkedCount": "{count} যাচাই করা হয়েছে",
             "removedCount": "{count} সরানো হয়েছে",
             "checksEnabled": "বোর্ডের সঙ্গে অসংগত তথ্য বাদ দেওয়া হয় এবং বর্ণিত চাল অনুসন্ধান করা হয়। এতে প্রতিটি কৌশলগত ব্যাখ্যা প্রমাণিত হয় না।",
-            "checksDisabled": "বোর্ডের সঙ্গে অসংগত তথ্য বাদ দেওয়া হয়। Stockfish দিয়ে চাল যাচাই বন্ধ।",
             "shown": "দেখানো হয়েছে",
             "skipped": "সংক্ষিপ্ত রাখতে বাদ দেওয়া হয়েছে।",
             "contradictsBoard": "বোর্ডের সঙ্গে অসংগত।",
@@ -416,23 +420,7 @@
             "prompt": "প্রম্পট",
             "systemPrompt": "সিস্টেম প্রম্পট",
             "systemPromptHint": "Pena কে এবং কীভাবে কথা বলে",
-            "resetPrompts": "প্রম্পট রিসেট করুন",
-            "evidence": "Pena যা দেখে",
-            "evidenceAmount": "প্রমাণের পরিমাণ",
-            "evidenceAmountHint": "কম হলে দ্রুত হয়, বোর্ড সবসময় অন্তর্ভুক্ত থাকে",
-            "evidenceFull": "সম্পূর্ণ",
-            "evidenceMedium": "মাঝারি",
-            "evidenceLight": "হালকা",
-            "evidenceLines": "ইঞ্জিনের বিশ্লেষণ",
-            "evidenceLinesHint": "Stockfish ও LC0 যে চালগুলো পছন্দ করে",
-            "evidenceReplies": "প্রতিপক্ষের জবাব",
-            "evidenceRepliesHint": "অন্য পক্ষ কীভাবে জবাব দিতে পারে",
-            "evidenceCompare": "চালের তুলনা",
-            "evidenceCompareHint": "বিকল্প চালগুলোর মধ্যে কী বদলায়",
-            "evidenceWhatIf": "কল্পিত অবস্থান",
-            "evidenceWhatIfHint": "প্রস্তাবিত চালের পর বোর্ডের অবস্থা",
-            "evidenceHistory": "আগের অবস্থান",
-            "evidenceHistoryHint": "এই খেলায় আগের চালগুলো"
+            "resetPrompts": "প্রম্পট রিসেট করুন"
         },
         "weightsRuntime": "চালানোর পদ্ধতি",
         "weightsTrain": "DoppelMaia দিয়ে প্রশিক্ষণ দিন",

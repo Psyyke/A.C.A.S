@@ -1,9 +1,10 @@
 export class LocalAI {
-    constructor({ port = 2800, onStatus = () => {}, WebSocketClass = WebSocket } = {}) {
+    constructor({ port = 2800, onStatus = () => {}, onVersion = () => {}, WebSocketClass = WebSocket } = {}) {
         if(!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid local server port.');
         this.url = `ws://localhost:${port}`;
         this.WebSocketClass = WebSocketClass;
         this.onStatus = onStatus;
+        this.onVersion = onVersion;
         this.pending = new Map();
         this.closed = false;
     }
@@ -11,6 +12,7 @@ export class LocalAI {
     connect() {
         if(this.closed || this.socket && this.socket.readyState < 2) return;
         const socket = this.socket = new this.WebSocketClass(this.url);
+        let versionReported = false;
         socket.onopen = () => {
             if(this.socket !== socket) return;
             this.poll();
@@ -20,7 +22,16 @@ export class LocalAI {
             let message;
             try { message = JSON.parse(data); }
             catch { this.failPending(new Error('Invalid local server response.')); return; }
+            if(message.type === 'serverInfo') {
+                versionReported = true;
+                this.onVersion(message.version);
+                return;
+            }
             if(message.type !== 'ai') return;
+            if(!versionReported) {
+                versionReported = true;
+                this.onVersion(null);
+            }
             if(message.phase === 'status') {
                 const status = message.status && typeof message.status === 'object' ? message.status : message;
                 this.onStatus({ ...status, connected: true });
@@ -82,8 +93,14 @@ export class LocalAI {
         return this.request('generate', { options: request }, { signal: abortSignal, onData, timeout: 180000 });
     }
 
-    async promptInfo(messages, chat_template_kwargs, signal, reasoning_effort = 'none') {
-        return this.request('promptInfo', { options: { messages, chat_template_kwargs, reasoning_effort } }, { signal });
+    async promptInfo(messages, chat_template_kwargs, signal, reasoning_effort = 'none', { includePrompt = false } = {}) {
+        return this.request('promptInfo', { options: { messages, chat_template_kwargs, reasoning_effort }, ...(includePrompt ? { includePrompt: true } : {}) }, { signal });
+    }
+
+    // Raw prompt continuation for live thought evidence. Older servers answer "Unknown AI action".
+    async createCompletion(options) {
+        const { signal, onData, ...request } = options;
+        return this.request('complete', { options: request }, { signal, onData, timeout: 180000 });
     }
 
     failPending(error) {

@@ -241,6 +241,12 @@
         "concealAssistanceAutoDelayMs": ["Ascundere automată (ms)", "Ascunde automat funcțiile de asistență după acest timp"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Serverul trebuie actualizat",
+            "message": "Actualizează serverul local A.C.A.S la versiunea {version} sau mai nouă, apoi repornește-l. Versiunile mai vechi s-ar putea să nu funcționeze corect cu această aplicație.",
+            "download": "Descarcă actualizarea",
+            "close": "Nu acum"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Pentru siguranța ta, Ghost Script este activat implicit.",
@@ -253,6 +259,10 @@
         },
         "ghostScreen": {"invalidOffset": "Introdu valori întregi de pixeli între -1000 și 1000.", "tagline":"Ajustează experiența fantomă","inactive":"Pornește scriptul fantomă și serverul local.","connecting":"Conectare la serverul local...","available":"Suprapunerea pe ecran este disponibilă.","unavailable":"Suprapunerea pe ecran nu este disponibilă.","update":"Actualizează serverul local și reconectează-te.","paused":"Suprapunere întreruptă. Prea multe desene sau server ocupat."},
         "pena": {
+            "chessCoaching": "Antrenament de șah",
+            "chessCoachingHint": "Date despre tablă, motoare și verificarea răspunsurilor. Dezactivat, vorbești direct cu modelul",
+            "chattingRaw": "Conversație direct cu modelul…",
+            "coachingUnchecked": "Antrenamentul de șah este dezactivat, așa că aici nu se verifică nimic.",
             "penaNotSetUp": "Neconfigurat",
             "penaStopped": "Oprit",
             "penaInstalled": "Pena este instalată. O poți porni oricând.",
@@ -309,11 +319,6 @@
             "liveTeachingHint": "Evidențiază câmpurile, piesele și săgețile despre care vorbește Pena",
             "futureMoves": "Arată mutările viitoare",
             "futureMovesHint": "Previzualizează pozițiile viitoare pe tabla de joc.",
-            "moveChecking": "Verificarea mutărilor",
-            "checkMoves": "Verifică mutările cu Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single verifică sfaturile",
-            "searchDepth": "Adâncimea căutării",
-            "searchDepthHint": "O adâncime mai mică este mai rapidă, dar poate rata tactici",
             "voice": "Voce",
             "readWith": "Voce pentru citirea cu voce tare",
             "off": "Oprit",
@@ -391,7 +396,6 @@
             "checkedCount": "{count} verificate",
             "removedCount": "{count} eliminate",
             "checksEnabled": "Contradicțiile cu tabla sunt filtrate, iar mutările descrise sunt analizate. Acest lucru nu dovedește fiecare explicație strategică.",
-            "checksDisabled": "Contradicțiile cu tabla sunt filtrate. Verificarea mutărilor cu Stockfish este oprită.",
             "shown": "Afișat",
             "skipped": "Omis pentru a păstra răspunsul scurt.",
             "contradictsBoard": "Contrazice tabla.",
@@ -522,23 +526,7 @@
             "prompt": "Instrucțiune",
             "systemPrompt": "Instrucțiune de sistem",
             "systemPromptHint": "Cine este Pena și cum vorbește",
-            "resetPrompts": "Resetează instrucțiunea",
-            "evidence": "Ce vede Pena",
-            "evidenceAmount": "Cantitatea de dovezi",
-            "evidenceAmountHint": "Mai puține înseamnă viteză mai mare, iar tabla este inclusă întotdeauna",
-            "evidenceFull": "Completă",
-            "evidenceMedium": "Medie",
-            "evidenceLight": "Redusă",
-            "evidenceLines": "Variantele motorului",
-            "evidenceLinesHint": "Mutările preferate de Stockfish și LC0",
-            "evidenceReplies": "Răspunsurile adversarului",
-            "evidenceRepliesHint": "Cum ar putea răspunde cealaltă parte",
-            "evidenceCompare": "Compararea mutărilor",
-            "evidenceCompareHint": "Ce se schimbă între mutările candidate",
-            "evidenceWhatIf": "Poziții ipotetice",
-            "evidenceWhatIfHint": "Tabla după mutările sugerate",
-            "evidenceHistory": "Poziții anterioare",
-            "evidenceHistoryHint": "Mutări mai vechi din această partidă"
+            "resetPrompts": "Resetează instrucțiunea"
         },
         "weightsRuntime": "Mod de rulare",
         "weightsTrain": "Antrenează cu DoppelMaia",

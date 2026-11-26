@@ -5,8 +5,7 @@ import { DEFAULT_ZONOS_VOICE, normalizeZonosVoice } from './zonos-voices.js';
 export const penaDefaults = Object.freeze({
     penaEnabled: false,
     penaModel: '',
-    penaMoveCheck: true,
-    penaCheckDepth: 12,
+    penaCoaching: true,
     penaSpeech: 'neural',
     penaZonosVoice: DEFAULT_ZONOS_VOICE,
     penaBrowserVoice: 'auto',
@@ -23,31 +22,19 @@ export const penaDefaults = Object.freeze({
     penaEffort: 'auto',
     penaThinkingTokens: 1536,
     penaTemperature: 0.3,
-    penaLora: 'pena',
+    penaLora: 'off',
     penaLoraScale: 1,
     penaLoraFile: '',
-    penaSystemPrompt: '',
-    penaEvidenceAmount: 'full',
-    penaEvidenceLines: true,
-    penaEvidenceReplies: true,
-    penaEvidenceCompare: true,
-    penaEvidenceWhatIf: true,
-    penaEvidenceHistory: true
+    penaSystemPrompt: ''
 });
+
+// Stockfish checks every move Pena suggests at this depth while coaching is on.
+export const PENA_CHECK_DEPTH = 12;
 
 // Changing these needs the model loaded again.
 export const penaModelKeys = Object.freeze(['penaPreset', 'penaLora', 'penaLoraScale', 'penaLoraFile']);
 export const penaEfforts = Object.freeze(['auto', 'none', 'low', 'medium', 'high']);
 export const penaLoraModes = Object.freeze(['pena', 'off', 'custom']);
-export const penaEvidenceAmounts = Object.freeze({ full: 1, medium: 0.6, light: 0.35 });
-const evidenceSwitches = Object.freeze({ lines: 'penaEvidenceLines', replies: 'penaEvidenceReplies',
-    comparisons: 'penaEvidenceCompare', whatIf: 'penaEvidenceWhatIf', history: 'penaEvidenceHistory' });
-
-/** What the worker may add on top of the current board, which is always included. */
-export function evidenceOptionsFrom(settings = {}) {
-    const share = penaEvidenceAmounts[settings.penaEvidenceAmount] ?? 1;
-    return { share, ...Object.fromEntries(Object.entries(evidenceSwitches).map(([name, key]) => [name, settings[key] !== false])) };
-}
 
 export const penaPreferenceKeys = Object.keys(penaDefaults);
 
@@ -57,9 +44,6 @@ export async function getPenaPreferences(instanceID) {
     const result = Object.fromEntries(penaPreferenceKeys.map((key, index) =>
         [key, values[index] ?? penaDefaults[key]]));
     result.penaZonosVoice = normalizeZonosVoice(result.penaZonosVoice);
-    result.penaCheckDepth = Number(result.penaCheckDepth);
-    if(!Number.isInteger(result.penaCheckDepth) || result.penaCheckDepth < 1 || result.penaCheckDepth > 20)
-        throw new Error('Pena move-check depth must be a whole number from 1 to 20.');
     for(const [key, min, max] of [['penaVisualDuration', 0.5, 30], ['penaVoicePause', 0.8, 8]]) {
         result[key] = Number(result[key]);
         if(!Number.isFinite(result[key]) || result[key] < min || result[key] > max)
@@ -80,8 +64,7 @@ export function normalizeModelPreferences(result) {
     result.penaPreset = String(result.penaPreset) === '16' ? '16' : '12';
     if(!penaEfforts.includes(result.penaEffort)) result.penaEffort = penaDefaults.penaEffort;
     if(!penaLoraModes.includes(result.penaLora)) result.penaLora = penaDefaults.penaLora;
-    if(!Object.hasOwn(penaEvidenceAmounts, result.penaEvidenceAmount)) result.penaEvidenceAmount = penaDefaults.penaEvidenceAmount;
-    for(const key of Object.values(evidenceSwitches)) result[key] = result[key] !== false && result[key] !== 'false';
+    result.penaCoaching = result.penaCoaching !== false && result.penaCoaching !== 'false';
     number('penaThinkingTokens', 64, 4096, true);
     number('penaTemperature', 0, 1.5);
     number('penaLoraScale', 0, 2);

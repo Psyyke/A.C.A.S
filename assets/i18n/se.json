@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Dölj automatiskt (ms)", "Dölj hjälpfunktionerna automatiskt efter denna tid"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Servern behöver uppdateras",
+            "message": "Uppdatera din lokala A.C.A.S-server till version {version} eller senare och starta sedan om den. Äldre versioner kanske inte fungerar rätt med den här appen.",
+            "download": "Hämta uppdateringen",
+            "close": "Inte nu"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "För din säkerhet är Ghost Script på som standard.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Ange hela pixelvärden från -1000 till 1000.", "tagline":"Anpassa din spökupplevelse","inactive":"Aktivera spökskriptet och den lokala servern.","connecting":"Ansluter till den lokala servern...","available":"Skärmöverlägg tillgängligt.","unavailable":"Skärmöverlägg inte tillgängligt.","update":"Uppdatera den lokala servern och anslut igen.","paused":"Skärmöverlägget pausat. För många ritningar eller servern är upptagen."},
         "pena": {
+            "chessCoaching": "Schackträning",
+            "chessCoachingHint": "Brädfakta, motorer och svarskontroller. Av innebär att du pratar direkt med modellen",
+            "chattingRaw": "Pratar direkt med modellen…",
+            "coachingUnchecked": "Schackträningen är avstängd, så inget här kontrolleras.",
             "penaNotSetUp": "Inte konfigurerad",
             "penaStopped": "Stoppad",
             "penaInstalled": "Pena är installerad. Starta när du vill.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Markera rutor, pjäser och pilar när Pena talar om dem",
             "futureMoves": "Spela upp kommande drag",
             "futureMovesHint": "Förhandsgranska framtida ställningar på spelbrädet.",
-            "moveChecking": "Dragkontroll",
-            "checkMoves": "Kontrollera drag med Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single kontrollerar råden",
-            "searchDepth": "Sökdjup",
-            "searchDepthHint": "Lägre är snabbare men kan missa taktik",
             "voice": "Röst",
             "readWith": "Röst för uppläsning",
             "off": "Av",
@@ -398,7 +403,6 @@
             "replacedPick": "Penas val ersattes efter en oberoende dragkontroll. Ersättningen förklarar en analyserad variant.",
             "moveChecked": "Draget kontrollerat. Det strategiska resonemanget är inte bevisat.",
             "checksEnabled": "Motsägelser mot brädet filtreras och beskrivna drag analyseras. Det bevisar inte varje strategisk förklaring.",
-            "checksDisabled": "Motsägelser mot brädet filtreras. Dragkontroll med Stockfish är avstängd.",
             "requiresSecure": "Pena kräver HTTPS eller localhost.",
             "requiresGpu": "Pena kräver WebGPU. Aktivera hårdvaruacceleration eller använd en webbläsare som stöds.",
             "noAdapter": "Ingen WebGPU-adapter är tillgänglig för Pena.",
@@ -524,23 +528,7 @@
             "prompt": "Prompt",
             "systemPrompt": "Systemprompt",
             "systemPromptHint": "Vem Pena är och hur den talar",
-            "resetPrompts": "Återställ prompt",
-            "evidence": "Vad Pena ser",
-            "evidenceAmount": "Mängd underlag",
-            "evidenceAmountHint": "Mindre går snabbare, och brädet ingår alltid",
-            "evidenceFull": "Fullständigt",
-            "evidenceMedium": "Medel",
-            "evidenceLight": "Lite",
-            "evidenceLines": "Motorvarianter",
-            "evidenceLinesHint": "Dragen som Stockfish och LC0 föredrar",
-            "evidenceReplies": "Motståndarens svar",
-            "evidenceRepliesHint": "Hur den andra sidan kan svara",
-            "evidenceCompare": "Jämförelser av drag",
-            "evidenceCompareHint": "Vad som skiljer kandidatdragen åt",
-            "evidenceWhatIf": "Hypotetiska ställningar",
-            "evidenceWhatIfHint": "Brädet efter de föreslagna dragen",
-            "evidenceHistory": "Tidigare ställningar",
-            "evidenceHistoryHint": "Tidigare drag i partiet"
+            "resetPrompts": "Återställ prompt"
         },
         "weightsRuntime": "Körläge",
         "weightsTrain": "Träna med DoppelMaia",

@@ -241,6 +241,12 @@
         "concealAssistanceAutoDelayMs": ["自動非表示（ミリ秒）", "この時間後に自動的に支援機能を非表示"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "サーバーの更新が必要です",
+            "message": "ローカルの A.C.A.S サーバーをバージョン {version} 以降に更新してから再起動してください。古いバージョンでは、このアプリが正常に動作しない場合があります。",
+            "download": "更新をダウンロード",
+            "close": "今はしない"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "安全のため、Ghost Script は初期状態でオンになっています。",
@@ -253,6 +259,10 @@
         },
         "ghostScreen": {"invalidOffset": "-1000 から 1000 の整数ピクセルを入力してください。", "tagline":"ゴースト体験を調整","inactive":"ゴーストスクリプトとローカルサーバーを有効にしてください。","connecting":"ローカルサーバーに接続中...","available":"画面オーバーレイを利用できます。","unavailable":"画面オーバーレイを利用できません。","update":"ローカルサーバーを更新して再接続してください。","paused":"画面オーバーレイを一時停止しました。描画が多すぎるかサーバーがビジーです。"},
         "pena": {
+            "chessCoaching": "チェスコーチング",
+            "chessCoachingHint": "盤面の事実、エンジン、回答の確認。オフにするとモデルと直接会話します",
+            "chattingRaw": "モデルと直接会話中…",
+            "coachingUnchecked": "チェスコーチングがオフのため、ここでは何も確認されません。",
             "penaNotSetUp": "未設定",
             "penaStopped": "停止中",
             "penaInstalled": "Pena はインストール済みです。いつでも起動できます。",
@@ -309,11 +319,6 @@
             "liveTeachingHint": "Pena が話しているマス、駒、矢印を点滅表示",
             "futureMoves": "先の手を再現",
             "futureMovesHint": "対局の盤面に今後の局面を重ねてプレビューします。",
-            "moveChecking": "手の検証",
-            "checkMoves": "Stockfish で手を検証",
-            "checkMovesHint": "Stockfish 18 Lite Single がアドバイスを検証",
-            "searchDepth": "探索の深さ",
-            "searchDepthHint": "浅いほど速いですが、戦術を見落とすことがあります",
             "voice": "音声",
             "readWith": "読み上げ音声",
             "off": "オフ",
@@ -391,7 +396,6 @@
             "checkedCount": "{count} 件検証済み",
             "removedCount": "{count} 件削除",
             "checksEnabled": "盤面と矛盾する内容を除外し、説明された手を探索します。すべての戦略的な解説の正しさを証明するものではありません。",
-            "checksDisabled": "盤面と矛盾する内容を除外します。Stockfish による手の検証はオフです。",
             "shown": "表示済み",
             "skipped": "簡潔にするため省略しました。",
             "contradictsBoard": "盤面と矛盾しています。",
@@ -522,23 +526,7 @@
             "prompt": "プロンプト",
             "systemPrompt": "システムプロンプト",
             "systemPromptHint": "Pena の役割と話し方",
-            "resetPrompts": "プロンプトをリセット",
-            "evidence": "Pena が見ているもの",
-            "evidenceAmount": "根拠の量",
-            "evidenceAmountHint": "少ないほど速く、盤面は常に含まれます",
-            "evidenceFull": "すべて",
-            "evidenceMedium": "中",
-            "evidenceLight": "少なめ",
-            "evidenceLines": "エンジンの読み筋",
-            "evidenceLinesHint": "Stockfish と LC0 が有力と見る手",
-            "evidenceReplies": "相手の応手",
-            "evidenceRepliesHint": "相手がどう応じるか",
-            "evidenceCompare": "手の比較",
-            "evidenceCompareHint": "候補手によって何が変わるか",
-            "evidenceWhatIf": "仮定した局面",
-            "evidenceWhatIfHint": "提案手を指した後の盤面",
-            "evidenceHistory": "過去の局面",
-            "evidenceHistoryHint": "この対局で以前に現れた局面"
+            "resetPrompts": "プロンプトをリセット"
         },
         "weightsRuntime": "実行方式",
         "weightsTrain": "DoppelMaia で学習",

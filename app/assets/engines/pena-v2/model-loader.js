@@ -18,7 +18,7 @@ export async function browserModelCached() {
 }
 
 /** Picks the adapter for the chosen LoRA mode. Returns null when Inkling should run on its own. */
-export async function resolveLora({ mode = 'pena', scale = 1, download = false, onProgress = () => {}, signal } = {}) {
+export async function resolveLora({ mode = 'off', scale = 1, download = false, onProgress = () => {}, signal } = {}) {
     if(mode === 'off' || scale === 0) return null;
     if(mode === 'custom') {
         const blob = await readCustomLora();
@@ -51,14 +51,15 @@ export async function loadBrowserModel(url, { localFile = null, download = false
     const { Wllama, CacheManager } = await import('./vendor/wllama.js');
     let blob = localFile;
     if(!blob) {
+        const pinned = lora?.name === 'pena' ? penaLora.base : { url: browserModelFileUrl, bytes: model.bytes };
         const cache = new CacheManager();
-        blob = await cache.open(browserModelFileUrl).catch(() => null);
-        if(blob?.size !== model.bytes) {
+        blob = await cache.open(pinned.url).catch(() => null);
+        if(blob?.size !== pinned.bytes) {
             if(!download) throw new Error(notDownloaded);
-            await cache.download(browserModelFileUrl, { signal,
-                progressCallback: ({ loaded, total }) => onProgress({ stage: 'download', loaded, total: total || model.bytes }) });
-            blob = await cache.open(browserModelFileUrl);
-            if(blob?.size !== model.bytes) throw new Error('The downloaded Inkling file is incomplete. Press Download again to resume.');
+            await cache.download(pinned.url, { signal,
+                progressCallback: ({ loaded, total }) => onProgress({ stage: 'download', loaded, total: total || pinned.bytes }) });
+            blob = await cache.open(pinned.url);
+            if(blob?.size !== pinned.bytes) throw new Error('The downloaded Inkling file is incomplete. Press Download again to resume.');
         }
     }
     signal?.throwIfAborted();

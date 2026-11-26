@@ -5,6 +5,9 @@ import { parseQuestionMoves } from './questions.js';
 import { buildPcfEvidence, selectPcfEvidence, encodePcfDraft, decodePcf, renderPcfTeacher } from './pcf-evidence.js';
 import { pcfBinPropMotifs } from './binprop-full.js';
 import { pastTopic } from './timeline.js';
+import { englishBoard, englishBoardLayout } from './english-board.js';
+import { historyNotes } from './thought-time.js';
+import { englishStrategy } from './english-strategy.js';
 
 const binKey = pcfBinPropMotifs.map(motif => motif.code).join(' ');
 const legend = 'PCF/3: -=known empty; ?=unknown; ~=not applicable; 0/1=false/true. C=current; V=conditional; H=recorded history. '
@@ -91,7 +94,8 @@ function historyIndexesFor(question, history) {
         request: { requestedMoves: requests.length, matchedMoves, requiredIndexes: [...requiredIndexes].sort((a, b) => a - b) } };
 }
 
-function messageWithPcf(input, pcf, { teacher = false } = {}) {
+// The original notes, engine lines and question binding, without the source board encoding.
+function evidenceHeader(input) {
     const messages = input.messages, last = messages.at(-1), suffix = `\n\nPlayer question: ${input.question}`;
     if(last?.role !== 'user' || !last.content.endsWith(suffix)) throw new Error('Unexpected PCF source input envelope.');
     if(input.legacyReferenceIds.some(id => /^C\.[a-h][1-8]$/.test(id)))
@@ -108,13 +112,36 @@ function messageWithPcf(input, pcf, { teacher = false } = {}) {
     const definitions = new Set([...legacy.matchAll(/^\[([^\]\n]+)\]/gm)].map(match => match[1]));
     if(input.legacyReferenceIds.some(id => !definitions.has(id))) throw new Error('PCF is missing an original compatibility citation.');
     const binding = prefix.split('\n').filter(line => /^(?:CURRENT question-subject|Question subject)/.test(line)).join('\n');
-    const expanded = teacher ? renderPcfTeacher(pcf) : pcf;
-    const guidance = teacher ? legend : `C=now V=if H=past. Attacks!=safe PV!=forced O=omitted BINS absent=0.${pcf.includes('\n@BCHANGE ') ? ' BASE C inherits current group; DROP removes; rows override past values. T/D C=last played. BCHANGE=now-minus-before.' : ''}${pcf.includes('\n@BINLINE ') ? ` BIN=${binKey}.` : ''}`;
-    const content = `Verified evidence:${legacy}${binding ? `\n${binding}` : ''}\n${guidance}\n${expanded}${suffix}`;
+    return { header: `Verified evidence:${legacy}${binding ? `\n${binding}` : ''}`, suffix };
+}
+
+const withContent = (messages, content) => {
     const result = messages.map((message, index) => index === messages.length - 1 ? { ...message, content } : { ...message });
     if(result.some(message => /(?:[prnbqkPRNBQK1-8]+\/){7}[prnbqkPRNBQK1-8]+/.test(message.content)))
         throw new Error('PCF model messages cannot contain a raw FEN board; use the recorded board and a normal question.');
     return result;
+};
+
+function messageWithPcf(input, pcf, { teacher = false } = {}) {
+    const { header, suffix } = evidenceHeader(input);
+    const expanded = teacher ? renderPcfTeacher(pcf) : pcf;
+    const guidance = teacher ? legend : `C=now V=if H=past. Attacks!=safe PV!=forced O=omitted BINS absent=0.${pcf.includes('\n@BCHANGE ') ? ' BASE C inherits current group; DROP removes; rows override past values. T/D C=last played. BCHANGE=now-minus-before.' : ''}${pcf.includes('\n@BINLINE ') ? ` BIN=${binKey}.` : ''}`;
+    return withContent(input.messages, `${header}\n${guidance}\n${expanded}${suffix}`);
+}
+
+/** The same notes and engine lines as PCF, with the board written as plain English sentences per piece. */
+export function englishCoachingInput(input, { playerColor, history = [], inkling = false, extraNotes = '', strategy = false } = {}) {
+    const { header, suffix } = evidenceHeader(input);
+    const root = input.frames.find(frame => frame.id === 'root');
+    const board = englishBoard(root.fen, { playerColor, previousFen: history.at(-1) || null });
+    const past = historyNotes(input.question, history, root.fen);
+    const notes = [strategy ? englishStrategy(root.fen) : '', past, extraNotes].filter(Boolean).join('\n');
+    const flat = withContent(input.messages, `${header}\nC=now V=if H=past. Board facts below are exact.\n${board}${notes ? `\n${notes}` : ''}${suffix}`);
+    const defined = new Set(input.legacyReferenceIds);
+    return Object.freeze({ ...input, schema: 'pena-v2-english-coaching-input/1', packing: inkling ? `${englishBoardLayout}+${inklingLayoutName}` : englishBoardLayout,
+        messages: Object.freeze((inkling ? inklingLayout(flat) : flat).map(Object.freeze)),
+        references: Object.freeze(input.references.filter(ref => defined.has(ref.id))),
+        pcf: Object.freeze({ promptTokens: null }) });
 }
 
 /** Exact token-budgeted PCF, preserving original reference definitions. */

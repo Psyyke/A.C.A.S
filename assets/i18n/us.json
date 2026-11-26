@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Auto Conceal (ms)", "Automatically conceal after this time"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Server update needed",
+            "message": "Update your local A.C.A.S server to version {version} or newer, then restart it. Older versions may not work correctly with this app.",
+            "download": "Get the update",
+            "close": "Not now"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Ghost Script is on by default for your safety.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Enter whole pixel offsets from -1000 to 1000.", "tagline":"Finetune your ghostly experience","inactive":"Turn on Ghost Script and the local server.","connecting":"Connecting to the local server...","available":"Screen overlay available.","unavailable":"Screen overlay unavailable.","update":"Update the local server and reconnect.","paused":"Screen overlay paused. Too many drawings or server busy."},
         "pena": {
+            "chessCoaching": "Chess coaching",
+            "chessCoachingHint": "Board facts, engines and answer checks. Off talks to the plain model",
+            "chattingRaw": "Chatting with the plain model…",
+            "coachingUnchecked": "Chess coaching is off, so nothing here is checked.",
             "setupPena": "Download about {size} to run Pena on your computer.",
             "startPena": "Start Pena",
             "resumeDownload": "Resume download",
@@ -304,11 +314,6 @@
             "liveTeachingHint": "Flash squares, pieces and arrows as Pena talks about them",
             "futureMoves": "Play out future moves",
             "futureMovesHint": "Preview future positions over the game board",
-            "moveChecking": "Move checking",
-            "checkMoves": "Check moves with Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single checks advice",
-            "searchDepth": "Search depth",
-            "searchDepthHint": "Lower is faster but can miss tactics",
             "voice": "Voice",
             "readWith": "Read aloud with",
             "off": "Off",
@@ -391,7 +396,6 @@
             "replacedPick": "Pena's pick was replaced after an independent move check. The replacement explains a searched line.",
             "moveChecked": "Move checked. Strategic reasoning is not proven.",
             "checksEnabled": "Board contradictions are filtered and narrated moves are searched. This does not prove every strategic explanation.",
-            "checksDisabled": "Board contradictions are filtered. Stockfish move checking is off.",
             "requiresSecure": "Pena requires HTTPS or localhost.",
             "requiresGpu": "Pena requires WebGPU. Enable hardware acceleration or use a supported browser.",
             "noAdapter": "No WebGPU adapter is available for Pena.",

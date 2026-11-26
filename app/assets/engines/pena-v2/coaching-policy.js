@@ -1,12 +1,42 @@
 import { moveHint, sourceSentences } from './commentary.js';
-import { moveMentions, moveOwner } from './teacher.js';
+import { moveMentions, moveOwner, variationFrames } from './teacher.js';
 import { markdownPlain } from './formatting.js';
-import { Chess } from '../libraries/chessjs/chess.js';
+import { Chess, SQUARES } from '../libraries/chessjs/chess.js';
 import { withTurn } from './factsheet.js';
+import { wrongMoveClaim } from './move-claims.js';
 
 export const coachingPolicy = 'Explain the purpose behind an idea, its tradeoffs and possible counterplay in natural language rather than listing evidence. '
     + 'Use chess knowledge to reason from the position, but distinguish inference from verified board facts and avoid claiming uncertain outcomes as certain. '
+    + 'Check piece identities and attack geometry even in hypothetical statements. A move onto a square and attacks from that square are different facts. '
+    + 'After a move, vacate the source square and remove any captured piece before describing targets. '
     + 'Do not volunteer a best move or line when the player has not asked for one.';
+
+// Squares named in a question about a knight, such as "where does a knight on d5 see?".
+const imaginedKnightSquares = question => /\bknights?\b/i.test(question || '')
+    ? [...new Set((String(question).match(/\b[a-h][1-8]\b/gi) || []).map(square => square.toLowerCase()))] : [];
+
+// Keep the trained PCF payload intact, with a small readable reminder for the live model.
+export function boardGroundingNotes(fen, question) {
+    const board = new Chess(fen);
+    const names = Object.fromEntries(Object.entries(pieceTypes).map(([name, type]) => [type, name]));
+    const ledger = ['w', 'b'].map(color => `${color === 'w' ? 'White' : 'Black'}: ` + SQUARES
+        .filter(square => board.get(square)?.color === color)
+        .map(square => `${names[board.get(square).type]} ${square}`).join(', ') + '.');
+    const notes = ['Rule-checked CURRENT board, not a future position:', ...ledger,
+        `${board.turn() === 'w' ? 'White' : 'Black'} to move. Unlisted squares are empty.`, ...hypotheticalKnights(board, question)];
+    return notes.join('\n');
+}
+
+function hypotheticalKnights(board, question) {
+    return imaginedKnightSquares(question).map(from => `Hypothetical knight on ${from}: complete geometric controls `
+        + `${SQUARES.filter(to => reaches(board, from, to, 0, { type: 'n' })).join(', ')}. `
+        + 'This does not place a knight there or establish a legal move, capture, or forced win.');
+}
+
+/** Only the question's imagined-knight lines, for prompts that already list the board. */
+export function hypotheticalKnightNotes(fen, question) {
+    return hypotheticalKnights(new Chess(fen), question).join('\n');
+}
 
 export function asksForMove(question, { offeredMove = false } = {}) {
     const text = String(question || '').trim();
@@ -110,8 +140,21 @@ function pieceAt(board, square) {
     try { return board.get(square) || null; } catch { return null; }
 }
 
+const sanLetters = { K: 'k', Q: 'q', R: 'r', B: 'b', N: 'n' };
+const namedMove = /\b([KQRBN])[a-h]?[1-8]?x?([a-h][1-8])\b|\b(pawn|knight|bishop|rook|queen|king)\s+(?:\w+\s+)?(?:to|into|onto|lands on|goes on)\s+([a-h][1-8])\b/gi;
+
+// Moves named in the question or reply, like Qd5 or "queen to d5", put that piece on an imagined square.
+function imaginedPlacements(...texts) {
+    const placed = new Set();
+    for(const text of texts) for(const match of markdownPlain(String(text || '')).matchAll(namedMove)) {
+        const type = match[1] ? sanLetters[match[1]] : pieceTypes[match[3].toLowerCase()];
+        placed.add(type + (match[2] || match[4]).toLowerCase());
+    }
+    return placed;
+}
+
 // "Your knight on b1" after that knight already left: the sentence describes an older board.
-function misplaced(plain, boards, playerColor) {
+function misplaced(plain, boards, playerColor, imagined = new Set()) {
     let inherited = null, previousEnd = -1;
     for(const match of plain.matchAll(placementPattern)) {
         const square = Boolean(match[6]);
@@ -132,20 +175,21 @@ function misplaced(plain, boards, playerColor) {
             const piece = pieceAt(board, at);
             return piece?.type === type && (!color || piece.color === color);
         });
-        if(holds(boards.now)) continue;
+        if(holds(boards.now) || squares.every(at => imagined.has(type + at))) continue;
         if(past.test(plain) && (!boards.before || holds(boards.before))) continue;
         return true;
     }
     return false;
 }
 
-export function dropMisplacedPieces(text, { fen = '', beforeFen = '', playerColor = '' } = {}) {
+export function dropMisplacedPieces(text, { fen = '', beforeFen = '', playerColor = '', question = '' } = {}) {
     let now, before = null;
     try { now = new Chess(fen); } catch { return { text, removed: [] }; }
     try { if(beforeFen) before = new Chess(beforeFen); } catch {}
     const removed = [];
+    const imagined = imaginedPlacements(question, text);
     const kept = sourceSentences(text).filter(({ text: sentence }) => {
-        if(!misplaced(markdownPlain(sentence), { now, before }, playerColor)) return true;
+        if(!misplaced(markdownPlain(sentence), { now, before }, playerColor, imagined)) return true;
         removed.push(sentence);
         return false;
     }).map(({ text: sentence }) => sentence);
@@ -233,8 +277,7 @@ const lineKinds = { diagonal: ([fx, fy], [tx, ty]) => fx !== tx && Math.abs(fx -
 
 // Whether the piece on from reaches to, looking through at most one piece, so batteries and x-rays still count.
 // A piece that only eyes a square may look through any number of pieces, as long as the square is on its line.
-function reaches(board, from, to, blockerLimit = 1) {
-    const piece = pieceAt(board, from);
+function reaches(board, from, to, blockerLimit = 1, piece = pieceAt(board, from)) {
     if(!piece || from === to) return false;
     const [fx, fy] = coords(from), [tx, ty] = coords(to);
     const dx = tx - fx, dy = ty - fy;
@@ -280,13 +323,13 @@ function stuckByPin(board, fen, square) {
 }
 
 const namedPiece = /\b(pawn|knight|bishop|rook|queen|king)\s+on\s+([a-h][1-8])\b|\b([a-h][1-8])[- ](pawn|knight|bishop|rook|queen|king)\b/gi;
-// Singular verbs only, so "the queen and bishop cover f5" is never pinned on one of them.
-const sightVerb = String.raw`looks\s+at|eyes|aims\s+at|points\s+at|stares\s+at|x-rays|targets|(?:is|are|'s)\s+(?:looking\s+at|eyeing|aiming\s+at|pointing\s+at|staring\s+at|targeting)`;
-const guardVerb = String.raw`guards|defends|protects|covers|supports|attacks|hits|(?:is|are|'s)\s+(?:guarding|defending|protecting|covering|supporting|attacking|hitting)|${sightVerb}`;
+// Base forms also cover modals such as "would attack".
+const sightVerb = String.raw`looks?\s+at|eyes?|sees?|aims?\s+at|points?\s+at|stares?\s+at|x-rays?|targets?|(?:is|are|'s)\s+(?:looking\s+at|eyeing|aiming\s+at|pointing\s+at|staring\s+at|targeting)`;
+const guardVerb = String.raw`guards?|defends?|protects?|covers?|supports?|attacks?|hits?|controls?|(?:is|are|'s)\s+(?:guarding|defending|protecting|covering|supporting|attacking|hitting)|(?:is|are|'s)\s+tied\s+(?:down\s+)?to|${sightVerb}`;
 const sighting = new RegExp(String.raw`^(?:${sightVerb})\b`, 'i');
 const pieceNoun = String.raw`(?:(?:the|your|their|its|that|this|black's|white's|opponent's)\s+)?(?:[\w-]+\s+)?(?:pawn|knight|bishop|rook|queen|king|piece)`;
 const claimPattern = new RegExp(String.raw`\b(?:is|are|sits|stands|lies)?\s*(?:on|along)\s+the\s+same\s+(diagonal|file|rank)\s+as\s+(?:${pieceNoun}\s+on\s+)?([a-h][1-8])\b`
-    + String.raw`|\b(?:${guardVerb})\s+(?:${pieceNoun}\s+on\s+([a-h][1-8])|([a-h][1-8])\b(?![- ]?(?:pawn|knight|bishop|rook|queen|king)?\s*,?\s*(?:and\b|or\b|[a-h][1-8]))|(that|this)\s+(?:pawn|piece|square)|(it)\b)`, 'gi');
+    + String.raw`|\b(?:${guardVerb})\s+(?:${pieceNoun}\s+on\s+([a-h][1-8])|(${squareList})\b|(that|this)\s+(?:pawn|piece|square)|(it)\b)`, 'gi');
 const passiveClaim = new RegExp(String.raw`\b([a-h][1-8])\s+is\s+(?:\w+\s+)?(?:guarded|defended|protected|covered|supported|attacked|hit)\s+by\s+(?:the|your|their|its|black's|white's|a)\s+(?:[\w-]+\s+)?(pawn|knight|bishop|rook|queen|king)\s+on\s+([a-h][1-8])\b(?!\s*,?\s*and\b)`, 'gi');
 const stuckClaim = /\b([a-h][1-8])(?:[- ](?:pawn|knight|bishop|rook|queen|king))?\s+(?:cannot|can't|can not|is unable to)\s+move\b(?!\s+(?:without|or|because|since|until|unless|safely|freely|away))/gi;
 const unsure = /(?:\b(?:not|never|no longer|nothing|no one|none|would|could|will|might|may|can|to|once|soon|then|also|only)|n't)\s+(?:\w+\s+)?$/i;
@@ -297,45 +340,115 @@ const moving = /\b(?:go|goes|going|went|jumps?|jumping|moves?|moving|lands?|land
 const pieceWord = /\b(?:pawn|knight|bishop|rook|queen|king|piece|it's)s?\b/i;
 
 // "The bishop on e2 is on the same diagonal as f2" when it is not: the model misread the board.
-function falseGeometry(plain, board, fen) {
-    const settled = !elsewhere.test(plain);
+function falseGeometry(plain, board, fen, context = '', imagined = []) {
+    const offset = context.length;
+    plain = context + plain;
+    const frames = variationFrames(plain, fen);
+    const boardAt = index => {
+        const frame = frames.findLast(frame => frame.end <= index);
+        return frame ? new Chess(frame.fen) : board;
+    };
+    const settled = !elsewhere.test(plain.slice(offset));
     const subjects = [...plain.matchAll(namedPiece)].map(match => ({ index: match.index, end: match.index + match[0].length,
         type: pieceTypes[(match[1] || match[4]).toLowerCase()], square: (match[2] || match[3]).toLowerCase() }))
         .filter(item => !notSubject.test(plain.slice(0, item.index).match(clauseStart)?.[1] || '')
             && !/\b(?:by|with)\b/i.test(plain.slice(0, item.index).split(/[,;:]/).at(-1)));
-    const squaresBefore = index => [...plain.slice(0, index).matchAll(/\b[a-h][1-8]\b/gi)].map(match => match[0].toLowerCase());
-    for(const claim of settled ? plain.matchAll(claimPattern) : []) {
+    // "From d5 it eyes e6" answers a question about a knight on d5, so "it" is that imagined knight.
+    for(const match of plain.matchAll(/\bfrom\s+([a-h][1-8])\s*,?\s+(?:(it)|(?:a|the|your|that|this)\s+knight)\b/gi))
+        if(!match[2] || imagined.includes(match[1].toLowerCase()))
+            subjects.push({ index: match.index, end: match.index + match[0].length, type: 'n', square: match[1].toLowerCase() });
+    subjects.sort((a, b) => a.end - b.end);
+    for(const move of plain.matchAll(/\b(?:go(?:es)?|jump(?:s)?|move(?:s)?|land(?:s)?)\s+(?:to|onto)\s+([a-h][1-8])\b/gi)) {
+        if(move.index < offset) continue;
+        const subject = subjects.filter(item => item.end <= move.index).at(-1);
+        if(subject?.type !== 'n') continue;
+        const gap = plain.slice(subject.end, move.index);
+        if(/[.!?;]|\b(?:not|never|cannot|can't|couldn't|doesn't|won't|wouldn't)\b/i.test(gap)
+            || pieceWord.test(gap) || moving.test(gap)) continue;
+        if(!reaches(board, subject.square, move[1].toLowerCase(), 0, { type: 'n' })) return true;
+    }
+    // A pronoun target only looks back within its own sentence, never at squares from earlier sentences.
+    const squaresBefore = index => [...plain.slice(offset, index).matchAll(/\b[a-h][1-8]\b/gi)].map(match => match[0].toLowerCase());
+    for(const claim of plain.matchAll(claimPattern)) {
+        if(claim.index < offset) continue;
         const before = plain.slice(0, claim.index);
-        if(unsure.test(before)) continue;
         // "e3 protects d4": a bare square right before the verb is the subject.
-        const bare = !claim[1] && before.match(/\b([a-h][1-8])(?:[- ]pawn)?\s+(?:still\s+|now\s+|already\s+)?$/i);
+        let bare = !claim[1] && before.match(/\b([a-h][1-8])(?:[- ]pawn)?\s+(?:still\s+|now\s+|already\s+)?$/i);
+        if(bare && subjects.some(item => item.square === bare[1].toLowerCase()
+            && /^\s*$/.test(plain.slice(item.end, claim.index)))) bare = null;
         let subject = bare ? { square: bare[1].toLowerCase(), type: pieceAt(board, bare[1].toLowerCase())?.type } : subjects.filter(item => item.end <= claim.index).at(-1);
-        if(!subject?.type || pieceAt(board, subject.square)?.type !== subject.type) continue;
+        if(!subject?.type) continue;
+        // "b7 is tied to the rook on a8" loosely means the pawn's fall exposes the rook, so only pieces count for "tied to".
+        if(/\btied\b/i.test(claim[0]) && subject.type === 'p') continue;
+        // Knight geometry is board-independent, even for an explicitly imagined placement.
+        // Other hypothetical pieces still need a replayed board before their blockers are known.
+        const knight = subject.type === 'n';
+        const current = boardAt(claim.index);
+        if(!settled && !knight) continue;
+        if(unsure.test(before) && !knight || /\b(?:not|never|no longer|cannot)\s+(?:\w+\s+)?$/i.test(before)
+            || /n't\s*(?:\w+\s+)?$/i.test(before)) continue;
+        if(!knight && pieceAt(current, subject.square)?.type !== subject.type) continue;
         if(!bare) {
             const gap = plain.slice(subject.end, claim.index);
             if(pieceWord.test(gap) || moving.test(gap) || /\b(?:[KQRBN]x?[a-h][1-8]|[a-h]x[a-h][1-8])/.test(gap)) continue;
+            if(/\band\s+(?:(?:the|your|their|its)\s+)?$/i.test(plain.slice(0, subject.index))) continue;
         }
         if(claim[1]) {
             if(!lineKinds[claim[1].toLowerCase()](coords(subject.square), coords(claim[2].toLowerCase()))) return true;
             continue;
         }
-        const target = (claim[3] || claim[4] || (claim[5] || claim[6]) && squaresBefore(claim.index).filter(square => square !== subject.square).at(-1) || '').toLowerCase();
-        if(target && !reaches(board, subject.square, target, sighting.test(claim[0].trim()) ? 7 : 1)) return true;
+        const targets = (claim[3] || claim[4] || (claim[5] || claim[6]) && squaresBefore(claim.index).filter(square => square !== subject.square).at(-1) || '')
+            .toLowerCase().match(/[a-h][1-8]/g) || [];
+        if(targets.some(target => !reaches(current, subject.square, target, sighting.test(claim[0].trim()) ? 7 : 1,
+            knight ? { type: 'n' } : pieceAt(current, subject.square)))) return true;
+        const victim = claim[3] && claim[0].match(/\b(pawn|knight|bishop|rook|queen|king)\s+on\s+([a-h][1-8])/i);
+        if(victim && !frames.incomplete && pieceAt(current, victim[2].toLowerCase())?.type !== pieceTypes[victim[1].toLowerCase()]) return true;
     }
     for(const claim of settled ? plain.matchAll(passiveClaim) : []) {
+        if(claim.index < offset) continue;
         const square = claim[3].toLowerCase();
         if(pieceAt(board, square)?.type === pieceTypes[claim[2].toLowerCase()] && !reaches(board, square, claim[1].toLowerCase())) return true;
     }
     if(/\bpinn\w*\b/i.test(plain)) for(const claim of plain.matchAll(stuckClaim))
-        if(!stuckByPin(board, fen, claim[1].toLowerCase())) return true;
+        if(claim.index >= offset && !stuckByPin(board, fen, claim[1].toLowerCase())) return true;
     return false;
 }
-export function dropFalseGeometry(text, { fen = '' } = {}) {
+const lastMoveClaim = /\b(?:white|black|you|your opponent|the opponent|they|he|she)\s+(?:has\s+)?just\s+(?:played|moved)\s+(?:\.\.\.)?([KQRBN]?[a-h]?[1-8]?x?([a-h][1-8])(?:=[QRBN])?|O-O(?:-O)?)(?![\w-])|\blast move was\s+(?:\.\.\.)?([KQRBN]?[a-h]?[1-8]?x?([a-h][1-8])(?:=[QRBN])?|O-O(?:-O)?)(?![\w-])/gi;
+function playedMove(beforeFen, fen) {
+    if(!beforeFen) return null;
+    try {
+        const board = fen.split(' ')[0], before = new Chess(beforeFen);
+        return before.moves({ verbose: true }).find(move => {
+            before.move(move);
+            const same = before.fen().split(' ')[0] === board;
+            before.undo();
+            return same;
+        }) || null;
+    } catch { return null; }
+}
+// "White just played N1g3" with no such move on record is a made-up history.
+function inventedLastMove(plain, played) {
+    for(const claim of plain.matchAll(lastMoveClaim)) {
+        const san = claim[1] || claim[3], to = claim[2] || claim[4];
+        if(!played) return true;
+        if(/^O-O/i.test(san) ? !/^O-O/.test(played.san) || /-O-O/i.test(san) !== /-O-O/.test(played.san)
+            : to.toLowerCase() !== played.to || (/^[KQRBN]/.test(san) ? san[0].toLowerCase() : 'p') !== played.piece) return true;
+    }
+    return false;
+}
+export function dropFalseGeometry(text, { fen = '', beforeFen = '', question = '' } = {}) {
     let board;
     try { board = new Chess(fen); } catch { return { text, removed: [] }; }
     const removed = [];
+    const imagined = imaginedKnightSquares(question);
+    const played = playedMove(beforeFen, fen);
+    let context = '';
     const kept = sourceSentences(text).filter(({ text: sentence }) => {
-        if(!falseGeometry(markdownPlain(sentence), board, fen)) return true;
+        const plain = markdownPlain(sentence);
+        const wrong = falseGeometry(plain, board, fen, context, imagined) || inventedLastMove(plain, played)
+            || wrongMoveClaim(plain, { rootFen: fen, context });
+        context += plain + ' ';
+        if(!wrong) return true;
         removed.push(sentence);
         return false;
     }).map(({ text: sentence }) => sentence);

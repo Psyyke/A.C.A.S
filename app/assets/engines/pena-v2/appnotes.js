@@ -39,8 +39,8 @@ const appWords = new RegExp([
 // Setting names from the usage guide, so "what does move detail do" counts as an app question without saying A.C.A.S.
 // Names that are also everyday chess talk stay out.
 const chessy = new Set(['chess engine', 'chess variant', 'material balance', 'display board', 'main settings', 'getting started with the server']);
-const penaLabels = ['thinking effort', 'max thinking tokens', 'lora strength', 'evidence amount', 'system prompt', 'local gguf',
-    'speech speed', 'speaker id', 'visual duration', 'voice pause', 'graphics memory', 'chess lora', 'pena lora', 'what pena sees'];
+const penaLabels = ['thinking effort', 'max thinking tokens', 'lora strength', 'chess coaching', 'system prompt', 'local gguf',
+    'speech speed', 'speaker id', 'visual duration', 'voice pause', 'graphics memory', 'chess lora', 'pena lora', 'plain inkling'];
 const escapeName = name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
 const guideNames = new RegExp(String.raw`\b(?:${[...new Set([...knowledge.filter(chunk => chunk.page === 'usage guide')
     .flatMap(chunk => chunk.title.split(/,\s*|\s+and\s+|\s+vs\.\s+/))
@@ -140,10 +140,9 @@ const speech = { off: 'off', browser: 'the browser voice', neural: 'a neural voi
 
 function penaLine(pena) {
     const on = value => value ? 'on' : 'off';
-    return `Pena AI settings: Don't give away moves ${on(pena.penaHideMoves)}, `
+    return `Pena AI settings: Chess coaching ${on(pena.penaCoaching !== false)}, Don't give away moves ${on(pena.penaHideMoves)}, `
         + `Only talk when asked ${on(pena.penaOnlyWhenAsked)}, Live board teaching ${on(pena.penaTeacher !== false)}, `
-        + `Play out future moves ${on(pena.penaFollowLine !== false)}, Check moves with Stockfish ${on(pena.penaMoveCheck !== false)}`
-        + `${pena.penaMoveCheck !== false ? ` at Search depth ${pena.penaCheckDepth || 12}` : ''}, Read aloud with ${speech[pena.penaSpeech] || speech.browser}.`;
+        + `Play out future moves ${on(pena.penaFollowLine !== false)}, Read aloud with ${speech[pena.penaSpeech] || speech.browser}.`;
 }
 
 const sides = { w: 'White', b: 'Black' };

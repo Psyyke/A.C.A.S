@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["स्वचालित छुपाएं (मिली सेकंड)", "इस समय के बाद सहायता सुविधाओं को स्वचालित रूप से छुपाएँ"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "सर्वर को अपडेट करना ज़रूरी है",
+            "message": "अपने स्थानीय A.C.A.S सर्वर को संस्करण {version} या उससे नए संस्करण में अपडेट करें, फिर दोबारा शुरू करें। हो सकता है कि पुराने संस्करण इस ऐप के साथ सही ढंग से काम न करें।",
+            "download": "अपडेट डाउनलोड करें",
+            "close": "अभी नहीं"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "आपकी सुरक्षा के लिए Ghost Script डिफ़ॉल्ट रूप से चालू है।",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "-1000 से 1000 तक पूरे पिक्सेल ऑफसेट डालें।", "tagline":"अपना घोस्ट अनुभव बदलें","inactive":"घोस्ट स्क्रिप्ट और स्थानीय सर्वर चालू करें।","connecting":"स्थानीय सर्वर से जुड़ रहा है...","available":"स्क्रीन ओवरले उपलब्ध है।","unavailable":"स्क्रीन ओवरले उपलब्ध नहीं है।","update":"स्थानीय सर्वर अपडेट करके फिर जुड़ें।","paused":"स्क्रीन ओवरले रुका है। बहुत अधिक आकृतियां हैं या सर्वर व्यस्त है।"},
         "pena": {
+            "chessCoaching": "शतरंज प्रशिक्षण",
+            "chessCoachingHint": "बोर्ड के तथ्य, इंजन और उत्तरों की जाँच। बंद करने पर सीधे मॉडल से बात होती है",
+            "chattingRaw": "सीधे मॉडल से बातचीत हो रही है…",
+            "coachingUnchecked": "शतरंज प्रशिक्षण बंद है, इसलिए यहाँ किसी चीज़ की जाँच नहीं होती।",
             "penaNotSetUp": "सेट अप नहीं हुआ",
             "penaStopped": "रुका हुआ",
             "penaInstalled": "Pena इंस्टॉल है। इसे कभी भी शुरू करें।",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Pena के बोलते समय संबंधित खाने, मोहरे और तीर चमकाएँ",
             "futureMoves": "आगामी चालें दिखाएँ",
             "futureMovesHint": "खेल के बोर्ड पर आगे की स्थितियों का पूर्वावलोकन करें।",
-            "moveChecking": "चालों की जाँच",
-            "checkMoves": "Stockfish से चालें जाँचें",
-            "checkMovesHint": "Stockfish 18 Lite Single सलाह की जाँच करता है",
-            "searchDepth": "खोज की गहराई",
-            "searchDepthHint": "कम गहराई तेज़ है, लेकिन रणनीतिक चालें छूट सकती हैं",
             "voice": "आवाज़",
             "readWith": "पढ़कर सुनाने की आवाज़",
             "off": "बंद",
@@ -393,7 +398,6 @@
             "checkedCount": "{count} जाँचे गए",
             "removedCount": "{count} हटाए गए",
             "checksEnabled": "बोर्ड से विरोधाभास हटाए जाते हैं और बताई गई चालों की खोज होती है। इससे हर रणनीतिक व्याख्या सिद्ध नहीं होती।",
-            "checksDisabled": "बोर्ड से विरोधाभास हटाए जाते हैं। Stockfish चाल जाँच बंद है।",
             "shown": "दिखाया गया",
             "skipped": "संक्षिप्त रखने के लिए छोड़ा गया।",
             "contradictsBoard": "बोर्ड से मेल नहीं खाता।",
@@ -524,23 +528,7 @@
             "prompt": "प्रॉम्प्ट",
             "systemPrompt": "सिस्टम प्रॉम्प्ट",
             "systemPromptHint": "Pena कौन है और कैसे बात करता है",
-            "resetPrompts": "प्रॉम्प्ट रीसेट करें",
-            "evidence": "Pena क्या देखता है",
-            "evidenceAmount": "साक्ष्य की मात्रा",
-            "evidenceAmountHint": "कम मात्रा तेज़ है; बोर्ड हमेशा शामिल रहता है",
-            "evidenceFull": "पूरा",
-            "evidenceMedium": "मध्यम",
-            "evidenceLight": "कम",
-            "evidenceLines": "इंजन की चालें",
-            "evidenceLinesHint": "Stockfish और LC0 की पसंदीदा चालें",
-            "evidenceReplies": "प्रतिद्वंद्वी के जवाब",
-            "evidenceRepliesHint": "दूसरा पक्ष कैसे जवाब दे सकता है",
-            "evidenceCompare": "चालों की तुलना",
-            "evidenceCompareHint": "उम्मीदवार चालों के बीच क्या बदलता है",
-            "evidenceWhatIf": "क्या-अगर स्थितियाँ",
-            "evidenceWhatIfHint": "सुझाई गई चालों के बाद का बोर्ड",
-            "evidenceHistory": "पिछली स्थितियाँ",
-            "evidenceHistoryHint": "इस खेल की पहले की चालें"
+            "resetPrompts": "प्रॉम्प्ट रीसेट करें"
         },
         "weightsRuntime": "चलाने का तरीका",
         "weightsTrain": "DoppelMaia से प्रशिक्षण दें",

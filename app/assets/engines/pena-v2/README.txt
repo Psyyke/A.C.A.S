@@ -38,6 +38,19 @@ RUNTIME
   resolves visual cues from the answer against the current position. It does
   not verify the model's advice or guarantee that a strategic claim is correct.
   The observed board is authoritative even if rapid moves leave gaps in history.
+  Chess coaching (on by default, top of Conversation in the Pena settings) is
+  the one switch for all of this. On, Pena gets the English board, live thought
+  notes and engine verdicts, Stockfish checks his suggested moves at depth 12,
+  and board filters clean the answer. Off, the question goes to the plain model
+  as plain chat with raw: true. It gets only the System prompt and the
+  recent chat, never the board or a FEN. No engines, app notes, filters or move checks
+  run, nothing is said without being asked, and the other Conversation switches
+  are locked. The old Move checking and What Pena sees settings are gone.
+  System prompt still controls the character. Temperature, thinking effort and
+  Max thinking tokens stay editable. Auto uses low effort in plain mode, and
+  manual effort stays as selected without coaching retries.
+  The evidence switches only ever shaped the PCF/LoRA input, and that keeps its
+  full defaults.
   New positions cancel stale preparation, engine evidence, native replies, speech
   and drawings. Board events update Pena immediately, with polling as a fallback.
   Each new board starts fresh, so Pena doesn't see its replies from older
@@ -60,6 +73,95 @@ RUNTIME
   Pena speaks casually as an AI chess coach, without claiming to be human.
   coaching-policy.js is active. The worker adds its policy to system messages,
   including custom prompts, with an extra restriction when moves are withheld.
+  Plain Inkling (no LoRA) gets the board as short English sentences instead of
+  PCF codes. Each piece gets one line with what it attacks, what it guards, who
+  hits it, who defends it and, for the side to move, its legal moves. The last
+  move played is spelled out too when the previous board is available. The
+  original Stockfish lines and notes stay. Extra PCF evidence such as LC0,
+  Maia, BinProps and detailed conditional positions is not sent on this path.
+  english-board.js builds it, and every fact comes from the rules, not the model.
+  Live thought evidence. When plain Inkling thinks on the English path, Pena
+  watches its thoughts for moves it imagines, like "if Bf8 then Rd5". It pauses
+  right there, adds a short rule-checked note about that future board into the
+  thinking, and lets the same thought carry on. So Inkling doesn't get every
+  possible future position up front, it gets facts about the ones it actually
+  thinks about. thought-injection.js does this, with thought-questions.js
+  answering little self-questions like "is e5 defended?".
+  Notes come with a quick Stockfish 19 lite look (verdict-engine.js, depth 12,
+  a few milliseconds per search in a nested worker). Stockfish 19 lite is a lot
+  faster than Stockfish 8 here and doesn't miss anything Pena needs. The engine
+  never just hands over a best move. Each verdict carries a board reason, what
+  the punishing reply hits, what a line wins, what a move threatens or which
+  threat it stops. The private reminder asks Inkling to explain WHY in board
+  terms, since "it develops" or "it controls the center" isn't a reason. Pena
+  is a coach, the rest of A.C.A.S already shows engine moves.
+  When thinking settles on a move nobody checked, it gets one last look, and a
+  mistake there earns a short rethink. Once every move the player asked about
+  has its note, thinking wraps up sooner, which made compare questions about a
+  third faster in local runs. Open questions like "what should I watch out
+  for?" also get a threat check on the current board early in the thinking,
+  what the opponent would play if it were their move and what it hits or wins.
+  When nothing wins material, the note says so, so Inkling doesn't invent a
+  threat. Answers drop talk about notes, checks and "the
+  supplied evidence". With "Don't give away moves" on, notes don't name the
+  better move. This needs the app server's raw completion action. An older
+  server just falls back to the normal reply, and the userscript is unaffected.
+  These are small local samples, so treat the speedups as rough.
+  Past, present and future. Notes always say which board they're about. A move
+  that was already played gets a "game history" note, a move Inkling imagines
+  gets a "board after" note, and "right now" or "currently" get the current
+  board. Plain "now" counts as the current board too, unless a move, a line
+  or a look back sits nearby (then it means that other board), or it reads
+  "just now", "until now" or "now that". If a thought could mean more than
+  one board and the facts differ,
+  Pena stays quiet rather than risk putting a fact on the wrong board. Older
+  moves are only described in the past tense, and the same note is never
+  injected twice. thought-time.js does this.
+  Move claims. Inkling sometimes reads a note and then says something else
+  anyway, like "...Re5 can be taken by the bishop on d5" when the bishop can't
+  take it. move-claims.js watches for claims about what a named move does
+  ("X can be taken by Y", "X hits the rook on e7", "X gives up the pressure on
+  c6") and replays them on every board the move could mean: the real board,
+  the line being discussed, and boards after moves named just before. A claim
+  only counts as wrong when it's wrong on all of them, so a true claim about
+  an imagined line stays quiet. In the thinking, a wrong claim gets a short
+  correction right after the sentence. In the answer, the sentence is dropped.
+  Run over about 4000 saved Inkling thoughts and answers, it flagged 12, and
+  each one was a real mistake checked by hand. It reads common phrasings only,
+  so plenty of wrong claims still slip past.
+  Answers also lose bare evidence ids like "F1:", "L1/L2" or a cut-off
+  "(F7, F11", and "the supplied lines" becomes "the engine lines".
+  Bigger picture notes (english-strategy.js) are opt-in with the strategy
+  option of englishCoachingInput and off by default. BinProp pattern tests pick
+  the topics (development early on, space, tied-down defenders, king activity
+  with queens off) and each one comes with exact board reasons. In two small
+  hand-checked A/B rounds they didn't make answers better overall. They helped
+  a "watch out" question but added a few new mistakes and id leaks elsewhere,
+  and the evidence header already carries open files, weak pawns, breaks and
+  king safety. So they stay off until a bigger test says otherwise.
+  The English board is used for every model now, including questions about
+  earlier moves. Those questions get a "Moves so far" line plus rule-checked
+  past-tense notes for any earlier move they name, and the graded game
+  timeline notes still come along. A LoRA was trained on PCF, so only with a
+  LoRA loaded does Pena keep PCF. On the PCF path the live worker also adds a short rule-checked piece ledger
+  beside the latest question. Knight questions with named squares get complete
+  geometric controls for those squares, clearly marked as hypothetical rather
+  than played moves, on both paths. The reminder is included in the prompt
+  budget and leaves the trained PCF payload alone. Raw FEN is never sent.
+  Hypothetical knight attacks, square lists and explicit jumps are checked too.
+  A knight on d5 cannot attack d8, and a queen claimed on c3 must really be a
+  queen on the discussed board. Rejected sentences stay out of speech and chat
+  memory, and appear in the checks list instead.
+  These are bounded checks, not a guarantee that generated advice is factual.
+  Free-form reasoning can still get ownership, strategy or an unrecognized
+  phrasing wrong. A LoRA learns the format, not a reliable chess rules engine.
+  "From d5 it eyes e6" counts as a knight claim when the question asked about
+  a knight on d5. Pronoun targets only reach back inside their own sentence.
+  In a small local A/B on one position (54 replies, fixed seeds), Inkling 2
+  Mini with pena-lora.gguf misplaced knight targets in about a third of replies
+  without the reminder, and the plain model almost never did. Adding a raw FEN
+  didn't help. If geometry slips keep showing up, try the model without the
+  LoRA first, then retrain the LoRA on geometry-checked answers.
   Teaching binds named sides, guard relationships, pin victims and pawn chains
   to actual pieces and geometry. Active piece-to-piece actions resolve an
   unnamed target against the actor's side, while defensive wording keeps allied
@@ -556,6 +658,9 @@ LIVE COMPACT PCF/3
   tokenizer, selects whole fact bundles within the shared 8192/384 budget and
   reports omissions. Mandatory current and immediately previous evidence that
   does not fit fails visibly, without silently dropping the previous position.
+  The app worker starts from a cautious guess of 1.55 characters per token. Real
+  Inkling prompts pack closer to 1.8, so when a busy board looks too big for the
+  guess, the worker asks the local server for the real count before giving up.
   Before retirement, the live worker converted /3 to PCF/3 with its loaded
   tokenizer. That worker path is now disabled. Offline preparation retains
   the same PCF producer. Returned citations are checked against the selected

@@ -24,7 +24,7 @@ import { assessChatReply } from '../chat-reply.js';
 import { chatSheet, citationSteps, chatPhrases, conceptVisuals } from '../conversation.js';
 import { moveArrowConfig } from '../../../js/misc/arrowStyle.js';
 import { moveMentions } from '../teacher.js';
-import { asksForMove, dropFalseGeometry, dropMisplacedPieces, dropRepeatedSentences, dropUnaskedVerdicts, hideMoveSuggestions } from '../coaching-policy.js';
+import { asksForMove, boardGroundingNotes, dropFalseGeometry, dropMisplacedPieces, dropRepeatedSentences, dropUnaskedVerdicts, hideMoveSuggestions } from '../coaching-policy.js';
 import { positionEvent } from '../chat.js';
 
 const start = new Chess().fen();
@@ -107,16 +107,16 @@ test('conversation restrictions cancel already running unsolicited replies witho
         .replaceAll('import.meta.url', JSON.stringify('https://pena.test/service.js'));
     let settings = { penaEnabled: true, penaOnlyWhenAsked: false, penaHideMoves: false, penaSpeech: 'off' };
     const messages = [], instance = { instanceID: 'board', currentFen: start };
-    const context = vm.createContext({ localStorage: { getItem: () => null }, clearTimeout, AbortController,
+    const context = vm.createContext({ localStorage: { getItem: () => null }, clearTimeout, AbortController, DOMException,
         asksForMove, isMobileDevice: () => false, window: { AcasInstances: [{ instance }] },
         getPenaPreferences: async () => settings });
     vm.runInContext(code + `
         resetAnswer = () => {};
         setBusy = () => {};
         ui = { window: { hidden: false } };
-        globalThis.live = { pena, refreshSettings };
+        globalThis.live = { pena, refreshSettings, chatEngine };
     `, context);
-    const { pena, refreshSettings } = context.live;
+    const { pena, refreshSettings, chatEngine } = context.live;
     pena.instance = instance;
     pena.enabled = true;
     pena.serverPort = 2800;
@@ -141,6 +141,24 @@ test('conversation restrictions cancel already running unsolicited replies witho
     settings = { ...settings, penaHideMoves: true };
     await refreshSettings('penaHideMoves');
     assert.equal(advice.signal.aborted, true);
+    const rawSwitch = new AbortController();
+    let terminated = 0, disposed = 0;
+    pena.response = { question: 'Tell me about this position.', controller: rawSwitch };
+    pena.verifier = { cancelPending() {}, terminate() { terminated++; } };
+    pena.groundedEngines = { dispose() { disposed++; } };
+    pena.game = { moves: [] };
+    pena.idleTurns = [{ player: 'Old board question', pena: 'Old chess reply' }];
+    settings = { ...settings, penaCoaching: false };
+    await refreshSettings('penaCoaching');
+    assert.equal(rawSwitch.signal.aborted, true);
+    assert.equal(terminated, 1);
+    assert.equal(disposed, 1);
+    assert.equal(pena.verifier, null);
+    assert.equal(pena.groundedEngines, null);
+    assert.equal(pena.game, null);
+    assert.equal(pena.idleTurns.length, 0, 'Switching modes clears earlier board chat');
+    assert.throws(() => chatEngine().lines(start, {}), { name: 'AbortError' },
+        'Pending game grading cannot restart an engine after coaching is switched off');
 });
 
 test('ZONOS starts loading on startup alongside the model when Pena reads aloud', async () => {
@@ -211,6 +229,14 @@ test('a sentence naming a piece on a square it already left is dropped', () => {
         'Your queen on f3, and h3 keeps g4 covered.', "Your bishop on c1, the f6 knight and Black's queen on d8 all matter."])
         assert.equal(dropMisplacedPieces(text, board).text, text, text);
     assert.equal(dropMisplacedPieces('Your knight on b1 waits.', { ...board, beforeFen: '' }).text, '');
+    // A move named in the question or the reply puts that piece on an imagined square, so it isn't stale.
+    const start = { fen: 'rnbqkbnr/ppp1pppp/8/8/3P4/2N5/PPP2PPP/R1BQKBNR b KQkq d3 0 4', playerColor: 'b' };
+    const answer = 'The queen on d5 is attacked by the knight on c3, and the likely line is 4...Qd5 5.Nxd5.';
+    assert.equal(dropMisplacedPieces(answer, start).text, answer);
+    const asked = 'The evidence flags it as Catastrophic, and the reason is concrete: the queen on d5 is attacked by the knight on c3.';
+    assert.equal(dropMisplacedPieces(asked, { ...start, question: 'What happens if I play Qd5?' }).text, asked);
+    assert.equal(dropMisplacedPieces(asked, start).text, '');
+    assert.equal(dropMisplacedPieces('Your queen on c3 is loose.', { ...start, question: 'What happens if I play Qd5?' }).text, '');
 });
 
 test('a sentence whose guard, line or pin claim misreads the board is dropped', () => {
@@ -219,16 +245,78 @@ test('a sentence whose guard, line or pin claim misreads the board is dropped', 
     const text = `The bishop on e2 is on the same diagonal as f2, so it guards that pawn. ${kept} So f2 cannot move while pinned.`;
     assert.equal(dropFalseGeometry(text, { fen }).text, kept);
     assert.equal(dropFalseGeometry(`Your bishop on e2 already looks at d5. ${kept}`, { fen }).text, kept, 'e2 and d5 share no line');
+    assert.equal(dropFalseGeometry(`d5 is guarded by your bishop on e2. ${kept}`, { fen }).text, kept,
+        'A rejected passive claim must not reject the following independent sentences');
     for(const fine of ['Protected by your rook on f1 and your bishop on e2, it hits b5.', 'Nothing is guarding it.',
         'Your bishop on e2 and rook on c2 cover d1.', 'Your bishop on e2 goes to d3 and hits b5.', 'Your bishop on e2 eyes h5.',
         "Black's bishop on d4 is eyeing b2."])
         assert.equal(dropFalseGeometry(fine, { fen }).text, fine, fine);
+});
+test('a made-up "just played" move is dropped, the real one is kept', () => {
+    const beforeFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    const fen = 'rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1';
+    const kept = 'White just played Nf3, so e5 is watched.';
+    const text = `White just played N1g3, and that knight hits e4. ${kept}`;
+    assert.equal(dropFalseGeometry(text, { fen, beforeFen }).text, kept);
+    assert.equal(dropFalseGeometry(kept, { fen }).text, '', 'with no previous board there is no last move to name');
 });
 test('a sentence copied from a reply at an older position is dropped', () => {
     const earlier = ['Quiet position. Your knight on b1 is the one piece still waiting to move.'];
     const fresh = 'Black hits your bishop on f3 now.';
     assert.equal(dropRepeatedSentences(`Your knight on b1 is the one piece still waiting to move. ${fresh}`, earlier).text, fresh);
     assert.equal(dropRepeatedSentences(fresh, earlier).text, fresh);
+});
+
+test('hypothetical knight claims keep their exact geometry and target identities', () => {
+    const fen = 'rnbqkbnr/ppp1pppp/8/8/3P4/2N5/PPP2PPP/R1BQKBNR b KQkq d3 0 4';
+    const wrong = [
+        'A knight on d5 would eye c7, b6, b4, c3, e3, f4, f6 and e7, so it hits the queen on c3 and the pawn on c7.',
+        'A knight on d5 would eye c7, e7 and f6, so it hits your queen on d8 and eyes the c7 pawn.',
+        'A knight on d5 would eye c7, e7 and d8.',
+        'Your knight on c3 can jump to e5.',
+        'Your knight on c3 could move to c5.'
+    ];
+    for(const text of wrong) assert.deepEqual(dropFalseGeometry(text, { fen }), { text: '', removed: [text] }, text);
+    for(const text of [
+        'A knight on d5 would eye c7, b6, b4, c3, e3, f4, f6 and e7.',
+        'Your knight on c3 can jump to d5.',
+        'Your knight on c3 cannot jump to e5.',
+        'A knight on d5 would not attack d8.',
+        'A knight on d5 cannot attack d8.',
+        'After Qd5, Nxd5 captures the queen.',
+        'A knight on d5 would attack c7. It also attacks e7.',
+        'After Qd5, the queen on d5 attacks d4.'
+    ]) assert.equal(dropFalseGeometry(text, { fen }).text, text, text);
+    const text = 'A knight on d5 would attack c7. It also attacks d8.';
+    assert.equal(dropFalseGeometry(text, { fen }).text, 'A knight on d5 would attack c7.');
+    // Real Pena replies: "it" names the knight the player asked about, but pronoun targets stay in their sentence.
+    const question = 'Think where a knight sees if it goes to d5';
+    assert.equal(dropFalseGeometry('From d5 it eyes c7 and e6, and it can jump to b6 or f6.', { fen, question }).text, '');
+    assert.equal(dropFalseGeometry('From d5 it hits b4, b6, c3, c7, e3, e7, f4 and f6. On your board that covers c7 and e7, so it can hit your queen on d8.',
+        { fen, question }).text, 'From d5 it hits b4, b6, c3, c7, e3, e7, f4 and f6.');
+    assert.equal(dropFalseGeometry('From d5 it eyes c7 and e7.', { fen, question }).text, 'From d5 it eyes c7 and e7.');
+    const fair = 'The pawn on d4 still limits things. Qd5 does not help; it just puts the queen where the c3 knight can hit it.';
+    assert.equal(dropFalseGeometry(fair, { fen }).text, fair);
+    const board = new Chess(fen);
+    assert.ok(board.move('Qd5'));
+    const capture = board.move('Nxd5');
+    assert.equal(capture.from, 'c3');
+    assert.equal(capture.captured, 'q');
+});
+
+test('live board reminders use actual occupants and complete knight geometry without moving a piece', () => {
+    const fen = 'rnbqkbnr/ppp1pppp/8/8/3P4/2N5/PPP2PPP/R1BQKBNR b KQkq d3 0 4';
+    const notes = boardGroundingNotes(fen, 'Think where a knight sees if it goes to d5');
+    assert.match(notes, /White: [^\n]*knight c3[^\n]*queen d1/);
+    assert.match(notes, /Black: [^\n]*queen d8/);
+    assert.match(notes, /Black to move/);
+    const controls = notes.match(/knight on d5: complete geometric controls ([^.]+)/)[1].split(', ');
+    assert.deepEqual(controls.sort(), ['b4', 'b6', 'c3', 'c7', 'e3', 'e7', 'f4', 'f6']);
+    assert.doesNotMatch(notes, /rnbqkbnr\//);
+    assert.doesNotMatch(boardGroundingNotes(fen, 'Where is my queen?'), /Hypothetical/);
+    const corner = boardGroundingNotes(fen, 'Could a knight on A1 see a1?');
+    assert.match(corner, /knight on a1: complete geometric controls b3, c2/);
+    assert.equal((corner.match(/Hypothetical knight/g) || []).length, 1);
 });
 
 test('who is winning is left out unless the player asks', () => {
@@ -570,14 +658,26 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
     const failedWorkerCount = await page.evaluate(() => window.fixture.workers.length);
     await page.locator('#pena-window .pena-setup').click();
     await page.waitForFunction(count => window.fixture.workers.length > count, failedWorkerCount);
-    for(const key of ['penaSpeech', 'penaMoveCheck', 'penaEffort', 'penaTemperature', 'penaSystemPrompt'])
+    for(const key of ['penaSpeech', 'penaCoaching', 'penaEffort', 'penaTemperature', 'penaSystemPrompt'])
         assert.equal(await page.locator(`#pena-floaty [data-key="${key}"]`).count(), 1, key);
-    for(const key of ['penaPreset', 'penaLora', 'penaLoraScale'])
+    for(const key of ['penaPreset', 'penaLora', 'penaLoraScale', 'penaMoveCheck', 'penaCheckDepth', 'penaEvidenceAmount'])
         assert.equal(await page.locator(`#pena-floaty [data-key="${key}"]`).count(), 0, key);
     assert.match(await page.locator('#pena-floaty [data-key="penaSystemPrompt"]').inputValue(), /^You are Pena/,
         'The built-in prompt fills the box so it can be edited');
     const locked = key => page.evaluate(key => document.querySelector(`#pena-floaty [data-key="${key}"]`)
         .closest('.custom-input').getAttribute('aria-disabled'), key);
+    await page.evaluate(async () => {
+        const { setInputValue } = await import('./assets/js/gui/domInputs.js');
+        setInputValue(document.querySelector('#pena-floaty [data-key="penaCoaching"]'), false);
+    });
+    for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine'])
+        assert.equal(await locked(key), 'true', key);
+    for(const key of ['penaEffort', 'penaThinkingTokens', 'penaTemperature', 'penaSystemPrompt'])
+        assert.equal(await page.locator(`#pena-floaty [data-key="${key}"]`).isEnabled(), true, key);
+    await page.evaluate(async () => {
+        const { setInputValue } = await import('./assets/js/gui/domInputs.js');
+        setInputValue(document.querySelector('#pena-floaty [data-key="penaCoaching"]'), true);
+    });
     assert.equal(await page.locator('#pena-floaty [data-key="penaVoice"]').count(), 0);
     assert.equal(await page.locator('#pena-floaty [data-value="neural"]').textContent(), 'ZONOS3 neural voice');
     assert.equal(await page.locator('#pena-floaty [data-key="penaSpeech"]').inputValue(), 'neural');
@@ -595,10 +695,8 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
         keys: [...section.querySelectorAll('[data-key]')].map(input => input.dataset.key)
     })));
     assert.deepEqual(sections, [
-        { title: 'Conversation', keys: ['penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine',
+        { title: 'Conversation', keys: ['penaCoaching', 'penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine',
             'penaVisualDuration', 'penaVoicePause'] },
-        { title: 'Move checking & What Pena sees', keys: ['penaMoveCheck', 'penaCheckDepth', 'penaEvidenceLines', 'penaEvidenceReplies',
-            'penaEvidenceCompare', 'penaEvidenceWhatIf', 'penaEvidenceHistory', 'penaEvidenceAmount'] },
         { title: 'Voice', keys: ['penaSpeech', 'penaZonosVoice', 'penaBrowserVoice', 'penaSpeechRate'] },
         { title: 'Thinking & Prompt', keys: ['penaEffort', 'penaThinkingTokens', 'penaTemperature', 'penaSystemPrompt'] }
     ]);
@@ -623,30 +721,25 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
         const dialog = document.querySelector('#pena-floaty');
         dialog.showModal();
         const container = key => dialog.querySelector(`[data-key="${key}"]`).closest('.dropdown-input-container');
-        const evidence = container('penaEvidenceAmount'), effort = container('penaEffort');
-        const list = evidence.querySelector('.dropdown-list-container'), effortList = effort.querySelector('.dropdown-list-container');
-        list.style.display = 'block';
+        const effort = container('penaEffort');
+        const effortList = effort.querySelector('.dropdown-list-container');
         effortList.style.display = 'block';
-        const sizes = { evidence: evidence.getBoundingClientRect().width, list: list.getBoundingClientRect().width,
-            effort: effort.getBoundingClientRect().width, effortList: effortList.getBoundingClientRect().width,
+        const sizes = { effort: effort.getBoundingClientRect().width, effortList: effortList.getBoundingClientRect().width,
             other: container('penaSpeech').getBoundingClientRect().width };
-        list.style.display = '';
         effortList.style.display = '';
         dialog.close();
         return sizes;
     });
-    assert.ok(sizes.evidence >= 105 && sizes.evidence <= 125, JSON.stringify(sizes));
-    assert.ok(sizes.list >= sizes.evidence && sizes.list <= 220, JSON.stringify(sizes));
     assert.ok(sizes.effort >= 105 && sizes.effort <= 125, JSON.stringify(sizes));
     assert.ok(sizes.effortList >= sizes.effort && sizes.effortList <= 220, JSON.stringify(sizes));
-    assert.ok(sizes.other > sizes.evidence, JSON.stringify(sizes));
+    assert.ok(sizes.other > sizes.effort, JSON.stringify(sizes));
     await page.setViewportSize({ width: 500, height: 800 });
     const narrow = await page.evaluate(async () => {
         const dialog = document.querySelector('#pena-floaty');
         dialog.showModal();
         const { updatePenaChoices } = await import('./assets/engines/pena-v2/i18n.js');
         const results = [];
-        for(const key of ['penaEvidenceAmount', 'penaEffort']) {
+        for(const key of ['penaEffort']) {
             const input = dialog.querySelector(`[data-key="${key}"]`);
             const container = input.closest('.dropdown-input-container');
             const list = container.querySelector('.dropdown-list-container');
@@ -678,7 +771,7 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
                 dialog.dir = direction;
                 dialog.showModal();
                 const results = [];
-                for(const key of ['penaEvidenceAmount', 'penaEffort', 'penaSpeech']) {
+                for(const key of ['penaEffort', 'penaSpeech']) {
                     const input = dialog.querySelector(`[data-key="${key}"]`);
                     const list = input.closest('.dropdown-input-container').querySelector('.dropdown-list-container');
                     const item = list.querySelector('.dropdown-item');
@@ -722,13 +815,21 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
     await page.waitForFunction(() => document.querySelector('#pena-floaty [data-key="penaEffort"]').value === 'high');
     await page.evaluate(() => document.querySelector('#pena-floaty').close());
     await page.setViewportSize({ width: 1280, height: 720 });
-    assert.equal(await locked('penaCheckDepth'), 'false');
+    assert.equal(await locked('penaHideMoves'), 'false');
     await page.evaluate(() => {
-        const box = document.querySelector('#pena-floaty [data-key="penaMoveCheck"]');
+        const box = document.querySelector('#pena-floaty [data-key="penaCoaching"]');
         box.checked = false;
         box.dispatchEvent(new Event('change'));
     });
-    assert.equal(await locked('penaCheckDepth'), 'true', 'Search depth is locked while move checking is off');
+    for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine', 'penaVisualDuration'])
+        assert.equal(await locked(key), 'true', `${key} is locked while chess coaching is off`);
+    assert.notEqual(await locked('penaVoicePause'), 'true');
+    await page.evaluate(() => {
+        const box = document.querySelector('#pena-floaty [data-key="penaCoaching"]');
+        box.checked = true;
+        box.dispatchEvent(new Event('change'));
+    });
+    assert.equal(await locked('penaVisualDuration'), 'false');
     assert.equal(await page.evaluate(async () => {
         const { setInputValue } = await import('./assets/js/gui/domInputs.js');
         const { coachingSystem } = await import('./assets/engines/pena-v2/coaching-compact.js');
@@ -789,7 +890,7 @@ test('Pena continuous microphone submits successive questions on the current boa
     await page.goto(`${url}/app/index.html`);
     await page.evaluate(async fen => {
         window.fixture = { recognitions: [], questions: [], messages: [], starts: 0,
-            config: { global: { penaEnabled: false, penaModel: 'fixture', penaOnlyWhenAsked: true, penaMoveCheck: false } } };
+            config: { global: { penaEnabled: false, penaModel: 'fixture', penaOnlyWhenAsked: true } } };
         window.USERSCRIPT = {
             getValue: async () => structuredClone(window.fixture.config),
             setValue: async (key, value) => { window.fixture.config = structuredClone(value); }
@@ -912,6 +1013,7 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
             import { Chess } from '../engines/libraries/chessjs/chess.js';
             export default class {
                 async lines(fen, { depth, multipv, moves }) {
+                    window.fixture.engineCalls = (window.fixture.engineCalls || 0) + 1;
                     const legal = new Chess(fen).moves({ verbose: true }).map(move => move.from + move.to + (move.promotion || ''));
                     const order = [...new Set([...(moves || []), 'e2e4', 'd2d4', 'g1f3', ...legal])].filter(move => legal.includes(move)
                         && (!moves || moves.includes(move)));
@@ -944,7 +1046,7 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
     await page.goto(`${url}/app/index.html`);
     await page.evaluate(async fen => {
         window.fixture = { messages: [], spoken: [],
-            config: { global: { penaEnabled: false, penaModel: 'fixture', penaOnlyWhenAsked: true, penaMoveCheck: false,
+            config: { global: { penaEnabled: false, penaModel: 'fixture', penaOnlyWhenAsked: true,
                 penaHideMoves: true, penaSpeech: 'browser' } } };
         window.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
         Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: {
@@ -1218,6 +1320,14 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
         raw: 'This has invalid metadata.', inputSchema: 'pena-plain-chat/1'
     } }), invalid);
     assert.match(await page.locator('.pena-answer').last().textContent(), /exact PCF evidence references/);
+    const hallucination = await ask('Would a knight on d5 attack d8?');
+    await reply(hallucination, 'A knight on d5 would attack d8. Knights move in L shapes.');
+    assert.equal(await page.locator('.pena-answer').last().textContent(), 'Knights move in L shapes.');
+    assert.equal(await page.locator('.pena-checks').isVisible(), true);
+    assert.match(await page.locator('.pena-checks li').last().textContent(), /knight on d5 would attack d8/);
+    const afterHallucination = await ask('Why does it move that way?');
+    assert.doesNotMatch(JSON.stringify(afterHallucination.input.messages), /would attack d8/);
+    await reply(afterHallucination, 'That is how a knight moves.');
     await page.locator('.pena-chat-log').evaluate(element => {
         for(let i = 0; i < 30; i++) element.prepend(element.querySelector('.pena-turn').cloneNode(true));
     });
@@ -1292,6 +1402,43 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
     const afterReset = await ask('I want it');
     assert.equal(afterReset.hideMoves, true, 'A different board must not retain permission from an earlier position');
     await reply(afterReset, 'Which idea do you mean?');
+    // Chess coaching off hands every question to plain Inkling with no board at all, and nothing comments by itself.
+    await page.waitForTimeout(300);
+    const engineCalls = await page.evaluate(() => window.fixture.engineCalls);
+    await page.evaluate(() => { Object.assign(window.fixture.config.global, { penaCoaching: false, penaOnlyWhenAsked: false,
+        penaSystemPrompt: 'You are a grumpy pirate.', penaEffort: 'high', penaThinkingTokens: 320, penaTeacher: true, penaFollowLine: true }); });
+    const raw = await ask('Where can my knight on g1 go?');
+    assert.equal(raw.raw, true);
+    assert.equal(raw.plain, true);
+    assert.equal(raw.fen, undefined);
+    assert.equal(raw.board, undefined);
+    assert.equal(raw.notes, undefined);
+    assert.equal(raw.prompt.systemPrompt, 'You are a grumpy pirate.');
+    assert.equal(raw.effort, 'high');
+    assert.equal(raw.thinkingTokens, 320);
+    assert.deepEqual(raw.input, { question: 'Where can my knight on g1 go?' });
+    await page.evaluate(message => window.fixture.worker.onmessage({ data: { type: 'pena', mode: 'grounded', chatId: message.chatId,
+        phase: 'complete', raw: 'Your knight on g1 can go to e5. Supplied evidence [A1]—[my link](https://example.com).', tokens: 9, finishReason: 'stop',
+        inputSchema: 'pena-plain-chat/1', definedIds: [] } }), raw);
+    assert.equal(await page.locator('.pena-answer').last().textContent(), 'Your knight on g1 can go to e5. Supplied evidence [A1]—my link.',
+        'Plain Inkling answers are shown as they are, without board filters');
+    assert.equal(await page.locator('.pena-answer').last().locator('.pena-reference, .pena-evidence-warning').count(), 0);
+    assert.match(await page.locator('.pena-feedback').textContent(), /coaching is off/i);
+    const rawCount = await page.evaluate(() => window.fixture.messages.filter(message => message.type === 'converse').length);
+    const moved = new Chess();
+    moved.move('d4');
+    moved.move('d5');
+    await page.evaluate(fen => { window.fixture.instance.currentFen = fen; }, moved.fen());
+    await page.waitForTimeout(700);
+    assert.equal(await page.evaluate(() => window.fixture.messages.filter(message => message.type === 'converse').length), rawCount,
+        'Plain Inkling never comments on a move by itself');
+    assert.equal(await page.evaluate(() => window.fixture.engineCalls), engineCalls,
+        'Plain mode does not grade new positions or search user questions');
+    await page.evaluate(() => window.fixture.worker.onmessage({ data: { type: 'serverVersion', version: '1.2.0' } }));
+    assert.equal(await page.locator('#server-update-floaty').isVisible(), true,
+        'Pena-only server connections can open the update warning');
+    await page.evaluate(() => window.fixture.worker.onmessage({ data: { type: 'serverVersion', version: '1.2.1' } }));
+    assert.equal(await page.locator('#server-update-floaty').isVisible(), false);
 });
 
 test('Pena gives a reconnected tab its chat back only when the same game continues', async () => {
@@ -2566,7 +2713,7 @@ test('Pena reports why an answer is empty without letting removed notes override
         ui = { raw: {}, status: globalThis.status = {} };
         renderChecks = () => {};
         renderText = () => {};
-        pena.settings = { penaMoveCheck: false };
+        pena.settings = { penaCoaching: false };
         globalThis.presentAnswer = present;
     `, context);
     for(const [text, emptyReason, rejectedLine, expected] of [

@@ -1,4 +1,4 @@
-import { getPenaPreferences, evidenceOptionsFrom } from './preferences.js';
+import { getPenaPreferences, PENA_CHECK_DEPTH } from './preferences.js';
 import { promptOverridesFrom } from './prompt-overrides.js';
 import { PenaSpeech, PenaMicrophone } from './speech.js';
 import { PenaTeacher, variationFrames, moveMentions } from './teacher.js';
@@ -14,6 +14,7 @@ import { appNotes, profileSummary } from './appnotes.js';
 import { markdownPlain, renderMarkdown, spokenText } from './formatting.js';
 import { markCitations, markerPattern, stripMarkers, sentenceCitations, citationFacts } from './cited-evidence.js';
 import { isSmallTalk } from './inkling-effort.js';
+import { reportServerVersion } from '../../js/gui/serverVersion.js';
 import { PenaVariation } from './variation.js';
 import { friendlyPenaError } from './runtime.js';
 import { understandQuestion, QuestionAnswer, moveIntent, findPlayedMove } from './questions.js';
@@ -248,7 +249,7 @@ function followLine(response, text, context, cue, compiled = teachingFor(respons
 }
 
 function flash(response, text, references, duration = 1500, line = null, persistent = false) {
-    if(!pena.settings?.penaTeacher || concealed() || pena.instance?.currentFen !== response.fen) return;
+    if(pena.settings?.penaCoaching === false || !pena.settings?.penaTeacher || concealed() || pena.instance?.currentFen !== response.fen) return;
     if(pena.hover && !persistent) return;
     if(!persistent) duration = visualDuration(duration);
     clearTimeout(pena.followTimer);
@@ -442,7 +443,7 @@ function renderChecks(assessments) {
         removed.append(removedLabel);
         ui.checkSummary.append(removed);
     }
-    ui.checkSummary.dataset.penaTitle = pena.settings?.penaMoveCheck ? 'checksEnabled' : 'checksDisabled';
+    ui.checkSummary.dataset.penaTitle = pena.settings?.penaCoaching !== false ? 'checksEnabled' : 'coachingUnchecked';
     ui.checkSummary.title = penaText(ui.checkSummary.dataset.penaTitle);
     ui.checkList.replaceChildren(...assessments.map(item => {
         const row = document.createElement('li');
@@ -492,9 +493,9 @@ async function present(response, data) {
         renderChecks(result.assessments);
         renderText(response, result.text);
     };
-    if(pena.settings.penaMoveCheck) {
+    if(pena.settings.penaCoaching !== false) {
         response.checks ??= new CoachingChecks({ fen: response.analysisFen, evaluate: evaluateForCoaching,
-            depth: pena.settings.penaCheckDepth,
+            depth: PENA_CHECK_DEPTH,
             isCurrent: () => pena.response === response && boardFen() === response.fen && !concealed() });
         await response.checks.update(stream, data.text || '', final, { truncated, onUpdate: (checked, options) => {
             publish(response.answer ? response.answer.update(data.text || '', options.complete, options) : checked);
@@ -541,7 +542,10 @@ async function drainPresentation(response) {
 }
 
 function chatEngine() {
-    const verifier = () => pena.verifier ??= new MoveEvaluator(true, 'stockfish-18-lite-single');
+    const verifier = () => {
+        if(pena.settings?.penaCoaching === false) throw new DOMException('Chess coaching is off.', 'AbortError');
+        return pena.verifier ??= new MoveEvaluator(true, 'stockfish-18-lite-single');
+    };
     return {
         lines: (fen, options) => verifier().lines(fen, options),
         compare: (...args) => verifier().compare(...args)
@@ -566,7 +570,7 @@ const matching = (moves, fens) => {
 // The game so far is graded in the background, one search per new position, so questions about
 // earlier moves have their answers ready. A takeback keeps the moves that still match.
 function catchUpGame(instance, fen) {
-    if(!pena.canChat || !pena.conversation) return null;
+    if(pena.settings?.penaCoaching === false || !pena.canChat || !pena.conversation) return null;
     const fens = gameFens(instance, fen);
     if(pena.game && !sameSquares(pena.game.start, fens[0])) {
         pena.game = null;
@@ -575,7 +579,7 @@ function catchUpGame(instance, fen) {
     const game = pena.game ??= { start: fens[0], moves: [], fens, queue: Promise.resolve() };
     game.fens = fens;
     game.queue = game.queue.then(async () => {
-        if(pena.game !== game || game.fens !== fens) return;
+        if(pena.settings?.penaCoaching === false || pena.game !== game || game.fens !== fens) return;
         const moves = await gradeGame(chatEngine(), fens, { depth: 10, known: game.moves.slice(0, matching(game.moves, fens)) });
         if(pena.game === game) game.moves = moves;
     }).catch(error => console.warn('[Pena] Game grading stopped:', error));
@@ -716,13 +720,32 @@ function chatEvent(response, data) {
 }
 
 function finishGroundedChat(response, data) {
+    if(response.raw) {
+        if(data.inputSchema !== 'pena-plain-chat/1') throw new Error('Plain model returned an unexpected reply format.');
+        const text = String(data.raw || '').trim();
+        if(/<\|(?:im_start|im_end|endoftext)\|>|<\/?think>/.test(text))
+            throw new Error('The model emitted internal chat markup; answer withheld.');
+        pena.response = null;
+        pena.shown = response;
+        setBusy(false);
+        ui.raw.textContent = text;
+        ui.answer.hidden = !text;
+        ui.answer.replaceChildren(renderMarkdown(text));
+        ui.checks.hidden = true;
+        pena.text = markdownPlain(text);
+        if(text) pena.idleTurns = [...pena.idleTurns, { player: response.question, pena: text }].slice(-6);
+        setStatus('coachingUnchecked');
+        streamSpeech(response, pena.text);
+        scrollToTurn();
+        return;
+    }
     if(boardFen() !== response.fen || concealed()) return;
     // Markdown links keep only their words, so they aren't mistaken for evidence tags.
     const raw = presentComparisonAnswer(String(data.raw || '')).replace(/\[([^\]\n]+)\]\([^\s)]+\)/g, '$1');
     if(/<\|(?:im_start|im_end|endoftext)\|>|<\/?think>/.test(raw))
         throw new Error('Pena emitted internal model markup; answer withheld.');
     const plain = data.inputSchema === 'pena-plain-chat/1' && response.idle;
-    if(!plain && data.inputSchema !== 'pena-v2-pcf-coaching-input/3' || !Array.isArray(data.definedIds)
+    if(!plain && !['pena-v2-pcf-coaching-input/3', 'pena-v2-english-coaching-input/1'].includes(data.inputSchema) || !Array.isArray(data.definedIds)
         || data.definedIds.some(id => typeof id !== 'string' || !id || /[\]\r\n]/.test(id)))
         throw new Error('Pena did not report the exact PCF evidence references; answer withheld.');
     const known = new Set(data.definedIds);
@@ -739,6 +762,7 @@ function finishGroundedChat(response, data) {
     let formatted = marked.replace(/[ \t]*\[([^\]\n]+)\]/g,
         (match, id) => citationLike(id) ? '' : match).trim();
     let withheld = false, allWithheld = false;
+    const boardRemoved = [];
     if(response.hideMoves) {
         const played = response.beforeFen && findPlayedMove(response.beforeFen, response.fen);
         const filtered = hideMoveSuggestions(formatted, { playedSan: played?.san, fen: response.fen, playerColor: response.playerColor });
@@ -751,11 +775,16 @@ function finishGroundedChat(response, data) {
     // A piece named on a square it no longer stands on belongs to an older board. Those sentences go.
     if(!plain && !allWithheld) {
         const board = { fen: response.fen, beforeFen: response.beforeFen, playerColor: response.playerColor };
-        formatted = dropMisplacedPieces(formatted, board).text;
-        cleanHistory = dropMisplacedPieces(cleanHistory, board).text;
+        const checked = { ...board, question: response.event ? '' : response.question };
+        const placed = dropMisplacedPieces(formatted, checked);
+        boardRemoved.push(...placed.removed);
+        formatted = placed.text;
+        cleanHistory = dropMisplacedPieces(cleanHistory, checked).text;
         // And sentences whose guard, line or pin claims don't match the real board geometry.
-        formatted = dropFalseGeometry(formatted, board).text;
-        cleanHistory = dropFalseGeometry(cleanHistory, board).text;
+        const geometry = dropFalseGeometry(formatted, checked);
+        boardRemoved.push(...geometry.removed);
+        formatted = geometry.text;
+        cleanHistory = dropFalseGeometry(cleanHistory, checked).text;
         // So do sentences copied word for word from what was said at another position.
         const older = (pena.saidBefore || []).filter(item => !sameSquares(item.fen, response.fen)).map(item => item.text);
         formatted = dropRepeatedSentences(formatted, older).text;
@@ -819,10 +848,12 @@ function finishGroundedChat(response, data) {
         warning.innerHTML = ICONS.warning;
         ui.answer.append(warning);
     }
-    ui.checks.hidden = true;
+    if(boardRemoved.length) renderChecks(boardRemoved.map(source =>
+        ({ status: 'contradicted', shown: false, source, reason: 'contradictsBoard' })));
+    else ui.checks.hidden = true;
     quietAnswer(response, withheld);
-    setStatus(!pena.text.trim() ? (response.event ? '' : withheld ? 'moveHidden' : 'nothingNew')
-        : plain ? 'Pena · plain chat.' : `Pena · ${pena.modelId || 'local model'} · PCF/3 · ${data.promptTokens} prompt tokens · generated advice is not verified.`
+    setStatus(!pena.text.trim() ? (response.event ? '' : withheld ? 'moveHidden' : boardRemoved.length ? 'contradictsBoard' : 'nothingNew')
+        : plain ? (response.raw ? 'Plain Inkling · nothing is checked.' : 'Pena · plain chat.') : `Pena · ${pena.modelId || 'local model'} · PCF/3 · ${data.promptTokens} prompt tokens · generated advice is not verified.`
         + (data.finishReason === 'length' ? ' Reply reached its token limit.' : '')
         + (pena.groundedEngines?.maiaWarning ? ` ${pena.groundedEngines.maiaWarning}` : ''));
     if(cleanHistory.trim() && plain) pena.idleTurns = [...pena.idleTurns, { player: response.question, pena: cleanHistory }].slice(-6);
@@ -862,8 +893,11 @@ async function converse(response, instance) {
     setBusy(true);
     ui.thinking.hidden = false;
     // Small talk skips the board evidence, which takes far longer to read than the reply takes to write.
-    if(response.idle || response.chat && !response.moveRequested && isSmallTalk(response.question)) {
+    // With chess coaching off every question goes to plain Inkling the same way.
+    const raw = pena.settings?.penaCoaching === false;
+    if(raw || response.idle || response.chat && !response.moveRequested && isSmallTalk(response.question)) {
         response.board = !response.idle;
+        response.raw = raw;
         response.idle = true;
         response.hideMoves = false;
         plainChat(response);
@@ -916,7 +950,7 @@ async function converse(response, instance) {
             history, playerColor: response.playerColor, automatic: Boolean(response.event),
             hideMoves: response.hideMoves,
             moveRequested: response.moveRequested,
-            effort: s.penaEffort, thinkingTokens: s.penaThinkingTokens, temperature: s.penaTemperature, prompt: promptOverridesFrom(s), evidence: evidenceOptionsFrom(s) });
+            effort: s.penaEffort, thinkingTokens: s.penaThinkingTokens, temperature: s.penaTemperature, prompt: promptOverridesFrom(s) });
     } catch(error) {
         if(pena.response !== response) return;
         cancel();
@@ -927,6 +961,14 @@ async function converse(response, instance) {
 // With no board open Pena just chats. No engines, no position notes.
 function plainChat(response) {
     const s = pena.settings || {};
+    if(response.raw) {
+        setStatus('chattingRaw');
+        pena.idleApp = null;
+        pena.worker.postMessage({ type: 'converse', plain: true, raw: true, chatId: response.chatId, input: { question: response.question },
+            conversation: pena.idleTurns, history: [],
+            effort: s.penaEffort, thinkingTokens: s.penaThinkingTokens, temperature: s.penaTemperature, prompt: promptOverridesFrom(s) });
+        return;
+    }
     setStatus('chattingWithoutBoard');
     // With no board, the usage guide and Pena's own settings are all he can look at.
     const app = appNotes(response.question, { pena: s }, { previous: pena.idleApp });
@@ -938,7 +980,7 @@ function plainChat(response) {
 
 // Chat notes take a few engine searches, so they start while the player is still thinking.
 function warmConversation(instance, fen) {
-    if(!pena.canChat || !pena.conversation) return;
+    if(pena.settings?.penaCoaching === false || !pena.canChat || !pena.conversation) return;
     let history = [];
     try { history = readPenaPosition(penaPosition(fen, instance.gameStateHistory).command, fen).history; } catch {}
     pena.conversation.analyse(fen, history).catch(() => {});
@@ -1043,6 +1085,7 @@ async function startWorker() {
     worker.onmessage = ({ data }) => {
         if(pena.worker !== worker) return;
         if(data?.type === 'pena') handleEvent(data);
+        else if(data?.type === 'serverVersion') reportServerVersion(data.version);
         else if(data?.type === 'ready') {
             ui.loading.hidden = true;
             ui.setup.hidden = true;
@@ -1230,6 +1273,10 @@ async function onPosition(fen) {
     const position = penaPosition(fen, instance.gameStateHistory);
     const response = { chatId: crypto.randomUUID(), fen, analysisFen: fen, playerColor, event: true };
     catchUpGame(instance, fen);
+    if(pena.settings.penaCoaching === false) {
+        setStatus('askAnytime');
+        return;
+    }
     if(pena.settings.penaOnlyWhenAsked) {
         setStatus('askAnytime');
         warmConversation(instance, fen);
@@ -1328,16 +1375,19 @@ async function refreshSettings(changedKey) {
         cancel();
         resetAnswer();
     }
-    const checksChanged = pena.settings && (settings.penaMoveCheck !== pena.settings.penaMoveCheck
-        || settings.penaCheckDepth !== pena.settings.penaCheckDepth);
+    const checksChanged = pena.settings && settings.penaCoaching !== pena.settings.penaCoaching;
     if(checksChanged) {
         cancel();
         resetAnswer();
         pena.fen = null;
+        pena.idleTurns = [];
     }
-    if(!settings.penaMoveCheck) {
+    if(!settings.penaCoaching) {
         pena.verifier?.terminate();
         pena.verifier = null;
+        pena.groundedEngines?.dispose();
+        pena.groundedEngines = pena.groundedReady = null;
+        pena.game = null;
     }
     if(!settings.penaFollowLine) pena.variation?.clear();
     if(pena.settings && settings.penaSpeech !== pena.settings.penaSpeech) {

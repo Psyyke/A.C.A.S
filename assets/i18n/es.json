@@ -244,6 +244,12 @@
 
     },
     "translations": {
+        "serverUpdate": {
+            "title": "El servidor necesita una actualización",
+            "message": "Actualiza tu servidor local de A.C.A.S a la versión {version} o posterior y luego reinícialo. Las versiones anteriores pueden no funcionar correctamente con esta aplicación.",
+            "download": "Descargar la actualización",
+            "close": "Ahora no"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Por tu seguridad, Ghost Script está activado de forma predeterminada.",
@@ -256,6 +262,10 @@
         },
         "ghostScreen": {"invalidOffset": "Introduce valores enteros de píxeles entre -1000 y 1000.", "tagline":"Ajusta tu experiencia fantasma","inactive":"Activa el Script Fantasma y el servidor local.","connecting":"Conectando al servidor local...","available":"Superposición en pantalla disponible.","unavailable":"Superposición en pantalla no disponible.","update":"Actualiza el servidor local y vuelve a conectar.","paused":"Superposición pausada. Hay demasiados dibujos o el servidor está ocupado."},
         "pena": {
+            "chessCoaching": "Entrenamiento de ajedrez",
+            "chessCoachingHint": "Datos del tablero, motores y comprobación de respuestas. Desactivado, hablas directamente con el modelo",
+            "chattingRaw": "Hablando directamente con el modelo…",
+            "coachingUnchecked": "El entrenamiento de ajedrez está desactivado, así que aquí no se comprueba nada.",
             "penaNotSetUp": "Sin configurar",
             "penaStopped": "Detenido",
             "penaInstalled": "Pena está instalado. Puedes iniciarlo cuando quieras.",
@@ -312,11 +322,6 @@
             "liveTeachingHint": "Resaltar casillas, piezas y flechas mientras Pena habla de ellas",
             "futureMoves": "Mostrar jugadas futuras",
             "futureMovesHint": "Previsualiza las posiciones futuras sobre el tablero de la partida.",
-            "moveChecking": "Comprobación de jugadas",
-            "checkMoves": "Comprobar jugadas con Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single comprueba los consejos",
-            "searchDepth": "Profundidad de búsqueda",
-            "searchDepthHint": "Una profundidad menor es más rápida, pero puede pasar por alto tácticas",
             "voice": "Voz",
             "readWith": "Leer en voz alta con",
             "off": "Desactivado",
@@ -399,7 +404,6 @@
             "replacedPick": "La elección de Pena se sustituyó tras una comprobación independiente. La alternativa explica una variante analizada.",
             "moveChecked": "Jugada comprobada. El razonamiento estratégico no está demostrado.",
             "checksEnabled": "Se filtran las contradicciones con el tablero y se buscan las jugadas narradas. Esto no demuestra todas las explicaciones estratégicas.",
-            "checksDisabled": "Se filtran las contradicciones con el tablero. La comprobación de jugadas con Stockfish está desactivada.",
             "requiresSecure": "Pena requiere HTTPS o localhost.",
             "requiresGpu": "Pena requiere WebGPU. Activa la aceleración por hardware o usa un navegador compatible.",
             "noAdapter": "No hay ningún adaptador WebGPU disponible para Pena.",
@@ -525,23 +529,7 @@
             "prompt": "Instrucción",
             "systemPrompt": "Instrucción del sistema",
             "systemPromptHint": "Quién es Pena y cómo habla",
-            "resetPrompts": "Restablecer instrucción",
-            "evidence": "Lo que ve Pena",
-            "evidenceAmount": "Cantidad de evidencias",
-            "evidenceAmountHint": "Menos es más rápido y el tablero siempre se incluye",
-            "evidenceFull": "Completa",
-            "evidenceMedium": "Media",
-            "evidenceLight": "Ligera",
-            "evidenceLines": "Variantes del motor",
-            "evidenceLinesHint": "Las jugadas que prefieren Stockfish y LC0",
-            "evidenceReplies": "Respuestas del rival",
-            "evidenceRepliesHint": "Cómo podría responder el otro bando",
-            "evidenceCompare": "Comparación de jugadas",
-            "evidenceCompareHint": "Qué cambia entre las jugadas candidatas",
-            "evidenceWhatIf": "Posiciones hipotéticas",
-            "evidenceWhatIfHint": "El tablero después de las jugadas sugeridas",
-            "evidenceHistory": "Posiciones anteriores",
-            "evidenceHistoryHint": "Jugadas previas de esta partida"
+            "resetPrompts": "Restablecer instrucción"
         },
         "weightsRuntime": "Ejecución",
         "weightsTrain": "Entrenar con DoppelMaia",

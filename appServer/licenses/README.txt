@@ -50,9 +50,11 @@ https://github.com/ggml-org/llama.cpp/tree/b12633
 Inkling 2 Mini by Thinking Machines Lab, with GGUF conversion by
 AtomicChat: declared Apache License 2.0. The full
 licence is included here. A.C.A.S does not modify the downloaded GGUF.
-Current plain base for Pena's adapter:
+Default download, the uncensored Inkling GGUF with no adapter:
+https://huggingface.co/AtomicChat/Inkling-2-Mini-Uncensored-GGUF/tree/82b34b9b0e5bc2e3e7b6d617ec8cc3e0f9692ee2
+Plain base for Pena's optional adapter:
 https://huggingface.co/AtomicChat/Inkling-2-Mini-GGUF/tree/4f0c56af7e0c242e620be6394983d245b8c3fd27
-Published Pena adapter: GPLv3 for the Pena-specific contribution, with
+Optional Pena adapter: GPLv3 for the Pena-specific contribution, with
 upstream Apache-2.0 terms retained. It includes chess-coaching fine-tuning
 and OpenUncensored's refusal-removal edit. Do not apply it to an
 already-uncensored base. The credits panel includes both licence texts.

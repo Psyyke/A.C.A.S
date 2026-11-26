@@ -18,6 +18,11 @@ follow its source links. Chromium notices open as a separate document.
 To change the port, save it in Settings. This restarts the server app and stops
 running engines, so set the same port in the web GUI to reconnect.
 
+The web app needs server version **1.2.1** or newer. It shows a dismissible update
+floaty when an older server connects, including legacy servers that do not report
+their version. The warning links to the latest release and appears only once per
+page visit. It closes automatically when a compatible server connects.
+
 On Windows and Linux, closing the main window stops the server and its Ghost
 overlays too. The Windows `run_dev_loop.bat` can then reopen it after a second.
 On macOS, closing the window keeps the app running as usual.
@@ -54,12 +59,16 @@ GUI has the same button. The server then does everything by itself:
   build (`b12633`). Windows NVIDIA gets CUDA 13.5 (driver 580+) or CUDA 12.4
   (driver 551+), AMD and Intel get Vulkan, Apple Silicon gets Metal, and
   everything else gets the CPU build. Linux uses Vulkan on every vendor.
-* Downloads the runtime, the matching plain Inkling base (8.67 GB) and the
-  published [Pena chess LoRA](https://huggingface.co/Hakorr/Pena) (39.4 MB)
-  into this computer's app user-data folder under `pena`, then starts with
-  `--lora`. No developer files, Hugging Face account or manually selected
-  model paths are needed. The adapter already includes the refusal-removal
-  edit, so setup never pairs it with an already-uncensored base.
+* Downloads the runtime and the uncensored Inkling 2 Mini (8.67 GB) into this
+  computer's app user-data folder under `pena`, and runs it with no LoRA.
+  In local tests the published [Pena chess LoRA](https://huggingface.co/Hakorr/Pena)
+  misread piece geometry far more often than Inkling on its own, so it's
+  opt-in now. To use it, pick its matching plain base
+  (`Inkling-2-Mini-AD-IQ2_M.gguf` from AtomicChat/Inkling-2-Mini-GGUF) and the
+  LoRA in **Advanced**. Never pair the LoRA with the uncensored model, since
+  the adapter already carries the refusal-removal edit.
+  No developer files, Hugging Face account or manually selected
+  model paths are needed for the default.
   Existing installs fetch only the changed files. Downloads resume after a
   pause or a dropped connection, and every file is checked against its
   pinned SHA-256 before use.

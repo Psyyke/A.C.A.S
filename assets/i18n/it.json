@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Occultamento automatico (ms)", "Nascondi automaticamente le funzioni di assistenza dopo questo tempo"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Il server va aggiornato",
+            "message": "Aggiorna il server locale A.C.A.S alla versione {version} o successiva, poi riavvialo. Le versioni precedenti potrebbero non funzionare correttamente con questa app.",
+            "download": "Scarica l'aggiornamento",
+            "close": "Non ora"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Per la tua sicurezza, Ghost Script è attivo per impostazione predefinita.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Inserisci valori interi di pixel tra -1000 e 1000.", "tagline":"Personalizza la tua esperienza fantasma","inactive":"Attiva lo Script Fantasma e il server locale.","connecting":"Connessione al server locale...","available":"Sovrapposizione sullo schermo disponibile.","unavailable":"Sovrapposizione sullo schermo non disponibile.","update":"Aggiorna il server locale e riconnettiti.","paused":"Sovrapposizione in pausa. Troppi disegni o server occupato."},
         "pena": {
+            "chessCoaching": "Allenamento di scacchi",
+            "chessCoachingHint": "Fatti sulla scacchiera, motori e controlli delle risposte. Disattivato, parli direttamente con il modello",
+            "chattingRaw": "Conversazione direttamente con il modello…",
+            "coachingUnchecked": "L'allenamento di scacchi è disattivato, quindi qui non viene controllato nulla.",
             "penaNotSetUp": "Non configurato",
             "penaStopped": "Fermato",
             "penaInstalled": "Pena è installato. Avvialo quando vuoi.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Evidenzia case, pezzi e frecce mentre Pena ne parla",
             "futureMoves": "Mostra le mosse future",
             "futureMovesHint": "Anteprima delle posizioni future sulla scacchiera della partita.",
-            "moveChecking": "Verifica delle mosse",
-            "checkMoves": "Verifica le mosse con Stockfish",
-            "checkMovesHint": "Stockfish 18 Lite Single verifica i consigli",
-            "searchDepth": "Profondità di ricerca",
-            "searchDepthHint": "Una profondità minore è più veloce ma può perdere tattiche",
             "voice": "Voce",
             "readWith": "Voce per la lettura ad alta voce",
             "off": "Disattivato",
@@ -398,7 +403,6 @@
             "replacedPick": "La scelta di Pena è stata sostituita dopo una verifica indipendente. La sostituzione spiega una variante analizzata.",
             "moveChecked": "Mossa verificata. Il ragionamento strategico non è dimostrato.",
             "checksEnabled": "Le contraddizioni con la scacchiera vengono filtrate e le mosse narrate vengono analizzate. Questo non dimostra ogni spiegazione strategica.",
-            "checksDisabled": "Le contraddizioni con la scacchiera vengono filtrate. La verifica delle mosse con Stockfish è disattivata.",
             "requiresSecure": "Pena richiede HTTPS o localhost.",
             "requiresGpu": "Pena richiede WebGPU. Attiva l'accelerazione hardware o usa un browser supportato.",
             "noAdapter": "Nessun adattatore WebGPU disponibile per Pena.",
@@ -524,23 +528,7 @@
             "prompt": "Prompt",
             "systemPrompt": "Prompt di sistema",
             "systemPromptHint": "Chi è Pena e come parla",
-            "resetPrompts": "Reimposta il prompt",
-            "evidence": "Cosa vede Pena",
-            "evidenceAmount": "Quantità di prove",
-            "evidenceAmountHint": "Meno è più veloce e la scacchiera è sempre inclusa",
-            "evidenceFull": "Completa",
-            "evidenceMedium": "Media",
-            "evidenceLight": "Leggera",
-            "evidenceLines": "Linee del motore",
-            "evidenceLinesHint": "Le mosse preferite da Stockfish e LC0",
-            "evidenceReplies": "Risposte dell’avversario",
-            "evidenceRepliesHint": "Come potrebbe rispondere l’altro lato",
-            "evidenceCompare": "Confronto tra mosse",
-            "evidenceCompareHint": "Cosa cambia tra le mosse candidate",
-            "evidenceWhatIf": "Posizioni ipotetiche",
-            "evidenceWhatIfHint": "La scacchiera dopo le mosse suggerite",
-            "evidenceHistory": "Posizioni precedenti",
-            "evidenceHistoryHint": "Mosse precedenti di questa partita"
+            "resetPrompts": "Reimposta il prompt"
         },
         "weightsRuntime": "Esecuzione",
         "weightsTrain": "Allena con DoppelMaia",

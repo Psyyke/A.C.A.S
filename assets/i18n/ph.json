@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Awtomatikong Itago (ms)", "Awtomatikong itago ang mga feature ng tulong pagkatapos ng oras na ito"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Kailangang i-update ang server",
+            "message": "I-update ang lokal mong A.C.A.S server sa bersyon {version} o mas bago, saka i-restart ito. Maaaring hindi gumana nang maayos ang mga lumang bersyon sa app na ito.",
+            "download": "I-download ang update",
+            "close": "Hindi ngayon"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Para sa kaligtasan mo, naka-on ang Ghost Script bilang default.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Maglagay ng buong pixel offset mula -1000 hanggang 1000.", "tagline":"Ayusin ang iyong ghost experience","inactive":"I-on ang Tagong Script at ang lokal na server.","connecting":"Kumokonekta sa lokal na server...","available":"Available ang screen overlay.","unavailable":"Hindi available ang screen overlay.","update":"I-update ang lokal na server at muling kumonekta.","paused":"Naka-pause ang screen overlay. Sobra ang mga guhit o abala ang server."},
         "pena": {
+            "chessCoaching": "Pagsasanay sa chess",
+            "chessCoachingHint": "Mga katotohanan sa board, engine at pagsusuri ng sagot. Kapag naka-off, direkta kang nakikipag-usap sa modelo",
+            "chattingRaw": "Direktang nakikipag-usap sa modelo…",
+            "coachingUnchecked": "Naka-off ang pagsasanay sa chess, kaya walang sinusuri rito.",
             "penaNotSetUp": "Hindi pa naka-set up",
             "penaStopped": "Nahinto",
             "penaInstalled": "Naka-install na ang Pena. Maaari mo itong simulan anumang oras.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Pailawin ang mga parisukat, piyesa at arrow habang binabanggit ni Pena",
             "futureMoves": "Ipakita ang mga susunod na tira",
             "futureMovesHint": "Silipin ang mga susunod na posisyon sa board ng laro.",
-            "moveChecking": "Pagsusuri ng tira",
-            "checkMoves": "Suriin ang mga tira gamit ang Stockfish",
-            "checkMovesHint": "Sinusuri ng Stockfish 18 Lite Single ang payo",
-            "searchDepth": "Lalim ng paghahanap",
-            "searchDepthHint": "Mas mabilis ang mababa ngunit maaaring may makaligtaang taktika",
             "voice": "Boses",
             "readWith": "Boses sa pagbasa nang malakas",
             "off": "Naka-off",
@@ -393,7 +398,6 @@
             "checkedCount": "{count} nasuri",
             "removedCount": "{count} inalis",
             "checksEnabled": "Sinasala ang mga salungat sa board at sinusuri ang mga binanggit na tira. Hindi nito pinatutunayan ang bawat estratehikong paliwanag.",
-            "checksDisabled": "Sinasala ang mga salungat sa board. Naka-off ang pagsusuri ng tira ng Stockfish.",
             "shown": "Ipinakita",
             "skipped": "Nilaktawan para manatiling maikli.",
             "contradictsBoard": "Salungat sa board.",
@@ -524,23 +528,7 @@
             "prompt": "Prompt",
             "systemPrompt": "System prompt",
             "systemPromptHint": "Kung sino si Pena at paano siya magsalita",
-            "resetPrompts": "I-reset ang prompt",
-            "evidence": "Nakikita ni Pena",
-            "evidenceAmount": "Dami ng ebidensiya",
-            "evidenceAmountHint": "Mas kaunti, mas mabilis; laging kasama ang board",
-            "evidenceFull": "Buong-buo",
-            "evidenceMedium": "Katamtaman",
-            "evidenceLight": "Kaunti",
-            "evidenceLines": "Mga linya ng engine",
-            "evidenceLinesHint": "Mga tirang gusto ng Stockfish at LC0",
-            "evidenceReplies": "Mga sagot ng kalaban",
-            "evidenceRepliesHint": "Paano makasasagot ang kabilang panig",
-            "evidenceCompare": "Paghahambing ng mga tira",
-            "evidenceCompareHint": "Ano ang nagbabago sa bawat posibleng tira",
-            "evidenceWhatIf": "Mga posisyong what-if",
-            "evidenceWhatIfHint": "Ang board pagkatapos ng mga iminumungkahing tira",
-            "evidenceHistory": "Mga naunang posisyon",
-            "evidenceHistoryHint": "Mga naunang tira sa larong ito"
+            "resetPrompts": "I-reset ang prompt"
         },
         "weightsRuntime": "Paraan ng pagpapatakbo",
         "weightsTrain": "Magsanay gamit ang DoppelMaia",

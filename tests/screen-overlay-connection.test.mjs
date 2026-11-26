@@ -23,7 +23,7 @@ function harness(external = {}, timers = { setTimeout, clearTimeout }, navigator
     }
     const ghost = input(), overlay = input(), offsetX = input(), offsetY = input(),
         status = { textContent: '' }, title = { textContent: '' },
-        subtitle = { textContent: '' }, sockets = [], logs = [], documentListeners = new Map();
+        subtitle = { textContent: '' }, sockets = [], logs = [], versions = [], documentListeners = new Map();
     class Socket {
         static CONNECTING = 0;
         static OPEN = 1;
@@ -49,6 +49,7 @@ function harness(external = {}, timers = { setTimeout, clearTimeout }, navigator
             return null;
         }, addEventListener(name, callback) { documentListeners.set(name, callback); } },
         serverPortInput: null, WebSocket: Socket, navigator: { userAgent: '', ...navigator },
+        reportServerVersion: version => versions.push(version),
         localStorage: { getItem: () => null, setItem() {} },
         window: {}, IS_EXTERNAL_ENGINE_SETTING_ACTIVE: external,
         BroadcastChannel: class { postMessage() {} },
@@ -58,13 +59,33 @@ function harness(external = {}, timers = { setTimeout, clearTimeout }, navigator
         setTimeout: timers.setTimeout, clearTimeout: timers.clearTimeout, queueMicrotask
     };
     vm.runInNewContext(`${source}\nglobalThis.api = { AcasWebSocketClient, sendScreenOverlay, clearScreenOverlay, connectAcasToServer, disconnectAcasFromServer };`, context);
-    return { ghost, overlay, offsetX, offsetY, status, title, subtitle, sockets, logs, api: context.api,
+    return { ghost, overlay, offsetX, offsetY, status, title, subtitle, sockets, logs, versions, api: context.api,
         translate(translations, configTranslations) {
             context.TRANS_OBJ = translations;
             context.FULL_TRANS_OBJ = { configTranslations };
             documentListeners.get('acas-translations-updated')();
         } };
 }
+
+test('engine connections report versions, recognize legacy replies and ignore replaced sockets', () => {
+    const h = harness();
+    const client = new h.api.AcasWebSocketClient();
+    client.connect();
+    const first = client.socket;
+    first.open();
+    const reply = (socket, data) => socket.onmessage({ data: JSON.stringify(data) });
+    reply(first, { type: 'serverInfo', version: '1.2.1' });
+    reply(first, { type: 'enginesList', msg: [] });
+    assert.deepEqual(h.versions, ['1.2.1']);
+    client.disconnect();
+    client.connect();
+    client.socket.open();
+    reply(first, { type: 'serverInfo', version: '1.0.0' });
+    reply(client.socket, { type: 'enginesList', msg: [] });
+    reply(client.socket, { type: 'enginesList', msg: [] });
+    assert.deepEqual(h.versions, ['1.2.1', null]);
+    client.disconnect();
+});
 
 test('send rejects replaced sockets and catches a close race without reporting success', async () => {
     const h = harness();

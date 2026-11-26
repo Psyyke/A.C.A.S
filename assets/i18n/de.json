@@ -243,6 +243,12 @@
         "concealAssistanceAutoDelayMs": ["Automatisches Verbergen (ms)", "Hilfsfunktionen nach dieser Zeit automatisch verbergen"]
     },
     "translations": {
+        "serverUpdate": {
+            "title": "Server-Update nötig",
+            "message": "Aktualisiere deinen lokalen A.C.A.S-Server auf Version {version} oder neuer und starte ihn danach neu. Ältere Versionen funktionieren mit dieser App möglicherweise nicht richtig.",
+            "download": "Update herunterladen",
+            "close": "Nicht jetzt"
+        },
         "ghostWelcome": {
             "label": "Ghost Script",
             "intro": "Zu deiner Sicherheit ist Ghost Script standardmäßig aktiviert.",
@@ -255,6 +261,10 @@
         },
         "ghostScreen": {"invalidOffset": "Gib ganze Pixelwerte zwischen -1000 und 1000 ein.", "tagline":"Passe dein Geistererlebnis an","inactive":"Aktiviere das Geister-Skript und den lokalen Server.","connecting":"Verbindung zum lokalen Server wird hergestellt...","available":"Bildschirm-Overlay verfügbar.","unavailable":"Bildschirm-Overlay nicht verfügbar.","update":"Aktualisiere den lokalen Server und verbinde dich erneut.","paused":"Overlay pausiert. Zu viele Zeichnungen oder Server beschäftigt."},
         "pena": {
+            "chessCoaching": "Schachtraining",
+            "chessCoachingHint": "Brettfakten, Engines und Antwortprüfungen. Aus spricht direkt mit dem Modell",
+            "chattingRaw": "Unterhaltung direkt mit dem Modell…",
+            "coachingUnchecked": "Schachtraining ist aus, daher wird hier nichts geprüft.",
             "penaNotSetUp": "Nicht eingerichtet",
             "penaStopped": "Gestoppt",
             "penaInstalled": "Pena ist installiert und kann gestartet werden.",
@@ -311,11 +321,6 @@
             "liveTeachingHint": "Felder, Figuren und Pfeile aufblinken lassen, während Pena darüber spricht",
             "futureMoves": "Künftige Züge durchspielen",
             "futureMovesHint": "Künftige Stellungen auf dem Spielbrett vorschauen.",
-            "moveChecking": "Zugprüfung",
-            "checkMoves": "Züge mit Stockfish prüfen",
-            "checkMovesHint": "Stockfish 18 Lite Single prüft die Ratschläge",
-            "searchDepth": "Suchtiefe",
-            "searchDepthHint": "Eine geringere Tiefe ist schneller, kann aber Taktiken übersehen",
             "voice": "Stimme",
             "readWith": "Vorlesen mit",
             "off": "Aus",
@@ -398,7 +403,6 @@
             "replacedPick": "Penas Auswahl wurde nach einer unabhängigen Zugprüfung ersetzt. Der Ersatz erklärt eine untersuchte Variante.",
             "moveChecked": "Zug geprüft. Die strategische Begründung ist nicht bewiesen.",
             "checksEnabled": "Widersprüche zur Brettstellung werden gefiltert und genannte Züge untersucht. Das belegt nicht jede strategische Erklärung.",
-            "checksDisabled": "Widersprüche zur Brettstellung werden gefiltert. Die Zugprüfung mit Stockfish ist ausgeschaltet.",
             "requiresSecure": "Pena benötigt HTTPS oder localhost.",
             "requiresGpu": "Pena benötigt WebGPU. Aktiviere die Hardwarebeschleunigung oder verwende einen unterstützten Browser.",
             "noAdapter": "Für Pena ist kein WebGPU-Adapter verfügbar.",
@@ -524,23 +528,7 @@
             "prompt": "Prompt",
             "systemPrompt": "System-Prompt",
             "systemPromptHint": "Wer Pena ist und wie es spricht",
-            "resetPrompts": "Prompt zurücksetzen",
-            "evidence": "Was Pena sieht",
-            "evidenceAmount": "Umfang der Belege",
-            "evidenceAmountHint": "Weniger ist schneller; das Brett ist immer enthalten",
-            "evidenceFull": "Vollständig",
-            "evidenceMedium": "Mittel",
-            "evidenceLight": "Gering",
-            "evidenceLines": "Engine-Varianten",
-            "evidenceLinesHint": "Die von Stockfish und LC0 bevorzugten Züge",
-            "evidenceReplies": "Antwortzüge des Gegners",
-            "evidenceRepliesHint": "Mögliche Antworten der anderen Seite",
-            "evidenceCompare": "Zugvergleiche",
-            "evidenceCompareHint": "Unterschiede zwischen den Kandidatenzügen",
-            "evidenceWhatIf": "Was-wäre-wenn-Positionen",
-            "evidenceWhatIfHint": "Das Brett nach den vorgeschlagenen Zügen",
-            "evidenceHistory": "Frühere Stellungen",
-            "evidenceHistoryHint": "Ältere Züge aus dieser Partie"
+            "resetPrompts": "Prompt zurücksetzen"
         },
         "weightsRuntime": "Ausführung",
         "weightsTrain": "Mit DoppelMaia trainieren",

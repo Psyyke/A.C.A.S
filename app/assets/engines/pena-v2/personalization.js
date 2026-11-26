@@ -108,22 +108,13 @@ export function initializePenaPersonalization(panel) {
         return element;
     };
     section('conversation', [
+        field('chessCoaching', 'penaCoaching', 'checkbox', 'chessCoachingHint'),
         field('hideMoves', 'penaHideMoves', 'checkbox', 'hideMovesHint'),
         field('onlyAsked', 'penaOnlyWhenAsked', 'checkbox', 'onlyAskedHint'),
         field('liveTeaching', 'penaTeacher', 'checkbox', 'liveTeachingHint'),
         field('futureMoves', 'penaFollowLine', 'checkbox', 'futureMovesHint'),
         field('visualDuration', 'penaVisualDuration', 'number', 'visualDurationHint', 0.5, 30, 0.5),
         field('voicePause', 'penaVoicePause', 'number', 'voicePauseHint', 0.8, 8, 0.1)
-    ]);
-    section(['moveChecking', 'evidence'], [
-        field('checkMoves', 'penaMoveCheck', 'checkbox', 'checkMovesHint'),
-        field('searchDepth', 'penaCheckDepth', 'number', 'searchDepthHint', 1, 20),
-        field('evidenceLines', 'penaEvidenceLines', 'checkbox', 'evidenceLinesHint'),
-        field('evidenceReplies', 'penaEvidenceReplies', 'checkbox', 'evidenceRepliesHint'),
-        field('evidenceCompare', 'penaEvidenceCompare', 'checkbox', 'evidenceCompareHint'),
-        field('evidenceWhatIf', 'penaEvidenceWhatIf', 'checkbox', 'evidenceWhatIfHint'),
-        field('evidenceHistory', 'penaEvidenceHistory', 'checkbox', 'evidenceHistoryHint'),
-        dropdown('evidenceAmount', 'penaEvidenceAmount', [['full', 'evidenceFull'], ['medium', 'evidenceMedium'], ['light', 'evidenceLight']], 'evidenceAmountHint')
     ]);
     const zonosChoice = dropdown('chooseZonosVoice', 'penaZonosVoice', ZONOS_VOICES);
     const browserChoice = dropdown('chooseBrowserVoice', 'penaBrowserVoice', [['auto', 'browserVoiceAuto']], 'browserVoiceHint');
@@ -257,8 +248,16 @@ export function initializePenaPersonalization(panel) {
         for(const event of ['acas-value-set', 'change', 'input']) input.addEventListener(event, () => update(input));
         update(input);
     };
-    follow('penaMoveCheck', input => available(rowOf('penaCheckDepth'), input.checked));
-    follow('penaTeacher', input => available(rowOf('penaVisualDuration'), input.checked));
+    const checked = key => root.querySelector(`input[data-key="${key}"]`).checked;
+    // Plain Inkling never comments by itself, hides moves or draws on the board.
+    const coachingRows = () => {
+        const coaching = checked('penaCoaching');
+        for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine'])
+            available(rowOf(key), coaching);
+        available(rowOf('penaVisualDuration'), coaching && checked('penaTeacher'));
+    };
+    follow('penaCoaching', coachingRows);
+    follow('penaTeacher', coachingRows);
     follow('penaEffort', input => available(rowOf('penaThinkingTokens'), input.value !== 'none'));
     follow('penaSpeech', input => {
         available(rowOf('penaSpeechRate'), input.value !== 'off');

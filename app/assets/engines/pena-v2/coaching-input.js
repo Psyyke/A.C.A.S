@@ -46,7 +46,7 @@ export function coachingInput({ evaluations = [], maia = null, maxPlies = 4, ...
                 cards.push(...compileFactAnswer(context, { intent: ['mobility', 'pins', 'controls', 'defense', 'blockers'].includes(intent) ? intent : 'defense',
                     subject: subject.subject, ...(intent === 'blockers' && resolved.direction ? { direction: resolved.direction } : {}) }).cards);
         }
-    } else query.push(`Question subject not uniquely bound by the supported parser (${subject.reason}); do not substitute another piece.`);
+    } else query.push('Question subject: the question does not point at one specific piece on the board, so do not swap in a different piece.');
     if(!subject.subject && ['material', 'status', 'king-geometry', 'move-effects'].includes(resolved.intent))
         cards.push(...compileFactAnswer(context, resolved).cards);
     for(const card of cards) add(`Q${refs.filter(ref => ref.kind === 'question-fact').length + 1}`, 'question-fact', card.frameId,
