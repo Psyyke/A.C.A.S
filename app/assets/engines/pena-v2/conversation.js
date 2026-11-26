@@ -533,9 +533,10 @@ export class PenaConversation {
         this.reset(null);
     }
 
-    // A new game forgets everything, a new position in the same game keeps the last few exchanges as plain notes.
+    // A new chat or game forgets everything; a new position keeps a few exchanges as plain notes.
     reset(fen) {
         this.earlier = [];
+        this.exchanges = [];
         this.talked = false;
         this.position(fen);
     }

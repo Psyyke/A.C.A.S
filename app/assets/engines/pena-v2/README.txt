@@ -65,6 +65,9 @@ RUNTIME
   back with the same game, it gets its own chat back and an unchanged board
   gets no new comment. Other tabs and new games start with an empty chat, so
   one match never borrows the conversation of another.
+  This also applies to plain chat and small talk: their turns and app follow-up
+  notes stay with that game's in-memory chat. New chat drops current and older
+  exchanges before building the next prompt, even when the board is unchanged.
   Pena also leaves out who is winning or better unless you ask, since other A.C.A.S
   features already show that. Ask "who's winning?" or "how am I doing" to hear it.
   "Only talk when asked" prevents automatic replies. Turning it on also cancels

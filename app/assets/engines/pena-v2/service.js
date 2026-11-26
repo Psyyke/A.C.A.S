@@ -1169,7 +1169,8 @@ function pauseChat(instance) {
     pena.paused.delete(instance.instanceID);
     pena.paused.set(instance.instanceID, { domain: instance.domain, at: Date.now(), fen: pena.fen, previousFen: pena.previousFen,
         settings: pena.settings, lastLive: pena.lastLive, memory: pena.memory, game: pena.game, lastChat: pena.lastChat,
-        saidBefore: pena.saidBefore, conversation: pena.conversation?.save(), log, fens: gameFens(instance, pena.fen) });
+        saidBefore: pena.saidBefore, idleTurns: pena.idleTurns, idleApp: pena.idleApp,
+        conversation: pena.conversation?.save(), log, fens: gameFens(instance, pena.fen) });
     while(pena.paused.size > PAUSED_TABS) pena.paused.delete(pena.paused.keys().next().value);
 }
 
@@ -1183,7 +1184,8 @@ function resumeChat(instance, fen) {
     const continues = saved.fens.length <= fens.length && saved.fens.every((item, index) => sameSquares(item, fens[index]));
     if(!continues && !(same && fens.length === 1)) return false;
     Object.assign(pena, { previousFen: saved.previousFen, settings: saved.settings, lastLive: saved.lastLive, memory: saved.memory,
-        game: saved.game, lastChat: saved.lastChat, saidBefore: saved.saidBefore });
+        game: saved.game, lastChat: saved.lastChat, saidBefore: saved.saidBefore,
+        idleTurns: saved.idleTurns, idleApp: saved.idleApp });
     pena.conversation?.restore(saved.conversation);
     ui.log.replaceChildren(ui.setupPanel, ...saved.log, ui.turn);
     scrollToTurn();
@@ -1206,6 +1208,8 @@ function attach(instance) {
     pena.game = null;
     pena.lastChat = null;
     pena.saidBefore = [];
+    pena.idleTurns = [];
+    pena.idleApp = null;
     pena.conversation?.reset(null);
     resetAnswer();
     ui.log.replaceChildren(ui.setupPanel, ui.turn);
@@ -1257,6 +1261,8 @@ async function onPosition(fen) {
         pena.game = pena.lastChat = pena.lastLive = null;
         pena.saidBefore = [];
         pena.memory = [];
+        pena.idleTurns = [];
+        pena.idleApp = null;
         ui.log.replaceChildren(ui.setupPanel, ui.turn);
     }
     if(pena.state !== 'ready' || concealed()) return;

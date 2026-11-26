@@ -390,6 +390,22 @@ test('chat remembers earlier positions as plain notes and a new game forgets the
     assert.ok(!fresh.prompt.includes('Earlier in this chat'));
 });
 
+test('reset forgets current exchanges before starting the same board, another board or no board', async () => {
+    const after = 'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4';
+    for(const fen of [italian, after, null]) {
+        const chat = new PenaConversation({ engine: fakeEngine(), tokenCount: text => text.length / 4, context: 8000 });
+        const first = await chat.prepare('Remember the quiet lantern question.', { fen: italian, playerColor: 'b' });
+        chat.remember(first, 'The violet meadow reply belongs to this chat.');
+        const continued = await chat.prepare('What else?', { fen: italian, playerColor: 'b' });
+        assert.match(continued.prompt, /quiet lantern question/);
+        assert.match(continued.prompt, /violet meadow reply/);
+        chat.reset(fen);
+        const fresh = await chat.prepare('Explain development.', { fen: fen || italian, playerColor: 'b' });
+        assert.doesNotMatch(fresh.prompt, /quiet lantern question|violet meadow reply/);
+        assert.deepEqual(fresh.history, []);
+    }
+});
+
 test('a message that misreads the board gets a board check the reply may use', () => {
     // Misread pieces get a board check, plain talk about real pieces does not.
     const start = 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3';

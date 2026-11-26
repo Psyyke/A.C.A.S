@@ -26,6 +26,7 @@ import { moveArrowConfig } from '../../../js/misc/arrowStyle.js';
 import { moveMentions } from '../teacher.js';
 import { asksForMove, boardGroundingNotes, dropFalseGeometry, dropMisplacedPieces, dropRepeatedSentences, dropUnaskedVerdicts, hideMoveSuggestions } from '../coaching-policy.js';
 import { positionEvent } from '../chat.js';
+import { promptOverridesFrom } from '../prompt-overrides.js';
 
 const start = new Chess().fen();
 function settle() { return new Promise(resolve => setImmediate(resolve)); }
@@ -1434,6 +1435,16 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
         'Plain Inkling never comments on a move by itself');
     assert.equal(await page.evaluate(() => window.fixture.engineCalls), engineCalls,
         'Plain mode does not grade new positions or search user questions');
+    await page.evaluate(() => { window.fixture.config.global.penaCoaching = true; });
+    const privateCoaching = await ask('Why should I develop my pieces?');
+    await reply(privateCoaching, 'The quiet lantern phrase belongs to this conversation.');
+    assert.match(await page.locator('.pena-answer').last().textContent(), /quiet lantern phrase/);
+    await page.locator('.pena-clear').click();
+    assert.equal(await page.locator('.pena-message-user').count(), 0);
+    const freshChat = await ask('What should I focus on?');
+    assert.doesNotMatch(JSON.stringify(freshChat.input.messages), /quiet lantern phrase/,
+        'New chat must remove the preceding exchange from actual model messages');
+    await reply(freshChat, 'Keep developing your pieces.');
     await page.evaluate(() => window.fixture.worker.onmessage({ data: { type: 'serverVersion', version: '1.2.0' } }));
     assert.equal(await page.locator('#server-update-floaty').isVisible(), true,
         'Pena-only server connections can open the update warning');
@@ -1484,6 +1495,64 @@ test('Pena gives a reconnected tab its chat back only when the same game continu
     assert.equal(resumeChat(elsewhere, elsewhere.currentFen), false);
     assert.equal(ui.log.children.length, 0, 'Another site is another match');
 });
+
+test('plain chat history stays with its game across switches and is cleared for a new game or chat', async () => {
+    const code = (await readFile(new URL('../service.js', import.meta.url), 'utf8'))
+        .replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')
+        .replaceAll('import.meta.url', JSON.stringify('https://pena.test/service.js'));
+    const messages = [];
+    const context = vm.createContext({ localStorage: { getItem: () => null }, penaPosition, readPenaPosition, promptOverridesFrom,
+        PenaTeacher: class {}, PenaVariation: class {} });
+    vm.runInContext(code + `
+        cancel = clearBoard = scrollToTurn = setStatus = notice = () => {};
+        resetAnswer = () => { ui.turn = { textContent: '' }; };
+        ui = { setupPanel: {}, turn: { textContent: '' }, input: { focus() {} },
+            log: { children: [], replaceChildren(...nodes) { this.children = nodes; } } };
+        globalThis.tabs = { pena, attach, resumeChat, plainChat, onPosition, clearChat };
+    `, context);
+    const { pena, attach, resumeChat, plainChat, onPosition, clearChat } = context.tabs;
+    pena.worker = { postMessage: message => messages.push(structuredClone(message)) };
+    const first = { instanceID: 'first', domain: 'chess.com', currentFen: start, gameStateHistory: [] };
+    const board = new Chess(); board.move('e4'); board.move('e5');
+    const second = { ...first, instanceID: 'second', currentFen: board.fen() };
+    const send = () => { plainChat({ raw: true, chatId: 'test', question: 'Hello.' }); return messages.at(-1); };
+    pena.instance = first;
+    pena.fen = pena.previousFen = start;
+    pena.idleTurns = [{ player: 'First private question', pena: 'First private reply' }];
+    assert.match(JSON.stringify(send().conversation), /First private question/);
+    const firstApp = { topics: { app: true } };
+    pena.idleApp = firstApp;
+
+    attach(second);
+    assert.equal(pena.idleApp, null);
+    assert.deepEqual(send().conversation, [], 'A different game must not receive the first chat');
+    pena.fen = pena.previousFen = second.currentFen;
+    pena.idleTurns = [{ player: 'Second private question', pena: 'Second private reply' }];
+    const secondApp = { topics: { match: true } };
+    pena.idleApp = secondApp;
+    attach(first);
+    assert.equal(resumeChat(first, start), true);
+    assert.equal(pena.idleApp, firstApp);
+    const restored = send();
+    assert.match(JSON.stringify(restored.conversation), /First private question/);
+    assert.doesNotMatch(JSON.stringify(restored.conversation), /Second private/);
+
+    attach(null);
+    assert.deepEqual(send().conversation, [], 'A chat without a board must start separately');
+    attach(second);
+    assert.equal(resumeChat(second, second.currentFen), true);
+    assert.equal(pena.idleApp, secondApp);
+    assert.match(JSON.stringify(send().conversation), /Second private question/);
+    pena.fen = start;
+    await onPosition(start);
+    assert.deepEqual(send().conversation, [], 'A new game in the same tab must start separately');
+    assert.equal(pena.idleApp, null);
+
+    pena.idleTurns = [{ player: 'Another private question', pena: 'Another private reply' }];
+    clearChat();
+    assert.deepEqual(send().conversation, [], 'New chat must also clear plain history');
+});
+
 test('Pena waits through thinking pauses and keeps quiet gaps inside a spoken question', () => {
     const messages = [];
     const segments = new SpeechSegments(message => messages.push(message));
