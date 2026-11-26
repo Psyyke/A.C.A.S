@@ -404,69 +404,39 @@ export const knowledge = [
  },
  {
   "page": "usage guide",
-  "title": "Pena",
+  "title": "Pena AI",
   "part": 1,
-  "text": "Want someone to talk through the position with you? That is what Pena, your Personal Educator & Neural Advisor, is for. His AI runs on your computer through the A.C.A.S local server, and this page is the chat and chess GUI. He follows your current game, comments on the moves and chats with you about them. Turn on Pena AI in Misc and keep the GUI open while you play. Pena is hidden and disabled on phones and tablets, not on narrow desktop windows. Setting him up is one click. Open the A.C.A.S app server, then press Download Pena in his chat window or open Pena AI on the app server's toolbar."
+  "text": "Pena is your local AI chess coach. He explains ideas, checks moves and answers questions about A.C.A.S. Chat and coaching are English-only, with standard chess support. Pena isn't available on phones or tablets."
  },
  {
   "page": "usage guide",
-  "title": "Pena",
-  "part": 2,
-  "text": "The app server picks the right runtime for your graphics card, downloads it with the matching plain Inkling model and the published Pena chess LoRA (about 8.7 GB together), checks every file and starts him. No account or manually selected model files are needed. Existing installs fetch only the changed pieces. Big downloads can be paused and resumed. After that he starts with the app server by himself. Setup progress and any connection problems appear in the chat window. NVIDIA cards get a CUDA build, AMD and Intel cards get Vulkan, Macs get Metal, and anything else falls back to the CPU. Models and AI inference are never downloaded or run by the website. Want your own model?"
- },
- {
-  "page": "usage guide",
-  "title": "Pena",
-  "part": 3,
-  "text": "Open Advanced in the app server's Pena AI panel and pick a native llama-server build and a chat-capable GGUF model, plus an optional LoRA. An adapter must match its base model, it can't turn an unrelated model into Inkling. Coaching covers standard chess only, and other models may handle its evidence differently. Use Pena's download takes you back to the default."
+  "title": "Pena AI, Getting started",
+  "part": 1,
+  "text": "Open the A.C.A.S Calculation Server on this computer. Enable Pena AI in Misc and click Download Pena in the chat. Or open AI in the server app. Keep the server and GUI open. Setup downloads Inkling 2 Mini Uncensored (about 8.7 GB) and a compatible runtime, then starts Pena. No account needed; downloads can be paused and resumed. The default runs Inkling without a LoRA. Graphics memory is adjusted automatically; smaller GPUs use some system RAM and run slower. Pena starts with the server after setup. Stop in the server app unloads the model and disables automatic start."
  },
  {
   "page": "usage guide",
   "title": "Chatting with Pena",
   "part": 1,
-  "text": "Type a message and press Enter, or click the mic and talk. The mic keeps listening and sends your words when you pause. Click it again to stop. Ask why a move works, whether your idea is any good, what the opponent is up to or what a chess term means. You don't need a match open to chat. Without one, Pena talks about chess in general and answers questions about A.C.A.S. With a match open, he also gets real Stockfish and LC0 lines, Maia's guess at what humans would play and exact facts about the board, so his answers stay tied to the position. The round arrow in his header starts a new chat and forgets everything said so far. While he thinks, a faint line next to the dots shows what he's working through."
- },
- {
-  "page": "usage guide",
-  "title": "Chatting with Pena",
-  "part": 2,
-  "text": "If he needs a download, a restart or a connection to the app server, the chat shows what to do. The port is shared with the external engine server setting. He can also help with A.C.A.S itself. Ask which engine you're using, what Move Detail does or how to make the engine weaker, and he checks your current settings and this guide before answering. You don't have to say A.C.A.S, just ask about the setting. He can't change settings for you, but he'll tell you where to find them. A.C.A.S can't see the chess site's clock, the time control, ratings or the opponent's name, so Pena doesn't know them either. He'll just tell you so."
- },
- {
-  "page": "usage guide",
-  "title": "Pena, Privacy",
-  "part": 1,
-  "text": "Chats are never saved or logged by A.C.A.S. Messages travel only to the local server on your own computer, not to an online AI service. Refreshing the page forgets the conversation. The native model can keep a prompt cache in memory while running, so stop the AI server to release that too. The chat box turns off browser autofill, spell check and writing suggestions. These controls cannot guarantee erasure from operating system swap, crash dumps or third-party browser tools."
- },
- {
-  "page": "usage guide",
-  "title": "Telling Pena about yourself",
-  "part": 1,
-  "text": "Pena doesn't keep memories between chats. If you want him to know your name, your rating, the openings you love or what you're working on, add it to the System prompt in the Pena AI settings. It stays in this browser and he keeps it in mind every time."
+  "text": "Type and press Enter, or click the mic and speak. A pause sends your words; click again to stop listening. Ask why a move works, compare ideas or ask what to watch out for. Use the round arrow in the header for a new chat. Pena follows the newest open match, with separate chats for each game. He reads rule-checked board facts and uses Stockfish to examine moves and imagined lines. Ask who's winning if you want an evaluation. Without a match, you can still chat or ask about A.C.A.S settings, but he can't change them or see the site's clock, ratings or opponent's name."
  },
  {
   "page": "usage guide",
   "title": "Pena AI settings",
   "part": 1,
-  "text": "Open the Pena AI cog in Misc. Setup and connection controls are in the chat instead. Choose files, graphics backend and context size in the local server app. Conversation: Chess coaching starts on. Pena reads the board, asks the engines while he thinks, and Stockfish double checks the moves he suggests and holds back the ones that don't hold up. Turn it off to talk to the plain model instead. It then gets only the System prompt and the chat, with no board, no engines, no answer checks and no comments until you ask. The System prompt still controls the character, and temperature, thinking effort and Max thinking tokens stay editable. Auto uses low effort in this mode. Don't give away moves makes Pena share ideas instead of the move, until you ask for it. Only talk when asked keeps him quiet until you type or speak."
+  "text": "Open the Pena AI cog in Misc. Chess coaching: On by default. Adds board facts, engine checks and automatic comments. Off sends only your System prompt and chat to the model, without board access or answer checks. Don't give away moves: Explains ideas without revealing your move unless you ask. Opponent threats are still explained. Only talk when asked disables automatic comments. Live board teaching: Highlights pieces, squares and arrows. Visual duration controls how long marks stay; Play out future moves previews discussed lines. Voice: The header's speaker toggles reading aloud. Choose ZONOS3, a browser voice or Off. ZONOS downloads voice models in the browser and uses WebGPU, falling back to browser speech if unavailable."
  },
  {
   "page": "usage guide",
   "title": "Pena AI settings",
   "part": 2,
-  "text": "Live board teaching flashes squares, pieces and arrows as he talks, and Visual duration sets how long they stay. Voice pause is the silence before the mic sends. Play out future moves previews the lines he talks about over the board. Voice: Read aloud starts on. The speaker button in Pena's header toggles it and remembers your choice. Read aloud with picks Off, a browser voice or ZONOS3, which is the default. Thaddeus is the default ZONOS voice. Choose another supplied voice or import a voice clip you have permission to use. Clips stay in the browser. ZONOS downloads its voice models when needed and uses your GPU. If WebGPU can't run it, Pena uses browser speech. Speech speed changes the playback speed and pitch."
+  "text": "You can import a voice clip you have permission to use. Voice pause sets the silence before sending. Thinking & Prompt: Auto effort adapts to the question; Max thinking tokens limits thinking. Temperature controls variety (default 0.3). Edit the System prompt to change Pena's personality or add details about yourself; Reset prompt restores it. For custom models, open Advanced in the server's AI panel. Choose a compatible llama-server executable and GGUF model, with an optional LoRA matching that exact base. Use Pena's download restores the default files. Backend, graphics memory and context controls are also there."
  },
  {
   "page": "usage guide",
-  "title": "Pena AI settings",
-  "part": 3,
-  "text": "Thinking & Prompt: Thinking effort sets how long he thinks before answering on models that support it. Auto picks per question, so greetings get no thinking and chat without a match thinks lightly. Max thinking tokens caps it. Temperature defaults to 0.3 for a little variety, while 0 is more predictable. Your saved choice stays put. Exact behavior depends on the model's chat template. The System prompt says who Pena is and how he talks. It starts filled in, so you can tweak it or write a whole new character, cold, clingy, grumpy or anything else. He plays it straight, without talking about the prompt or softening it into a polite assistant. With a match open he still coaches from the engine evidence, just in that voice."
- },
- {
-  "page": "usage guide",
-  "title": "Pena AI settings",
-  "part": 4,
-  "text": "Reset prompt brings the original back. Chess LoRA: Pena's download includes his chess-coaching adapter and its matching plain Inkling base. The adapter already includes the refusal-removal edit, so don't combine it with an already-uncensored base. Advanced in the local server lets you choose your own compatible model and adapter instead. Use Pena's download restores the managed pair. Pena is an AI and can still get things wrong, even with engine evidence behind him. Treat his advice as a second opinion, not the final word. Something not working with Pena? The help page covers the usual suspects."
+  "title": "Pena AI, Privacy and limits",
+  "part": 1,
+  "text": "AI replies run on your computer, not an online AI service. A.C.A.S doesn't save or log chats; refreshing clears them. Your settings and voice clips stay in the browser. Stop the AI server to release its in-memory prompt cache; this doesn't guarantee erasure from OS or third-party tools. Move checks and board filters catch some mistakes, not every incorrect explanation. Treat Pena's advice as a second opinion. For setup or connection problems, see the help page."
  },
  {
   "page": "usage guide",
