@@ -104,12 +104,28 @@ See the [runtime guide](../app/assets/engines/pena-v2/README.txt) for the curren
 contract and deployment boundary. Historical source-hash certificates are not
 silently accepted after relocation; original data and checkpoints stay frozen.
 
-`node tests\pena-vram-bench.cjs '{"name":"x","mode":"both","args":[]}'` is a manual
-GPU check that measures Inkling and ZONOS3 VRAM and speed together. Modes are
-`inkling`, `zonos` and `both`. Extra llama-server flags go in `args`, and `"ngl":null`
-leaves out `--n-gpu-layers`. It needs Pena's
-downloaded runtime and model, and results land in `temp\pena-vram-bench\`. See
-`appServer\PENA-12GB-PLAN.md` for what it found.
+`pena-vram-bench.cjs` manually measures Inkling and ZONOS3 VRAM and speed together.
+For example, in PowerShell:
+
+```powershell
+@'
+process.argv[2] = JSON.stringify({ name: '8gb', mode: 'both', vramMode: '8', ctx: 8192,
+    promptTokens: 7800, targetMiB: 8192, marginMiB: 512 });
+require('.\\tests\\pena-vram-bench.cjs');
+'@ | node
+```
+
+`vramMode` uses the production server's flags (`fast`, `12`, `10`, `8` or `6`).
+Workloads are `inkling`, `zonos` and `both`. Prompts are tokenized and capped to
+leave room for the answer. `targetMiB` checks the whole-card `memory.used` peak,
+including the existing desktop load, with a `marginMiB` allowance for driver
+reservations and workload variance; errors or a failed budget exit nonzero.
+NVIDIA reports reserved driver memory separately, so this allowance is not all
+free memory. Extra llama-server flags go in `args`, and `"ngl":null` leaves out
+`--n-gpu-layers`. It needs an NVIDIA GPU, Chrome, Playwright and Pena's downloaded
+runtime and model. Results land in `temp\pena-vram-bench\`. A run on a larger GPU
+checks the allocation budget, not actual behavior on a smaller card or another
+GPU vendor. See `appServer\PENA-12GB-PLAN.md` for measurements and limits.
 
 ## Lc0 worker cleanup
 

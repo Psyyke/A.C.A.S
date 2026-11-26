@@ -93,8 +93,11 @@ For Pena's download, the backend decides which build gets downloaded (pick
 **Graphics memory** is Automatic by default, so there's nothing to set up. Pena
 asks llama-server how much memory your graphics card has and picks a mode for
 Inkling. Cards with 14 GB or more run at full speed with no extra flags. 12, 10, 8
-and 6 GB cards keep part of Inkling in system RAM so it fits next to ZONOS3 and a
-LoRA, which is slower but works. If the size can't be read, Pena uses the 8 GB
+and 6 GB cards keep part of Inkling in system RAM to leave room for ZONOS3,
+trading speed for lower VRAM use. The 8 GB mode keeps 20 of its 24 expert blocks in RAM to
+leave room for prompt-processing peaks. These are allocation presets, not hard
+VRAM limits: larger contexts, custom models/adapters or other GPU applications
+can still exhaust memory. If the size can't be read, Pena uses the 8 GB
 mode and says so. If llama-server still dies while loading, Pena tries again one
 mode smaller and remembers that until the app restarts. You can pick a mode by
 hand here too. Other models stay at full speed unless you pick one. The numbers

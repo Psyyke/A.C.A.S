@@ -119,7 +119,7 @@ test('VRAM detection reads the runtime device list and skips integrated GPUs', (
     const fast = buildLlamaArgs(settings, 1, 'k');
     assert.ok(!fast.includes('--n-cpu-moe') && !fast.includes('--cache-type-k'));
     const eight = buildLlamaArgs(settings, 1, 'k', '8');
-    assert.equal(eight[eight.indexOf('--n-cpu-moe') + 1], '16');
+    assert.equal(eight[eight.indexOf('--n-cpu-moe') + 1], '20');
     assert.ok(eight.includes('--no-op-offload'));
     assert.ok(!buildLlamaArgs({ ...settings, backend: 'cpu' }, 1, 'k', '8').includes('--n-cpu-moe'));
 });
@@ -145,7 +145,7 @@ test('automatic VRAM mode follows the card, guesses safely and steps down after 
 
     const unknown = makeHost({ readGpuMemory: async () => null });
     assert.equal((await unknown.host.start(settings)).vramGuessed, true);
-    assert.equal(cpuMoe(unknown.calls[0].args), '16');
+    assert.equal(cpuMoe(unknown.calls[0].args), '20');
     assert.ok(unknown.calls[0].args.includes('--no-op-offload'));
     await unknown.host.stop();
 

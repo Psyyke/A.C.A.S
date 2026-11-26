@@ -6,9 +6,62 @@ The card size comes from the same llama-server that runs Pena, so NVIDIA, AMD, I
 
 Status: built. It lives in `appServer\backend\nativeAI.js` with tests in `tests\server-native-ai.test.mjs`. On top of the steps below, Automatic mode also retries one mode smaller when llama-server dies while loading, and remembers that until the app restarts. The steps stay here as a map of how it works.
 
-## What was measured
+## Verification on 2026-11-26
+
+Fresh runs on the RTX 4070 Ti SUPER (16,376 MiB) used the downloaded
+`Inkling-2-Mini-Uncensored-AD-IQ2_M.gguf`, CUDA b12633, no LoRA, an 8,192-token
+context and ZONOS3 speech. Each mode completed two 7,800-token prompts (one with
+concurrent speech), then two shorter requests with concurrent speech. Desktop
+usage before loading ranged from 1,454 to 1,565 MiB. Samples were taken every
+100 ms. No other A.C.A.S model was running during these measurements.
+
+All five current modes passed their used-memory budgets, including a 512 MiB
+allowance for driver reservations and workload variance:
+
+| Mode | Whole-card peak used (MiB) | Budget (MiB) | Budget minus peak (MiB) |
+|---|---:|---:|---:|
+| `fast` | 12886 | 14000 | 1114 |
+| `12` | 10377 | 11000 | 623 |
+| `10` | 8535 | 9500 | 965 |
+| `8` (corrected) | 6311 | 7500 | 1189 |
+| `6` | 5250 | 6144 | 894 |
+
+The first four budgets are Automatic's lower selection thresholds; `6` uses a
+nominal 6 GB card budget. NVIDIA's `memory.used` excludes reserved driver memory
+(314-315 MiB on this machine), which is covered by the 512 MiB allowance. The
+last column therefore is not all free VRAM.
+
+The original `8` mode, with 16 CPU expert blocks, peaked at **8,134 MiB**. That
+exceeded its 7,500 MiB automatic-selection threshold and left essentially no
+room even on an 8 GB card. It now uses **20 CPU expert blocks**, reducing the
+measured peak by 1,823 MiB. Prompt speed fell from 100.3 to 79.8 tokens/second;
+generation and speech still completed normally. Other mode flags are unchanged.
+
+The real runtime detected 16,375 MiB (a 1 MiB rounding difference from
+`nvidia-smi`) and correctly selected `fast`. Native host/setup regression tests
+passed (21 tests), including unknown-memory handling, manual flags and automatic
+load-failure step-down. The separate Electron UI smoke test still failed its
+pre-existing keyboard increment assertion (`5` instead of `6`); it does not
+measure GPU allocations.
+
+The manual benchmark imports the production flags, tokenizes its prompts, and
+fails when the used-memory peak exceeds `targetMiB - marginMiB`. See
+`tests\README.md` for an invocation. Raw results are in
+`temp\pena-vram-bench\results.jsonl`; the corrected 8 GB run is
+`verify-8-fixed-full-context` and the other current runs end in
+`full-context-idle`. The earlier 8 GB failure is retained for comparison.
+
+These runs verify allocation budgets on a 16 GB NVIDIA card, not actual behavior
+on smaller cards, AMD/Intel GPUs or Macs. 6 GB is the smallest checked budget,
+not a promise for cards below 6 GB. Larger custom contexts, models/adapters and
+other GPU applications can exceed these budgets. These presets are not hard
+VRAM caps, and startup retry cannot protect against every later allocation.
+
+## Earlier measurements (before the 8 GB correction)
 
 Test machine: RTX 4070 Ti SUPER (16 GB), Ryzen 7 7800X3D, 31 GB RAM, llama.cpp b12633 CUDA 13, `Inkling-2-Mini-Uncensored-AD-IQ2_M.gguf`, ZONOS3 in Chrome over WebGPU, and an 8192 token context. Every row below runs Inkling and ZONOS3 together with a rank 64 attention LoRA loaded. VRAM is the whole card, sampled with `nvidia-smi` every 100 ms. "Above idle" subtracts what the desktop was already using, so it is what Pena itself needs.
+
+The historical `8` row used 16 CPU expert blocks, not the corrected 20-block preset.
 
 | Card | Mode | Above idle (MiB) | Prompt tok/s | Writing tok/s | Time to first words* |
 |---|---|---|---|---|---|
@@ -52,7 +105,7 @@ Do these in order and run the tests at the end.
        fast: [],
        12: [...LOW_VRAM_BASE, '--n-cpu-moe', '6'],
        10: [...LOW_VRAM_BASE, '--n-cpu-moe', '24'],
-       8: [...LOW_VRAM_BASE, '--n-cpu-moe', '16', '--no-op-offload'],
+       8: [...LOW_VRAM_BASE, '--n-cpu-moe', '20', '--no-op-offload'],
        6: [...LOW_VRAM_BASE, '--n-cpu-moe', '24', '--no-op-offload']
    });
    export function vramModeFor(totalMiB) {
@@ -110,16 +163,16 @@ Do these in order and run the tests at the end.
    - `vramModeFor` gives `fast` for 0, 16376 and 24564, `12` for 12282 and 11264, `10` for 10240, `8` for 8188, `6` for 6144, and `null` for `null`.
    - `parseDeviceMemory` gives 16061 for a Vulkan NVIDIA card plus a bigger `uma: 1` iGPU, 8176 when the iGPU is listed first and the discrete card second, 7900 for an iGPU only laptop, 21845 for `MTL0: Apple M2 Pro (21845 MiB, ...)`, 0 for `Available devices:` followed by `(none)`, and `null` for empty output.
    - `buildLlamaArgs` with `fast` has no `--n-cpu-moe` and no `--cache-type-k`.
-   - Mode `8` includes `--n-cpu-moe 16` and `--no-op-offload`.
+   - Mode `8` includes `--n-cpu-moe 20` and `--no-op-offload`.
    - `normalizeAISettings({ vramMode: '7' })` throws.
    - A host with `readGpuMemory: async () => 12282` and an Inkling model spawns with `--n-cpu-moe 6`. The same host with a non Inkling model spawns without it. `readGpuMemory` receives the executable path.
-   - A host with `readGpuMemory: async () => null` and an Inkling model spawns with `--n-cpu-moe 16` and `--no-op-offload`, and `status().vramGuessed` is true.
+   - A host with `readGpuMemory: async () => null` and an Inkling model spawns with `--n-cpu-moe 20` and `--no-op-offload`, and `status().vramGuessed` is true.
 8. **Docs.** Add a short note about Graphics memory to `appServer\README.md`.
-9. **Check.** Run `node --test tests\server-native-ai.test.mjs`. On a GPU machine, run `node tests\pena-vram-bench.cjs` with each mode's flags in `args` and `"mode":"both"`. Results go to `temp\pena-vram-bench\results.jsonl`. `peakAboveIdleMiB` should stay close to the table, and card size minus 1.5 GB of desktop minus 0.4 GB of margin should be larger than it.
+9. **Check.** Run `node --test tests\server-native-ai.test.mjs`. On a GPU machine, run `node tests\pena-vram-bench.cjs` with each `vramMode`, `"mode":"both"`, `"ctx":8192` and `"promptTokens":7800`. Set `targetMiB` to the card budget and `marginMiB` to the driver/workload allowance. Results go to `temp\pena-vram-bench\results.jsonl`; `fits` must be true. See `tests\README.md` for a PowerShell example.
 
 ## If a mode still runs out
 
-- `8`: move to `--n-cpu-moe 20`. It measured 4727 MiB and 72 tok/s prompts.
+- `8` already uses `--n-cpu-moe 20`; use mode `6` or a smaller context if necessary.
 - `12`: add `--ubatch-size 128` to save about 250 MB more.
 - `10`: add `--ubatch-size 64` to save about 370 MB more.
 - Any mode: a smaller context, such as 4096, saves part of the 512 MB cache.

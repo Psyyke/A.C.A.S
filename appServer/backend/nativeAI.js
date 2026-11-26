@@ -11,15 +11,15 @@ export const AI_DEFAULTS = Object.freeze({
     context: 8192, gpuLayers: 99, threads: 0, vramMode: 'auto'
 });
 
-// Measured with Inkling IQ2_M, ZONOS3 and a rank 64 attention LoRA running together
-// (see appServer/PENA-12GB-PLAN.md). Smaller modes keep more expert weights in RAM.
+// Smaller modes keep more Inkling expert weights in RAM. Allocation measurements
+// with ZONOS3 running alongside it are in appServer/PENA-12GB-PLAN.md.
 const LOW_VRAM_BASE = ['--batch-size', '1024', '--ubatch-size', '256',
     '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--load-mode', 'none'];
 export const VRAM_MODES = Object.freeze({
     fast: [],
     12: [...LOW_VRAM_BASE, '--n-cpu-moe', '6'],
     10: [...LOW_VRAM_BASE, '--n-cpu-moe', '24'],
-    8: [...LOW_VRAM_BASE, '--n-cpu-moe', '16', '--no-op-offload'],
+    8: [...LOW_VRAM_BASE, '--n-cpu-moe', '20', '--no-op-offload'],
     6: [...LOW_VRAM_BASE, '--n-cpu-moe', '24', '--no-op-offload']
 });
 const VRAM_ORDER = ['fast', '12', '10', '8', '6'];

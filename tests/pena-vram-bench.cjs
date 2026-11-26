@@ -1,7 +1,8 @@
 // Manual VRAM benchmark for Inkling (native llama-server) + ZONOS3 (browser WebGPU). Needs an NVIDIA GPU,
 // Chrome, and Pena's downloaded runtime and model. Never runs as part of the normal test suite.
 // Usage: node tests\pena-vram-bench.cjs '<json config>'
-//   config: { name, mode: 'inkling'|'zonos'|'both', args: [extra llama-server args], ctx, promptTokens,
+//   config: { name, mode: 'inkling'|'zonos'|'both', vramMode: 'fast'|'12'|'10'|'8'|'6',
+//             targetMiB, marginMiB: 512, args: [extra llama-server args], ctx, promptTokens,
 //             ngl: GPU layers (default 99, null omits it so --fit can choose) }
 const { spawn } = require('node:child_process');
 const { createServer } = require('node:http');
@@ -11,7 +12,8 @@ const { mkdirSync } = require('node:fs');
 const crypto = require('node:crypto');
 const { chromium } = require(path.join(__dirname, '..', 'app', 'assets', 'engines', 'lc0', 'node_modules', 'playwright'));
 
-const cfg = Object.assign({ name: 'default', mode: 'both', args: [], ctx: 8192, promptTokens: 6800 }, JSON.parse(process.argv[2] || '{}'));
+const cfg = Object.assign({ name: 'default', mode: 'both', vramMode: 'fast', marginMiB: 512,
+    args: [], ctx: 8192, promptTokens: 6800 }, JSON.parse(process.argv[2] || '{}'));
 const exe = path.join(process.env.APPDATA, 'acas-local-server', 'pena', 'runtime', 'b12633-win32-x64-cuda13', 'llama-server.exe');
 const model = path.join(process.env.APPDATA, 'acas-local-server', 'pena', 'models', 'Inkling-2-Mini-Uncensored-AD-IQ2_M.gguf');
 const vendor = path.join(__dirname, '..', 'app', 'assets', 'engines', 'pena-v2', 'vendor', 'zonos3');
@@ -33,7 +35,7 @@ smi.stdout.on('data', chunk => {
         peaks[phase] = Math.max(peaks[phase] || 0, mib);
     }
 });
-const mark = name => { phase = name; };
+const mark = name => { phase = name; console.log(`${cfg.name}: ${name}`); };
 
 async function startZonos() {
     const server = createServer(async (req, res) => {
@@ -74,23 +76,40 @@ async function zonosTurns(z, n = 3) {
 }
 
 async function startInkling() {
+    const { AI_DEFAULTS, buildLlamaArgs, VRAM_MODES } = await import('../appServer/backend/nativeAI.js');
     const key = crypto.randomBytes(16).toString('hex');
     const port = 18000 + Math.floor(Math.random() * 1000);
-    const args = ['--host', '127.0.0.1', '--port', String(port), '--model', model, '--ctx-size', String(cfg.ctx),
-        ...(cfg.ngl === null ? [] : ['--n-gpu-layers', String(cfg.ngl ?? 99)]), '--parallel', '1', '--flash-attn', 'auto', '--reasoning-budget', '0',
-        '--no-webui', '--offline', '--jinja', '--api-key', key, ...cfg.args];
+    const args = buildLlamaArgs({ ...AI_DEFAULTS, modelPath: model, context: cfg.ctx,
+        gpuLayers: cfg.ngl ?? 99 }, port, key, cfg.vramMode).filter(arg => arg !== '--log-disable');
+    if(cfg.ngl === null) {
+        const index = args.indexOf('--n-gpu-layers');
+        args.splice(index, 2);
+    }
+    args.push(...cfg.args);
     // Later flags override earlier ones in llama.cpp argument parsing.
     const proc = spawn(exe, args, { stdio: ['ignore', 'pipe', 'pipe'] });
     let log = '';
+    let spawnError;
+    proc.on('error', error => { spawnError = error; });
     proc.stdout.on('data', d => { log += d; });
     proc.stderr.on('data', d => { log += d; });
     const t0 = Date.now();
-    for(;;) {
-        if(proc.exitCode !== null) throw new Error(`llama-server exited ${proc.exitCode}\n${log.slice(-3000)}`);
-        try { if((await fetch(`http://127.0.0.1:${port}/health`)).ok) break; } catch {}
-        await sleep(250);
+    try {
+        for(;;) {
+            if(spawnError) throw spawnError;
+            if(proc.exitCode !== null) throw new Error(`llama-server exited ${proc.exitCode}\n${log.slice(-3000)}`);
+            if(Date.now() - t0 > 180000) throw new Error('llama-server startup timed out.');
+            try { if((await fetch(`http://127.0.0.1:${port}/health`, { signal: AbortSignal.timeout(2000) })).ok) break; } catch {}
+            await sleep(250);
+        }
+    } catch(error) {
+        if(proc.pid && proc.exitCode === null) {
+            proc.kill();
+            await new Promise(r => proc.exitCode !== null ? r() : proc.once('exit', r));
+        }
+        throw error;
     }
-    return { proc, port, key, log: () => log, loadSeconds: (Date.now() - t0) / 1000 };
+    return { proc, port, key, vramArgs: VRAM_MODES[cfg.vramMode], log: () => log, loadSeconds: (Date.now() - t0) / 1000 };
 }
 
 function longPrompt(tokens) {
@@ -101,10 +120,16 @@ function longPrompt(tokens) {
     return `${lines.join('\n')}\nSummarize the single most important idea above in two sentences.`;
 }
 
-async function inklingTurn(ink, nPredict = 128) {
+async function inklingTurn(ink, nPredict = 128, promptTokens = cfg.promptTokens) {
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${ink.key}` };
+    const tokenized = await fetch(`http://127.0.0.1:${ink.port}/tokenize`, { method: 'POST', headers,
+        signal: AbortSignal.timeout(30000), body: JSON.stringify({ content: longPrompt(promptTokens) }) });
+    if(!tokenized.ok) throw new Error(`Tokenization failed: HTTP ${tokenized.status}`);
+    const { tokens } = await tokenized.json();
+    const prompt = tokens.slice(0, Math.min(promptTokens, cfg.ctx - nPredict - 16));
     const response = await fetch(`http://127.0.0.1:${ink.port}/completion`, { method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ink.key}` },
-        body: JSON.stringify({ prompt: longPrompt(cfg.promptTokens), n_predict: nPredict, cache_prompt: false, temperature: 0.3, seed: 1 }) });
+        headers, signal: AbortSignal.timeout(300000),
+        body: JSON.stringify({ prompt, n_predict: nPredict, cache_prompt: false, temperature: 0.3, seed: 1 }) });
     const json = await response.json();
     if(!response.ok) throw new Error(JSON.stringify(json).slice(0, 500));
     const t = json.timings;
@@ -113,7 +138,8 @@ async function inklingTurn(ink, nPredict = 128) {
 
 (async () => {
     await sleep(800);
-    const result = { name: cfg.name, mode: cfg.mode, ctx: cfg.ctx, args: cfg.args.join(' ') };
+    const result = { name: cfg.name, measuredAt: new Date().toISOString(), mode: cfg.mode,
+        vramMode: cfg.vramMode, ctx: cfg.ctx, args: cfg.args.join(' ') };
     result.idleMiB = current;
     let z, ink;
     try {
@@ -126,8 +152,11 @@ async function inklingTurn(ink, nPredict = 128) {
         }
         if(cfg.mode !== 'zonos') {
             mark('inklingLoad'); ink = await startInkling(); result.inklingLoad = ink.loadSeconds;
+            result.vramArgs = ink.vramArgs;
             await sleep(500); result.inklingIdleMiB = current;
             mark('inklingTurn'); Object.assign(result, await inklingTurn(ink));
+            console.log(`${cfg.name}: first request`, JSON.stringify({ promptTokens: result.promptTokens,
+                promptTps: result.promptTps, genTps: result.genTps, peaks }));
             const breakdown = ink.log().split(/\r?\n/).filter(l => /model buffer size|KV buffer size|compute buffer size|RS buffer size|offloaded \d+\/\d+ layers|n_layer|expert_count|memory breakdown|\| *(CUDA|Host)/.test(l));
             result.log = breakdown.map(l => l.trim()).slice(0, 40); await require('node:fs/promises').writeFile(path.join(out, cfg.name + '.log'), ink.log());
         }
@@ -137,7 +166,8 @@ async function inklingTurn(ink, nPredict = 128) {
             result.togetherGenTps = text.genTps;
             result.togetherPromptTps = text.promptTps;
             result.togetherSpeechRatio = +(voice.reduce((a, t) => a + t.seconds, 0) / voice.reduce((a, t) => a + t.audio, 0)).toFixed(2);
-            for(let i = 0; i < 2; i++) await Promise.all([inklingTurn(ink, 64), zonosTurns(z, 1)]);
+            console.log(`${cfg.name}: concurrent request`, JSON.stringify({ ...text, peaks }));
+            for(let i = 0; i < 2; i++) await Promise.all([inklingTurn(ink, 64, Math.min(cfg.promptTokens, 2048)), zonosTurns(z, 1)]);
         }
     } catch(error) {
         result.error = String(error.message || error).slice(0, 1500);
@@ -150,6 +180,13 @@ async function inklingTurn(ink, nPredict = 128) {
     result.peaks = Object.fromEntries(Object.entries(peaks).filter(([k]) => k !== 'teardown'));
     result.peakMiB = Math.max(...Object.values(result.peaks));
     result.peakAboveIdleMiB = result.peakMiB - result.idleMiB;
+    if(cfg.targetMiB) {
+        result.targetMiB = cfg.targetMiB;
+        result.marginMiB = cfg.marginMiB;
+        result.headroomMiB = cfg.targetMiB - result.peakMiB;
+        result.fits = !result.error && result.headroomMiB >= cfg.marginMiB;
+    }
     console.log('RESULT', JSON.stringify(result, null, 1));
     await appendFile(path.join(out, 'results.jsonl'), JSON.stringify(result) + '\n');
+    if(result.error || result.fits === false) process.exitCode = 1;
 })();
