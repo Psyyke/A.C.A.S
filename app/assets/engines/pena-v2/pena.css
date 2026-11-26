@@ -521,7 +521,8 @@
     cursor: default;
 }
 
-/* The floating window wears the same glass floaty look as the activity log. */
+/* Keep the translucent background and its single blur on the movable window,
+   rather than on a separate negative-z-index layer inside it. */
 .pena-window {
     box-sizing: border-box;
     position: fixed;
@@ -539,6 +540,15 @@
     border-bottom-width: 10px;
     border-radius: 5px;
     box-shadow: 0 18px 60px rgb(0 0 0 / 35%);
+    background-color: rgb(255 255 255 / 4%);
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    background-image:
+        var(--header-background-grain-image, var(--background-grain-image, none)),
+        linear-gradient(to bottom right, rgb(0 0 0 / 2%), rgb(0 0 0 / 14%) 48%, rgb(0 0 0 / 42%));
+    background-size: 160px 160px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    background-clip: padding-box;
     --scrollbar-track-background: rgb(255 255 255 / 3%);
     scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-track-background);
     overflow: clip;
@@ -557,22 +567,6 @@
     background-color: rgb(0 0 0 / 6%);
 }
 
-.pena-window > .pena-container::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-color: rgb(255 255 255 / 4%);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    background-image:
-        var(--header-background-grain-image, var(--background-grain-image, none)),
-        linear-gradient(to bottom right, rgb(0 0 0 / 2%), rgb(0 0 0 / 14%) 48%, rgb(0 0 0 / 42%));
-    background-size: 160px 160px, 100% 100%;
-    background-repeat: repeat, no-repeat;
-}
-
 .pena-window[hidden],
 .pena-window [hidden] {
     display: none !important;
@@ -589,6 +583,8 @@
 
 .pena-window .pena-window-header {
     position: relative;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     box-sizing: border-box;
     min-width: 0;
     min-height: 42px;

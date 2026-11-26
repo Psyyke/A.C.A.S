@@ -2625,15 +2625,6 @@ input[type="number"]::-webkit-outer-spin-button {
     border-style: var(--settings-input-border-style);
     border-color: var(--settings-input-border-color);
 }
-/* These panels scroll their bodies, so their headers can reuse the main glass
-   surface instead of compositing a second backdrop blur over the same area. */
-#log-floaty .floaty-header,
-#dynamic-settings-floaty .floaty-header,
-.pena-window .floaty-header {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-}
-
 #log-floaty {
     width: min(960px, calc(100vw - 32px));
     max-width: 95vw;
