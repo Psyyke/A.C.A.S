@@ -78,7 +78,9 @@
 }
 .tool-card:active {
     border-color: black;
+    border-bottom-width: 2px;
     transform: translateY(3px);
+    margin-bottom: 3px;
 }
 .tool-card:focus-visible {
     outline: 3px solid #5f8895;

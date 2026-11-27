@@ -1,5 +1,12 @@
 @import url("./consent.css");
 
+#klaro .cm-btn:active:not(:disabled),
+#klaro .cookie-notice .cn-body .cn-buttons button.cm-btn:active:not(:disabled) {
+    min-height: 0;
+    border-bottom-width: 2px;
+    margin-bottom: 2px;
+}
+
 .page-home .home-snow {
     position: fixed;
     inset: 0;
@@ -495,6 +502,9 @@ main {
 .fancy-btn:active {
     border: 2px solid black;
     transform: translateY(3px);
+}
+header .fancy-btn:active {
+    margin-bottom: 3px;
 }
 /* Keep the pressed decoration from intercepting nested links. */
 .fancy-btn:active::after {
@@ -1451,7 +1461,9 @@ main > .content {
 }
 .page-home .install-button:active {
     border-color: black;
+    border-bottom-width: 2px;
     transform: translateY(3px);
+    margin-bottom: 3px;
     box-shadow: none;
 }
 .mock-img {
@@ -1533,7 +1545,10 @@ ul {
     }
     .nav-burger:active {
         border-color: black;
+        border-bottom-width: 2px;
+        height: 47px;
         transform: translateY(3px);
+        margin-bottom: 3px;
     }
     .nav-burger:focus-visible {
         outline: 3px solid #5f8895;
@@ -1614,7 +1629,9 @@ ul {
     }
     .mobile-nav a:active {
         border-color: black;
+        border-bottom-width: 2px;
         transform: translateY(3px);
+        margin-bottom: 3px;
     }
     .mobile-nav a[aria-current="page"] {
         color: #ffffff;
@@ -1855,6 +1872,11 @@ ul {
     }
     .nav-burger {
         width: 52px;
+    }
+    .nav-burger:active,
+    .acas-logo-main.fancy-btn:active {
+        height: 45px;
+        margin-bottom: 3px;
     }
     .mobile-nav {
         top: 68px;
