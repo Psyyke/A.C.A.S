@@ -239,7 +239,7 @@
 .book-layer {
     --tone: #60aaa5;
     display: grid;
-    grid-template-columns: 8px 50px minmax(0, 1fr) auto;
+    grid-template-columns: 8px minmax(50px, max-content) minmax(0, 1fr) auto;
     align-items: center;
     gap: 12px;
     padding: 14px 16px 14px 0 !important;
@@ -318,7 +318,7 @@
     .book-stack-box { padding-top: 32px; }
     .book-move { grid-template-columns: minmax(54px, auto) minmax(30px, 1fr) 40px minmax(70px, 110px) 30px; gap: 6px; }
     .book-mode label > span { padding: 0 10px; text-align: center; }
-    .book-layer { grid-template-columns: 8px 50px minmax(0, 1fr) auto; gap: 6px 8px; padding: 10px 10px 10px 0 !important; }
+    .book-layer { grid-template-columns: 8px minmax(50px, max-content) minmax(0, 1fr) auto; gap: 6px 12px; padding: 10px 10px 10px 0 !important; }
     .book-layer-color { grid-row: 1 / span 2; margin: -10px 0; }
     .book-layer-share { grid-row: 1 / span 2; }
     .book-layer-body { display: contents; }

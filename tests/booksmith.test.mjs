@@ -292,6 +292,7 @@ test('merge choices fit and remain keyboard accessible on desktop and mobile', a
         await page.addStyleTag({ content: '.book-mode label > span { transition: none !important; }' });
         await page.locator('#add-lines:not([disabled])').waitFor();
         await page.locator('#add-lines').click();
+        await page.evaluate(() => document.fonts.ready);
         const descriptions = {
             priority: 'The top visible book with moves at this position decides. Lower books only fill gaps.',
             blend: 'Combine visible books. Books higher in the stack have more influence.',
@@ -306,6 +307,21 @@ test('merge choices fit and remain keyboard accessible on desktop and mobile', a
             for(const [mode, description] of Object.entries(descriptions)) {
                 await page.locator(`.book-mode label:has(input[value="${mode}"])`).click();
                 assert.equal(await page.locator('#book-mode-description').textContent(), description);
+                if(mode !== 'priority') {
+                    const spacing = await page.locator('.book-layer').first().evaluate(element => {
+                        const share = element.querySelector('.book-layer-share');
+                        const range = document.createRange();
+                        range.selectNodeContents(share);
+                        return {
+                            text: share.textContent,
+                            gap: element.querySelector('.book-layer-name').getBoundingClientRect().left - range.getBoundingClientRect().right,
+                            actionsFit: element.querySelector('.book-layer-actions').getBoundingClientRect().right
+                                <= element.getBoundingClientRect().right
+                        };
+                    });
+                    assert.equal(spacing.text, '100%');
+                    assert.ok(spacing.gap >= 7 && spacing.actionsFit, `${width}px ${mode}: ${JSON.stringify(spacing)}`);
+                }
                 assert.equal(await page.locator('.book-layer').first().evaluate(element => {
                     const colorElement = element.querySelector('.book-layer-color');
                     const shareElement = element.querySelector('.book-layer-share');
