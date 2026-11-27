@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Налаштування повідомлень Discord webhook",
         "*[data-translation-webhook-available-variables]": "Доступні змінні",
         "*[data-translation-ffs-videostream]": "Відеопотік",
-        "#des-no-result-text": "Деякі налаштування аналізуються динамічно з виходу UCI двигуна. Будь ласка, відкрийте шахівницю, щоб запустити ваш двигун і завантажити динамічні налаштування."
+        "#des-no-result-text": "Деякі налаштування аналізуються динамічно з виходу UCI двигуна. Будь ласка, відкрийте шахівницю, щоб запустити ваш двигун і завантажити динамічні налаштування.",
+        "[data-translation-mix-prefer-book-hint]": "У спільному пулі цей параметр надає перевагу всім залученим книгам",
+        "[data-translation-mix-shared]": "Ділити пул між профілями",
+        "[data-translation-mix-shared-hint]": "Профілі зі спільним пулом і доступними ходами мають рівні шанси",
+        "[data-translation-mix-off]": "Вимкнено",
+        "[data-translation-mix-books]": "Лише книги",
+        "[data-translation-mix-all]": "Усі пропозиції",
+        "[data-translation-mix-mode]": "Режим",
+        "[data-translation-mix-off-note]": "Пропозиції з книги та рушія залишаються незмінними.",
+        "[data-translation-mix-books-note]": "Вибирає один хід із книги за її власними вагами. Пропозиції рушія залишаються окремими.",
+        "[data-translation-mix-source-note]": "Ходи з книги зберігають власні ваги. Ці відсотки змішують лише ходи рушія.",
+        "[data-translation-mix-fallback-note]": "Використовує ці відсотки, якщо немає доступного ходу з книги.",
+        "[data-translation-suggestion-mix-profile-hint]": "Виберіть, що цей профіль об’єднує"
     },
     "configTranslations": {
         "advancedSearchMode": ["Режим пошуку","Виберіть обмеження пошуку"],

@@ -80,7 +80,19 @@
         "*[data-translation-ffs-title]": "ভাসমান প্যানেলের সেটিংস", "*[data-translation-ffs-subtitle]": "এগুলো মূলত Firefox ব্যবহারকারীদের জন্য",
         "*[data-translation-ffs-instructions]": "ভাসমান প্যানেল খোলা রাখুন, নইলে A.C.A.S কাজ করবে না। এই সুবিধাটি বন্ধ করলে স্বয়ংক্রিয়ভাবে একটি অডিও কৌশল প্রয়োগ করা হয়, যা কিছু ব্রাউজারে প্যানেল ছাড়াই A.C.A.S সক্রিয় রাখতে পারে। কোনো কিছু কাজ না করলে Chrome ব্যবহার করে দেখুন এবং স্প্লিট-স্ক্রিনে A.C.A.S দৃশ্যমান রাখুন।",
         "*[data-translation-webhook-title]": "বার্তা", "*[data-translation-webhook-subtitle]": "Discord webhook বার্তা সাজান", "*[data-translation-webhook-available-variables]": "ব্যবহারযোগ্য চলক", "*[data-translation-ffs-videostream]": "ভিডিও স্ট্রিম",
-        "#des-no-result-text": "কিছু সেটিংস ইঞ্জিনের UCI আউটপুট থেকে গতিশীলভাবে নেওয়া হয়। ইঞ্জিন চালু করে গতিশীল সেটিংস লোড করতে একটি দাবার বোর্ড খুলুন।"
+        "#des-no-result-text": "কিছু সেটিংস ইঞ্জিনের UCI আউটপুট থেকে গতিশীলভাবে নেওয়া হয়। ইঞ্জিন চালু করে গতিশীল সেটিংস লোড করতে একটি দাবার বোর্ড খুলুন।",
+        "[data-translation-mix-prefer-book-hint]": "শেয়ারড পুলে অংশ নেওয়া সব বইকে অগ্রাধিকার দেওয়া হয়",
+        "[data-translation-mix-shared]": "প্রোফাইলগুলোতে পুল ভাগ করুন",
+        "[data-translation-mix-shared-hint]": "উপলব্ধ চালসহ শেয়ার করা প্রোফাইলগুলো সমান সুযোগ পায়",
+        "[data-translation-mix-off]": "বন্ধ",
+        "[data-translation-mix-books]": "শুধু বই",
+        "[data-translation-mix-all]": "সব পরামর্শ",
+        "[data-translation-mix-mode]": "মোড",
+        "[data-translation-mix-off-note]": "বই ও ইঞ্জিনের পরামর্শ অপরিবর্তিত থাকে.",
+        "[data-translation-mix-books-note]": "বইয়ের নিজস্ব ওজন ব্যবহার করে একটি বইয়ের চাল বেছে নেয়। ইঞ্জিনের পরামর্শ আলাদা থাকে.",
+        "[data-translation-mix-source-note]": "বইয়ের চালগুলো নিজের ওজন বজায় রাখে। এই শতকরা হারগুলো কেবল ইঞ্জিন চাল মিশ্রণ করে.",
+        "[data-translation-mix-fallback-note]": "কোনো বইয়ের চাল না থাকলে এই শতকরা হার ব্যবহার করা হয়.",
+        "[data-translation-suggestion-mix-profile-hint]": "এই প্রোফাইল কী ফানেল করবে তা বেছে নিন"
     },
     "configTranslations": {
         "advancedSearchMode": ["অনুসন্ধান মোড","অনুসন্ধানের সীমা বেছে নিন"],

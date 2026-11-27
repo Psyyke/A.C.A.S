@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "配置 Discord webhook 消息",
         "*[data-translation-webhook-available-variables]": "可用变量",
         "*[data-translation-ffs-videostream]": "视频流",
-        "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。"
+        "#des-no-result-text": "某些设置是从引擎的 UCI 输出动态解析的。请打开棋盘来启动您的引擎并加载动态设置。",
+        "[data-translation-mix-prefer-book-hint]": "在共享棋池中，此选项会优先考虑所有参与的开局库",
+        "[data-translation-mix-shared]": "在多个配置间共享棋池",
+        "[data-translation-mix-shared-hint]": "共享配置中有可用着法时，各配置获得相同机会",
+        "[data-translation-mix-off]": "关闭",
+        "[data-translation-mix-books]": "仅开局库",
+        "[data-translation-mix-all]": "所有建议",
+        "[data-translation-mix-mode]": "模式",
+        "[data-translation-mix-off-note]": "开局库和引擎建议保持不变。",
+        "[data-translation-mix-books-note]": "按照开局库自身权重选出一个着法。引擎建议保持独立。",
+        "[data-translation-mix-source-note]": "开局库着法保留自身权重。这些百分比仅用于混合引擎着法。",
+        "[data-translation-mix-fallback-note]": "没有可用的开局库着法时使用这些百分比。",
+        "[data-translation-suggestion-mix-profile-hint]": "选择此配置要汇总的内容"
     },
     "configTranslations": {
         "advancedSearchMode": ["搜索模式","选择搜索限制"],

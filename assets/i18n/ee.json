@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Seadista Discordi webhooki sõnumeid",
         "*[data-translation-webhook-available-variables]": "Saadaval muutujad",
         "*[data-translation-ffs-videostream]": "Videovoog",
-        "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded."
+        "#des-no-result-text": "Mõned seaded analüüsitakse dünaamiliselt mootori UCI väljundist. Avage malelaud, et käivitada oma mootor ja laadida dünaamilised seaded.",
+        "[data-translation-mix-prefer-book-hint]": "Jagatud kogumis eelistatakse kõiki osalevaid raamatuid",
+        "[data-translation-mix-shared]": "Jaga profiilide vahel kogum",
+        "[data-translation-mix-shared-hint]": "Jagavad profiilid, millel on saadaval käike, saavad võrdsed võimalused",
+        "[data-translation-mix-off]": "Väljas",
+        "[data-translation-mix-books]": "Ainult raamatud",
+        "[data-translation-mix-all]": "Kõik soovitused",
+        "[data-translation-mix-mode]": "Režiim",
+        "[data-translation-mix-off-note]": "Raamatu ja mootori soovitused jäävad muutmata.",
+        "[data-translation-mix-books-note]": "Valib raamatust ühe käigu raamatutabeli enda kaalude järgi. Mootori soovitused jäävad eraldi.",
+        "[data-translation-mix-source-note]": "Raamatukäigud säilitavad oma kaalud. Need protsendid segavad ainult mootori käike.",
+        "[data-translation-mix-fallback-note]": "Neid protsente kasutatakse, kui raamatukäik pole saadaval.",
+        "[data-translation-suggestion-mix-profile-hint]": "Vali, mida see profiil filtreerib"
     },
     "configTranslations": {
         "advancedSearchMode": ["Otsingurežiim","Vali otsingu piirang"],

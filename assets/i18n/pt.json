@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Configurar mensagens Discord webhook",
         "*[data-translation-webhook-available-variables]": "Variáveis disponíveis",
         "*[data-translation-ffs-videostream]": "Transmissão de vídeo",
-        "#des-no-result-text": "Algumas configurações são analisadas dinamicamente a partir da saída UCI do motor. Por favor, abra um tabuleiro de xadrez para iniciar o seu motor e carregar as configurações dinâmicas."
+        "#des-no-result-text": "Algumas configurações são analisadas dinamicamente a partir da saída UCI do motor. Por favor, abra um tabuleiro de xadrez para iniciar o seu motor e carregar as configurações dinâmicas.",
+        "[data-translation-mix-prefer-book-hint]": "Em um grupo compartilhado, esta opção prioriza todos os livros participantes",
+        "[data-translation-mix-shared]": "Compartilhar o grupo entre perfis",
+        "[data-translation-mix-shared-hint]": "Os perfis compartilhados com jogadas disponíveis têm chances iguais",
+        "[data-translation-mix-off]": "Desativado",
+        "[data-translation-mix-books]": "Apenas livros",
+        "[data-translation-mix-all]": "Todas as sugestões",
+        "[data-translation-mix-mode]": "Modo",
+        "[data-translation-mix-off-note]": "As sugestões do livro e do motor permanecem inalteradas.",
+        "[data-translation-mix-books-note]": "Escolhe uma jogada do livro usando os pesos próprios do livro. As sugestões do motor ficam separadas.",
+        "[data-translation-mix-source-note]": "As jogadas do livro mantêm seus próprios pesos. Estas porcentagens misturam apenas jogadas do motor.",
+        "[data-translation-mix-fallback-note]": "Usa estas porcentagens quando não houver jogada de livro disponível.",
+        "[data-translation-suggestion-mix-profile-hint]": "Escolha o que este perfil canaliza"
     },
     "configTranslations": {
         "advancedSearchMode": ["Modo de busca","Escolha o limite de busca"],

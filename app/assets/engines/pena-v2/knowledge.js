@@ -260,6 +260,12 @@ export const knowledge = [
  },
  {
   "page": "usage guide",
+  "title": "Opening Book",
+  "part": 2,
+  "text": "Want to make your own book or mix a few together? BookSmith lets you play lines on a board, stack books in any order and export one merged .bin to load here. You can even import your games from Export Matches and get a book of the moves you actually play."
+ },
+ {
+  "page": "usage guide",
   "title": "Learning Mode",
   "part": 1,
   "text": "Learning Mode reviews a move after you've played it instead of telling you what to play. The GUI shows the position before your last move, the profile's engine suggestions and a rating of the move you played. The board being one move behind is intentional! It uses the engine selected in that profile with its Elo and search settings, so a Maia review can differ from a Stockfish review. Ordinary Move Ratings use a separate Fairy Stockfish engine instead. Keep A.C.A.S connected while playing, because it needs the recorded positions. Learning Mode may not work well with Maia 2 or 3. Their ratings are approximate outcome estimates, not deep tactical analysis. Use Stockfish for more reliable reviews."
@@ -490,19 +496,67 @@ export const knowledge = [
   "page": "usage guide",
   "title": "Funneling",
   "part": 1,
-  "text": "Want one move instead of a bunch of arrows? Turn on Funneling under Miscellaneous, then click its settings cog to open the controls. Your profiles contribute full engine suggestions to one shared pool, and Funneling selects one move from it as the main arrow. The setting is shared across profiles, not saved inside one profile. Start with 90% Best and 10% Any alternative if you want a little variety. Change a percentage and the others adjust for you. Turn on Choose alternative types to pick safe secondary moves, mistakes, blunders or missed opportunities. Funneling only considers moves your profiles actually show. Duplicates count once, and if profiles disagree about a move, the weaker label wins."
+  "text": "Funneling picks one move from several suggestions. Each profile can use its own mode. Off: keep your usual suggestions. Books only: show one weighted book move. Engine suggestions stay unchanged. All suggestions: combine book and engine moves into one full suggestion."
  },
  {
   "page": "usage guide",
-  "title": "Funneling",
+  "title": "Funneling, Sharing a pool",
+  "part": 1,
+  "text": "Turn on Share pool across profiles in the profiles you want to combine. Books only and All suggestions can join the same pool. You get one pooled pick, not a separate pick for each mode. Without book preference, each profile with available full moves gets an equal chance to supply the pick. Two profiles means 50/50. Three means about one third each. Offering more moves doesn't give a profile more chances. After a profile wins, its own settings decide the move. Books only uses its book weights. All suggestions uses book weights for a book pick and engine percentages for an engine pick. If that All profile has both sources available, it gives books and engines a 50/50 chance first. Prefer book moves changes that order."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Sharing a pool",
   "part": 2,
-  "text": "Turn on Prefer book moves to pick a full opening book move first. Available book moves from all profiles share the same pool, and duplicates count once. If no book move is available, Funneling uses your regular move selection. Load an opening book in the profiles you want to use. Leave this off to keep book marks separate. If no moves match your selected types, you get another shown move and a short warning toast. Piece-only and destination-only hints stay as hints. Without a book pick, Funneling waits for full-move profiles to finish, so use a time limit. The chosen move keeps its profile color, speech and external-site settings, but uses the main arrow style with no opponent or future arrows."
+  "text": "Turn it on in any shared All profile and available book moves from the whole pool take priority, including Books-only profiles. The contributing book profiles get equal chances, then the winning book's weights apply. When no book move is available, the engine mix takes over. Books-only mode doesn't grant priority on its own."
  },
  {
   "page": "usage guide",
-  "title": "Funneling",
+  "title": "Funneling, Practical setups",
+  "part": 1,
+  "text": "One book arrow, normal engine arrows. Load an opening book and choose Books only. If the book has no move for the position, your engine suggestions carry on as usual. Follow your book, then let the engine take over. For one profile, choose All suggestions and turn on Prefer book moves. A book match uses the book's weights. Once you're out of the book, the engine mix takes over. A little engine variety. For an engine-only profile, choose All suggestions with 90% Best and 10% Any alternative. Set Move Suggestions to at least 2 so the engine has alternatives to offer. When both types are available, roughly nine picks out of ten use Best. Two engines, one pick. Set Stockfish and Maia to All suggestions and share the pool in both."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Practical setups",
+  "part": 2,
+  "text": "With no books or book preference, each engine gets a 50% chance. Stockfish offering five moves and Maia offering two doesn't change that. Each keeps its own engine percentages. Combine two opening books. Choose Books only and sharing in both book profiles. Each available book gets half the picks. If book A offers e4/d4 at 75/25 and book B only offers e4, the pooled odds are 87.5% e4 and 12.5% d4. The matching e4 moves add together, rather than making book B lose its share. Let a book and an engine take turns. Profile A uses Books only with c4/g4 weighted 75/25. Profile B has no book and uses All suggestions with Best 90% and Any alternative 10%. Share both and leave Prefer book moves off. A gets half the picks and B gets half."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Practical setups",
   "part": 3,
-  "text": "Turn Funneling off to get your usual suggestions back. Funneling still follows your piece and capture filters. Preferred book picks use the main arrow color and opacity, not the separate book style. A profile with external arrows off can still supply the GUI pick, so that pick will not appear on the chess site. Learning Mode stays separate. The Floating Panel shows one section named Funneling instead of separate profile sections. It follows the chosen move and its profile settings, including book picks. Speech uses that pick too. Enable the panel and speech on the profiles you want to use. Changing settings or redrawing the same pick does not say the move again."
+  "text": "With all those choices available, that's 37.5% book c4, 12.5% book g4, 45% engine Best and 5% engine alternative. One Books-only profile, one All profile with a book too. Share both with book preference off. Each profile gets 50%. When the All profile wins, it splits its chance between its book and engine. Overall, 75% of picks come from books and 25% from the engine. The All profile's own book doesn't steal the other profile's turn. Books first, even from another profile. Keep the previous shared setup, but enable Prefer book moves in the All profile. Both profiles' books now get priority. While both have moves, each book gets half the picks. If only one still has book moves, it supplies the book pick."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Practical setups",
+  "part": 4,
+  "text": "Once neither has a book move, the All profile supplies an engine pick. Three profiles with different personalities. Share a Books-only profile, a Best 100% engine profile and a Best 70% / Any alternative 30% engine profile, with book preference off. Each gets about one third of the picks. The last profile's 70/30 mix applies only when that profile wins. A book runs out. In a shared Books-only plus engine setup, an out-of-book profile gets no chance to supply the pick. It doesn't use up half the turns or produce blank picks. If its book has a move again later, it joins the choices again. Keep profiles independent. Leave sharing off. One profile can use Off, another Books only, and a third All suggestions."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Practical setups",
+  "part": 5,
+  "text": "Changing one doesn't change the others."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Book weights and engine percentages",
+  "part": 1,
+  "text": "These are separate. A book with two available moves weighted 75/25 uses those odds for its book pick. Best 90% and Any alternative 10% only describe the engine mix, not the book. You don't need to change one to match the other. Changing an engine percentage adjusts the others for you. Choose alternative types reveals more options, like safe secondary moves, mistakes and blunders. Switching modes keeps your saved choices."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Good to know",
+  "part": 1,
+  "text": "Only profiles with sharing turned on and Funneling enabled join the pool. Others can still show their own arrows. Books-only engine suggestions stay outside the pool too. For one full arrow overall, use All suggestions and sharing in every profile supplying full moves. Funneling uses available moves, not invented ones. If your selected engine types aren't available, it picks another shown move and gives a short warning. These percentages describe chances over many fresh picks, not a fixed rotation. Redrawing the same position doesn't reroll a valid pick. If books and engines suggest the same move, that move can win through either source."
+ },
+ {
+  "page": "usage guide",
+  "title": "Funneling, Good to know",
+  "part": 2,
+  "text": "With Only Top Moves enabled, Funneling waits for the participating full-move profiles to finish, including Books-only profiles and preferred book picks. Books-only engine lines also wait for their own final results. Turn Only Top Moves off in a profile to allow its live results without waiting for its search to finish. Other sharing profiles with it enabled still need to finish first. Use a time, depth or node limit with Only Top Moves enabled. Unlimited searches need to finish before Funneling shows a pick, so disable Only Top Moves if you want live updates during those searches. Your move filters, colors and visibility settings still apply. Partial hints and Learning Mode stay separate."
  },
  {
   "page": "usage guide",

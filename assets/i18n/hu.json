@@ -132,7 +132,19 @@
         "*[data-translation-ffs-subtitle]": "Elsősorban Firefox-felhasználóknak",
         "*[data-translation-ffs-instructions]": "Tartsa nyitva a lebegő panelt, különben az A.C.A.S nem fog működni. A funkció kikapcsolásakor automatikusan életbe lép egy hangtrükk, amely egyes böngészőkben panel nélkül is aktívan tarthatja az A.C.A.S-t. Ha valami nem működik, próbálja ki a Chrome-ot, és tartsa láthatóan az A.C.A.S-t osztott képernyőn.",
         "*[data-translation-ffs-videostream]": "Videófolyam",
-        "#des-no-result-text": "Egyes beállítások dinamikusan kerülnek elemzésre a motor UCI kimenetéből. Nyisson meg egy sakk táblát a motor elindításához és a dinamikus beállítások betöltéséhez."
+        "#des-no-result-text": "Egyes beállítások dinamikusan kerülnek elemzésre a motor UCI kimenetéből. Nyisson meg egy sakk táblát a motor elindításához és a dinamikus beállítások betöltéséhez.",
+        "[data-translation-mix-prefer-book-hint]": "Megosztott készletben ez minden résztvevő könyvet előnyben részesít",
+        "[data-translation-mix-shared]": "Készlet megosztása profilok között",
+        "[data-translation-mix-shared-hint]": "A rendelkezésre álló lépésekkel rendelkező megosztó profilok egyenlő eséllyel indulnak",
+        "[data-translation-mix-off]": "Ki",
+        "[data-translation-mix-books]": "Csak könyvek",
+        "[data-translation-mix-all]": "Minden javaslat",
+        "[data-translation-mix-mode]": "Mód",
+        "[data-translation-mix-off-note]": "A könyv- és a motorjavaslatok változatlanok maradnak.",
+        "[data-translation-mix-books-note]": "A könyv saját súlyai alapján választ egy könyvlépést. A motorjavaslatok külön maradnak.",
+        "[data-translation-mix-source-note]": "A könyvlépések megtartják saját súlyaikat. Ezek a százalékok csak a motorlépéseket keverik.",
+        "[data-translation-mix-fallback-note]": "Ezeket a százalékokat használja, ha nincs elérhető könyvlépés.",
+        "[data-translation-suggestion-mix-profile-hint]": "Válassza ki, mit válogat össze ez a profil"
     },
     "configTranslations": {
         "advancedSearchMode": ["Keresési mód","Válasszon keresési korlátot"],

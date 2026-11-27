@@ -413,9 +413,6 @@
     font-size: 16px;
     line-height: 1;
 }
-.elo-actions > button:active {
-    border-bottom-width: 5px;
-}
 .elo-tool .tool-run {
     order: 3;
     margin: 0;
@@ -538,9 +535,25 @@
 .tool-button:hover {
     background-color: rgb(0 0 0 / 5%);
 }
-.tool-button:active {
+.markdown-section .tool-button:active:not(:disabled),
+.markdown-section .tool-file-control input:not(:disabled):active + .tool-button,
+.markdown-section .install-button:active:not(:disabled) {
+    height: auto;
+    min-height: 0;
+    border-bottom-width: 2px;
     border-color: black;
     transform: translateY(3px);
+    margin-bottom: 3px;
+}
+.markdown-section .install-button:active:not(:disabled) {
+    border-color: transparent;
+}
+.markdown-section .elo-checkpoint > .tool-button:active:not(:disabled) {
+    min-height: 43px;
+}
+.markdown-section .elo-actions > button:active:not(:disabled) {
+    height: 43px;
+    min-height: 43px;
 }
 .tool-actions {
     display: flex;

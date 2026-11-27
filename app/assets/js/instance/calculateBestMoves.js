@@ -30,17 +30,24 @@ function getTerminalOutcome(fen, playerColor) {
 // For example when a move is played and the opponent's piece disappears from the board before the player's piece appears on the board,
 // it can look like a legal position change (1 piece disappeared, 1 piece appeared) but it is not. Wrong fens like this might break A.C.A.S.
 export default async function calculateBestMoves(currentFen, config = {}) {
-    if(!currentFen || this.instanceClosed) return;
+    if(!currentFen || this.instanceClosed || this.currentFen && this.currentFen !== currentFen) return;
 
-    const playerColor = await this.getPlayerColor();
-    if(this.instanceClosed || (this.currentFen && this.currentFen !== currentFen)) return;
-
-    setDynamicSettingsContext(this.instanceID, currentFen, { playerColor });
-    await this.syncDynamicSettings();
-    const profiles = await GET_PROFILES(this.instanceID);
-    await this.suggestionMix?.configure();
-    if(this.instanceClosed || (this.currentFen && this.currentFen !== currentFen)) return;
     const mixState = this.suggestionMix?.begin(currentFen);
+    let mixPreparationComplete = false;
+    let playerColor, profiles;
+    try {
+        playerColor = await this.getPlayerColor();
+        if(this.instanceClosed || (this.currentFen && this.currentFen !== currentFen)) return;
+
+        setDynamicSettingsContext(this.instanceID, currentFen, { playerColor });
+        await this.syncDynamicSettings();
+        profiles = await GET_PROFILES(this.instanceID);
+        await this.suggestionMix?.configure();
+        if(this.instanceClosed || (this.currentFen && this.currentFen !== currentFen)) return;
+        mixPreparationComplete = true;
+    } finally {
+        if(!mixPreparationComplete && mixState) await this.suggestionMix.end(mixState);
+    }
     this.CommLink.expectProfiles?.(currentFen, profiles.filter(profile =>
         profile.config.engineEnabled && !profile.config.learningMode && !profile.config.movesOnDemand));
     let { skipValidityChecks, specificMovesObj, specificProfileName } = config;

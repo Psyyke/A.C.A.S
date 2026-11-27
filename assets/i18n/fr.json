@@ -132,7 +132,19 @@
         "*[data-translation-ffs-subtitle]": "Principalement pour les utilisateurs de Firefox",
         "*[data-translation-ffs-instructions]": "Gardez le panneau flottant ouvert, sinon A.C.A.S ne fonctionnera pas. Désactiver cette fonction applique automatiquement une astuce audio qui peut maintenir A.C.A.S actif sans le panneau dans certains navigateurs. Si quelque chose ne fonctionne pas, essayez Chrome et gardez A.C.A.S visible en écran partagé.",
         "*[data-translation-ffs-videostream]": "Flux vidéo",
-        "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques."
+        "#des-no-result-text": "Certains paramètres sont analysés dynamiquement à partir de la sortie UCI du moteur. Veuillez ouvrir un échiquier pour démarrer votre moteur et charger les paramètres dynamiques.",
+        "[data-translation-mix-prefer-book-hint]": "Dans un pool partagé, cette option privilégie tous les livres participants",
+        "[data-translation-mix-shared]": "Partager le pool entre les profils",
+        "[data-translation-mix-shared-hint]": "Les profils partagés disposant de coups disponibles ont des chances égales",
+        "[data-translation-mix-off]": "Désactivé",
+        "[data-translation-mix-books]": "Livres uniquement",
+        "[data-translation-mix-all]": "Toutes les suggestions",
+        "[data-translation-mix-mode]": "Mode",
+        "[data-translation-mix-off-note]": "Les suggestions du livre et du moteur restent inchangées.",
+        "[data-translation-mix-books-note]": "Choisit un coup du livre selon ses propres poids. Les suggestions du moteur restent séparées.",
+        "[data-translation-mix-source-note]": "Les coups du livre conservent leurs propres poids. Ces pourcentages mélangent uniquement les coups du moteur.",
+        "[data-translation-mix-fallback-note]": "Utilise ces pourcentages lorsqu’aucun coup du livre n’est disponible.",
+        "[data-translation-suggestion-mix-profile-hint]": "Choisissez ce que ce profil canalise"
     },
     "configTranslations": {
         "advancedSearchMode": ["Mode de recherche","Choisir la limite de recherche"],

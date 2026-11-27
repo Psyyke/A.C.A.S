@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Discord webhook хабарламаларын конфигурациялау",
         "*[data-translation-webhook-available-variables]": "Қолжетімді айнымалылар",
         "*[data-translation-ffs-videostream]": "Видеотрансляция",
-        "#des-no-result-text": "Кейбір параметрлер қозғалтқыштың UCI шығысынан динамикалық түрде талданады. Қозғалтқышты іске қосу және динамикалық параметрлерді жүктеу үшін шахмат тақтасын ашыңыз."
+        "#des-no-result-text": "Кейбір параметрлер қозғалтқыштың UCI шығысынан динамикалық түрде талданады. Қозғалтқышты іске қосу және динамикалық параметрлерді жүктеу үшін шахмат тақтасын ашыңыз.",
+        "[data-translation-mix-prefer-book-hint]": "Ортақ пулда бұл барлық қатысатын кітаптарды басым етеді",
+        "[data-translation-mix-shared]": "Пулды профильдер арасында бөлісу",
+        "[data-translation-mix-shared-hint]": "Қол жетімді жүрістері бар ортақ профильдер тең мүмкіндік алады",
+        "[data-translation-mix-off]": "Өшірулі",
+        "[data-translation-mix-books]": "Тек кітаптар",
+        "[data-translation-mix-all]": "Барлық ұсыныстар",
+        "[data-translation-mix-mode]": "Режим",
+        "[data-translation-mix-off-note]": "Кітап пен қозғалтқыш ұсыныстары өзгеріссіз қалады.",
+        "[data-translation-mix-books-note]": "Кітаптың өз салмақтары бойынша бір кітап жүрісін таңдайды. Қозғалтқыш ұсыныстары бөлек қалады.",
+        "[data-translation-mix-source-note]": "Кітап жүрістері өз салмақтарын сақтайды. Бұл пайыздар тек қозғалтқыш жүрістерін араластырды.",
+        "[data-translation-mix-fallback-note]": "Кітап жүрісі жоқ кезде бұл пайыздар қолданылады.",
+        "[data-translation-suggestion-mix-profile-hint]": "Бұл профильдің немен жұмыс істейтінін таңдаңыз"
     },
     "configTranslations": {
         "advancedSearchMode": ["Іздеу режимі","Іздеу шегін таңдаңыз"],

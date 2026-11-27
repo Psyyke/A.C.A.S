@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Discord webhook mesajlarını konfiqurasiya edin",
         "*[data-translation-webhook-available-variables]": "Mövcud dəyişənlər",
         "*[data-translation-ffs-videostream]": "Video axını",
-        "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın."
+        "#des-no-result-text": "Bəzi parametrlər mühərrikin UCI çıxışından dinamik olaraq təhlil olunur. Mühərrikinizi başlatmaq və dinamik parametrləri yükləmək üçün şahmat lövhəsini açın.",
+        "[data-translation-mix-prefer-book-hint]": "Paylaşılan hovuzda bütün iştirakçı kitablar üstün tutulur",
+        "[data-translation-mix-shared]": "Hovuzu profillər arasında paylaş",
+        "[data-translation-mix-shared-hint]": "İstifadə olunan gedişi olan paylaşım profilləri eyni şans əldə edir",
+        "[data-translation-mix-off]": "Söndürülüb",
+        "[data-translation-mix-books]": "Yalnız kitablar",
+        "[data-translation-mix-all]": "Bütün təkliflər",
+        "[data-translation-mix-mode]": "Rejim",
+        "[data-translation-mix-off-note]": "Kitab və mühərrik təklifləri dəyişməz qalır.",
+        "[data-translation-mix-books-note]": "Kitabın öz çəkilərindən istifadə edərək bir kitab gedişi seçir. Mühərrik təklifləri ayrıca qalır.",
+        "[data-translation-mix-source-note]": "Kitab gedişləri öz çəkilərini saxlayır. Bu faizlər yalnız mühərrik gedişlərini qarışdırır.",
+        "[data-translation-mix-fallback-note]": "Kitab gedişi mövcud olmadıqda bu faizlərdən istifadə olunur.",
+        "[data-translation-suggestion-mix-profile-hint]": "Bu profilin nəyi süzgəcdən keçirməsini seçin"
     },
     "configTranslations": {
         "advancedSearchMode": ["Axtarış rejimi","Axtarış həddini seçin"],

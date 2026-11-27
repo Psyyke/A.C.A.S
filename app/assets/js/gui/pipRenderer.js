@@ -369,10 +369,8 @@ function updatePipFeedback(instance) {
     updatePipOpening(instance);
     updatePipEvaluation(instance);
 
-    const profiles = instance.suggestionMix?.enabled && !instance.isLearningProfile(pipProfile)
-        ? Object.keys(instance.pV).filter(profile => instance.pV[profile].pip !== false
-            && !instance.isLearningProfile(profile))
-        : [pipProfile];
+    const profiles = (instance.suggestionMix?.profilesFor?.(pipProfile) || [pipProfile])
+        .filter(profile => instance.pV[profile]?.pip !== false);
     const sourceFor = enabled => profiles.find(profile => {
         const variables = instance.pV[profile];
         return variables && enabled(variables);

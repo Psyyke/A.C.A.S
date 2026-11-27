@@ -80,6 +80,54 @@ export function migratePipSettings(config) {
     return changed;
 }
 
+export function migrateSuggestionMixSettings(config) {
+    let changed = false;
+    const legacyKeys = ['suggestionMix', 'suggestionMixWeights', 'suggestionMixPreferBook'];
+    const globalDefaults = Object.fromEntries(legacyKeys
+        .filter(key => Object.hasOwn(config?.global || {}, key))
+        .map(key => [key, config.global[key]]));
+    const globalProfiles = Object.keys(config?.global?.profiles || {});
+    if(Object.keys(globalDefaults).length && !globalProfiles.includes('default')) globalProfiles.push('default');
+    const convert = values => ({
+        ...(Object.hasOwn(values, 'suggestionMix') ? {
+            suggestionMixMode: values.suggestionMix ? 'all' : 'off',
+            suggestionMixShared: true
+        } : {}),
+        ...Object.fromEntries(['suggestionMixWeights', 'suggestionMixPreferBook']
+            .filter(key => Object.hasOwn(values, key)).map(key => [key, values[key]]))
+    });
+    for(const scope of [config?.global, ...Object.values(config?.instance || {})]) {
+        if(!scope) continue;
+        const keys = legacyKeys.filter(key => Object.hasOwn(scope, key));
+        if(keys.length) {
+            scope.profiles ??= {};
+            scope.profiles.default ??= {};
+            if(scope !== config.global) {
+                for(const name of globalProfiles) scope.profiles[name] ??= {};
+            }
+        }
+        for(const [name, settings] of Object.entries(scope.profiles || {})) {
+            const inherited = scope !== config.global && !globalProfiles.includes(name) ? globalDefaults : {};
+            const values = { ...inherited, ...Object.fromEntries(keys.map(key => [key, scope[key]])) };
+            if(Object.hasOwn(settings, 'suggestionMix')) {
+                values.suggestionMix = settings.suggestionMix;
+                delete settings.suggestionMix;
+                changed = true;
+            }
+            for(const [key, value] of Object.entries(convert(values))) {
+                if(Object.hasOwn(settings, key)) continue;
+                settings[key] = value;
+                changed = true;
+            }
+        }
+        for(const key of keys) {
+            delete scope[key];
+            changed = true;
+        }
+    }
+    return changed;
+}
+
 function getSettingFilter(settingElem) {
     if(settingElem.dataset.globalOnly) return { ...SETTING_FILTER_OBJ, type: 'global', instanceID: null };
     return {
@@ -124,6 +172,7 @@ export function importSettings() {
 
                 migrateFeedbackSettings(jsonData);
                 migratePipSettings(jsonData);
+                migrateSuggestionMixSettings(jsonData);
                 USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, jsonData);
 
                 console.log(jsonData);

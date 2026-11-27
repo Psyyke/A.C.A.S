@@ -455,34 +455,56 @@ node --test tests/instance-disconnect-toast.test.mjs
 
 ## App Funneling
 
-The app-wide mix reuses EloEye's percentage balancing and pooled move selection.
-Full suggestions wait for completed engine searches and become one primary arrow.
-Partial hints remain separate. Redraws retain the pick and suppress repeated speech
-and Auto Move. Turning the mix off restores the original profile suggestions.
+Per-profile Funneling reuses EloEye's percentage balancing and move selection.
+Off leaves suggestions unchanged. Books only selects a weighted book move without
+funneling engine suggestions. All suggestions selects one full book or engine move.
+Profiles can opt into one shared pool or keep independent picks. Shared selection
+gives each eligible profile an equal chance before applying that profile's book
+weights or engine percentages, regardless of candidate counts or matching
+percentages. Duplicate moves retain the winning profile's labels. Partial hints
+remain separate. Redraws retain each pool's pick and suppress repeated speech
+and Auto Move. Turning Funneling off restores the original profile suggestions.
 
 ```sh
-node --test tests/suggestion-mix.test.mjs tests/elo-hints.test.mjs
+node --test tests/suggestion-mix.test.mjs tests/engine-suggestions.test.mjs tests/elo-hints.test.mjs tests/search-modes.test.mjs
 node --test tests/suggestion-mix-gui.test.mjs
 ```
 
 The second command uses Playwright and Chromium. It checks the real settings
-dialog, saved non-profile weights, multiple engines, primary-arrow rendering,
-partial hints and disabling the feature.
-Book preference uses the same book lookup as ordinary book markings, pools full
-book suggestions across profiles, and falls back to the engine mix when no full
-book move is available. Tests cover preference toggling and partial book hints.
+dialog, saved profile weights, migration of legacy global settings and links,
+multiple engines, primary-arrow rendering, partial hints and disabling the feature.
+It exercises Off, Books only and All together, shared-pool membership, and a
+categorical Dynamic Settings curve that switches Books only to All at runtime.
+Book preference uses the same book lookup as ordinary book markings. Enabling it
+in any participating All profile prioritizes all full book suggestions in its
+pool, with equal chances for contributing book profiles. Books-only mode itself
+does not grant priority, and its hidden saved preference has no effect. Without
+available books, selection falls back to eligible engine profiles. Without
+preference, an All profile with both sources gives books and engines equal chances
+after the profile choice. Tests cover exact profile and conditional weight
+distributions, book weights, preference toggling and partial book hints.
+Only Top Moves holds book and engine picks until every participating full-move
+profile with it enabled finishes. Books and preference do not bypass the barrier,
+including before search registration. Disabling it allows provisional results
+without skipping other profiles' waits. Engine-message tests also verify that
+unlimited searches cannot stream early arrows while Funneling and Only Top Moves
+are enabled, including Books-only mode.
 Compatibility checks also cover concealment without losing the original
-suggestions, live book-only filter changes, piece and capture filters, and opacity.
+suggestions, live book-only filter changes, piece and capture filters, opacity,
+own-turn restrictions and independent profile percentages. Warning-only
+selection compares each move with the actual engine best even when piece filters
+hide that best. Duplicate weighted book moves keep the profile that contributed
+the selected book chance.
 Chromium also checks PiP text in both notation modes, board captures with the
 selected arrow, and engine and preferred-book TTS through the real speech
 formatter with a mocked speech output. Settings redraws and concealment must not
 repeat the announcement. Popup ordering and language hover styling are covered too.
-The composed PiP stream shows one translated Funneling section while mixing
-is enabled and restores separate profile sections when mixing is disabled.
-It reserves enabled sections across mixed profiles, including blank Elo/accuracy
+The composed PiP stream combines shared All profiles into one translated
+Funneling section. Off, Books only and independent profiles retain their own sections.
+It reserves enabled sections across the shared All profiles, including blank Elo/accuracy
 rows before results arrive, so profile switches and waiting states keep the same
 canvas dimensions while unavailable content stays blank.
-Mixed feedback, counts and Elo/accuracy each use the first PiP-enabled suggestion profile
+Mixed feedback, counts and Elo/accuracy each use the first PiP-enabled shared All profile
 with that feature enabled, independently of the chosen move's profile. Late
 review results update the footer without changing the move or canvas dimensions.
 Learning profiles have separate sections below the mix, with their own board,

@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Configurați mesajele Discord webhook",
         "*[data-translation-webhook-available-variables]": "Variabile disponibile",
         "*[data-translation-ffs-videostream]": "Flux video",
-        "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice."
+        "#des-no-result-text": "Unele setări sunt analizate dinamic din ieșirea UCI a motorului. Deschideți o tablă de șah pentru a porni motorul și a încărca setările dinamice.",
+        "[data-translation-mix-prefer-book-hint]": "Într-un grup partajat, această opțiune prioritizează toate cărțile participante",
+        "[data-translation-mix-shared]": "Partajează grupul între profiluri",
+        "[data-translation-mix-shared-hint]": "Profilurile care partajează și au mutări disponibile au șanse egale",
+        "[data-translation-mix-off]": "Oprit",
+        "[data-translation-mix-books]": "Doar cărți",
+        "[data-translation-mix-all]": "Toate sugestiile",
+        "[data-translation-mix-mode]": "Mod",
+        "[data-translation-mix-off-note]": "Sugestiile din carte și cele ale motorului rămân neschimbate.",
+        "[data-translation-mix-books-note]": "Alege o mutare din carte folosind ponderile proprii ale cărții. Sugestiile motorului rămân separate.",
+        "[data-translation-mix-source-note]": "Mutările din carte își păstrează ponderile proprii. Aceste procente amestecă doar mutările motorului.",
+        "[data-translation-mix-fallback-note]": "Folosește aceste procente când nu este disponibilă nicio mutare din carte.",
+        "[data-translation-suggestion-mix-profile-hint]": "Alegeți ce reunifică acest profil"
     },
     "configTranslations": {
         "advancedSearchMode": ["Mod de căutare","Alege limita de căutare"],

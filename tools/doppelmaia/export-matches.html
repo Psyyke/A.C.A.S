@@ -48,7 +48,7 @@
         @keyframes installGoldShift { from { background-position: 0 0, 0 0; } to { background-position: 360px 0, 360px 0; } }
         button:hover:not(:disabled), .tool-button:hover { filter: brightness(1.05); }
         .install-button:hover:not(:disabled) { filter: brightness(1.08) saturate(1.1); box-shadow: 0 0 10px rgb(255 214 90 / 45%); }
-        .tool-button:active:not(:disabled) { transform: translateY(3px); }
+        .tool-button:active:not(:disabled) { min-height: 0; border-bottom-width: 2px; transform: translateY(3px); margin-bottom: 3px; }
         .install-button:active:not(:disabled) { box-shadow: 0 0 8px rgb(255 214 90 / 50%); animation-duration: 2s; }
         @media (prefers-reduced-motion: reduce) { .tool-panel, .install-button { animation: none; } }
         :focus-visible { outline: 3px solid #5f8895; outline-offset: 3px; }

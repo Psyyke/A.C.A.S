@@ -154,7 +154,7 @@ function APPLY_ASSISTANCE_CONCEALMENT(isConcealed) {
 
                 Object.keys(iObj.instance.pV).forEach(profileName => {
                     const pending = iObj.instance.pV[profileName]?.pendingMoveDisplay;
-                    if(Array.isArray(pending) && (!iObj.instance.suggestionMix?.enabled
+                    if(Array.isArray(pending) && (!iObj.instance.suggestionMix?.handles(profileName)
                         || iObj.instance.isLearningProfile(profileName))) {
                         iObj.instance.displayMoves(...pending);
                     }

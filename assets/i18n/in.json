@@ -132,7 +132,19 @@
         "*[data-translation-ffs-subtitle]": "मुख्यतः Firefox उपयोगकर्ताओं के लिए",
         "*[data-translation-ffs-instructions]": "फ्लोटिंग पैनल खुला रखें, नहीं तो A.C.A.S काम नहीं करेगा। इस सुविधा को बंद करने पर अपने आप एक ऑडियो ट्रिक लागू होती है, जो कुछ ब्राउज़रों में पैनल के बिना भी A.C.A.S को सक्रिय रख सकती है। अगर कुछ काम नहीं कर रहा है, तो Chrome आज़माएँ और स्प्लिट-स्क्रीन में A.C.A.S को दिखाई देते रहने दें।",
         "*[data-translation-ffs-videostream]": "वीडियो स्ट्रीम",
-        "#des-no-result-text": "कुछ सेटिंग्स को इंजन के UCI आउटपुट से गतिशील रूप से विश्लेषित किया जाता है। अपनी इंजन शुरू करने और गतिशील सेटिंग्स लोड करने के लिए एक शतरंज बोर्ड खोलें।"
+        "#des-no-result-text": "कुछ सेटिंग्स को इंजन के UCI आउटपुट से गतिशील रूप से विश्लेषित किया जाता है। अपनी इंजन शुरू करने और गतिशील सेटिंग्स लोड करने के लिए एक शतरंज बोर्ड खोलें।",
+        "[data-translation-mix-prefer-book-hint]": "साझा समूह में, यह सभी भाग लेने वाली किताबों को प्राथमिकता देता है",
+        "[data-translation-mix-shared]": "प्रोफ़ाइलों के बीच साझा समूह बनाएं",
+        "[data-translation-mix-shared-hint]": "उपलब्ध चाल वाली साझा प्रोफ़ाइलों को समान मौका मिलता है",
+        "[data-translation-mix-off]": "बंद",
+        "[data-translation-mix-books]": "केवल किताब",
+        "[data-translation-mix-all]": "सभी सुझाव",
+        "[data-translation-mix-mode]": "मोड",
+        "[data-translation-mix-off-note]": "किताब और इंजन के सुझाव बिना बदलाव के रहते हैं.",
+        "[data-translation-mix-books-note]": "किताब के अपने वज़न के अनुसार एक चाल चुनता है। इंजन के सुझाव अलग रहते हैं.",
+        "[data-translation-mix-source-note]": "किताब की चालें अपने वज़न बनाए रखती हैं। ये प्रतिशत केवल इंजन चालों को मिलाते हैं.",
+        "[data-translation-mix-fallback-note]": "कोई किताब चाल उपलब्ध न हो तो इन प्रतिशतों का उपयोग करता है.",
+        "[data-translation-suggestion-mix-profile-hint]": "चुनें कि यह प्रोफ़ाइल किस तरह के सुझाव चुनती है"
     },
     "configTranslations": {
         "advancedSearchMode": ["खोज मोड","खोज सीमा चुनें"],

@@ -34,6 +34,7 @@ let openings = { names: new Map(), lines: [], records: [] };
 let rows = new Map();
 let dragging = false;
 let restoringWorkspace = false;
+let addBookSession = 0;
 
 const board = Chessground($('board').querySelector('.cg-wrap'), {
     coordinates: true, animation: { enabled: true, duration: 120 }, premovable: { enabled: false },
@@ -363,7 +364,8 @@ function moveRow(item, chess) {
 
 function drawMoves(moves, keepOrder) {
     const list = $('moves');
-    const scrollTop = rows.key === here().key ? list.scrollTop : 0;
+    const scroll = $('moves-scroll');
+    const scrollTop = rows.key === here().key ? scroll.scrollTop : 0;
     const chess = new Chess(here().fen);
     if(rows.key !== here().key) {
         rows = new Map();
@@ -420,8 +422,31 @@ function drawMoves(moves, keepOrder) {
         row.querySelector('.book-move-remove').hidden = value === undefined && !item.parts.length;
     }
     $('moves-empty').hidden = moves.length > 0;
-    if(!same || !keepOrder) list.scrollTop = scrollTop;
+    updateMovesOverflow();
+    if(!same || !keepOrder) scroll.scrollTop = scroll.classList.contains('book-moves-overflow') ? scrollTop : 0;
+    updateMovesScrollHint();
 }
+
+function updateMovesOverflow() {
+    const scroll = $('moves-scroll');
+    const button = $('add-lines');
+    const contentHeight = $('moves').getBoundingClientRect().height + button.getBoundingClientRect().height
+        + parseFloat(getComputedStyle(button).marginTop);
+    const overflowing = $('moves-empty').hidden && contentHeight > scroll.clientHeight + 1;
+    scroll.classList.toggle('book-moves-overflow', overflowing);
+    if(!overflowing) scroll.scrollTop = 0;
+    updateMovesScrollHint();
+}
+
+function updateMovesScrollHint() {
+    const scroll = $('moves-scroll');
+    scroll.classList.toggle('book-moves-more-below', scroll.classList.contains('book-moves-overflow')
+        && $('add-lines').getBoundingClientRect().bottom > scroll.getBoundingClientRect().bottom + 1);
+}
+
+$('moves-scroll').addEventListener('scroll', updateMovesScrollHint, { passive: true });
+const movesResizeObserver = new ResizeObserver(updateMovesOverflow);
+for(const id of ['moves-scroll', 'moves', 'add-lines']) movesResizeObserver.observe($(id));
 
 function drawPath() {
     const list = $('path');
@@ -443,6 +468,13 @@ function drawPath() {
         item.append(button);
         return item;
     }));
+    if(state.path.length === 1) {
+        const intro = document.createElement('li');
+        intro.className = 'book-path-intro';
+        intro.textContent = 'Play a move on the board, or add an opening below to start your line.';
+        list.append(intro);
+        list.scrollTop = 0;
+    }
     const current = list.querySelector('[aria-current]')?.parentElement;
     if(current && (current.offsetTop < list.scrollTop || current.offsetTop + current.offsetHeight > list.scrollTop + list.clientHeight)) {
         list.scrollTop = current.offsetTop + current.offsetHeight - list.clientHeight;
@@ -450,8 +482,8 @@ function drawPath() {
 }
 
 function refresh({ keepOrder = false } = {}) {
-    const mergeTip = $('mode-priority-help');
-    if(mergeTip) mergeTip.textContent = mergeHelpText[state.mode];
+    const description = $('book-mode-description');
+    if(description.textContent !== mergeHelpText[state.mode]) description.textContent = mergeHelpText[state.mode];
     closePromotion();
     const moves = positionMoves();
     drawBoard(moves);
@@ -573,6 +605,8 @@ function toEnd() {
 }
 
 // Stack
+const layerLabel = layer => `${layer.name || 'Unnamed book'}. Drag or use up and down arrow keys to reorder`;
+
 function drawStack() {
     const list = $('stack');
     const enabled = enabledLayers();
@@ -586,6 +620,7 @@ function drawStack() {
         item.classList.toggle('book-layer-off', !layer.enabled);
         item.classList.toggle('book-layer-priority', state.mode === 'priority' && rank >= 0);
         item.setAttribute('aria-current', layer.id === state.active ? 'true' : 'false');
+        item.setAttribute('aria-label', layerLabel(layer));
         item.querySelector('.book-layer-size').textContent = `(${number(layer.book.size)} ${layer.book.size === 1 ? 'position' : 'positions'})`;
         const share = rank < 0 ? '0%' : shares[rank] === null ? `#${rank + 1}` : percent(shares[rank]);
         const shareLabel = item.querySelector('.book-layer-share');
@@ -602,6 +637,8 @@ function drawStack() {
         }
         return item;
     });
+    const search = $('opening-search').closest('.book-search');
+    items.splice(items.findIndex(item => item.dataset.id === state.active) + 1, 0, search);
     if(items.some((item, index) => list.children[index] !== item) || list.children.length !== items.length) list.replaceChildren(...items);
     const positions = mergedSize();
     $('export-summary').textContent = `${number(positions)} ${positions === 1 ? 'position' : 'positions'}`;
@@ -632,17 +669,29 @@ function layerRow(layer) {
     const item = document.createElement('li');
     item.className = 'book-layer';
     item.dataset.id = layer.id;
-    const grip = document.createElement('button');
-    grip.type = 'button';
-    grip.className = 'book-layer-grip';
-    grip.setAttribute('aria-label', 'Move, or use arrow keys');
-    grip.title = 'Drag';
-    grip.innerHTML = '<i class="bi bi-grip-vertical" aria-hidden="true"></i>';
-    grip.addEventListener('pointerdown', event => startDrag(event, item));
-    grip.addEventListener('keydown', event => {
+    item.tabIndex = 0;
+    item.addEventListener('pointerdown', event => {
+        if(event.pointerType === 'touch' || !event.isPrimary || event.button !== 0
+            || event.target.matches('.book-layer-name') && document.activeElement === event.target) return;
+        startDrag(event, item);
+    });
+    item.addEventListener('touchstart', event => {
+        if(event.touches.length !== 1 || event.target.matches('.book-layer-name')
+            && document.activeElement === event.target) return;
+        if(event.target.closest('.book-layer-color, .book-layer-share')) event.preventDefault();
+        startDrag(event, item);
+    }, { passive: false });
+    item.addEventListener('keydown', event => {
+        if(event.target !== item) return;
+        if(event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            select(layer);
+            return;
+        }
         const step = event.key === 'ArrowUp' ? -1 : event.key === 'ArrowDown' ? 1 : 0;
         if(!step) return;
         event.preventDefault();
+        event.stopPropagation();
         const from = state.layers.findIndex(entry => entry.id === layer.id);
         const to = from + step;
         if(to < 0 || to >= state.layers.length) return;
@@ -650,7 +699,8 @@ function layerRow(layer) {
         state.layers.splice(to, 0, ...state.layers.splice(from, 1));
         refresh();
         save();
-        grip.focus();
+        item.focus();
+        status(`Moved ${layer.name || 'book'} to position ${to + 1}`);
     });
     const body = document.createElement('span');
     body.className = 'book-layer-body';
@@ -661,6 +711,7 @@ function layerRow(layer) {
     name.addEventListener('input', () => {
         remember(`name ${layer.id}`);
         layer.name = name.value;
+        item.setAttribute('aria-label', layerLabel(layer));
         name.size = Math.max(1, name.value.length);
         save();
     });
@@ -671,8 +722,19 @@ function layerRow(layer) {
     });
     const meta = document.createElement('span');
     meta.className = 'book-layer-meta';
-    meta.innerHTML = '<span class="book-layer-track"><span class="book-layer-meter"></span></span><span class="book-layer-share"></span><span class="book-layer-size"></span>';
-    body.append(name, meta);
+    meta.innerHTML = '<span class="book-layer-track"><span class="book-layer-meter"></span></span>';
+    const heading = document.createElement('span');
+    heading.className = 'book-layer-heading';
+    const size = document.createElement('span');
+    size.className = 'book-layer-size';
+    heading.append(name, size);
+    body.append(heading, meta);
+    const color = document.createElement('span');
+    color.className = 'book-layer-color';
+    color.title = 'Drag to reorder';
+    const share = document.createElement('span');
+    share.className = 'book-layer-share';
+    share.title = 'Drag to reorder';
     const actions = document.createElement('span');
     actions.className = 'book-layer-actions';
     actions.append(
@@ -685,7 +747,7 @@ function layerRow(layer) {
         iconButton('', 'Download', 'bi-download', () => download(writeBin(layer.book), layer.name)),
         iconButton('', 'Remove', 'bi-trash3', () => removeLayer(layer))
     );
-    item.append(grip, body, actions);
+    item.append(color, share, body, actions);
     item.addEventListener('click', () => select(layer));
     return item;
 }
@@ -713,35 +775,77 @@ function removeLayer(layer) {
 }
 
 function startDrag(event, item) {
-    event.preventDefault();
     const list = $('stack');
-    item.classList.add('book-layer-dragging');
+    const touch = event.type === 'touchstart';
+    const direct = touch && Boolean(event.target.closest('.book-layer-color, .book-layer-share'));
+    const point = touch ? event.changedTouches[0] : event;
+    const id = touch ? point.identifier : point.pointerId;
+    const startedAt = performance.now();
+    let active = false;
+    let lastY = point.clientY;
+    let direction = 0;
+    const getPoint = moveEvent => touch
+        ? [...moveEvent.changedTouches].find(entry => entry.identifier === id)
+        : moveEvent.pointerId === id ? moveEvent : null;
     const move = moveEvent => {
-        const others = [...list.children].filter(child => child !== item);
+        const current = getPoint(moveEvent);
+        if(!current) return;
+        if(!active) {
+            if(Math.hypot(current.clientX - point.clientX, current.clientY - point.clientY) < 4) return;
+            if(touch && !direct && performance.now() - startedAt < 180) return finish(moveEvent, true);
+            active = true;
+            item.classList.add('book-layer-dragging');
+        }
+        if(touch) moveEvent.preventDefault();
+        direction = Math.sign(current.clientY - lastY) || direction;
+        lastY = current.clientY;
+        const rows = [...list.querySelectorAll('.book-layer')];
+        const others = rows.filter(child => child !== item);
         const after = others.find(child => {
             const box = child.getBoundingClientRect();
-            return moveEvent.clientY < box.top + box.height / 2;
+            // Earlier swaps with separate reverse thresholds prevent jitter near a row.
+            return current.clientY < box.top + box.height * (direction > 0 ? 0.25 : direction < 0 ? 0.75 : 0.5);
         });
         if(after) {
             if(item.nextElementSibling !== after) list.insertBefore(item, after);
-        } else if(list.lastElementChild !== item) list.append(item);
+        } else if(rows[rows.length - 1] !== item) list.append(item);
+        const selected = list.querySelector('.book-layer-active');
+        const search = $('opening-search').closest('.book-search');
+        if(selected.nextElementSibling !== search) selected.after(search);
     };
-    // Window listeners, since reordering the row detaches it and drops pointer capture.
-    const end = () => {
-        window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', end);
-        window.removeEventListener('pointercancel', end);
+    const finish = (endEvent, cancelled = false) => {
+        if(!getPoint(endEvent)) return;
+        window.removeEventListener(touch ? 'touchmove' : 'pointermove', move);
+        window.removeEventListener(touch ? 'touchend' : 'pointerup', end);
+        window.removeEventListener(touch ? 'touchcancel' : 'pointercancel', cancel);
+        if(!active) {
+            if(direct && !cancelled) item.click();
+            return;
+        }
         item.classList.remove('book-layer-dragging');
-        const order = [...list.children].map(child => child.dataset.id);
+        if(!touch) {
+            const suppressClick = click => {
+                click.preventDefault();
+                click.stopImmediatePropagation();
+                window.removeEventListener('click', suppressClick, true);
+            };
+            window.addEventListener('click', suppressClick, true);
+            setTimeout(() => window.removeEventListener('click', suppressClick, true), 0);
+        }
+        if(cancelled) return refresh();
+        const order = [...list.querySelectorAll('.book-layer')].map(child => child.dataset.id);
         const changed = order.some((id, index) => state.layers[index].id !== id);
         if(changed) remember();
         state.layers.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
         if(changed) save();
         refresh();
     };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', end);
-    window.addEventListener('pointercancel', end);
+    const end = endEvent => finish(endEvent);
+    const cancel = endEvent => finish(endEvent, true);
+    // Reordering detaches the row, so keep tracking the gesture on the window.
+    window.addEventListener(touch ? 'touchmove' : 'pointermove', move, { passive: false });
+    window.addEventListener(touch ? 'touchend' : 'pointerup', end);
+    window.addEventListener(touch ? 'touchcancel' : 'pointercancel', cancel);
 }
 
 function download(bytes, name, extension = 'bin') {
@@ -863,6 +967,7 @@ $('nav-flip').addEventListener('click', () => {
 const typing = target => target.closest?.('textarea, [contenteditable="true"], input:not([type="range"], [type="radio"], [type="checkbox"], [type="file"])');
 
 document.addEventListener('keydown', event => {
+    if($('add-book-dialog').open) return;
     if((event.ctrlKey || event.metaKey) && !event.altKey && !typing(event.target) && !$('promotion')) {
         const key = event.key.toLowerCase();
         if(key === 'z' || key === 'y') {
@@ -887,6 +992,15 @@ $('add-lines').addEventListener('click', () => {
     if(added) save();
 });
 
+const descriptions = document.querySelector('.book-mode-descriptions');
+// Reserve the tallest description at the current width and font size.
+for(const text of Object.values(mergeHelpText)) {
+    const spacer = document.createElement('span');
+    spacer.setAttribute('aria-hidden', 'true');
+    spacer.textContent = text;
+    descriptions.append(spacer);
+}
+
 for(const radio of document.querySelectorAll('input[name="mode"]')) {
     radio.addEventListener('change', () => {
         remember();
@@ -896,13 +1010,21 @@ for(const radio of document.querySelectorAll('input[name="mode"]')) {
     });
 }
 
+$('add-book').addEventListener('click', () => {
+    addBookSession++;
+    $('add-book-error').hidden = true;
+    $('add-book-dialog').showModal();
+});
+$('add-book-close').addEventListener('click', () => $('add-book-dialog').close());
+
 $('new-book').addEventListener('click', () => {
     remember();
     const layer = newLayer(freeName('My book'));
-    state.layers.unshift(layer);
+    state.layers.push(layer);
     state.active = layer.id;
     refresh();
     save();
+    $('add-book-dialog').close();
 });
 
 // Games become a book of how often each move was played, optionally only one player's moves.
@@ -977,17 +1099,6 @@ for(const [id, text] of Object.entries({
     settingHelp(heading, input, text);
 }
 
-const mergeControl = document.querySelector('.book-mode');
-const mergeHeading = document.createElement('span');
-mergeHeading.className = 'maia-field-label';
-mergeControl.replaceWith(mergeHeading);
-mergeHeading.append(mergeControl);
-const mergeInputs = [...mergeControl.querySelectorAll('input')];
-for(const input of mergeInputs) input.id = `mode-${input.value}`;
-settingHelp(mergeHeading, mergeInputs[0], mergeHelpText[state.mode]);
-mergeHeading.querySelector('button').setAttribute('aria-label', 'Help for Merge');
-for(const input of mergeInputs) input.setAttribute('aria-describedby', `${mergeInputs[0].id}-help`);
-
 for(const group of ['Starters', 'Repertoires', 'Personalities']) {
     const options = document.createElement('optgroup');
     options.label = group;
@@ -1005,8 +1116,10 @@ $('presets').addEventListener('submit', async event => {
     event.preventDefault();
     if($('preset-add').disabled) return;
     const preset = bookPresets.find(preset => preset.id === $('preset').value);
+    const session = addBookSession;
     $('preset').disabled = $('preset-add').disabled = true;
     $('presets').setAttribute('aria-busy', 'true');
+    $('add-book-error').hidden = true;
     workspaceActions();
     try {
         const book = await buildPreset(preset.id, openings.lines, progress => {
@@ -1014,9 +1127,14 @@ $('presets').addEventListener('submit', async event => {
         });
         addImported(preset.name, book, true);
         status(`Added ${preset.name}`);
+        if($('add-book-dialog').open && session === addBookSession) $('add-book-dialog').close();
     } catch(error) {
         console.error('BookSmith could not build preset', error);
         status('Could not build this preset');
+        if($('add-book-dialog').open && session === addBookSession) {
+            $('add-book-error').textContent = 'Could not build this preset. Please try again.';
+            $('add-book-error').hidden = false;
+        }
     } finally {
         $('preset').disabled = $('preset-add').disabled = false;
         $('preset-add').querySelector('span').textContent = 'Add';
@@ -1106,6 +1224,8 @@ function importIssues(name, issues) {
 $('import').addEventListener('change', async () => {
     const files = [...$('import').files];
     $('import').value = '';
+    if(!files.length) return;
+    if($('add-book-dialog').open) $('add-book-dialog').close();
     $('import').disabled = true;
     workspaceActions();
     importWarnings.clear();

@@ -131,7 +131,19 @@
         "*[data-translation-webhook-subtitle]": "Discord 웹훅 메시지 구성",
         "*[data-translation-webhook-available-variables]": "사용 가능한 변수",
         "*[data-translation-ffs-videostream]": "비디오 스트림",
-        "#des-no-result-text": "일부 설정은 엔진의 UCI 출력에서 동적으로 분석됩니다. 엔진을 시작하고 동적 설정을 로드하려면 체스 보드를 열어주세요."
+        "#des-no-result-text": "일부 설정은 엔진의 UCI 출력에서 동적으로 분석됩니다. 엔진을 시작하고 동적 설정을 로드하려면 체스 보드를 열어주세요.",
+        "[data-translation-mix-prefer-book-hint]": "공유 풀에서는 참여하는 모든 책을 우선합니다",
+        "[data-translation-mix-shared]": "프로필 간 풀 공유",
+        "[data-translation-mix-shared-hint]": "공유 풀에서 사용 가능한 수가 있는 프로필은 동일한 확률을 얻습니다",
+        "[data-translation-mix-off]": "끄기",
+        "[data-translation-mix-books]": "책만",
+        "[data-translation-mix-all]": "모든 추천",
+        "[data-translation-mix-mode]": "모드",
+        "[data-translation-mix-off-note]": "책과 엔진의 추천은 변경되지 않습니다.",
+        "[data-translation-mix-books-note]": "책 자체의 가중치를 사용해 책 수 하나를 선택합니다. 엔진 추천은 별도로 유지됩니다.",
+        "[data-translation-mix-source-note]": "책 수는 자체 가중치를 유지합니다. 이 비율은 엔진 수만 혼합합니다.",
+        "[data-translation-mix-fallback-note]": "사용할 수 있는 책 수가 없을 때 이 비율을 사용합니다.",
+        "[data-translation-suggestion-mix-profile-hint]": "이 프로필이 모을 내용을 선택하세요"
     },
     "configTranslations": {
         "advancedSearchMode": ["탐색 모드","탐색 제한 선택"],

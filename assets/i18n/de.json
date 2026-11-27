@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Discord-Webhook-Nachrichten konfigurieren",
         "*[data-translation-webhook-available-variables]": "Verfügbare Variablen",
         "*[data-translation-ffs-videostream]": "Videostream",
-        "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden."
+        "#des-no-result-text": "Einige Einstellungen werden dynamisch aus der UCI-Ausgabe der Engine geparst. Bitte öffnen Sie ein Schachbrett, um Ihre Engine zu starten und die dynamischen Einstellungen zu laden.",
+        "[data-translation-mix-prefer-book-hint]": "In einem geteilten Pool erhalten alle beteiligten Bücher Vorrang",
+        "[data-translation-mix-shared]": "Pool zwischen Profilen teilen",
+        "[data-translation-mix-shared-hint]": "Teilende Profile mit verfügbaren Zügen erhalten gleiche Chancen",
+        "[data-translation-mix-off]": "Aus",
+        "[data-translation-mix-books]": "Nur Bücher",
+        "[data-translation-mix-all]": "Alle Vorschläge",
+        "[data-translation-mix-mode]": "Modus",
+        "[data-translation-mix-off-note]": "Buch- und Engine-Vorschläge bleiben unverändert.",
+        "[data-translation-mix-books-note]": "Wählt einen Buchzug anhand der eigenen Gewichte des Buches aus. Engine-Vorschläge bleiben getrennt.",
+        "[data-translation-mix-source-note]": "Buchzüge behalten ihre eigenen Gewichte. Diese Prozentsätze mischen nur Engine-Züge.",
+        "[data-translation-mix-fallback-note]": "Wird verwendet, wenn kein Buchzug verfügbar ist.",
+        "[data-translation-suggestion-mix-profile-hint]": "Wählen Sie, was dieses Profil bündelt"
     },
     "configTranslations": {
         "advancedSearchMode": ["Suchmodus","Suchlimit wählen"],

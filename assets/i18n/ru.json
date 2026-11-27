@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Настройка сообщений Discord webhook",
         "*[data-translation-webhook-available-variables]": "Доступные переменные",
         "*[data-translation-ffs-videostream]": "Видеопоток",
-        "#des-no-result-text": "Некоторые настройки анализируются динамически из вывода UCI движка. Пожалуйста, откройте шахматную доску, чтобы запустить ваш движок и загрузить динамические настройки."
+        "#des-no-result-text": "Некоторые настройки анализируются динамически из вывода UCI движка. Пожалуйста, откройте шахматную доску, чтобы запустить ваш движок и загрузить динамические настройки.",
+        "[data-translation-mix-prefer-book-hint]": "В общем пуле этот параметр отдаёт приоритет всем участвующим книгам",
+        "[data-translation-mix-shared]": "Делить пул между профилями",
+        "[data-translation-mix-shared-hint]": "Профили с общим пулом и доступными ходами получают равные шансы",
+        "[data-translation-mix-off]": "Выключено",
+        "[data-translation-mix-books]": "Только книги",
+        "[data-translation-mix-all]": "Все предложения",
+        "[data-translation-mix-mode]": "Режим",
+        "[data-translation-mix-off-note]": "Предложения из книги и движка остаются без изменений.",
+        "[data-translation-mix-books-note]": "Выбирает один ход из книги с учётом собственных весов книги. Предложения движка остаются отдельными.",
+        "[data-translation-mix-source-note]": "Ходы из книги сохраняют свои веса. Эти проценты смешивают только ходы движка.",
+        "[data-translation-mix-fallback-note]": "Использует эти проценты, если нет доступного хода из книги.",
+        "[data-translation-suggestion-mix-profile-hint]": "Выберите, что этот профиль объединяет"
     },
     "configTranslations": {
         "advancedSearchMode": ["Режим поиска","Выберите ограничение поиска"],

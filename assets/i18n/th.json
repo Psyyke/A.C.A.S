@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "กำหนดค่าเว็บฮุก Discord",
         "*[data-translation-webhook-available-variables]": "ตัวแปรที่ใช้ได้",
         "*[data-translation-ffs-videostream]": "สตรีมวิดีโอ",
-        "#des-no-result-text": "การตั้งค่าบางอย่างจะถูกวิเคราะห์แบบไดนามิกจากเอาต์พุต UCI ของเครื่องยนต์ โปรดเปิดกระดานหมากรุกเพื่อเริ่มเครื่องยนต์ของคุณและโหลดการตั้งค่าแบบไดนามิก"
+        "#des-no-result-text": "การตั้งค่าบางอย่างจะถูกวิเคราะห์แบบไดนามิกจากเอาต์พุต UCI ของเครื่องยนต์ โปรดเปิดกระดานหมากรุกเพื่อเริ่มเครื่องยนต์ของคุณและโหลดการตั้งค่าแบบไดนามิก",
+        "[data-translation-mix-prefer-book-hint]": "ในพูลที่แชร์กัน ตัวเลือกนี้ให้ความสำคัญกับหนังสือที่เข้าร่วมทั้งหมด",
+        "[data-translation-mix-shared]": "แบ่งพูลระหว่างโปรไฟล์",
+        "[data-translation-mix-shared-hint]": "โปรไฟล์ที่แชร์พูลและมีตาเดินจะมีโอกาสเท่ากัน",
+        "[data-translation-mix-off]": "ปิด",
+        "[data-translation-mix-books]": "เฉพาะหนังสือ",
+        "[data-translation-mix-all]": "คำแนะนำทั้งหมด",
+        "[data-translation-mix-mode]": "โหมด",
+        "[data-translation-mix-off-note]": "คำแนะนำจากหนังสือและเอ็นจินยังคงเดิม",
+        "[data-translation-mix-books-note]": "เลือกตาเดินหนึ่งจากหนังสือโดยใช้น้ำหนักของหนังสือเอง คำแนะนำของเอ็นจินแยกไว้เป็นอิสระ",
+        "[data-translation-mix-source-note]": "ตาเดินจากหนังสือคงน้ำหนักเดิมไว้ เปอร์เซ็นต์เหล่านี้ผสมเฉพาะตาเดินของเอ็นจิน",
+        "[data-translation-mix-fallback-note]": "ใช้เปอร์เซ็นต์เหล่านี้เมื่อไม่มีตาเดินจากหนังสือให้เลือก",
+        "[data-translation-suggestion-mix-profile-hint]": "เลือกสิ่งที่โปรไฟล์นี้จะรวมเข้าไว้ด้วย"
     },
     "configTranslations": {
         "advancedSearchMode": ["โหมดค้นหา","เลือกขีดจำกัดการค้นหา"],

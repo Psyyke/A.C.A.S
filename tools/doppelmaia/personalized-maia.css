@@ -57,6 +57,7 @@
 #training-form { grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 16px; }
 #training-form > .maia-fields { display: contents; }
 #training-form .tool-field select, #training-form .tool-field input:not([type="file"]), #custom-weights-field .tool-button { height: 54px; min-height: 54px; line-height: 1.4; }
+#custom-weights-field input:not(:disabled):active + .tool-button { height: 51px; min-height: 51px; }
 #custom-weights-field .tool-file-control, #custom-weights-field .tool-button { width: 100%; }
 #training-form > .maia-actions { justify-content: center; grid-column: 1 / -1; justify-self: center; max-width: 100%; margin-top: 12px; }
 #training-form #start { min-width: min(100%, 240px); padding: 18px 40px; }
@@ -217,6 +218,7 @@
 .maia-research pre code { white-space: pre; overflow-wrap: normal; }
 .maia-research :not(pre) > code { overflow-wrap: anywhere; }
 .maia-research .elo-heading .install-button { display: inline-flex; margin-top: 8px; }
+.maia-research .elo-heading .install-button:active:not(:disabled) { transform: translateY(8px); margin-bottom: 8px; }
 @media (max-width: 600px) {
     .maia-table-wrap table { min-width: 460px; }
     #training-result > .maia-actions { flex-direction: column; }

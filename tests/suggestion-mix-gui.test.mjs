@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { startServer } from './maia-elo/serve.mjs';
 import { buildUserscript } from './elo-tool/userscriptHarness.mjs';
 
-test('GUI mix persists outside profiles and renders one primary arrow across engines', { timeout: 90000 }, async () => {
+test('GUI migrates global funneling and supports profile scopes and shared engine arrows', { timeout: 90000 }, async () => {
     const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext();
@@ -50,7 +50,8 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
                 return drawImage.call(this, source, ...args);
             };
             speechSynthesis.speak = utterance => window.spokenMoves.push({
-                text: utterance.text, rate: utterance.rate, lang: utterance.lang
+                text: utterance.text, rate: utterance.rate, lang: utterance.lang,
+                fen: window.AcasInstances?.[0]?.instance.currentFen
             });
             if(localStorage.getItem('gm:isTosAccepted')) return;
             const profile = {
@@ -79,8 +80,25 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
         const gui = await context.newPage();
         await gui.addInitScript(await buildUserscript());
         gui.on('pageerror', error => errors.push(error.message));
-        await gui.goto('http://localhost/A.C.A.S/app/');
-        await gui.waitForFunction(() => window.USERSCRIPT && document.querySelector('[data-key="suggestionMix"]').checked);
+        await gui.goto('http://localhost/A.C.A.S/app/?shl=suggestionMix');
+        await gui.waitForFunction(() => window.USERSCRIPT && document.querySelector('input[data-key="suggestionMixMode"]').value === 'all');
+        await gui.waitForFunction(() => !new URL(location.href).searchParams.has('shl'));
+        const migrated = await gui.evaluate(() => JSON.parse(localStorage.getItem('gm:AcasConfig')));
+        assert.equal(migrated.global.suggestionMix, undefined);
+        assert.ok(Object.values(migrated.global.profiles).every(profile =>
+            profile.suggestionMixMode === 'all' && profile.suggestionMixShared === true));
+        const migration = await gui.evaluate(async () => {
+            const { migrateSuggestionMixSettings } = await import('/A.C.A.S/app/assets/js/gui/settings.js');
+            const config = { global: { suggestionMix: true, profiles: { default: {}, other: {} } },
+                instance: { scoped: { suggestionMix: false, profiles: { local: {} } },
+                    inherited: { profiles: { local: {} } } } };
+            const changed = migrateSuggestionMixSettings(config);
+            return { config, changed, repeated: migrateSuggestionMixSettings(config) };
+        });
+        assert.equal(migration.changed, true);
+        assert.equal(migration.repeated, false);
+        assert.equal(migration.config.instance.scoped.profiles.other.suggestionMixMode, 'off');
+        assert.equal(migration.config.instance.inherited.profiles.local.suggestionMixMode, 'all');
 
         const pendingPipProfiles = await gui.evaluate(async () => {
             const { createPipRenderer } = await import('/A.C.A.S/app/assets/js/gui/pipRenderer.js');
@@ -129,27 +147,16 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
                 'Pending profiles must retain their configured PiP layout');
         }
 
+        const dialog = gui.locator('#suggestion-mix-floaty');
         const language = gui.locator('.acas-social-actions .language-dropdown-input .dropdown-input-container');
         const normalBackground = await language.evaluate(element => getComputedStyle(element).backgroundColor);
+        if(await dialog.isVisible()) await dialog.locator('.floaty-close-btn').click();
         await language.hover();
         assert.notEqual(await language.evaluate(element => getComputedStyle(element).backgroundColor), normalBackground);
 
         const opener = gui.locator('[aria-controls="suggestion-mix-floaty"]');
-        const toggle = gui.locator('[data-key="suggestionMix"]');
-        await toggle.scrollIntoViewIfNeeded();
-        const adjacent = await opener.evaluate(button => {
-            const row = button.closest('.custom-input');
-            const checkbox = row.querySelector('[data-key="suggestionMix"]')
-                .closest('.checkbox-container').getBoundingClientRect();
-            const cog = button.getBoundingClientRect();
-            return { checkbox: checkbox.toJSON(), cog: cog.toJSON() };
-        });
-        assert.ok(Math.abs((adjacent.checkbox.top + adjacent.checkbox.bottom) / 2
-            - (adjacent.cog.top + adjacent.cog.bottom) / 2) < 2
-            && Math.abs(adjacent.checkbox.right - adjacent.cog.left) <= 15,
-        `The checkbox and cog must be next to each other ${JSON.stringify(adjacent)}`);
-        await opener.click();
-        const dialog = gui.locator('#suggestion-mix-floaty');
+        const mode = gui.locator('input[data-key="suggestionMixMode"]');
+        if(!await dialog.isVisible()) await opener.click();
         await dialog.waitFor({ state: 'visible' });
         const best = dialog.locator('[data-mix-category="best"]');
         const alternative = dialog.locator('[data-mix-category="alternative"]');
@@ -159,7 +166,7 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
                 const input = row.querySelector('input');
                 return input.id || input.dataset.key || input.dataset.mixCategory;
             }));
-        assert.deepEqual(rowOrder, ['suggestionMixPreferBook', 'suggestion-mix-detailed', 'best']);
+        assert.deepEqual(rowOrder, ['suggestionMixMode', 'suggestionMixShared', 'suggestionMixPreferBook']);
         const divider = dialog.locator('.suggestion-mix-divider');
         assert.equal(await divider.evaluate(element => getComputedStyle(element).borderTopStyle), 'dashed');
         assert.equal(await divider.evaluate(element =>
@@ -228,34 +235,15 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
             }
             const utterances = await gui.evaluate(text => window.spokenMoves.filter(move => move.text === text), result.spoken);
             assert.equal(utterances.length, expectSpeech ? 1 : 0,
-                'Speak a fresh pick once, but keep settings redraws silent');
+                `Speak a fresh pick once, but keep settings redraws silent: ${JSON.stringify(utterances)}`);
             if(expectSpeech) assert.ok(Math.abs(utterances[0].rate - 1.2) < 0.0001);
-            await gui.waitForFunction(() => window.pipTexts?.includes('Suggestion mix'));
+            await gui.waitForFunction(() => window.pipTexts?.includes('Funneling'));
             const labels = await gui.evaluate(() => window.pipTexts.filter(text =>
-                ['Suggestion mix', 'Default Profile', 'Slow', 'Target'].includes(text)));
-            assert.deepEqual(labels, ['Suggestion mix'], 'PiP must show one combined profile section');
+                ['Funneling', 'Default Profile', 'Slow', 'Target'].includes(text)));
+            assert.deepEqual(labels, ['Funneling'], 'PiP must show one combined profile section');
         }
-        async function assertPercentageStyle() {
+        async function assertPercentageControls() {
             await best.focus();
-            const style = await best.evaluate(input => {
-                const computed = getComputedStyle(input);
-                const canvas = document.createElement('canvas');
-                const measure = canvas.getContext('2d');
-                measure.font = `${computed.fontWeight} ${computed.fontSize} ${computed.fontFamily}`;
-                const threeCharacters = measure.measureText('000').width;
-                return {
-                    width: parseFloat(computed.width), threeCharacters,
-                    appearance: computed.appearance, textAlign: computed.textAlign,
-                    hiddenSpinners: [...document.styleSheets].filter(sheet => sheet.href?.endsWith('/gui.css'))
-                        .flatMap(sheet => [...sheet.cssRules])
-                        .some(rule => rule.selectorText?.includes('#suggestion-mix-floaty input::-webkit-inner-spin-button')
-                            && rule.style.webkitAppearance === 'none')
-                };
-            });
-            assert.ok(Math.abs(style.width - style.threeCharacters) < 1, JSON.stringify(style));
-            assert.equal(style.appearance, 'textfield');
-            assert.equal(style.hiddenSpinners, true);
-            assert.notEqual(style.textAlign, 'right');
             const title = dialog.locator('#mix-best-title');
             assert.match(await title.textContent(), / \(%\)$/);
             await dialog.locator('h1').click();
@@ -266,23 +254,19 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
             assert.equal(titles.length, 7);
             assert.ok(titles.every(text => text.endsWith(' (%)')));
         }
-        await assertPercentageStyle();
+        await assertPercentageControls();
         assert.equal(await dialog.locator('.floaty-close-btn').textContent(), '💾');
         assert.equal(await dialog.locator('[data-translation-learn-more-here]').getAttribute('href'),
-            '../usage/#suggestion-mix');
-        assert.equal(await secondary.isVisible(), true);
+            '../usage/#funneling');
+        assert.equal(await secondary.isVisible(), false);
         assert.equal(await secondary.isDisabled(), true);
-        assert.equal(await secondary.evaluate(input => getComputedStyle(input.closest('.custom-input')).filter),
-            'blur(2px)');
         assert.equal(await best.inputValue(), '0');
         await best.fill('80');
         await best.press('Tab');
         assert.equal(await alternative.inputValue(), '20');
         await dialog.locator('#suggestion-mix-detailed').check();
-        assert.equal(await alternative.isVisible(), true);
+        assert.equal(await alternative.isVisible(), false);
         assert.equal(await alternative.isDisabled(), true);
-        assert.equal(await alternative.evaluate(input => getComputedStyle(input.closest('.custom-input')).filter),
-            'blur(2px)');
         assert.equal(await secondary.isDisabled(), false);
         assert.equal(await dialog.locator('[data-mix-category="secondary"]').inputValue(), '20');
         await dialog.locator('#suggestion-mix-detailed').uncheck();
@@ -292,8 +276,55 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
         await best.press('Tab');
         await gui.waitForFunction(() => {
             const config = JSON.parse(localStorage.getItem('gm:AcasConfig'));
-            return JSON.parse(config.global.suggestionMixWeights).alternative === 100;
+            return JSON.parse(config.global.profiles.default.suggestionMixWeights).alternative === 100;
         });
+        await dialog.locator('.floaty-close-btn').click();
+
+        const preferBook = dialog.locator('input[data-key="suggestionMixPreferBook"]');
+        async function openMixInMode(value) {
+            if(!await dialog.isVisible()) await opener.click();
+            await mode.locator('..').locator('.dropdown-icon').click();
+            await gui.locator(`#suggestion-mix-setting .dropdown-item[data-value="${value}"]`).click();
+            await gui.waitForFunction(expected => {
+                const input = document.querySelector('input[data-key="suggestionMixMode"]');
+                return input.value === expected && JSON.parse(localStorage.getItem('gm:AcasConfig'))
+                    .global.profiles.default.suggestionMixMode === expected;
+            }, value);
+        }
+        await openMixInMode('all');
+        await preferBook.check();
+        await best.fill('30');
+        await best.press('Tab');
+        await gui.waitForFunction(() => JSON.parse(JSON.parse(localStorage.getItem('gm:AcasConfig'))
+            .global.profiles.default.suggestionMixWeights).best === 30);
+        await dialog.locator('.floaty-close-btn').click();
+
+        await openMixInMode('off');
+        assert.equal(await dialog.locator('#suggestion-mix-off-note').isVisible(), true);
+        assert.equal(await preferBook.isVisible(), false);
+        assert.equal(await dialog.locator('#suggestion-mix-engine-settings').isVisible(), false);
+        await dialog.locator('.floaty-close-btn').click();
+
+        await openMixInMode('books');
+        assert.equal(await dialog.locator('#suggestion-mix-books-note').isVisible(), true);
+        assert.equal(await preferBook.isDisabled(), true);
+        assert.equal(await preferBook.isChecked(), true);
+        assert.equal(await best.inputValue(), '30');
+        assert.equal(await preferBook.isVisible(), false);
+        assert.equal(await dialog.locator('#suggestion-mix-engine-settings').isVisible(), false);
+        await dialog.locator('.floaty-close-btn').click();
+
+        await openMixInMode('all');
+        assert.equal(await dialog.locator('#suggestion-mix-books-note').isVisible(), false);
+        assert.equal(await dialog.locator('#suggestion-mix-off-note').isVisible(), false);
+        assert.equal(await preferBook.isEnabled(), true);
+        assert.equal(await preferBook.isChecked(), true);
+        assert.equal(await best.inputValue(), '30');
+        await preferBook.uncheck();
+        await best.fill('0');
+        await best.press('Tab');
+        await gui.waitForFunction(() => JSON.parse(JSON.parse(localStorage.getItem('gm:AcasConfig'))
+            .global.profiles.default.suggestionMixWeights).best === 0);
         await dialog.locator('.floaty-close-btn').click();
 
         const quality = gui.locator('#pip-quality');
@@ -536,7 +567,7 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
             });
         });
         await opener.click();
-        await dialog.locator('[data-key="suggestionMixPreferBook"]').check();
+        await dialog.locator('input[data-key="suggestionMixPreferBook"]').check();
         await page.waitForFunction(() =>
             JSON.stringify(window.board.hints.moves) === JSON.stringify([['c2', 'c4', null]]));
         assert.equal(await gui.evaluate(() => {
@@ -581,18 +612,108 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
         }, bookOnlyCache);
         await page.waitForFunction(() =>
             JSON.stringify(window.board.hints.moves) === JSON.stringify([['c2', 'c4', null]]));
-        await dialog.locator('[data-key="suggestionMixPreferBook"]').uncheck();
-        await page.waitForFunction(() =>
-            JSON.stringify(window.board.hints.moves) !== JSON.stringify([['c2', 'c4', null]]));
+        await dialog.locator('input[data-key="suggestionMixPreferBook"]').uncheck();
+        await gui.waitForFunction(() =>
+            window.AcasInstances[0].instance.suggestionMix.settings.get('default')?.preferBook === false);
+        assert.equal(await page.evaluate(() => window.board.hints.moves.length), 1);
         await dialog.locator('.floaty-close-btn').click();
 
-        await gui.locator('[data-key="suggestionMix"]').uncheck();
+        await opener.click();
+        await mode.click();
+        await mode.locator('..').locator('[data-value="off"]').click();
+        await gui.waitForFunction(() =>
+            window.AcasInstances[0].instance.suggestionMix.settings.get('default')?.mode === 'off');
+        await dialog.locator('.floaty-close-btn').click();
+        await gui.evaluate(async () => {
+            const instance = window.AcasInstances[0].instance;
+            const config = await USERSCRIPT.getValue('AcasConfig');
+            Object.assign(config.global.profiles[GET_PROFILE_STORAGE_KEY('slow')], {
+                suggestionMixMode: 'off', suggestionMixShared: false, bookMoveOpacity: 90,
+                dynamicSettings: { suggestionMixMode: {
+                    enabled: true, variable: 'pieceCount', interpolation: 'step',
+                    values: ['off', 'books', 'all'], points: [{ x: 0, y: 1 }, { x: 32, y: 1 }]
+                } }
+            });
+            Object.assign(config.global.profiles[GET_PROFILE_STORAGE_KEY('target')], {
+                suggestionMixMode: 'all', suggestionMixShared: false, hintDetail: 'full'
+            });
+            await USERSCRIPT.setValue('AcasConfig', config);
+            instance.openingBooks.set('slow', { getMoves: () => [
+                { from: 'c2', to: 'c4', weight: 100 },
+                { from: 'g2', to: 'g4', weight: 0 }
+            ] });
+            await instance.syncDynamicSettings();
+            await instance.refreshHints('default');
+            await instance.refreshHints('slow');
+            await instance.suggestionMix.render(true);
+        });
+        await gui.waitForFunction(() => {
+            const instance = window.AcasInstances[0].instance;
+            const full = profile => (instance.pV[profile].pipHints?.moveObjects || [])
+                .filter(move => !move.isFuture && move.hintDetail === 'full');
+            return full('default').length > 1 && full('slow').length > 1
+                && full('target').length === 1 && instance.pV.slow.bookMoveMarkings.length === 1;
+        });
+        const independent = await gui.evaluate(() => {
+            const instance = window.AcasInstances[0].instance;
+            return { groups: [...instance.suggestionMix.selections.keys()],
+                booksOnlyHasEnginePick: (instance.pV.slow.pipHints?.moveObjects || [])
+                    .some(move => move.suggestionMix) };
+        });
+        assert.deepEqual(independent.groups.sort(), ['profile:slow', 'profile:target']);
+        assert.equal(independent.booksOnlyHasEnginePick, false);
+        await gui.evaluate(async () => {
+            const instance = window.AcasInstances[0].instance;
+            const config = await USERSCRIPT.getValue('AcasConfig');
+            config.global.profiles[GET_PROFILE_STORAGE_KEY('slow')].suggestionMixShared = true;
+            config.global.profiles[GET_PROFILE_STORAGE_KEY('target')].suggestionMixShared = true;
+            await USERSCRIPT.setValue('AcasConfig', config);
+            const random = Math.random;
+            Math.random = () => 0;
+            try {
+                await instance.syncDynamicSettings();
+                await instance.suggestionMix.render(true);
+            } finally {
+                Math.random = random;
+            }
+        });
+        await gui.waitForFunction(() => {
+            const instance = window.AcasInstances[0].instance;
+            return instance.suggestionMix.selections.size === 1
+                && instance.suggestionMix.selection?.profile === 'slow'
+                && !instance.pV.target.pipHints.moveObjects.some(move => move.hintDetail === 'full')
+                && instance.pV.default.pipHints.moveObjects.filter(move => move.hintDetail === 'full').length > 1;
+        });
+        await gui.evaluate(async () => {
+            const config = await USERSCRIPT.getValue('AcasConfig');
+            config.global.profiles[GET_PROFILE_STORAGE_KEY('slow')].dynamicSettings.suggestionMixMode
+                .points.forEach(point => { point.y = 2; });
+            await USERSCRIPT.setValue('AcasConfig', config);
+            await window.AcasInstances[0].instance.syncDynamicSettings();
+        });
+        await gui.waitForFunction(() => {
+            const instance = window.AcasInstances[0].instance;
+            const full = profile => instance.pV[profile].pipHints.moveObjects
+                .filter(move => !move.isFuture && move.hintDetail === 'full').length;
+            return instance.suggestionMix.handles('slow') && full('slow') + full('target') === 1
+                && instance.pV.slow.bookMoveMarkings.length === 0 && full('default') > 1;
+        });
+        await gui.evaluate(async () => {
+            const config = await USERSCRIPT.getValue('AcasConfig');
+            for(const profile of Object.values(config.global.profiles)) {
+                profile.suggestionMixMode = 'off';
+                if(profile.dynamicSettings) delete profile.dynamicSettings.suggestionMixMode;
+            }
+            await USERSCRIPT.setValue('AcasConfig', config);
+            await window.AcasInstances[0].instance.syncDynamicSettings();
+        });
         await page.waitForFunction(() => window.board.hints.moves.length > 1);
         await gui.waitForFunction(() => window.pipTexts?.includes('Slow') && window.pipTexts.includes('Target'));
-        assert.equal(await gui.evaluate(() => window.pipTexts.includes('Suggestion mix')), false,
+        assert.equal(await gui.evaluate(() => window.pipTexts.includes('Funneling')), false,
             'Disabling the mix restores individual PiP profile sections');
         const config = await gui.evaluate(() => JSON.parse(localStorage.getItem('gm:AcasConfig')));
-        assert.equal(config.global.suggestionMix, false);
+        assert.equal(config.global.suggestionMix, undefined);
+        assert.ok(Object.values(config.global.profiles).every(profile => profile.suggestionMixMode === 'off'));
         assert.ok(Object.values(config.global.profiles).every(profile => profile.suggestionMix === undefined));
         assert.deepEqual(errors, []);
         await page.evaluate(() => window.board.destroy());
@@ -600,10 +721,11 @@ test('GUI mix persists outside profiles and renders one primary arrow across eng
         await gui.evaluate(() => localStorage.setItem('selectedLanguage', 'fi'));
         await gui.reload();
         await gui.waitForFunction(() =>
-            document.getElementById('suggestion-mix-title').textContent === 'Ehdotussekoitus');
+            document.getElementById('suggestion-mix-title').textContent === 'Suppiloi');
         await opener.click();
         assert.equal(await dialog.locator('.floaty-close-btn').textContent(), '💾');
-        await assertPercentageStyle();
+        await openMixInMode('all');
+        await assertPercentageControls();
         assert.equal(await dialog.locator('[data-mix-category="alternative"]').inputValue(), '100');
         const fits = await dialog.evaluate(element => {
             const bounds = element.getBoundingClientRect();

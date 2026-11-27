@@ -870,6 +870,296 @@
 						</div>
 						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> 👀</div>
+                            <div class="dropdown-input custom-input"><div><div class="input-title">Move detail</div>
+                                <div class="input-subtitle">Choose what to reveal</div></div><div class="dropdown-input-container">
+                                <input type="text" additional-type="dropdown" data-key="hintDetail" data-default-value="full">
+                                <div class="dropdown-icon"></div><div class="dropdown-list-container">
+                                    <div class="dropdown-item" data-value="full" data-translation-hint-full>Full move</div>
+                                    <div class="dropdown-item" data-value="piece" data-translation-hint-piece>Piece only</div>
+                                    <div class="dropdown-item" data-value="destination" data-translation-hint-destination>Destination only</div>
+                                    <div class="dropdown-item" data-value="captures" data-translation-hint-captures>Captures only</div>
+                                    <div class="dropdown-item" data-value="movement" data-translation-hint-movement>Non-captures only</div>
+                                    <div class="dropdown-item" data-value="captures-destination" data-translation-hint-captures-destination>Captures only, destination only</div>
+                                    <div class="dropdown-item" data-value="movement-destination" data-translation-hint-movement-destination>Non-captures only, destination only</div>
+                                    <div class="dropdown-item" data-value="captures-piece" data-translation-hint-captures-piece>Captures only, piece only</div>
+                                    <div class="dropdown-item" data-value="movement-piece" data-translation-hint-movement-piece>Non-captures only, piece only</div>
+                                </div></div>
+                            </div>
+                            <div class="floaty-input custom-input" id="suggestion-mix-setting">
+                                <div>
+                                    <div class="input-title" id="suggestion-mix-setting-title" data-translation-suggestion-mix>Funneling</div>
+                                    <div class="input-subtitle" id="suggestion-mix-state">
+                                        <span data-mix-mode="off" data-translation-mix-off>Off</span>
+                                        <span data-mix-mode="books" data-translation-mix-books hidden>Books only</span>
+                                        <span data-mix-mode="all" data-translation-mix-all hidden>All suggestions</span>
+                                    </div>
+                                </div>
+                                <div class="floaty-wrapper">
+                                    <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="suggestion-mix-floaty" aria-haspopup="dialog" aria-labelledby="suggestion-mix-setting-title">⚙️</button>
+                                    <dialog id="suggestion-mix-floaty" aria-labelledby="suggestion-mix-title">
+                                        <div class="floaty-container">
+                                            <section class="floaty-header">
+                                                <div class="title">
+                                                    <h1 id="suggestion-mix-title" data-translation-suggestion-mix>Funneling</h1>
+                                                    <p data-translation-suggestion-mix-profile-hint>Choose what this profile funnels</p>
+                                                </div>
+                                                <div class="floaty-buttons">
+                                                    <button class="floaty-close-btn acas-fancy-button" type="button">💾</button>
+                                                </div>
+                                            </section>
+                                            <section class="floaty-body suggestion-mix-controls">
+                                                <div class="dropdown-input custom-input" id="suggestion-mix-mode-setting">
+                                                    <div class="input-title" data-translation-mix-mode>Mode</div>
+                                                    <div class="dropdown-input-container">
+                                                        <input type="text" additional-type="dropdown" data-key="suggestionMixMode" data-default-value="off">
+                                                        <div class="dropdown-icon"></div>
+                                                        <div class="dropdown-list-container">
+                                                            <div class="dropdown-item" data-value="off" data-translation-mix-off>Off</div>
+                                                            <div class="dropdown-item" data-value="books" data-translation-mix-books>Books only</div>
+                                                            <div class="dropdown-item" data-value="all" data-translation-mix-all>All suggestions</div>
+                                                        </div>
+                                                    </div>
+                                                    <input class="hidden" type="text" data-key="suggestionMixWeights" data-dynamic-value-type="text" data-default-value='{"best":90,"alternative":10,"secondary":0,"mistake":0,"blunder":0,"miss":0,"other":0}'>
+                                                </div>
+                                                <p class="floaty-note" id="suggestion-mix-off-note" data-translation-mix-off-note hidden>Book and engine suggestions stay unchanged.</p>
+                                                <div class="checkbox-input custom-input" id="suggestion-mix-shared-setting" hidden>
+                                                    <div>
+                                                        <div class="input-title" data-translation-mix-shared>Share pool across profiles</div>
+                                                        <div class="input-subtitle" data-translation-mix-shared-hint>Sharing profiles with available moves get equal chances</div>
+                                                    </div>
+                                                    <div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestionMixShared" data-default-value="false">
+                                                        <div class="checkbox-fill">✔</div>
+                                                    </div>
+                                                </div>
+                                                <div class="checkbox-input custom-input" id="suggestion-mix-prefer-setting" hidden>
+                                                    <div>
+                                                        <div class="input-title" data-translation-mix-prefer-book>Prefer book moves</div>
+                                                        <div class="input-subtitle" data-translation-mix-prefer-book-hint>In a shared pool, this prioritizes all participating books</div>
+                                                    </div>
+                                                    <div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestionMixPreferBook" data-default-value="false">
+                                                        <div class="checkbox-fill">✔</div>
+                                                    </div>
+                                                </div>
+                                                <section id="suggestion-mix-engine-settings" hidden>
+                                                    <div class="checkbox-input custom-input">
+                                                        <span class="input-title" id="mix-detailed-title" data-translation-mix-detailed>Choose alternative types</span>
+                                                        <span class="checkbox-container">
+                                                            <input id="suggestion-mix-detailed" type="checkbox" aria-labelledby="mix-detailed-title">
+                                                            <span class="checkbox-fill">✔</span>
+                                                        </span>
+                                                    </div>
+                                                    <hr class="suggestion-mix-divider">
+                                                    <div class="textfield-input custom-input">
+                                                        <span class="input-title" id="mix-best-title"><span data-translation-mix-best>Best</span> (%)</span>
+                                                        <input type="number" min="0" max="100" step="0.1" data-mix-category="best" aria-labelledby="mix-best-title">
+                                                    </div>
+                                                    <div class="textfield-input custom-input">
+                                                        <span class="input-title" id="mix-alternative-title"><span data-translation-mix-alternative>Any alternative</span> (%)</span>
+                                                        <input type="number" min="0" max="100" step="0.1" data-mix-category="alternative" aria-labelledby="mix-alternative-title">
+                                                    </div>
+                                                    <div id="suggestion-mix-categories">
+                                                        <div class="textfield-input custom-input">
+                                                            <span class="input-title" id="mix-secondary-title"><span data-translation-mix-secondary>Safe secondary</span> (%)</span>
+                                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="secondary" aria-labelledby="mix-secondary-title">
+                                                        </div>
+                                                        <div class="textfield-input custom-input">
+                                                            <span class="input-title" id="mix-mistake-title"><span data-translation-mix-mistake>Mistake</span> (%)</span>
+                                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="mistake" aria-labelledby="mix-mistake-title">
+                                                        </div>
+                                                        <div class="textfield-input custom-input">
+                                                            <span class="input-title" id="mix-blunder-title"><span data-translation-mix-blunder>Blunder</span> (%)</span>
+                                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="blunder" aria-labelledby="mix-blunder-title">
+                                                        </div>
+                                                        <div class="textfield-input custom-input">
+                                                            <span class="input-title" id="mix-miss-title"><span data-translation-mix-miss>Missed opportunity</span> (%)</span>
+                                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="miss" aria-labelledby="mix-miss-title">
+                                                        </div>
+                                                        <div class="textfield-input custom-input">
+                                                            <span class="input-title" id="mix-other-title"><span data-translation-mix-other>Other moves</span> (%)</span>
+                                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="other" aria-labelledby="mix-other-title">
+                                                        </div>
+                                                    </div>
+                                                    <p class="floaty-note" id="suggestion-mix-source-note" data-translation-mix-source-note>Book moves keep their own weights. These percentages only mix engine moves.</p>
+                                                    <p class="floaty-note" id="suggestion-mix-fallback-note" data-translation-mix-fallback-note hidden>Uses these percentages when no book move is available.</p>
+                                                </section>
+                                                <p class="floaty-note" id="suggestion-mix-books-note" data-translation-mix-books-note hidden>Picks one book move using the book's own weights. Engine suggestions stay separate.</p>
+                                                <a target="_blank" href="../usage/#funneling" data-translation-learn-more-here>Learn more about these features here.</a>
+                                            </section>
+                                        </div>
+                                    </dialog>
+                                </div>
+                            </div>
+                            <div class="floaty-input custom-input">
+                                <div><div class="input-title" data-translation-warning-moves>Warning moves</div>
+                                    <div class="input-subtitle" data-translation-warning-moves-hint>Choose which bad moves are marked</div></div>
+                                <div class="floaty-wrapper">
+                                    <button class="open-floaty-btn acas-fancy-button" type="button" aria-haspopup="dialog" aria-controls="warning-moves-floaty">⚙️</button>
+                                    <dialog id="warning-moves-floaty" aria-labelledby="warning-moves-title">
+                                        <div class="floaty-container">
+                                            <section class="floaty-header">
+                                                <div class="title">
+                                                    <h1 id="warning-moves-title" data-translation-warning-moves>Warning moves</h1>
+                                                    <p data-translation-warning-moves-hint>Choose which bad moves are marked</p>
+                                                </div>
+                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div>
+                                            </section>
+                                            <section class="floaty-body">
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Only warning moves</div>
+                                                    <div class="input-subtitle">Hide all other moves</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="onlyShowWarningMoves" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Mistakes</div>
+                                                    <div class="input-subtitle">Mark mistakes</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="markMistakeMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Blunders</div>
+                                                    <div class="input-subtitle">Mark blunders</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="markBlunderMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Misses</div>
+                                                    <div class="input-subtitle">Mark missed mates</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="markMissMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </dialog>
+                                </div>
+                            </div>
+                            <div class="floaty-input custom-input">
+                                <div><div class="input-title" data-translation-learning-hints>Filter shown pieces</div>
+                                    <div class="input-subtitle" data-translation-hint-filter>Filter suggestions by moving piece</div></div>
+                                <div class="floaty-wrapper">
+                                    <button class="open-floaty-btn acas-fancy-button" type="button" aria-haspopup="dialog" aria-controls="learning-hints-floaty" aria-labelledby="learning-hints-title">⚙️</button>
+                                    <dialog id="learning-hints-floaty" class="learning-hints staunty" aria-labelledby="learning-hints-title">
+                                        <div class="floaty-container">
+                                            <section class="floaty-header">
+                                                <div class="title">
+                                                    <h1 id="learning-hints-title" data-translation-learning-hints>Filter shown pieces</h1>
+                                                    <p data-translation-hint-filter>Filter suggestions by moving piece</p>
+                                                </div>
+                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div>
+                                            </section>
+                                            <section class="floaty-body">
+                                                <div class="hint-piece-groups">
+                                                <section class="hint-piece-group setting-panel" data-hint-side="own" aria-labelledby="hint-own-pieces-title">
+                                                <h2 id="hint-own-pieces-title" class="setting-panel-title" data-translation-hint-own-pieces>Own pieces</h2>
+                                                <div class="hint-piece-filters cg-wrap">
+                                                    <div class="checkbox-input custom-input"><div><piece class="p-piece white" aria-hidden="true"></piece><div class="input-title">Pawn</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestPawn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="n-piece white" aria-hidden="true"></piece><div class="input-title">Knight</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestKnight" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="b-piece white" aria-hidden="true"></piece><div class="input-title">Bishop</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestBishop" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="r-piece white" aria-hidden="true"></piece><div class="input-title">Rook</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestRook" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="q-piece white" aria-hidden="true"></piece><div class="input-title">Queen</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestQueen" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="k-piece white" aria-hidden="true"></piece><div class="input-title">King</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestKing" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Other pieces</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestOtherPieces" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                </div>
+                                                </section>
+                                                <section class="hint-piece-group setting-panel" data-hint-side="enemy" aria-labelledby="hint-enemy-pieces-title">
+                                                <h2 id="hint-enemy-pieces-title" class="setting-panel-title" data-translation-hint-enemy-pieces>Opponent pieces</h2>
+                                                <div class="hint-piece-filters cg-wrap">
+                                                    <div class="checkbox-input custom-input"><div><piece class="p-piece black" aria-hidden="true"></piece><div class="input-title">Pawn</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyPawn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="n-piece black" aria-hidden="true"></piece><div class="input-title">Knight</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyKnight" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="b-piece black" aria-hidden="true"></piece><div class="input-title">Bishop</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyBishop" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="r-piece black" aria-hidden="true"></piece><div class="input-title">Rook</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyRook" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="q-piece black" aria-hidden="true"></piece><div class="input-title">Queen</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyQueen" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><piece class="k-piece black" aria-hidden="true"></piece><div class="input-title">King</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyKing" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Other pieces</div></div><div class="checkbox-container">
+                                                        <input type="checkbox" data-key="suggestEnemyOtherPieces" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+                                                    </div>
+                                                </div>
+                                                </section>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </dialog>
+                                </div>
+                            </div>
+							<div class="floaty-input custom-input">
+								<div><div class="input-title" data-translation-webhook-title>Messages</div><div class="input-subtitle" data-translation-webhook-subtitle>Configure Discord webhook messages</div></div>
+                                <div class="floaty-wrapper">
+                                    <button class="open-floaty-btn acas-fancy-button">⚙️</button>
+                                    <dialog id="webhooks-floaty">
+                                        <div class="floaty-container">
+                                            <section class="floaty-header">
+                                                <div class="title"><h1 data-translation-webhook-title>Messages</h1><p data-translation-webhook-subtitle>Configure Discord webhook messages</p></div>
+                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button">💾</button></div>
+                                            </section>
+                                            <section class="floaty-body">
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Enabled</div><div class="input-subtitle">Allow this profile to send webhook messages</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="webhookEnabled" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input"><div><div class="input-title">Include board photo</div><div class="input-subtitle">Attach an image of the current chess board</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="webhookIncludeBoard" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="checkbox-input custom-input hidden"><div><div class="input-title">Raw engine UCI</div><div class="input-subtitle">Send raw engine UCI lines</div></div><div class="checkbox-container">
+                                                    <input type="checkbox" data-key="webhookIncludeRawUci" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+                                                </div>
+                                                <div class="textfield-input custom-input"><div><div class="input-title">Discord Webhook URL</div><div class="input-subtitle">Keep this URL private</div></div>
+													<input type="url" size="42" data-key="webhookUrl" data-default-value="" placeholder="https://discord.com/api/webhooks/...">
+                                                </div>
+                                                <div class="textfield-input custom-input"><div><div class="input-title">Message template</div><div class="input-subtitle">Use {variables} to insert chess data</div></div>
+                                                    <div class="webhook-template-editor">
+                                                        <div class="webhook-template-highlight" aria-hidden="true"></div>
+														<textarea class="webhook-message-template" data-key="webhookMessageTemplate" data-default-value="{engineOutput}" rows="7" spellcheck="false" placeholder="Write your Discord message here..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="webhook-available-variables">
+                                                    <div class="input-title" data-translation-webhook-available-variables>Available variables</div>
+													<p><code>{bestMove}</code> <code>{engineOutput}</code> <code>{evaluation}</code> <code>{fen}</code> <code>{variant}</code> <code>{site}</code> <code>{instanceId}</code> <code>{profile}</code> <code>{engine}</code> <code>{depth}</code> <code>{seldepth}</code> <code>{nodes}</code> <code>{time}</code> <code>{calculationTime}</code> <code>{nps}</code> <code>{hashfull}</code> <code>{tbhits}</code> <code>{multipv}</code> <code>{mate}</code> <code>{pv}</code> <code>{currmove}</code> <code>{currmovenumber}</code> <code>{timestamp}</code></p>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </dialog>
+                                </div>
+                            </div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
+								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+							</div>
+							<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
+								<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">
+								<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
+							</div>
+							<div class="input-combination-box">
+								<div class="checkbox-input custom-input"><div><div class="input-title">Opponent move guess</div>
+									<div class="input-subtitle">Show the engine's guess of what move the enemy makes after you play the suggested move</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+								</div>
+								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Constantly visible</div>
+									<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
+									<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✔</div></div>
+								</div>
+							</div>
+						</div>
+						<div class="setting-panel">
+							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👀</div>
                             <div class="checkbox-input custom-input"><div><div class="input-title">Floating Panel</div>
                                 <div class="input-subtitle">Important! Stops A.C.A.S from freezing!</div></div>
                                 <div class="floaty-wrapper">
@@ -1183,190 +1473,6 @@
 							</div>
 						</div>
 						<div class="setting-panel">
-							<div class="setting-panel-title"><span class="visual-panel-title">Visual</span> #2 👀</div>
-                            <div class="dropdown-input custom-input"><div><div class="input-title">Move detail</div>
-                                <div class="input-subtitle">Choose what to reveal</div></div><div class="dropdown-input-container">
-                                <input type="text" additional-type="dropdown" data-key="hintDetail" data-default-value="full">
-                                <div class="dropdown-icon"></div><div class="dropdown-list-container">
-                                    <div class="dropdown-item" data-value="full" data-translation-hint-full>Full move</div>
-                                    <div class="dropdown-item" data-value="piece" data-translation-hint-piece>Piece only</div>
-                                    <div class="dropdown-item" data-value="destination" data-translation-hint-destination>Destination only</div>
-                                    <div class="dropdown-item" data-value="captures" data-translation-hint-captures>Captures only</div>
-                                    <div class="dropdown-item" data-value="movement" data-translation-hint-movement>Non-captures only</div>
-                                    <div class="dropdown-item" data-value="captures-destination" data-translation-hint-captures-destination>Captures only, destination only</div>
-                                    <div class="dropdown-item" data-value="movement-destination" data-translation-hint-movement-destination>Non-captures only, destination only</div>
-                                    <div class="dropdown-item" data-value="captures-piece" data-translation-hint-captures-piece>Captures only, piece only</div>
-                                    <div class="dropdown-item" data-value="movement-piece" data-translation-hint-movement-piece>Non-captures only, piece only</div>
-                                </div></div>
-                            </div>
-                            <div class="floaty-input custom-input">
-                                <div><div class="input-title" data-translation-warning-moves>Warning moves</div>
-                                    <div class="input-subtitle" data-translation-warning-moves-hint>Choose which bad moves are marked</div></div>
-                                <div class="floaty-wrapper">
-                                    <button class="open-floaty-btn acas-fancy-button" type="button" aria-haspopup="dialog" aria-controls="warning-moves-floaty">⚙️</button>
-                                    <dialog id="warning-moves-floaty" aria-labelledby="warning-moves-title">
-                                        <div class="floaty-container">
-                                            <section class="floaty-header">
-                                                <div class="title">
-                                                    <h1 id="warning-moves-title" data-translation-warning-moves>Warning moves</h1>
-                                                    <p data-translation-warning-moves-hint>Choose which bad moves are marked</p>
-                                                </div>
-                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div>
-                                            </section>
-                                            <section class="floaty-body">
-                                                <div class="checkbox-input custom-input"><div><div class="input-title">Only warning moves</div>
-                                                    <div class="input-subtitle">Hide all other moves</div></div><div class="checkbox-container">
-                                                    <input type="checkbox" data-key="onlyShowWarningMoves" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                                                </div>
-                                                <div class="checkbox-input custom-input"><div><div class="input-title">Mistakes</div>
-                                                    <div class="input-subtitle">Mark mistakes</div></div><div class="checkbox-container">
-                                                    <input type="checkbox" data-key="markMistakeMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                </div>
-                                                <div class="checkbox-input custom-input"><div><div class="input-title">Blunders</div>
-                                                    <div class="input-subtitle">Mark blunders</div></div><div class="checkbox-container">
-                                                    <input type="checkbox" data-key="markBlunderMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                </div>
-                                                <div class="checkbox-input custom-input"><div><div class="input-title">Misses</div>
-                                                    <div class="input-subtitle">Mark missed mates</div></div><div class="checkbox-container">
-                                                    <input type="checkbox" data-key="markMissMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                </div>
-                                            </section>
-                                        </div>
-                                    </dialog>
-                                </div>
-                            </div>
-                            <div class="floaty-input custom-input">
-                                <div><div class="input-title" data-translation-learning-hints>Filter shown pieces</div>
-                                    <div class="input-subtitle" data-translation-hint-filter>Filter suggestions by moving piece</div></div>
-                                <div class="floaty-wrapper">
-                                    <button class="open-floaty-btn acas-fancy-button" type="button" aria-haspopup="dialog" aria-controls="learning-hints-floaty" aria-labelledby="learning-hints-title">⚙️</button>
-                                    <dialog id="learning-hints-floaty" class="learning-hints staunty" aria-labelledby="learning-hints-title">
-                                        <div class="floaty-container">
-                                            <section class="floaty-header">
-                                                <div class="title">
-                                                    <h1 id="learning-hints-title" data-translation-learning-hints>Filter shown pieces</h1>
-                                                    <p data-translation-hint-filter>Filter suggestions by moving piece</p>
-                                                </div>
-                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button">💾</button></div>
-                                            </section>
-                                            <section class="floaty-body">
-                                                <div class="hint-piece-groups">
-                                                <section class="hint-piece-group setting-panel" data-hint-side="own" aria-labelledby="hint-own-pieces-title">
-                                                <h2 id="hint-own-pieces-title" class="setting-panel-title" data-translation-hint-own-pieces>Own pieces</h2>
-                                                <div class="hint-piece-filters cg-wrap">
-                                                    <div class="checkbox-input custom-input"><div><piece class="p-piece white" aria-hidden="true"></piece><div class="input-title">Pawn</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestPawn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="n-piece white" aria-hidden="true"></piece><div class="input-title">Knight</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestKnight" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="b-piece white" aria-hidden="true"></piece><div class="input-title">Bishop</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestBishop" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="r-piece white" aria-hidden="true"></piece><div class="input-title">Rook</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestRook" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="q-piece white" aria-hidden="true"></piece><div class="input-title">Queen</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestQueen" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="k-piece white" aria-hidden="true"></piece><div class="input-title">King</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestKing" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Other pieces</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestOtherPieces" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                </div>
-                                                </section>
-                                                <section class="hint-piece-group setting-panel" data-hint-side="enemy" aria-labelledby="hint-enemy-pieces-title">
-                                                <h2 id="hint-enemy-pieces-title" class="setting-panel-title" data-translation-hint-enemy-pieces>Opponent pieces</h2>
-                                                <div class="hint-piece-filters cg-wrap">
-                                                    <div class="checkbox-input custom-input"><div><piece class="p-piece black" aria-hidden="true"></piece><div class="input-title">Pawn</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestEnemyPawn" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="n-piece black" aria-hidden="true"></piece><div class="input-title">Knight</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestEnemyKnight" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="b-piece black" aria-hidden="true"></piece><div class="input-title">Bishop</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestEnemyBishop" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="r-piece black" aria-hidden="true"></piece><div class="input-title">Rook</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestEnemyRook" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="q-piece black" aria-hidden="true"></piece><div class="input-title">Queen</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestEnemyQueen" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><piece class="k-piece black" aria-hidden="true"></piece><div class="input-title">King</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestEnemyKing" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                    <div class="checkbox-input custom-input"><div><div class="input-title">Other pieces</div></div><div class="checkbox-container">
-                                                        <input type="checkbox" data-key="suggestEnemyOtherPieces" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-                                                    </div>
-                                                </div>
-                                                </section>
-                                                </div>
-                                            </section>
-                                        </div>
-                                    </dialog>
-                                </div>
-                            </div>
-							<div class="floaty-input custom-input">
-								<div><div class="input-title" data-translation-webhook-title>Messages</div><div class="input-subtitle" data-translation-webhook-subtitle>Configure Discord webhook messages</div></div>
-                                <div class="floaty-wrapper">
-                                    <button class="open-floaty-btn acas-fancy-button">⚙️</button>
-                                    <dialog id="webhooks-floaty">
-                                        <div class="floaty-container">
-                                            <section class="floaty-header">
-                                                <div class="title"><h1 data-translation-webhook-title>Messages</h1><p data-translation-webhook-subtitle>Configure Discord webhook messages</p></div>
-                                                <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button">💾</button></div>
-                                            </section>
-                                            <section class="floaty-body">
-                                                <div class="checkbox-input custom-input"><div><div class="input-title">Enabled</div><div class="input-subtitle">Allow this profile to send webhook messages</div></div><div class="checkbox-container">
-                                                    <input type="checkbox" data-key="webhookEnabled" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                                                </div>
-                                                <div class="checkbox-input custom-input"><div><div class="input-title">Include board photo</div><div class="input-subtitle">Attach an image of the current chess board</div></div><div class="checkbox-container">
-                                                    <input type="checkbox" data-key="webhookIncludeBoard" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                                                </div>
-                                                <div class="checkbox-input custom-input hidden"><div><div class="input-title">Raw engine UCI</div><div class="input-subtitle">Send raw engine UCI lines</div></div><div class="checkbox-container">
-                                                    <input type="checkbox" data-key="webhookIncludeRawUci" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-                                                </div>
-                                                <div class="textfield-input custom-input"><div><div class="input-title">Discord Webhook URL</div><div class="input-subtitle">Keep this URL private</div></div>
-													<input type="url" size="42" data-key="webhookUrl" data-default-value="" placeholder="https://discord.com/api/webhooks/...">
-                                                </div>
-                                                <div class="textfield-input custom-input"><div><div class="input-title">Message template</div><div class="input-subtitle">Use {variables} to insert chess data</div></div>
-                                                    <div class="webhook-template-editor">
-                                                        <div class="webhook-template-highlight" aria-hidden="true"></div>
-														<textarea class="webhook-message-template" data-key="webhookMessageTemplate" data-default-value="{engineOutput}" rows="7" spellcheck="false" placeholder="Write your Discord message here..."></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="webhook-available-variables">
-                                                    <div class="input-title" data-translation-webhook-available-variables>Available variables</div>
-													<p><code>{bestMove}</code> <code>{engineOutput}</code> <code>{evaluation}</code> <code>{fen}</code> <code>{variant}</code> <code>{site}</code> <code>{instanceId}</code> <code>{profile}</code> <code>{engine}</code> <code>{depth}</code> <code>{seldepth}</code> <code>{nodes}</code> <code>{time}</code> <code>{calculationTime}</code> <code>{nps}</code> <code>{hashfull}</code> <code>{tbhits}</code> <code>{multipv}</code> <code>{mate}</code> <code>{pv}</code> <code>{currmove}</code> <code>{currmovenumber}</code> <code>{timestamp}</code></p>
-                                                </div>
-                                            </section>
-                                        </div>
-                                    </dialog>
-                                </div>
-                            </div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Moves on external site</div>
-								<div class="input-subtitle">Show move arrows on chess site's board (e.g. chess.com's board)</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="displayMovesOnExternalSite" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-							</div>
-							<div class="checkbox-input custom-input"><div><div class="input-title">Only top moves</div>
-								<div class="input-subtitle">Only show the best move the engine found</div></div><div class="checkbox-container">
-								<input type="checkbox" data-key="onlyShowTopMoves" data-default-value="true"><div class="checkbox-fill">✔</div></div>
-							</div>
-							<div class="input-combination-box">
-								<div class="checkbox-input custom-input"><div><div class="input-title">Opponent move guess</div>
-									<div class="input-subtitle">Show the engine's guess of what move the enemy makes after you play the suggested move</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="showOpponentMoveGuess" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-								</div>
-								<div class="checkbox-input sub-input custom-input"><div><div class="input-title">Constantly visible</div>
-									<div class="input-subtitle">Opponent move guess constantly visible</div></div><div class="checkbox-container">
-									<input type="checkbox" data-key="showOpponentMoveGuessConstantly" data-default-value="false"><div class="checkbox-fill">✔</div></div>
-								</div>
-							</div>
-						</div>
-						<div class="setting-panel">
 							<div class="setting-panel-title"><span class="audible-panel-title">Audible</span> 🎧</div>
 							<div class="checkbox-input custom-input"><div><div class="input-title">Move TTS</div>
 								<div class="input-subtitle">Hear best moves</div></div>
@@ -1437,33 +1543,6 @@
                 </div>
                 <div class="setting-panel">
                     <div class="setting-panel-title"><span class="misc-panel-title">Miscellaneous</span> ❔</div>
-                    <div class="custom-input">
-                        <div><div class="input-title" id="colors-title" data-appearance-text="colors">Colors</div><div class="input-subtitle" data-appearance-text="colorsHint">Theme and board</div></div>
-                        <div class="floaty-wrapper">
-                            <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="colors-floaty" aria-haspopup="dialog" aria-labelledby="colors-title">⚙️</button>
-                            <dialog id="colors-floaty" aria-labelledby="colors-floaty-title">
-                                <div class="floaty-container">
-                                    <section class="floaty-header">
-                                        <div class="title"><h1 id="colors-floaty-title" data-appearance-text="colors">Colors</h1><p data-appearance-text="colorsHint">Theme and board</p></div>
-                                        <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" data-appearance-label="closeColors" aria-label="Close color settings">💾</button></div>
-                                    </section>
-                                    <section class="floaty-body">
-                                        <div class="setting-panel">
-                                            <div class="color-input custom-input"><div class="input-title">Theme Color</div>
-                                                <input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
-                                            </div>
-                                            <div class="color-input custom-input"><div class="input-title">Board Color 1</div>
-                                                <input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
-                                            </div>
-                                            <div class="color-input custom-input"><div class="input-title">Board Color 2</div>
-                                                <input type="color" data-key="boardColorHex2" data-no-profile="true" data-default-value="#9e9384">
-                                            </div>
-                                        </div>
-                                    </section>
-                                </div>
-                            </dialog>
-                        </div>
-                    </div>
                     <div class="checkbox-input custom-input"><div><div class="input-title">Ghost Script</div>
                         <div class="input-subtitle">Hide drawings on the chess page</div></div>
                         <div class="floaty-wrapper">
@@ -1504,81 +1583,6 @@
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" data-key="isUserscriptGhost" data-no-profile="true" data-global-only="true" data-default-value="true"><div class="checkbox-fill">✔</div>
-                        </div>
-                    </div>
-                    <div class="checkbox-input custom-input">
-                        <div>
-                            <div class="input-title" data-translation-suggestion-mix>Funneling</div>
-                            <div class="input-subtitle" data-translation-suggestion-mix-hint>Mix profiles into one arrow</div>
-                        </div>
-                        <div class="floaty-wrapper">
-                            <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="suggestion-mix-floaty" aria-haspopup="dialog" aria-labelledby="suggestion-mix-title">⚙️</button>
-                            <dialog id="suggestion-mix-floaty" aria-labelledby="suggestion-mix-title">
-                                <div class="floaty-container">
-                                    <section class="floaty-header">
-                                        <div class="title">
-                                            <h1 id="suggestion-mix-title" data-translation-suggestion-mix>Funneling</h1>
-                                            <p data-translation-suggestion-mix-hint>Mix profiles into one arrow</p>
-                                        </div>
-                                        <div class="floaty-buttons">
-                                            <button class="floaty-close-btn acas-fancy-button" type="button">💾</button>
-                                        </div>
-                                    </section>
-                                    <section class="floaty-body suggestion-mix-controls">
-                                        <input class="hidden" type="text" data-key="suggestionMixWeights" data-no-profile="true" data-dynamic-value-type="text" data-default-value='{"best":90,"alternative":10,"secondary":0,"mistake":0,"blunder":0,"miss":0,"other":0}'>
-                                        <div class="checkbox-input custom-input">
-                                            <div class="input-title" data-translation-mix-prefer-book>Prefer book moves</div>
-                                            <div class="checkbox-container">
-                                                <input type="checkbox" data-key="suggestionMixPreferBook" data-no-profile="true" data-default-value="false">
-                                                <div class="checkbox-fill">✔</div>
-                                            </div>
-                                        </div>
-                                        <div class="checkbox-input custom-input">
-                                            <span class="input-title" id="mix-detailed-title" data-translation-mix-detailed>Choose alternative types</span>
-                                            <span class="checkbox-container">
-                                                <input id="suggestion-mix-detailed" type="checkbox" aria-labelledby="mix-detailed-title">
-                                                <span class="checkbox-fill">✔</span>
-                                            </span>
-                                        </div>
-                                        <hr class="suggestion-mix-divider">
-                                        <div class="textfield-input custom-input">
-                                            <span class="input-title" id="mix-best-title"><span data-translation-mix-best>Best</span> (%)</span>
-                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="best" aria-labelledby="mix-best-title">
-                                        </div>
-                                        <div class="textfield-input custom-input">
-                                            <span class="input-title" id="mix-alternative-title"><span data-translation-mix-alternative>Any alternative</span> (%)</span>
-                                            <input type="number" min="0" max="100" step="0.1" data-mix-category="alternative" aria-labelledby="mix-alternative-title">
-                                        </div>
-                                        <div id="suggestion-mix-categories">
-                                            <div class="textfield-input custom-input">
-                                                <span class="input-title" id="mix-secondary-title"><span data-translation-mix-secondary>Safe secondary</span> (%)</span>
-                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="secondary" aria-labelledby="mix-secondary-title">
-                                            </div>
-                                            <div class="textfield-input custom-input">
-                                                <span class="input-title" id="mix-mistake-title"><span data-translation-mix-mistake>Mistake</span> (%)</span>
-                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="mistake" aria-labelledby="mix-mistake-title">
-                                            </div>
-                                            <div class="textfield-input custom-input">
-                                                <span class="input-title" id="mix-blunder-title"><span data-translation-mix-blunder>Blunder</span> (%)</span>
-                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="blunder" aria-labelledby="mix-blunder-title">
-                                            </div>
-                                            <div class="textfield-input custom-input">
-                                                <span class="input-title" id="mix-miss-title"><span data-translation-mix-miss>Missed opportunity</span> (%)</span>
-                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="miss" aria-labelledby="mix-miss-title">
-                                            </div>
-                                            <div class="textfield-input custom-input">
-                                                <span class="input-title" id="mix-other-title"><span data-translation-mix-other>Other moves</span> (%)</span>
-                                                <input type="number" min="0" max="100" step="0.1" data-mix-category="other" aria-labelledby="mix-other-title">
-                                            </div>
-                                        </div>
-                                        <a target="_blank" href="../usage/#funneling" data-translation-learn-more-here>Learn more about these features here.</a>
-                                    </section>
-                                </div>
-                            </dialog>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" data-key="suggestionMix" data-no-profile="true" data-default-value="false">
-                            <div class="checkbox-fill">✔</div>
                         </div>
                     </div>
                     <div class="checkbox-input custom-input">
@@ -1706,6 +1710,33 @@
                             <div class="dropdown-item" data-value="custom-image-texture"><span class="background-texture-preview" aria-hidden="true"><span class="custom-image-texture"></span></span>Custom Image</div>
                         </div>
                     </div></div>
+                    </div>
+                    <div class="custom-input">
+                        <div><div class="input-title" id="colors-title" data-appearance-text="colors">Colors</div><div class="input-subtitle" data-appearance-text="colorsHint">Theme and board</div></div>
+                        <div class="floaty-wrapper">
+                            <button class="open-floaty-btn acas-fancy-button" type="button" aria-controls="colors-floaty" aria-haspopup="dialog" aria-labelledby="colors-title">⚙️</button>
+                            <dialog id="colors-floaty" aria-labelledby="colors-floaty-title">
+                                <div class="floaty-container">
+                                    <section class="floaty-header">
+                                        <div class="title"><h1 id="colors-floaty-title" data-appearance-text="colors">Colors</h1><p data-appearance-text="colorsHint">Theme and board</p></div>
+                                        <div class="floaty-buttons"><button class="floaty-close-btn acas-fancy-button" type="button" data-appearance-label="closeColors" aria-label="Close color settings">💾</button></div>
+                                    </section>
+                                    <section class="floaty-body">
+                                        <div class="setting-panel">
+                                            <div class="color-input custom-input"><div class="input-title">Theme Color</div>
+                                                <input type="color" data-key="themeColorHex" data-no-profile="true" data-default-value="#5f8895">
+                                            </div>
+                                            <div class="color-input custom-input"><div class="input-title">Board Color 1</div>
+                                                <input type="color" data-key="boardColorHex" data-no-profile="true" data-default-value="#c5b8a5">
+                                            </div>
+                                            <div class="color-input custom-input"><div class="input-title">Board Color 2</div>
+                                                <input type="color" data-key="boardColorHex2" data-no-profile="true" data-default-value="#9e9384">
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </dialog>
+                        </div>
                     </div>
                 </div>
 			</div>

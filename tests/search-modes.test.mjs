@@ -84,6 +84,40 @@ test('external calculation sends recorded history and engine time without depth 
     assert.equal(vars.currentMovetimeTimeout, undefined);
 });
 
+test('a stale calculation never enters or leaves the Funneling preparation barrier', async () => {
+    const { instance } = fixture();
+    const currentFen = instance.currentFen;
+    const staleFen = currentFen.replace(' b ', ' w ');
+    let begins = 0, ends = 0;
+    instance.suggestionMix = {
+        begin: () => { begins++; return {}; },
+        configure: async () => {},
+        end: async () => { ends++; }
+    };
+    instance.currentFen = staleFen;
+    await instance.calculateBestMoves(currentFen);
+    assert.equal(begins, 0);
+    assert.equal(ends, 0);
+});
+
+test('a position change during Funneling preparation releases the barrier', async () => {
+    const { instance } = fixture();
+    let release, begins = 0, ends = 0;
+    const playerColor = new Promise(resolve => { release = resolve; });
+    instance.getPlayerColor = () => playerColor;
+    instance.suggestionMix = {
+        begin: () => { begins++; return {}; },
+        configure: async () => {},
+        end: async () => { ends++; }
+    };
+    const calculation = instance.calculateBestMoves(instance.currentFen);
+    instance.currentFen = instance.currentFen.replace(' b ', ' w ');
+    release('w');
+    await calculation;
+    assert.equal(begins, 1);
+    assert.equal(ends, 1);
+});
+
 test('external calculation sends the full long history within the server packet limit', async () => {
     const { instance, commands } = fixture();
     const chess = new Chess();

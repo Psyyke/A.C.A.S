@@ -4,7 +4,7 @@ import { acasInstanceContainer, settingsNavbarGlobalElem, importSettingsBtn, exp
     settingsContainerElem, settingsHeaderElem, settingsPanelsElem, settingContainerElem,
     webhookMessageTemplateInput, webhookTemplateHighlightElem, themeColorInput,
     backgroundTextureInput, customBackgroundBlurInput, getActivityLogElements } from './gui/elementDeclarations.js';
-import { importSettings, exportSettings, resetSettings, migrateFeedbackSettings, migratePipSettings } from './gui/settings.js';
+import { importSettings, exportSettings, resetSettings, migrateFeedbackSettings, migratePipSettings, migrateSuggestionMixSettings } from './gui/settings.js';
 import { initializeDropdowns, addDropdownItem } from './gui/domDropdown.js';
 import { monitorInstances, monitorInstanceTabs, toggleSelectedNavbarItem } from './gui/instances.js';
 import { initializeInputElems, setInputValue, getInputValue } from './gui/domInputs.js';
@@ -330,10 +330,11 @@ export async function initGUI() {
     const hintsMigrated = migrateHintSettings(config);
     const feedbackMigrated = migrateFeedbackSettings(config);
     const pipMigrated = migratePipSettings(config);
+    const mixMigrated = migrateSuggestionMixSettings(config);
     const penaMigrated = migrateLegacyPenaSettings(config);
     migrateLegacyPenaStorage();
 
-    if(hintsMigrated || feedbackMigrated || pipMigrated || penaMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
+    if(hintsMigrated || feedbackMigrated || pipMigrated || mixMigrated || penaMigrated) await USERSCRIPT.setValue(USERSCRIPT_SHARED_VARS.gmConfigKey, config);
 
     initializeBackgroundGrain();
     initializeStarfield();

@@ -344,7 +344,8 @@ export default async function engineMessageProcessor(msg, profile) {
             markingLimit !== 0
             && !oldestUnfinishedCalcRequestObj.finished
             && (reportedMoves.length >= markingLimit || profileObj.pastMoveObjects.length >= markingLimit)
-            && (!onlyShowTopMoves || (isSearchInfinite && !isMovetimeLimited
+            && (!onlyShowTopMoves || (!this.suggestionMix?.filtersBooks(profile)
+                && isSearchInfinite && !isMovetimeLimited
                 && !oldestUnfinishedCalcRequestObj.rodentNodeLimited))
             && !this.pV[profile].onlyShowWarningMoves // all lines are needed first, so wait for the final result
             && (!isDelayActive || (calculationTimeElapsed > moveDisplayDelay)) // handle visual delay, do not show move if time elapsed is too low

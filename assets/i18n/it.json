@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Configura i messaggi Discord webhook",
         "*[data-translation-webhook-available-variables]": "Variabili disponibili",
         "*[data-translation-ffs-videostream]": "Flusso video",
-        "#des-no-result-text": "Alcune impostazioni vengono analizzate dinamicamente dall'output UCI del motore. Apri una scacchiera per avviare il motore e caricare le impostazioni dinamiche."
+        "#des-no-result-text": "Alcune impostazioni vengono analizzate dinamicamente dall'output UCI del motore. Apri una scacchiera per avviare il motore e caricare le impostazioni dinamiche.",
+        "[data-translation-mix-prefer-book-hint]": "Nel pool condiviso, questa opzione dà priorità a tutti i libri partecipanti",
+        "[data-translation-mix-shared]": "Condividi il pool tra i profili",
+        "[data-translation-mix-shared-hint]": "I profili condivisi con mosse disponibili hanno le stesse probabilità",
+        "[data-translation-mix-off]": "Disattivato",
+        "[data-translation-mix-books]": "Solo libri",
+        "[data-translation-mix-all]": "Tutti i suggerimenti",
+        "[data-translation-mix-mode]": "Modalità",
+        "[data-translation-mix-off-note]": "I suggerimenti del libro e del motore restano invariati.",
+        "[data-translation-mix-books-note]": "Sceglie una mossa del libro usando i pesi propri del libro. I suggerimenti del motore restano separati.",
+        "[data-translation-mix-source-note]": "Le mosse del libro conservano i propri pesi. Queste percentuali mescolano solo le mosse del motore.",
+        "[data-translation-mix-fallback-note]": "Usa queste percentuali quando non è disponibile alcuna mossa del libro.",
+        "[data-translation-suggestion-mix-profile-hint]": "Scegli cosa convoglia questo profilo"
     },
     "configTranslations": {
         "advancedSearchMode": ["Modalità di ricerca","Scegli il limite di ricerca"],

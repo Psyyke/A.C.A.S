@@ -1203,6 +1203,10 @@ export default class AcasInstance {
         const variables = this.pV[profile];
         if(!fen || !variables || this.instanceClosed) return;
         if(this.isLearningProfile(profile) && (!this.learningReviewFen || fen !== this.displayFen)) return;
+        if(this.suggestionMix?.filtersBooks(profile)) {
+            await this.suggestionMix.render(true);
+            return;
+        }
         const book = this.openingBooks?.get(profile);
 
         if(!book) {
@@ -1288,7 +1292,7 @@ export default class AcasInstance {
         }
         const cached = variables.hintCandidates;
         const hasCurrentMoves = cached?.fen === this.currentFen;
-        if(this.suggestionMix?.enabled) await this.suggestionMix.render(true);
+        if(this.suggestionMix?.handles(profile)) await this.suggestionMix.render(true);
         else if(hasCurrentMoves) await this.displayMoves(cached.moves, profile, false, true);
         if(this.pV[profile] === variables && !this.instanceClosed)
             await this.getAndDisplayBookMoves(this.currentFen, profile);
@@ -1316,7 +1320,7 @@ export default class AcasInstance {
 
         this.pV[profile].pendingMoveDisplay = null;
 
-        if(!review && !mixCurrent && this.suggestionMix?.enabled) {
+        if(!review && !mixCurrent && this.suggestionMix?.handles(profile)) {
             await this.suggestionMix.render(silent);
             return;
         }

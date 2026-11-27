@@ -127,6 +127,7 @@ export default function syncDynamicSettings(forcedProfile, forcedKeys = [], isDi
                 this.effectiveSettings.set(name, current);
                 this.pV[name].dynamicSettingsApplied = true;
                 const hintRenderKeys = [...hintSettingKeys, 'movesOnDemand', 'moveAsFilledSquares',
+                    'onlyCalculateOwnTurn', 'alwaysMyTurn', 'reverseSide',
                     'arrowOpacity', 'primaryArrowColorHex', 'secondaryArrowColorHex', 'opponentArrowColorHex',
                     'showOpponentMoveGuess', 'showOpponentMoveGuessConstantly', 'displayMovesOnExternalSite',
                     'bookMoveOpacity', 'bookMoveColorHex', 'moveSuggestionAmount',

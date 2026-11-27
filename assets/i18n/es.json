@@ -132,7 +132,19 @@
         "*[data-translation-ffs-subtitle]": "Principalmente para usuarios de Firefox",
         "*[data-translation-ffs-instructions]": "Mantén abierto el panel flotante o A.C.A.S no funcionará. Al desactivar esta función, se aplica automáticamente un truco de audio que puede mantener A.C.A.S activo sin el panel en algunos navegadores. Si algo no funciona, prueba Chrome y mantén A.C.A.S visible en pantalla dividida.",
         "*[data-translation-ffs-videostream]": "Transmisión de vídeo",
-        "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas."
+        "#des-no-result-text": "Algunas configuraciones se analizan dinámicamente desde la salida UCI del motor. Por favor, abre un tablero de ajedrez para iniciar tu motor y cargar las configuraciones dinámicas.",
+        "[data-translation-mix-prefer-book-hint]": "En un grupo compartido, esta opción prioriza todos los libros participantes",
+        "[data-translation-mix-shared]": "Compartir el grupo entre perfiles",
+        "[data-translation-mix-shared-hint]": "Los perfiles compartidos con movimientos disponibles tienen la misma probabilidad",
+        "[data-translation-mix-off]": "Desactivado",
+        "[data-translation-mix-books]": "Solo libros",
+        "[data-translation-mix-all]": "Todas las sugerencias",
+        "[data-translation-mix-mode]": "Modo",
+        "[data-translation-mix-off-note]": "Las sugerencias del libro y del motor no cambian.",
+        "[data-translation-mix-books-note]": "Elige un movimiento del libro según sus propios pesos. Las sugerencias del motor siguen separadas.",
+        "[data-translation-mix-source-note]": "Los movimientos del libro conservan sus pesos. Estos porcentajes solo mezclan movimientos del motor.",
+        "[data-translation-mix-fallback-note]": "Se usan estos porcentajes cuando no hay ningún movimiento de libro disponible.",
+        "[data-translation-suggestion-mix-profile-hint]": "Elige qué reúne este perfil"
     },
     "configTranslations": {
         "advancedSearchMode": ["Modo de búsqueda","Elige el límite de búsqueda"],

@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "I-configure ang mga Discord webhook na mensahe",
         "*[data-translation-webhook-available-variables]": "Mga available na variable",
         "*[data-translation-ffs-videostream]": "Daloy ng video",
-        "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting."
+        "#des-no-result-text": "Ang ilang mga setting ay dinamikong sinusuri mula sa output ng UCI ng engine. Magbukas ng chess board upang simulan ang iyong engine at i-load ang mga dynamic na setting.",
+        "[data-translation-mix-prefer-book-hint]": "Sa shared pool, inuuna nito ang lahat ng kalahok na aklat",
+        "[data-translation-mix-shared]": "Ibahagi ang pool sa mga profile",
+        "[data-translation-mix-shared-hint]": "Ang mga profile na may available na galaw at nakabahagi sa pool ay may pantay na tsansa",
+        "[data-translation-mix-off]": "Naka-off",
+        "[data-translation-mix-books]": "Mga aklat lamang",
+        "[data-translation-mix-all]": "Lahat ng mungkahi",
+        "[data-translation-mix-mode]": "Mode",
+        "[data-translation-mix-off-note]": "Hindi nagbabago ang mga mungkahi mula sa aklat at engine.",
+        "[data-translation-mix-books-note]": "Pumili ng isang galaw mula sa aklat ayon sa sariling timbang nito. Mananatiling hiwalay ang mga mungkahi ng engine.",
+        "[data-translation-mix-source-note]": "Pinapanatili ng mga aklat na galaw ang kanilang sariling timbang. Pinaghahalo lang ng mga porsiyentong ito ang mga galaw ng engine.",
+        "[data-translation-mix-fallback-note]": "Ginagamit ang mga porsiyentong ito kung walang available na galaw mula sa aklat.",
+        "[data-translation-suggestion-mix-profile-hint]": "Piliin kung ano ang ibubunot ng profile na ito"
     },
     "configTranslations": {
         "advancedSearchMode": ["Mode ng paghahanap","Piliin ang limitasyon ng paghahanap"],

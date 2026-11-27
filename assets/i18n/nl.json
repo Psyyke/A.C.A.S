@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Configureer Discord webhook-berichten",
         "*[data-translation-webhook-available-variables]": "Beschikbare variabelen",
         "*[data-translation-ffs-videostream]": "Videostroom",
-        "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden."
+        "#des-no-result-text": "Sommige instellingen worden dynamisch geparseerd uit de UCI-uitvoer van de engine. Open een schaakbord om uw engine te starten en de dynamische instellingen te laden.",
+        "[data-translation-mix-prefer-book-hint]": "In een gedeelde pool krijgt dit alle deelnemende boeken voorrang",
+        "[data-translation-mix-shared]": "Pool delen tussen profielen",
+        "[data-translation-mix-shared-hint]": "Profielen die delen en beschikbare zetten hebben, krijgen gelijke kansen",
+        "[data-translation-mix-off]": "Uit",
+        "[data-translation-mix-books]": "Alleen boeken",
+        "[data-translation-mix-all]": "Alle suggesties",
+        "[data-translation-mix-mode]": "Modus",
+        "[data-translation-mix-off-note]": "Boek- en engine-suggesties blijven ongewijzigd.",
+        "[data-translation-mix-books-note]": "Kiest één boekzet op basis van de eigen gewichten van het boek. Engine-suggesties blijven apart.",
+        "[data-translation-mix-source-note]": "Boekzetten behouden hun eigen gewichten. Deze percentages mengen alleen enginezetten.",
+        "[data-translation-mix-fallback-note]": "Gebruikt deze percentages wanneer geen boekzet beschikbaar is.",
+        "[data-translation-suggestion-mix-profile-hint]": "Kies wat dit profiel bundelt"
     },
     "configTranslations": {
         "advancedSearchMode": ["Zoekmodus","Kies de zoeklimiet"],

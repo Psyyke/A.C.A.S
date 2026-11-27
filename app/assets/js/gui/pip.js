@@ -85,9 +85,9 @@ function profileRenderers(instance) {
 
 function visibleInstancePanels(instance) {
     const panels = [...profileRenderers(instance).values()];
-    const mixing = instance?.suggestionMix?.enabled;
-    const suggestions = panels.filter(panel => !instance.isLearningProfile(panel.profile));
-    const learning = panels.filter(panel => instance.isLearningProfile(panel.profile));
+    const shared = new Set(instance?.suggestionMix?.sharedProfiles() || []);
+    const suggestions = panels.filter(panel => shared.has(panel.profile));
+    const mixing = suggestions.length > 0;
     const layout = {};
     if(mixing) {
         for(const panel of suggestions) {
@@ -97,13 +97,13 @@ function visibleInstancePanels(instance) {
         }
     }
     panels.forEach(panel => panel.renderer.setReservedLayout(
-        mixing && !instance.isLearningProfile(panel.profile) ? layout : {}));
+        shared.has(panel.profile) ? layout : {}));
     if(!mixing || !suggestions.length) return panels;
 
     const profile = instance.suggestionMix.selection?.profile;
     const panel = suggestions.find(panel => panel.profile === profile) || suggestions[0];
     const name = FULL_TRANS_OBJ?.domTranslations?.['[data-translation-suggestion-mix]'] || 'Funneling';
-    return [{ ...panel, name }, ...learning];
+    return [{ ...panel, name }, ...panels.filter(panel => !shared.has(panel.profile))];
 }
 
 function visibleRenderers() {

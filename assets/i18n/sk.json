@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Nakonfigurujte správy Discord webhook",
         "*[data-translation-webhook-available-variables]": "Dostupné premenné",
         "*[data-translation-ffs-videostream]": "Video stream",
-        "#des-no-result-text": "Niektoré nastavenia sú dynamicky analyzované z výstupu UCI motora. Otvorte šachovnicu, aby ste spustili svoj motor a načítali dynamické nastavenia."
+        "#des-no-result-text": "Niektoré nastavenia sú dynamicky analyzované z výstupu UCI motora. Otvorte šachovnicu, aby ste spustili svoj motor a načítali dynamické nastavenia.",
+        "[data-translation-mix-prefer-book-hint]": "V zdieľanej skupine táto možnosť uprednostní všetky zúčastnené knihy",
+        "[data-translation-mix-shared]": "Zdieľať skupinu medzi profilmi",
+        "[data-translation-mix-shared-hint]": "Zdieľané profily s dostupnými ťahmi majú rovnakú šancu",
+        "[data-translation-mix-off]": "Vypnuté",
+        "[data-translation-mix-books]": "Len knihy",
+        "[data-translation-mix-all]": "Všetky návrhy",
+        "[data-translation-mix-mode]": "Režim",
+        "[data-translation-mix-off-note]": "Návrhy z knihy aj motora zostanú nezmenené.",
+        "[data-translation-mix-books-note]": "Vyberie jeden ťah z knihy podľa jej vlastných váh. Návrhy motora ostanú oddelené.",
+        "[data-translation-mix-source-note]": "Ťahy z knihy zachovajú svoje vlastné váhy. Tieto percentá miešajú iba ťahy motora.",
+        "[data-translation-mix-fallback-note]": "Použije tieto percentá, keď nie je dostupný žiadny ťah z knihy.",
+        "[data-translation-suggestion-mix-profile-hint]": "Vyberte, čo tento profil zúži"
     },
     "configTranslations": {
         "advancedSearchMode": ["Režim vyhľadávania","Vyberte limit vyhľadávania"],

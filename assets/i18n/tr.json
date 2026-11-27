@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Discord webhook mesajlarını yapılandır",
         "*[data-translation-webhook-available-variables]": "Kullanılabilir değişkenler",
         "*[data-translation-ffs-videostream]": "Video akışı",
-        "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın."
+        "#des-no-result-text": "Bazı ayarlar motorun UCI çıktısından dinamik olarak ayrıştırılır. Motorunuzu başlatmak ve dinamik ayarları yüklemek için lütfen bir satranç tahtası açın.",
+        "[data-translation-mix-prefer-book-hint]": "Paylaşılan havuzda bu seçenek, katılan tüm kitaplara öncelik verir",
+        "[data-translation-mix-shared]": "Profiller arasında havuzu paylaş",
+        "[data-translation-mix-shared-hint]": "Havuzu paylaşan ve kullanılabilir hamlesi olan profiller eşit şansa sahip olur",
+        "[data-translation-mix-off]": "Kapalı",
+        "[data-translation-mix-books]": "Yalnızca kitaplar",
+        "[data-translation-mix-all]": "Tüm öneriler",
+        "[data-translation-mix-mode]": "Mod",
+        "[data-translation-mix-off-note]": "Kitap ve motor önerileri değişmeden kalır.",
+        "[data-translation-mix-books-note]": "Kitabın kendi ağırlıklarını kullanarak bir kitap hamlesi seçer. Motor önerileri ayrı kalır.",
+        "[data-translation-mix-source-note]": "Kitap hamleleri kendi ağırlıklarını korur. Bu yüzdeler yalnızca motor hamlelerini karıştırır.",
+        "[data-translation-mix-fallback-note]": "Kitap hamlesi bulunmadığında bu yüzdeler kullanılır.",
+        "[data-translation-suggestion-mix-profile-hint]": "Bu profilin neleri bir araya getireceğini seçin"
     },
     "configTranslations": {
         "advancedSearchMode": ["Arama modu","Arama sınırını seçin"],

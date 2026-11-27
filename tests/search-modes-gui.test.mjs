@@ -66,6 +66,63 @@ test('advanced search mode and time budget persist in the selected profile', { t
         await page.waitForFunction(() => !document.querySelector('input[data-key="advancedEloDepth"]').disabled);
         assert.equal(await nodes.isEnabled(), true);
         await dialog.locator('.floaty-close-btn').click();
+
+        const rendering = page.locator('#rendering-floaty');
+        await page.locator('.floaty-wrapper').filter({ has: rendering }).locator('.open-floaty-btn').first().click();
+        const visionDropdown = rendering.locator('#vision-side-dropdown .dropdown-input-container');
+        await visionDropdown.scrollIntoViewIfNeeded();
+
+        async function checkDropdownOverlay(floaty, dropdown) {
+            const list = dropdown.locator('.dropdown-list-container');
+            await page.mouse.move(0, 0);
+            const closedHeight = await floaty.evaluate(element => element.scrollHeight);
+            await dropdown.hover();
+            await page.waitForFunction(element => element.matches(':popover-open'), await list.elementHandle());
+            assert.equal(await floaty.evaluate(element => element.scrollHeight), closedHeight,
+                'Opening the dropdown must not add dialog scroll space');
+            assert.equal(await list.evaluate(element => {
+                const bounds = element.getBoundingClientRect();
+                return bounds.left >= 0 && bounds.right <= innerWidth
+                    && bounds.top >= 0 && bounds.bottom <= innerHeight;
+            }), true, 'The dropdown must stay within the viewport');
+            await page.mouse.move(0, 0);
+            await page.waitForFunction(element => !element.matches(':popover-open'), await list.elementHandle());
+            assert.equal(await floaty.evaluate(element => element.scrollHeight), closedHeight,
+                'Closing the dropdown must not leave extra scroll space');
+        }
+
+        await checkDropdownOverlay(rendering, visionDropdown);
+        await visionDropdown.scrollIntoViewIfNeeded();
+        await visionDropdown.hover();
+        await rendering.locator('#vision-side-dropdown .dropdown-item[data-value="own"]').click();
+        assert.equal(await rendering.locator('input[data-key="renderVisionSide"]').inputValue(), 'own');
+        await rendering.locator('.floaty-close-btn').click();
+
+        await page.evaluate(async () => {
+            const { initializeDropdown } = await import('/A.C.A.S/app/assets/js/gui/domDropdown.js');
+            const floaty = document.createElement('dialog');
+            floaty.id = 'test-short-floaty';
+            floaty.innerHTML = '<div class="floaty-container"><section class="floaty-body">'
+                + '<div class="dropdown-input"><div class="dropdown-input-container">'
+                + '<input data-default-value="one" value="one"><div class="dropdown-icon"></div>'
+                + '<div class="dropdown-list-container"><div class="dropdown-item" data-value="one">One</div>'
+                + '<div class="dropdown-item" data-value="two">Two</div></div></div></div></section></div>';
+            initializeDropdown(floaty.querySelector('.dropdown-input'));
+            document.body.appendChild(floaty);
+            floaty.showModal();
+        });
+        const shortFloaty = page.locator('#test-short-floaty');
+        const shortDropdown = shortFloaty.locator('.dropdown-input-container');
+        await checkDropdownOverlay(shortFloaty, shortDropdown);
+        await shortDropdown.hover();
+        await page.waitForFunction(() =>
+            document.querySelector('#test-short-floaty .dropdown-list-container').matches(':popover-open'));
+        assert.equal(await shortFloaty.evaluate(element => element.querySelector('.dropdown-list-container')
+            .getBoundingClientRect().bottom > element.getBoundingClientRect().bottom), true);
+        await shortDropdown.locator('.dropdown-item[data-value="two"]').click();
+        assert.equal(await shortDropdown.locator('input').inputValue(), 'two',
+            'Dropdown options outside the dialog must remain clickable');
+        await shortFloaty.evaluate(element => element.remove());
     } finally {
         await context.close();
         await browser.close();

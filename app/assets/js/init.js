@@ -116,9 +116,13 @@ async function processUrlParams() {
         }
 
         const foundSettingElem = [...document.querySelectorAll('input[data-key], textarea[data-key]')]
-            .find(elem => elem.dataset.key === settingToHighlight);
+            .find(elem => elem.dataset.key === (settingToHighlight === 'suggestionMix'
+                ? 'suggestionMixMode' : settingToHighlight));
 
-        const settingContainer = foundSettingElem?.closest('.custom-input');
+        let settingContainer = foundSettingElem?.closest('.custom-input');
+        if(settingContainer?.closest('#suggestion-mix-floaty') && settingContainer.closest('[hidden]')) {
+            settingContainer = document.getElementById('suggestion-mix-mode-setting');
+        }
 
         if(foundSettingElem && settingContainer) {
             const engine = document.querySelector('input[data-key="chessEngine"]')?.value;

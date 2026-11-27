@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Konfigurera Discord webhook-meddelanden",
         "*[data-translation-webhook-available-variables]": "Tillgängliga variabler",
         "*[data-translation-ffs-videostream]": "Videoström",
-        "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna."
+        "#des-no-result-text": "Vissa inställningar analyseras dynamiskt från motorens UCI-utdata. Öppna ett schackbräde för att starta din motor och ladda de dynamiska inställningarna.",
+        "[data-translation-mix-prefer-book-hint]": "I en delad pool prioriterar detta alla deltagande böcker",
+        "[data-translation-mix-shared]": "Dela poolen mellan profiler",
+        "[data-translation-mix-shared-hint]": "Delade profiler med tillgängliga drag får lika chans",
+        "[data-translation-mix-off]": "Av",
+        "[data-translation-mix-books]": "Endast böcker",
+        "[data-translation-mix-all]": "Alla förslag",
+        "[data-translation-mix-mode]": "Läge",
+        "[data-translation-mix-off-note]": "Förslag från böcker och motorer ändras inte.",
+        "[data-translation-mix-books-note]": "Väljer ett bokdrag med bokens egna vikter. Motorförslag visas separat.",
+        "[data-translation-mix-source-note]": "Bokdrag behåller sina egna vikter. Dessa procentsatser blandar bara motordrag.",
+        "[data-translation-mix-fallback-note]": "Använder dessa procentsatser när inget bokdrag är tillgängligt.",
+        "[data-translation-suggestion-mix-profile-hint]": "Välj vad den här profilen samlar"
     },
     "configTranslations": {
         "advancedSearchMode": ["Sökläge","Välj sökgräns"],

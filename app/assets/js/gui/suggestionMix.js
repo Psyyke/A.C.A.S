@@ -2,12 +2,21 @@ import {
     defaultSelectionWeights, moveCategories, rebalanceSelectionWeights
 } from '../../../../tools/eloeye/hintSelection.js';
 import { readMixWeights } from '../instance/suggestionMix.js';
-import { saveSetting } from './settings.js';
+import { loopThroughAndUpdateSettingsValues, saveSetting } from './settings.js';
 
 export function initializeSuggestionMix() {
     const container = document.getElementById('suggestion-mix-floaty');
-    const savedInput = container.querySelector('[data-key="suggestionMixWeights"]');
+    const savedInput = container.querySelector('input[data-key="suggestionMixWeights"]');
     const detailed = container.querySelector('#suggestion-mix-detailed');
+    const mode = document.querySelector('input[data-key="suggestionMixMode"]');
+    const preferBook = container.querySelector('input[data-key="suggestionMixPreferBook"]');
+    const booksNote = container.querySelector('#suggestion-mix-books-note');
+    const offNote = container.querySelector('#suggestion-mix-off-note');
+    const engineSettings = container.querySelector('#suggestion-mix-engine-settings');
+    const sharedSetting = container.querySelector('#suggestion-mix-shared-setting');
+    const sourceNote = container.querySelector('#suggestion-mix-source-note');
+    const fallbackNote = container.querySelector('#suggestion-mix-fallback-note');
+    const modeLabels = document.querySelectorAll('#suggestion-mix-state [data-mix-mode]');
     const inputs = new Map(moveCategories.map(category =>
         [category, container.querySelector(`[data-mix-category="${category}"]`)]));
     let weights = { ...defaultSelectionWeights };
@@ -19,15 +28,30 @@ export function initializeSuggestionMix() {
     }
 
     function refresh() {
+        const booksOnly = mode.value === 'books';
+        const engineMix = mode.value === 'all';
+        booksNote.hidden = !booksOnly;
+        offNote.hidden = mode.value !== 'off';
+        sharedSetting.hidden = mode.value === 'off';
+        engineSettings.hidden = !engineMix;
+        engineSettings.inert = !engineMix;
+        detailed.disabled = !engineMix;
+        sourceNote.hidden = preferBook.checked;
+        fallbackNote.hidden = !preferBook.checked;
+        modeLabels.forEach(label => { label.hidden = label.dataset.mixMode !== mode.value; });
+        preferBook.disabled = !engineMix;
+        const bookSetting = preferBook.closest('.custom-input');
+        bookSetting.hidden = !engineMix;
+        bookSetting.inert = !engineMix;
+        container.querySelector('#suggestion-mix-categories').hidden = !detailed.checked;
         inputs.forEach((input, category) => {
-            const disabled = category !== 'best'
+            const inactiveType = category !== 'best'
                 && (category === 'alternative' ? detailed.checked : !detailed.checked);
             const setting = input.closest('.custom-input');
 
             input.value = weights[category];
-            input.disabled = disabled;
-            setting.inert = disabled;
-            setting.setAttribute('aria-disabled', String(disabled));
+            input.disabled = !engineMix || inactiveType;
+            setting.hidden = inactiveType;
         });
     }
 
@@ -48,6 +72,8 @@ export function initializeSuggestionMix() {
         saving = saving.then(async () => {
             savedInput.value = value;
             await saveSetting(savedInput, true, filter);
+            if(Object.keys(filter).some(key => filter[key] !== SETTING_FILTER_OBJ[key]))
+                await loopThroughAndUpdateSettingsValues();
         }).catch(showError);
     }
 
@@ -79,5 +105,9 @@ export function initializeSuggestionMix() {
     });
 
     savedInput.addEventListener('acas-value-set', restore);
+    mode.addEventListener('acas-value-set', refresh);
+    mode.addEventListener('change', refresh);
+    preferBook.addEventListener('acas-value-set', refresh);
+    preferBook.addEventListener('change', refresh);
     restore();
 }

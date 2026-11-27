@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "پیکربندی پیام‌های Discord webhook",
         "*[data-translation-webhook-available-variables]": "متغیرهای موجود",
         "*[data-translation-ffs-videostream]": "پخش ویدیو",
-        "#des-no-result-text": "برخی تنظیمات به صورت پویا از خروجی UCI موتور تحلیل می‌شوند. یک صفحه شطرنج باز کنید تا موتور خود را راه‌اندازی کرده و تنظیمات پویا را بارگذاری کنید."
+        "#des-no-result-text": "برخی تنظیمات به صورت پویا از خروجی UCI موتور تحلیل می‌شوند. یک صفحه شطرنج باز کنید تا موتور خود را راه‌اندازی کرده و تنظیمات پویا را بارگذاری کنید.",
+        "[data-translation-mix-prefer-book-hint]": "در استخر مشترک، این گزینه همه کتاب‌های حاضر را در اولویت قرار می‌دهد",
+        "[data-translation-mix-shared]": "اشتراک استخر میان پروفایل‌ها",
+        "[data-translation-mix-shared-hint]": "پروفایل‌های اشتراک‌دار با حرکت‌های در دسترس شانس یکسان دارند",
+        "[data-translation-mix-off]": "خاموش",
+        "[data-translation-mix-books]": "فقط کتاب",
+        "[data-translation-mix-all]": "همه پیشنهادها",
+        "[data-translation-mix-mode]": "حالت",
+        "[data-translation-mix-off-note]": "پیشنهادهای کتاب و موتور بدون تغییر می‌مانند.",
+        "[data-translation-mix-books-note]": "یک حرکت کتاب را با وزن‌های خود کتاب انتخاب می‌کند. پیشنهادهای موتور جدا می‌مانند.",
+        "[data-translation-mix-source-note]": "حرکت‌های کتاب وزن‌های خود را حفظ می‌کنند. این درصدها فقط حرکت‌های موتور را ترکیب می‌کنند.",
+        "[data-translation-mix-fallback-note]": "وقتی حرکت کتابی در دسترس نیست، از این درصدها استفاده می‌شود.",
+        "[data-translation-suggestion-mix-profile-hint]": "انتخاب کنید این پروفایل چه پیشنهادهایی را جمع کند"
     },
     "configTranslations": {
         "advancedSearchMode": ["حالت جستجو","محدودیت جستجو را انتخاب کنید"],

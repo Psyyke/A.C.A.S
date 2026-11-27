@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Konfiguracja wiadomości webhook Discord",
         "*[data-translation-webhook-available-variables]": "Dostępne zmienne",
         "*[data-translation-ffs-videostream]": "Strumień wideo",
-        "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia."
+        "#des-no-result-text": "Niektóre ustawienia są analizowane dynamicznie z wyjścia UCI silnika. Proszę otworzyć szachownicę, aby uruchomić silnik i załadować dynamiczne ustawienia.",
+        "[data-translation-mix-prefer-book-hint]": "We współdzielonej puli ta opcja priorytetowo traktuje wszystkie uczestniczące książki",
+        "[data-translation-mix-shared]": "Współdziel pulę między profilami",
+        "[data-translation-mix-shared-hint]": "Współdzielone profile z dostępnymi ruchami mają równą szansę",
+        "[data-translation-mix-off]": "Wyłączone",
+        "[data-translation-mix-books]": "Tylko książki",
+        "[data-translation-mix-all]": "Wszystkie sugestie",
+        "[data-translation-mix-mode]": "Tryb",
+        "[data-translation-mix-off-note]": "Sugestie książki i silnika pozostają bez zmian.",
+        "[data-translation-mix-books-note]": "Wybiera jeden ruch z książki według jej własnych wag. Sugestie silnika pozostają oddzielne.",
+        "[data-translation-mix-source-note]": "Ruchy z książki zachowują własne wagi. Te wartości łączą tylko ruchy silnika.",
+        "[data-translation-mix-fallback-note]": "Używa tych wartości, gdy nie ma dostępnego ruchu z książki.",
+        "[data-translation-suggestion-mix-profile-hint]": "Wybierz, co ten profil zawęża"
     },
     "configTranslations": {
         "advancedSearchMode": ["Tryb wyszukiwania","Wybierz limit wyszukiwania"],

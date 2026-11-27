@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Konfigurišite Discord webhook poruke",
         "*[data-translation-webhook-available-variables]": "Dostupne promenljive",
         "*[data-translation-ffs-videostream]": "Video tok",
-        "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja."
+        "#des-no-result-text": "Neka podešavanja se dinamički analiziraju iz UCI izlaza motora. Otvorite šahovsku tablu da biste pokrenuli svoj motor i učitali dinamička podešavanja.",
+        "[data-translation-mix-prefer-book-hint]": "У заједничком базену ово даје предност свим укљученим књигама",
+        "[data-translation-mix-shared]": "Дели базен међу профилима",
+        "[data-translation-mix-shared-hint]": "Профили који деле базен и имају доступне потезе добијају једнаке шансе",
+        "[data-translation-mix-off]": "Искључено",
+        "[data-translation-mix-books]": "Само књиге",
+        "[data-translation-mix-all]": "Сви предлози",
+        "[data-translation-mix-mode]": "Режим",
+        "[data-translation-mix-off-note]": "Предлози књиге и мотора остају непромењени.",
+        "[data-translation-mix-books-note]": "Бира један потез из књиге према сопственим тежинама књиге. Предлози мотора остају одвојени.",
+        "[data-translation-mix-source-note]": "Потези из књиге задржавају сопствене тежине. Ови проценти мешају само потезе мотора.",
+        "[data-translation-mix-fallback-note]": "Користи ове проценте када нема доступног потеза из књиге.",
+        "[data-translation-suggestion-mix-profile-hint]": "Изаберите шта овај профил обједињује"
     },
     "configTranslations": {
         "advancedSearchMode": ["Режим претраге","Изаберите ограничење претраге"],

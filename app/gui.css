@@ -686,6 +686,9 @@ cg-container {
     pointer-events: none;
     user-select: none;
 }
+#suggestion-mix-floaty .custom-input[aria-disabled="true"] {
+    filter: blur(0.5px);
+}
 .instance-buttons {
     display: flex;
     gap: 5px;
@@ -2564,11 +2567,39 @@ input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+#main-setting-panel #suggestion-mix-mode-setting .dropdown-input-container > input {
+    box-sizing: content-box;
+    width: 7ch;
+}
+#suggestion-mix-setting .dropdown-list-container {
+    width: max-content;
+    max-width: min(260px, 80vw);
+}
+#suggestion-mix-floaty .floaty-note {
+    max-width: 400px;
+    margin: 0;
+}
+#suggestion-mix-floaty :is([data-translation-mix-fallback-note], [data-translation-mix-books-note], [data-translation-mix-off-note]) {
+    margin-inline: auto;
+    text-align: center;
+}
+#suggestion-mix-engine-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#suggestion-mix-setting [hidden] {
+    display: none !important;
+}
 #suggestion-mix-floaty .textfield-input input[type="number"][data-mix-category] {
     box-sizing: content-box;
     width: 4.2ch;
     min-width: 0;
     field-sizing: fixed;
+    background-color: var(--settings-input-main-bg-color);
+    border-width: var(--settings-input-border-width);
+    border-style: var(--settings-input-border-style);
+    border-color: var(--settings-input-border-color);
 }
 
 #suggestion-mix-floaty .suggestion-mix-divider {

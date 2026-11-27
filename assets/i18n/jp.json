@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Discord webhook メッセージを設定",
         "*[data-translation-webhook-available-variables]": "利用可能な変数",
         "*[data-translation-ffs-videostream]": "ビデオストリーム",
-        "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。"
+        "#des-no-result-text": "一部の設定はエンジンのUCI出力から動的に解析されます。エンジンを起動し、動的な設定をロードするにはチェスボードを開いてください。",
+        "[data-translation-mix-prefer-book-hint]": "共有プールでは、参加しているすべてのブックが優先されます",
+        "[data-translation-mix-shared]": "プロファイル間でプールを共有",
+        "[data-translation-mix-shared-hint]": "共有プール内で利用可能な手を持つプロファイルには同じ確率が与えられます",
+        "[data-translation-mix-off]": "オフ",
+        "[data-translation-mix-books]": "ブックのみ",
+        "[data-translation-mix-all]": "すべての提案",
+        "[data-translation-mix-mode]": "モード",
+        "[data-translation-mix-off-note]": "ブックとエンジンの提案は変更されません。",
+        "[data-translation-mix-books-note]": "ブック自身の重みを使ってブックの手を一つ選びます。エンジンの提案は別に表示されます。",
+        "[data-translation-mix-source-note]": "ブックの手は自身の重みを維持します。この割合はエンジンの手だけを混合します。",
+        "[data-translation-mix-fallback-note]": "ブックの手がない場合にこの割合を使用します。",
+        "[data-translation-suggestion-mix-profile-hint]": "このプロファイルで絞り込む内容を選択"
     },
     "configTranslations": {
         "advancedSearchMode": ["探索モード","探索の制限を選択"],

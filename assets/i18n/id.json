@@ -132,7 +132,19 @@
         "*[data-translation-ffs-subtitle]": "Ini terutama untuk pengguna Firefox",
         "*[data-translation-ffs-instructions]": "Biarkan Panel Mengambang tetap terbuka, atau A.C.A.S tidak akan berfungsi. Menonaktifkan fitur ini secara otomatis menerapkan trik audio yang mungkin dapat menjaga A.C.A.S tetap aktif tanpa panel di beberapa browser. Jika ada yang tidak berfungsi, coba Chrome dan biarkan A.C.A.S tetap terlihat dalam mode layar terbagi.",
         "*[data-translation-ffs-videostream]": "Aliran Video",
-        "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis."
+        "#des-no-result-text": "Beberapa pengaturan dianalisis secara dinamis dari output UCI mesin. Buka papan catur untuk memulai mesin Anda dan memuat pengaturan dinamis.",
+        "[data-translation-mix-prefer-book-hint]": "Dalam pool bersama, ini memprioritaskan semua buku yang berpartisipasi",
+        "[data-translation-mix-shared]": "Bagikan pool antarprofil",
+        "[data-translation-mix-shared-hint]": "Profil yang berbagi dan memiliki langkah tersedia mendapat peluang yang sama",
+        "[data-translation-mix-off]": "Nonaktif",
+        "[data-translation-mix-books]": "Hanya buku",
+        "[data-translation-mix-all]": "Semua saran",
+        "[data-translation-mix-mode]": "Mode",
+        "[data-translation-mix-off-note]": "Saran dari buku dan mesin tetap tidak berubah.",
+        "[data-translation-mix-books-note]": "Memilih satu langkah buku memakai bobot milik buku itu sendiri. Saran mesin tetap terpisah.",
+        "[data-translation-mix-source-note]": "Langkah buku mempertahankan bobotnya sendiri. Persentase ini hanya mencampur langkah mesin.",
+        "[data-translation-mix-fallback-note]": "Menggunakan persentase ini jika tidak ada langkah buku yang tersedia.",
+        "[data-translation-suggestion-mix-profile-hint]": "Pilih apa yang dikumpulkan profil ini"
     },
     "configTranslations": {
         "advancedSearchMode": ["Mode pencarian","Pilih batas pencarian"],

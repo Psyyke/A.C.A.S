@@ -93,69 +93,82 @@
                 <p class="book-notice" id="storage-warning" role="alert" hidden></p>
                 <section class="maia-workbench book-workbench" aria-label="BookSmith editor" inert>
                     <div class="book-studio">
-                        <div class="book-board-column">
+                        <div class="book-position-heading">
                             <div class="tool-board-heading book-opening"><span id="opening-name">Starting position</span></div>
+                            <ol class="book-path" id="path" aria-label="Line"></ol>
+                        </div>
+                        <div class="book-board-column">
                             <div class="tool-board-surface book-board-surface">
                                 <div class="board-session staunty" id="board" aria-label="Opening book board"><div class="cg-wrap"></div><svg class="book-arrows" viewBox="0 0 800 800" aria-hidden="true"></svg></div>
                             </div>
                             <div class="book-nav">
-                                <button class="tool-button book-icon-button" id="nav-start" type="button" aria-label="Start" title="Start"><i class="bi bi-chevron-double-left" aria-hidden="true"></i></button>
+                                <button class="tool-button book-icon-button" id="nav-start" type="button" aria-label="Start" title="Start"><svg class="book-start-icon" viewBox="0 0 24 16" aria-hidden="true"><path d="M10 2 4 8 10 14 M20 2 14 8 20 14"></path></svg></button>
                                 <button class="tool-button book-icon-button" id="nav-back" type="button" aria-label="Back" title="Back"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
                                 <button class="tool-button book-icon-button" id="nav-forward" type="button" aria-label="Forward" title="Retrace the line, otherwise follow the highest-weight move"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
                                 <button class="tool-button book-icon-button" id="nav-flip" type="button" aria-label="Flip board" title="Flip board"><i class="bi bi-arrow-repeat" aria-hidden="true"></i></button>
                             </div>
-                            <ol class="book-path" id="path" aria-label="Line"></ol>
                         </div>
                         <div class="book-side">
-                            <div class="tool-field book-search">
-                                <label for="opening-search">Opening</label>
-                                <input id="opening-search" type="search" placeholder="Search openings" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="opening-results" aria-autocomplete="list">
-                                <ul id="opening-results" role="listbox" aria-label="Openings" hidden></ul>
-                            </div>
-                            <div class="book-moves-head">
-                                <h2>Moves</h2>
-                                <button class="tool-button book-small-button" id="add-lines" type="button" title="Add all opening catalogue continuations from this position to the selected book. Existing moves and weights stay unchanged." disabled><i class="bi bi-plus-lg" aria-hidden="true"></i>Add all continuations</button>
-                            </div>
                             <p class="book-priority-note" id="priority-note" role="status" aria-live="polite" hidden>Priority uses <button id="priority-edit" type="button"></button><span id="priority-selection"></span></p>
-                            <ol class="book-moves" id="moves" aria-label="Book moves"></ol>
-                            <p class="book-empty" id="moves-empty">Play a move on the board</p>
+                            <div class="book-moves-region" id="moves-scroll">
+                                <ol class="book-moves" id="moves" aria-label="Book moves"></ol>
+                                <p class="book-empty" id="moves-empty">Play a move on the board</p>
+                                <button class="book-add-lines" id="add-lines" type="button" title="Add all opening catalogue continuations from this position to the selected book. Existing moves and weights stay unchanged." disabled><i class="bi bi-plus-lg" aria-hidden="true"></i><span>Add all continuations</span></button>
+                            </div>
+                        </div>
+                        <div class="book-stack-box" role="region" aria-label="Books">
+                            <div class="book-stack-head">
+                                <div class="book-mode-info">
+                                    <div class="book-mode" role="radiogroup" aria-label="Merge" aria-describedby="book-mode-description">
+                                        <label><input id="mode-priority" type="radio" name="mode" value="priority" checked><span>Priority</span></label>
+                                        <label><input id="mode-blend" type="radio" name="mode" value="blend"><span>Blend</span></label>
+                                        <label><input id="mode-equal" type="radio" name="mode" value="equal"><span>Equal</span></label>
+                                    </div>
+                                    <div class="book-mode-descriptions">
+                                        <p id="book-mode-description" aria-live="polite">The top visible book with moves at this position decides. Lower books only fill gaps.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="book-notice" id="import-warning" role="status" aria-live="polite" hidden></p>
+                            <ol class="book-stack" id="stack" aria-label="Book stack">
+                                <li class="tool-field book-search" role="none">
+                                    <input id="opening-search" type="search" placeholder="Search openings to add" aria-label="Add Opening" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="opening-results" aria-autocomplete="list">
+                                    <ul id="opening-results" role="listbox" aria-label="Openings" hidden></ul>
+                                </li>
+                            </ol>
+                            <form class="book-games" id="games" hidden>
+                                <div class="book-games-head"><i class="bi bi-file-earmark-text" aria-hidden="true"></i><strong id="games-name"></strong><span id="games-count"></span></div>
+                                <div class="book-games-fields">
+                                    <label class="tool-field">Player <select id="games-player"></select></label>
+                                    <label class="tool-field">Color <select id="games-side"><option value="">Both</option><option value="w">White</option><option value="b">Black</option></select></label>
+                                    <label class="tool-field">Depth <input id="games-depth" type="number" min="1" max="100" step="1" value="15" required></label>
+                                    <label class="tool-field">Min. games <input id="games-min" type="number" min="1" step="1" value="1" required></label>
+                                </div>
+                                <div class="book-games-actions">
+                                    <p class="book-games-note" id="games-note" role="status" aria-live="polite"></p>
+                                    <button class="tool-button book-small-button" id="games-cancel" type="button">Cancel</button>
+                                    <button class="tool-button book-small-button book-games-build install-button" id="games-build" type="submit"><i class="bi bi-hammer" aria-hidden="true"></i><span>Build</span></button>
+                                </div>
+                            </form>
+                            <button class="book-add-layer" id="add-book" type="button" aria-haspopup="dialog" aria-controls="add-book-dialog"><i class="bi bi-plus-lg" aria-hidden="true"></i><span>Add a book</span></button>
+                            <dialog class="book-add-dialog" id="add-book-dialog" aria-labelledby="add-book-title">
+                                <div class="book-add-heading">
+                                    <h2 id="add-book-title">Add a book</h2>
+                                    <button class="book-add-close" id="add-book-close" type="button" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="book-add-options">
+                                    <button class="tool-button book-small-button" id="new-book" type="button" autofocus><i class="bi bi-plus-lg" aria-hidden="true"></i>New empty book</button>
+                                    <span class="tool-file-control"><input id="import" type="file" accept=".bin,.epd,.pgn,.txt" multiple aria-label="Import books"><span class="tool-button book-small-button" aria-hidden="true"><i class="bi bi-upload" aria-hidden="true"></i>Import books</span></span>
+                                </div>
+                                <form class="book-presets" id="presets">
+                                    <span class="maia-field-label" id="preset-heading"><label for="preset">Or start from a preset</label></span>
+                                    <span class="book-preset-control" id="preset-control"><select id="preset" disabled><option value="">Choose a preset</option></select></span>
+                                    <button class="tool-button book-small-button" id="preset-add" type="submit" disabled><i class="bi bi-plus-lg" aria-hidden="true"></i><span>Add</span></button>
+                                </form>
+                                <p class="book-add-error" id="add-book-error" role="alert" hidden></p>
+                            </dialog>
                             <p class="book-status" id="status" role="status" aria-live="polite"></p>
                         </div>
-                    </div>
-                    <div class="book-stack-box">
-                        <div class="book-stack-head">
-                            <h2>Books</h2>
-                            <div class="book-mode" role="radiogroup" aria-label="Merge">
-                                <label title="Top book wins, lower books fill gaps"><input type="radio" name="mode" value="priority" checked><span>Priority</span></label>
-                                <label title="Higher books weigh more"><input type="radio" name="mode" value="blend"><span>Blend</span></label>
-                                <label title="Every book weighs the same"><input type="radio" name="mode" value="equal"><span>Equal</span></label>
-                            </div>
-                            <div class="book-stack-actions">
-                                <button class="tool-button book-small-button" id="new-book" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i>New</button>
-                                <span class="tool-file-control"><input id="import" type="file" accept=".bin,.epd,.pgn,.txt" multiple aria-label="Import books"><span class="tool-button book-small-button" aria-hidden="true"><i class="bi bi-upload" aria-hidden="true"></i>Import</span></span>
-                            </div>
-                        </div>
-                        <form class="book-presets" id="presets">
-                            <span class="maia-field-label" id="preset-heading"><label for="preset">Preset</label></span>
-                            <span class="book-preset-control" id="preset-control"><select id="preset" disabled><option value="">Choose a preset</option></select></span>
-                            <button class="tool-button book-small-button" id="preset-add" type="submit" disabled><i class="bi bi-plus-lg" aria-hidden="true"></i><span>Add</span></button>
-                        </form>
-                        <form class="book-games" id="games" hidden>
-                            <div class="book-games-head"><i class="bi bi-file-earmark-text" aria-hidden="true"></i><strong id="games-name"></strong><span id="games-count"></span></div>
-                            <div class="book-games-fields">
-                                <label class="tool-field">Player <select id="games-player"></select></label>
-                                <label class="tool-field">Color <select id="games-side"><option value="">Both</option><option value="w">White</option><option value="b">Black</option></select></label>
-                                <label class="tool-field">Depth <input id="games-depth" type="number" min="1" max="100" step="1" value="15" required></label>
-                                <label class="tool-field">Min. games <input id="games-min" type="number" min="1" step="1" value="1" required></label>
-                            </div>
-                            <div class="book-games-actions">
-                                <p class="book-games-note" id="games-note" role="status" aria-live="polite"></p>
-                                <button class="tool-button book-small-button" id="games-cancel" type="button">Cancel</button>
-                                <button class="tool-button book-small-button book-games-build install-button" id="games-build" type="submit"><i class="bi bi-hammer" aria-hidden="true"></i><span>Build</span></button>
-                            </div>
-                        </form>
-                        <p class="book-notice" id="import-warning" role="status" aria-live="polite" hidden></p>
-                        <ol class="book-stack" id="stack" aria-label="Book stack"></ol>
                         <div class="book-export">
                             <span id="export-summary"></span>
                             <button class="install-button" id="export" type="button"><i class="bi bi-download" aria-hidden="true"></i>Export .bin</button>
@@ -165,12 +178,12 @@
                 <section class="elo-guide" aria-labelledby="guide-title">
                     <h2 id="guide-title">How to use</h2>
                     <ol class="tool-steps">
-                        <li><strong>Add a book.</strong> Use <strong>New</strong>, <strong>Import</strong>, or pick a <strong>Preset</strong> and click <strong>Add</strong>.</li>
-                        <li><strong>Arrange your books.</strong> Drag them into the order you want, then choose <strong>Priority</strong>, <strong>Blend</strong> or <strong>Equal</strong>.</li>
-                        <li><strong>Edit a line.</strong> Select a book, shown with a dark outline. Play moves on the board or search for an opening to add its line.</li>
+                        <li><strong>Add a book.</strong> Click <strong>Add a book</strong> below the stack.</li>
+                        <li><strong>Arrange your books.</strong> Drag them into the order you want, then choose <strong>Priority</strong>, <strong>Blend</strong> or <strong>Equal</strong>. On touchscreens, drag the colored strip or the share directly, or hold briefly before dragging elsewhere on the row. You can also focus a book and use the up and down arrow keys.</li>
+                        <li><strong>Edit a line.</strong> Select a book, shown with a dark outline. Play moves on the board or use the opening search beneath that book to add its line.</li>
                         <li><strong>Adjust move weights.</strong> Use the sliders to change how often moves are chosen. If Priority names another book above the moves, select that book to edit its weights.</li>
                         <li><strong>Export your book.</strong> Click <strong>Export .bin</strong> to download the merged result.</li>
-                        <li><strong>Use it in A.C.A.S.</strong> Load the file in the <a target="_blank" href="../../app/?shl=openingBookName">Opening Book</a> setting in the <a target="_blank" href="../../app/">A.C.A.S GUI</a>. Enable <a target="_blank" href="../../app/?shl=suggestionMixPreferBook"><strong>Prefer book moves</strong></a> under <a target="_blank" href="../../app/?shl=suggestionMix">Funneling</a>.</li>
+                        <li><strong>Use it in A.C.A.S.</strong> Load the file in the <a target="_blank" href="../../app/?shl=openingBookName">Opening Book</a> setting in the <a target="_blank" href="../../app/">A.C.A.S GUI</a>. For one book arrow, set that profile's <a target="_blank" href="../../app/?shl=suggestionMixMode">Funneling</a> to <strong>Books only</strong>.</li>
                     </ol>
                 </section>
                 <section class="elo-guide" aria-labelledby="details-guide-title">
@@ -187,13 +200,13 @@
                     </details>
                     <details>
                         <summary>Add all continuations</summary>
-                        <p>Click <strong>Add all continuations</strong> to add every opening catalogue continuation from the current position to the selected book, not just the next moves.</p>
+                        <p>Click <strong>Add all continuations</strong> below the moves to add every opening catalogue continuation from the current position to the selected book, not just the next moves.</p>
                         <p>At the starting position, this adds the whole catalogue. After 1.e4 c5, it adds Sicilian continuations. New moves are weighted by how many catalogue lines use them, not game popularity. Existing moves and weights stay unchanged.</p>
                     </details>
                     <details>
                         <summary>Build a book from games</summary>
                         <ol>
-                            <li>Click <strong>Import</strong> and choose a <strong>.pgn</strong> file, such as one downloaded with <a href="../game-exporter/">Export Matches</a>.</li>
+                            <li>Click <strong>Add a book</strong>, then <strong>Import books</strong> and choose a <strong>.pgn</strong> file, such as one downloaded with <a href="../game-exporter/">Export Matches</a>.</li>
                             <li>Select a player, or <strong>All players</strong>. Choose a color and set <strong>Depth</strong> and <strong>Min. games</strong>.</li>
                             <li>Click <strong>Build</strong> to add the resulting book to the stack.</li>
                         </ol>
@@ -202,8 +215,8 @@
                     </details>
                     <details>
                         <summary>Choose a preset or import a book</summary>
-                        <p>Choose a <strong>Preset</strong> and click <strong>Add</strong>. Starters keep lines short, repertoires cover opening families, and personalities favor a particular style. Each preset becomes an editable book.</p>
-                        <p>To use an existing opening book, click <strong>Import</strong> and choose a <strong>.bin</strong> or <strong>.epd</strong> file. You can import multiple books and arrange them in the stack.</p>
+                        <p>Click <strong>Add a book</strong>, choose a preset and click <strong>Add</strong>. Starters keep lines short, repertoires cover opening families, and personalities favor a particular style. Each preset becomes an editable book.</p>
+                        <p>To use an existing opening book, click <strong>Add a book</strong>, then <strong>Import books</strong> and choose a <strong>.bin</strong> or <strong>.epd</strong> file. You can import multiple books and arrange them in the stack.</p>
                     </details>
                     <details>
                         <summary>Weights, visibility and navigation</summary>

@@ -97,7 +97,19 @@
         "*[data-translation-ffs-title]": "Suzuvchi panel sozlamalari", "*[data-translation-ffs-subtitle]": "Asosan Firefox foydalanuvchilari uchun",
         "*[data-translation-ffs-instructions]": "Suzuvchi panelni ochiq tuting, aks holda A.C.A.S ishlamaydi. Bu funksiyani o‘chirsangiz, ayrim brauzerlarda A.C.A.S-ni panelsiz ham faol saqlashi mumkin bo‘lgan audio hiyla avtomatik qo‘llanadi. Biror narsa ishlamasa, Chrome-ni sinab ko‘ring va bo‘lingan ekranda A.C.A.S ko‘rinib tursin.",
         "*[data-translation-webhook-title]": "Xabarlar", "*[data-translation-webhook-subtitle]": "Discord webhook xabarlarini sozlash", "*[data-translation-webhook-available-variables]": "Mavjud o‘zgaruvchilar", "*[data-translation-ffs-videostream]": "Video oqimi",
-        "#des-no-result-text": "Ba’zi sozlamalar dvijokning UCI chiqishidan dinamik ravishda olinadi. Dvijokni ishga tushirish va dinamik sozlamalarni yuklash uchun shaxmat taxtasini oching."
+        "#des-no-result-text": "Ba’zi sozlamalar dvijokning UCI chiqishidan dinamik ravishda olinadi. Dvijokni ishga tushirish va dinamik sozlamalarni yuklash uchun shaxmat taxtasini oching.",
+        "[data-translation-mix-prefer-book-hint]": "Umumiy hovuzda bu barcha ishtirokchi kitoblarga ustunlik beradi",
+        "[data-translation-mix-shared]": "Hovuzni profillar o‘rtasida ulashish",
+        "[data-translation-mix-shared-hint]": "Hovuzni ulashgan va mavjud yurishi bor profillar teng imkoniyatga ega",
+        "[data-translation-mix-off]": "O‘chirilgan",
+        "[data-translation-mix-books]": "Faqat kitoblar",
+        "[data-translation-mix-all]": "Barcha takliflar",
+        "[data-translation-mix-mode]": "Rejim",
+        "[data-translation-mix-off-note]": "Kitob va dvigatel takliflari o‘zgarishsiz qoladi.",
+        "[data-translation-mix-books-note]": "Kitobning o‘z og‘irliklari asosida bitta kitob yurishini tanlaydi. Dvigatel takliflari alohida qoladi.",
+        "[data-translation-mix-source-note]": "Kitob yurishlari o‘z og‘irliklarini saqlaydi. Bu foizlar faqat dvigatel yurishlarini aralashtiradi.",
+        "[data-translation-mix-fallback-note]": "Kitob yurishi mavjud bo‘lmaganda bu foizlardan foydalaniladi.",
+        "[data-translation-suggestion-mix-profile-hint]": "Bu profil nimani birlashtirishini tanlang"
     },
     "configTranslations": {
         "advancedSearchMode": ["Qidiruv rejimi","Qidiruv chegarasini tanlang"],

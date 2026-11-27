@@ -132,7 +132,19 @@
         "*[data-translation-webhook-subtitle]": "Cấu hình tin nhắn Discord webhook",
         "*[data-translation-webhook-available-variables]": "Biến có sẵn",
         "*[data-translation-ffs-videostream]": "Luồng video",
-        "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của engine. Vui lòng mở một bàn cờ để khởi động engine và tải các cài đặt động."
+        "#des-no-result-text": "Một số cài đặt được phân tích động từ đầu ra UCI của engine. Vui lòng mở một bàn cờ để khởi động engine và tải các cài đặt động.",
+        "[data-translation-mix-prefer-book-hint]": "Trong nhóm dùng chung, tùy chọn này ưu tiên tất cả các sách tham gia",
+        "[data-translation-mix-shared]": "Chia sẻ nhóm giữa các hồ sơ",
+        "[data-translation-mix-shared-hint]": "Các hồ sơ chia sẻ có nước đi khả dụng sẽ có cơ hội bằng nhau",
+        "[data-translation-mix-off]": "Tắt",
+        "[data-translation-mix-books]": "Chỉ sách",
+        "[data-translation-mix-all]": "Tất cả gợi ý",
+        "[data-translation-mix-mode]": "Chế độ",
+        "[data-translation-mix-off-note]": "Gợi ý từ sách và máy tính vẫn không thay đổi.",
+        "[data-translation-mix-books-note]": "Chọn một nước đi trong sách dựa trên trọng số riêng của sách. Gợi ý máy tính vẫn tách biệt.",
+        "[data-translation-mix-source-note]": "Nước đi trong sách giữ nguyên trọng số riêng. Các tỷ lệ này chỉ trộn nước đi của máy tính.",
+        "[data-translation-mix-fallback-note]": "Dùng các tỷ lệ này khi không có nước đi trong sách khả dụng.",
+        "[data-translation-suggestion-mix-profile-hint]": "Chọn nội dung hồ sơ này muốn gộp lại"
     },
     "configTranslations": {
         "advancedSearchMode": ["Chế độ tìm kiếm","Chọn giới hạn tìm kiếm"],

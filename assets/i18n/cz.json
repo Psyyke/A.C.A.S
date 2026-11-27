@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Nakonfigurovat zprávy webhooku Discord",
         "*[data-translation-webhook-available-variables]": "Dostupné proměnné",
         "*[data-translation-ffs-videostream]": "Videostream",
-        "#des-no-result-text": "Některá nastavení jsou dynamicky analyzována z výstupu UCI motoru. Otevřete šachovnici, abyste spustili svůj motor a načetli dynamická nastavení."
+        "#des-no-result-text": "Některá nastavení jsou dynamicky analyzována z výstupu UCI motoru. Otevřete šachovnici, abyste spustili svůj motor a načetli dynamická nastavení.",
+        "[data-translation-mix-prefer-book-hint]": "Ve sdílené skupině to upřednostní všechny zúčastněné knihy",
+        "[data-translation-mix-shared]": "Sdílet skupinu mezi profily",
+        "[data-translation-mix-shared-hint]": "Sdílené profily s dostupnými tahy mají stejnou šanci",
+        "[data-translation-mix-off]": "Vypnuto",
+        "[data-translation-mix-books]": "Pouze knihy",
+        "[data-translation-mix-all]": "Všechny návrhy",
+        "[data-translation-mix-mode]": "Režim",
+        "[data-translation-mix-off-note]": "Návrhy z knihy i enginu zůstanou nezměněné.",
+        "[data-translation-mix-books-note]": "Vybere jeden tah z knihy podle jejích vlastních vah. Návrhy enginu zůstanou oddělené.",
+        "[data-translation-mix-source-note]": "Tah z knihy si zachová vlastní váhy. Tato procenta mixují pouze tahy enginu.",
+        "[data-translation-mix-fallback-note]": "Použije tato procenta, pokud není dostupný žádný tah z knihy.",
+        "[data-translation-suggestion-mix-profile-hint]": "Vyberte, co má tento profil zúžit"
     },
     "configTranslations": {
         "advancedSearchMode": ["Režim hledání","Vyberte limit hledání"],

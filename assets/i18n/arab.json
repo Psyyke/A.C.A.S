@@ -131,7 +131,19 @@
         "*[data-translation-ffs-subtitle]": "مخصصة في الغالب لمستخدمي Firefox",
         "*[data-translation-ffs-instructions]": "أبقِ اللوحة العائمة مفتوحة، وإلا فلن يعمل A.C.A.S. عند تعطيل هذه الميزة، تُطبَّق تلقائيًا حيلة صوتية قد تُبقي A.C.A.S نشطًا دون اللوحة في بعض المتصفحات. إذا لم يعمل أي شيء كما ينبغي، فجرّب Chrome وأبقِ A.C.A.S ظاهرًا في وضع تقسيم الشاشة.",
         "*[data-translation-ffs-videostream]": "بث الفيديو",
-        "#des-no-result-text": "يتم تحليل بعض الإعدادات ديناميكيًا من إخراج UCI للمحرك. يرجى فتح لوحة شطرنج لتشغيل محركك وتحميل الإعدادات الديناميكية."
+        "#des-no-result-text": "يتم تحليل بعض الإعدادات ديناميكيًا من إخراج UCI للمحرك. يرجى فتح لوحة شطرنج لتشغيل محركك وتحميل الإعدادات الديناميكية.",
+        "[data-translation-mix-prefer-book-hint]": "في التجمع المشترك، تمنح الأولوية لجميع الكتب المشاركة",
+        "[data-translation-mix-shared]": "مشاركة التجميع بين الملفات",
+        "[data-translation-mix-shared-hint]": "تحصل الملفات المشتركة التي تتوفر لديها حركات على فرص متساوية",
+        "[data-translation-mix-off]": "إيقاف",
+        "[data-translation-mix-books]": "الكتب فقط",
+        "[data-translation-mix-all]": "جميع الاقتراحات",
+        "[data-translation-mix-mode]": "الوضع",
+        "[data-translation-mix-off-note]": "تبقى اقتراحات الكتاب والمحرك دون تغيير.",
+        "[data-translation-mix-books-note]": "يختار الكتاب حركة واحدة وفق أوزان الكتاب نفسها. تبقى اقتراحات المحرك منفصلة.",
+        "[data-translation-mix-source-note]": "تحافظ حركات الكتاب على أوزانها الخاصة. تمزج هذه النسب حركات المحرك فقط.",
+        "[data-translation-mix-fallback-note]": "تُستخدم هذه النسب عند عدم توفر حركة من الكتاب.",
+        "[data-translation-suggestion-mix-profile-hint]": "اختر ما الذي تريد أن يجمعه هذا الملف"
     },
     "configTranslations": {
         "advancedSearchMode": ["وضع البحث","اختر حد البحث"],

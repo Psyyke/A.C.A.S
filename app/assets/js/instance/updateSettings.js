@@ -13,14 +13,9 @@ export default async function updateSettings(updateObj) {
 
     if(suggestionMixKeys.includes(settingKey)) {
         await this.suggestionMix.configure();
-        this.suggestionMix.selection = null;
-        await Promise.all(Object.keys(this.pV).map(profile =>
-            this.getAndDisplayBookMoves(this.currentFen, profile)));
-        if(this.suggestionMix.enabled) {
-            await this.suggestionMix.render(true);
-        } else {
-            await Promise.all(Object.keys(this.pV).map(profile => this.refreshHints(profile)));
-        }
+        await Promise.all(Object.keys(this.pV).map(profile => this.refreshHints(profile)));
+        if(this.suggestionMix.enabled) await this.suggestionMix.render(true);
+        window.REFRESH_PIP_DISPLAY?.();
         return;
     }
 
@@ -112,6 +107,10 @@ export default async function updateSettings(updateObj) {
     const didUpdateAdvancedEloDepth = findSetting(this.configKeys.advancedEloDepth);
     const didUpdateSearchNodes = findSetting(this.configKeys.engineNodes);
     const profileVariables = this.pV[profileName];
+    if(settingKey === this.configKeys.onlyShowTopMoves && profileVariables) {
+        await this.refreshHints(profileName);
+        return { appliedValue: settingValue };
+    }
     const managesFairyVariant = profileVariables?.usingAdvancedMode && isBuiltInFairyEngine(profileVariables);
     const didUpdateFairyVariant = managesFairyVariant
         && (didUpdateVariant || didUpdate960Mode || isFairyVariantSetting(settingKey));
@@ -290,8 +289,7 @@ export default async function updateSettings(updateObj) {
 
     if(settingKey === this.configKeys.openingBookName) {
         await this.loadOpeningBook();
-        if(this.suggestionMix.enabled && this.suggestionMix.preferBook) {
-            await this.suggestionMix.render(true);
-        }
+        await Promise.all(Object.keys(this.pV).map(profile =>
+            this.getAndDisplayBookMoves(this.currentFen, profile)));
     }
 }

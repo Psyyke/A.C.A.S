@@ -21,7 +21,7 @@ const factory = new Function('parseVariantMove', 'isLc0Engine', 'isUpstreamLc0',
 `);
 const { engineMessageProcessor, GET_UNIQUE_MOVES, CREATE_MOVE_OBJ } = factory(parseVariantMove, isLc0Engine, isUpstreamLc0);
 
-function harness({ amount = 2, onlyTop = false, mix = false } = {}) {
+function harness({ amount = 2, onlyTop = false, mix = false, funneling = 'off' } = {}) {
     const fen = '8/8/8/8/8/8/8/8 w - - 0 1';
     const calculation = { fen, startedAt: Date.now(), finished: false, annotationEligible: false };
     const profile = { pendingCalculations: [calculation], pastMoveObjects: [], futureMoves: [],
@@ -34,6 +34,10 @@ function harness({ amount = 2, onlyTop = false, mix = false } = {}) {
         getConfigValue: async key => config[key], getPlayerColor: async () => 'w',
         getEngineName: async () => 'external', isLearningProfile: () => false,
         Interface: { updateMoveProgress() {} },
+        suggestionMix: {
+            filtersBooks: () => funneling !== 'off',
+            finished: async () => {}
+        },
         displayMoves: async (moves, name, bypass, silent) => {
             displays.push({ moves: structuredClone(moves), silent });
             profile.activeGuiMoveMarkings = moves.map(() => ({}));
@@ -127,6 +131,22 @@ test('unrestricted 3200 searches still show provisional moves with Only Top Move
     await engineMessageProcessor.call(instance, 'info depth 2 score cp 60 pv d2d4 d7d5', 'main');
     assert.equal(displays.at(-1).moves[0].playerUci, 'd2d4');
 });
+
+for(const funneling of ['books', 'all']) {
+    for(const onlyTop of [true, false]) {
+        test(`${funneling} Funneling respects Only Top Moves ${onlyTop} during unlimited searches`, async () => {
+            const { instance, profile, displays } = harness({ amount: 1, onlyTop, funneling });
+            profile.searchDepth = null;
+            profile.pendingCalculations[0].isSearchInfinite = true;
+            await engineMessageProcessor.call(instance, 'info depth 1 score cp 50 pv e2e4 e7e5', 'main');
+            await engineMessageProcessor.call(instance, 'info depth 2 score cp 60 pv d2d4 d7d5', 'main');
+            assert.equal(displays.length, onlyTop ? 0 : 2);
+            await engineMessageProcessor.call(instance, 'bestmove d2d4', 'main');
+            assert.equal(displays.length, onlyTop ? 1 : 3);
+            assert.equal(displays.at(-1).moves[0].playerUci, 'd2d4');
+        });
+    }
+}
 
 test('successive different rank-one moves do not become secondary suggestions', async () => {
     const { instance, displays } = harness();

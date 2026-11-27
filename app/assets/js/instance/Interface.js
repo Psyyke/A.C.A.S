@@ -199,7 +199,7 @@ export default class Interface {
         );
     }
 
-    async displayBookMoves(bookMoves, profile) {
+    async displayBookMoves(bookMoves, profile, funnelCurrent = null) {
         const profileNames = profile
             ? [profile]
             : [...new Set(bookMoves?.map(move => move?.profile).filter(Boolean) || [])];
@@ -220,7 +220,7 @@ export default class Interface {
             const candidates = (bookMoves || []).filter(move => move?.profile === profileName);
             const movesForProfile = filterHintMoves(candidates, hints, fen).filter((move, index, moves) => {
                 const mix = this.AcasInstance.suggestionMix;
-                if(!learning && mix?.enabled && mix.preferBook && move.hintDetail === 'full') return false;
+                if(!learning && !funnelCurrent && mix?.filtersBooks(profileName) && move.hintDetail === 'full') return false;
                 const squareKey = move.hintDetail === 'piece' ? 'from' : 'to';
                 return move.hintDetail === 'full' || moves.findIndex(other => other[squareKey] === move[squareKey]) === index;
             });
@@ -245,7 +245,8 @@ export default class Interface {
 
             const isCurrent = this.AcasInstance.pV[profileName] === variables && !this.AcasInstance.instanceClosed
                 && this.AcasInstance.currentFen === fen && this.AcasInstance.displayFen === displayFen
-                && this.AcasInstance.isLearningProfile(profileName) === learning && variables.bookHintRevision === revision;
+                && this.AcasInstance.isLearningProfile(profileName) === learning && variables.bookHintRevision === revision
+                && (!funnelCurrent || funnelCurrent());
             if(!isCurrent) continue;
             this.removeBookMarkings(profileName);
 

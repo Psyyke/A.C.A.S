@@ -130,7 +130,19 @@
         "*[data-translation-webhook-subtitle]": "Määritä Discord-viestit",
         "*[data-translation-webhook-available-variables]": "Käytettävissä olevat muuttujat",
         "*[data-translation-ffs-videostream]": "Videovirta",
-        "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset."
+        "#des-no-result-text": "Jotkin asetukset analysoidaan dynaamisesti moottorin UCI-tulosteesta. Avaa shakkilauta aloittaaksesi moottorisi ja ladataksesi dynaamiset asetukset.",
+        "[data-translation-mix-prefer-book-hint]": "Jaetussa poolissa tämä suosii kaikkia osallistuvia kirjoja",
+        "[data-translation-mix-shared]": "Jaa pooli profiilien kesken",
+        "[data-translation-mix-shared-hint]": "Jaetussa poolissa mahdollisia siirtoja sisältävät profiilit saavat yhtä suuret mahdollisuudet",
+        "[data-translation-mix-off]": "Pois",
+        "[data-translation-mix-books]": "Vain kirjat",
+        "[data-translation-mix-all]": "Kaikki ehdotukset",
+        "[data-translation-mix-mode]": "Tila",
+        "[data-translation-mix-off-note]": "Kirjan ja moottorin ehdotukset säilyvät muuttumattomina.",
+        "[data-translation-mix-books-note]": "Valitsee kirjan yhden siirron kirjan omilla painoilla. Moottorin ehdotukset pysyvät erillään.",
+        "[data-translation-mix-source-note]": "Kirjan siirrot säilyttävät omat painonsa. Nämä prosentit sekoittavat vain moottorin siirtoja.",
+        "[data-translation-mix-fallback-note]": "Näitä prosentteja käytetään, kun kirjan siirtoa ei ole saatavilla.",
+        "[data-translation-suggestion-mix-profile-hint]": "Valitse, mitä tämä profiili kerää"
     },
     "configTranslations": {
         "advancedSearchMode": ["Hakutila","Valitse haun raja"],
