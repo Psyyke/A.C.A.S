@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Skapa eller slå ihop böcker",
         "[data-translation-search-standard]": "Djup / noder",
         "[data-translation-search-movetime]": "Motorns betänketid",
         "[data-translation-search-infinite]": "Obegränsat",
@@ -174,7 +175,7 @@
         "engineNodes": ["Sök-noder", "Fler noder innebär mer tänkande från motorn"],
         "lc0Weight": ["Lc0 Vikt", "Läs mer här"],
         "legitModeType": ["Spelstil", "Välj vilken typ av spelare de automatiska dragen ska efterlikna"],
-        "openingBookName": ["Öppningsbok", "Ladda en Polyglot öppningsbok (.bin)"],
+        "openingBookName": ["Öppningsbok", "Ladda en Polyglot-öppningsbok (.bin) eller (.epd)"],
         "bookMoveOpacity": ["Öppningsbokens opacitet (1 - 100%)", "Ändra opaciteten för öppningsbokens pilar"],
         "bookMoveColorHex": ["Öppningsboksfärg", "Färg på öppningsbokens pilar"],
         "alwaysMyTurn": ["Alltid min tur", "Tvinga spelet att alltid vara din tur"],

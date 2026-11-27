@@ -162,8 +162,12 @@
 			}
 
 			if(subtitleElement && subtitleText) {
+				const link = subtitleElement.querySelector('a');
+
 				subtitleElement.dir = FULL_TRANS_OBJ?.textDirection ?? 'auto';
 				subtitleElement.innerText = subtitleText;
+
+				if(link) subtitleElement.append(link);
 			}
 		});
 	}

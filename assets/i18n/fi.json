@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Luo tai yhdistä avauskirjoja",
         "[data-translation-search-standard]": "Syvyys / solmut",
         "[data-translation-search-movetime]": "Moottorin miettimisaika",
         "[data-translation-search-infinite]": "Rajaton",
@@ -167,7 +168,7 @@
         "engineNodes": ["Hakusolmut", "Suurempi solmumäärä antaa moottorin tutkia enemmän asemia"],
         "lc0Weight": ["Lc0 painot", "Lue lisää täältä"],
         "legitModeType": ["Pelityyli", "Valitse, millaista pelaajaa automaattiset siirrot jäljittelevät"],
-        "openingBookName": ["Avauskirja", "Lataa Polyglot-avauskirja (.bin)"],
+        "openingBookName": ["Avauskirja", "Lataa Polyglot-avauskirja (.bin) tai (.epd)"],
         "bookMoveOpacity": ["Avauskirjan siirtojen läpinäkyvyys (1 - 100%)", "Muuta avaustiedoston nuolien läpinäkyvyyttä"],
         "bookMoveColorHex": ["Avauskirjan siirron väri", "Avauskirjan nuolien väri"],
         "alwaysMyTurn": ["Aina minun vuoroni", "Pakota vuoro aina sinun vuoroksesi"],

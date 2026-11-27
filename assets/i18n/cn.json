@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "创建或合并开局书",
         "[data-translation-search-standard]": "深度 / 节点",
         "[data-translation-search-movetime]": "引擎走棋时间",
         "[data-translation-search-infinite]": "无限",
@@ -167,7 +168,7 @@
         "engineNodes": ["搜索节点", "节点越多，引擎分析的局面就越多"],
         "lc0Weight": ["Lc0 权重", "在这里阅读更多"],
         "legitModeType": ["拟人模式风格", "选择自动走棋模仿的玩家风格"],
-        "openingBookName": ["开局书", "加载 Polyglot 开局书 (.bin)"],
+        "openingBookName": ["开局书", "加载 Polyglot (.bin) 或 (.epd) 开局书"],
         "bookMoveOpacity": ["开局书走法不透明度 (1 - 100%)", "调整开局书箭头的不透明度"],
         "bookMoveColorHex": ["开局书走法颜色", "开局书箭头颜色"],
         "alwaysMyTurn": ["始终轮到我", "强制将回合设为你的回合"],

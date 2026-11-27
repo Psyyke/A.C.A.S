@@ -58,6 +58,9 @@
     gap: 20px;
     margin: 30px 0;
 }
+@media (min-width: 1150px) {
+    .tool-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 .tool-cards .tool-card {
     display: flex;
     flex-direction: column;
@@ -404,6 +407,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 46px;
+    min-height: 46px;
     padding: 0 12px;
     border-bottom-width: 5px;
     font-size: 16px;

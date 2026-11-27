@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import SuggestionMix, { readMixWeights } from '../app/assets/js/instance/suggestionMix.js';
+import SuggestionMix, { pickBookCandidate, readMixWeights } from '../app/assets/js/instance/suggestionMix.js';
 import { defaultSelectionWeights } from '../tools/eloeye/hintSelection.js';
 
 const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -198,6 +198,72 @@ test('preferred book moves bypass the engine barrier and percentage mix', async 
     await mix.render();
     assert.equal(picks(calls)[0].player.join(''), 'c2c4');
     assert.equal(calls.at(-1).silent, true);
+});
+
+test('preferred book picks follow book weights and give each profile an equal share', () => {
+    const book = (profile, uci, weight) => ({ profile, move: [uci.slice(0, 2), uci.slice(2, 4), null], source: { weight } });
+    const pool = [book('a', 'e2e4', 900), book('a', 'd2d4', 100), book('a', 'g2g4', 0), book('b', 'c2c4', 1)];
+    const pick = roll => pickBookCandidate(pool, () => roll).move.slice(0, 2).join('');
+    assert.equal(pick(0), 'e2e4');
+    assert.equal(pick(0.44), 'e2e4');
+    assert.equal(pick(0.47), 'd2d4');
+    assert.equal(pick(0.51), 'c2c4');
+    assert.equal(pick(0.9999), 'c2c4');
+    const unweighted = [book('a', 'e2e4', 0), book('a', 'd2d4', 0)];
+    assert.equal(pickBookCandidate(unweighted, () => 0.75).move[0], 'd2');
+});
+
+test('shared book moves combine profile shares without merging promotions', () => {
+    const book = (profile, promotion, weight) => ({
+        profile, move: ['a7', 'a8', promotion], source: { weight }
+    });
+    const pool = [book('a', 'q', 3), book('a', 'n', 1), book('b', 'q', 1), book('b', 'r', 1)];
+    const counts = { q: 0, n: 0, r: 0 };
+    for(let sample = 0; sample < 1000; sample++) {
+        const picked = pickBookCandidate(pool, () => (sample + 0.5) / 1000);
+        counts[picked.move[2]]++;
+    }
+    assert.deepEqual(counts, { q: 625, n: 125, r: 250 });
+});
+
+test('render samples preferred book weights once per position and retains the pick on redraw', async () => {
+    const random = Math.random;
+    try {
+        for(const [e4Weight, d4Weight, expected] of [[50, 50, 500], [900, 100, 900]]) {
+            const { mix, instance, calls, warnings } = harness();
+            await mix.configure();
+            mix.preferBook = true;
+            mix.weights = weightsFor('blunder');
+            instance.getBookMoves = async position => [
+                { from: 'e2', to: 'e4', weight: e4Weight, fen: position },
+                { from: 'd2', to: 'd4', weight: d4Weight, fen: position },
+                { from: 'g2', to: 'g4', weight: 0, fen: position }
+            ];
+            const counts = { e2e4: 0, d2d4: 0, g2g4: 0 };
+            for(let sample = 0; sample < 1000; sample++) {
+                let rolls = 0;
+                Math.random = () => {
+                    rolls++;
+                    return (sample + 0.5) / 1000;
+                };
+                instance.currentFen = fen.replace(' 0 1', ` 0 ${sample + 1}`);
+                calls.length = 0;
+                await mix.end(mix.begin(instance.currentFen));
+                const selected = picks(calls)[0].player.join('');
+                counts[selected]++;
+                assert.equal(calls.at(-1).silent, false);
+                calls.length = 0;
+                await mix.render();
+                assert.equal(picks(calls)[0].player.join(''), selected);
+                assert.equal(calls.at(-1).silent, true);
+                assert.equal(rolls, 1);
+            }
+            assert.deepEqual(counts, { e2e4: expected, d2d4: 1000 - expected, g2g4: 0 });
+            assert.deepEqual(warnings, []);
+        }
+    } finally {
+        Math.random = random;
+    }
 });
 
 test('book pools deduplicate moves and keep promotions distinct', async () => {

@@ -17,6 +17,28 @@ const isConcealed = () => typeof CONCEAL_ASSISTANCE_ACTIVE !== 'undefined' && CO
 const moveKey = move => move.playerUci
     || `${move.player[0]}${move.player[1]}${move.playerPromotion || ''}`;
 
+// Picks by book weight. Each profile's book gets an equal share, and zero weights only play when nothing else can.
+export function pickBookCandidate(candidates, random = Math.random) {
+    const profileTotals = new Map();
+    for(const candidate of candidates) {
+        const weight = Math.max(0, Number(candidate.source?.weight) || 0);
+        profileTotals.set(candidate.profile, (profileTotals.get(candidate.profile) || 0) + weight);
+    }
+    const shares = new Map();
+    for(const candidate of candidates) {
+        const key = candidate.move.join('');
+        const total = profileTotals.get(candidate.profile);
+        const share = total > 0 ? Math.max(0, Number(candidate.source?.weight) || 0) / total : 0;
+        shares.set(key, (shares.get(key) || 0) + share);
+    }
+    let entries = [...shares];
+    if(!entries.some(([, share]) => share > 0)) entries = entries.map(([key]) => [key, 1]);
+    let roll = random() * entries.reduce((sum, [, share]) => sum + share, 0);
+    const picked = entries.find(([, share]) => share > 0 && (roll -= share) < 0)
+        || entries.findLast(([, share]) => share > 0);
+    return picked ? candidates.find(candidate => candidate.move.join('') === picked[0]) : null;
+}
+
 export default class SuggestionMix {
     constructor(instance) {
         this.instance = instance;
@@ -149,9 +171,8 @@ export default class SuggestionMix {
         const saved = this.selection;
         const retained = saved?.fen === fen && candidates.find(candidate =>
             `${candidate.profile}|${moveKey(candidate.source)}` === saved.key);
-        const weights = usingBook ? { ...defaultSelectionWeights, best: 100, alternative: 0 } : this.weights;
-        const selection = retained ? null : selectHintMove(available, candidates, Math.random, weights);
-        const chosen = selection?.move && candidates.find(candidate =>
+        const selection = retained || usingBook ? null : selectHintMove(available, candidates, Math.random, this.weights);
+        const chosen = usingBook ? (retained ? null : pickBookCandidate(candidates)) : selection?.move && candidates.find(candidate =>
             candidate.move[0] === selection.move.from && candidate.move[1] === selection.move.to
             && candidate.move[2] === selection.move.promotion);
         const selectionKey = chosen ? `${chosen.profile}|${moveKey(chosen.source)}` : null;

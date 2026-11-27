@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Kitap oluştur veya birleştir",
         "[data-translation-search-standard]": "Derinlik / düğümler",
         "[data-translation-search-movetime]": "Motor hamle süresi",
         "[data-translation-search-infinite]": "Sınırsız",
@@ -172,7 +173,7 @@
         "engineNodes": ["Arama Düğümleri", "Daha fazla düğüm, motorun hamleyi düşünme süresini artırır"],
         "lc0Weight": ["Lc0 Ağırlıkları", "Buradan daha fazla bilgi edinin"],
         "legitModeType": ["Oyun tarzı", "Otomatik hamlelerin taklit edeceği oyuncu tarzını seç"],
-        "openingBookName": ["Açılış Kitabı", "Bir Polyglot açılış kitabı yükle (.bin)"],
+        "openingBookName": ["Açılış Kitabı", "Polyglot (.bin) veya (.epd) açılış kitabı yükle"],
         "bookMoveOpacity": ["Kitap hamlesi opaklığı (1 - 100%)", "Açılış kitabı oklarının opaklığını değiştir"],
         "bookMoveColorHex": ["Kitap Hamlesi Rengi", "Açılış kitabı oklarının rengi"],
         "alwaysMyTurn": ["Her Zaman Benim Sıram", "Sırayı her zaman senin sıralaman olsun"],

@@ -16,6 +16,8 @@
 .maia-saved-games #saved-data-status { grid-column: 1 / -1; justify-self: end; }
 .maia-saved-games #saved-data-status { font-size: 13px; font-weight: 400; opacity: 0.6; overflow-wrap: anywhere; }
 .maia-saved-games .tool-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.maia-page :is(#reset-settings, #clear-data) { gap: 8px; font-weight: 700; }
+.maia-page :is(#reset-settings, #clear-data) .bi::before { -webkit-text-stroke: 0.8px currentColor; }
 @media (max-width: 900px) {
     .maia-page > .elo-heading { grid-template-columns: minmax(0, 1fr); }
     .maia-saved-games { text-align: center; }

@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "ブックを作成・統合",
         "[data-translation-search-standard]": "深さ / ノード数",
         "[data-translation-search-movetime]": "エンジンの思考時間",
         "[data-translation-search-infinite]": "無制限",
@@ -167,7 +168,7 @@
         "engineNodes": ["検索ノード", "ノードが多いほどエンジンが動きを考えます"],
         "lc0Weight": ["Lc0重み", "詳細はこちらを参照"],
         "legitModeType": ["プレイスタイル", "自動指し手がまねるプレイヤーのスタイルを選びます"],
-        "openingBookName": ["オープニングブック", "Polyglot のオープニングブック (.bin) を読み込む"],
+        "openingBookName": ["オープニングブック", "Polyglot (.bin) または (.epd) のオープニングブックを読み込む"],
         "bookMoveOpacity": ["ブック手の透明度 (1 - 100%)", "オープニングブックの矢印の透明度を変更"],
         "bookMoveColorHex": ["ブック手の色", "オープニングブックの矢印の色"],
         "alwaysMyTurn": ["常に自分の手番", "手番を常にあなたの手番に強制"],

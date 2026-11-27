@@ -32,7 +32,7 @@ after(async () => {
     if(server) await new Promise(resolve => server.close(resolve));
 });
 
-test('Pena settings and progress messages update in every supported language', { timeout: 120000 }, async t => {
+test('Pena settings, opening-book links and progress messages update in every supported language', { timeout: 120000 }, async t => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     t.after(() => context.close());
     await context.routeWebSocket('ws://localhost:2800/', socket => socket.onMessage(() => {}));
@@ -60,7 +60,8 @@ test('Pena settings and progress messages update in every supported language', {
         setPenaText(status, 'readingBoardProgress', { percent: 42 });
     });
     const check = async code => {
-        const text = code === 'us' ? penaStrings : (await locale(code)).translations.pena;
+        const catalog = await locale(code);
+        const text = code === 'us' ? penaStrings : catalog.translations.pena;
         const mismatches = await root.evaluate((element, expected) => {
             const mismatches = [];
             for(const key of ['thinking', 'prompt', 'evidence', 'visualDuration', 'voicePause', 'importZonosVoice',
@@ -76,6 +77,18 @@ test('Pena settings and progress messages update in every supported language', {
             return mismatches;
         }, text);
         assert.deepEqual(mismatches, [], `${code}: untranslated live UI`);
+        const book = {
+            subtitle: catalog.configTranslations.openingBookName[1],
+            link: catalog.domTranslations['#polyglot-book-input .input-subtitle-link']
+        };
+        assert.ok(book.link, `${code}: missing opening-book tool link`);
+        assert.ok(book.subtitle.includes('(.bin)') && book.subtitle.includes('(.epd)'), `${code}: missing book format`);
+        await page.waitForFunction(expected => {
+            const subtitle = document.querySelector('#polyglot-book-input .input-subtitle');
+            return subtitle.firstChild.textContent.trim() === expected.subtitle
+                && subtitle.querySelector('a')?.textContent === expected.link;
+        }, book);
+        assert.equal(await page.locator('#polyglot-book-input .input-subtitle-link').getAttribute('href'), '../tools/booksmith/');
     };
     await check('cn');
     const meta = JSON.parse(await readFile(new URL('../assets/i18n/meta.json', import.meta.url), 'utf8'));

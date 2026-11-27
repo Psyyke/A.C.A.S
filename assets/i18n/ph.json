@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Gumawa o pagsamahin ang mga libro",
         "[data-translation-search-standard]": "Lalim / mga node",
         "[data-translation-search-movetime]": "Oras ng engine",
         "[data-translation-search-infinite]": "Walang limitasyon",
@@ -169,7 +170,7 @@
         "engineNodes": ["Mga Search Node", "Mas maraming node, mas maraming pag-iisip ng engine tungkol sa galaw"],
         "lc0Weight": ["Mga Timbang ng Lc0", "Magbasa pa dito"],
         "legitModeType": ["Uri ng Legit na Mode", "Anong uri ng manlalaro ang dapat maglaro ng awtomatikong galaw"],
-        "openingBookName": ["Opening book", "Mag-load ng Polyglot opening book (.bin)"],
+        "openingBookName": ["Opening book", "Mag-load ng Polyglot (.bin) o (.epd) opening book"],
         "bookMoveOpacity": ["Opacity ng Book Move (1 - 100%)", "Baguhin ang opacity ng mga arrow ng opening book"],
         "bookMoveColorHex": ["Kulay ng Book Move", "Kulay ng mga arrow ng opening book"],
         "alwaysMyTurn": ["Laging Aking Turn", "Puwersahin ang turn na laging ikaw ang gagawa"],

@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Vytvoriť alebo zlúčiť knihy",
         "[data-translation-search-standard]": "Hĺbka / uzly",
         "[data-translation-search-movetime]": "Čas enginu na ťah",
         "[data-translation-search-infinite]": "Neobmedzený",
@@ -174,7 +175,7 @@
         "engineNodes": ["Vyhľadávacie uzly", "Viac uzlov znamená viac premýšľania zo strany motora o ťahu"],
         "lc0Weight": ["Hmotnosti Lc0", "Prečítajte si viac tu"],
         "legitModeType": ["Štýl hry", "Vyber, aký typ hráča majú automatické ťahy napodobňovať"],
-        "openingBookName": ["Kniha otvorení", "Načítať Polyglot knihu otvorení (.bin)"],
+        "openingBookName": ["Kniha otvorení", "Načítať knihu otvorení Polyglot (.bin) alebo (.epd)"],
         "bookMoveOpacity": ["Priehľadnosť ťahov knihy (1 - 100%)", "Zmeňte priehľadnosť šípok knihy otvorení"],
         "bookMoveColorHex": ["Farba ťahu knihy", "Farba šípok knihy otvorení"],
         "alwaysMyTurn": ["Vždy je môj ťah", "Vynútiť, aby bol ťah vždy váš"],

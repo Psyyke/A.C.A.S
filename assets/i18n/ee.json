@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Loo või ühenda avanguraamatuid",
         "[data-translation-search-standard]": "Sügavus / sõlmed",
         "[data-translation-search-movetime]": "Mootori mõtlemisaeg",
         "[data-translation-search-infinite]": "Piiramatu",
@@ -167,7 +168,7 @@
         "engineNodes": ["Otsingu sõlmed", "Rohkem sõlmi tähendab rohkem mõtlemist mootori poolt käigu üle"],
         "lc0Weight": ["Lc0 kaalud", "Lugege siit rohkem"],
         "legitModeType": ["Mängustiil", "Vali, millist mängijat automaatsed käigud jäljendavad"],
-        "openingBookName": ["Avanguraamat", "Laadi Polygloti avanguraamat (.bin)"],
+        "openingBookName": ["Avanguraamat", "Laadi Polygloti avanguraamat (.bin) või (.epd)"],
         "bookMoveOpacity": ["Avanguraamatu käikude läbipaistvus (1 - 100%)", "Muuda avanguraamatu noolte läbipaistvust"],
         "bookMoveColorHex": ["Avanguraamatu käigu värv", "Avanguraamatu noolte värv"],
         "alwaysMyTurn": ["Alati minu kord", "Sunni käik alati sinu käiguks"],

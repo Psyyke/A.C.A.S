@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Vytvořit nebo sloučit knihy",
         "[data-translation-search-standard]": "Hloubka / uzly",
         "[data-translation-search-movetime]": "Čas enginu na tah",
         "[data-translation-search-infinite]": "Neomezený",
@@ -167,7 +168,7 @@
         "engineNodes": ["Vyhledávací uzly", "Více uzlů znamená více přemýšlení o tahu motorem"],
         "lc0Weight": ["Lc0 váhy", "Přečtěte si více zde"],
         "legitModeType": ["Styl hry", "Vyber, jaký typ hráče mají automatické tahy napodobovat"],
-        "openingBookName": ["Kniha zahájení", "Načíst Polyglot knihu zahájení (.bin)"],
+        "openingBookName": ["Kniha zahájení", "Načíst knihu zahájení Polyglot (.bin) nebo (.epd)"],
         "bookMoveOpacity": ["Průhlednost tahů z knihy (1 - 100%)", "Změnit průhlednost šipek knihy zahájení"],
         "bookMoveColorHex": ["Barva tahu z knihy", "Barva šipek knihy zahájení"],
         "alwaysMyTurn": ["Vždy je můj tah", "Vynutit, aby byl tah vždy váš"],

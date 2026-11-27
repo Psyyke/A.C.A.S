@@ -67,7 +67,7 @@ test('legacy public pages and deep 404 links redirect in a browser without break
         'app/dev/index.html', 'app/dev/dynamic-graph-tests.html', 'tools/index.html',
         'tools/doppelmaia/index.html', 'tools/doppelmaia/research.html',
         'tools/doppelmaia/export-matches.html', 'tools/eloeye/index.html',
-        'tools/game-exporter/index.html', 'tools/leela2onnx/index.html'
+        'tools/game-exporter/index.html', 'tools/leela2onnx/index.html', 'tools/booksmith/index.html'
     ];
     const contents = await Promise.all(files.map(file => readFile(new URL(`../${file}`, import.meta.url), 'utf8')));
     const pages = new Map(files.map((file, index) => [`/${file.replace(/index\.html$/, '')}`, contents[index]]));

@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Створити або об’єднати книги",
         "[data-translation-search-standard]": "Глибина / вузли",
         "[data-translation-search-movetime]": "Час рушія на хід",
         "[data-translation-search-infinite]": "Без обмежень",
@@ -174,7 +175,7 @@
         "engineNodes": ["Пошукові вузли", "Більше вузлів означає більше роздумів движка при виборі ходу"],
         "lc0Weight": ["Вага lc0", "Дізнатися більше тут"],
         "legitModeType": ["Стиль гри", "Вибрати тип гравця, якого наслідують автоматичні ходи"],
-        "openingBookName": ["Книга дебютів", "Завантажити Polyglot книгу дебютів (.bin)"],
+        "openingBookName": ["Книга дебютів", "Завантажити книгу дебютів Polyglot (.bin) або (.epd)"],
         "bookMoveOpacity": ["Прозорість ходів книги (1 - 100%)", "Змінити прозорість стрілок книги дебютів"],
         "bookMoveColorHex": ["Колір ходів книги", "Колір стрілок книги дебютів"],
         "alwaysMyTurn": ["Завжди мій хід", "Примусово робити так, щоб хід завжди був вашим"],

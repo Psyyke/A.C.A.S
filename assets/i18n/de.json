@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Bücher erstellen oder zusammenführen",
         "[data-translation-search-standard]": "Tiefe / Knoten",
         "[data-translation-search-movetime]": "Engine-Bedenkzeit",
         "[data-translation-search-infinite]": "Unbegrenzt",
@@ -169,7 +170,7 @@
         "engineNodes": ["Suchknoten", "Mehr Knoten bedeutet mehr Nachdenken der Engine über den Zug"],
         "lc0Weight": ["Lc0-Gewichte", "Lies mehr hier"],
         "legitModeType": ["Spielstil", "Wähle, welchen Spielertyp die automatischen Züge nachahmen sollen"],
-        "openingBookName": ["Eröffnungsbuch", "Lade ein Polyglot-Eröffnungsbuch (.bin)"],
+        "openingBookName": ["Eröffnungsbuch", "Lade ein Polyglot-Eröffnungsbuch (.bin) oder (.epd)"],
         "bookMoveOpacity": ["Deckkraft der Buch-Züge (1 - 100%)", "Ändere die Deckkraft der Pfeile des Eröffnungsbuchs"],
         "bookMoveColorHex": ["Farbe der Buch-Züge", "Farbe der Pfeile des Eröffnungsbuchs"],
         "alwaysMyTurn": ["Immer mein Zug", "Erzwinge, dass es immer dein Zug ist"],

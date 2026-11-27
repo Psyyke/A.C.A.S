@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Crea o unisci libri",
         "[data-translation-search-standard]": "Profondità / nodi",
         "[data-translation-search-movetime]": "Tempo del motore",
         "[data-translation-search-infinite]": "Illimitata",
@@ -169,7 +170,7 @@
         "engineNodes": ["Nodi di ricerca", "Più nodi significa più riflessione sul movimento da parte del motore"],
         "lc0Weight": ["Pesatura Lc0", "Leggi di più qui"],
         "legitModeType": ["Stile di gioco", "Scegli il tipo di giocatore che le mosse automatiche devono imitare"],
-        "openingBookName": ["Libro di aperture", "Carica un libro di aperture Polyglot (.bin)"],
+        "openingBookName": ["Libro di aperture", "Carica un libro di aperture Polyglot (.bin) o (.epd)"],
         "bookMoveOpacity": ["Opacità delle mosse del libro (1 - 100%)", "Cambia l'opacità delle frecce del libro di aperture"],
         "bookMoveColorHex": ["Colore delle mosse del libro", "Colore delle frecce del libro di aperture"],
         "alwaysMyTurn": ["Sempre il mio turno", "Forza il turno a essere sempre il tuo"],

@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Twórz lub łącz książki",
         "[data-translation-search-standard]": "Głębokość / węzły",
         "[data-translation-search-movetime]": "Czas silnika na ruch",
         "[data-translation-search-infinite]": "Bez limitu",
@@ -174,7 +175,7 @@
         "engineNodes": ["Węzły wyszukiwania", "Więcej węzłów oznacza więcej myślenia nad ruchem przez silnik"],
         "lc0Weight": ["Wagi Lc0", "Przeczytaj więcej tutaj"],
         "legitModeType": ["Styl gry", "Wybierz typ gracza, którego mają naśladować automatyczne ruchy"],
-        "openingBookName": ["Książka debiutowa", "Wczytaj książkę debiutową Polyglot (.bin)"],
+        "openingBookName": ["Książka debiutowa", "Wczytaj książkę debiutową Polyglot (.bin) lub (.epd)"],
         "bookMoveOpacity": ["Przezroczystość ruchów książki (1 - 100%)", "Zmień przezroczystość strzałek książki otwarcia"],
         "bookMoveColorHex": ["Kolor ruchu książki", "Kolor strzałek książki otwarcia"],
         "alwaysMyTurn": ["Zawsze mój ruch", "Wymuś, aby zawsze był to twój ruch"],

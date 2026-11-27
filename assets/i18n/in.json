@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "ओपनिंग पुस्तकें बनाएँ या मिलाएँ",
         "[data-translation-search-standard]": "गहराई / नोड्स",
         "[data-translation-search-movetime]": "इंजन चाल समय",
         "[data-translation-search-infinite]": "असीमित",
@@ -169,7 +170,7 @@
         "engineNodes": ["सर्च नोड्स", "अधिक नोड्स का मतलब है इंजन द्वारा चाल पर अधिक सोच"],
         "lc0Weight": ["Lc0 वजन", "यहाँ और पढ़ें"],
         "legitModeType": ["खेलने की शैली", "ऑटोमैटिक चालों के लिए खिलाड़ी की शैली चुनें"],
-        "openingBookName": ["ओपनिंग पुस्तक", "Polyglot ओपनिंग बुक (.bin) लोड करें"],
+        "openingBookName": ["ओपनिंग पुस्तक", "Polyglot (.bin) या (.epd) ओपनिंग पुस्तक लोड करें"],
         "bookMoveOpacity": ["पुस्तक चाल अस्पष्टता (1 - 100%)", "ओपनिंग बुक तीरों की अस्पष्टता बदलें"],
         "bookMoveColorHex": ["पुस्तक चाल रंग", "ओपनिंग बुक तीर का रंग"],
         "alwaysMyTurn": ["हमेशा मेरी बारी", "बारी को हमेशा आपकी बारी बनाने के लिए बाध्य करें"],

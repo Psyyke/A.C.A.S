@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Creează sau combină cărți",
         "[data-translation-search-standard]": "Adâncime / noduri",
         "[data-translation-search-movetime]": "Timpul motorului",
         "[data-translation-search-infinite]": "Nelimitat",
@@ -172,7 +173,7 @@
         "engineNodes": ["Noduri de căutare", "Mai multe noduri înseamnă mai multă gândire a mutării de către motor"],
         "lc0Weight": ["Greutăți Lc0", "Citește mai multe aici"],
         "legitModeType": ["Stil de joc", "Alege tipul de jucător imitat de mutările automate"],
-        "openingBookName": ["Cartea de deschidere", "Încarcă o carte de deschidere Polyglot (.bin)"],
+        "openingBookName": ["Cartea de deschidere", "Încarcă o carte de deschideri Polyglot (.bin) sau (.epd)"],
         "bookMoveOpacity": ["Opacitatea mutărilor din carte (1 - 100%)", "Schimbă opacitatea săgeților cărții de deschidere"],
         "bookMoveColorHex": ["Culoarea mutării din carte", "Culoarea săgeților cărții de deschidere"],
         "alwaysMyTurn": ["Întotdeauna e rândul meu", "Forțează rândul să fie mereu al tău"],

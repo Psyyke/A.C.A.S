@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Boeken maken of samenvoegen",
         "[data-translation-search-standard]": "Diepte / knopen",
         "[data-translation-search-movetime]": "Engine-denktijd",
         "[data-translation-search-infinite]": "Onbeperkt",
@@ -169,7 +170,7 @@
         "engineNodes": ["Zoek Knoop", "Meer knopen betekent meer nadenken van de engine over de zet"],
         "lc0Weight": ["Lc0 Gewichten", "Lees hier meer"],
         "legitModeType": ["Speelstijl", "Kies welk type speler de automatische zetten nabootsen"],
-        "openingBookName": ["Openingboek", "Laad een Polyglot openingboek (.bin)"],
+        "openingBookName": ["Openingboek", "Laad een Polyglot-openingboek (.bin) of (.epd)"],
         "bookMoveOpacity": ["Doorzichtigheid van boekzetten (1 - 100%)", "Wijzig de doorzichtigheid van de pijlen van het openingboek"],
         "bookMoveColorHex": ["Kleur van boekzetten", "Kleur van de pijlen van het openingboek"],
         "alwaysMyTurn": ["Altijd mijn beurt", "Forceer dat het altijd jouw beurt is"],

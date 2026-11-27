@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Napravi ili spoji knjige",
         "[data-translation-search-standard]": "Дубина / чворови",
         "[data-translation-search-movetime]": "Време мотора по потезу",
         "[data-translation-search-infinite]": "Неограничено",
@@ -172,7 +173,7 @@
         "engineNodes": ["Pretraživački čvorovi", "Više čvorova znači više razmišljanja od strane motora o potezu"],
         "lc0Weight": ["Lc0 težine", "Pročitaj više ovde"],
         "legitModeType": ["Stil igre", "Izaberi tip igrača koji automatski potezi oponašaju"],
-        "openingBookName": ["Knjiga otvaranja", "Učitaj Polyglot knjigu otvaranja (.bin)"],
+        "openingBookName": ["Knjiga otvaranja", "Učitaj knjigu otvaranja Polyglot (.bin) ili (.epd)"],
         "bookMoveOpacity": ["Prozirnost poteza knjige (1 - 100%)", "Promeni prozirnost strelica knjige otvaranja"],
         "bookMoveColorHex": ["Boja poteza knjige", "Boja strelica knjige otvaranja"],
         "alwaysMyTurn": ["Uvek je moj potez", "Forsiraj da je uvek tvoj potez"],

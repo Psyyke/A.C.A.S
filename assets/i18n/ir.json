@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "ساخت یا ادغام کتاب‌ها",
         "[data-translation-search-standard]": "عمق / گره‌ها",
         "[data-translation-search-movetime]": "زمان حرکت موتور",
         "[data-translation-search-infinite]": "نامحدود",
@@ -169,7 +170,7 @@
         "engineNodes": ["گره‌های جستجو", "گره‌های بیشتر به معنای تفکر بیشتر موتور در مورد حرکت است"],
         "lc0Weight": ["وزن‌های Lc0", "بیشتر بخوانید"],
         "legitModeType": ["سبک بازی انسانی", "انتخاب سبک بازیکن برای حرکت‌های خودکار"],
-        "openingBookName": ["کتاب افتتاحیه", "بارگذاری کتاب افتتاحیه Polyglot (.bin)"],
+        "openingBookName": ["کتاب افتتاحیه", "بارگذاری کتاب افتتاحیه Polyglot (.bin) یا (.epd)"],
         "bookMoveOpacity": ["شفافیت حرکات کتاب (1 - 100%)", "شفافیت فلش‌های کتاب افتتاحیه را تغییر دهید"],
         "bookMoveColorHex": ["رنگ حرکت کتاب", "رنگ فلش‌های کتاب افتتاحیه"],
         "alwaysMyTurn": ["همیشه نوبت من", "نوبت را همیشه نوبت شما قرار دهید"],

@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Créer ou fusionner des livres",
         "[data-translation-search-standard]": "Profondeur / nœuds",
         "[data-translation-search-movetime]": "Temps du moteur",
         "[data-translation-search-infinite]": "Infini",
@@ -169,7 +170,7 @@
         "engineNodes": ["Nœuds de recherche", "Plus de nœuds = meilleure analyse"],
         "lc0Weight": ["Poids de Lc0", "En savoir plus ici"],
         "legitModeType": ["Style de jeu", "Choisir le type de joueur que les coups automatiques imitent"],
-        "openingBookName": ["Livre d'ouverture", "Charger un livre d'ouverture Polyglot (.bin)"],
+        "openingBookName": ["Livre d'ouverture", "Charger un livre d'ouverture Polyglot (.bin) ou (.epd)"],
         "bookMoveOpacity": ["Opacité des coups du livre (1 - 100%)", "Modifier l'opacité des flèches du livre d'ouverture"],
         "bookMoveColorHex": ["Couleur des coups du livre", "Couleur des flèches du livre d'ouverture"],
         "alwaysMyTurn": ["Toujours mon tour", "Forcer le tour à être toujours votre tour"],

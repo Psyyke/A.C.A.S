@@ -188,6 +188,11 @@ input:focus,
 .custom-input a {
     color: rgb(255 255 255 / 30%);
 }
+.input-subtitle-link {
+    display: block;
+    width: fit-content;
+    margin-top: 2px;
+}
 .disabled-input {
     pointer-events: auto !important;
     opacity: 0.25 !important;

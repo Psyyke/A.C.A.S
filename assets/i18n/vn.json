@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Tạo hoặc gộp sổ khai cuộc",
         "[data-translation-search-standard]": "Độ sâu / nút",
         "[data-translation-search-movetime]": "Thời gian động cơ",
         "[data-translation-search-infinite]": "Không giới hạn",
@@ -174,7 +175,7 @@
         "engineNodes": ["Số nút tìm kiếm", "Càng nhiều nút, engine càng suy nghĩ kỹ hơn"],
         "lc0Weight": ["Trọng số Lc0", "Đọc thêm tại đây"],
         "legitModeType": ["Kiểu chế độ tự nhiên", "Kiểu người chơi mà tính năng Tự động đi sẽ mô phỏng"],
-        "openingBookName": ["Sổ khai cuộc", "Tải sổ khai cuộc Polyglot (.bin)"],
+        "openingBookName": ["Sổ khai cuộc", "Tải sổ khai cuộc Polyglot (.bin) hoặc (.epd)"],
         "bookMoveOpacity": ["Độ mờ nước đi trong sổ (1 - 100%)", "Thay đổi độ mờ của mũi tên sổ khai cuộc"],
         "bookMoveColorHex": ["Màu nước đi trong sổ", "Màu mũi tên sổ khai cuộc"],
         "alwaysMyTurn": ["Luôn là lượt của tôi", "Buộc lượt đi luôn là lượt của bạn"],

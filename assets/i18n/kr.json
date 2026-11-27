@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "북 만들기 또는 병합",
         "[data-translation-search-standard]": "깊이 / 노드",
         "[data-translation-search-movetime]": "엔진 수당 시간",
         "[data-translation-search-infinite]": "무제한",
@@ -168,7 +169,7 @@
         "engineNodes": ["검색 노드", "노드 수가 많을수록 엔진의 생각하는 깊이가 깊어집니다"],
         "lc0Weight": ["Lc0 가중치", "여기서 더 읽기"],
         "legitModeType": ["플레이 스타일", "자동으로 수를 둘 때 따라 할 플레이어 스타일을 선택합니다"],
-        "openingBookName": ["오프닝 북", "Polyglot 오프닝 북 (.bin) 불러오기"],
+        "openingBookName": ["오프닝 북", "Polyglot (.bin) 또는 (.epd) 오프닝 북 불러오기"],
         "bookMoveOpacity": ["오프닝 북 이동 불투명도 (1 - 100%)", "오프닝 북 화살표의 불투명도 변경"],
         "bookMoveColorHex": ["오프닝 북 이동 색상", "오프닝 북 화살표 색상"],
         "alwaysMyTurn": ["항상 내 턴", "턴을 항상 당신의 턴으로 강제"],

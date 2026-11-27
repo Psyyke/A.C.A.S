@@ -1,5 +1,6 @@
 {
     "domTranslations": {
+        "#polyglot-book-input .input-subtitle-link": "Kitab yarat və ya birləşdir",
         "[data-translation-search-standard]": "Dərinlik / düyünlər",
         "[data-translation-search-movetime]": "Mühərrikin gediş vaxtı",
         "[data-translation-search-infinite]": "Limitsiz",
@@ -169,7 +170,7 @@
         "engineNodes": ["Axtarış düyünləri", "Daha çox düyün, mühərrikin hərəkət haqqında düşünməsi deməkdir"],
         "lc0Weight": ["Lc0 çəkiləri", "Burada daha çox oxuyun"],
         "legitModeType": ["Oyun üslubu", "Avtomatik gedişlərin təqlid edəcəyi oyunçu üslubunu seçin"],
-        "openingBookName": ["Açılış Kitabı", "Polyglot açılış kitabını (.bin) yüklə"],
+        "openingBookName": ["Açılış Kitabı", "Polyglot (.bin) və ya (.epd) açılış kitabını yüklə"],
         "bookMoveOpacity": ["Kitabın hərəkət şəffaflığı (1 - 100%)", "Açılış kitabı oxlarının şəffaflığını dəyişdir"],
         "bookMoveColorHex": ["Kitabın Hərəkət Rəngi", "Açılış kitabı oxlarının rəngi"],
         "alwaysMyTurn": ["Həmişə mənim növbəm", "Növbəni həmişə sizin növbəniz kimi qəbul et"],
