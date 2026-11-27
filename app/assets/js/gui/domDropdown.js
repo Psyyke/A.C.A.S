@@ -215,6 +215,7 @@ export function initializeDropdown(dropdownElem) {
     }
 
     inputElem.addEventListener('input', () => updateDropdown(false));
+    inputElem.addEventListener('acas-value-set', () => updateDropdown(true));
     iconElem.addEventListener('click', () => updateDropdown(true));
 
     updateDropdown(true);

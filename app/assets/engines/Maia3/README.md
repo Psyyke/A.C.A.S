@@ -13,7 +13,9 @@ Missing or incompatible files produce errors, never default-model fallback.
 No custom selection leaves the existing default engine behavior unchanged.
 
 Choose Maia 3, then open the cog beside Maia 3 Weights to upload an ONNX network
-and choose its runtime. Each profile selects one network at a time. Uploading
+and choose its runtime. Each profile saves its network and runtime choice in
+the app config. The ONNX file itself stays in this browser's storage and is not
+included in a config export. Each profile selects one network at a time. Uploading
 replaces that selection and the remove button restores default Maia 3.
 The `?shl=maia3Model` app link waits for profile settings, opens this floaty
 and highlights the network upload.

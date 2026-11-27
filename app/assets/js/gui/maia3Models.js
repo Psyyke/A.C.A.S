@@ -55,7 +55,7 @@ export async function initializeMaia3Models() {
     async function refresh() {
         const current = ++revision;
         const id = setting.value;
-        runtime.value = provider.value || 'wasm';
+        setInputValue(runtime, provider.value || 'wasm');
         controls(busy);
         status(id ? text('lc0WeightsSavedLoading', 'Loading saved weights...') : text('maia3WeightsDefault', 'Default Maia 3'));
         if(!id) return;
@@ -78,7 +78,7 @@ export async function initializeMaia3Models() {
         refresh().catch(failure);
     });
     translatePanel();
-    provider.addEventListener('acas-value-set', () => { runtime.value = provider.value || 'wasm'; });
+    provider.addEventListener('acas-value-set', () => setInputValue(runtime, provider.value || 'wasm'));
     remove.addEventListener('click', async () => {
         if(busy || !setting.value) return;
         const owner = { ...SETTING_FILTER_OBJ };
@@ -97,7 +97,7 @@ export async function initializeMaia3Models() {
             if(!['wasm', 'webgpu'].includes(runtime.value)) throw new Error(text('weightsRuntimeError', 'Choose WASM CPU or WebGPU.'));
             await save(provider, runtime.value, { ...SETTING_FILTER_OBJ });
         }
-        catch(error) { failure(error); runtime.value = provider.value || 'wasm'; }
+        catch(error) { failure(error); setInputValue(runtime, provider.value || 'wasm'); }
         finally { controls(false); }
     });
     upload.addEventListener('click', () => file.click());
