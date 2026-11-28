@@ -2,7 +2,7 @@ import { Chess } from '../libraries/chessjs/chess.js';
 import { Facts, ownerColor, pieceMentions, negatedConcept } from './concepts.js';
 import { variationFrames } from './teacher.js';
 import { findPlayedMove } from './questions.js';
-import { literalChessText } from './glossary.js';
+import { literalChessText, definitionSpans } from './glossary.js';
 
 const types = { king: 'k', queen: 'q', rook: 'r', bishop: 'b', knight: 'n', pawn: 'p' };
 const other = color => color === 'w' ? 'b' : 'w';
@@ -35,11 +35,14 @@ export class TeachingContext {
         this.text = literalChessText(text).replace(/[\u2018\u2019]/g, "'");
         this.fen = new Chess(fen).fen();
         this.root = rootColor || new Chess(fen).turn();
+        this.definitions = definitionSpans(this.text, question);
         this.citations = citations;
         this.cache = new Map();
         this.locations = new Map();
         this.results = [];
-        this.frames = variationFrames(this.text, this.fen, { rootColor, beforeFen, history, evidence: evidenceLines,
+        const liveText = this.definitions.reduce((text, span) => text.slice(0, span.index)
+            + text.slice(span.index, span.end).replace(/[^\r\n]/g, ' ') + text.slice(span.end), this.text);
+        this.frames = variationFrames(liveText, this.fen, { rootColor, beforeFen, history, evidence: evidenceLines,
             lines: citations.map(({ fact }) => fact.line || []) });
         const played = beforeFen && findPlayedMove(beforeFen, this.fen);
         this.recent = played ? { ...played, beforeFen, fen: this.fen, index: -1, end: -1,
@@ -115,6 +118,8 @@ export class TeachingContext {
     }
 
     resolve(spec) {
+        if(this.definitions.some(span => spec.index >= span.index && spec.index < span.end))
+            return { ...spec, status: 'not board-specific', entities: [], evidence: 'generic definition', fen: this.fen, branch: 1 };
         const frame = this.frameAt(spec.index);
         const fen = frame?.fen || this.fen;
         const branch = frame?.branch || 1;
@@ -158,9 +163,10 @@ export class TeachingContext {
         const facts = this.facts(sourceFen);
         const locations = this.entities(sourceFen);
         let candidates = facts.find(kinds, color).map(piece => ({ ...piece, id: locations.get(piece.square), fen: sourceFen }));
+        let relational = false;
         if(spec.file) candidates = candidates.filter(piece => piece.square[0] === spec.file);
         const actor = !spec.square && !passive && subjectPiece?.entities.length === 1 && subjectPiece.entities[0];
-        if(actor && candidates.length > 1 && facts.board.get(actor.square)?.color === actor.color) {
+        if(actor && facts.board.get(actor.square)?.color === actor.color) {
             const verb = clause.slice(subjectPiece.end - clauseStart);
             const lined = /\b(?:pin(?:s|ning|ned)?|skewer\w*)\b/i.test(verb)
                 ? candidates.filter(piece => facts.lines().some(line => line.slider === actor.square && (line.front === piece.square || line.back === piece.square)))
@@ -170,7 +176,7 @@ export class TeachingContext {
                         ? candidates.filter(piece => piece.color === actor.color && facts.attackers(piece.square, actor.color).includes(actor.square))
                         : [];
             // The board itself says which of two knights the bishop pins or hits.
-            if(lined.length && lined.length < candidates.length) candidates = lined;
+            if(lined.length) { candidates = lined; relational = true; }
         }
         if(!spec.square && candidates.length > 1) {
             // "Your knight is pinned" or "the bishop attacks the knight" points at one piece through what follows.
@@ -196,7 +202,7 @@ export class TeachingContext {
                     : facts.find([target], friendly ? piece.color : other(piece.color))
                         .some(victim => victim.square !== piece.square && facts.attackers(victim.square, piece.color).includes(piece.square)));
             }
-            if(narrowed.length && narrowed.length < candidates.length) candidates = narrowed;
+            if(narrowed.length && narrowed.length < candidates.length) { candidates = narrowed; relational = true; }
         }
         const result = (status, entities = [], evidence = '') => ({ ...spec, status, entities, evidence, fen: sourceFen, branch });
         if(spec.shade) candidates = candidates.filter(piece => piece.type !== 'b'
@@ -208,6 +214,20 @@ export class TeachingContext {
         if(captured) {
             const victim = candidates.filter(piece => piece.square === frame.capturedSquare);
             return result(victim.length ? 'resolved' : 'contradicted', victim, 'verified capture');
+        }
+        if(spec.name === 'piece') {
+            const behind = /^\s+(?:(?:stands?|sits?|lies?|is)\s+)?behind\s+(?:it|that piece)\b/i.test(this.text.slice(spec.end));
+            const pinnedTo = /\bpin(?:s|ned|ning)?\b/i.test(clause)
+                && /\bto\s+(?:(?:an?|the)\s+)?(?:more\s+valuable\s+)?$/i.test(clause);
+            if(behind || pinnedTo) {
+                const front = this.prior(spec.index, branch).at(-1)?.entities || [];
+                const backs = new Set(facts.lines().filter(line => front.some(entity => entity.id === locations.get(line.front)))
+                    .map(line => line.back));
+                const selected = facts.find(null, color).filter(piece => backs.has(piece.square))
+                    .map(piece => ({ ...piece, id: locations.get(piece.square), fen: sourceFen }));
+                return result(selected.length === 1 ? 'resolved' : selected.length ? 'ambiguous' : 'unsupported',
+                    selected.length === 1 ? selected : [], 'verified piece behind the subject');
+            }
         }
         const property = spec.property?.toLowerCase();
         const matching = pieces => !property || negatedConcept(this.text.slice(0, spec.index)) ? pieces
@@ -238,6 +258,17 @@ export class TeachingContext {
         const antecedent = candidates.filter(piece => previous?.entities.some(entity => entity.id === piece.id));
         if(antecedent.length === 1 && /^(?:that|this|its)$/i.test(spec.determiner || '') && !spec.other)
             return result('resolved', antecedent, 'compatible antecedent');
+        if(spec.name === 'piece' && !spec.other) {
+            const supported = matching(candidates);
+            if(relational || property) return result(supported.length === 1 ? 'resolved' : supported.length ? 'ambiguous' : 'unsupported',
+                supported.length === 1 ? supported : [], 'board-verified description');
+            // An indefinite introduces a new referent. A prior unrelated move or citation is not its identity.
+            const linkedMove = frame && frame.end <= spec.index
+                && !/[.!?;]/.test(this.text.slice(Math.max(0, frame.end), spec.index))
+                && /\b(?:develop\w*|activat\w*|improv\w*|mov\w*)\s+$/i.test(clause);
+            if(/^an?$/i.test(spec.determiner || '') && !linkedMove && previous?.index !== -1)
+                return result('ambiguous', [], 'unbound indefinite piece');
+        }
         const moved = [...(this.recent ? [this.recent] : []), ...this.frames].findLast(move => move.end <= spec.index && move.branch === branch
             && candidates.some(piece => piece.id === this.entities(move.fen).get(move.to)));
         if(antecedent.length === 1 && !spec.other && (!moved || previous.end > moved.end))
@@ -299,7 +330,7 @@ export class TeachingContext {
         const fen = described?.status === 'resolved' ? described.fen
             : actor && (!frame || actor.end > frame.end) ? actor.fen : frame?.fen || this.fen;
         const antecedent = prior.at(-1)?.entities.length === 1 ? prior.at(-1).entities[0].square : null;
-        return { fen, root: this.root, branch, frame, beforeFen: frame?.beforeFen,
+        return { fen, root: this.root, branch, frame, abstract: this.definitions.some(span => index >= span.index && index < span.end), beforeFen: frame?.beforeFen,
             focus: entity?.square || frame?.to || antecedent,
             actor: actor?.entities[0]?.square || frame?.to || antecedent,
             color: entity?.color || frame?.color || (frame ? new Chess(frame.beforeFen).turn() : this.root),

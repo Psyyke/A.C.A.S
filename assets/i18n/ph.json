@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Maglagay ng buong pixel offset mula -1000 hanggang 1000.", "tagline":"Ayusin ang iyong ghost experience","inactive":"I-on ang Tagong Script at ang lokal na server.","connecting":"Kumokonekta sa lokal na server...","available":"Available ang screen overlay.","unavailable":"Hindi available ang screen overlay.","update":"I-update ang lokal na server at muling kumonekta.","paused":"Naka-pause ang screen overlay. Sobra ang mga guhit o abala ang server."},
         "pena": {
+            "chattiness": "Mga awtomatikong komento",
+            "chattinessHint": "Gaano kadalas magsalita si Pena pagkatapos ng mga tira",
+            "chattinessQuiet": "Tahimik",
+            "chattinessNormal": "Karaniwan",
+            "chattinessChatty": "Madaldal",
             "chessCoaching": "Pagsasanay sa chess",
             "chessCoachingHint": "Mga katotohanan sa board, engine at pagsusuri ng sagot. Kapag naka-off, direkta kang nakikipag-usap sa modelo",
             "chattingRaw": "Direktang nakikipag-usap sa modelo…",

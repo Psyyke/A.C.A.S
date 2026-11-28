@@ -18,7 +18,7 @@ RUNTIME
   No conversations are written to settings or logs. A native prompt cache can
   remain in memory until the AI stops, and OS-level recovery is not ruled out.
   Coaching prompts favor explaining ideas and tradeoffs over announcing a best
-  move. With "Don't give away moves" enabled, unsolicited move suggestions are
+  move. "Don't give away moves" is on by default. When enabled, unsolicited move suggestions are
   held back from the answer, speech and teaching. Ask for a move to see one.
   Only your own moves count. Your opponent's threats, and the forced line that
   follows if you ignore one, stay in the answer because they are the lesson.
@@ -37,6 +37,11 @@ RUNTIME
   Move detection is heuristic and may miss unusual wording. Board teaching
   resolves visual cues from the answer against the current position. It does
   not verify the model's advice or guarantee that a strategic claim is correct.
+  General definitions and rules do not borrow the last moved piece, a citation
+  or a prior chat subject as an example. Supported terms use a labelled glossary
+  demonstration instead. Concrete board references resume live highlighting;
+  generic "a piece" references still resolve through verified relations, the
+  question's subject or a directly described move. Ambiguous references stay unmarked.
   The observed board is authoritative even if rapid moves leave gaps in history.
   Chess coaching (on by default, top of Conversation in the Pena settings) is
   the one switch for all of this. On, Pena gets the English board, live thought
@@ -70,10 +75,85 @@ RUNTIME
   exchanges before building the next prompt, even when the board is unchanged.
   Pena also leaves out who is winning or better unless you ask, since other A.C.A.S
   features already show that. Ask "who's winning?" or "how am I doing" to hear it.
+  Little eval asides like "(+0.4)" are dropped the same way, the rest of the
+  sentence stays.
   "Only talk when asked" prevents automatic replies. Turning it on also cancels
   an automatic reply already in progress. Turning on "Don't give away moves"
   cancels pending unsolicited advice, but an explicit move question still works.
+  Move hiding includes commands like "Take it off the board" after naming a
+  piece, not just moves written in notation. Board observations, past captures
+  and descriptions of the opponent's threats are kept.
   Pena speaks casually as an AI chess coach, without claiming to be human.
+  The built-in voice answers a bare hello with a greeting, not an unasked
+  "how are you" reply. It favors the concrete chess point over generic advice,
+  repeated summaries, offers to continue and stock forced-win disclaimers.
+  Uncertainty still belongs in the answer when it changes the advice.
+  These are model instructions, not a phrase blacklist or a guarantee.
+  Spoken labels like "One caution:", "The short version:" or "So the plan is
+  just development:" are cut from replies and commentary before they are shown
+  or read aloud (dropAnnouncedLabels in formatting.js). A colon that leads into
+  real content, like the pieces under attack, stays. Asking for this in the
+  System prompt only helped a bit and made greetings chattier again, so it's a
+  filter instead. It runs with coaching off too, and the raw text view still
+  shows what the model actually wrote.
+  Coaching style. coach-style.js holds how Pena sounds while coaching, so it's
+  easy to tune and compare. The default "natural" style gives plain Inkling a
+  shorter prompt written for listening. It asks for the one or two things that
+  matter, said like a friend at the board, with no "White to move", no engine
+  talk unless asked, no colon lead-ins and no closing offers or questions.
+  Automatic comments tell the model the player said nothing and name the move
+  that was just played, so it stops guessing that a question got cut off.
+  After the answer, a light spoken cleanup removes whose-move openers, offers
+  to say more, check-in questions and the model planning out loud. The raw
+  text view still shows the original. Set
+  localStorage.acasPenaCoachStyle = 'legacy' to hear the old prompts and no
+  extra cleanup, handy for side by side checks. The LoRA path and custom
+  System prompts keep their own wording. NATURAL_VOICE_PLAN.md has the numbers,
+  the study harness and ideas for what to try next.
+  Automatic comments now use the move grade as a model-facing verdict instruction:
+  good moves get next-position context, while mistakes get a plain explanation.
+  Neutral moves are not labelled mistakes, and minor inaccuracies are not
+  exaggerated. A new move's error is introduced as "a mistake" rather than
+  implying an earlier discussion with "the mistake".
+  A chattiness setting gives quiet, normal or chatty automatic commentary.
+  Quiet speaks for mistakes or worse, verified critical good finds and
+  real threats (at least 150 centipawns gained, or a mating threat), not
+  neutral moves, small inaccuracies or routine opponent probes. Player questions
+  still get answers. Chatty keeps the conversation going. Comment focus rotates
+  across the move, the opponent's plan, future moves and positional ideas.
+  Recent spoken openings stay in memory for the next automatic comment.
+  Player-pattern memory now uses the player's actual board transition, not the
+  opponent's grade. A board-backed pattern must recur across games, with at
+  least three games between reminders. Reconnecting preserves the game identity.
+  Natural-style reminders are added from that verified pattern state alongside
+  a retained answer, rather than relying on the model to repeat an instruction.
+  An empty or rejected answer is not replaced by a reminder, and merely sending
+  the reminder instruction no longer consumes its cooldown.
+  Normal commentary alternates silence with comments on calm good/neutral moves,
+  while checks, exchanges and hanging pieces remain noteworthy. Focus topics
+  come from the actual board or searched line. Repeated generic filler is omitted;
+  concrete tactical advice is not suppressed for a style-diversity target.
+  Grounded complete sentences pass the same checks before early speech and final
+  presentation. The full-reply path does not read already-spoken text again.
+  Each reply retains its own check details. The count includes performed live
+  checks and screened/rejected board statements, not proof of every strategy.
+  Silent automatic turns use no chat height and do not accumulate in the log.
+  These mechanisms are regression-tested, not proof that the full natural-voice
+  quality plan is complete. Matched revision-3 40-move studies still fail the
+  opener/repetition targets and the strict hide-mode accuracy-rate gate. See
+  NATURAL_VOICE_PLAN.md for the actual results and remaining qualification work.
+  Thinking loops. Inkling sometimes thinks forever or prints its own chat
+  markup like <|message_model|> as the answer. The worker now stops that early,
+  keeps any real text written before the markup and tries once more without
+  thinking at a slightly warmer temperature. If that also comes back empty,
+  the normal error UI reports "got stuck thinking" instead of the old template
+  warning. A failed retry is not treated as a successful empty comment, and
+  the error is not read aloud.
+  Imagined-knight notes are worded as a task, not a disclaimer, because the
+  model used to read "not a legal move or forced win" back in about half of
+  its knight answers.
+  An unchanged older built-in System prompt picks up the new wording, including
+  with coaching off. A genuinely custom prompt keeps its own character.
   coaching-policy.js is active. The worker adds its policy to system messages,
   including custom prompts, with an extra restriction when moves are withheld.
   Plain Inkling (no LoRA) gets the board as short English sentences instead of
@@ -210,6 +290,14 @@ RUNTIME
   Its acasv=3 cache key does not publish the local library by itself.
 
 VOICE
+  The browser voice keeps its AA workaround for the A file. Only the ZONOS
+  payload turns it into the quoted letter "A" followed by the spoken rank,
+  so it is not read as a doubled vowel or the English article. Displayed text
+  and browser-voice fallback stay unchanged.
+  The microphone starts audio capture in the click gesture while recognition
+  models prepare, so a first-time download does not lose browser activation.
+  Capture uses the device's native sample rate; the worklet converts it to
+  mono 16 kHz for recognition. Pause after speaking to send the question.
   Read aloud starts on by default. The speaker button can turn it off, and
   Pena remembers your choice.
   ZONOS3 is the default voice when no choice is saved. It runs locally in a

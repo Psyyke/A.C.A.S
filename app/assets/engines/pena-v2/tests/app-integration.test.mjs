@@ -8,7 +8,7 @@ import { qwenAdapterPrompt } from '../adapter-input.js';
 import { PenaConversation } from '../conversation.js';
 import { recoverInputReferenceRegistry, inputFactKey } from '../input-reference-registry.js';
 import { auditRequestedMoveEvidence, auditRegisteredSourceMeaning } from './requested-move-audit.js';
-import { applyPromptOverrides, promptOverridesFrom, defaultPenaPrompt } from '../prompt-overrides.js';
+import { applyPromptOverrides, promptOverridesFrom, defaultPenaPrompt, directVoiceRules } from '../prompt-overrides.js';
 import { coachingSystem } from '../coaching-compact.js';
 import { normalizeModelPreferences } from '../preferences.js';
 import { isLoraAdapter } from '../lora-store.js';
@@ -70,6 +70,51 @@ test('a custom system prompt replaces the instructions and keeps evidence, earli
         'A modified version of the last built-in prompt remains custom');
     assert.equal(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: `${defaultPenaPrompt}\n` })), messages,
         'The current built-in prompt is not a custom override');
+    const savedDirectPrompt = defaultPenaPrompt.slice(0, -directVoiceRules.length);
+    assert.equal(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: savedDirectPrompt })), messages,
+        'The unchanged saved default receives the direct voice rules');
+    assert.notEqual(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: `${savedDirectPrompt} My own style.` })), messages,
+        'A personalized prompt is not replaced by the voice update');
+    const savedVoicePrompt = savedDirectPrompt + '\nSTYLE & VOICE RULES:\n'
+        + '- Start directly with the core point. No rhetorical throat-clearers such as "The real question is", '
+        + '"At the end of the day", "It is worth noting" or "Ultimately, it comes down to".\n'
+        + '- Stop once you have given the substance. No hollow endings such as "and that is the call to make" '
+        + 'or "so it depends on your playstyle" that merely restate that a choice exists.\n'
+        + '- When the evidence supports a recommendation, say what you would do and briefly explain the trade-off '
+        + 'instead of neutrally listing options. Do not invent certainty or volunteer specific moves when move-hiding rules forbid them.\n'
+        + '- Use contractions and varied sentence lengths. Talk like a knowledgeable friend over a board, not a broadcast commentator.';
+    assert.equal(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: savedVoicePrompt })), messages,
+        'The previous voice rules also migrate to the new default');
+    assert.notEqual(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: `${savedVoicePrompt} My own style.` })), messages,
+        'Personalized previous voice rules remain custom');
+    const savedSloganPrompt = savedVoicePrompt
+        + '\n- No vague importance slogans such as "the real thing" or "the real deal". '
+        + 'Say what the idea does, what the threat attacks or why the plan matters instead of announcing its importance.';
+    assert.equal(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: savedSloganPrompt })), messages,
+        'The last saved default receives the positive, direct wording rules');
+    const savedClausePrompt = savedDirectPrompt + '\nSTYLE & VOICE RULES:\n'
+        + '- Put the actual piece, action or consequence first. Describe what happens and why it matters in ordinary words.\n'
+        + '- Introduce a new idea as one possibility, not as an established or uniquely correct answer. '
+        + 'Use definite wording only for something already discussed or uniquely established by the board.\n'
+        + '- Give the observation or advice itself, rather than announcing that you have an important point or explaining what the question is. '
+        + 'For example: "Your knight is pinned to your queen." or "I\'d keep the bishop for its pressure on the long diagonal."\n'
+        + '- When the evidence supports a preference, choose and explain the concrete reason briefly. '
+        + 'Keep uncertainty where it affects the advice, and obey all move-hiding restrictions.\n'
+        + '- Use contractions and varied sentence lengths, like a friend talking over a board. '
+        + 'Stop after the useful observation or reason. Leave out summaries that merely say a choice exists.';
+    assert.equal(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: savedClausePrompt })), messages,
+        'Saved defaults adopt the recommendation-first tone instead of treating the previous voice as custom');
+    assert.notEqual(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: `${savedClausePrompt} My own style.` })), messages,
+        'The tone change still preserves genuine custom prompts');
+    const evaluationPrompt = 'You are Pena, an AI chess coach. Speak naturally, like a relaxed player beside the board: '
+        + 'plain words, contractions, and an honest, occasionally dry tone. Do not claim to be a real person. '
+        + 'Respond to what was said, explain what matters, then stop. No canned friendliness, pep talks, or unnecessary follow-up questions. '
+        + 'Don\'t say who is winning, better, ahead or equal, or give the evaluation, unless the player asks. Talk about the pieces and plans instead. '
+        + 'Admit uncertainty and stick to the supplied evidence. Never use em dashes.';
+    assert.equal(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: ` ${evaluationPrompt}\n` })), messages,
+        'An unchanged saved default gets the new conversational style');
+    assert.notEqual(applyPromptOverrides(messages, promptOverridesFrom({ penaSystemPrompt: `${evaluationPrompt} Extra.` })), messages,
+        'A personalized version of the saved default stays custom');
     const lastPrompt = 'You are Pena, a real person who has played way too much chess, not an assistant. '
         + 'Talk like you would to a friend at the club: casual, contractions, plain words, your own opinions and moods. '
         + 'You can be blunt, dry, a bit cheeky or unimpressed, and you say so when you don\'t know. '
@@ -92,9 +137,10 @@ test('a custom system prompt replaces the instructions and keeps evidence, earli
 
 test('out-of-range Pena model settings fall back to defaults', () => {
     const fixed = normalizeModelPreferences({ penaPreset: 16, penaEffort: 'max', penaLora: 'evil', penaThinkingTokens: 10.5,
-        penaTemperature: '0.7', penaLoraScale: 5, penaSystemPrompt: null, penaCoaching: 'false' });
+        penaTemperature: '0.7', penaLoraScale: 5, penaSystemPrompt: null, penaCoaching: 'false', penaChattiness: 'loud' });
         assert.deepEqual({ ...fixed }, { penaPreset: '16', penaEffort: 'auto', penaLora: 'off', penaThinkingTokens: 1536,
-        penaTemperature: 0.7, penaLoraScale: 1, penaLoraFile: '', penaSystemPrompt: '', penaCoaching: false });
+        penaTemperature: 0.7, penaLoraScale: 1, penaLoraFile: '', penaSystemPrompt: '', penaCoaching: false,
+        penaChattiness: 'normal' });
     assert.equal(normalizeModelPreferences({}).penaCoaching, true, 'Chess coaching starts on');
 });
 

@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PenaSpeech } from '../speech.js';
 import { ZonosSpeech } from '../zonos.js';
-import { normalizeZonosNumbers } from '../zonos-numbers.js';
+import { normalizeZonosNumbers, normalizeZonosText } from '../zonos-numbers.js';
+import { speakSan } from '../../../js/misc/moveNotation.js';
 
 test('ZONOS spells out numbers while leaving ambiguous formats intact', () => {
     assert.equal(normalizeZonosNumbers('135 hours, 27 hours and 1,350 games.'),
@@ -11,6 +12,14 @@ test('ZONOS spells out numbers while leaving ambiguous formats intact', () => {
         'zero point five points and one hundred thirty fifth place.');
     const ambiguous = '12:30, version 1.2.3, code 001, $135, 135%, 1234567890123456 and e4';
     assert.equal(normalizeZonosNumbers(ambiguous), ambiguous);
+});
+
+test('ZONOS reads the A file as a separate letter without changing the browser voice workaround', () => {
+    const browser = speakSan('Raa4');
+    assert.equal(browser, 'Rook from AA to AA 4');
+    assert.equal(normalizeZonosText(`${browser}. The a1 rook guards A8. Keep a pawn and a 4-hour lesson.`),
+        'Rook from "A" to "A" four. The "A" one rook guards "A" eight. Keep a pawn and a four-hour lesson.');
+    assert.equal(normalizeZonosText('A car, AA batteries, A.C.A.S and e4.'), 'A car, AA batteries, A.C.A.S and e4.');
 });
 
 test('browser voice selection remains stable and supports explicitly selected Finnish voices', async () => {
@@ -60,10 +69,10 @@ test('ZONOS GPU failure falls back once and preserves spoken teaching marks', as
     };
     try {
         const settings = { penaSpeech: 'neural', languageCode: 'en', penaSpeechRate: 1 };
-        speech.say('135 hours.', settings, () => {}, [{ at: 0, run: () => marks.push('first') }]);
+        speech.say('Rook to AA 4.', settings, () => {}, [{ at: 0, run: () => marks.push('first') }]);
         speech.say('Second.', settings, () => {}, [{ at: 0, run: () => marks.push('second') }]);
         await speech.queue;
-        assert.deepEqual(spoken, ['135 hours.', 'Second.']);
+        assert.deepEqual(spoken, ['Rook to AA 4.', 'Second.']);
         assert.deepEqual(marks, ['first', 'second']);
         assert.equal(attempts, 1);
         assert.equal(progress.filter(update => update.status === 'fallback').length, 1);
@@ -355,7 +364,8 @@ test('Thaddeus is the default and existing voice choices are preserved', async t
         window.addEventListener('message', event => { if(event.data?.fixtureRequest) requests.push(event.data); });
         const voice = new ZonosSpeech(() => {}, () => {});
         await voice.speak('135 hours.');
-        await voice.speak('Second.');
+        const { spokenText } = await import('/app/assets/engines/pena-v2/formatting.js');
+        await voice.speak(spokenText('Ra4.'));
         await voice.speak('Rupert.', savedVoice);
         voice.dispose();
         const progress = [];
@@ -374,6 +384,7 @@ test('Thaddeus is the default and existing voice choices are preserved', async t
     assert.equal(registrations.length, 0);
     const generations = result.requests.filter(request => request.fixtureRequest === '/v2/generate');
     assert.equal(generations[0].body.text, 'one hundred thirty five hours.');
+    assert.equal(generations[1].body.text, 'Rook to "A" four.');
     assert.deepEqual(generations.map(request => [request.body.speaker_embedding_id, request.body.speaker_mode]),
         [['default_3c00e421e684f949', 'reference'], ['default_3c00e421e684f949', 'reference'], ['default_3765f0d1140c05c0', 'reference']]);
     assert.deepEqual(result.progress, []);

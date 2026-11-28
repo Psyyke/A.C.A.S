@@ -16,8 +16,9 @@ export const penaDefaults = Object.freeze({
     penaVisualDuration: 5,
     penaVoicePause: 2.5,
     penaFollowLine: true,
-    penaHideMoves: false,
+    penaHideMoves: true,
     penaOnlyWhenAsked: false,
+    penaChattiness: 'normal',
     penaPreset: '12',
     penaEffort: 'auto',
     penaThinkingTokens: 1536,
@@ -35,6 +36,7 @@ export const PENA_CHECK_DEPTH = 12;
 export const penaModelKeys = Object.freeze(['penaPreset', 'penaLora', 'penaLoraScale', 'penaLoraFile']);
 export const penaEfforts = Object.freeze(['auto', 'none', 'low', 'medium', 'high']);
 export const penaLoraModes = Object.freeze(['pena', 'off', 'custom']);
+export const penaChattinessModes = Object.freeze(['quiet', 'normal', 'chatty']);
 
 export const penaPreferenceKeys = Object.keys(penaDefaults);
 
@@ -64,6 +66,7 @@ export function normalizeModelPreferences(result) {
     result.penaPreset = String(result.penaPreset) === '16' ? '16' : '12';
     if(!penaEfforts.includes(result.penaEffort)) result.penaEffort = penaDefaults.penaEffort;
     if(!penaLoraModes.includes(result.penaLora)) result.penaLora = penaDefaults.penaLora;
+    if(!penaChattinessModes.includes(result.penaChattiness)) result.penaChattiness = penaDefaults.penaChattiness;
     result.penaCoaching = result.penaCoaching !== false && result.penaCoaching !== 'false';
     number('penaThinkingTokens', 64, 4096, true);
     number('penaTemperature', 0, 1.5);

@@ -31,7 +31,8 @@ translations, language changes and narrow or short mobile screens.
 
 `node --test tests\pena-translations.test.mjs` checks every supported language
 for missing Pena strings and mismatched placeholders. It also switches through
-all languages in the live settings, including voice controls and progress text.
+all languages in the live settings, including voice controls, progress text and
+automatic-comment dropdown sizing against the longest translated option.
 
 The complete shipped runtime is [pena-v2](../app/assets/engines/pena-v2/).
 All app regression scripts and fixtures are in its
@@ -44,6 +45,16 @@ node --test app\assets\engines\pena-v2\tests\*.test.mjs
 
 These tests cover the real GUI/worker path with mocked inference, PCF/BinProp
 facts, input/history binding, citations, speech/microphone lifecycle and visuals.
+The Pena tests also cover per-reply check counters, compact empty turns, screened
+early speech, actual-player pattern attribution and cross-game reminder cooldowns.
+Generic term definitions use demonstration boards rather than unrelated live
+pieces; contextual "a piece" references retain question, move and relation grounding.
+Pattern tests also check actual retained reminder text, not just prompt injection.
+`node --test app\assets\engines\pena-v2\tests\voice-study.test.mjs` checks the
+ordered whole-game study, provenance-safe resume, repetition and matched-ID
+independent accuracy gates. Model studies are separate from these mocked tests;
+the optional two-candidate experiment is explicitly not production qualification.
+See the [natural voice plan](../app/assets/engines/pena-v2/NATURAL_VOICE_PLAN.md).
 The native-only checks are `local-ai.test.mjs` and `local-worker.test.mjs`.
 They cover WebSocket streaming, cancellation, connection failures, mobile
 classification, model-specific chat templates and small context windows.

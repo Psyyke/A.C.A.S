@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Masukkan pergeseran piksel bulat dari -1000 hingga 1000.", "tagline":"Atur pengalaman hantumu","inactive":"Aktifkan Skrip Hantu dan server lokal.","connecting":"Menghubungkan ke server lokal...","available":"Lapisan layar tersedia.","unavailable":"Lapisan layar tidak tersedia.","update":"Perbarui server lokal dan sambungkan lagi.","paused":"Lapisan layar dijeda. Terlalu banyak gambar atau server sibuk."},
         "pena": {
+            "chattiness": "Komentar otomatis",
+            "chattinessHint": "Seberapa sering Pena berbicara setelah langkah",
+            "chattinessQuiet": "Pendiam",
+            "chattinessNormal": "Normal",
+            "chattinessChatty": "Banyak bicara",
             "chessCoaching": "Pelatihan catur",
             "chessCoachingHint": "Fakta papan, mesin, dan pemeriksaan jawaban. Jika dimatikan, Anda berbicara langsung dengan model",
             "chattingRaw": "Mengobrol langsung dengan model…",

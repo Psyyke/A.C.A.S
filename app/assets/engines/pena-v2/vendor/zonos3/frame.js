@@ -1,6 +1,6 @@
 import { engine, localFetch } from './engine.js';
 import { DEFAULT_ZONOS_VOICE, isZonosClipVoice } from '../../zonos-voices.js';
-import { normalizeZonosNumbers } from '../../zonos-numbers.js';
+import { normalizeZonosText } from '../../zonos-numbers.js';
 
 const base = 'https://huggingface.co/Zyphra/ZONOS3-Mini/resolve/2921b8821772b0bd10a04456863d21abf9d2f283/web/';
 const gpuUnavailable = message => /WebGPU is not available|No WebGPU adapter found|GPU device lost|WebGPU out of memory/i.test(message);
@@ -51,7 +51,7 @@ window.addEventListener('message', async event => {
         const response = await localFetch('/v2/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-TTS-Session-ID': session },
-            body: JSON.stringify({ text: normalizeZonosNumbers(text), language: 'en_us', laci: true, stream: false,
+            body: JSON.stringify({ text: normalizeZonosText(text), language: 'en_us', laci: true, stream: false,
                 speaker_mode: isZonosClipVoice(voiceId) ? 'embedding' : 'reference',
                 speaker_embedding_id: selected, format: 'pcm' })
         });

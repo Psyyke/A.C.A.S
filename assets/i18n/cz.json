@@ -272,6 +272,11 @@
         },
         "ghostScreen": {"invalidOffset": "Zadejte celé hodnoty pixelů od -1000 do 1000.", "tagline":"Upravte si režim ducha","inactive":"Zapněte skrytý skript a místní server.","connecting":"Připojování k místnímu serveru...","available":"Překryv obrazovky je dostupný.","unavailable":"Překryv obrazovky není dostupný.","update":"Aktualizujte místní server a znovu se připojte.","paused":"Překryv pozastaven. Příliš mnoho kreseb nebo je server zaneprázdněn."},
         "pena": {
+            "chattiness": "Automatické komentáře",
+            "chattinessHint": "Jak často Pena mluví po tazích",
+            "chattinessQuiet": "Tiše",
+            "chattinessNormal": "Normálně",
+            "chattinessChatty": "Upovídaně",
             "chessCoaching": "Šachový trénink",
             "chessCoachingHint": "Fakta o šachovnici, enginy a kontrola odpovědí. Po vypnutí mluvíte přímo s modelem",
             "chattingRaw": "Rozhovor přímo s modelem…",

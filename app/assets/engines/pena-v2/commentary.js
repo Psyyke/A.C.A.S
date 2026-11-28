@@ -2,6 +2,7 @@ import { Chess } from '../libraries/chessjs/chess.js';
 import { moveMentions } from './teacher.js';
 import { checkSentence } from './grounding.js';
 import { pickProblem, problemText } from './safety.js';
+import { dropAnnouncedLabels } from './formatting.js';
 
 export function explanationBody(text) {
     return text.split(/\n(?:BEST_MOVE|CRITICAL_LINE|PROMISING_MOVES|EVALUATION):/)[0]
@@ -243,6 +244,7 @@ export class CommentaryStream {
             this.closed = true;
             return;
         }
+        record.text = dropAnnouncedLabels(record.text).text;
         if(this.mode === 'brief' && record.text.split(/\s+/).length > budget.words) {
             const boundaries = [...record.text.matchAll(/,\s+(?:where|which|while|and|with|after|creating|preparing|supporting|opening|keeping|allowing)\b/gi)];
             const shorter = boundaries.map(match => record.text.slice(0, match.index))

@@ -190,6 +190,16 @@
     max-width: min(220px, 70vw);
 }
 
+#pena-floaty .dropdown-input-container:has([data-key="penaChattiness"]) {
+    min-width: 0;
+    width: var(--pena-choice-width);
+    flex-shrink: 0;
+}
+
+#pena-floaty .dropdown-input-container:has([data-key="penaChattiness"]) .dropdown-list-container {
+    width: max-content;
+}
+
 /* The hover outline needs room before the arrow. */
 .pena-personalization .dropdown-input-container input {
     flex: 1;
@@ -687,7 +697,11 @@
 }
 
 .pena-window .pena-turn:last-child {
-    min-height: 100%;
+    min-height: 0;
+}
+
+.pena-window .pena-turn:not(:has(.pena-message:not([hidden]))):not(:has(.pena-thinking:not([hidden]))):not(:has(.pena-checks:not([hidden]))) {
+    display: none;
 }
 
 .pena-window .pena-setup-panel:has(> .pena-feedback.is-setup:not([hidden])) ~ .pena-turn:last-child {

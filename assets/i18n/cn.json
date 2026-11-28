@@ -272,6 +272,11 @@
         },
         "ghostScreen": {"invalidOffset": "请输入 -1000 到 1000 之间的整数像素偏移。", "tagline":"调整你的幽灵体验","inactive":"开启幽灵脚本和本地服务器。","connecting":"正在连接本地服务器...","available":"屏幕覆盖层可用。","unavailable":"屏幕覆盖层不可用。","update":"更新本地服务器并重新连接。","paused":"屏幕覆盖层已暂停。绘制内容过多或服务器繁忙。"},
         "pena": {
+            "chattiness": "自动评论",
+            "chattinessHint": "Pena 在走子后发言的频率",
+            "chattinessQuiet": "安静",
+            "chattinessNormal": "正常",
+            "chattinessChatty": "健谈",
             "chessCoaching": "国际象棋指导",
             "chessCoachingHint": "棋盘事实、引擎和回答检查。关闭后直接与模型聊天",
             "chattingRaw": "正在直接与模型聊天…",

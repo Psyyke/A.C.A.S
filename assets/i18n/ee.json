@@ -273,6 +273,11 @@
         },
         "ghostScreen": {"invalidOffset": "Sisesta täisarvulised piksliväärtused vahemikus -1000 kuni 1000.", "tagline":"Kohanda oma kummituskogemust","inactive":"Lülita kummitusskript ja kohalik server sisse.","connecting":"Kohaliku serveriga ühendamine...","available":"Ekraani ülekate on saadaval.","unavailable":"Ekraani ülekate pole saadaval.","update":"Uuenda kohalikku serverit ja ühenda uuesti.","paused":"Ekraani ülekate on pausil. Liiga palju jooniseid või server on hõivatud."},
         "pena": {
+            "chattiness": "Automaatsed kommentaarid",
+            "chattinessHint": "Kui sageli Pena pärast käike räägib",
+            "chattinessQuiet": "Vaikne",
+            "chattinessNormal": "Tavaline",
+            "chattinessChatty": "Jutukas",
             "chessCoaching": "Maletreening",
             "chessCoachingHint": "Lauafaktid, mootorid ja vastuste kontroll. Väljalülitatult vestled otse mudeliga",
             "chattingRaw": "Vestlus otse mudeliga…",

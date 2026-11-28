@@ -503,6 +503,25 @@ test('game timeline grades the past and shows it when the player asks about it',
     assert.deepEqual(steps[1].references.moves, [['g8', 'f6']]);
 });
 
+test('game grading stops stale searches without returning partial success or hiding engine failures', async () => {
+    const board = new Chess(), fens = [board.fen()];
+    board.move('e4'); fens.push(board.fen());
+    let current = true, calls = 0;
+    const isCurrent = () => current;
+    const engine = { async lines(_fen, options) {
+        calls++;
+        assert.equal(options.isCurrent, isCurrent, 'The queue receives the same liveness guard');
+        current = false;
+        return [{ move: 'e2e4', depth: 10, score: { cp: 0, mate: null } }];
+    } };
+    await assert.rejects(gradeGame(engine, fens, { isCurrent }), { name: 'AbortError' });
+    assert.equal(calls, 1, 'An obsolete grade does not start another position search');
+    await assert.rejects(gradeGame(engine, fens, { isCurrent }), { name: 'AbortError' });
+    assert.equal(calls, 1, 'Already-stale grading never reaches the engine');
+    const failure = new Error('Engine unavailable');
+    await assert.rejects(gradeGame({ lines: async () => { throw failure; } }, fens), error => error === failure);
+});
+
 test('defences are tested against the real threat and stay stable in the chat notes', async () => {
     // The black bishop wants the rook on a1. Moving the rook holds, guarding it with the knight still loses the exchange.
     const fen = '4k3/8/8/2N5/8/2b5/8/R6K w - - 0 1';
@@ -586,6 +605,11 @@ test('structure facts keep separate pawn groups apart and only offer empty outpo
     const king = kinds('r2q1r2/ppp2pkp/2n3p1/8/8/2N5/PPPQ1PPP/R3R1K1 b - - 0 15');
     assert.match(king['king safety b'], /no longer able to castle/);
     assert.match(factSheet('r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 3 3', { playerColor: 'w' }).header, /opponent's move, so the engine lines are what they will likely play/);
+    const ownThreat = { pv: ['f3e5'], gain: 300 };
+    const threatText = playerColor => factSheet('rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', { playerColor, threat: ownThreat, limit: 40 })
+        .facts.find(fact => fact.id === 'T').text;
+    assert.match(threatText('w'), /a real threat for the opponent to answer/, 'The player\'s own threat is not one they must deal with');
+    assert.match(threatText('b'), /a real threat to deal with/);
 });
 
 test('placing one piece is not read as a count of that piece', () => {

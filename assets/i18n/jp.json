@@ -272,6 +272,11 @@
         },
         "ghostScreen": {"invalidOffset": "-1000 から 1000 の整数ピクセルを入力してください。", "tagline":"ゴースト体験を調整","inactive":"ゴーストスクリプトとローカルサーバーを有効にしてください。","connecting":"ローカルサーバーに接続中...","available":"画面オーバーレイを利用できます。","unavailable":"画面オーバーレイを利用できません。","update":"ローカルサーバーを更新して再接続してください。","paused":"画面オーバーレイを一時停止しました。描画が多すぎるかサーバーがビジーです。"},
         "pena": {
+            "chattiness": "自動コメント",
+            "chattinessHint": "着手後に Pena が話す頻度",
+            "chattinessQuiet": "控えめ",
+            "chattinessNormal": "普通",
+            "chattinessChatty": "おしゃべり",
             "chessCoaching": "チェスコーチング",
             "chessCoachingHint": "盤面の事実、エンジン、回答の確認。オフにするとモデルと直接会話します",
             "chattingRaw": "モデルと直接会話中…",

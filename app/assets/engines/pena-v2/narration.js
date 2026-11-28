@@ -177,8 +177,19 @@ export function compileTeaching(text, fen, context = text, options = {}) {
     }
     for(const cue of strategicCues(literal, at, moves, cues, options))
         cues.push({ ...cue, references: { ...empty(), ...cue.references } });
+    for(let index = cues.length - 1; index >= 0; index--)
+        if(at(cues[index].index).abstract) cues.splice(index, 1);
+    for(const span of model.definitions) {
+        if(!span.mention || span.mention.index < offset || !hasDemo(span.term)) continue;
+        const shown = demo(span.term);
+        if(shown) cues.push({ index: span.mention.index - offset,
+            end: (span.mention.end > span.mention.index ? span.mention.end : span.end) - offset,
+            references: { ...empty(), ...shown.references }, positionFen: shown.finalFen,
+            demo: { id: `D:${demoId(span.term)}`, fact: { term: span.term } } });
+    }
     for(const mention of glossaryMentions(text)) {
         if(!hasDemo(mention.term) || negatedConcept(literal.slice(0, mention.index))) continue;
+        if(at(mention.index).abstract) continue;
         const prefix = literal.slice(0, mention.index).split(/[.!?;]\s+/).at(-1);
         const tail = literal.slice(mention.end);
         const definition = /(?:^|\b)(?:an?|the)\s+$/i.test(prefix)

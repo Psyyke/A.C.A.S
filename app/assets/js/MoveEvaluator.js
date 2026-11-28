@@ -176,7 +176,7 @@ export default class MoveEvaluator extends FairyAnalysis {
     // Plain MultiPV search for Pena's chat notes. Lines come back best first from the mover's side.
     lines(fen, { depth = this.searchDepth, multipv = 1, moves = null, isCurrent } = {}) {
         const key = `lines|${fen}|${depth}|${multipv}|${moves?.join(' ') || ''}`;
-        return this.enqueue(key, { fen, depth, isCurrent }, async job => {
+        const pending = this.enqueue(key, { fen, depth, isCurrent }, async job => {
             this.uci('ucinewgame');
             await this.query(['isready']);
             if(job.cancelled) return null;
@@ -184,9 +184,15 @@ export default class MoveEvaluator extends FairyAnalysis {
             const deepest = Math.max(...result.iterations.keys());
             return result.iterations.get(deepest).map(line => ({ move: line.move, pv: line.pv, depth: line.depth,
                 score: { cp: line.cp, mate: line.mate } }));
-        }).then(result => {
+        });
+        const job = this.inFlight.get(key);
+        return pending.then(result => {
             // A cancelled search must not look like a position without moves.
-            if(!result) throw new Error('Analysis cancelled');
+            if(!result) {
+                if(job?.cancelled || this.terminated || isCurrent && !isCurrent())
+                    throw new DOMException('Analysis cancelled', 'AbortError');
+                throw new Error('Analysis unavailable');
+            }
             return result;
         });
     }

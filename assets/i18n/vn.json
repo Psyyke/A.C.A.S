@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Nhập độ lệch pixel nguyên từ -1000 đến 1000.", "tagline":"Tùy chỉnh trải nghiệm ẩn của bạn","inactive":"Bật chế độ ẩn và máy chủ cục bộ.","connecting":"Đang kết nối máy chủ cục bộ...","available":"Có thể dùng lớp phủ màn hình.","unavailable":"Không thể dùng lớp phủ màn hình.","update":"Cập nhật máy chủ cục bộ và kết nối lại.","paused":"Lớp phủ tạm dừng. Quá nhiều hình vẽ hoặc máy chủ đang bận."},
         "pena": {
+            "chattiness": "Bình luận tự động",
+            "chattinessHint": "Tần suất Pena nói sau các nước đi",
+            "chattinessQuiet": "Ít nói",
+            "chattinessNormal": "Bình thường",
+            "chattinessChatty": "Hay nói",
             "chessCoaching": "Huấn luyện cờ vua",
             "chessCoachingHint": "Dữ kiện bàn cờ, động cơ và kiểm tra câu trả lời. Khi tắt, bạn trò chuyện trực tiếp với mô hình",
             "chattingRaw": "Đang trò chuyện trực tiếp với mô hình…",

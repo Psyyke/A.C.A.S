@@ -13,7 +13,7 @@ import { TeachingContext } from '../teaching-context.js';
 import { factSheet, sanLine } from '../factsheet.js';
 import { assessChatReply, answerChat } from '../chat-reply.js';
 import { conceptVisuals, chatSheet, PenaConversation, citationSteps } from '../conversation.js';
-import { definitionReply } from '../glossary.js';
+import { definitionReply, definitionSpans } from '../glossary.js';
 import { markCitations, stripMarkers, sentenceCitations, citationFacts } from '../cited-evidence.js';
 
 const start = new Chess().fen();
@@ -692,6 +692,11 @@ test('concept words fall back to the piece that fits when the subject is vague o
     assert.deepEqual(regionsAt("Black's doubled pawns on e5 are a weakness.", '4k3/8/8/4p3/4p3/8/8/4K3 w - - 0 1', 'doubled'), ['Doubled:e4,e5']);
     const castled = regionsAt('Material is equal and both kings are safely castled.', 'r1bq1rk1/pp2ppbp/2np1np1/2p5/2P1P3/3PBN2/PP2BPPP/RN1Q1RK1 w - - 4 8', 'castled');
     assert.equal(castled.filter(label => label.startsWith('King shelter')).length, 2);
+    const spanTerms = text => definitionSpans(text).map(span => span.term);
+    assert.deepEqual(spanTerms('Material is equal.'), []);
+    assert.deepEqual(spanTerms('Material is a pawn up for White.'), []);
+    assert.deepEqual(spanTerms('Development is lagging behind.'), []);
+    assert.deepEqual(spanTerms('Material is the sum of the piece values.'), ['material']);
     const development = 'You are imagining this. The position just calls for normal development.';
     const developFen = 'r1bqkbnr/1p3ppp/p1np4/4p3/4P3/N7/PPP1BPPP/RNBQK2R b KQkq - 1 7';
     assert.deepEqual(compileTeaching(development, developFen, development, { rootColor: 'b', beforeFen: 'r1bqkbnr/1p3ppp/p1np4/1N2p3/4P3/8/PPP1BPPP/RNBQK2R w KQkq - 0 7' })

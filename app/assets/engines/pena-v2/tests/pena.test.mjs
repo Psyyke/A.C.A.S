@@ -1,4 +1,4 @@
-import { markdownPlain } from '../formatting.js';
+import { dropAnnouncedLabels, introduceDescriptions, markdownPlain } from '../formatting.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -14,6 +14,7 @@ import { readPenaPosition, penaPosition } from '../input.js';
 import { moveIntent, findPlayedMove, questionLead, understandQuestion, QuestionAnswer } from '../questions.js';
 import { explanationBody, explanationExcerpt, getPenaPreferences } from '../preferences.js';
 import { voiceCatalogue, ensureVoice, DEFAULT_VOICE, PIPER_BASE, importVoice } from '../assets.js';
+import { PlayerPatterns, mistakePattern } from '../coach-session.js';
 import { PenaSpeech, PenaMicrophone, speechPause, speechSegments } from '../speech.js';
 import { SpeechDetector, SpeechSegments, recognizedSpeech } from '../vad.js';
 import { VAD_MODEL } from '../assets.js';
@@ -24,12 +25,65 @@ import { assessChatReply } from '../chat-reply.js';
 import { chatSheet, citationSteps, chatPhrases, conceptVisuals } from '../conversation.js';
 import { moveArrowConfig } from '../../../js/misc/arrowStyle.js';
 import { moveMentions } from '../teacher.js';
-import { asksForMove, boardGroundingNotes, dropFalseGeometry, dropMisplacedPieces, dropRepeatedSentences, dropUnaskedVerdicts, hideMoveSuggestions } from '../coaching-policy.js';
+import { asksForMove, boardGroundingNotes, coachingPolicy, dropFalseGeometry, dropMisplacedPieces, dropRepeatedSentences, dropUnaskedVerdicts, hideMoveSuggestions } from '../coaching-policy.js';
 import { positionEvent } from '../chat.js';
-import { promptOverridesFrom } from '../prompt-overrides.js';
+import { penaVoice, promptOverridesFrom, directVoiceRules } from '../prompt-overrides.js';
+import { chooseCommentFocus, dropClosingOffers, dropTurnStatements, eventInstruction, moveGradeKind, naturalCoachSystem,
+    polishCoaching, shouldSpeakAutomatic, styleCoachingMessages, screenCoachReply, limitVoiceRepetition, voicePhrases, leanedPhrases } from '../coach-style.js';
 
 const start = new Chess().fen();
 function settle() { return new Promise(resolve => setImmediate(resolve)); }
+
+test('cancelled engine line searches are aborts, but unavailable analysis remains an error', async () => {
+    const sources = await Promise.all(['../../../js/FairyAnalysis.js', '../../../js/MoveEvaluator.js'].map(async path =>
+        (await readFile(new URL(path, import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '')
+            .replace('export default ', '').replaceAll('import.meta.url', JSON.stringify('https://pena.test/engine.js'))));
+    const context = vm.createContext({ DOMException, console, getEngineWorkerConfig: () => ({}),
+        variantConfig: () => ({ variant: 'chess', useChess960: false }) });
+    vm.runInContext(sources.join('\n') + '\nglobalThis.evaluator = new MoveEvaluator(false);', context);
+    const evaluator = context.evaluator;
+    evaluator.processQueue = () => {};
+    const pending = evaluator.lines(start);
+    evaluator.cancelPending();
+    await assert.rejects(pending, { name: 'AbortError', message: 'Analysis cancelled' });
+    await assert.rejects(evaluator.lines(start, { isCurrent: () => false }), { name: 'AbortError' });
+    const unavailable = evaluator.lines(start);
+    evaluator.queue.shift().resolve(null);
+    await assert.rejects(unavailable, { name: 'Error', message: 'Analysis unavailable' });
+});
+
+test('background game grading quietly aborts and can resume, while genuine failures remain visible', async () => {
+    const code = (await readFile(new URL('../service.js', import.meta.url), 'utf8'))
+        .replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')
+        .replaceAll('import.meta.url', JSON.stringify('https://pena.test/service.js'));
+    const board = new Chess(); board.move('e4');
+    const fens = [start, board.fen()], warnings = [], moves = [{ beforeFen: start, label: 'Good Move' }];
+    const failure = new Error('Engine unavailable');
+    let attempts = 0;
+    const context = vm.createContext({ localStorage: { getItem: () => null }, fens, console: { warn: (...args) => warnings.push(args) },
+        gradeGame: async (_engine, _fens, { isCurrent }) => {
+            assert.equal(isCurrent(), true);
+            if(++attempts === 1) throw new DOMException('Analysis cancelled', 'AbortError');
+            if(attempts === 3) throw failure;
+            return moves;
+        } });
+    vm.runInContext(code + `
+        gameFens = () => fens;
+        chatEngine = () => ({});
+        pena.settings = { penaCoaching: true };
+        pena.canChat = true;
+        pena.conversation = { reset() {} };
+        globalThis.grade = () => catchUpGame({}, fens.at(-1));
+    `, context);
+    await context.grade().queue;
+    assert.deepEqual(warnings, [], 'Normal cancellation does not produce a warning');
+    const game = context.grade();
+    await game.queue;
+    assert.equal(game.moves, moves, 'The queue still processes later grading requests');
+    await context.grade().queue;
+    assert.equal(warnings.length, 1);
+    assert.equal(warnings[0][1], failure, 'A real engine failure is not swallowed as cancellation');
+});
 
 test('rapid board changes including a return to the first FEN cannot revive stale preparation', async () => {
     const code = (await readFile(new URL('../service.js', import.meta.url), 'utf8'))
@@ -176,7 +230,7 @@ test('ZONOS starts loading on startup alongside the model when Pena reads aloud'
             startWorker = () => { events.push('worker'); return new Promise(resolve => { worker.finish = resolve; }); };
             stopMicrophone = cancel = setState = attach = voiceProgress = () => {};
             const shown = () => ({ hidden: false, classList: { remove() {} } });
-            ui = { window: { hidden: true }, loading: shown(), setup: shown(), status: shown(), thinking: shown() };
+            ui = { window: { hidden: true }, loading: shown(), setup: shown(), serverDownload: shown(), status: shown(), thinking: shown() };
             globalThis.live = { pena, refreshSettings, stopWorker };
         `, context);
         const { pena, refreshSettings, stopWorker } = context.live;
@@ -210,10 +264,25 @@ test('move hiding distinguishes a request from position advice and keeps the exp
     const explanation = 'Your knight on g1 needs development.';
     assert.equal(hideMoveSuggestions(`Play Nf3. ${explanation}`).text, explanation);
     assert.equal(hideMoveSuggestions('Nf3, developing your knight.').text, 'Look for a move that develops your knight.');
+    assert.equal(hideMoveSuggestions('If you want to keep the pawn, you need to think about what happens after fxg6.',
+        { fen: '2k4r/pp1n3p/6p1/2p2P2/3p1B2/P1nB1K1P/2P5/4R3 w - - 0 23', playerColor: 'w' }).text, '',
+        'Hiding a move never leaves a bare condition behind');
+    const kick = { fen: 'r2qk1nr/pp1n2pp/2p5/3pb3/8/2N4P/PPP1QP2/R1B1KB1R w KQkq - 2 11', playerColor: 'w' };
+    assert.equal(hideMoveSuggestions('The bishop on e5 hits your knight on c3, so f4 is the natural way to kick it.', kick).withheld, true);
+    assert.equal(hideMoveSuggestions('Black wants ...f5, and the bishop on e5 is the key piece.', kick).withheld, false);
+    const lever = { fen: '2k1r2r/pp1n2pp/2p5/3p1P2/5B2/2n2K1P/P1P5/R4B1R w - - 0 19', playerColor: 'w' };
+    assert.equal(hideMoveSuggestions('Your f5 pawn is ready to break with f6, hitting g7.', lever).withheld, true);
+    assert.equal(hideMoveSuggestions('If White breaks with f6 later, g7 gets weak.', { ...lever, playerColor: 'b' }).withheld, false);
     assert.doesNotMatch(hideMoveSuggestions('Nf3, developing your knight while Black can play e5.').text, /Nf3|e5/);
     assert.equal(hideMoveSuggestions('You played Nf3. Your knight is active.', { playedSan: 'Nf3' }).withheld, false);
     assert.equal(hideMoveSuggestions('Castling helps king safety. Your e-pawn guards d5.').withheld, false);
     assert.equal(hideMoveSuggestions('You played Nf3, but Black can reply with d5.', { playedSan: 'Nf3' }).withheld, true);
+    // Comments about the move just made often start with it. It can't be played again, so it gives nothing away.
+    const developed = { playedSan: 'Nc3', fen: 'rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1', playerColor: 'w' };
+    assert.equal(hideMoveSuggestions('Nc3 develops a piece and eyes d5.', developed).withheld, false);
+    assert.equal(hideMoveSuggestions('Nc3 develops a piece, so Nf3 comes next.', developed).text, '');
+    const answered = { playedSan: 'e5', fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2', playerColor: 'w' };
+    assert.equal(hideMoveSuggestions('e5 grabs space and blocks your e-pawn.', answered).withheld, false);
     const markdown = '**Development** matters.\n\n- Protect your king.';
     assert.equal(hideMoveSuggestions(markdown).text, markdown);
 });
@@ -266,6 +335,8 @@ test('a sentence copied from a reply at an older position is dropped', () => {
     const fresh = 'Black hits your bishop on f3 now.';
     assert.equal(dropRepeatedSentences(`Your knight on b1 is the one piece still waiting to move. ${fresh}`, earlier).text, fresh);
     assert.equal(dropRepeatedSentences(fresh, earlier).text, fresh);
+    const newCheck = 'You\'re in check from the queen on f2, so the move has to deal with that.';
+    assert.equal(dropRepeatedSentences(newCheck, ['You\'re in check from the bishop on c3, so the move has to deal with that.']).text, newCheck);
 });
 
 test('hypothetical knight claims keep their exact geometry and target identities', () => {
@@ -311,13 +382,746 @@ test('live board reminders use actual occupants and complete knight geometry wit
     assert.match(notes, /White: [^\n]*knight c3[^\n]*queen d1/);
     assert.match(notes, /Black: [^\n]*queen d8/);
     assert.match(notes, /Black to move/);
-    const controls = notes.match(/knight on d5: complete geometric controls ([^.]+)/)[1].split(', ');
+    const controls = notes.match(/knight on d5, not on the board: it would control ([^.]+)/)[1].split(', ');
     assert.deepEqual(controls.sort(), ['b4', 'b6', 'c3', 'c7', 'e3', 'e7', 'f4', 'f6']);
     assert.doesNotMatch(notes, /rnbqkbnr\//);
-    assert.doesNotMatch(boardGroundingNotes(fen, 'Where is my queen?'), /Hypothetical/);
+    assert.doesNotMatch(boardGroundingNotes(fen, 'Where is my queen?'), /Imagined/);
     const corner = boardGroundingNotes(fen, 'Could a knight on A1 see a1?');
-    assert.match(corner, /knight on a1: complete geometric controls b3, c2/);
-    assert.equal((corner.match(/Hypothetical knight/g) || []).length, 1);
+    assert.match(corner, /knight on a1, not on the board: it would control b3, c2/);
+    assert.equal((corner.match(/Imagined knight/g) || []).length, 1);
+});
+
+test('spoken label leads like "One caution:" go, but a colon that carries content stays', () => {
+    assert.equal(dropAnnouncedLabels('Develop first. One caution: the e5 pawn is attacked twice.').text,
+        'Develop first. The e5 pawn is attacked twice.');
+    assert.equal(dropAnnouncedLabels('So the sensible plan is just development: get the knight out and castle.').text,
+        'Get the knight out and castle.');
+    assert.equal(dropAnnouncedLabels('The short version: e4 is weak and the d-file is open.').text,
+        'e4 is weak and the d-file is open.');
+    assert.equal(dropAnnouncedLabels("Practical point: it develops with a little pressure. Let's check: Nxf6 gxf6 opens the king.").text,
+        'It develops with a little pressure. Nxf6 gxf6 opens the king.');
+    for(const text of ['Three of your pieces are under attack: the queen, the rook and the c3 knight.',
+        'The other thing to keep in mind is the queenside: Black has a majority there.', 'One caution: Nf3.'])
+        assert.equal(dropAnnouncedLabels(text).text, text);
+    assert.equal(dropAnnouncedLabels('Development is still the bigger priority: get the knight out and castle.').text,
+        'Get the knight out and castle.');
+    assert.equal(dropAnnouncedLabels('King safety remains the main issue: the h-file is about to open.').text,
+        'The h-file is about to open.');
+});
+
+test('vague importance slogans are reworded without losing the idea or its explanation', () => {
+    const reply = "White's Bg5 idea is the real thing: it pins the knight to the queen.";
+    const expected = "White's Bg5 idea matters: it pins the knight to the queen.";
+    assert.equal(dropAnnouncedLabels(reply).text, expected);
+    assert.equal(screenCoachReply(reply).text, expected, 'The shared streaming and final gate applies the wording fix');
+    assert.equal(dropAnnouncedLabels('Their threat was the real thing. It attacked the queen.').text,
+        'Their threat mattered. It attacked the queen.');
+    for(const text of ['The rook is the real thing, not a demonstration piece.',
+        'Their threat attacks the queen: defend her first.', 'Bg5 pins the knight to the queen.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Concrete claims stay unchanged');
+});
+
+test('announced ideas become direct advice without stripping meaningful definite descriptions', () => {
+    for(const [text, expected] of [
+        ['The real idea is to keep the bishop aimed at the king.', 'Keep the bishop aimed at the king.'],
+        ['The key point here is that your knight is pinned to your queen.', 'Your knight is pinned to your queen.'],
+        ['The rook is active. The main idea is to keep it on the open file.', 'The rook is active. Keep it on the open file.'],
+        ['The real idea: Bg5 pins the knight to the queen.', 'Bg5 pins the knight to the queen.']
+    ]) {
+        assert.equal(dropAnnouncedLabels(text).text, expected);
+        assert.equal(screenCoachReply(text).text, expected);
+    }
+    for(const text of ['The knight is pinned to the queen.', 'The real threat is mate, not the pawn capture.',
+        "The real idea isn't to trade the bishop.", 'The real idea is that of a blockade.'])
+        assert.equal(dropAnnouncedLabels(text).text, text);
+});
+
+test('importance framing is handled across clause positions, tenses, contractions and subjects', () => {
+    for(const [text, expected] of [
+        ["White's Bg5 is the real idea, because it pins the knight.", "White's Bg5 is worth considering, because it pins the knight."],
+        ["White's Bg5 is the real idea: it pins the knight.", "White's Bg5 is worth considering: it pins the knight."],
+        ['If you trade, Bg5 remains the central idea.', 'If you trade, Bg5 remains worth considering.'],
+        ['Bg5 was actually the main plan.', 'Bg5 was worth considering.'],
+        ['Bg5 is **the real idea**.', 'Bg5 is worth considering.'],
+        ['Bg5 is the real idea\uE000: it pins the knight.', 'Bg5 is worth considering\uE000: it pins the knight.'],
+        ["Bg5's the real idea.", "Bg5's worth considering."],
+        ['Bg5\u2019s the actual plan.', 'Bg5\u2019s worth considering.'],
+        ['These moves are the key ideas.', 'These moves are worth considering.'],
+        ['King safety should be the real priority.', 'King safety should be important.'],
+        ['That is really the essential point here.', 'That is important here.'],
+        ['Bg5, the real idea, pins the knight.', 'Bg5 pins the knight.'],
+        ['The actual plan is to keep the bishop active.', 'Keep the bishop active.'],
+        ['The real idea is Bg5, which pins the knight.', 'Consider Bg5, which pins the knight.']
+    ]) {
+        const clean = dropAnnouncedLabels(text).text;
+        assert.equal(clean, expected, text);
+        assert.equal(screenCoachReply(text).text, expected, 'Streaming and final output use the same policy');
+        assert.equal(dropAnnouncedLabels(clean).text, clean, 'Repeated screening is stable');
+    }
+    for(const text of ['Bg5 is not the real idea.', 'The real idea is not to trade the bishop.',
+        'Bg5 is the main idea behind the opening.', 'The knight is pinned to the queen.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Negation, attribution and concrete descriptions retain their meaning');
+});
+
+test('filler wrappers unwrap different clause types while keeping the actual advice', () => {
+    for(const [text, expected] of [
+        ['The main thing is to deal with that pressure before White gets e6 in.', 'Deal with that pressure before White gets e6 in.'],
+        ['Your first priority now is simply to protect the queen.', 'Protect the queen.'],
+        ['A useful idea is to keep the bishop active.', 'Keep the bishop active.'],
+        ['The next task is to castle.', 'Castle.'],
+        ['What you need to do is defend.', 'Defend.'],
+        ['What matters here is that your queen is undefended.', 'Your queen is undefended.'],
+        ['What you need to do is keep the bishop active.', 'Keep the bishop active.'],
+        ["It's worth noting that the bishop is pinned to the king.", 'The bishop is pinned to the king.'],
+        ['The key point is that the main thing is to deal with the pressure.', 'Deal with the pressure.'],
+        ['- The main thing is to keep the rook active.\n- What matters most is that your queen is safe.',
+            '- Keep the rook active.\n- Your queen is safe.']
+    ]) {
+        assert.equal(dropAnnouncedLabels(text).text, expected, text);
+        assert.equal(screenCoachReply(text).text, expected, 'Display and speech share the cleanup');
+        assert.equal(dropAnnouncedLabels(expected).text, expected, 'Cleanup does not produce another wrapper');
+    }
+    for(const text of ['The main thing is not to trade the bishop.', 'The main thing is to not trade the bishop.',
+        'What you need to do is not trade the bishop.',
+        'The plan was to keep the bishop active.', 'The only way to stop mate is to trade queens.',
+        'If the knight moves, keep the bishop active.', 'Their plan is to attack your king.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Negation, history, conditions and opponent plans retain their meaning');
+});
+
+test('attention framing becomes a direct action without changing its target or conditions', () => {
+    const fen = 'k7/6P1/4n3/2B5/5Q2/8/8/7K w - - 0 1';
+    for(const [text, expected] of [
+        [' so the pressure around your king and queen line is the thing to watch. ', ' so watch the pressure around your king and queen line. '],
+        ['The pressure around your king is the thing to watch.', 'Watch the pressure around your king.'],
+        ['The file opens, so the pressure around your king is the thing to watch.', 'The file opens, so watch the pressure around your king.'],
+        ['If you castle, the pressure on h2 is the thing to watch.', 'If you castle, watch the pressure on h2.'],
+        ['The loose pawns are the things to watch out for.', 'Watch out for the loose pawns.'],
+        ['Your king safety is what you should focus on.', 'Focus on your king safety.'],
+        ['The long diagonal is the main thing to pay attention to.', 'Pay attention to the long diagonal.'],
+        ['White\'s bishop is the thing to keep an eye on.', 'Keep an eye on White\'s bishop.'],
+        ['The pressure is the thing to watch before you trade queens.', 'Watch the pressure before you trade queens.'],
+        ['The pressure is the thing to watch\uE000.', 'Watch the pressure\uE000.'],
+        ["Their knight on e6 is hitting your queen, bishop and g7 pawn at once, so it's the thing to deal with.",
+            'Their knight on e6 is hitting your queen, bishop and g7 pawn at once, so deal with it.'],
+        ['It\u2019s the thing to deal with.', 'Deal with it.'],
+        ["They're the things to watch.", 'Watch them.'],
+        ['The pressure is what you need to respond to.', 'Respond to the pressure.']
+    ]) {
+        assert.equal(dropAnnouncedLabels(text).text, expected, text);
+        assert.equal(dropAnnouncedLabels(expected).text, expected, 'The result stays stable through repeated screening');
+        assert.equal(screenCoachReply(text, { fen, playerColor: 'w' }).text.trim(), expected.trim(), 'Speech and final display share the rewrite');
+    }
+    for(const text of ['The king is not the thing to watch.', 'The king might be the thing to watch.',
+        'If your king is the thing to watch, keep the rook nearby.',
+        'The queen was the thing to watch.', 'The bishop is the piece to trade.',
+        'The pressure is what White should focus on.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Keep uncertainty, conditions, history and the opponent\'s intentions');
+});
+
+test('one-piece progressive framing drops out across actions, tenses and clause positions', () => {
+    const fen = 'k7/6P1/4n3/2B5/5Q2/8/8/7K w - - 0 1';
+    for(const [text, expected] of [
+        ['Their knight on e6 is the one piece doing real work', 'Their knight on e6 is doing real work'],
+        ['Their knight on e6 is the one piece still creating pressure.', 'Their knight on e6 is still creating pressure.'],
+        ['It was the one piece defending the king.', 'It was defending the king.'],
+        ['Their pieces were the ones doing the defending.', 'Their pieces were doing the defending.'],
+        ["It's the one piece doing real work.", "It's doing real work."],
+        ['It\u2019s the one doing real work.', 'It\u2019s doing real work.'],
+        ["They're the ones actually creating pressure.", "They're actually creating pressure."],
+        ['Their knight is the one piece that is doing real work.', 'Their knight is doing real work.'],
+        ['Their knight was the one piece which was keeping the position together.', 'Their knight was keeping the position together.'],
+        ['The king is exposed, and their knight is the one piece creating threats.', 'The king is exposed, and their knight is creating threats.'],
+        ['Their knight is the one piece doing real work\uE000.', 'Their knight is doing real work\uE000.']
+    ]) {
+        assert.equal(dropAnnouncedLabels(text).text, expected, text);
+        assert.equal(dropAnnouncedLabels(expected).text, expected, 'Repeated screening is stable');
+        assert.equal(screenCoachReply(text, { fen, playerColor: 'w' }).text, expected, 'Speech and display share the same cleanup');
+    }
+    for(const text of ['Their knight is the one piece that can stop mate.',
+        'Their rook is the only piece defending the king.', 'Their knight is not the one piece doing real work.',
+        'Their knight is the one piece White is attacking.', 'Their knight was the one piece that is doing real work.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Keep tactical exclusivity, negation, object clauses and tense distinctions');
+});
+
+test('relevance framing becomes a direct predicate across subjects, tenses and relative clauses', () => {
+    const board = new Chess(); board.move('e4');
+    const options = { fen: board.fen(), beforeFen: start, playerColor: 'b' };
+    for(const [text, expected] of [
+        ['e4 just opened the center, so your pawns on d7 and e7 are the ones that matter.',
+            'e4 just opened the center, so your pawns on d7 and e7 matter.'],
+        ['Your e7 pawn is the one that matters.', 'Your e7 pawn matters.'],
+        ['Your pawns are the pieces which really matter here.', 'Your pawns really matter here.'],
+        ['Your e7 pawn is what matters most.', 'Your e7 pawn matters most.'],
+        ["It's the one that actually counts.", 'It actually counts.'],
+        ["They're the ones that count.", 'They count.'],
+        ['They\u2019re the ones that matter.', 'They matter.'],
+        ['The pawns were the ones that mattered.', 'The pawns mattered.'],
+        ['The pawn was the thing that made a difference.', 'The pawn made a difference.'],
+        ['Your pawns are the ones that make the difference.', 'Your pawns make the difference.'],
+        ['Your pawns are **the ones that matter**.', 'Your pawns **matter**.'],
+        ['Your pawns are the ones that matter\uE000.', 'Your pawns matter\uE000.']
+    ]) {
+        assert.equal(dropAnnouncedLabels(text).text, expected, text);
+        assert.equal(dropAnnouncedLabels(expected).text, expected, 'Repeated cleanup is stable');
+        assert.equal(screenCoachReply(text, options).text, expected, 'Display and speech share the rewrite');
+    }
+    for(const text of ['The pawns are not the ones that matter.', 'The pawns might be the ones that matter.',
+        'The pawn is the only one that matters.', 'The pawns are the ones that do not matter.',
+        'The pawn was the one that matters.', 'The pawns are the ones that mattered.',
+        'The knight is the piece that can stop mate.', 'The queen is the piece that controls e5.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Keep negation, uncertainty, explicit exclusivity and factual identification');
+});
+
+test('definitive recommendation wrappers become natural suggestions without losing qualifications', () => {
+    for(const [text, expected] of [
+        ['Developing a piece that covers it or challenges the knight is the thing to do now.',
+            'Developing a piece that covers it or challenges the knight is a good idea now.'],
+        ['Keeping the king safe is the thing to do if the center opens.', 'Keeping the king safe is a good idea if the center opens.'],
+        ["It's the thing to do.", "It's a good idea."],
+        ['It\u2019s the step to take now.', 'It\u2019s a useful step now.'],
+        ['Developing and castling are the things to do.', 'Developing and castling are good ideas.'],
+        ["They're the moves to make.", "They're sensible choices."],
+        ['Castling was the move to make.', 'Castling was a sensible choice.'],
+        ['Those were the steps to take.', 'Those were useful steps.'],
+        ['That might be the way to go.', 'That might be a reasonable approach.'],
+        ['That has been the thing to do.', 'That has been a good idea.'],
+        ['Developing is **the thing to do** now.', 'Developing is **a good idea** now.'],
+        ['Developing is the **thing to do** now.', 'Developing is **a good idea** now.'],
+        ['Developing is the thing to do\uE000.', 'Developing is a good idea\uE000.']
+    ]) {
+        assert.equal(dropAnnouncedLabels(text).text, expected, text);
+        assert.equal(dropAnnouncedLabels(expected).text, expected, 'The rewrite is stable');
+        assert.equal(screenCoachReply(text, { fen: start }).text, expected, 'Chat and speech receive the same suggestion');
+    }
+    for(const text of ['Trading queens is not the thing to do.', 'Trading queens is the only thing to do.',
+        'Trading queens is the best move to make.', 'The knight is the piece to move.',
+        'The thing to do depends on their reply.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Keep negation, forced choices, explicit rankings and factual references');
+});
+
+test('content-free summary endings drop out without removing consequences or reasons', () => {
+    const core = 'Your e5 pawn is hanging to the knight on f3, and the bishop on c4 is eyeing f7';
+    const fen = 'k7/5p2/8/4P3/2B5/5n2/8/7K w - - 0 1';
+    for(const [text, expected] of [
+        [`${core}, so the pressure is real.`, `${core}.`],
+        [`${core}, and so the danger is clearly present.`, `${core}.`],
+        [`${core}; so the threats are very real.`, `${core}.`],
+        [`${core}. The pressure is real.`, `${core}.`],
+        [`${core}. So that pressure matters. Keep the queen defended.`, `${core}. Keep the queen defended.`],
+        [`${core}, so that's important.`, `${core}.`],
+        [`${core}, so that\u2019s something to keep in mind.`, `${core}.`],
+        [`${core}, so this is worth remembering.`, `${core}.`],
+        [`${core}, so the pressure is real\uE000.`, `${core}\uE000.`],
+        [`${core}, so the pressure is real`, `${core}.`]
+    ]) {
+        assert.equal(dropAnnouncedLabels(text).text, expected, text);
+        assert.equal(dropAnnouncedLabels(expected).text, expected, 'The retained explanation stays stable');
+        assert.equal(screenCoachReply(text, { fen, playerColor: 'w' }).text, expected, 'The shared speech and display gate trims the ending');
+    }
+    for(const text of [`${core}, so f7 is undefended.`, `${core}, so the pressure is on f7.`,
+        `${core}, so the pressure is real because the queen cannot defend both targets.`,
+        `${core}, so the threat is not real.`, 'The pressure is real.',
+        'The bishop attacks f7, so White threatens mate.'])
+        assert.equal(dropAnnouncedLabels(text).text, text, 'Keep concrete consequences, explanations, negation and standalone answers');
+});
+
+test('direct recommendation-and-reason phrasing survives cleanup while move hiding still applies', () => {
+    const reply = 'Castle first. Pushing that pawn right now just leaves your king exposed for no reason.';
+    assert.equal(screenCoachReply(reply, { fen: start, playerColor: 'w' }).text, reply);
+    const hidden = screenCoachReply(reply, { fen: start, playerColor: 'w', hideMoves: true });
+    assert.equal(hidden.withheld, true);
+    assert.doesNotMatch(hidden.text, /castle first/i);
+});
+
+test('new countable descriptions use a or an across predicates, clauses and formatting', () => {
+    const fen = 'k7/8/8/4P3/8/8/8/7K w - - 0 1';
+    for(const [text, expected] of [
+        ['Your e5 pawn is the soft spot:', 'Your e5 pawn is a soft spot:'],
+        ['Your e5 pawn is the soft spot: it needs support.', 'Your e5 pawn is a soft spot: it needs support.'],
+        ['Your e5 pawn is the obvious target.', 'Your e5 pawn is an obvious target.'],
+        ['Your e5 pawn is the unusually exposed tactical weakness.', 'Your e5 pawn is an unusually exposed tactical weakness.'],
+        ['Your e5 pawn is the useful attacking option.', 'Your e5 pawn is a useful attacking option.'],
+        ['Your e5 pawn was the unprotected target.', 'Your e5 pawn was an unprotected target.'],
+        ["It's the interesting problem.", "It's an interesting problem."],
+        ['It\u2019s the urgent concern.', 'It\u2019s an urgent concern.'],
+        ['Develop first, because your e5 pawn is the weakness.', 'Develop first, because your e5 pawn is a weakness.'],
+        ['Your e5 pawn is **the obvious target**:', 'Your e5 pawn is **an obvious target**:'],
+        ['Your e5 pawn is the **unprotected target**.', 'Your e5 pawn is an **unprotected target**.'],
+        ['Your e5 pawn is the soft spot\uE000:', 'Your e5 pawn is a soft spot\uE000:']
+    ]) {
+        assert.equal(introduceDescriptions(text).text, expected, text);
+        assert.equal(dropAnnouncedLabels(text).text, expected, 'The shared formatting gate applies the article correction');
+        assert.equal(screenCoachReply(text, { fen, playerColor: 'w' }).text, expected, 'Streaming and final replies receive the same correction');
+        assert.equal(dropAnnouncedLabels(expected).text, expected, 'Repeated screening is stable');
+    }
+    for(const [phrase, expected] of [['honest mistake', 'an honest mistake'], ['unique opportunity', 'the unique opportunity'],
+        ['hour-long opportunity', 'an hour-long opportunity'], ['f7 weakness', 'an f7 weakness']])
+        assert.equal(introduceDescriptions(`It is the ${phrase}.`).text, `It is ${expected}.`);
+});
+
+test('definite descriptions remain definite when established, uniquely qualified or factual', () => {
+    const text = 'Your e5 pawn is the soft spot: it needs support.';
+    const previous = ['Your e5 pawn is a soft spot.'];
+    assert.equal(dropAnnouncedLabels(text, { previous }).text, text);
+    assert.equal(screenCoachReply(text, { fen: 'k7/8/8/4P3/8/8/8/7K w - - 0 1', descriptionHistory: previous }).text, text);
+    assert.equal(dropAnnouncedLabels(text, { question: 'Why is my e5 pawn the soft spot?' }).text, text);
+    assert.equal(dropAnnouncedLabels(text, { previous: ['Their c6 pawn is a soft spot.'] }).text,
+        'Your e5 pawn is a soft spot: it needs support.', 'A different pawn does not establish this description');
+    assert.equal(dropAnnouncedLabels(text, { previous: ['Your queen on e5 is a soft spot.'] }).text,
+        'Your e5 pawn is a soft spot: it needs support.', 'A different piece on the same square is not the same subject');
+    assert.equal(dropAnnouncedLabels('Your e5 pawn is the soft spot. Your e5 pawn is the soft spot because it lacks support.').text,
+        'Your e5 pawn is a soft spot. Your e5 pawn is the soft spot because it lacks support.');
+    for(const source of ['That piece is the king.', 'The rook is the only defender.', 'Your pawn is the only target:',
+        'Your pawn is the weakest point:', 'This is the best option.', 'This is the first opportunity.',
+        'The rook is the target of the fork.', 'This is the problem we discussed.', 'This is the pressure.',
+        'Your e5 pawn is not the soft spot.', 'Your e5 pawn is a soft spot.'])
+        assert.equal(introduceDescriptions(source).text, source, 'Preserve identification, uniqueness, references and negation');
+});
+
+test('the natural coach drops turn openers, offers and closing questions, but keeps real advice', () => {
+    const turns = [
+        ['White to move. The d4 pawn is hanging.', 'The d4 pawn is hanging.'],
+        ['White to move, and the knight on c4 is hanging to the d5 pawn.', 'The knight on c4 is hanging to the d5 pawn.'],
+        ["It's your move, so think about the e-file.", 'Think about the e-file.'],
+        ['Black is to move, move 12, in the middlegame. Your rook wants the c-file.', 'Your rook wants the c-file.'],
+        ['The position is White to move, move 4, with the pawn on d4 facing e5.', 'The pawn on d4 facing e5.']
+    ];
+    for(const [text, expected] of turns) assert.equal(dropTurnStatements(text).text, expected, text);
+    assert.equal(dropTurnStatements('White to move. The c-file is open.', { question: 'whose move is it?' }).text,
+        'White to move. The c-file is open.');
+    assert.equal(dropTurnStatements('White to move.').text, '', 'Filler alone must not become a spoken reply');
+    assert.equal(dropClosingOffers('The question got cut off.', { event: true }).text, '');
+    assert.equal(dropClosingOffers('If you want, I can explain.', { event: true }).text, '');
+
+    const reply = 'The e3 pawn is loose. If you want, I can walk through the Ne4 line. What do you want me to focus on?';
+    assert.equal(dropClosingOffers(reply).text, 'The e3 pawn is loose.');
+    assert.equal(dropClosingOffers('If you want to keep the bishop, play Be2.').text, 'If you want to keep the bishop, play Be2.');
+    assert.equal(dropClosingOffers('Your knight is pinned. Can you see why Nxe5 fails?').text,
+        'Your knight is pinned. Can you see why Nxe5 fails?', 'A question the coach means stays in a reply');
+    assert.equal(dropClosingOffers('Your knight is pinned. Can you see why Nxe5 fails?', { event: true }).text,
+        'Your knight is pinned.', 'Nobody asked for a comment, so it ends without a question');
+    assert.equal(dropClosingOffers('The question got cut off, so I can\'t answer it directly. But the board facts are clear enough. '
+        + 'Nd5 hits the pawns on c3 and e3.', { event: true }).text, 'Nd5 hits the pawns on c3 and e3.');
+    assert.equal(dropClosingOffers('I should give a natural assessment, not a forced move. The pin on e4 is the key.').text,
+        'The pin on e4 is the key.');
+    assert.equal(dropClosingOffers('The pawn-chain note makes b2 the soft spot. Black has a passed pawn.', { event: true }).text,
+        'Black has a passed pawn.');
+
+    assert.equal(polishCoaching('White to move. The d4 pawn is hanging. What do you want to do?', { event: true }).text,
+        'The d4 pawn is hanging.');
+    assert.equal(polishCoaching('White to move. The d4 pawn is hanging.', { style: 'legacy', event: true }).text,
+        'White to move. The d4 pawn is hanging.');
+});
+
+test('automatic comments use move grades, quiet modes and rotating focuses', () => {
+    const good = eventInstruction('(played Nf3)', { moveGrade: 'Best Move', focus: 'what the move changed' });
+    assert.match(good, /It was a good move.*do not grade it.*what the move changed/);
+    const bad = eventInstruction('(played Qh5)', { moveGrade: 'Blunder', focus: 'what the mistake allowed' });
+    assert.match(bad, /It was a mistake or worse.*Qh5 allowed.*what the mistake allowed/);
+    assert.equal(shouldSpeakAutomatic({ last: { label: 'Best Move' } }, 'normal'), false);
+    assert.equal(shouldSpeakAutomatic({ last: { label: 'Best Move' }, threat: {} }, 'normal'), false);
+    for(const [calmTurns, expected] of [[0, false], [1, true], [2, false], [3, true]])
+        assert.equal(shouldSpeakAutomatic({ last: { label: 'Best Move' } }, 'normal', { calmTurns }), expected, `calm turn ${calmTurns}`);
+    assert.equal(shouldSpeakAutomatic({ last: { label: 'Best Move' } }, 'quiet'), false);
+    assert.equal(shouldSpeakAutomatic({ last: { label: 'Mistake' } }, 'quiet'), true);
+    assert.equal(shouldSpeakAutomatic({ last: { label: 'Best Move' } }, 'chatty'), true);
+    assert.equal(moveGradeKind('Excellent'), 'good');
+    assert.equal(moveGradeKind('Weak Move'), 'bad');
+    assert.equal(moveGradeKind('Neutral'), 'unknown');
+    const record = { threat: { pv: ['d8h4'], gain: 300 }, last: { label: 'Blunder' } };
+    assert.equal(chooseCommentFocus(record, -1).focus, 'what your opponent is after');
+    assert.equal(chooseCommentFocus(record, 0).focus, 'what their threat aims at and why it matters');
+    const opponent = eventInstruction(positionEvent, { focus: 'opponent plan', recent: ['Your knight on'] });
+    assert.match(opponent, /Focus on opponent plan/);
+    assert.match(opponent, /Do not copy these recent openings: Your knight on/,
+        'Opponent-move comments must use the selected focus and recent openings too');
+    assert.match(eventInstruction('(played Nc6)', { moveGrade: 'Neutral' }), /playable, not a mistake/);
+    assert.match(eventInstruction('(played Nc6)', { moveGrade: 'Inaccuracy' }), /small concession, not a major mistake/);
+    const leaned = leanedPhrases(['Take it and keep the rook active.', 'Push e4 and keep the centre.', 'Your king leaves the corner.']);
+    assert.deepEqual(leaned, ['and keep the'], 'Only phrases said twice recently, longest form, without repeating their parts');
+    assert.match(eventInstruction(positionEvent, { avoid: leaned }), /already leaned on "and keep the", so word it differently/);
+    assert.doesNotMatch(eventInstruction(positionEvent, {}), /leaned on/);
+});
+
+test('quiet automatic comments require a serious mistake or a verified threat', () => {
+    for(const label of ['', 'Neutral', 'Weak Move', 'Inaccuracy', 'Good Move', 'Best Move', 'Forced Move']) {
+        const record = { last: { label }, threat: { pv: ['d8h4'], gain: 149, score: { cp: 0, mate: null } } };
+        assert.equal(shouldSpeakAutomatic(record, 'quiet'), false, label);
+        assert.equal(shouldSpeakAutomatic(record, 'chatty'), true, label);
+    }
+    for(const label of ['Mistake', 'Blunder', 'Catastrophic'])
+        assert.equal(shouldSpeakAutomatic({ last: { label } }, 'quiet'), true, label);
+    for(const threat of [{ pv: ['d8h4'], gain: 150 }, { pv: ['d8h4'], gain: 0, score: { mate: 2 } }])
+        assert.equal(shouldSpeakAutomatic({ threat }, 'quiet'), true);
+    assert.equal(shouldSpeakAutomatic({ threat: { pv: [], gain: 300 } }, 'quiet'), false);
+    assert.equal(chooseCommentFocus({ threat: { pv: ['d8h4'], gain: 10 } }).focus, 'what the move changed');
+    // After the player's own move the null-move threat is their follow-up, not danger to them.
+    const after = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2';
+    const own = { fen: after, threat: { pv: ['f3e5'], gain: 300 }, last: { label: 'Best Move' } };
+    assert.equal(shouldSpeakAutomatic(own, 'quiet', { playerColor: 'w' }), false);
+    assert.equal(shouldSpeakAutomatic(own, 'quiet', { playerColor: 'b' }), true);
+    assert.equal(shouldSpeakAutomatic(own, 'normal', { playerColor: 'w' }), true);
+    assert.equal(chooseCommentFocus(own, -1, { playerColor: 'w' }).focus, 'what the move sets up');
+    assert.equal(chooseCommentFocus(own, -1, { playerColor: 'b' }).focus, 'what your opponent is after');
+});
+
+test('move hiding catches the eight witnessed described plans while retaining their observations', () => {
+    const cases = [
+        ['rnbqkbnr/ppp1p1pp/5p2/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3', 'w',
+            'The d5 pawn is guarded by their queen, so pressing with e3 or c4 gives you a grip on it.', /pressing|e3|c4/],
+        ['rn1qkbnr/ppp1p1pp/5p2/3p4/3P4/5b1P/PPP1PP2/RNBQKB1R w KQkq - 0 5', 'w',
+            'The bishop on f3 hits your rook on h1. Your e2 pawn can take it.', /can take/],
+        ['rn1qk1nr/pp4pp/2p5/3pb3/8/2N4P/PPP2P2/R1BQKB1R w KQkq - 0 10', 'w',
+            'The knight on c3 is under pressure. The queen has a check that also hits h7.', /has a check/],
+        ['2k1r2r/pp1n2pp/8/2pp1P2/5B2/2nB1K1P/P1P5/R6R w - - 0 20', 'w',
+            'The bishop on d3 is under pressure. Your rooks should get to the open e-file.', /should get/],
+        ['2k5/pp1n4/6p1/2p5/3pn3/P2B3r/2PB1K2/4R3 w - - 2 26', 'w',
+            'The knight on e4 attacks your bishop, so it has to come off. It is undefended, so taking it is the clean way to stop the fork.', /come off|taking it/],
+        ['rn5r/pp1k2pB/2p1p3/3p2q1/3P2pb/2NKP3/PPP5/R1BQ3R b - - 3 15', 'b',
+            'That bishop on h7 is hanging to your rook on h8, and taking it also clears the h-file.', /taking it/],
+        ['4n3/pp2k1p1/4p3/1P1pP3/8/P1b5/2P2K2/8 b - - 0 37', 'b',
+            'That e5 pawn is hanging to your bishop on c3, so taking it is the kind of thing that matters now.', /taking it/],
+        ['8/pp2k1p1/3npb2/PP1p4/8/8/2P5/4K3 b - - 0 40', 'b',
+            'The b5 pawn is hanging to your knight on d6. Your bishop can give check while eyeing the a5 pawn.', /give check/]
+    ];
+    for(const [fen, playerColor, text, leak] of cases) {
+        const result = hideMoveSuggestions(text, { fen, playerColor });
+        assert.equal(result.withheld, true, text);
+        assert.doesNotMatch(result.text, leak);
+        assert.match(result.text, /pawn|bishop|knight/i, 'Retain the factual observation instead of discarding the whole lesson');
+    }
+    const fen = cases[1][0];
+    for(const text of ['Their bishop can take your rook.', 'Your pawn could have taken it earlier.',
+        'The bishop had a check earlier.', 'After Black gives check, your queen can take it.',
+        'You could have been pressing with e3 last move.'])
+        assert.equal(hideMoveSuggestions(text, { fen, playerColor: 'w' }).text, text, text);
+});
+
+test('saved whole-game factual errors cannot bypass checks with a SAN lead-in', () => {
+    const knight = { fen: 'rn1qkbnr/pp2p1pp/2p2p2/3p4/3P4/2N2P1P/PPP2P2/R1BQKB1R b KQkq - 1 6', playerColor: 'w' };
+    assert.equal(dropFalseGeometry('Nc3 is fine, it hits d5 and leans on b2.', knight).text, '');
+    const valid = 'Nc3 hits d5 and leans on e4.';
+    assert.equal(dropFalseGeometry(valid, knight).text, valid);
+    const rook = { fen: '2k5/p7/1p3n2/6p1/3p4/P6r/3K4/R4B2 b - - 1 31', playerColor: 'w' };
+    assert.equal(dropMisplacedPieces('Bf1 hangs your rook on h3 to the bishop.', rook).text, '');
+    assert.equal(dropMisplacedPieces('Bf1 hangs your rook on h3 to the bishop, so Black can just take it.', rook).text, '',
+        'The adverb just must not turn a current ownership claim into a historical one');
+    const actual = 'Bf1 leaves their rook on h3 active.';
+    assert.equal(dropMisplacedPieces(actual, rook).text, actual);
+});
+
+test('automatic comments introduce a newly identified mistake without implying an earlier discussion', () => {
+    assert.equal(polishCoaching('That Nc6 is the mistake. It leaves the pawn undefended.', { event: true }).text,
+        'That Nc6 is a mistake. It leaves the pawn undefended.');
+    assert.equal(polishCoaching('Nc6 was the mistake.', { event: true }).text, 'Nc6 was a mistake.');
+    const followup = 'That Nc6 is the mistake.';
+    assert.equal(polishCoaching(followup, { question: 'Which move was the mistake?' }).text, followup);
+    const comparison = 'Nf6 was fine, but Nc6 was the mistake.';
+    assert.equal(polishCoaching(comparison, { event: true }).text, comparison);
+    assert.match(naturalCoachSystem, /newly identified error as "a mistake"/);
+    assert.equal(polishCoaching('Nc6 is fine, but it solidifies e5.', { event: true, moveGrade: 'Best Move' }).text,
+        'Nc6 solidifies e5.');
+    assert.equal(polishCoaching('Nc6 is fine, but your e5 pawn needs a defender.', { event: true, moveGrade: 'Good Move' }).text,
+        'Your e5 pawn needs a defender.');
+    assert.equal(polishCoaching('Nc6 is fine if the bishop stays on e2.', { event: true, moveGrade: 'Best Move' }).text,
+        'Nc6 is fine if the bishop stays on e2.', 'A conditional assessment is real advice, not a stock grade');
+    assert.equal(polishCoaching('Nc6 is fine.', { question: 'Was Nc6 a good move?', moveGrade: 'Best Move' }).text,
+        'Nc6 is fine.', 'Asked-for verdicts remain intact');
+});
+
+test('player patterns use the actual mover, distinct games and a cross-game reminder cooldown', () => {
+    const board = new Chess();
+    board.move('e4'); board.move('e5');
+    const before = board.fen();
+    board.move('Qh5');
+    const record = { fen: board.fen(), last: { fen: before, label: 'Mistake', uci: 'd1h5', bestUci: 'g1f3' } };
+    assert.equal(mistakePattern(record, 'b'), null, 'An opponent mistake is not the player\'s habit');
+    assert.equal(mistakePattern(record, 'w').key, 'early-queen');
+    const saved = new Map();
+    const storage = { getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value) };
+    const patterns = new PlayerPatterns(storage);
+    const first = patterns.beginGame('board');
+    patterns.observe(record, 'b', first);
+    assert.deepEqual(patterns.data.counts, {});
+    patterns.observe(record, 'w', first);
+    patterns.observe(record, 'w', first);
+    assert.equal(patterns.data.counts['early-queen'].count, 1, 'Repeated presentation is deduplicated');
+    assert.equal(patterns.reminder(record, 'w', first), '');
+    assert.equal(new PlayerPatterns(storage).beginGame('board'), first, 'Reconnects retain the same game identity');
+    const second = patterns.beginGame('board', { fresh: true });
+    patterns.observe(record, 'w', second);
+    assert.match(patterns.reminder(record, 'w', second), /queen early/);
+    const patternComment = patterns.comment(record, 'w', second);
+    assert.match(patternComment, /earlier games/);
+    for(const hideMoves of [false, true]) {
+        const options = { fen: record.fen, beforeFen: before, playerColor: 'w', event: true, hideMoves, patternComment };
+        const checked = screenCoachReply('Your queen on h5 attacks e5.', options);
+        assert.ok(checked.text.startsWith(patternComment));
+        assert.equal(checked.text.split(patternComment).length, 2);
+        assert.equal(screenCoachReply(checked.text, options).text, checked.text, 'Streaming and final screening must agree');
+        assert.equal(screenCoachReply('', options).text, '', 'A reminder is not a replacement for an empty model answer');
+        assert.equal(screenCoachReply('Your queen on a8 attacks e5.', options).text, '', 'Do not hide a rejected answer behind a pattern reminder');
+    }
+    assert.doesNotMatch(screenCoachReply('Your queen on h5 attacks e5.', { event: false, patternComment, fen: record.fen }).text, /earlier games/);
+    patterns.markMentioned(second);
+    for(let i = 0; i < 2; i++) {
+        const game = patterns.beginGame();
+        patterns.observe(record, 'w', game);
+        assert.equal(patterns.reminder(record, 'w', game), '', 'The reminder does not repeat in intervening games');
+        assert.equal(patterns.comment(record, 'w', game), '');
+    }
+    const fifth = patterns.beginGame();
+    patterns.observe(record, 'w', fifth);
+    assert.match(patterns.reminder(record, 'w', fifth), /queen early/);
+    assert.equal(patterns.reminder({ ...record, last: { ...record.last, label: 'Best Move' } }, 'w', fifth), '');
+});
+
+test('automatic frequency and repetition controls retain important chess advice', () => {
+    const calm = { last: { label: 'Best Move' } };
+    assert.equal(shouldSpeakAutomatic(calm, 'normal', { silentPlies: 0 }), false);
+    assert.equal(shouldSpeakAutomatic(calm, 'normal', { silentPlies: 1 }), true);
+    assert.equal(shouldSpeakAutomatic(calm, 'quiet', { silentPlies: 20 }), false);
+    assert.equal(shouldSpeakAutomatic({ last: { label: 'Best Move', critical: true } }, 'quiet'), true,
+        'An engine-verified only move is important even when it is good');
+    const recent = ['Do not rush the attack.', 'Do not rush the attack.', 'Do not rush the attack.'];
+    assert.equal(limitVoiceRepetition('Do not rush the attack.', recent).text, '');
+    assert.equal(limitVoiceRepetition('Your knight guards e5.', recent).text, 'Your knight guards e5.');
+    assert.ok(voicePhrases("Don't rush the attack.").has("don't rush"));
+    const hanging = Array(3).fill('Your d4 pawn is hanging to the knight, so deal with it.');
+    assert.equal(limitVoiceRepetition('Your e5 pawn is hanging to the bishop on d6.', hanging).text,
+        'Your e5 pawn is unprotected against the bishop on d6.', 'An overused stock phrase is reworded, not dropped');
+    assert.equal(limitVoiceRepetition('Your e5 pawn is hanging to the bishop on d6.', hanging.slice(1)).text,
+        'Your e5 pawn is hanging to the bishop on d6.', 'Wording below the limit stays as the model wrote it');
+    assert.equal(limitVoiceRepetition("You're in check from the queen on h4, so deal with that first.", hanging).text,
+        "You're in check from the queen on h4, so handle that first.");
+    assert.equal(limitVoiceRepetition('Black will likely take it, and it is a bit loose.', Array(3).fill('They will likely take it. It is a bit loose.')).text,
+        'Black will probably capture it, and it is slightly loose.');
+    assert.equal(limitVoiceRepetition('Keep the queen active and watch e4.', Array(3).fill('Keep the rook active.')).text,
+        'Make sure the queen stays active and watch e4.', 'Capture groups survive rewording and capitals are kept');
+    assert.equal(limitVoiceRepetition('Here dxe5 is the natural way to open lines.', Array(3).fill('Nf3 is the natural move.')).text,
+        'Here dxe5 is the obvious way to open lines.');
+    assert.equal(limitVoiceRepetition('Your rook should stay active on the e-file.', Array(3).fill('The rook is active on the open d-file.')).text,
+        'Your rook should stay active along the e-file.');
+    assert.equal(limitVoiceRepetition('So keep the queen and bishop coordinated.', Array(3).fill('Keep the rooks coordinated.')).text,
+        'So coordinate the queen and bishop.');
+    assert.equal(limitVoiceRepetition('Nf3 is the natural move.', ['Nf3 is the natural move.']).text, 'Nf3 is the natural move.',
+        'A phrase used only once recently is left alone');
+    assert.equal(limitVoiceRepetition('The king is in the center, so don’t rush the pawn grab.', Array(3).fill('So don\'t rush it.')).text,
+        'The king is in the center, so you shouldn\'t rush the pawn grab.', 'Curly apostrophes match the same stock phrase');
+    assert.equal(limitVoiceRepetition('Take the queen and keep the d4 pawn alive.', Array(3).fill('Trade and keep the rook active.')).text,
+        'Take the queen while keeping the d4 pawn alive.');
+    const kept = ['Keep the pressure on.', 'So keep the queen guarding it.', 'Make sure you keep the queen guarding that pawn.'];
+    assert.equal(limitVoiceRepetition('The f2 pawn matters, so keep the queen tied to that idea.', kept).text,
+        'The f2 pawn matters, so make sure the queen stays tied to that idea.');
+    assert.equal(limitVoiceRepetition('So make sure you keep the queen guarding f2.', kept).text, 'So make sure the queen is still guarding f2.');
+    const left = ['But it leaves your queen exposed.', 'It leaves your d4 pawn hanging.', 'And it leaves your king boxed in.'];
+    assert.equal(limitVoiceRepetition('Kd2 is solid, but it leaves your king in the middle.', left).text, 'Kd2 is solid, but your king is left in the middle.');
+    assert.equal(limitVoiceRepetition('Qc3 hits e5, but it leaves c6 and d5 soft.', left).text, 'Qc3 hits e5, but c6 and d5 are left soft.');
+    assert.equal(limitVoiceRepetition('Be2 hits the rook, but it also leaves your king boxed in.', left).text,
+        'Be2 hits the rook, but your king is also left boxed in.');
+    assert.equal(limitVoiceRepetition('It leaves your king and queen exposed.', left).text, 'It leaves your king and queen exposed.',
+        'A rewording never splits a longer noun phrase');
+    const keeping = ['Keep the bishop pair and the e-file pressure.', 'So keep the bishops and rook coordinated around it.', 'If you want to keep the pawn, think first.'];
+    assert.equal(limitVoiceRepetition('Keep the bishop pair and rook active, but don\'t let h3 become a free target.', keeping).text,
+        'Make sure the bishop pair and rook stay active, but don\'t let h3 become a free target.');
+    assert.equal(limitVoiceRepetition('Keep the bishop pair and push c4.', keeping).text, 'Hold on to the bishop pair and push c4.');
+    const busy = ['Qf5+ is also doing real work.', 'The queen is also doing a lot of work.', 'That rook is also doing real work on c3.'];
+    assert.equal(limitVoiceRepetition('Your queen on f5 is also doing a lot of work, but the rook matters more.', busy).text,
+        'Your queen on f5 is also working hard, but the rook matters more.');
+    assert.equal(limitVoiceRepetition('The bishop is doing defensive work more than attacking.', ['It is doing real work.', 'The rook is doing real work.', 'The queen is doing a lot.']).text,
+        'The bishop is busy with defensive work more than attacking.');
+    const squeeze = ['Keep the pressure on e3.', 'The pressure around your king is real.', 'That loosens the pressure on d4.'];
+    assert.equal(limitVoiceRepetition('Qc3 would keep the pressure without giving the king that choice.', squeeze).text,
+        'Qc3 would keep the squeeze without giving the king that choice.');
+    const firstThing = ['That is the first thing to deal with.', 'The thing to answer is the check.', 'The only thing to handle is d4.'];
+    assert.equal(limitVoiceRepetition('The bishop on g6 is the immediate thing to answer.', firstThing).text,
+        'The bishop on g6 is the immediate problem to answer.');
+    const middle = ['Your king is in the middle.', 'The king stays in the middle.', 'It is stuck in the middle.'];
+    assert.equal(limitVoiceRepetition('After Rxh1, keep the pressure on the middle.', middle).text, 'After Rxh1, keep the pressure on the centre.');
+    assert.ok(![...voicePhrases("Get out of the knight's check and the king's corner.")].some(phrase => /knight's|king's/.test(phrase)),
+        'A possessive chess noun is still a chess word');
+    assert.equal(limitVoiceRepetition('Kd3 leaves your king right in the middle of Black\'s knight and rook.', middle).text,
+        'Kd3 leaves your king surrounded by Black\'s knight and rook.');
+    assert.ok(![...voicePhrases('Bring the king toward the center and out of the corner.')].some(phrase => /^(?:toward the|out of)$/.test(phrase)),
+        'Prepositions are function words');
+    const leaning = [...Array(3).fill('Is doing nothing.'), ...Array(2).fill('Calm plan ahead.')];
+    assert.deepEqual(leanedPhrases(leaning), ['calm plan ahead', 'is doing nothing'],
+        'Phrases no rewording covers are named first, even when used less');
+    assert.ok(!voicePhrases("And it's loose.").has("and it's"), 'Pronoun contractions are function words');
+    assert.deepEqual([...voicePhrases('The open e-file and the half-open c-file.')], [], 'File names are chess terms');
+    const checked = screenCoachReply('White to move. A knight on d5 would attack d8. Your knight on g1 needs development.',
+        { fen: start, playerColor: 'w', question: 'Would a knight on d5 attack d8?', event: true });
+    assert.equal(checked.text, 'Your knight on g1 needs development.');
+    assert.equal(checked.assessments.filter(item => item.status === 'screened').length, 1);
+    assert.equal(checked.assessments.filter(item => item.status === 'contradicted').length, 1);
+});
+
+test('move hiding recognizes legal pawn plans without suppressing history or opponent plans', () => {
+    const fen = 'rnbqkbnr/ppp1p1pp/5p2/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3';
+    const options = { fen, playerColor: 'w' };
+    assert.equal(hideMoveSuggestions('Build with e3 or c4 and keep the knight useful.', options).text, '');
+    assert.equal(hideMoveSuggestions('The pawn break c4 or e4 is there if you want it.', options).text, '');
+    assert.equal(hideMoveSuggestions('The d4 pawn is solid, so build with e3 or c4.', options).text, 'The d4 pawn is solid.');
+    for(const text of ['White was building with e3 earlier.', 'You could have been pressing with c4.',
+        'Black can build with e3.', 'Their pawn break e3 is the threat.', 'The pawn on e3 would support d4.'])
+        assert.equal(hideMoveSuggestions(text, options).text, text, text);
+});
+
+test('a retained early pattern reminder consumes its own game cooldown exactly once', async () => {
+    const source = (await readFile(new URL('../service.js', import.meta.url), 'utf8'))
+        .replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')
+        .replaceAll('import.meta.url', JSON.stringify('https://pena.test/service.js'));
+    const marked = [];
+    const context = vm.createContext({ localStorage: { getItem: () => null } });
+    vm.runInContext(source + '\nglobalThis.fixture = { pena, rememberPlayerPattern };', context);
+    const { pena, rememberPlayerPattern } = context.fixture;
+    pena.patterns = { markMentioned: game => marked.push(game) };
+    pena.patternGame = 99;
+    const response = { event: true, patternGame: 2, playerPatternComment: 'Overlooking checks has come up in your earlier games too.' };
+    rememberPlayerPattern(response, 'A prompt is not a displayed reminder.');
+    assert.deepEqual(marked, []);
+    rememberPlayerPattern(response, `${response.playerPatternComment} Your king is safe.`);
+    rememberPlayerPattern(response, `${response.playerPatternComment} Your king is safe. More text.`);
+    assert.deepEqual(marked, [2], 'Completion or cancellation after early presentation must not repeat or misattribute the reminder');
+    rememberPlayerPattern({ ...response, event: false, patternMentioned: false }, response.playerPatternComment);
+    assert.deepEqual(marked, [2]);
+});
+
+test('recurring tactical patterns require concrete board and searched-move evidence', () => {
+    const loose = new Chess();
+    for(const san of ['e4', 'e5', 'Nf3', 'Nc6']) loose.move(san);
+    const before = loose.fen();
+    loose.move('Nxe5');
+    const record = { fen: loose.fen(), last: { fen: before, label: 'Mistake', uci: 'f3e5' } };
+    assert.equal(mistakePattern(record, 'w').key, 'loose-pieces');
+    assert.equal(mistakePattern(record, 'b'), null);
+    const checks = new Chess('4k3/8/8/8/8/8/2P5/R6K w - - 0 1');
+    const checkingBefore = checks.fen();
+    checks.move('c3');
+    const missed = { fen: checks.fen(), last: { fen: checkingBefore, label: 'Mistake', uci: 'c2c3', bestUci: 'a1e1' } };
+    assert.equal(mistakePattern(missed, 'w').key, 'missed-checks');
+    assert.equal(mistakePattern({ ...missed, last: { ...missed.last, bestUci: 'a1b1' } }, 'w'), null,
+        'A missed-check pattern cannot be invented from a nonchecking best move');
+});
+
+test('the live conversation gate skips calm quiet-mode moves but still sends important events and questions', async () => {
+    const source = (await readFile(new URL('../service.js', import.meta.url), 'utf8'))
+        .replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')
+        .replaceAll('import.meta.url', JSON.stringify('https://pena.test/service.js'));
+    const messages = [], busy = [];
+    const fixture = { record: {}, chattiness: 'quiet' };
+    const context = vm.createContext({ fixture, messages, busy, fen: start, crypto, performance, AbortController,
+        localStorage: { getItem: () => null }, penaPosition, readPenaPosition, findPlayedMove, asksForMove,
+        shouldSpeakAutomatic, chooseCommentFocus, leanedPhrases, moveGradeKind, promptOverridesFrom, PlayerPatterns,
+        coachStyleName: () => 'natural', liveCoachingInput: async () => ({}) });
+    vm.runInContext(source + `
+        ui = { thought: {}, thinking: {} };
+        setBusy = value => busy.push(value);
+        setStatus = () => {};
+        gameTimeline = async () => null;
+        failure = error => { throw error; };
+        pena.instance = { currentFen: fen };
+        pena.settings = { penaCoaching: true };
+        pena.conversation = { prepare: async () => ({ record: fixture.record }) };
+        pena.groundedEngines = { collect: async () => ({}) };
+        pena.groundedReady = Promise.resolve();
+        pena.worker = { postMessage: message => messages.push(message) };
+        globalThis.run = async (event = true) => {
+            pena.settings.penaChattiness = fixture.chattiness;
+            await converse({ fen, playerColor: 'w', event, question: event ? '(position updated)' : 'Explain the centre.' },
+                { gameStateHistory: [] });
+        };
+    `, context);
+    for(const label of ['Best Move', 'Neutral', 'Weak Move', 'Inaccuracy']) {
+        fixture.record = { last: { label }, threat: { pv: ['d8h4'], gain: 10 } };
+        await context.run();
+    }
+    assert.equal(messages.length, 0, 'A routine threat probe must not generate or speak a reply');
+    assert.equal(busy.at(-1), false);
+    for(const record of [{ last: { label: 'Mistake' } }, { threat: { pv: ['d8h4'], gain: 200 } }]) {
+        fixture.record = record;
+        await context.run();
+    }
+    assert.equal(messages.length, 2, 'Serious mistakes and real threats reach the model');
+    fixture.record = {};
+    await context.run(false);
+    assert.equal(messages.at(-1).automatic, false, 'Quiet mode never blocks a player question');
+    fixture.chattiness = 'chatty';
+    await context.run();
+    assert.equal(messages.length, 4, 'Switching to chatty takes effect on the next move');
+});
+
+test('automatic comments tell the model nobody spoke, and name the move that happened', () => {
+    const before = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
+    const after = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
+    assert.match(eventInstruction(positionEvent, { fen: after, previousFen: before }),
+        /^\(The player didn't say anything\. Their opponent just played e5\.\).*one or two short sentences.*No greeting, no question/);
+    const played = eventInstruction('(played Nf3)', { hideMoves: true });
+    assert.match(played, /They just played Nf3\..*If it was a mistake, say so plainly.*Don't name or hint at a move for them\.$/);
+    assert.equal(eventInstruction('What should I do?'), null);
+
+    const messages = [
+        { role: 'system', content: 'You are Pena, a chess coach.' },
+        { role: 'system', content: 'Verified evidence:\nYou play White. White to move.' },
+        { role: 'user', content: '(played e4)' },
+        { role: 'assistant', content: 'That grabs the centre.' },
+        { role: 'user', content: 'Question subject: White\n\nPlayer question: (position updated)' }
+    ];
+    const natural = styleCoachingMessages(messages, { automatic: true, question: positionEvent, fen: after, previousFen: before });
+    assert.equal(natural[0].content, naturalCoachSystem);
+    assert.ok(natural[0].content.includes(directVoiceRules), 'Automatic coaching receives the direct voice rules');
+    assert.equal(natural[1], messages[1], 'The evidence stays identical, so the prompt cache still matches');
+    assert.equal(natural[2].content, '(No message. They played e4.)');
+    assert.equal(natural.at(-1).content, eventInstruction(positionEvent, { fen: after, previousFen: before }));
+    const asked = styleCoachingMessages([...messages.slice(0, -1), { role: 'user', content: 'Player question: Why e5?' }],
+        { question: 'Why e5?', reminder: 'Imagined knight on d5.' });
+    assert.equal(asked.at(-1).content, 'Imagined knight on d5.\n\nPlayer question: Why e5?');
+    assert.ok(asked[0].content.includes(directVoiceRules), 'Player questions receive the same voice rules');
+    const legacy = styleCoachingMessages(messages, { style: 'legacy', automatic: true, question: positionEvent, hideMoves: true });
+    assert.equal(legacy[0].content, `You are Pena, a chess coach. ${penaVoice} ${coachingPolicy} Do not name or describe specific suggested moves or lines unless the player explicitly asks for one.`);
+    assert.deepEqual(legacy.slice(1), messages.slice(1));
+    const custom = styleCoachingMessages(messages, { custom: true, overrides: { systemPrompt: 'You are a grumpy pirate.' } });
+    assert.match(custom[0].content, /grumpy pirate/);
+    assert.ok(custom[0].content.includes(coachingPolicy), 'A custom character still coaches by the same rules');
+});
+
+test('coaching history stops feeding old rhetorical framing back to the model', () => {
+    const messages = [
+        { role: 'system', content: 'You are Pena.' },
+        { role: 'system', content: 'Verified evidence:\nBg5 pins the knight.' },
+        { role: 'user', content: 'What is the real idea?' },
+        { role: 'assistant', content: "White's Bg5 is the real idea: it pins the knight." },
+        { role: 'user', content: 'Why?' }
+    ];
+    const styled = styleCoachingMessages(messages);
+    assert.equal(styled[3].content, "White's Bg5 is worth considering: it pins the knight.");
+    assert.equal(styled[2], messages[2], 'The player\'s own words are not rewritten');
+    assert.equal(styled[1], messages[1], 'Verified evidence is not edited for style');
+    assert.equal(messages[3].content, "White's Bg5 is the real idea: it pins the knight.", 'Stored history is not mutated');
+    assert.equal(styleCoachingMessages(messages, { style: 'legacy' })[3], messages[3], 'Legacy comparisons retain their original context');
+});
+
+test('plain chat with coaching off drops spoken label leads too, but the raw view keeps them', async () => {
+    const source = (await readFile(new URL('../service.js', import.meta.url), 'utf8'))
+        .replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')
+        .replaceAll('import.meta.url', JSON.stringify(new URL('../service.js', import.meta.url).href));
+    const context = vm.createContext({ localStorage: { getItem: () => null }, dropAnnouncedLabels, markdownPlain,
+        renderMarkdown: text => text });
+    vm.runInContext(source + `
+        ui = { raw: {}, answer: { replaceChildren(text) { this.text = text; } }, checks: {} };
+        setBusy = setStatus = scrollToTurn = () => {};
+        streamSpeech = (response, text) => { globalThis.spoken = text; };
+        pena.idleTurns = [];
+        globalThis.finish = finishGroundedChat;
+        globalThis.state = () => ({ raw: ui.raw.textContent, shown: ui.answer.text, turns: pena.idleTurns });
+    `, context);
+    const reply = 'So the sensible plan is just development: get the knight out and castle.';
+    context.finish({ raw: true, question: 'What now?' }, { inputSchema: 'pena-plain-chat/1', raw: reply });
+    const { raw, shown, turns } = context.state();
+    assert.equal(raw, reply);
+    assert.equal(shown, 'Get the knight out and castle.');
+    assert.equal(context.spoken, 'Get the knight out and castle.');
+    assert.equal(turns[0].pena, 'Get the knight out and castle.');
 });
 
 test('who is winning is left out unless the player asks', () => {
@@ -329,6 +1133,10 @@ test('who is winning is left out unless the player asks', () => {
         'Nxd5 is a mistake. It takes back the pawn, but cxd5 does it much better.');
     for(const question of ["who's winning?", 'how am I doing', 'is it equal?'])
         assert.equal(dropUnaskedVerdicts('White is winning, so keep it simple.', question).text, 'White is winning, so keep it simple.', question);
+    assert.equal(dropUnaskedVerdicts('The knight wants c4 (+0.4), with Bd3 close behind.\n\nYour king is safe.', 'what now?').text,
+        'The knight wants c4, with Bd3 close behind.\n\nYour king is safe.');
+    assert.equal(dropUnaskedVerdicts('c4 (+0.4) is fine.', "what's the eval?").text, 'c4 (+0.4) is fine.');
+    assert.equal(dropUnaskedVerdicts('The game ended (1-0) after Qh7.', '').text, 'The game ended (1-0) after Qh7.');
 });
 test('move hiding keeps the opponent threat and the forced line that explains it', () => {
     const board = { fen: '4k3/8/8/8/8/5b1q/PPPP1PPP/RNBQ1RK1 w - - 0 1', playerColor: 'w' };
@@ -337,6 +1145,97 @@ test('move hiding keeps the opponent threat and the forced line that explains it
         assert.equal(hideMoveSuggestions(text, board).text, text, text);
     for(const text of ['Play gxf3 and the threat is gone.', 'You can defend with Qe1.', 'The cleanest fix is to take on f3.'])
         assert.equal(hideMoveSuggestions(text, board).text, '', text);
+});
+
+test('move hiding withholds indirect capture commands without losing the board observation', () => {
+    // Voice-study case 42p: naming the target and saying "take it" reveals Bxe5 without using notation.
+    const board = { fen: 'r1bq1rk1/p4ppp/n1pb4/1p1pN3/1P6/P2PB1P1/4PPBP/RN1Q1RK1 b - - 0 12', playerColor: 'b' };
+    const captures = new Chess(board.fen).moves({ verbose: true }).filter(move => move.to === 'e5' && move.captured);
+    assert.deepEqual(captures.map(move => move.san), ['Bxe5']);
+    const observation = "That knight on e5 is hanging and it's also eyeing your c6 pawn, so it's the one thing to deal with right now.";
+    for(const command of ['Take it off the board before White gets to use it.', 'Capture that knight.',
+        'You can take it.', 'Remove the knight.', 'Swap it off.', 'Trade off that knight.',
+        'Get rid of that knight.', 'Pick it off.']) {
+        assert.deepEqual(hideMoveSuggestions(`${observation} ${command}`, board), { text: observation, withheld: true }, command);
+        assert.equal(hideMoveSuggestions(command, board).text, '', command);
+    }
+    assert.equal(hideMoveSuggestions('That knight is loose, so take it.', board).text, 'That knight is loose.');
+});
+
+test('indirect move hiding keeps opponent threats, past captures and non-move advice', () => {
+    const board = { fen: 'r1bq1rk1/p4ppp/n1pb4/1p1pN3/1P6/P2PB1P1/4PPBP/RN1Q1RK1 b - - 0 12', playerColor: 'b' };
+    for(const text of ['White can take it.', "Their knight will take the pawn.", 'White will check, then take the rook.',
+        'You took the knight off the board.', 'After you capture it, White could recapture.',
+        "Don't take it if that exposes your king.", 'You can take a moment to check the threats.',
+        'Their passed pawn is dangerous. Take it seriously.', 'Take it from me, king safety matters.',
+        'Take care of your king.', 'Trading pieces helps when you are ahead.',
+        'Look for a move that develops your knight.']) {
+        assert.deepEqual(hideMoveSuggestions(text, board), { text, withheld: false }, text);
+    }
+});
+
+test('move hiding catches indirect advice while preserving its observation and opponent plans', () => {
+    const cases = [
+        {
+            fen: 'rnbqkbnr/ppp1p1pp/5p2/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3',
+            playerColor: 'w',
+            text: "Black's f6 weakened the e6 square and the kingside, so the center is where you want to push. Your pawn on d4 is solid but Black's d5 pawn is only guarded by the queen, so a central pawn move is the natural way to press.",
+            expected: "Black's f6 weakened the e6 square and the kingside, so the center is where you want to push. Your pawn on d4 is solid but Black's d5 pawn is only guarded by the queen."
+        },
+        {
+            fen: 'rn1qkbnr/ppp1p1pp/5p2/3p4/3P2b1/5N2/PPP1PP1P/RNBQKB1R w KQkq - 0 4',
+            playerColor: 'w',
+            text: 'Your knight on f3 is hanging to their bishop on g4, and that bishop is unprotected, so the rook on h1 has a clean way to hit it.',
+            expected: 'Your knight on f3 is hanging to their bishop on g4, and that bishop is unprotected.'
+        },
+        {
+            fen: 'rn1qk1nr/pp4pp/2p5/3pb3/8/2N4P/PPP2P2/R1BQKB1R w KQkq - 0 10',
+            playerColor: 'w',
+            text: "Black's bishop on e5 is loose and it's the one piece holding their center together, so the queen's check on h5 is the move that hits it and the h7 pawn at the same time.",
+            expected: "Black's bishop on e5 is loose and it's the one piece holding their center together."
+        },
+        {
+            fen: '2k5/pp6/5n2/2p3p1/3p4/P2B3r/2PK4/R7 w - - 0 29',
+            playerColor: 'w',
+            text: 'Your bishop on d3 is hanging to their rook on h3, and the h-file is open, so check first and hit that rook.',
+            expected: 'Your bishop on d3 is hanging to their rook on h3, and the h-file is open.'
+        },
+        {
+            fen: '4n3/pp2k1p1/2p1p3/1P1NP3/8/P1q2R2/2P2p2/4bK2 b - - 0 35',
+            playerColor: 'b',
+            text: "You're in check from the knight on d5, and that knight also hits your queen on c3, so the check has to be dealt with in a way that doesn't just lose the queen. The cleanest way is to take the knight with a pawn, since both c6 and e6 hit d5 and the knight is undefended.",
+            expected: "You're in check from the knight on d5, and that knight also hits your queen on c3, so the check has to be dealt with in a way that doesn't just lose the queen."
+        },
+        {
+            fen: '8/pp1k2p1/n1p1p3/3pPq2/1P1P4/P3N3/2P1Kp2/4b2R b - - 3 28',
+            playerColor: 'b',
+            text: 'Your queen on f5 is under attack from the knight on e3, and the knight also eyes d5. Move the queen with something useful, like hitting d4 or c2, rather than just stepping aside.',
+            expected: 'Your queen on f5 is under attack from the knight on e3, and the knight also eyes d5.'
+        },
+        {
+            fen: '2k4r/pp1n3p/6p1/2p2P2/3p1B2/P1nB1K1P/2P5/4R3 w - - 0 23',
+            playerColor: 'w',
+            text: "g6 weakened the dark squares around Black's king, so your bishop pair and the open e-file are worth using before Black consolidates. The knight on d7 is loose and the pawn on g6 is attacked by your f5 pawn, so the rook lift up the e-file is the natural way to press.",
+            expected: "g6 weakened the dark squares around Black's king, so your bishop pair and the open e-file are worth using before Black consolidates. The knight on d7 is loose and the pawn on g6 is attacked by your f5 pawn."
+        },
+        {
+            fen: '2k1R3/p7/1p6/6p1/3p2r1/P7/3K4/8 b - - 1 37',
+            playerColor: 'w',
+            text: "The e5 pawn is hanging to your bishop on c3 and it's isolated, so it's the target. Your g-pawn is passed but isolated too, so don't rush it, just take the free pawn and keep the bishop active.",
+            expected: "The e5 pawn is hanging to your bishop on c3 and it's isolated, so it's the target. Your g-pawn is passed but isolated too, so don't rush it."
+        }
+    ];
+    for(const { text, expected, ...board } of cases)
+        assert.deepEqual(hideMoveSuggestions(text, board), { text: expected, withheld: true }, text);
+
+    const opponentPlan = 'The d-file is open. If you do not act, Black has a pawn break with c5.';
+    assert.deepEqual(hideMoveSuggestions(opponentPlan, {
+        fen: '4k3/8/8/2p5/3P4/8/8/4K3 w - - 0 1', playerColor: 'w'
+    }), { text: opponentPlan, withheld: false });
+    assert.deepEqual(hideMoveSuggestions('You played Nf3. The knight is active now.', {
+        fen: 'rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1',
+        playerColor: 'w', playedSan: 'Nf3'
+    }), { text: 'You played Nf3. The knight is active now.', withheld: false });
 });
 
 test('short requests only reveal a move when one was withheld in the conversation', () => {
@@ -588,7 +1487,7 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
     assert.equal(await page.evaluate(() => window.fixture.workers.length), 0);
     await page.evaluate(() => window.fixture.toggle(true));
     await page.waitForFunction(() => window.fixture.workers.at(-1)?.init);
-    assert.equal(await page.locator('#pena-window .pena-title').textContent(), 'AI');
+    assert.equal(await page.locator('#pena-window .pena-title').textContent(), 'Pena');
     const titleBadge = await page.locator('.pena-heading').evaluate(element => {
         const title = element.querySelector('.pena-title').getBoundingClientRect();
         const badge = element.querySelector('.pena-beta').getBoundingClientRect();
@@ -671,7 +1570,7 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
         const { setInputValue } = await import('./assets/js/gui/domInputs.js');
         setInputValue(document.querySelector('#pena-floaty [data-key="penaCoaching"]'), false);
     });
-    for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine'])
+    for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaChattiness', 'penaTeacher', 'penaFollowLine'])
         assert.equal(await locked(key), 'true', key);
     for(const key of ['penaEffort', 'penaThinkingTokens', 'penaTemperature', 'penaSystemPrompt'])
         assert.equal(await page.locator(`#pena-floaty [data-key="${key}"]`).isEnabled(), true, key);
@@ -696,7 +1595,7 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
         keys: [...section.querySelectorAll('[data-key]')].map(input => input.dataset.key)
     })));
     assert.deepEqual(sections, [
-        { title: 'Conversation', keys: ['penaCoaching', 'penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine',
+        { title: 'Conversation', keys: ['penaCoaching', 'penaHideMoves', 'penaOnlyWhenAsked', 'penaChattiness', 'penaTeacher', 'penaFollowLine',
             'penaVisualDuration', 'penaVoicePause'] },
         { title: 'Voice', keys: ['penaSpeech', 'penaZonosVoice', 'penaBrowserVoice', 'penaSpeechRate'] },
         { title: 'Thinking & Prompt', keys: ['penaEffort', 'penaThinkingTokens', 'penaTemperature', 'penaSystemPrompt'] }
@@ -822,7 +1721,7 @@ test('Pena connects locally, keeps its settings and cannot load models in the br
         box.checked = false;
         box.dispatchEvent(new Event('change'));
     });
-    for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine', 'penaVisualDuration'])
+    for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaChattiness', 'penaTeacher', 'penaFollowLine', 'penaVisualDuration'])
         assert.equal(await locked(key), 'true', `${key} is locked while chess coaching is off`);
     assert.notEqual(await locked('penaVoicePause'), 'true');
     await page.evaluate(() => {
@@ -986,7 +1885,7 @@ test('Pena continuous microphone submits successive questions on the current boa
     assert.match(await page.locator('.pena-feedback').textContent(), /stopped unexpectedly/);
     await page.evaluate(() => { window.fixture.prepareError = null; });
     await page.locator('.pena-microphone').click();
-    await page.waitForFunction(() => window.fixture.starts === 2);
+    await page.waitForFunction(() => window.fixture.starts === 3);
     await page.evaluate(() => window.fixture.oldCallbacks.onUtterance({ audio: new Float32Array(16000), sampleRate: 16000 }));
     assert.equal(await page.evaluate(() => window.fixture.recognitions.length), 5);
     await page.evaluate(() => { window.fixture.emit(); });
@@ -1089,15 +1988,15 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
         await page.waitForFunction(count => window.fixture.messages.filter(message => message.type === 'converse').length > count, before);
         return page.evaluate(() => window.fixture.messages.filter(message => message.type === 'converse').at(-1));
     };
-    const reply = (message, raw, quality) => page.evaluate(async ({ message, raw, quality }) => {
+    const reply = (message, raw, quality, phase = 'complete') => page.evaluate(async ({ message, raw, quality, phase }) => {
         const { pcfCoachingInput } = await import('./assets/engines/pena-v2/pcf-input.js');
         const input = pcfCoachingInput(message.input, { history: message.history, playerColor: message.playerColor,
             tokenCount: text => Math.ceil(text.length / 6) });
         const send = data => window.fixture.worker.onmessage({ data: { type: 'pena', mode: 'grounded', chatId: message.chatId, ...data } });
         send({ phase: 'thinking' });
-        send({ phase: 'complete', raw, tokens: 30, promptTokens: input.pcf.promptTokens, finishReason: 'stop', quality,
+        send({ phase, raw, text: raw, tokens: 30, promptTokens: input.pcf.promptTokens, finishReason: 'stop', quality, checks: quality?.checks || [],
             inputSchema: input.schema, definedIds: [...input.references.map(ref => ref.id), ...input.legacyReferenceIds] });
-    }, { message, raw, quality });
+    }, { message, raw, quality, phase });
 
     const first = await ask('Should I play e4?');
     assert.equal(first.hideMoves, false);
@@ -1110,20 +2009,35 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
     await page.evaluate(message => window.fixture.worker.onmessage({ data: { type: 'pena', mode: 'converse',
         chatId: message.chatId, fen: message.fen, phase: 'text', raw: 'Unchecked draft must stay hidden.' } }), first);
     assert.doesNotMatch(await page.locator('.pena-answer').textContent(), /Unchecked draft/);
+    await reply(first, 'Yes, e4 is the engine favorite [A1].', undefined, 'sentence');
+    await page.evaluate(message => window.fixture.worker.onmessage({ data: { type: 'pena', mode: 'grounded',
+        chatId: message.chatId, phase: 'check', text: 'The knight on g1 can legally reach f3.' } }), first);
+    assert.match(await page.locator('.pena-check-count').textContent(), /2 checked/,
+        'A live check adds to, rather than replacing, the statement already screened');
+    assert.equal(await page.locator('.pena-checks').isVisible(), false,
+        'Accumulated check details stay hidden while the response is still thinking or streaming');
+    await page.waitForFunction(() => window.fixture.spoken.join(' ').includes('engine favorite'));
+    assert.match(await page.locator('.pena-answer').textContent(), /engine favorite/,
+        'A screened complete sentence is presented and spoken before the final response');
     await reply(first, 'Yes, e4 is the engine favorite [A1].', {
         attempts: [{ removed: [{ sentence: 'Discarded private draft.', reason: 'An earlier attempt was rejected.' }] }],
-        removed: []
+        removed: [], checks: [{ note: 'The knight on g1 can legally reach f3.' }]
     });
     await page.waitForFunction(() => /favorite/.test(document.querySelector('.pena-answer').textContent));
     const answer = await page.locator('.pena-answer').textContent();
     assert.match(answer, /e4 is the engine favorite\./);
     assert.doesNotMatch(answer, /\[|Qxh7/);
-    assert.equal(await page.locator('.pena-check-count').count(), 0);
+    assert.match(await page.locator('.pena-check-count').textContent(), /2 checked/, 'The final check report is deduplicated against streamed events');
+    assert.equal(await page.locator('.pena-checks').isVisible(), true, 'The check report appears only after completion');
     assert.match(await page.locator('.pena-feedback').textContent(), /Pena.*not verified/);
     assert.ok(await page.locator('.pena-answer .pena-reference').count() > 0);
     assert.equal(await page.locator('.pena-answer').first().textContent(), 'Yes, e4 is the engine favorite.');
     assert.equal(await page.locator('.pena-evidence-warning').count(), 0);
     const second = await ask('Why?');
+    assert.match(await page.locator('.pena-turn').first().locator('.pena-check-count').textContent(), /2 checked/,
+        'Earlier replies retain their check details when a new turn begins');
+    assert.equal(await page.locator('.pena-turn').first().locator('.pena-checks').isVisible(), true,
+        'Thinking on the next turn does not hide completed reports');
     assert.equal(second.input.messages.length, 4);
     assert.equal(second.input.messages[2].content, 'Yes, e4 is the engine favorite [A1].');
     await reply(second, 'No additional evidence is available [NOT_DEFINED]. Consider [your own plan] and say [OK].');
@@ -1154,7 +2068,8 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
         height: element.getBoundingClientRect().height, viewport: element.parentElement.clientHeight,
         minimum: getComputedStyle(element).minHeight, display: getComputedStyle(element.parentElement).display
     }));
-    assert.ok(latestLayout.height >= latestLayout.viewport - 1, JSON.stringify(latestLayout));
+    assert.equal(latestLayout.minimum, '0px', JSON.stringify(latestLayout));
+    assert.ok(latestLayout.height < latestLayout.viewport, 'A short reply must not reserve an entire chat viewport');
     assert.equal(await page.locator('.pena-send').isVisible(), false);
     const input = page.locator('.pena-question-form input');
     assert.equal(await input.getAttribute('enterkeyhint'), 'send');
@@ -1191,7 +2106,7 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
         return { visible: question.top >= bounds.top - 1 && answer.bottom <= bounds.bottom + 1,
             previousHidden: element.previousElementSibling.getBoundingClientRect().bottom <= bounds.top + 1 };
     });
-    assert.deepEqual(exchange, { visible: true, previousHidden: true });
+    assert.equal(exchange.visible, true, 'The latest exchange stays visible without padding older messages out of view');
     const formBeforeScroll = await page.locator('.pena-question-form').boundingBox();
     await page.locator('.pena-window-body').evaluate(element => { element.scrollTop = 1000; });
     await page.locator('#pena-window').evaluate(element => { element.scrollTop = 1000; });
@@ -1322,18 +2237,72 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
     } }), invalid);
     assert.match(await page.locator('.pena-answer').last().textContent(), /exact PCF evidence references/);
     const hallucination = await ask('Would a knight on d5 attack d8?');
+    const beforeScreening = await page.evaluate(() => window.fixture.spoken.join(' '));
+    await reply(hallucination, 'A knight on d5 would attack d8.', undefined, 'sentence');
+    assert.doesNotMatch(await page.locator('.pena-answer').last().textContent(), /would attack d8/);
+    assert.equal(await page.evaluate(() => window.fixture.spoken.join(' ')), beforeScreening,
+        'A contradicted streaming sentence is never spoken');
     await reply(hallucination, 'A knight on d5 would attack d8. Knights move in L shapes.');
     assert.equal(await page.locator('.pena-answer').last().textContent(), 'Knights move in L shapes.');
-    assert.equal(await page.locator('.pena-checks').isVisible(), true);
+    assert.equal(await page.locator('.pena-checks').last().isVisible(), true);
+    assert.match(await page.locator('.pena-checks').last().locator('summary').textContent(), /2 checked.*1 removed/);
     assert.match(await page.locator('.pena-checks li').last().textContent(), /knight on d5 would attack d8/);
     const afterHallucination = await ask('Why does it move that way?');
     assert.doesNotMatch(JSON.stringify(afterHallucination.input.messages), /would attack d8/);
     await reply(afterHallucination, 'That is how a knight moves.');
+    const introduction = await ask('What is vulnerable?');
+    const definiteDraft = 'Your e2 pawn is the soft spot: it needs support.';
+    await reply(introduction, definiteDraft, undefined, 'sentence');
+    assert.equal(await page.locator('.pena-answer').last().textContent(), 'Your e2 pawn is a soft spot: it needs support.',
+        'A new description is introduced naturally before streamed text is displayed');
+    await reply(introduction, definiteDraft);
+    assert.equal(await page.locator('.pena-answer').last().textContent(), 'Your e2 pawn is a soft spot: it needs support.',
+        'The final reply keeps the same article as the streamed sentence');
     await page.locator('.pena-chat-log').evaluate(element => {
         for(let i = 0; i < 30; i++) element.prepend(element.querySelector('.pena-turn').cloneNode(true));
     });
     assert.equal(await page.locator('.pena-chat-log').evaluate(element => element.scrollHeight > element.clientHeight), true);
     assert.equal(await page.locator('.pena-window-body').evaluate(element => element.scrollHeight <= element.clientHeight), true);
+    assert.equal(await page.locator('.pena-chat-log').evaluate(log => {
+        const empty = log.querySelector('.pena-turn').cloneNode(true);
+        empty.querySelectorAll('.pena-message, .pena-thinking, .pena-checks').forEach(element => { element.hidden = true; });
+        log.appendChild(empty);
+        const height = empty.getBoundingClientRect().height;
+        empty.remove();
+        return height;
+    }), 0, 'Silent and cancelled automatic turns must not reserve chat height');
+
+    const log = page.locator('.pena-chat-log');
+    const atBottom = () => page.waitForFunction(() => {
+        const log = document.querySelector('.pena-chat-log');
+        return log.scrollHeight - log.clientHeight - log.scrollTop <= 1;
+    });
+    const scrollLog = bottom => log.evaluate((element, bottom) => {
+        element.scrollTop = bottom ? element.scrollHeight : 0;
+        element.dispatchEvent(new Event('scroll'));
+    }, bottom);
+    const scrolling = await ask('What else should I look after?');
+    const longReply = 'Look after loose pieces before starting a pawn advance. '.repeat(24).trim();
+    await reply(scrolling, longReply, undefined, 'sentence');
+    await atBottom();
+    await log.evaluate(element => { element.lastElementChild.style.paddingBottom = '180px'; });
+    await atBottom();
+    await log.evaluate(element => { element.style.maxHeight = '100px'; });
+    await atBottom();
+    await scrollLog(false);
+    await reply(scrolling, 'Keep the king sheltered.', undefined, 'sentence');
+    assert.equal(await log.evaluate(element => element.scrollTop), 0, 'Streaming does not pull a reader back to the bottom');
+    await reply(scrolling, `${longReply} Keep the king sheltered.`);
+    assert.equal(await log.evaluate(element => element.scrollTop), 0, 'Completion does not pull a reader back to the bottom');
+    await scrollLog(true);
+    await log.evaluate(element => { element.lastElementChild.style.paddingBottom = '300px'; });
+    await atBottom();
+    await log.evaluate(element => {
+        element.lastElementChild.style.paddingBottom = '';
+        element.style.maxHeight = '';
+    });
+    await atBottom();
+    await scrollLog(false);
 
     await page.evaluate(() => { window.fixture.config.global.penaOnlyWhenAsked = false; });
     const next = new Chess();
@@ -1344,7 +2313,11 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
     const automatic = await page.evaluate(() => window.fixture.messages.find(message => message.automatic));
     assert.equal(automatic.hideMoves, true);
     assert.match(automatic.input.messages.at(-1).content, /Player question: \(position updated\)/);
+    assert.equal(automatic.input.messages.filter(message => message.role === 'assistant').length, 0,
+        'An automatic comment on a new board must not inherit unlabelled answers about older positions');
     await reply(automatic, 'Keep your pieces active. Look after your king. Here is a lengthy extra lesson.');
+    assert.equal(await log.evaluate(element => element.scrollTop), 0, 'Automatic turns respect a reader who scrolled up');
+    await scrollLog(true);
     assert.equal(await page.locator('.pena-answer').last().textContent(), 'Keep your pieces active. Look after your king. Here is a lengthy extra lesson.');
     assert.match(await page.locator('.pena-feedback').textContent(), /not verified/);
     const automaticCount = await page.evaluate(() => window.fixture.messages.filter(message => message.automatic).length);
@@ -1435,6 +2408,13 @@ test('Pena chat presentation uses grounded input, labels prose unverified and ke
         'Plain Inkling never comments on a move by itself');
     assert.equal(await page.evaluate(() => window.fixture.engineCalls), engineCalls,
         'Plain mode does not grade new positions or search user questions');
+    assert.equal(await page.locator('.pena-turn').last().evaluate(element => element.getBoundingClientRect().height), 0,
+        'A position change without an automatic reply leaves no blank chat space');
+    const silentTurns = await page.locator('.pena-turn').count();
+    moved.move('Nf3'); moved.move('Nf6');
+    await page.evaluate(fen => { window.fixture.instance.currentFen = fen; }, moved.fen());
+    await page.waitForTimeout(700);
+    assert.equal(await page.locator('.pena-turn').count(), silentTurns, 'Successive silent positions do not accumulate empty turns');
     await page.evaluate(() => { window.fixture.config.global.penaCoaching = true; });
     const privateCoaching = await ask('Why should I develop my pieces?');
     await reply(privateCoaching, 'The quiet lantern phrase belongs to this conversation.');
@@ -1576,10 +2556,10 @@ test('Pena joins a resumed voice question rather than submitting its earlier hal
         .replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')
         .replaceAll('import.meta.url', JSON.stringify('https://pena.test/service.js'));
     const requests = [], submitted = [];
-    let callbacks;
+    let callbacks, finishPreparation;
     const context = vm.createContext({ localStorage: { getItem: () => null }, AbortController,
         recognizedSpeech, penaText: value => value, setPenaText: (element, value) => { element.dataset.penaText = value; },
-        recognitionRequest: data => data.type === 'prepare' ? Promise.resolve({})
+        recognitionRequest: data => data.type === 'prepare' ? new Promise(resolve => { finishPreparation = resolve; })
             : new Promise(resolve => requests.push(resolve)) });
     vm.runInContext(code + `
         ui = { status: { dataset: {} }, microphone: { setAttribute() {} }, input: { value: '' }, form: {} };
@@ -1591,7 +2571,10 @@ test('Pena joins a resumed voice question rather than submitting its earlier hal
     pena.speech = { stop() {} };
     pena.microphone = { startContinuous: async options => { callbacks = options; } };
     ui.form.requestSubmit = () => submitted.push(ui.input.value);
-    await listen();
+    const listening = listen();
+    assert.ok(callbacks, 'Capture starts in the click gesture, without waiting for model preparation');
+    finishPreparation({});
+    await listening;
     assert.equal(callbacks.pauseMs, 4000);
     callbacks.onSpeech();
     const first = callbacks.onUtterance({ audio: new Float32Array(16000), sampleRate: 16000 });
@@ -2962,7 +3945,8 @@ test('Pena omits dangling reasoning and unfinished generated tails without erasi
     assert.equal(explanationExcerpt(repeated, true, { fen: start, mode: 'dynamic' }),
         'Nf3, preparing to castle. It also contests the central squares.');
     const positional = 'The aim is to keep the center closed. This gives time to prepare a kingside attack.';
-    assert.equal(explanationExcerpt(positional, true, { fen: start, mode: 'dynamic' }), positional);
+    assert.equal(explanationExcerpt(positional, true, { fen: start, mode: 'dynamic' }),
+        'Keep the center closed. This gives time to prepare a kingside attack.');
 });
 
 test('Pena plans stay faint and distinct from legal moves, and only legal notation becomes SAN', () => {
@@ -3232,6 +4216,19 @@ test('Pena settings are global and ignore retired reply-mode, language and perso
     } finally { globalThis.GET_GM_CFG_BASE_VALUE = original; }
 });
 
+test('Pena hides moves by default while preserving saved choices', async () => {
+    const original = globalThis.GET_GM_CFG_BASE_VALUE;
+    let saved = null;
+    globalThis.GET_GM_CFG_BASE_VALUE = async key => key === 'penaHideMoves' ? saved : null;
+    try {
+        assert.equal((await getPenaPreferences()).penaHideMoves, true);
+        saved = false;
+        assert.equal((await getPenaPreferences()).penaHideMoves, false);
+        saved = true;
+        assert.equal((await getPenaPreferences()).penaHideMoves, true);
+    } finally { globalThis.GET_GM_CFG_BASE_VALUE = original; }
+});
+
 test('Pena reacts to your own played move against its previous pick', () => {
     const before = 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3';
     const after = 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N1P/PPPP1PP1/RNBQKB1R b KQkq - 0 3';
@@ -3420,7 +4417,8 @@ function continuousMicrophoneFixture(t, { permission, module, resume, detector }
             return permission ? permission(makeStream) : Promise.resolve(makeStream());
         } } },
         AudioContext: class {
-            constructor() {
+            constructor(options) {
+                assert.equal(options, undefined, 'Use the native capture rate; the worklet resamples to 16 kHz');
                 this.state = 'suspended';
                 this.sampleRate = 48000;
                 this.destination = {};
@@ -3853,6 +4851,64 @@ test('Pena visualizes trades only where the board pins them down', async () => {
     assert.deepEqual(arrows(offer), [['g2', 'h3'], ['g5', 'h3'], ['h5', 'h3']]);
     assert.equal(cue('Decide whether to exchange or keep the tension.', center, 'exchange'), undefined);
     assert.equal(cue('It accepts doubled pawns in exchange for activity.', center, 'exchange'), undefined);
+});
+
+test('Pena keeps generic definitions on demonstration boards, not unrelated live actors', () => {
+    const board = new Chess(start);
+    board.move('Nf3');
+    const text = 'Pin: a piece cannot move, or should not, because a more valuable piece stands behind it on the same line. Against the king it is an absolute pin and moving is illegal.';
+    const options = { beforeFen: start, question: 'What is a pin in chess?', antecedent: 'Your knight on f3 is developed.' };
+    for(const fen of [start, board.fen(), '4k3/8/2n5/8/B7/8/8/4K3 w - - 0 1']) {
+        const compiled = compileTeaching(text, fen, text, options);
+        assert.ok(compiled.cues.length > 0);
+        assert.ok(compiled.cues.every(cue => cue.demo?.id === 'D:pin'), JSON.stringify(compiled.cues));
+        assert.ok(compiled.mentions.filter(mention => mention.kind === 'piece').every(mention => mention.status === 'not board-specific'));
+        assert.ok(compiled.cues.every(cue => !cue.references.squares.includes('f3')));
+    }
+    for(const definition of ['A fork is when a piece attacks two pieces.', 'Skewer: a valuable piece is attacked. The piece behind it falls.',
+        'A pin is when a piece cannot move because it exposes your king.']) {
+        const compiled = compileTeaching(definition, board.fen(), definition, { beforeFen: start });
+        assert.ok(compiled.cues.length > 0);
+        assert.ok(compiled.cues.every(cue => cue.demo));
+    }
+    const continuation = 'Against the king it is an absolute pin and moving is illegal.';
+    assert.deepEqual(compileTeaching(continuation, board.fen(), text, options).cues, [], 'Streamed continuation cannot inherit a live actor');
+    const rule = 'A piece cannot move when doing so exposes the king.';
+    assert.deepEqual(compileTeaching(rule, board.fen(), rule, { beforeFen: start }).cues, [], 'General rules do not select a live king either');
+    for(const rule of ['A knight moves in an L-shape.', 'A bishop moves diagonally.', 'Rooks move along files.', 'A knight is a minor piece.'])
+        assert.deepEqual(compileTeaching(rule, board.fen(), rule, { beforeFen: start }).cues, [], rule);
+    const example = 'A fork is when one piece attacks two. For example, Nf3 develops a knight. Here your knight on g1 is still at home.';
+    const explained = compileTeaching(example, start);
+    assert.equal(explained.frames.length, 0, 'Moves in a generic example cannot advance the live teaching position');
+    assert.ok(explained.cues.some(cue => !cue.demo && cue.references.squares.includes('g1')));
+});
+
+test('Pena resolves generic pieces through verified relations, question subjects and move roles', () => {
+    const fen = '4k3/8/2n5/8/B7/8/8/4K3 w - - 0 1';
+    const squaresFor = (text, options = {}) => compileTeaching(text, fen, text, options).mentions
+        .filter(mention => mention.kind === 'piece' && mention.name === 'piece').map(mention => [mention.status, mention.entities.map(piece => piece.square)]);
+    assert.deepEqual(squaresFor('The bishop on a4 pins a piece.'), [['resolved', ['c6']]]);
+    assert.deepEqual(squaresFor('A piece is pinned.'), [['resolved', ['c6']]]);
+    assert.deepEqual(squaresFor('That piece cannot move.', { question: 'Why is the knight on c6 stuck?' }), [['resolved', ['c6']]]);
+    assert.deepEqual(squaresFor('A piece cannot move.'), [['ambiguous', []]]);
+    assert.deepEqual(squaresFor('The bishop on a4 pins a piece to a more valuable piece.'), [['resolved', ['c6']], ['resolved', ['e8']]]);
+    assert.deepEqual(squaresFor('The knight on c6 is pinned. A more valuable piece stands behind it.'), [['resolved', ['e8']]]);
+    const doublePin = '4k3/8/2n5/8/Bb6/2N5/8/4K3 w - - 0 1';
+    assert.equal(compileTeaching('A piece is pinned.', doublePin).mentions.find(mention => mention.name === 'piece').status, 'ambiguous',
+        'Two verified pin victims are still ambiguous; do not prefer the player by default');
+    const developed = compileTeaching('Nf3 develops a piece.', start);
+    assert.deepEqual(developed.mentions.find(mention => mention.name === 'piece').entities.map(piece => piece.square), ['f3']);
+    const board = new Chess(start);
+    board.move('Nf3');
+    const unrelated = compileTeaching('A piece cannot move.', board.fen(), undefined, { beforeFen: start });
+    assert.equal(unrelated.mentions.find(mention => mention.name === 'piece').status, 'ambiguous');
+    const mixed = 'A pin is when a piece cannot move. Here your bishop on a4 pins the knight on c6. That piece is pinned.';
+    const compiled = compileTeaching(mixed, fen);
+    assert.deepEqual(compiled.mentions.filter(mention => mention.name === 'piece').map(mention => [mention.status, mention.entities.map(piece => piece.square)]),
+        [['not board-specific', []], ['resolved', ['c6']]]);
+    assert.ok(compiled.cues.some(cue => !cue.demo && cue.references.squares.includes('c6')));
+    const concrete = compileTeaching('The pin is against the knight on c6.', fen);
+    assert.ok(concrete.cues.some(cue => !cue.demo && cue.references.squares.includes('c6')), 'A concrete pin is not a generic definition');
 });
 
 test('Pena understands everyday questions and answers them directly', () => {

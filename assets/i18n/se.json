@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Ange hela pixelvärden från -1000 till 1000.", "tagline":"Anpassa din spökupplevelse","inactive":"Aktivera spökskriptet och den lokala servern.","connecting":"Ansluter till den lokala servern...","available":"Skärmöverlägg tillgängligt.","unavailable":"Skärmöverlägg inte tillgängligt.","update":"Uppdatera den lokala servern och anslut igen.","paused":"Skärmöverlägget pausat. För många ritningar eller servern är upptagen."},
         "pena": {
+            "chattiness": "Automatiska kommentarer",
+            "chattinessHint": "Hur ofta Pena pratar efter drag",
+            "chattinessQuiet": "Tyst",
+            "chattinessNormal": "Normal",
+            "chattinessChatty": "Pratsam",
             "chessCoaching": "Schackträning",
             "chessCoachingHint": "Brädfakta, motorer och svarskontroller. Av innebär att du pratar direkt med modellen",
             "chattingRaw": "Pratar direkt med modellen…",

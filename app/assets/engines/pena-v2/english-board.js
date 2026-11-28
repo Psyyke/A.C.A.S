@@ -31,11 +31,13 @@ const hitters = (board, square, color) => SQUARES.map(from => pieceAt(board, fro
 
 function lastMove(previousFen, fen) {
     if(!previousFen) return null;
+    // chess.js writes an en passant square after every double push, and app FENs often don't, so that field is left out.
+    const key = value => value.split(' ').slice(0, 3).join(' ');
     try {
-        const before = new Chess(previousFen), key = fen.split(' ').slice(0, 4).join(' ');
+        const before = new Chess(previousFen), target = key(fen);
         for(const move of before.moves({ verbose: true })) {
             before.move(move);
-            const reached = before.fen().split(' ').slice(0, 4).join(' ') === key;
+            const reached = key(before.fen()) === target;
             before.undo();
             if(reached) return `Last move: ${sides[move.color]} played ${move.san}, ${names[move.piece]} from ${move.from} to ${move.to}`
                 + `${move.captured ? `, taking the ${names[move.captured]}` : ''}.`;

@@ -102,6 +102,11 @@
         },
         "ghostScreen": {"invalidOffset": "Unesi cijele vrijednosti piksela od -1000 do 1000.", "tagline":"Prilagodi svoj skriveni način rada","inactive":"Uključi skrivenu skriptu i lokalni poslužitelj.","connecting":"Povezivanje s lokalnim poslužiteljem...","available":"Prikaz preko zaslona dostupan je.","unavailable":"Prikaz preko zaslona nije dostupan.","update":"Ažuriraj lokalni poslužitelj i ponovno se poveži.","paused":"Prikaz je pauziran. Previše crteža ili je poslužitelj zauzet."},
         "pena": {
+            "chattiness": "Automatski komentari",
+            "chattinessHint": "Koliko često Pena govori nakon poteza",
+            "chattinessQuiet": "Tiho",
+            "chattinessNormal": "Normalno",
+            "chattinessChatty": "Pričljivo",
             "chessCoaching": "Šahovsko treniranje",
             "chessCoachingHint": "Činjenice o ploči, motori i provjere odgovora. Isključeno, razgovarate izravno s modelom",
             "chattingRaw": "Razgovor izravno s modelom…",

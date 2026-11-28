@@ -52,6 +52,7 @@ test('Pena settings, opening-book links and progress messages update in every su
     await page.locator('#acas-loading-screen').waitFor({ state: 'hidden' });
     const root = page.locator('#pena-floaty');
     await root.locator('[data-pena-text="visualDuration"]').waitFor({ state: 'attached' });
+    assert.equal(await page.locator('#suggestion-mix-source-note').evaluate(element => getComputedStyle(element).textAlign), 'center');
     await page.evaluate(async () => {
         const { setPenaText } = await import('./assets/engines/pena-v2/i18n.js');
         const status = document.createElement('div');
@@ -66,7 +67,8 @@ test('Pena settings, opening-book links and progress messages update in every su
             const mismatches = [];
             for(const key of ['thinking', 'prompt', 'evidence', 'visualDuration', 'voicePause', 'importZonosVoice',
                 'customZonosHint', 'evidenceLines', 'evidenceReplies', 'evidenceCompare', 'evidenceWhatIf',
-                'evidenceHistory', 'evidenceAmount', 'effort', 'systemPrompt']) {
+                'evidenceHistory', 'evidenceAmount', 'effort', 'systemPrompt', 'chattiness', 'chattinessHint',
+                'chattinessQuiet', 'chattinessNormal', 'chattinessChatty']) {
                 if(element.querySelector(`[data-pena-text="${key}"]`)?.textContent !== expected[key])
                     mismatches.push(key);
             }
@@ -77,6 +79,27 @@ test('Pena settings, opening-book links and progress messages update in every su
             return mismatches;
         }, text);
         assert.deepEqual(mismatches, [], `${code}: untranslated live UI`);
+        const titles = await page.locator('[data-pena-text="settingsTitle"]').allTextContents();
+        assert.ok(titles.length >= 2 && titles.every(title => title === 'Pena'), `${code}: Pena keeps its product name`);
+        const size = await root.evaluate(async element => {
+            element.showModal();
+            await document.fonts.ready;
+            const control = element.querySelector('[data-key="penaChattiness"]').parentElement;
+            const measure = document.createElement('span');
+            Object.assign(measure.style, { position: 'absolute', whiteSpace: 'pre',
+                font: getComputedStyle(control, '::before').font });
+            element.appendChild(measure);
+            const longest = Math.max(...[...control.querySelectorAll('.dropdown-item')].map(item => {
+                measure.textContent = item.textContent;
+                return measure.getBoundingClientRect().width;
+            }));
+            const width = control.getBoundingClientRect().width;
+            measure.remove();
+            element.close();
+            return { width, longest };
+        });
+        assert.ok(size.width >= size.longest + 38 && size.width <= size.longest + 50,
+            `${code}: dropdown should fit its longest translated option: ${JSON.stringify(size)}`);
         const book = {
             subtitle: catalog.configTranslations.openingBookName[1],
             link: catalog.domTranslations['#polyglot-book-input .input-subtitle-link']

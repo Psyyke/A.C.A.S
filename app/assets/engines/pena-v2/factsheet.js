@@ -232,7 +232,7 @@ function pawnFeatures(facts) {
             const base = members.filter(square => !links.some(link => link[1] === square))
                 .sort((a, b) => (rank(a) - rank(b)) * forward(color))[0];
             found.push({ kind: 'pawn chain', side: color, weight: 2,
-                text: `${sides[color]} pawns ${members.sort().join(', ')} protect each other diagonally, the base on ${base} is the one no pawn protects, so it is the natural target (pieces may still defend it)`,
+                text: `${sides[color]} pawns ${members.sort().join(', ')} protect each other diagonally, and no pawn protects the base on ${base}, so that is where the chain can be attacked (pieces may still defend it)`,
                 references: references({ relations: links.slice(0, 5), regions: [region('Pawn chain', members, green), region('Base', [base], orange)] }) });
         }
     }
@@ -271,7 +271,7 @@ function pawnBreaks(fen) {
             const safe = !facts.attackers(move.to, other(color)).length || facts.attackers(move.to, color).length > 0 ? 1 : 0;
             const label = `${color === 'b' ? '...' : ''}${move.san}`;
             found.push({ kind: 'pawn break', side: color, weight: 2 + centre + safe,
-                text: `${sides[color]} pawn break ${label}${hits.length ? ` hits the pawn${hits.length > 1 ? 's' : ''} on ${hits.join(' and ')}` : ''}${captures ? ` capturing on ${move.to}` : ''}, which may help open lines after pawn exchanges`,
+                text: `${sides[color]} pawn break ${label}${hits.length ? ` hits the pawn${hits.length > 1 ? 's' : ''} on ${hits.join(' and ')}` : ''}${captures ? ` capturing on ${move.to}` : ''}, which can open lines once pawns are traded`,
                 references: references({ moves: [[move.from, move.to]], relations: hits.map(square => arrow(move.to, square, red)),
                     regions: [region('Pawn break', [move.to], orange)] }) });
         }
@@ -360,7 +360,7 @@ function pieceQuality(facts, fen) {
                 return item && item.color === color && ['n', 'b'].includes(item.type);
             });
             if(sleeping.length >= 2) found.push({ kind: 'development', side: color, weight: sleeping.length,
-                text: `${sides[color]} still has ${sleeping.length} minor pieces at home (${sleeping.map(square => names[facts.board.get(square).type] + ' ' + square).join(', ')}), developing them is a priority`,
+                text: `${sides[color]} still has ${sleeping.length} minor pieces at home (${sleeping.map(square => names[facts.board.get(square).type] + ' ' + square).join(', ')}) that have not moved yet`,
                 references: references({ regions: [region('Undeveloped', sleeping, orange)] }) });
         }
         // Rooks side by side on the back rank are not a battery anyone cares about.
@@ -547,16 +547,18 @@ function engineFacts(fen, engine, turn) {
     return found;
 }
 
-function threatFact(fen, threat, turn) {
+function threatFact(fen, threat, turn, playerColor = null) {
     if(!threat?.pv?.length) return null;
     const opponentFen = withTurn(fen, other(turn));
     const moves = sanLine(opponentFen, threat.pv, 3);
     if(!moves.length) return null;
     const label = (threat.gain ?? 0) >= 150 || threat.score?.mate > 0 ? 'threat' : 'idea';
     const does = mechanism(opponentFen, threat.pv[0]);
+    // After the player's own move the threat is theirs, so it is the opponent who has to answer it.
+    const real = other(turn) === playerColor ? ', a real threat for the opponent to answer' : ', a real threat to deal with';
     return { id: 'T', kind: `opponent ${label}`, side: other(turn), weight: label === 'threat' ? 15 : 3, line: moves,
         text: `if ${sides[other(turn)]} could move now they would play ${moves[0].san}${does ? `, ${does}` : ''}`
-            + `${label === 'threat' ? ', a real threat to deal with' : ', not a big threat'}`,
+            + `${label === 'threat' ? real : ', not a big threat'}`,
         references: references({ relations: [arrow(moves[0].from, moves[0].to, red)], regions: [region('Threat', [moves[0].to], red)] }) };
 }
 
@@ -639,7 +641,7 @@ export function factSheet(fen, { playerColor = null, engine = null, threat = nul
     const focus = questionFocus(question, playerColor, turn);
     const askedList = (Array.isArray(asked) ? asked : [asked]).filter(Boolean).slice(-3);
     const special = [...askedList.map((item, index) => askedFact(fen, item, turn, item.inputAlias || `A${index + 1}`)), lastFact(last),
-        ...engineFacts(fen, engine, turn), threatFact(fen, threat, turn), ...defenceFacts(fen, threat, turn)].filter(Boolean);
+        ...engineFacts(fen, engine, turn), threatFact(fen, threat, turn, playerColor), ...defenceFacts(fen, threat, turn)].filter(Boolean);
     const board_ = [
         ...loosePieces(facts), ...forks(facts), ...pinsAndSkewers(facts),
         kingSafety(facts, 'w', fen, phase), kingSafety(facts, 'b', fen, phase),

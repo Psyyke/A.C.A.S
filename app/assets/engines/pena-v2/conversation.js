@@ -211,7 +211,8 @@ export async function analysePosition(engine, fen, { history = [], depth = 14 } 
         const line = before?.move === uci ? before : (await engine.lines(previous, { depth: depth - 2, multipv: 1, moves: [uci] }))[0];
         if(before && line) {
             const grade = engine.compare(toScore(before), { ...line.score, move: uci, depth: line.depth }, choices === 1, runner ? toScore(runner) : null);
-            record.last = { fen: previous, uci, san: played.san, label: grade.label, reason: grade.reason, bestUci: before.move, pv: before.pv };
+            record.last = { fen: previous, uci, san: played.san, label: grade.label, reason: grade.reason,
+                critical: Boolean(grade.critical), bestUci: before.move, pv: before.pv };
         }
     }
     if(!board.in_check()) {

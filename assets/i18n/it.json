@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Inserisci valori interi di pixel tra -1000 e 1000.", "tagline":"Personalizza la tua esperienza fantasma","inactive":"Attiva lo Script Fantasma e il server locale.","connecting":"Connessione al server locale...","available":"Sovrapposizione sullo schermo disponibile.","unavailable":"Sovrapposizione sullo schermo non disponibile.","update":"Aggiorna il server locale e riconnettiti.","paused":"Sovrapposizione in pausa. Troppi disegni o server occupato."},
         "pena": {
+            "chattiness": "Commenti automatici",
+            "chattinessHint": "Quanto spesso Pena parla dopo le mosse",
+            "chattinessQuiet": "Silenzioso",
+            "chattinessNormal": "Normale",
+            "chattinessChatty": "Loquace",
             "chessCoaching": "Allenamento di scacchi",
             "chessCoachingHint": "Fatti sulla scacchiera, motori e controlli delle risposte. Disattivato, parli direttamente con il modello",
             "chattingRaw": "Conversazione direttamente con il modello…",

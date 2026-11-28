@@ -45,17 +45,20 @@ export function boardResult(fen) {
 
 /**
  * Grades every move of a game. fens runs from the first position to the current one.
- * engine is { lines(fen, { depth, multipv }), compare(best, played, forced, runner) }, the same shape the chat uses.
+ * engine is { lines(fen, { depth, multipv, isCurrent }), compare(best, played, forced, runner) }, the same shape the chat uses.
  * Each position is searched once, the next search doubles as the score of the move that led there.
  * @returns {Promise<{ ply: number, color: 'w'|'b', san: string, uci: string, beforeFen: string, label: string, reason: string,
  *   bestUci: string|null, pv: string[], value: number }[]>}
  */
-export async function gradeGame(engine, fens, { depth = 12, known = [] } = {}) {
+export async function gradeGame(engine, fens, { depth = 12, known = [], isCurrent = () => true } = {}) {
     const moves = [...known];
     const search = async fen => {
+        if(!isCurrent()) throw new DOMException('Game grading cancelled', 'AbortError');
         const board = new Chess(fen);
         if(board.game_over()) return { board, lines: [] };
-        return { board, lines: await engine.lines(fen, { depth, multipv: Math.min(2, board.moves().length) }) };
+        const lines = await engine.lines(fen, { depth, multipv: Math.min(2, board.moves().length), isCurrent });
+        if(!isCurrent()) throw new DOMException('Game grading cancelled', 'AbortError');
+        return { board, lines };
     };
     let current = fens.length > known.length ? await search(fens[known.length]) : null;
     for(let index = known.length; index < fens.length - 1; index++) {

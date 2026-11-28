@@ -202,6 +202,11 @@
         },
         "ghostScreen": {"invalidOffset": "-1000 dan 1000 gacha butun piksel qiymatlarini kiriting.", "tagline":"Yashirin rejimni sozlang","inactive":"Yashirin skript va mahalliy serverni yoqing.","connecting":"Mahalliy serverga ulanmoqda...","available":"Ekran qatlami mavjud.","unavailable":"Ekran qatlami mavjud emas.","update":"Mahalliy serverni yangilang va qayta ulaning.","paused":"Ekran qatlami to‘xtatildi. Chizmalar ko‘p yoki server band."},
         "pena": {
+            "chattiness": "Avtomatik izohlar",
+            "chattinessHint": "Pena yurishlardan keyin qanchalik tez-tez gapiradi",
+            "chattinessQuiet": "Kamgap",
+            "chattinessNormal": "Oddiy",
+            "chattinessChatty": "Sergap",
             "chessCoaching": "Shaxmat murabbiyligi",
             "chessCoachingHint": "Taxta faktlari, dvigatellar va javob tekshiruvlari. O‘chirilganda model bilan bevosita gaplashasiz",
             "chattingRaw": "Model bilan bevosita suhbat…",

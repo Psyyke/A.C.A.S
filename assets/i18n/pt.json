@@ -272,6 +272,11 @@
         },
         "ghostScreen": {"invalidOffset": "Introduz valores inteiros de píxeis entre -1000 e 1000.", "tagline":"Ajusta a tua experiência fantasma","inactive":"Ativa o Script Fantasma e o servidor local.","connecting":"A ligar ao servidor local...","available":"Sobreposição no ecrã disponível.","unavailable":"Sobreposição no ecrã indisponível.","update":"Atualiza o servidor local e volta a ligar.","paused":"Sobreposição em pausa. Há desenhos a mais ou o servidor está ocupado."},
         "pena": {
+            "chattiness": "Comentários automáticos",
+            "chattinessHint": "Com que frequência Pena fala após as jogadas",
+            "chattinessQuiet": "Calado",
+            "chattinessNormal": "Normal",
+            "chattinessChatty": "Falador",
             "chessCoaching": "Treino de xadrez",
             "chessCoachingHint": "Factos do tabuleiro, motores e verificação de respostas. Desativado, falas diretamente com o modelo",
             "chattingRaw": "A conversar diretamente com o modelo…",

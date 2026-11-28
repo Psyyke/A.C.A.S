@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "-1000 ilə 1000 arasında tam piksel dəyərləri daxil edin.", "tagline":"Gizli rejimi tənzimləyin","inactive":"Gizli skripti və yerli serveri açın.","connecting":"Yerli serverə qoşulur...","available":"Ekran örtüyü mövcuddur.","unavailable":"Ekran örtüyü mövcud deyil.","update":"Yerli serveri yeniləyib yenidən qoşulun.","paused":"Ekran örtüyü dayandırıldı. Çəkimlər çoxdur və ya server məşğuldur."},
         "pena": {
+            "chattiness": "Avtomatik şərhlər",
+            "chattinessHint": "Pena gedişlərdən sonra nə qədər tez-tez danışır",
+            "chattinessQuiet": "Sakit",
+            "chattinessNormal": "Normal",
+            "chattinessChatty": "Danışqan",
             "chessCoaching": "Şahmat məşqçiliyi",
             "chessCoachingHint": "Taxta faktları, mühərriklər və cavab yoxlamaları. Söndürüləndə yalnız modellə danışırsınız",
             "chattingRaw": "Yalnız modellə söhbət…",

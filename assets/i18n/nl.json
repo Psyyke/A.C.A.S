@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Vul hele pixelwaarden van -1000 tot 1000 in.", "tagline":"Pas je spookervaring aan","inactive":"Schakel het spookscript en de lokale server in.","connecting":"Verbinden met de lokale server...","available":"Schermoverlay beschikbaar.","unavailable":"Schermoverlay niet beschikbaar.","update":"Werk de lokale server bij en verbind opnieuw.","paused":"Schermoverlay gepauzeerd. Te veel tekeningen of de server is bezet."},
         "pena": {
+            "chattiness": "Automatische opmerkingen",
+            "chattinessHint": "Hoe vaak Pena na zetten praat",
+            "chattinessQuiet": "Stil",
+            "chattinessNormal": "Normaal",
+            "chattinessChatty": "Spraakzaam",
             "chessCoaching": "Schaakcoaching",
             "chessCoachingHint": "Bordfeiten, engines en antwoordcontroles. Uit praat je rechtstreeks met het model",
             "chattingRaw": "Rechtstreeks praten met het model…",

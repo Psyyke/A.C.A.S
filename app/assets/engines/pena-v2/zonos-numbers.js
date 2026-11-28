@@ -6,6 +6,13 @@ const ordinal = { one: 'first', two: 'second', three: 'third', five: 'fifth', ei
     nine: 'ninth', twelve: 'twelfth', twenty: 'twentieth', thirty: 'thirtieth', forty: 'fortieth',
     fifty: 'fiftieth', sixty: 'sixtieth', seventy: 'seventieth', eighty: 'eightieth', ninety: 'ninetieth' };
 
+export function normalizeZonosText(text) {
+    // AA is the browser voice's letter-A workaround, not a word for neural speech.
+    const squares = text.replace(/\b(?:AA\s+|A\s*|a)([1-8])\b/g, '"A" $1')
+        .replace(/\bAA(?=\s+to\b)/g, '"A"');
+    return normalizeZonosNumbers(squares);
+}
+
 function cardinal(digits) {
     let number = BigInt(digits);
     if(number === 0n) return 'zero';

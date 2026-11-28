@@ -272,6 +272,11 @@
         },
         "ghostScreen": {"invalidOffset": "Introdu valori întregi de pixeli între -1000 și 1000.", "tagline":"Ajustează experiența fantomă","inactive":"Pornește scriptul fantomă și serverul local.","connecting":"Conectare la serverul local...","available":"Suprapunerea pe ecran este disponibilă.","unavailable":"Suprapunerea pe ecran nu este disponibilă.","update":"Actualizează serverul local și reconectează-te.","paused":"Suprapunere întreruptă. Prea multe desene sau server ocupat."},
         "pena": {
+            "chattiness": "Comentarii automate",
+            "chattinessHint": "Cât de des vorbește Pena după mutări",
+            "chattinessQuiet": "Tăcut",
+            "chattinessNormal": "Normal",
+            "chattinessChatty": "Vorbăreț",
             "chessCoaching": "Antrenament de șah",
             "chessCoachingHint": "Date despre tablă, motoare și verificarea răspunsurilor. Dezactivat, vorbești direct cu modelul",
             "chattingRaw": "Conversație direct cu modelul…",

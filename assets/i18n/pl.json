@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Podaj całkowite przesunięcie od -1000 do 1000 pikseli.", "tagline":"Dostosuj tryb ducha","inactive":"Włącz skrypt ducha i lokalny serwer.","connecting":"Łączenie z lokalnym serwerem...","available":"Nakładka ekranowa jest dostępna.","unavailable":"Nakładka ekranowa jest niedostępna.","update":"Zaktualizuj lokalny serwer i połącz się ponownie.","paused":"Nakładka wstrzymana. Za dużo rysunków lub serwer jest zajęty."},
         "pena": {
+            "chattiness": "Automatyczne komentarze",
+            "chattinessHint": "Jak często Pena mówi po ruchach",
+            "chattinessQuiet": "Małomówny",
+            "chattinessNormal": "Normalny",
+            "chattinessChatty": "Rozmowny",
             "chessCoaching": "Trening szachowy",
             "chessCoachingHint": "Fakty o szachownicy, silniki i sprawdzanie odpowiedzi. Po wyłączeniu rozmawiasz bezpośrednio z modelem",
             "chattingRaw": "Rozmowa bezpośrednio z modelem…",

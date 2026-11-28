@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Enter whole pixel offsets from -1000 to 1000.", "tagline":"Finetune your ghostly experience","inactive":"Turn on Ghost Script and the local server.","connecting":"Connecting to the local server...","available":"Screen overlay available.","unavailable":"Screen overlay unavailable.","update":"Update the local server and reconnect.","paused":"Screen overlay paused. Too many drawings or server busy."},
         "pena": {
+            "chattiness": "Automatic comments",
+            "chattinessHint": "How often Pena speaks after moves",
+            "chattinessQuiet": "Quiet",
+            "chattinessNormal": "Normal",
+            "chattinessChatty": "Chatty",
             "chessCoaching": "Chess coaching",
             "chessCoachingHint": "Board facts, engines and answer checks. Off talks to the plain model",
             "chattingRaw": "Chatting with the plain model…",

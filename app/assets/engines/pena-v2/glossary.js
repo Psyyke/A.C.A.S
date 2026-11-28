@@ -508,6 +508,36 @@ export function definitionReply(question) {
     return `${title}: ${entry.meaning.replace(/[.!?]$/, '')}.`;
 }
 
+// A definition introduces hypothetical roles, not occupants of the player's board.
+// Keep that scope through explanatory sentences until the speaker returns to a concrete position.
+export function definitionSpans(text, question = '') {
+    const spans = [], mentions = glossaryMentions(text);
+    const queried = definitionReply(question) && glossaryMentions(question)[0];
+    let active = null;
+    for(const { segment, index } of new Intl.Segmenter('en', { granularity: 'sentence' }).segment(text)) {
+        const named = mentions.find(mention => mention.index >= index && mention.end <= index + segment.length
+            && /^(?:\s|["'(])*(?:(?:an?|the)\s+|in\s+(?:an?|the)\s+)?$/i.test(text.slice(index, mention.index))
+            && /^\s*(?::|(?:is|means|happens|occurs|involves|describes)\b)/i.test(text.slice(mention.end))
+            // "Material is equal" describes the board, while "Material is the sum of..." defines the word.
+            && (!mention.weak || /^\s*(?::|(?:means|happens|occurs|involves|describes)\b|is\s+(?!(?:an?|one)\s+(?:\w+\s+)?(?:pawn|piece|exchange|knight|bishop|rook|queen)s?\s+(?:up|down|ahead|behind|short)\b)(?:(?:an?|the|when|where|what|how|having|being)\b|\w+ing\s+(?:your|the|an?|its|their|pieces|pawns|out|up)\b))/i.test(text.slice(mention.end))));
+        const concrete = /\b(?:your|our|their|white(?:'s)?|black(?:'s)?)\s+(?:(?:[a-z]+|[a-h][1-8])[- ]+){0,2}(?:king|queen|rook|bishop|knight|pawn|piece)s?\b|\b(?:here|in (?:this|the current|our) position|on (?:this|our|the live) board)\b|\b[a-h][1-8]\b/i.test(segment);
+        const genericSubject = segment.match(/^\s*(?:(?:an?|any|each|every)\s+(?:\w+\s+)?(?:piece|pawn|knight|bishop|rook|queen|king)\b|(?:pieces|pawns|knights|bishops|rooks|queens|kings)\b)/i);
+        const predicate = genericSubject && segment.slice(genericSubject[0].length);
+        const rule = genericSubject && (/\b(?:if|when|whenever|generally|usually|in chess)\b/i.test(segment)
+            || /^\s+(?:(?:can|may)\s+)?(?:moves?|captures?|attacks?)\s+(?:only\s+)?(?:diagonally|horizontally|vertically|in (?:an? )?(?:L[- ]shape|straight lines?)|(?:one|two|1|2) squares?|(?:along|on) (?:an? |the )?(?:file|rank|diagonal)s?)\b/i.test(predicate)
+            || /^\s+(?:is|are)\s+(?:an?\s+|worth\b|the most\b)/i.test(predicate));
+        const example = /^\s*(?:for example|for instance|suppose|imagine|in (?:this|an?) example)\b/i.test(segment);
+        const genericDefinition = named && /^\s*(?::\s*(?:an?|one|two)\s+(?:piece|pawn|knight|bishop|rook|queen|king)\b|(?:is|means)\s+(?:when|where)\b)/i.test(text.slice(named.end));
+        if(named && (!concrete || genericDefinition && !/\b(?:here|in this position|on this board)\b/i.test(segment))) active = named;
+        else if(concrete && !(active && example)) active = null;
+        else if(index === 0 && queried) active = { ...queried, index: 0, end: 0 };
+        else if(rule) active = { term: null, index, end: index };
+        if(active) spans.push({ index, end: index + segment.length, term: active.term,
+            mention: named || (index === 0 ? active : null) });
+    }
+    return spans;
+}
+
 export const hasDemo = term => Boolean(glossary[term]?.fen);
 export const demoId = term => term.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
 export const demoTerm = id => Object.keys(glossary).find(term => demoId(term) === id) || null;

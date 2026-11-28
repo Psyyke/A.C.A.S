@@ -2,7 +2,7 @@ import { featureText } from '../../js/misc/featureTranslations.js';
 
 export const penaStrings = {
     coach: 'A chess coach that explains the position',
-    settingsTitle: 'Pena AI',
+    settingsTitle: 'Pena',
     settingsSubtitle: 'Personal Educator & Neural Advisor',
     closeSettings: 'Close Pena settings',
     model: 'Model',
@@ -36,6 +36,11 @@ export const penaStrings = {
     hideMovesHint: 'Shares ideas instead of moves unless you ask',
     onlyAsked: 'Only talk when asked',
     onlyAskedHint: 'Pena stays quiet until you type or speak to it',
+    chattiness: 'Automatic comments',
+    chattinessHint: 'How often Pena speaks after moves',
+    chattinessQuiet: 'Quiet',
+    chattinessNormal: 'Normal',
+    chattinessChatty: 'Chatty',
     liveTeaching: 'Live board teaching',
     visualDuration: 'Visual duration (seconds)',
     visualDurationHint: 'How long board marks remain before disappearing',
@@ -323,6 +328,14 @@ export function updatePenaChoices(root) {
         container.dataset.penaChoiceLabel = selected?.textContent || '';
         container.dir = typeof FULL_TRANS_OBJ === 'undefined' ? 'auto' : FULL_TRANS_OBJ?.textDirection || 'auto';
         input.title = selected?.textContent || '';
+        if(input.dataset.key === 'penaChattiness') {
+            const measure = document.createElement('canvas').getContext('2d');
+            const style = getComputedStyle(input);
+            measure.font = `500 ${style.fontSize} ${style.fontFamily}`;
+            const width = Math.max(...[...container.querySelectorAll('.dropdown-item')]
+                .map(item => measure.measureText(item.textContent).width));
+            container.style.setProperty('--pena-choice-width', `${Math.ceil(width) + 44}px`);
+        }
     });
 }
 

@@ -272,6 +272,11 @@
         },
         "ghostScreen": {"invalidOffset": "Unesi cele vrednosti piksela od -1000 do 1000.", "tagline":"Podesi svoj skriveni režim","inactive":"Uključi skriveni skript i lokalni server.","connecting":"Povezivanje sa lokalnim serverom...","available":"Prikaz preko ekrana je dostupan.","unavailable":"Prikaz preko ekrana nije dostupan.","update":"Ažuriraj lokalni server i ponovo se poveži.","paused":"Prikaz je pauziran. Previše crteža ili je server zauzet."},
         "pena": {
+            "chattiness": "Аутоматски коментари",
+            "chattinessHint": "Колико често Pena говори после потеза",
+            "chattinessQuiet": "Тихо",
+            "chattinessNormal": "Нормално",
+            "chattinessChatty": "Причљиво",
             "chessCoaching": "Шаховска обука",
             "chessCoachingHint": "Чињенице о табли, мотори и провере одговора. Кад је искључено, разговарате директно са моделом",
             "chattingRaw": "Разговор директно са моделом…",

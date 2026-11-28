@@ -10,7 +10,7 @@ test('Pena ships runtime assets without training, build dependencies or loose te
         assert.equal(entry.isSymbolicLink(), false, entry.name);
         if(entry.isDirectory()) assert.ok(['vendor', 'tests'].includes(entry.name), entry.name);
         else assert.ok(/(?:\.js|\.css|\.txt)$/.test(entry.name)
-            || ['.gitignore', '.htaccess', 'package.json', 'build-knowledge.mjs', 'silero-vad-LICENSE', 'NOTICE'].includes(entry.name), entry.name);
+            || ['.gitignore', '.htaccess', 'package.json', 'build-knowledge.mjs', 'silero-vad-LICENSE', 'NOTICE', 'NATURAL_VOICE_PLAN.md'].includes(entry.name), entry.name);
     }
     assert.equal(JSON.parse(readFileSync(new URL('package.json', root))).dependencies, undefined);
     for(const file of ['tokenizer.js', 'tokenizers-LICENSE', 'wllama.js', 'wllama.wasm', 'wllama-LICENSE', 'llama-cpp-LICENSE', 'recognition-worker.js', 'vad-worker.js',

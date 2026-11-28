@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Adj meg egész pixelértékeket -1000 és 1000 között.", "tagline":"Állítsd be a szellem módot","inactive":"Kapcsold be a szellem scriptet és a helyi szervert.","connecting":"Csatlakozás a helyi szerverhez...","available":"A képernyőfedvény elérhető.","unavailable":"A képernyőfedvény nem érhető el.","update":"Frissítsd a helyi szervert, majd csatlakozz újra.","paused":"A fedvény szünetel. Túl sok rajz van, vagy a szerver foglalt."},
         "pena": {
+            "chattiness": "Automatikus megjegyzések",
+            "chattinessHint": "Milyen gyakran szólal meg Pena a lépések után",
+            "chattinessQuiet": "Csendes",
+            "chattinessNormal": "Normál",
+            "chattinessChatty": "Beszédes",
             "chessCoaching": "Sakkoktatás",
             "chessCoachingHint": "Táblatények, motorok és válaszellenőrzés. Kikapcsolva közvetlenül a modellel beszélgetsz",
             "chattingRaw": "Beszélgetés közvetlenül a modellel…",

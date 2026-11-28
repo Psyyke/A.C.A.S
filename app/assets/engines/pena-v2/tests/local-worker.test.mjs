@@ -11,7 +11,7 @@ test('English evidence identifies the c3 knight and gives exact hypothetical d5 
 
     assert.match(board, /White knight c3:/);
     assert.doesNotMatch(board, /queen c3/);
-    assert.equal(note, 'Hypothetical knight on d5: complete geometric controls c7, e7, b6, f6, b4, f4, c3, e3. This does not place a knight there or establish a legal move, capture, or forced win.');
+    assert.equal(note, 'Imagined knight on d5, not on the board: it would control c7, e7, b6, f6, b4, f4, c3, e3. Just name those squares and what sits on them.');
 });
 
 test('worker replacement skips queued positions instead of generating their stale thoughts', async t => {
@@ -95,7 +95,12 @@ test('chess coaching off keeps the System prompt and thinking controls without c
         { board: true, fen, prompt: { systemPrompt: 'You are a grumpy pirate.' }, effort: 'medium' },
         { board: false, fen: null, prompt: { systemPrompt: '' }, effort: 'none' },
         { board: true, fen, prompt: { systemPrompt: 'You are a grumpy pirate.' }, effort: 'high', thinkingTokens: 64 },
-        { board: true, fen, prompt: { systemPrompt: 'You are a grumpy pirate.' }, effort: 'high', thinkingTokens: 4096 }
+        { board: true, fen, prompt: { systemPrompt: 'You are a grumpy pirate.' }, effort: 'high', thinkingTokens: 4096 },
+        { board: false, prompt: { systemPrompt: 'You are Pena, an AI chess coach. Speak naturally, like a relaxed player beside the board: '
+            + 'plain words, contractions, and an honest, occasionally dry tone. Do not claim to be a real person. '
+            + 'Respond to what was said, explain what matters, then stop. No canned friendliness, pep talks, or unnecessary follow-up questions. '
+            + 'Don\'t say who is winning, better, ahead or equal, or give the evaluation, unless the player asks. Talk about the pieces and plans instead. '
+            + 'Admit uncertainty and stick to the supplied evidence. Never use em dashes.' }, effort: 'none' }
     ].map(options => new Promise((resolve, reject) => {
         const worker = new Worker('./assets/engines/pena-v2/app-worker.js', { type: 'module' });
         let messages, calls = 0;
@@ -103,7 +108,10 @@ test('chess coaching off keeps the System prompt and thinking controls without c
         const timeout = setTimeout(() => { worker.terminate(); reject(new Error('Worker did not answer.')); }, 10000);
         worker.onmessage = ({ data }) => {
             if(data.type === 'ready') worker.postMessage({ type: 'converse', plain: true, raw: true, chatId: 'raw',
-                input: { question: 'Where can the c3 knight go?' }, conversation: [{ player: 'Hi', pena: 'Hello.' }],
+                input: { question: 'Where can the c3 knight go?' }, conversation: [
+                    { player: 'Hi', pena: 'Hello.' },
+                    { player: 'What is the real idea?', pena: 'Bg5 is the real idea: it pins the knight.' }
+                ],
                 effort: 'medium', thinkingTokens: 320, temperature: 0.75, notes: 'Chess notes must not be read.', ...options });
             if(data.type === 'sent') { messages = data; calls++; }
             if(data.phase === 'sentence') sentences.push(data.text);
@@ -115,15 +123,18 @@ test('chess coaching off keeps the System prompt and thinking controls without c
         worker.postMessage({ type: 'initialize', port: 2800 });
     }))), fen);
     const question = { role: 'user', content: 'Where can the c3 knight go?' };
-    const chat = [{ role: 'user', content: 'Hi' }, { role: 'assistant', content: 'Hello.' }];
+    const chat = [{ role: 'user', content: 'Hi' }, { role: 'assistant', content: 'Hello.' },
+        { role: 'user', content: 'What is the real idea?' },
+        { role: 'assistant', content: 'Bg5 is worth considering: it pins the knight.' }];
     // Even when a caller passes a board, plain Inkling gets no chess context at all.
     const defaultSystem = { role: 'system', content: defaultPenaPrompt };
     assert.deepEqual(sent[0].messages, [defaultSystem, ...chat, question]);
     assert.deepEqual(sent[1].messages, [{ role: 'system', content: 'You are a grumpy pirate.' }, ...chat, question]);
     assert.deepEqual(sent[2].messages, [defaultSystem, ...chat, question]);
+    assert.deepEqual(sent[5].messages, [defaultSystem, ...chat, question], 'Plain mode upgrades an unchanged saved default too');
     assert.ok(sent.every(item => !JSON.stringify(item.messages).includes(fen.split(' ')[0])));
     assert.deepEqual(sent.map(item => [item.effort, item.budget]), [
-        ['low', 160], ['medium', 320], ['none', 0], ['high', 64], ['high', 1536]
+        ['low', 160], ['medium', 320], ['none', 0], ['high', 64], ['high', 1536], ['none', 0]
     ]);
     for(const item of sent) {
         assert.equal(item.schema, 'pena-plain-chat/1');
@@ -198,6 +209,10 @@ test('native-only worker uses the selected template and fits a small model conte
         { temperature: 0, seed: 42 }, { temperature: 0, seed: 42 }]);
     assert.match(answers[0].sampling.system, /No board is open/);
     assert.match(answers[2].sampling.system, /A game is open, but this is small talk/);
+    for(const { sampling } of answers) {
+        assert.match(sampling.system, /your entire reply must be a greeting of one or two words/);
+        assert.doesNotMatch(sampling.system, /Keep small talk to a line or two/);
+    }
     const mobile = await page.evaluate(async () => {
         Object.defineProperty(navigator, 'userAgentData', { configurable: true, value: { mobile: true } });
         const enabled = document.querySelector('[data-key="penaEnabled"]');
@@ -212,6 +227,82 @@ test('native-only worker uses the selected template and fits a small model conte
             chat: Boolean(document.querySelector('#pena-window')) };
     });
     assert.deepEqual(mobile, { checked: false, disabled: true, hidden: true, chat: false });
+});
+
+test('a thinking loop or printed chat markup stops early and gets one quick retry without thinking', async t => {
+    const { chromium } = await import('../../lc0/node_modules/playwright/index.mjs');
+    const { startServer } = await import('../../../../../tests/maia-elo/serve.mjs');
+    const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
+    t.after(() => new Promise(resolve => server.close(resolve)));
+    const browser = await chromium.launch();
+    t.after(() => browser.close());
+    const page = await browser.newPage();
+    await page.route('**/pena-v2/local-ai.js', route => route.fulfill({ contentType: 'text/javascript', body: `
+        export class LocalAI {
+            constructor({ onStatus }) { this.onStatus = onStatus; this.count = 0; }
+            connect() { this.onStatus({ state: 'ready', model: 'inkling-test.gguf', context: 8192 }); }
+            close() {}
+            async promptInfo() { return { tokens: 42 }; }
+            async createChatCompletion(options) {
+                const mode = options.messages.at(-1).content, first = ++this.count === 1;
+                let sent = 0;
+                const stream = chunks => {
+                    for(const chunk of chunks) {
+                        if(options.abortSignal.aborted) throw new DOMException('Cancelled', 'AbortError');
+                        sent++;
+                        options.onData({ choices: [chunk] });
+                    }
+                };
+                const report = () => self.postMessage({ type: 'sent', effort: options.reasoning_effort, temperature: options.temperature, sent });
+                try {
+                    if(mode === 'loop' && first) stream(Array.from({ length: 3000 }, () => ({ delta: { reasoning_content: 'Need continue. ' } })));
+                    else if(mode === 'markup') stream(Array.from({ length: 500 }, (_, i) => ({ delta: { content: ['<|message_model|>', '<|content_thinking|>', '<|end_message|>'][i % 3] } })));
+                    else if(mode === 'tail') stream(['The e5 pawn is weak.', '<|end_message|>', '<|message_model|>', 'Again.']
+                        .map(content => ({ delta: { content } })));
+                    else if(mode === 'empty' && first) {
+                        const error = new Error('The local model returned no visible final answer.');
+                        error.code = 'NO_VISIBLE_ANSWER';
+                        throw error;
+                    } else stream([{ delta: { content: 'Your knight is loose.' }, finish_reason: 'stop' }]);
+                } finally { report(); }
+            }
+        }
+    ` }));
+    await page.goto(`${url}/app/index.html`);
+    const results = await page.evaluate(() => Promise.all([
+        { question: 'loop', effort: 'medium' }, { question: 'empty', effort: 'high' },
+        { question: 'tail', effort: 'none' }, { question: 'markup', effort: 'none', automatic: true },
+        { question: 'markup', effort: 'none' }
+    ].map(({ question, ...options }) => new Promise((resolve, reject) => {
+        const worker = new Worker('./assets/engines/pena-v2/app-worker.js', { type: 'module' });
+        const calls = [];
+        const timeout = setTimeout(() => { worker.terminate(); reject(new Error(`${question} did not answer.`)); }, 10000);
+        worker.onmessage = ({ data }) => {
+            if(data.type === 'ready') worker.postMessage({ type: 'converse', plain: true, chatId: question,
+                input: { question }, temperature: 0, ...options });
+            if(data.type === 'sent') calls.push({ effort: data.effort, temperature: data.temperature, sent: data.sent });
+            if(data.phase === 'failed' || data.phase === 'complete') { clearTimeout(timeout); worker.terminate();
+                resolve({ question, phase: data.phase, message: data.message, raw: data.raw,
+                    effort: data.effort, escalated: data.escalated, calls }); }
+        };
+        worker.postMessage({ type: 'initialize', port: 2800 });
+    }))));
+    const [loop, empty, tail, ...markup] = results;
+    assert.equal(loop.raw, 'Your knight is loose.');
+    assert.deepEqual(loop.calls.map(call => call.effort), ['medium', 'none'], 'Thinking harder does not fix a loop');
+    assert.ok(loop.calls[0].sent < 700, `The loop stopped after ${loop.calls[0].sent} thinking tokens`);
+    assert.equal(loop.calls[1].temperature, 0.4, 'The retry is a little warmer so it does not repeat itself');
+    assert.equal(loop.escalated, true);
+    assert.equal(empty.raw, 'Your knight is loose.');
+    assert.deepEqual(empty.calls.map(call => call.effort), ['high', 'none']);
+    assert.equal(tail.raw, 'The e5 pawn is weak.', 'Text before printed chat markup is the whole answer');
+    assert.equal(tail.calls.length, 1);
+    assert.equal(tail.calls[0].sent, 2);
+    for(const result of markup) {
+        assert.equal(result.phase, 'failed', 'A failed retry is reported, not a successful empty comment');
+        assert.match(result.message, /got stuck thinking/);
+        assert.deepEqual(result.calls.map(call => [call.effort, call.sent]), [['none', 1], ['none', 1]]);
+    }
 });
 
 test('Inkling with a Pena LoRA and custom personas both receive the live coaching policy', async t => {
@@ -296,11 +387,11 @@ test('a board that only looks too big for the first token guess is measured inst
     const browser = await chromium.launch();
     t.after(() => browser.close());
     const page = await browser.newPage();
-    // Real Inkling prompts pack more characters into a token than the worker's 1.55 guess.
+    // With the full voice prompt, 4K fits at 2.5 chars/token but not at the worker's initial 1.55 guess.
     await page.route('**/pena-v2/local-ai.js', route => route.fulfill({ contentType: 'text/javascript', body: `
         export class LocalAI {
             constructor({ onStatus }) { this.onStatus = onStatus; }
-            connect() { this.onStatus({ state: 'ready', model: 'Inkling.gguf', lora: 'pena.gguf', context: 3200 }); }
+            connect() { this.onStatus({ state: 'ready', model: 'Inkling.gguf', lora: 'pena.gguf', context: 4096 }); }
             close() {}
             async promptInfo(messages) {
                 const chars = messages.reduce((total, message) => total + message.content.length, 0);
@@ -327,17 +418,90 @@ test('a board that only looks too big for the first token guess is measured inst
             const timeout = setTimeout(() => { worker.terminate(); reject(new Error('Worker timed out.')); }, 15000);
             worker.onmessage = ({ data }) => {
                 if(data.type === 'measured') measured.push(data.chars);
-                if(data.type === 'ready') worker.postMessage({ type: 'converse', chatId: 'crowded', input, history: [], playerColor: 'w', automatic: true });
-                if(data.phase === 'failed') { clearTimeout(timeout); worker.terminate(); reject(new Error(data.message)); }
+                if(data.type === 'ready') worker.postMessage({ type: 'converse', chatId: 'crowded', input, history: [], playerColor: 'w', automatic: true, thinkingTokens: 1536 });
+                if(data.phase === 'failed') { clearTimeout(timeout); worker.terminate(); reject(new Error(`${data.message} Measured prompt characters: ${JSON.stringify(measured)}`)); }
                 if(data.phase === 'complete') { clearTimeout(timeout); worker.terminate(); resolve({ raw: data.raw, measured }); }
             };
             worker.postMessage({ type: 'initialize', port: 2800 });
         });
     });
     assert.equal(result.raw, 'Push the h-pawn.');
-    // A roomier probe is measured first, then the answer goes out with what fits.
+    // The estimate rejects the prompt, but measurement proves the actual request fits.
     assert.equal(result.measured.length, 2);
-    assert.ok(result.measured[0] > result.measured[1], JSON.stringify(result.measured));
+    const promptBudget = 4096 - (1536 + 256) - 1;
+    assert.ok(Math.ceil(result.measured[0] / 1.55) > promptBudget, JSON.stringify(result.measured));
+    assert.ok(Math.ceil(result.measured[1] / 2.5) <= promptBudget, JSON.stringify(result.measured));
+});
+
+test('a stock "Your <piece> on" opener in an automatic comment is caught before speech and asked once more', async t => {
+    const { chromium } = await import('../../lc0/node_modules/playwright/index.mjs');
+    const { startServer } = await import('../../../../../tests/maia-elo/serve.mjs');
+    const { server, url } = await startServer({ outFile: process.platform === 'win32' ? 'NUL' : '/dev/null' });
+    t.after(() => new Promise(resolve => server.close(resolve)));
+    const browser = await chromium.launch();
+    t.after(() => browser.close());
+    const page = await browser.newPage();
+    await page.route('**/pena-v2/local-ai.js', route => route.fulfill({ contentType: 'text/javascript', body: `
+        export class LocalAI {
+            constructor({ onStatus }) { this.onStatus = onStatus; }
+            connect() { this.onStatus({ state: 'ready', model: 'Inkling.gguf', context: 8192 }); }
+            close() {}
+            async promptInfo() { return { tokens: 1000 }; }
+            async createChatCompletion(options) {
+                const nudged = options.messages.at(-1).content.includes("not with one of the player's pieces");
+                const words = nudged ? ['The ', 'bishop ', 'on ', 'f5 ', 'is ', 'eyeing ', 'h3.']
+                    : ['Your ', 'pawn ', 'on ', 'h3 ', 'is ', 'loose ', 'to ', 'the ', 'bishop.'];
+                let sent = 0;
+                try {
+                    for(const content of words) {
+                        if(options.abortSignal.aborted) throw new DOMException('Cancelled', 'AbortError');
+                        sent++;
+                        options.onData({ choices: [{ delta: { content } }] });
+                    }
+                    options.onData({ choices: [{ delta: {}, finish_reason: 'stop' }] });
+                } finally { self.postMessage({ type: 'sent', nudged, sent }); }
+            }
+        }` }));
+    await page.goto(`${url}/app/index.html`);
+    const results = await page.evaluate(async () => {
+        const { rebuildCoachingNotes, liveCoachingInput } = await import('./assets/engines/pena-v2/app-input.js');
+        const { engineCoachingEvidence } = await import('./assets/engines/pena-v2/engine-coaching-input.js');
+        const before = 'k7/8/8/5b2/8/8/7P/7K w - - 0 1', fen = 'k7/8/8/5b2/8/7P/8/7K b - - 0 1', history = [before];
+        const record = { fen, engine: { depth: 12, lines: [{ pv: ['a8b8'], move: 'a8b8', score: { cp: 0, mate: null } }] }, recent: [] };
+        const evidence = engineCoachingEvidence({ snapshot: { schema: 'pena-v2-search/1', fen, history,
+            perspective: 'root-side-to-move', budget: { nodes: 128, moves: [] },
+            engine: { networkSha256: 'a'.repeat(64), precision: 'f32', backend: 'webgpu' }, bestMove: 'a8b8',
+            lines: [{ pv: ['a8b8', 'h3h4'] }], candidates: [{ move: 'a8b8', visits: 100, policyPrior: 0.3, search: { q: 0.2 } }] } });
+        const question = '(position after White played h3)';
+        const prepared = rebuildCoachingNotes({ schema: 'pena-live-notes-source/1', fen, history, record, playerColor: 'w', question });
+        const input = await liveCoachingInput({ prepared, fen, history, playerColor: 'w', question, engineEvidence: evidence });
+        const results = {};
+        for(const [name, extra] of [['natural', {}], ['legacy', { style: 'legacy' }], ['asked', { automatic: false }]]) {
+            results[name] = await new Promise((resolve, reject) => {
+                const worker = new Worker('./assets/engines/pena-v2/app-worker.js', { type: 'module' });
+                const calls = [], sentences = [];
+                const timeout = setTimeout(() => { worker.terminate(); reject(new Error(`${name} timed out.`)); }, 15000);
+                worker.onmessage = ({ data }) => {
+                    if(data.type === 'ready') worker.postMessage({ type: 'converse', chatId: name, input, history, playerColor: 'w',
+                        automatic: true, effort: 'none', ...extra });
+                    if(data.type === 'sent') calls.push(data);
+                    if(data.phase === 'sentence') sentences.push(data.text);
+                    if(data.phase === 'failed') { clearTimeout(timeout); worker.terminate(); reject(new Error(data.message)); }
+                    if(data.phase === 'complete') { clearTimeout(timeout); worker.terminate(); resolve({ raw: data.raw, calls, sentences }); }
+                };
+                worker.postMessage({ type: 'initialize', port: 2800 });
+            });
+        }
+        return results;
+    });
+    const { natural, legacy, asked } = results;
+    assert.equal(natural.raw, 'The bishop on f5 is eyeing h3.');
+    assert.deepEqual(natural.calls.map(call => [call.nudged, call.sent]), [[false, 4], [true, 7]], 'The first try stops after four words');
+    assert.deepEqual(natural.sentences, ['The bishop on f5 is eyeing h3.'], 'Nothing from the first try reaches speech');
+    assert.equal(legacy.raw, 'Your pawn on h3 is loose to the bishop.', 'The legacy A/B style is left alone');
+    assert.equal(legacy.calls.length, 1);
+    assert.equal(asked.raw, 'Your pawn on h3 is loose to the bishop.', 'Answers to typed questions are left alone');
+    assert.equal(asked.calls.length, 1);
 });
 
 test('plain Inkling reads the board as English sentences, history questions included', async t => {
@@ -392,7 +556,7 @@ test('plain Inkling reads the board as English sentences, history questions incl
     assert.equal(english.schema, 'pena-v2-english-coaching-input/1');
     assert.match(english.prompt, /White pawn h3: attacks no enemy piece; guards nothing; attacked by Black bishop f5; defended by nobody\./);
     assert.match(english.prompt, /Last move: White played h3, pawn from h2 to h3\./);
-    assert.match(english.prompt, /Hypothetical knight on d5: complete geometric controls c7, e7, b6, f6, b4, f4, c3, e3\./);
+    assert.match(english.prompt, /Imagined knight on d5, not on the board: it would control c7, e7, b6, f6, b4, f4, c3, e3\./);
     assert.doesNotMatch(english.prompt, /PCF\/3p|Rule-checked CURRENT board/);
     assert.equal(past.schema, 'pena-v2-english-coaching-input/1');
     assert.match(past.prompt, /Moves so far \(H, already played\): \.\.\. 1\.h3\./);

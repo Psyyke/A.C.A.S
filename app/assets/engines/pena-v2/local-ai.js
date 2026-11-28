@@ -39,7 +39,13 @@ export class LocalAI {
             const pending = this.pending.get(message.requestId);
             if(!pending) return;
             if(message.phase === 'chunk') pending.onData?.(message.chunk);
-            else if(message.phase === 'error') pending.finish(new Error(message.message || 'Local AI request failed.'));
+            else if(message.phase === 'error') {
+                // The server's code, such as NO_VISIBLE_ANSWER, lets callers retry instead of failing.
+                const error = new Error(message.message || 'Local AI request failed.');
+                for(const key of ['code', 'finishReason', 'usage', 'timings'])
+                    if(message[key] !== undefined) error[key] = message[key];
+                pending.finish(error);
+            }
             else if(['complete', 'status', 'promptInfo'].includes(message.phase)) pending.finish(null, message);
         };
         socket.onclose = () => {

@@ -274,6 +274,11 @@
         },
         "ghostScreen": {"invalidOffset": "Gib ganze Pixelwerte zwischen -1000 und 1000 ein.", "tagline":"Passe dein Geistererlebnis an","inactive":"Aktiviere das Geister-Skript und den lokalen Server.","connecting":"Verbindung zum lokalen Server wird hergestellt...","available":"Bildschirm-Overlay verfügbar.","unavailable":"Bildschirm-Overlay nicht verfügbar.","update":"Aktualisiere den lokalen Server und verbinde dich erneut.","paused":"Overlay pausiert. Zu viele Zeichnungen oder Server beschäftigt."},
         "pena": {
+            "chattiness": "Automatische Kommentare",
+            "chattinessHint": "Wie oft Pena nach Zügen spricht",
+            "chattinessQuiet": "Ruhig",
+            "chattinessNormal": "Normal",
+            "chattinessChatty": "Gesprächig",
             "chessCoaching": "Schachtraining",
             "chessCoachingHint": "Brettfakten, Engines und Antwortprüfungen. Aus spricht direkt mit dem Modell",
             "chattingRaw": "Unterhaltung direkt mit dem Modell…",

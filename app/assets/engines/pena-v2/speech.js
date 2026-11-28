@@ -345,7 +345,7 @@ export class PenaMicrophone {
         };
         try {
             // Resume inside the initiating gesture, before permission/module awaits.
-            session.context = new AudioContext({ sampleRate: 16000 });
+            session.context = new AudioContext();
             const resumed = session.context.resume();
             resumed.catch(() => {});
             session.stream = await navigator.mediaDevices.getUserMedia({

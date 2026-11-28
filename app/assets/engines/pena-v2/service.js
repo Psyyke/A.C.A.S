@@ -11,7 +11,9 @@ import { penaPosition, readPenaPosition } from './input.js';
 import { PenaConversation, citationSteps, conceptVisuals } from './conversation.js';
 import { assessChatReply } from './chat-reply.js';
 import { appNotes, profileSummary } from './appnotes.js';
-import { markdownPlain, renderMarkdown, spokenText } from './formatting.js';
+import { dropAnnouncedLabels, markdownPlain, renderMarkdown, spokenText } from './formatting.js';
+import { chooseCommentFocus, coachStyleName, leanedPhrases, shouldSpeakAutomatic, screenCoachReply, patternPresentationNote } from './coach-style.js';
+import { PlayerPatterns } from './coach-session.js';
 import { markCitations, markerPattern, stripMarkers, sentenceCitations, citationFacts } from './cited-evidence.js';
 import { isSmallTalk } from './inkling-effort.js';
 import { reportServerVersion } from '../../js/gui/serverVersion.js';
@@ -28,7 +30,7 @@ import { liveCoachingInput } from './app-input.js';
 import { LiveCoachingEvidence } from './app-evidence.js';
 import { presentComparisonAnswer } from './comparison.js';
 import { penaText, setPenaText, initializePenaTranslations, penaFilename } from './i18n.js';
-import { asksForMove, dropFalseGeometry, dropMisplacedPieces, dropRepeatedSentences, dropUnaskedVerdicts, hideMoveSuggestions } from './coaching-policy.js';
+import { asksForMove, hideMoveSuggestions } from './coaching-policy.js';
 
 // One Pena for the whole app. It follows the newest open match, so two matches never load
 // two copies of the model onto the GPU at once.
@@ -49,6 +51,7 @@ const ICONS = {
     removed: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>'
 };
 const EMPTY_REFERENCES = Object.freeze({ squares: [], regions: [], relations: [], frames: [], moves: [], plans: [] });
+const citationLike = id => /^(?:[A-Z]+\d+(?:[.:][A-Za-z0-9_-]+)*|[A-Z][.:][A-Za-z0-9_.:-]+|[A-Z][A-Z0-9]*_[A-Z0-9_]+)$/.test(id);
 
 const pena = {
     enabled: false,
@@ -70,8 +73,17 @@ const pena = {
     paused: new Map(),
     // What Pena remembers about the player, kept in this browser only. Created in initializePena.
     player: null,
+    recentVoice: [],
+    commentFocus: -1,
+    silentPlies: 0,
+    calmTurns: 0,
+    patterns: null,
+    patternGame: null,
+    newPatternGame: false,
     settings: null,
     readAloud: (localStorage.getItem(READ_ALOUD_KEY) ?? 'true') === 'true',
+    followChat: true,
+    chatScrollTop: 0,
     speechInterrupted: false,
     spokenOffset: 0
 };
@@ -170,12 +182,22 @@ function resetAnswer() {
     stopSpeech();
     clearBoard();
     pena.text = '';
-    if(!ui.turn.textContent.trim()) ui.turn.remove();
+    if(![...ui.turn.querySelectorAll('.pena-message:not([hidden])')].some(message => message.textContent.trim())) ui.turn.remove();
     ui.turn = document.createElement('div');
     ui.turn.className = 'pena-turn';
     ui.answer = document.createElement('div');
     ui.answer.className = 'pena-answer pena-message pena-message-assistant';
     ui.answer.hidden = true;
+    ui.meta = ui.meta.cloneNode(true);
+    ui.thinking = ui.meta.querySelector('.pena-thinking');
+    ui.thinking.hidden = true;
+    ui.thought = ui.meta.querySelector('.pena-thought');
+    ui.thought.textContent = '';
+    ui.checks = ui.meta.querySelector('.pena-checks');
+    ui.checks.removeAttribute('open');
+    ui.checkSummary = ui.checks.querySelector('summary');
+    ui.checkSummary.replaceChildren();
+    ui.checkList = ui.checks.querySelector('ul');
     ui.turn.append(ui.answer, ui.meta);
     ui.log.append(ui.turn);
     while(ui.log.children.length > 41) ui.log.querySelector('.pena-turn').remove();
@@ -184,13 +206,56 @@ function resetAnswer() {
     ui.checkList.replaceChildren();
 }
 
-function scrollToTurn() {
+function scrollToTurn(force = false) {
+    if(force) pena.followChat = true;
+    if(pena.followChat === false) return;
     ui.log.scrollTop = ui.log.scrollHeight;
+    pena.chatScrollTop = ui.log.scrollTop;
+}
+
+function initializeChatScroll() {
+    let frame = null;
+    const follow = () => {
+        if(frame !== null) return;
+        frame = requestAnimationFrame(() => {
+            frame = null;
+            scrollToTurn();
+        });
+    };
+    const observed = new Set();
+    const resize = new ResizeObserver(follow);
+    resize.observe(ui.log);
+    const update = () => {
+        const children = new Set(ui.log.children);
+        for(const child of observed) if(!children.has(child)) {
+            resize.unobserve(child);
+            observed.delete(child);
+        }
+        for(const child of children) if(!observed.has(child)) {
+            resize.observe(child, { box: 'border-box' });
+            observed.add(child);
+        }
+        follow();
+    };
+    new MutationObserver(update).observe(ui.log, { childList: true, subtree: true, characterData: true,
+        attributes: true, attributeFilter: ['hidden', 'open'] });
+    ui.log.addEventListener('scroll', () => {
+        const top = ui.log.scrollTop;
+        const bottom = ui.log.scrollHeight - ui.log.clientHeight - top <= 8;
+        if(top < pena.chatScrollTop - 1) pena.followChat = bottom;
+        else if(bottom) pena.followChat = true;
+        pena.chatScrollTop = top;
+    }, { passive: true });
+    ui.log.addEventListener('wheel', event => {
+        if(event.deltaY < 0 && ui.log.scrollHeight > ui.log.clientHeight) pena.followChat = false;
+    }, { passive: true });
+    update();
 }
 
 function setBusy(busy) {
     pena.busy = busy;
     ui.thinking.hidden = !busy;
+    if(busy) ui.checks.hidden = true;
     ui.send.innerHTML = busy ? ICONS.stop : ICONS.send;
     ui.send.dataset.penaLabel = ui.send.dataset.penaTitle = busy ? 'stop' : 'ask';
     ui.send.setAttribute('aria-label', penaText(busy ? 'stop' : 'ask'));
@@ -404,7 +469,6 @@ function renderText(response, text) {
     if(concealed() || pena.instance?.currentFen !== response.fen) return;
     pena.shown = response;
     if(text === pena.text) { streamSpeech(response, text); return; }
-    const atBottom = ui.log.scrollHeight - ui.log.scrollTop - ui.log.clientHeight < 35;
     ui.answer.hidden = !text.trim();
     const offset = pena.text && text.startsWith(pena.text) ? pena.text.length : 0;
     if(!offset) {
@@ -418,15 +482,21 @@ function renderText(response, text) {
         const context = text.slice(0, offset + index + segment.length);
         return referenceSentence(response, segment, context);
     }));
-    if(atBottom) scrollToTurn();
+    scrollToTurn();
 }
 
 function renderChecks(assessments) {
+    if(!assessments.length) {
+        ui.checks.hidden = true;
+        ui.checkSummary.replaceChildren();
+        ui.checkList.replaceChildren();
+        return;
+    }
     const blocked = item => item.status === 'contradicted' || item.rejectedLine;
     const false_ = assessments.filter(blocked).length;
-    const checked_ = assessments.filter(item => !blocked(item)
-        && (item.status === 'verified' || item.moveChecks?.length)).length;
-    ui.checks.hidden = !assessments.length;
+    const checked_ = assessments.filter(item => blocked(item)
+        || item.status === 'verified' || item.status === 'screened' || item.moveChecks?.length).length;
+    ui.checks.hidden = Boolean(pena.busy);
     const checked = document.createElement('span');
     checked.className = 'pena-check-count';
     checked.innerHTML = ICONS.checked;
@@ -452,7 +522,8 @@ function renderChecks(assessments) {
         row.textContent = item.source;
         const title = wrong || item.repairedTactic ? item.reason || 'contradictsBoard' : item.replacement
             ? 'replacedPick'
-            : item.shown ? item.moveChecks?.length ? 'moveChecked' : 'shown' : item.omitted || 'skipped';
+            : item.status === 'screened' ? 'checksEnabled'
+                : item.shown ? item.moveChecks?.length ? 'moveChecked' : 'shown' : item.omitted || 'skipped';
         row.dataset.penaTitle = title;
         row.title = penaText(title);
         return row;
@@ -512,6 +583,7 @@ async function present(response, data) {
             if(!response.answer) rememberCommentary(pena.memory, result.text, response.fen);
         }
     }
+    return result;
 }
 
 async function drainPresentation(response) {
@@ -521,7 +593,7 @@ async function drainPresentation(response) {
         while(pena.response === response && response.pending) {
             const data = response.pending;
             response.pending = null;
-            await present(response, data);
+            const result = await present(response, data);
             if(pena.response !== response) return;
             if(data.phase !== 'complete') continue;
             const stream = response.answer?.stream || response.commentary;
@@ -530,6 +602,7 @@ async function drainPresentation(response) {
                 pena.lastLive = { fen: response.fen, bestMove: main.mainMove, replaced: Boolean(main.replacement || main.blunder) };
             pena.response = null;
             setBusy(false);
+            renderChecks(result.assessments);
             ui.thinking.hidden = true;
             if(data.finishReason === 'length') setStatus('answerLimit');
         }
@@ -578,11 +651,14 @@ function catchUpGame(instance, fen) {
     }
     const game = pena.game ??= { start: fens[0], moves: [], fens, queue: Promise.resolve() };
     game.fens = fens;
+    const isCurrent = () => pena.settings?.penaCoaching !== false && pena.game === game && game.fens === fens;
     game.queue = game.queue.then(async () => {
-        if(pena.settings?.penaCoaching === false || pena.game !== game || game.fens !== fens) return;
-        const moves = await gradeGame(chatEngine(), fens, { depth: 10, known: game.moves.slice(0, matching(game.moves, fens)) });
-        if(pena.game === game) game.moves = moves;
-    }).catch(error => console.warn('[Pena] Game grading stopped:', error));
+        if(!isCurrent()) return;
+        const moves = await gradeGame(chatEngine(), fens, { depth: 10, known: game.moves.slice(0, matching(game.moves, fens)), isCurrent });
+        if(isCurrent()) game.moves = moves;
+    }).catch(error => {
+        if(error?.name !== 'AbortError') console.warn('[Pena] Game grading stopped:', error);
+    });
     return game;
 }
 
@@ -689,6 +765,7 @@ function finishChat(response, data) {
         allWithheld = withheld && !response.event && !raw.trim();
         if(allWithheld) raw = penaText('keepMoveReply');
     }
+    if(!allWithheld) raw = dropAnnouncedLabels(raw, { previous: (prepared.history || []).map(turn => turn.pena), question: response.question }).text;
     let checked = assessChatReply(raw, prepared.sheet, options);
     if(response.event) checked = assessChatReply(checked.sentences
         .filter(sentence => moveMentions(sentence.text).length <= 1).slice(0, 2)
@@ -719,16 +796,61 @@ function chatEvent(response, data) {
     }
 }
 
+function coachingScreenOptions(response) {
+    const played = response.beforeFen && findPlayedMove(response.beforeFen, response.fen);
+    return { fen: response.fen, beforeFen: response.beforeFen, playerColor: response.playerColor,
+        question: response.event ? '' : response.question, event: Boolean(response.event), style: response.style,
+        moveGrade: response.moveGrade || response.prepared?.record?.last?.label || '',
+        patternComment: response.playerPatternComment || '',
+        urgent: shouldSpeakAutomatic(response.prepared?.record || {}, 'quiet', { playerColor: response.playerColor }),
+        hideMoves: response.hideMoves, playedSan: played?.san,
+        previous: (pena.saidBefore || []).filter(item => !sameSquares(item.fen, response.fen)).map(item => item.text),
+        descriptionHistory: response.prepared?.history?.map(turn => turn.pena) || [],
+        recent: pena.recentVoice || [] };
+}
+
+function thoughtCheckAssessments(response) {
+    return [...new Set(response.thoughtChecks || [])].map(note => {
+        const source = response.hideMoves ? hideMoveSuggestions(note, coachingScreenOptions(response)).text : note;
+        return { status: 'screened', shown: true, source: source || penaText('moveChecked') };
+    });
+}
+
+function rememberPlayerPattern(response, text) {
+    if(!response.event || response.patternMentioned || !response.playerPatternComment || !text.includes(response.playerPatternComment)) return;
+    response.patternMentioned = true;
+    pena.patterns.markMentioned(response.patternGame);
+}
+
+function streamGroundedSentence(response, data) {
+    if(response.raw || response.idle || !Array.isArray(data.definedIds)
+        || !['pena-v2-pcf-coaching-input/3', 'pena-v2-english-coaching-input/1'].includes(data.inputSchema)) return;
+    response.streamRaw = [response.streamRaw, data.text].filter(Boolean).join(' ');
+    const known = new Set(data.definedIds);
+    const raw = presentComparisonAnswer(response.streamRaw).replace(/\[([^\]\n]+)\]\([^\s)]+\)/g, '$1')
+        .replace(/[ \t]*\[([^\]\n]+)\]/g, (match, id) => known.has(id) || citationLike(id) ? '' : match);
+    const checked = screenCoachReply(raw, coachingScreenOptions(response));
+    const text = markdownPlain(checked.text);
+    if(response.streamedText && !text.startsWith(response.streamedText)) return;
+    response.streamedText = text;
+    response.screenAssessments = checked.assessments;
+    renderText(response, text);
+    rememberPlayerPattern(response, text);
+    renderChecks([...thoughtCheckAssessments(response), ...checked.assessments]);
+}
+
 function finishGroundedChat(response, data) {
     if(response.raw) {
         if(data.inputSchema !== 'pena-plain-chat/1') throw new Error('Plain model returned an unexpected reply format.');
-        const text = String(data.raw || '').trim();
-        if(/<\|(?:im_start|im_end|endoftext)\|>|<\/?think>/.test(text))
+        const original = String(data.raw || '').trim();
+        if(/<\|(?:im_start|im_end|endoftext)\|>|<\/?think>/.test(original))
             throw new Error('The model emitted internal chat markup; answer withheld.');
+        // Nothing is checked here, but an empty "One caution:" lead still wastes the listener's time.
+        const text = dropAnnouncedLabels(original, { previous: pena.idleTurns.map(turn => turn.pena), question: response.question }).text;
         pena.response = null;
         pena.shown = response;
         setBusy(false);
-        ui.raw.textContent = text;
+        ui.raw.textContent = original;
         ui.answer.hidden = !text;
         ui.answer.replaceChildren(renderMarkdown(text));
         ui.checks.hidden = true;
@@ -750,7 +872,6 @@ function finishGroundedChat(response, data) {
         throw new Error('Pena did not report the exact PCF evidence references; answer withheld.');
     const known = new Set(data.definedIds);
     const unknown = [...raw.matchAll(/\[([^\]\n]+)\]/g)].filter(match => !known.has(match[1]));
-    const citationLike = id => /^(?:[A-Z]+\d+(?:[.:][A-Za-z0-9_-]+)*|[A-Z][.:][A-Za-z0-9_.:-]+|[A-Z][A-Z0-9]*_[A-Z0-9_]+)$/.test(id);
     let cleanHistory = raw.replace(/[ \t]*\[([^\]\n]+)\]/g,
         (match, id) => !known.has(id) && citationLike(id) ? '' : match);
     pena.response = null;
@@ -763,6 +884,7 @@ function finishGroundedChat(response, data) {
         (match, id) => citationLike(id) ? '' : match).trim();
     let withheld = false, allWithheld = false;
     const boardRemoved = [];
+    let assessments = [];
     if(response.hideMoves) {
         const played = response.beforeFen && findPlayedMove(response.beforeFen, response.fen);
         const filtered = hideMoveSuggestions(formatted, { playedSan: played?.san, fen: response.fen, playerColor: response.playerColor });
@@ -774,25 +896,18 @@ function finishGroundedChat(response, data) {
     }
     // A piece named on a square it no longer stands on belongs to an older board. Those sentences go.
     if(!plain && !allWithheld) {
-        const board = { fen: response.fen, beforeFen: response.beforeFen, playerColor: response.playerColor };
-        const checked = { ...board, question: response.event ? '' : response.question };
-        const placed = dropMisplacedPieces(formatted, checked);
-        boardRemoved.push(...placed.removed);
-        formatted = placed.text;
-        cleanHistory = dropMisplacedPieces(cleanHistory, checked).text;
-        // And sentences whose guard, line or pin claims don't match the real board geometry.
-        const geometry = dropFalseGeometry(formatted, checked);
-        boardRemoved.push(...geometry.removed);
-        formatted = geometry.text;
-        cleanHistory = dropFalseGeometry(cleanHistory, checked).text;
-        // So do sentences copied word for word from what was said at another position.
-        const older = (pena.saidBefore || []).filter(item => !sameSquares(item.fen, response.fen)).map(item => item.text);
-        formatted = dropRepeatedSentences(formatted, older).text;
-        cleanHistory = dropRepeatedSentences(cleanHistory, older).text;
-        // Who is winning is left out unless the player asked. Other features already show that.
-        const asked = response.event ? '' : response.question;
-        formatted = dropUnaskedVerdicts(formatted, asked).text;
-        cleanHistory = dropUnaskedVerdicts(cleanHistory, asked).text;
+        const options = { ...coachingScreenOptions(response), hideMoves: false };
+        const checked = screenCoachReply(formatted, options);
+        formatted = checked.text;
+        boardRemoved.push(...checked.removed);
+        assessments = checked.assessments;
+        cleanHistory = screenCoachReply(cleanHistory, options).text;
+    }
+    // Spoken "One caution:" style labels waste the listener's time, with or without a board.
+    if(plain && !allWithheld) {
+        const context = { previous: pena.idleTurns.map(turn => turn.pena), question: response.question };
+        formatted = dropAnnouncedLabels(formatted, context).text;
+        cleanHistory = dropAnnouncedLabels(cleanHistory, context).text;
     }
     pena.withheldMoveFen = withheld || response.keepMoveOffer ? response.fen : null;
     const unmarked = formatted.replace(markerPattern, '');
@@ -848,9 +963,9 @@ function finishGroundedChat(response, data) {
         warning.innerHTML = ICONS.warning;
         ui.answer.append(warning);
     }
-    if(boardRemoved.length) renderChecks(boardRemoved.map(source =>
-        ({ status: 'contradicted', shown: false, source, reason: 'contradictsBoard' })));
-    else ui.checks.hidden = true;
+    if(Array.isArray(data.checks)) response.thoughtChecks = [...(response.thoughtChecks || []),
+        ...data.checks.map(check => check.note).filter(note => typeof note === 'string' && note.trim())];
+    renderChecks([...thoughtCheckAssessments(response), ...assessments]);
     quietAnswer(response, withheld);
     setStatus(!pena.text.trim() ? (response.event ? '' : withheld ? 'moveHidden' : boardRemoved.length ? 'contradictsBoard' : 'nothingNew')
         : plain ? (response.raw ? 'Plain Inkling · nothing is checked.' : 'Pena · plain chat.') : `Pena · ${pena.modelId || 'local model'} · PCF/3 · ${data.promptTokens} prompt tokens · generated advice is not verified.`
@@ -859,6 +974,11 @@ function finishGroundedChat(response, data) {
     if(cleanHistory.trim() && plain) pena.idleTurns = [...pena.idleTurns, { player: response.question, pena: cleanHistory }].slice(-6);
     else if(unmarked.trim()) pena.conversation.remember(response.prepared, response.hideMoves ? unmarked : cleanHistory);
     if(!plain && unmarked.trim()) pena.saidBefore = [...(pena.saidBefore || []), { fen: response.fen, text: unmarked }].slice(-8);
+    if(response.event && unmarked.trim()) {
+        rememberPlayerPattern(response, unmarked);
+        pena.silentPlies = 0;
+        pena.recentVoice = [...(pena.recentVoice || []), markdownPlain(unmarked)].slice(-10);
+    }
     streamSpeech(response, pena.text);
     scrollToTurn();
 }
@@ -923,6 +1043,33 @@ async function converse(response, instance) {
         return;
     }
     if(pena.response !== response || boardFen() !== response.fen) return;
+    if(response.event) {
+        const record = response.prepared.record || {};
+        response.moveGrade = record.last?.label || '';
+        pena.patterns ??= new PlayerPatterns();
+        pena.patternGame ??= pena.patterns.beginGame(instance.instanceID, { fresh: pena.newPatternGame });
+        pena.newPatternGame = false;
+        pena.patterns.observe(record, response.playerColor, pena.patternGame);
+        response.patternGame = pena.patternGame;
+        response.playerPattern = pena.patterns.reminder(record, response.playerColor, pena.patternGame);
+        response.playerPatternComment = pena.patterns.comment(record, response.playerColor, pena.patternGame);
+        const chattiness = pena.settings?.penaChattiness || 'normal';
+        const normalCalmTurn = !shouldSpeakAutomatic(record, 'normal', { playerColor: response.playerColor });
+        const speak = shouldSpeakAutomatic(record, chattiness, {
+            silentPlies: pena.silentPlies, calmTurns: pena.calmTurns, playerColor: response.playerColor
+        });
+        if(normalCalmTurn) pena.calmTurns++;
+        if(!speak) {
+            pena.silentPlies++;
+            setBusy(false);
+            ui.thinking.hidden = true;
+            setStatus('');
+            return;
+        }
+        const selected = chooseCommentFocus(record, pena.commentFocus, { playerColor: response.playerColor });
+        pena.commentFocus = selected.index;
+        response.commentFocus = selected.focus;
+    }
     if(response.prepared.directReply) {
         finishChat(response, { raw: response.prepared.directReply, tokens: 0, finishReason: 'stop' });
         setStatus('localReply');
@@ -946,10 +1093,15 @@ async function converse(response, instance) {
         setStatus('generatingCoaching');
         const s = pena.settings || {};
         response.timing.posted = performance.now();
+        response.style = coachStyleSetting();
         pena.worker.postMessage({ type: 'converse', chatId: response.chatId, input: response.input,
             history, playerColor: response.playerColor, automatic: Boolean(response.event),
             hideMoves: response.hideMoves,
-            moveRequested: response.moveRequested,
+            moveRequested: response.moveRequested, style: response.style,
+            moveGrade: response.moveGrade || '', focus: response.commentFocus || '',
+            recent: (pena.recentVoice || []).slice(-4).map(text => text.trim().split(/\s+/).slice(0, 3).join(' ')),
+            avoid: response.event ? leanedPhrases(pena.recentVoice || []) : [],
+            pattern: response.playerPatternComment ? patternPresentationNote : '',
             effort: s.penaEffort, thinkingTokens: s.penaThinkingTokens, temperature: s.penaTemperature, prompt: promptOverridesFrom(s) });
     } catch(error) {
         if(pena.response !== response) return;
@@ -959,6 +1111,13 @@ async function converse(response, instance) {
 }
 
 // With no board open Pena just chats. No engines, no position notes.
+// The coaching voice is 'natural' unless another style is being tried from the console,
+// for example localStorage.acasPenaCoachStyle = 'legacy'.
+function coachStyleSetting() {
+    try { return coachStyleName(localStorage.getItem('acasPenaCoachStyle')); }
+    catch { return coachStyleName(); }
+}
+
 function plainChat(response) {
     const s = pena.settings || {};
     if(response.raw) {
@@ -1017,6 +1176,12 @@ function handleEvent(data) {
     if(boardFen() !== response.fen) { tick(); return; }
     if(data.mode === 'grounded' && data.phase === 'complete') {
         try { finishGroundedChat(response, data); } catch(error) { cancel(); failure(error); }
+        return;
+    }
+    if(data.mode === 'grounded' && data.phase === 'sentence') { streamGroundedSentence(response, data); return; }
+    if(data.mode === 'grounded' && data.phase === 'check') {
+        response.thoughtChecks = [...(response.thoughtChecks || []), data.text].filter(note => typeof note === 'string' && note.trim());
+        renderChecks([...thoughtCheckAssessments(response), ...(response.screenAssessments || [])]);
         return;
     }
     if(data.phase === 'thought') { if(!response.hideMoves) showThought(response, data.text); return; }
@@ -1173,6 +1338,8 @@ function pauseChat(instance) {
     pena.paused.set(instance.instanceID, { domain: instance.domain, at: Date.now(), fen: pena.fen, previousFen: pena.previousFen,
         settings: pena.settings, lastLive: pena.lastLive, memory: pena.memory, game: pena.game, lastChat: pena.lastChat,
         saidBefore: pena.saidBefore, idleTurns: pena.idleTurns, idleApp: pena.idleApp,
+        recentVoice: pena.recentVoice, commentFocus: pena.commentFocus, silentPlies: pena.silentPlies, patternGame: pena.patternGame,
+        calmTurns: pena.calmTurns,
         conversation: pena.conversation?.save(), log, fens: gameFens(instance, pena.fen) });
     while(pena.paused.size > PAUSED_TABS) pena.paused.delete(pena.paused.keys().next().value);
 }
@@ -1188,7 +1355,9 @@ function resumeChat(instance, fen) {
     if(!continues && !(same && fens.length === 1)) return false;
     Object.assign(pena, { previousFen: saved.previousFen, settings: saved.settings, lastLive: saved.lastLive, memory: saved.memory,
         game: saved.game, lastChat: saved.lastChat, saidBefore: saved.saidBefore,
-        idleTurns: saved.idleTurns, idleApp: saved.idleApp });
+        idleTurns: saved.idleTurns, idleApp: saved.idleApp,
+        recentVoice: saved.recentVoice || [], commentFocus: saved.commentFocus ?? -1,
+        silentPlies: saved.silentPlies || 0, calmTurns: saved.calmTurns || 0, patternGame: saved.patternGame ?? null });
     pena.conversation?.restore(saved.conversation);
     ui.log.replaceChildren(ui.setupPanel, ...saved.log, ui.turn);
     scrollToTurn();
@@ -1211,6 +1380,12 @@ function attach(instance) {
     pena.game = null;
     pena.lastChat = null;
     pena.saidBefore = [];
+    pena.recentVoice = [];
+    pena.commentFocus = -1;
+    pena.silentPlies = 0;
+    pena.calmTurns = 0;
+    pena.patternGame = null;
+    pena.newPatternGame = false;
     pena.idleTurns = [];
     pena.idleApp = null;
     pena.conversation?.reset(null);
@@ -1234,11 +1409,14 @@ function clearChat() {
     pena.idleApp = null;
     pena.lastChat = null;
     pena.saidBefore = [];
+    pena.recentVoice = [];
+    pena.commentFocus = -1;
     pena.paused.clear();
     pena.conversation?.reset(pena.fen);
     pena.withheldMoveFen = null;
     resetAnswer();
     ui.log.replaceChildren(ui.setupPanel, ui.turn);
+    scrollToTurn(true);
     notice('');
     if(pena.state === 'ready') setStatus('');
     ui.input.focus();
@@ -1266,6 +1444,12 @@ async function onPosition(fen) {
         pena.memory = [];
         pena.idleTurns = [];
         pena.idleApp = null;
+        pena.recentVoice = [];
+        pena.commentFocus = -1;
+        pena.silentPlies = 0;
+        pena.calmTurns = 0;
+        pena.patternGame = null;
+        pena.newPatternGame = true;
         ui.log.replaceChildren(ui.setupPanel, ui.turn);
     }
     if(pena.state !== 'ready' || concealed()) return;
@@ -1335,7 +1519,7 @@ async function ask(question) {
     message.className = 'pena-message pena-message-user';
     message.textContent = question;
     ui.turn.insertBefore(message, ui.answer);
-    scrollToTurn();
+    scrollToTurn(true);
     pena.speechInterrupted = false;
     const settings = await getPenaPreferences(instance.instanceID);
     const playerColor = String(await instance.getPlayerColor()).toLowerCase()[0];
@@ -1646,7 +1830,7 @@ function createWindow() {
             <button type="button" class="pena-sheet-resize" data-pena-label="resize" data-pena-title="resize" aria-label="Resize Pena" title="Resize Pena"></button>
             <header class="floaty-header pena-window-header">
                 <div class="pena-heading">
-                    <span class="pena-title" data-pena-title="settingsTitle">AI</span>
+                    <span class="pena-title" data-pena-text="settingsTitle" data-pena-title="settingsTitle">Pena</span>
                     <span class="pena-beta">BETA</span>
                 </div>
                 <button type="button" class="pena-icon-btn pena-clear" data-pena-label="clearChat" data-pena-title="clearChat" aria-label="New chat" title="New chat">${ICONS.clear}</button>
@@ -1789,9 +1973,8 @@ async function listen() {
     const pendingWords = [];
     try {
         stopSpeech();
-        await recognitionRequest({ type: 'prepare' }, { signal: controller.signal, onProgress: progressText });
-        controller.signal.throwIfAborted();
-        await pena.microphone.startContinuous({
+        // Begin capture in the click gesture, before model loading can consume activation.
+        const capture = pena.microphone.startContinuous({
             pauseMs: (pena.settings?.penaVoicePause ?? 2.5) * 1000,
             onSpeech: () => { if(current()) { speechVersion++; setStatus('listening'); } },
             onPreview: packet => {
@@ -1834,6 +2017,8 @@ async function listen() {
             },
             onError: report
         });
+        await Promise.all([capture,
+            recognitionRequest({ type: 'prepare' }, { signal: controller.signal, onProgress: progressText })]);
         controller.signal.throwIfAborted();
         setStatus('listening');
     } catch(error) { report(error); }
@@ -1843,6 +2028,7 @@ export function initializePena() {
     if(isMobileDevice()) return;
     if(ui) return;
     ui = createWindow();
+    initializeChatScroll();
     // Player memory was removed. Clear what older versions saved in this browser.
     for(const key of ['acas.pena.memory.v1', 'acas.pena.memory.enabled', 'acas.queen.memory.v1', 'acas.queen.memory.enabled']) localStorage.removeItem(key);
     initializePenaTranslations();

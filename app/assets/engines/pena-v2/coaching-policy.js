@@ -28,9 +28,10 @@ export function boardGroundingNotes(fen, question) {
 }
 
 function hypotheticalKnights(board, question) {
-    return imaginedKnightSquares(question).map(from => `Hypothetical knight on ${from}: complete geometric controls `
+    // Phrased as a task, not a disclaimer, because the model tends to recite disclaimers back to the player.
+    return imaginedKnightSquares(question).map(from => `Imagined knight on ${from}, not on the board: it would control `
         + `${SQUARES.filter(to => reaches(board, from, to, 0, { type: 'n' })).join(', ')}. `
-        + 'This does not place a knight there or establish a legal move, capture, or forced win.');
+        + 'Just name those squares and what sits on them.');
 }
 
 /** Only the question's imagined-knight lines, for prompts that already list the board. */
@@ -88,17 +89,119 @@ function playerMentions(plain, mentions, board) {
     });
 }
 
+const captureTarget = String.raw`(?:(?:the|that|this|their|(?:your|the) opponent's|white's|black's)\s+(?:(?:free|loose|hanging|undefended)\s+)?(?:pawn|knight|bishop|rook|queen|piece)|it|them)`;
+// "Take it" after naming a hanging piece gives the move away without notation.
+// Limit this to player-directed commands, not past captures or what the opponent can do.
+const captureCommand = new RegExp(String.raw`(?:^\s*(?:then\s+)?|[,;:]\s*)(?:(?:so|you\s+(?:can|could|should|must|need to)|try to|just|simply|now)\s+)*`
+    + String.raw`(?:(?:take(?!\s+it\s+(?:seriously|personally|slowly|easy|from me|as|for granted)\b)|capture|remove|grab|recapture|(?:swap|trade|exchange)(?:\s+off)?)\s+${captureTarget}\b`
+    + String.raw`|pick\s+(?:off\s+${captureTarget}\b|${captureTarget}\s+off\b)|get\s+(?:rid of\s+${captureTarget}\b|${captureTarget}\s+off the board\b))`, 'i');
+
+function describedSuggestion(plain, board, mine) {
+    if(!board) return false;
+    const otherName = board.other === 'w' ? 'white' : 'black';
+    const owner = word => /^(?:your|you)$/i.test(word) ? board.player
+        : /^(?:their|opponent's|the opponent's)$/i.test(word) ? board.other : word[0].toLowerCase();
+    const consequence = new RegExp(`\\b(?:if|after|when|once)\\s+(?:${otherName}|they|their|(?:your |the )?opponent)\\b`, 'i');
+    const actors = /\b(your|their|white|black|opponent's|the opponent's)\s+(?:[a-h][1-8]\s+)?(pawn|knight|bishop|rook|queen|king)s?(?:\s+on\s+[a-h][1-8])?\s+(?:can|could|should|must|needs? to|has to|have to)\s+([^.!?]+)/gi;
+    for(const match of plain.matchAll(actors)) {
+        if(owner(match[1]) !== board.player || consequence.test(plain.slice(0, match.index))) continue;
+        const type = pieceTypes[match[2].toLowerCase()];
+        const actions = match[3].replace(/^(?:(?:just|also|simply)\s+)*/i, '');
+        if(/\b(?:earlier|previously|last (?:move|turn))\b/i.test(actions)) continue;
+        if(/^(?:take|capture|remove|recapture|trade|exchange)\b/i.test(actions) && mine.some(move => move.piece === type && move.captured)) return true;
+        if(/^(?:give|deliver)\s+check\b/i.test(actions) && mine.some(move => move.piece === type && /[+#]$/.test(move.san))) return true;
+        const file = actions.match(/^(?:get|go|move)\s+to\s+(?:the\s+)?(?:open\s+|half-open\s+)?([a-h])[- ]file\b/i);
+        if(file && mine.some(move => move.piece === type && move.to[0] === file[1].toLowerCase())) return true;
+        if(/^(?:move|retreat)(?:\s+or\s+be\s+protected)?\b/i.test(actions) && mine.some(move => move.piece === type)) return true;
+    }
+    const check = plain.match(/\b(?:the\s+)?(queen|bishop|rook|knight|king|pawn)\s+has\s+a\s+check\b/i);
+    if(check && !new RegExp(`\\b(?:their|opponent's|${otherName}(?:'s)?)\\b`, 'i').test(plain.slice(0, check.index))
+        && mine.some(move => move.piece === pieceTypes[check[1].toLowerCase()]
+            && /[+#]$/.test(move.san))) return true;
+    const capture = /\b(?:taking|capturing|removing|recapturing|trading|exchanging)\s+(?:it|that\s+(?:piece|pawn|knight|bishop|rook|queen)|the\s+(?:piece|pawn|knight|bishop|rook|queen))\s+(?:(?:also|just|simply)\s+)*(?:is|wins?|clears?|stops?|breaks?|keeps?)\b/i.exec(plain);
+    if(capture && mine.some(move => move.captured) && !consequence.test(plain.slice(0, capture.index))
+        && !new RegExp(`\\b(?:${otherName}|they|the opponent)\\s+$`, 'i').test(plain.slice(0, capture.index))) return true;
+    return mine.some(move => move.captured) && /\bit\s+has\s+to\s+come\s+off\b/i.test(plain)
+        || /(?:^|[,;:]\s*)(?:so\s+)?move\s+(?:it|that\s+(?:piece|pawn|knight|bishop|rook|queen))\s+(?:out|away|to safety)\b/i.test(plain);
+}
+
+function adviceActor(text, board) {
+    const references = [...text.matchAll(/\b(pawn|knight|bishop|rook|queen|king)(?:\s+on\s+([a-h][1-8]))?\b/gi)];
+    const reference = references.at(-1);
+    if(!reference) return null;
+    const preceding = text.slice(Math.max(0, reference.index - 24), reference.index);
+    const marker = preceding.match(/\b(your|you|their|opponent's|the opponent's|white's|black's|white|black)\s*$/i)?.[1]?.toLowerCase();
+    const type = pieceTypes[reference[1].toLowerCase()];
+    let color = null;
+    if(marker === 'your' || marker === 'you') color = board.player;
+    else if(marker === 'their' || marker === "opponent's" || marker === "the opponent's") color = board.other;
+    else if(marker === "white's" || marker === 'white') color = 'w';
+    else if(marker === "black's" || marker === 'black') color = 'b';
+    else if(reference[2]) color = pieceAt(new Chess(board.fen), reference[2])?.color || null;
+    else color = board.player;
+    return { type, color };
+}
+
 function hasSuggestion(plain, playedSan = '', board = null) {
-    const past = playedSan && /\b(?:played|just played|last move|your move|that move|after)\b/i.test(plain);
+    const mine = board ? legalMoves(board.fen, board.player) : [];
+    // The move that was just played is history, like "Nd5 is a good move", once the player can't play it again.
+    const past = playedSan && (/\b(?:played|just played|last move|your move|that move|after)\b/i.test(plain)
+        || board && !matches(mine, playedSan).length);
     const suggestions = playerMentions(plain, moveMentions(plain).filter(mention => !(past && typeof mention.input === 'string'
         && mention.input.replace(/[+#]/g, '') === playedSan.replace(/[+#]/g, ''))), board);
-    const mine = board ? legalMoves(board.fen, board.player) : [];
     const verbs = /\b(?:play\w*|push\w*|mov\w*|advanc\w*|captur\w*|tak\w*|put\w*|bring\w*|develop\w*|jump\w*|land\w*|retreat\w*)\b[^.!?]*?\b(to|on|from)\s+([a-h][1-8])\b/gi;
     const verbal = [...plain.matchAll(verbs)].some(([, by, square]) => !board
         || mine.some(move => move[by.toLowerCase() === 'from' ? 'from' : 'to'] === square.toLowerCase()));
     const pawnMove = /\b(?:consider|try|recommend|suggest|choose|prefer|favor|favour)\s+[a-h][1-8]\b|^\s*[a-h][1-8]\s+(?:develops|controls|attacks|opens|protects|threatens|wins|loses|works|looks)\b/i.test(plain);
+    const namedPlan = [...plain.matchAll(/\b(?:(?:press\w*|build\w*|expand\w*|develop\w*|continu\w*|respond\w*|break\w*|strik\w*|lever\w*|kick\w*|meet\w*|answer\w*|counter\w*)\s+(?:(?:it|them|that|this)\s+)?with|(?:pawn\s+)?(?:break|push|advance)s?)\s+([a-h][1-8](?:\s+(?:or|and)\s+[a-h][1-8])*)\b/gi)].some(match => {
+        const clause = plain.slice(0, match.index).split(/[,;:]|\b(?:but|so)\b/i).at(-1);
+        if(/\b(?:(?:could|would|should) have|had been|was|were|earlier|previously)\b/i.test(clause)) return false;
+        if(board && moveOwner(clause, board.player) === board.other) return false;
+        return !board || [...match[1].matchAll(/[a-h][1-8]/gi)].some(square => matches(mine, square[0]).length);
+    });
+    const wayToAct = /\b(?:has|have|offers?)\s+(?:(?:a|the|one|clean|safe|good|natural|clear|direct)\s+){0,3}way\s+to\s+(?:hit|attack|check|capture|take|target|press)\b/i.exec(plain);
+    const actor = wayToAct && board ? adviceActor(plain.slice(0, wayToAct.index), board) : null;
+    const pieceWay = Boolean(actor?.color === board?.player && mine.some(move => move.piece === actor.type));
+    const chosenCapture = /\b(?:cleanest|safest|best|easiest|only)\s+(?:way|move|answer)\s+(?:is|would be)\s+to\s+(?:take|capture|remove|trade|exchange)\b/i.exec(plain);
+    const captureWay = Boolean(chosenCapture && board && moveOwner(plain.slice(0, chosenCapture.index), board.player) !== board.other
+        && mine.some(move => move.captured));
+    const checkOnSquare = /\b(?:(your|their|white's|black's|the opponent's|opponent's)\s+)?(queen|rook|bishop|knight|pawn|king)(?:'s)?\s+check\s+on\s+([a-h][1-8])\b[^.!?]{0,40}\b(?:is|would be)\s+(?:the\s+)?move\b/i.exec(plain);
+    const namedCheck = Boolean(checkOnSquare && board
+        && (!checkOnSquare[1] || ownerColor(checkOnSquare[1], board.player, board.player) === board.player)
+        && mine.some(move => move.piece === pieceTypes[checkOnSquare[2].toLowerCase()]
+            && move.to === checkOnSquare[3].toLowerCase() && /[+#]$/.test(move.san)));
+    const checkThenHit = /\bcheck\s+first\b[^.!?]{0,45}\b(?:hit|attack|capture|take)\b/i.exec(plain);
+    const checkingAdvice = Boolean(checkThenHit && board && moveOwner(plain.slice(0, checkThenHit.index), board.player) !== board.other
+        && mine.some(move => /[+#]$/.test(move.san)));
+    const pieceMove = /\bmove\s+(?:(?:your|their|the|white's|black's|the opponent's|opponent's)\s+)?(pawn|knight|bishop|rook|queen|king)\b[^.!?]{0,45}\b(?:with|to|toward|towards|like|rather than)\b/i.exec(plain);
+    const movingPiece = pieceMove && board ? adviceActor(plain.slice(0, pieceMove.index + pieceMove[0].length), board) : null;
+    const moveAdvice = Boolean(movingPiece?.color === board?.player && mine.some(move => move.piece === movingPiece.type));
+    const rookLift = /\b(rook|queen|bishop|knight|king)\s+(?:lift|swing|shift)\s+(?:up|to|along)\s+(?:the\s+)?([a-h])[- ]file\b/i.exec(plain);
+    const liftActor = rookLift && board ? adviceActor(plain.slice(0, rookLift.index + rookLift[0].length), board) : null;
+    const liftAdvice = Boolean(liftActor?.color === board?.player
+        && mine.some(move => move.piece === liftActor.type && move.to[0] === rookLift[2].toLowerCase()));
+    const pawnMoveIdea = /\b(?:a|the)\s+(?:(?:central|pawn|center|centre)\s+)*pawn\s+move\b[^.!?]{0,45}\b(?:natural|best|cleanest|safest)\s+way\b/i.test(plain);
+    // "so f4 is the natural way to kick it" recommends a pawn move by its square alone.
+    const squareChoice = [...plain.matchAll(/\b([a-h][1-8])\s+(?:is|would be|looks like)\s+(?:(?:the|a|your)\s+)?(?:(?:most|very|really)\s+)?(?:natural|best|cleanest|safest|right|simplest|strongest|obvious|thematic|logical|key)\s+(?:way|move|idea|push|break|try|choice|answer|reply|plan|follow-up)\b/gi)]
+        .some(match => board && moveOwner(plain.slice(0, match.index).split(/[,;:]|\b(?:but|so)\b/i).at(-1), board.player) !== board.other
+            && matches(mine, match[1]).length);
+    // "The f6 break is still there" keeps a specific pawn move on the table.
+    const openBreak = [...plain.matchAll(/\b([a-h][1-8])\s+(?:pawn\s+)?(?:break|push|lever|thrust|advance)\s+(?:is|remains|stays)\s+(?:still\s+)?(?:there|available|possible|on|coming|an option|in the air)\b/gi)]
+        .some(match => board && moveOwner(plain.slice(0, match.index).split(/[,;:]|\b(?:but|so)\b/i).at(-1), board.player) !== board.other
+            && matches(mine, match[1]).length);
+    // "it can come to a3 or e3" sends a named piece to concrete squares.
+    const destination = [...plain.matchAll(/\b(?:can|could|should|might|wants? to|would like to|is ready to|needs? to|has to|ought to)\s+(?:(?:still|also|easily|then|later|now|just)\s+)?(?:come|go|head|drop|swing|reroute|settle|hop|slide)\s+(?:back\s+)?(?:to|into|onto)\s+([a-h][1-8](?:\s*,\s*[a-h][1-8])*(?:,?\s+(?:or|and)\s+[a-h][1-8])?)\b/gi)]
+        .some(match => {
+            if(!board) return false;
+            const actor = adviceActor(plain.slice(0, match.index), board);
+            if(!actor || actor.color !== board.player) return false;
+            return [...match[1].matchAll(/[a-h][1-8]/gi)].some(([square]) =>
+                mine.some(move => move.piece === actor.type && move.to === square.toLowerCase()));
+        });
     const namedAction = /^\s*(?:castle|promote)\b|\b(?:should|could|can|try|consider|recommend|suggest|prefer|best move is)\s+(?:to\s+)?(?:castle|promote)\b|\b(?:push|advance|move)\s+(?:(?:your|the|own)\s+)?[a-h][- ]pawn\b/i.test(plain);
-    return Boolean(suggestions.length || verbal || pawnMove || namedAction);
+    return Boolean(suggestions.length || verbal || pawnMove || namedPlan || namedAction || captureCommand.test(plain)
+        || pieceWay || captureWay || namedCheck || checkingAdvice || moveAdvice || liftAdvice || pawnMoveIdea || squareChoice || openBreak || destination
+        || describedSuggestion(plain, board, mine));
 }
 
 export function hideMoveSuggestions(text, { playedSan = '', fen = '', playerColor = '' } = {}) {
@@ -108,6 +211,15 @@ export function hideMoveSuggestions(text, { playedSan = '', fen = '', playerColo
         const plain = markdownPlain(sentence);
         if(!hasSuggestion(plain, playedSan, board)) return sentence;
         withheld = true;
+        const breaks = [...sentence.matchAll(/[,;:]\s*(?:(?:and|so|but)\s+)?/gi)].reverse();
+        for(const split of breaks) {
+            const prefix = sentence.slice(0, split.index).trim();
+            // "If you want to keep the pawn" alone is a condition with nothing it leads to.
+            const onlyCondition = /^\s*(?:if|when|whenever|once|unless|because|since|although|though|while|after|before|until|as long as|so that|even if)\b/i.test(markdownPlain(prefix))
+                && !/[,;:]/.test(prefix);
+            if(!onlyCondition && /\b(?:pawn|knight|bishop|rook|queen|king|[a-h][1-8])\b/i.test(markdownPlain(prefix))
+                && !hasSuggestion(markdownPlain(prefix), playedSan, board)) return prefix.replace(/[.!?]?$/, '.');
+        }
         const hint = moveHint(plain);
         return hint.startsWith('Look for a move ') && !hasSuggestion(hint) ? hint : '';
     }).filter(Boolean);
@@ -169,8 +281,15 @@ function misplaced(plain, boards, playerColor, imagined = new Set()) {
         const color = ownerColor(word, playerColor, joined ? inherited : null);
         inherited = color;
         previousEnd = match.index + match[0].length;
-        if(/^(?:a|an|any)$/i.test(word || '') || elsewhere.test(before) || wishes.test(before)
+        if(/^(?:a|an|any)$/i.test(word || '') || wishes.test(before)
             || denied.test(before) || hypothetical.test(after)) continue;
+        const hypotheticalOwner = /\b(?:if|after|once|when|would|could|might|will|imagine|suppose|instead|then|later|eventually|next|captur\w*|tak\w*|trad\w*|swap\w*)\b/i.test(before);
+        const historicalOwner = /\b(?:was|were|had|used to|earlier|previously|before|captured|took|taken|traded|lost|played|started|began)\b/i.test(plain);
+        if(color && !hypotheticalOwner && !historicalOwner && squares.some(at => {
+            const piece = pieceAt(boards.now, at);
+            return piece?.type === type && piece.color !== color && !imagined.has(type + at);
+        })) return true;
+        if(elsewhere.test(before)) continue;
         const holds = board => squares.every(at => {
             const piece = pieceAt(board, at);
             return piece?.type === type && (!color || piece.color === color);
@@ -203,7 +322,10 @@ export function dropRepeatedSentences(text, earlier = []) {
     const old = earlier.flatMap(reply => sourceSentences(String(reply || '')).map(({ text: sentence }) => wordsOf(sentence)))
         .filter(words => words.length >= 5);
     if(!old.length) return { text, removed: [] };
+    const squares = words => words.filter(word => /^[a-h][1-8]$/.test(word)).sort().join(' ');
     const copied = words => words.length >= 5 && old.some(previous => {
+        // Same wording about different squares is news, like a fresh check from another piece.
+        if(squares(words) !== squares(previous)) return false;
         const seen = new Set(previous);
         const shared = words.filter(word => seen.has(word)).length;
         return shared / Math.max(words.length, previous.length) >= 0.85;
@@ -241,12 +363,19 @@ const dangling = /\b(?:that|which|the|is|are|was|be|and|to|a|an|it|its|your|with
 
 // Who is winning is already on screen elsewhere, so Pena leaves verdicts out unless the player asks.
 // A verdict tacked onto real advice loses only its clause. A sentence that is nothing but a verdict goes.
+// An engine number in brackets, like "c4 (+0.4)", is only the aside that goes.
+const evalAside = /[ \t]*\((?:[^()\n]*?\s)?[+\-−]\d+(?:\.\d+)?\b[^()\n]*\)/g;
+
 export function dropUnaskedVerdicts(text, question = '') {
     if(asksStanding.test(String(question || ''))) return { text, removed: [] };
-    const removed = [];
+    const asides = String(text).match(evalAside) || [];
+    const source = asides.length ? String(text).replace(evalAside, '') : text;
+    const removed = asides.map(aside => aside.trim());
+    let dropped = false;
     const isVerdict = sentence => verdicts.some(pattern => pattern.test(markdownPlain(sentence).replace(/\[[^\]\n]*\]/g, '')));
-    const kept = sourceSentences(text).map(({ text: sentence }) => {
+    const kept = sourceSentences(source).map(({ text: sentence }) => {
         if(!isVerdict(sentence)) return sentence;
+        dropped = true;
         const end = sentence.match(/[.!?]+(?=[^.!?]*$)/)?.[0] || '.';
         let body = sentence.replace(verdictLead, '').replace(verdictClause, '');
         if(body !== sentence) {
@@ -266,7 +395,7 @@ export function dropUnaskedVerdicts(text, question = '') {
         removed.push(sentence);
         return null;
     }).filter(sentence => sentence !== null);
-    return { text: removed.length ? kept.join(' ') : text, removed };
+    return { text: dropped ? kept.join(' ') : source, removed };
 }
 
 const files = 'abcdefgh';
@@ -324,7 +453,7 @@ function stuckByPin(board, fen, square) {
 
 const namedPiece = /\b(pawn|knight|bishop|rook|queen|king)\s+on\s+([a-h][1-8])\b|\b([a-h][1-8])[- ](pawn|knight|bishop|rook|queen|king)\b/gi;
 // Base forms also cover modals such as "would attack".
-const sightVerb = String.raw`looks?\s+at|eyes?|sees?|aims?\s+at|points?\s+at|stares?\s+at|x-rays?|targets?|(?:is|are|'s)\s+(?:looking\s+at|eyeing|aiming\s+at|pointing\s+at|staring\s+at|targeting)`;
+const sightVerb = String.raw`looks?\s+at|eyes?|sees?|aims?\s+at|points?\s+at|leans?\s+on|stares?\s+at|x-rays?|targets?|(?:is|are|'s)\s+(?:looking\s+at|eyeing|aiming\s+at|pointing\s+at|leaning\s+on|staring\s+at|targeting)`;
 const guardVerb = String.raw`guards?|defends?|protects?|covers?|supports?|attacks?|hits?|controls?|(?:is|are|'s)\s+(?:guarding|defending|protecting|covering|supporting|attacking|hitting)|(?:is|are|'s)\s+tied\s+(?:down\s+)?to|${sightVerb}`;
 const sighting = new RegExp(String.raw`^(?:${sightVerb})\b`, 'i');
 const pieceNoun = String.raw`(?:(?:the|your|their|its|that|this|black's|white's|opponent's)\s+)?(?:[\w-]+\s+)?(?:pawn|knight|bishop|rook|queen|king|piece)`;
@@ -349,10 +478,17 @@ function falseGeometry(plain, board, fen, context = '', imagined = []) {
         return frame ? new Chess(frame.fen) : board;
     };
     const settled = !elsewhere.test(plain.slice(offset));
-    const subjects = [...plain.matchAll(namedPiece)].map(match => ({ index: match.index, end: match.index + match[0].length,
-        type: pieceTypes[(match[1] || match[4]).toLowerCase()], square: (match[2] || match[3]).toLowerCase() }))
-        .filter(item => !notSubject.test(plain.slice(0, item.index).match(clauseStart)?.[1] || '')
-            && !/\b(?:by|with)\b/i.test(plain.slice(0, item.index).split(/[,;:]/).at(-1)));
+    const subjects = [
+        ...[...plain.matchAll(namedPiece)].map(match => ({ index: match.index, end: match.index + match[0].length,
+            type: pieceTypes[(match[1] || match[4]).toLowerCase()], square: (match[2] || match[3]).toLowerCase() })),
+        ...[...plain.matchAll(/\bN[a-h]?[1-8]?x?([a-h][1-8])[+#]?/g)].map(match =>
+            ({ index: match.index, end: match.index + match[0].length, type: 'n', square: match[1].toLowerCase() }))
+    ]
+        .filter(item => {
+            const lead = plain.slice(0, item.index).split(/[.!?]\s+/).at(-1);
+            return !notSubject.test(lead.match(clauseStart)?.[1] || '')
+                && !/\b(?:by|with)\b/i.test(lead.split(/[,;:]/).at(-1));
+        });
     // "From d5 it eyes e6" answers a question about a knight on d5, so "it" is that imagined knight.
     for(const match of plain.matchAll(/\bfrom\s+([a-h][1-8])\s*,?\s+(?:(it)|(?:a|the|your|that|this)\s+knight)\b/gi))
         if(!match[2] || imagined.includes(match[1].toLowerCase()))

@@ -1,13 +1,15 @@
 import { LocalAI } from './local-ai.js';
 import { englishCoachingInput, pcfCoachingInput } from './pcf-input.js';
 import { inklingPrompt } from './inkling-layout.js';
-import { applyPromptOverrides, defaultPenaPrompt, hasPromptOverrides, penaChatVoice, penaVoice, personaPrompt } from './prompt-overrides.js';
-import { boardGroundingNotes, coachingPolicy, hypotheticalKnightNotes } from './coaching-policy.js';
+import { defaultPenaPrompt, hasPromptOverrides, penaChatVoice, personaPrompt } from './prompt-overrides.js';
+import { boardGroundingNotes, hypotheticalKnightNotes } from './coaching-policy.js';
+import { styleCoachingMessages, coachStyleName, opensWithStockOpener, openerDecided, retryOpenerMessages } from './coach-style.js';
 import { penaDefaults } from './preferences.js';
 import { planEffort, escalation, ThoughtSplitter, SentenceChunker, CoachNotes, acknowledgement,
     ESCALATION_NOTE, STILL_READING, STILL_READING_AFTER_MS } from './inkling-effort.js';
 import { cleanCoachAnswer, cleanEvidenceTalk, liveThinking, stripRefs } from './thought-injection.js';
 import { createVerdictEngine } from './verdict-engine.js';
+import { dropAnnouncedLabels } from './formatting.js';
 
 // The worker prepares chess evidence. Only the native local server runs the model.
 let CONTEXT = 8192;
@@ -30,6 +32,8 @@ let verdictEngine = null;
 const thinkingTokensOf = value => Number.isSafeInteger(value) && value >= 64 && value <= 4096 ? value : options.thinkingTokens;
 const temperatureOf = value => Number.isFinite(value) && value >= 0 && value <= 1.5 ? value : penaDefaults.penaTemperature;
 const markup = /<\|[a-z_]+\|>|<\/?(?:think|analysis)>/i;
+// Chat template tokens printed as text. Nothing after one belongs to the answer.
+const chatMarkup = /<\|[a-z_]+\|>/i;
 const cleanAnswerPunctuation = text => cleanEvidenceTalk(text).replace(/\s*—\s*/g, ', ')
     .replace(/(^|[.!?])\s*,\s*/g, '$1 ')
     .replace(/,\s*([.!?;:]|$)/g, '$1')
@@ -103,20 +107,17 @@ function buildInput(message, maxPromptTokens) {
 function prepareInput(message, maxPromptTokens) {
     const overrides = message.prompt || {};
     const root = message.input.frames.find(frame => frame.id === 'root');
-    const reminder = usesEnglishBoard(message) ? hypotheticalKnightNotes(root.fen, message.input.question)
+    const english = usesEnglishBoard(message);
+    const reminder = english ? hypotheticalKnightNotes(root.fen, message.input.question)
         : boardGroundingNotes(root.fen, message.input.question);
     let input = buildInput(message, maxPromptTokens);
     const custom = hasPromptOverrides(overrides);
-    const restyle = messages => {
-        const styled = custom ? applyPromptOverrides(messages, overrides)
-            : messages.map((item, index) => index === 0 && item.role === 'system'
-                ? { ...item, content: `${item.content} ${penaVoice}` } : item);
-        return styled.map((item, index) => index === 0 && item.role === 'system'
-            ? { ...item, content: `${item.content} ${coachingPolicy}${message.moveRequested && !message.hideMoves
-                ? ' The player explicitly asked for a move. Give the move and a short explanation, rather than offering to reveal it.'
-                : message.hideMoves ? ' Do not name or describe specific suggested moves or lines unless the player explicitly asks for one.' : ''}` }
-            : index === styled.length - 1 && reminder ? { ...item, content: `${reminder}\n\n${item.content}` } : item);
-    };
+    const restyle = messages => styleCoachingMessages(messages, { style: message.style, english, overrides, custom,
+        automatic: Boolean(message.automatic), question: String(message.input.question || ''), hideMoves: Boolean(message.hideMoves),
+        moveRequested: Boolean(message.moveRequested), reminder, fen: root.fen, previousFen: message.history?.at(-1) || '',
+        moveGrade: String(message.moveGrade || ''), focus: String(message.focus || ''), recent: Array.isArray(message.recent) ? message.recent : [],
+        avoid: Array.isArray(message.avoid) ? message.avoid.map(String).slice(0, 3) : [],
+        pattern: String(message.pattern || '') });
     const apply = built => ({ ...built, messages: restyle(built.messages) });
     let styled = apply(input);
     const extra = Math.ceil((promptText(styled.messages).length - promptText(input.messages).length) / charsPerToken);
@@ -157,18 +158,20 @@ function plainInput(message) {
     const overrides = message.prompt || {};
     const custom = hasPromptOverrides(overrides);
     if(custom && /<\|[a-z_]+\|>/i.test(overrides.systemPrompt)) throw new Error('Custom Pena prompts cannot contain <|...|> chat markup.');
-    const turns = (message.conversation || []).slice(-6).flatMap(({ player, pena }) =>
-        [{ role: 'user', content: String(player) }, { role: 'assistant', content: String(pena) }]);
+    const turns = (message.conversation || []).slice(-6).flatMap(({ player, pena }, index, history) =>
+        [{ role: 'user', content: String(player) }, { role: 'assistant', content: dropAnnouncedLabels(String(pena), {
+            previous: history.slice(0, index).map(turn => turn.pena), question: String(player)
+        }).text }]);
     const question = { role: 'user', content: String(message.input?.question || '') };
     // Plain mode uses the displayed System prompt without any coaching additions.
     if(message.raw) {
-        const system = overrides.systemPrompt?.trim() || defaultPenaPrompt;
+        const system = custom ? overrides.systemPrompt.trim() : defaultPenaPrompt;
         return { messages: [{ role: 'system', content: system }, ...turns, question],
             references: [], legacyReferenceIds: [], schema: 'pena-plain-chat/1', pcf: { promptTokens: null } };
     }
     const system = custom ? personaPrompt(overrides.systemPrompt, { plain: true })
         : `${message.board ? 'A game is open, but this is small talk. Keep it short and leave the position alone.'
-            : 'No board is open. Chat about chess and A.C.A.S without inventing a position or engine numbers.'} ${penaChatVoice}`;
+            : 'No board is open. Do not invent a position or engine numbers.'} ${penaChatVoice}`;
     const notes = String(message.notes || '').trim() ? [{ role: 'system', content: `${String(message.notes).trim()}\nAnswer questions about A.C.A.S from these notes and the player's words only. If they don't cover it, say you're not sure and point to the usage guide. No board is open, so you can't see the player's engine or profile settings, only your own. Never use square brackets.` }] : [];
     return { messages: [{ role: 'system', content: system }, ...notes, ...turns, question],
         references: [], legacyReferenceIds: [], schema: 'pena-plain-chat/1', pcf: { promptTokens: null } };
@@ -179,7 +182,10 @@ async function converse(message) {
     const { chatId } = message;
     active = { chatId, controller };
     const live = () => active?.controller === controller && !controller.signal.aborted;
-    const post = data => { if(live()) self.postMessage({ type: 'pena', mode: 'grounded', chatId, ...data }); };
+    let input;
+    const post = data => { if(live()) self.postMessage({ type: 'pena', mode: 'grounded', chatId, ...data,
+        ...(data.phase === 'sentence' ? { inputSchema: input.schema,
+            definedIds: [...input.references.map(ref => ref.id), ...input.legacyReferenceIds] } : {}) }); };
     const timers = [];
     try {
         if(!runtime || !serverModel) throw new Error('Start a model in the A.C.A.S local server first.');
@@ -206,7 +212,7 @@ async function converse(message) {
             else timers.push(setTimeout(() => { if(!state.firstToken) post({ phase: 'hello', text: acknowledgement(question, 'medium') }); }, QUIET_HELLO_MS));
             timers.push(setTimeout(() => { if(!state.firstToken) post({ phase: 'hello', text: message.plain ? 'Still thinking, nearly there.' : STILL_READING }); }, STILL_READING_AFTER_MS));
         }
-        let input = message.plain ? plainInput(message) : await boardInput(message, maxPromptTokens, plan.effort, controller.signal);
+        input = message.plain ? plainInput(message) : await boardInput(message, maxPromptTokens, plan.effort, controller.signal);
         let result, measuredTokens = null;
         // Plain chat and the English board are ordinary text, so they must not recalibrate the PCF token ratio.
         const english = !message.plain && input.schema === 'pena-v2-english-coaching-input/1';
@@ -229,14 +235,37 @@ async function converse(message) {
                 continue;
             }
             post({ phase: 'prefill', processed: 0, total: measuredTokens });
-            result = await respond(message, input, plan, { post, controller, state, maxPromptTokens, measuredTokens, calibrate, temperature: temperatureOf(message.temperature) });
+            const openerCheck = automatic && !message.plain && !message.raw && coachStyleName(message.style) === 'natural'
+                && !hasPromptOverrides(message.prompt || {});
+            result = await respond(message, input, plan, { post, controller, state, maxPromptTokens, measuredTokens, calibrate,
+                temperature: temperatureOf(message.temperature), restartOn: openerCheck ? opensWithStockOpener : null });
+            if(result.restart) {
+                // Nothing was posted yet, so the listener only hears the second try.
+                const first = result;
+                result = await respond(message, { ...input, messages: retryOpenerMessages(input.messages) }, plan,
+                    { post, controller, state, maxPromptTokens, measuredTokens, calibrate, temperature: temperatureOf(message.temperature) });
+                result.tokens = (result.tokens || 0) + (first.tokens || 0);
+                result.openerRetry = true;
+            }
             if(!result.overflow) break;
             // The estimate undercounted. charsPerToken is now calibrated, so rebuild once smaller.
             if(attempt >= 2 || english) throw new Error('Pena could not fit the position evidence into the context window.');
             input = message.plain ? plainInput({ ...message, conversation: (message.conversation || []).slice(attempt ? -1 : -3) })
                 : prepareInput(message, maxPromptTokens);
         }
-        const retry = !automatic && !message.raw && escalation(plan, result, limits);
+        // Thinking harder doesn't cure a thinking loop, so one quick try with thinking off comes first.
+        if(!result.cancelled && (result.emptyThinking || !String(result.answer || '').trim())) {
+            const first = result;
+            plan = { ...planEffort(question, 'none', limits), escalated: true,
+                reason: `Retried without thinking: the ${plan.effort} attempt never reached an answer.` };
+            result = await respond(message, input, plan, { post, controller, state, maxPromptTokens, measuredTokens, calibrate,
+                temperature: Math.max(0.4, temperatureOf(message.temperature)) });
+            if(result.overflow) throw new Error('Pena could not fit the position evidence into the context window.');
+            result.tokens = (result.tokens || 0) + (first.tokens || 0);
+            if(!result.cancelled && !String(result.answer || '').trim())
+                throw new Error('Pena got stuck thinking and never reached an answer. Try asking again, or lower the thinking effort.');
+        }
+        const retry = !automatic && !message.raw && !plan.escalated && escalation(plan, result, limits);
         if(retry) {
             plan = { ...plan, ...retry };
             post({ phase: 'escalating', text: ESCALATION_NOTE, effort: plan.effort });
@@ -248,7 +277,7 @@ async function converse(message) {
         if(result.cancelled) return;
         post({ phase: 'complete', raw: result.answer, tokens: result.tokens, promptTokens: result.promptTokens ?? measuredTokens,
             finishReason: result.finishReason, inputSchema: input.schema, effort: plan.effort, escalated: Boolean(plan.escalated),
-            definedIds: [...input.references.map(ref => ref.id), ...input.legacyReferenceIds] });
+            definedIds: [...input.references.map(ref => ref.id), ...input.legacyReferenceIds], checks: result.checks || [] });
     } catch(error) {
         if(controller.signal.aborted || error?.name === 'AbortError') return;
         post({ phase: 'failed', message: error?.message || String(error) });
@@ -311,7 +340,7 @@ async function liveGenerate(message, input, plan, { post, controller, state, mea
             if(measuredTokens > 0) post({ phase: 'prefill', processed: measuredTokens, total: measuredTokens });
         },
         onThought: thought,
-        onCheck: note => post({ phase: 'thought', text: `\n(Checked: ${note})\n` }),
+        onCheck: note => post({ phase: 'check', text: note }),
         onAnswer: delta => { answerText += delta; sentences(); }
     });
     for(const sentence of visible.push('', true)) {
@@ -323,15 +352,20 @@ async function liveGenerate(message, input, plan, { post, controller, state, mea
         tokens: result.tokens, checks: result.checks, cancelled: signal.aborted };
 }
 
-async function generate(input, plan, { post, controller, state, maxPromptTokens, measuredTokens, calibrate = true, temperature = 0, raw = false }) {
+async function generate(input, plan, { post, controller, state, maxPromptTokens, measuredTokens, calibrate = true, temperature = 0, raw = false, restartOn = null }) {
     const clean = raw ? text => text.trim() : cleanAnswerPunctuation;
     const promptChars = promptText(input.messages, plan.effort).length;
     const known = new Set([...input.references.map(ref => ref.id), ...input.legacyReferenceIds]);
     const visible = new ThoughtSplitter(), thoughtSentences = new SentenceChunker(), answerSentences = new SentenceChunker();
     const notes = new CoachNotes();
-    const overflow = new AbortController();
-    const signal = AbortSignal.any([controller.signal, overflow.signal]);
+    const overflow = new AbortController(), stall = new AbortController(), restart = new AbortController();
+    const signal = AbortSignal.any([controller.signal, overflow.signal, stall.signal, restart.signal]);
+    let openerChecked = !restartOn;
     let finishReason = null, promptTokens = null, tokens = 0, answerSeen = 0, streaming = true, lastPrefill = 0, prefillFinished = false;
+    // Inkling can reopen its thinking block, and each block gets a fresh budget, or with thinking off it
+    // prints the chat markup as text over and over. Neither ever reaches an answer, so both stop early.
+    const thinkLimit = plan.effort === 'none' ? 64 : plan.reasoningBudget + 96;
+    let thinking = 0, cut = null;
     const thought = text => {
         post({ phase: 'thought', text });
         if(raw) return;
@@ -383,18 +417,40 @@ async function generate(input, plan, { post, controller, state, maxPromptTokens,
                     state.firstToken = true;
                     tokens++;
                 }
-                if(delta.reasoning_content) thought(delta.reasoning_content);
+                if(delta.reasoning_content) {
+                    thought(delta.reasoning_content);
+                    thinking++;
+                }
                 if(delta.content) {
                     const before = visible.thoughts.length;
                     const text = visible.push(delta.content);
-                    if(visible.thoughts.length > before) thought(visible.thoughts.slice(before));
+                    if(visible.thoughts.length > before) {
+                        thought(visible.thoughts.slice(before));
+                        thinking++;
+                    }
+                    const at = text.search(chatMarkup);
+                    if(!openerChecked && !visible.hidden) {
+                        const start = (at >= 0 ? text.slice(0, at) : text).trimStart();
+                        if(at >= 0 || openerDecided(start)) {
+                            openerChecked = true;
+                            if(restartOn(start)) { restart.abort(); return; }
+                        }
+                    }
+                    if(at >= 0) {
+                        cut = text.slice(0, at);
+                        sentences(cut);
+                        stall.abort();
+                        return;
+                    }
                     if(!visible.hidden) sentences(text);
                 }
+                if(thinking > thinkLimit && !visible.text.trim()) { stall.abort(); return; }
                 finishReason = choice?.finish_reason || finishReason;
             }
         });
     } catch(error) {
         if(overflow.signal.aborted && !controller.signal.aborted) return { overflow: true };
+        if(restart.signal.aborted && !controller.signal.aborted) return { restart: true, answer: '', tokens };
         // The server can refuse an oversized prompt before any progress arrives, and it says how big it was.
         const message = String(error?.message || error);
         if(!controller.signal.aborted && /exceeds the available context size|exceed_context_size/i.test(message)) {
@@ -403,16 +459,22 @@ async function generate(input, plan, { post, controller, state, maxPromptTokens,
             else if(calibrate) charsPerToken = Math.max(1, charsPerToken * 0.7);
             return { overflow: true };
         }
-        if(controller.signal.aborted || error?.name === 'AbortError')
+        if(controller.signal.aborted || !stall.signal.aborted && error?.name === 'AbortError')
             return { cancelled: true, answer: clean(visible.text), tokens };
-        throw error;
+        // The server says the same thing when thinking used every token and nothing was left to say.
+        if(error?.code === 'NO_VISIBLE_ANSWER' || /no visible final answer/i.test(message))
+            return { emptyThinking: true, answer: '', tokens, finishReason: error?.finishReason || 'length' };
+        if(!stall.signal.aborted) throw error;
     }
     if(overflow.signal.aborted && !controller.signal.aborted) return { overflow: true };
-    const answer = clean(visible.push('', true));
+    if(restart.signal.aborted && !controller.signal.aborted) return { restart: true, answer: '', tokens };
+    const full = cut ?? visible.push('', true), at = full.search(chatMarkup);
+    const answer = clean(at >= 0 ? full.slice(0, at) : full);
     for(const sentence of thoughtSentences.push('', true)) {
         const note = notes.push(sentence);
         if(note) post({ phase: 'note', text: note });
     }
+    if(stall.signal.aborted && !answer.trim()) return { emptyThinking: true, answer: '', tokens, finishReason: 'loop' };
     sentences(answer, true);
-    return { answer, finishReason, promptTokens, tokens, cancelled: controller.signal.aborted };
+    return { answer, finishReason: stall.signal.aborted ? 'stop' : finishReason, promptTokens, tokens, cancelled: controller.signal.aborted };
 }

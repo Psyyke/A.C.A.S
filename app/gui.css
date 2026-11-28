@@ -2579,7 +2579,7 @@ input[type="number"]::-webkit-outer-spin-button {
     max-width: 400px;
     margin: 0;
 }
-#suggestion-mix-floaty :is([data-translation-mix-fallback-note], [data-translation-mix-books-note], [data-translation-mix-off-note]) {
+#suggestion-mix-floaty :is(#suggestion-mix-source-note, [data-translation-mix-fallback-note], [data-translation-mix-books-note], [data-translation-mix-off-note]) {
     margin-inline: auto;
     text-align: center;
 }

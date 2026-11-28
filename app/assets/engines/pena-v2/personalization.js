@@ -111,6 +111,7 @@ export function initializePenaPersonalization(panel) {
         field('chessCoaching', 'penaCoaching', 'checkbox', 'chessCoachingHint'),
         field('hideMoves', 'penaHideMoves', 'checkbox', 'hideMovesHint'),
         field('onlyAsked', 'penaOnlyWhenAsked', 'checkbox', 'onlyAskedHint'),
+        dropdown('chattiness', 'penaChattiness', [['quiet', 'chattinessQuiet'], ['normal', 'chattinessNormal'], ['chatty', 'chattinessChatty']], 'chattinessHint'),
         field('liveTeaching', 'penaTeacher', 'checkbox', 'liveTeachingHint'),
         field('futureMoves', 'penaFollowLine', 'checkbox', 'futureMovesHint'),
         field('visualDuration', 'penaVisualDuration', 'number', 'visualDurationHint', 0.5, 30, 0.5),
@@ -252,7 +253,7 @@ export function initializePenaPersonalization(panel) {
     // Plain Inkling never comments by itself, hides moves or draws on the board.
     const coachingRows = () => {
         const coaching = checked('penaCoaching');
-        for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaTeacher', 'penaFollowLine'])
+        for(const key of ['penaHideMoves', 'penaOnlyWhenAsked', 'penaChattiness', 'penaTeacher', 'penaFollowLine'])
             available(rowOf(key), coaching);
         available(rowOf('penaVisualDuration'), coaching && checked('penaTeacher'));
     };
